@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learner Adventure — v1 (Competency + Recommendations)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .screen { display: none; animation: fadeIn 0.3s ease-in-out; }
+    .screen.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .btn { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+    .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05); }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+    /* No Tailwind @apply in CDN builds */
+    .chip { padding: 0.25rem 0.75rem; border-radius: 9999px; border: 1px solid rgba(0,0,0,0.1); font-size: 0.875rem; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen">
+
+  <!-- Top bar / App chrome -->
+  <header class="bg-white border-b sticky top-0 z-20">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
+      <div class="text-2xl font-black text-blue-600">🐾 Learner Adventure</div>
+      <div class="ml-auto flex items-center gap-2">
+        <div class="hidden sm:flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-3 py-1">
+          <span>👤</span>
+          <span id="username-display" class="font-semibold"></span>
+        </div>
+        <div class="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-full px-3 py-1">
+          <span>⭐</span><span id="total-score-display" class="font-bold">0</span>
+        </div>
+        <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1">
+          <span>🐝</span><span id="total-tokens-display" class="font-bold">0</span>
+        </div>
+        <button id="sign-out-btn" class="btn bg-red-500 hover:bg-red-600 text-white font-semibold px-3 py-1 rounded-lg text-sm">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-4xl mx-auto px-4 py-6">
+    <!-- Login Screen -->
+    <section id="login-screen" class="screen active">
+      <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg max-w-md mx-auto text-center">
+        <h1 class="text-3xl font-black text-blue-600 mb-2">Welcome!</h1>
+        <p id="login-message" class="text-gray-600 mb-6">Enter your name to begin.</p>
+        <form id="login-form">
+          <input type="text" id="username-input" class="text-xl text-center w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your Name" autocomplete="off" required />
+          <button type="submit" id="login-submit-btn" class="btn w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-xl text-xl">Let's Go!</button>
+        </form>
+      </div>
+      <p class="text-xs text-center text-gray-500 mt-3">Tip: We sign you in anonymously and only store a first-name/alias.</p>
+    </section>
+
+    <!-- Home Screen -->
+    <section id="home-screen" class="screen">
+      <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+        <h2 class="text-2xl font-bold mb-2">Choose a Subject</h2>
+        <p class="text-gray-600 mb-6">We recommend the next best step based on your progress. Short, joyful tasks. Instant feedback.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button data-subject="Numeracy" class="btn subject-btn bg-green-500 hover:bg-green-600 text-white font-bold py-6 px-8 rounded-xl text-xl shadow-md">🔢 Numeracy</button>
+          <button data-subject="Literacy" class="btn subject-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-6 px-8 rounded-xl text-xl shadow-md">📚 Literacy</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Subject Screen -->
+    <section id="subject-screen" class="screen">
+      <button id="back-to-home" class="btn mb-4 text-sm px-3 py-1 bg-gray-200 rounded-lg">← Back</button>
+      <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+        <div class="flex items-center gap-3 mb-4">
+          <h2 id="subject-title" class="text-2xl font-bold"></h2>
+          <span id="subject-level-badge" class="chip"></span>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="border rounded-xl p-4">
+            <h3 class="font-semibold mb-2">Your Progress</h3>
+            <div class="flex items-center gap-3">
+              <div class="text-4xl font-black" id="subject-score">0</div>
+              <div>
+                <div class="text-sm text-gray-600">Competency: <span id="subject-competency" class="font-semibold"></span></div>
+                <div class="text-xs text-gray-500">Updated <span id="subject-updated">—</span></div>
+              </div>
+            </div>
+            <div class="mt-3 text-xs text-gray-600" id="competency-explainer"></div>
+          </div>
+          <div class="border rounded-xl p-4">
+            <h3 class="font-semibold mb-2">Recommended Next Step</h3>
+            <div id="recommendation" class="space-y-2"></div>
+            <div class="flex gap-2 mt-3">
+              <button id="start-activity" class="btn bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-4 py-2 rounded-lg">Start</button>
+              <button id="too-easy" class="btn bg-amber-500 hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-lg">Too easy</button>
+              <button id="im-stuck" class="btn bg-sky-500 hover:bg-sky-600 text-white font-semibold px-4 py-2 rounded-lg">I'm stuck</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <h3 class="font-semibold mb-2">Strands</h3>
+          <div id="strand-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Firebase / App Logic -->
+  <script type="module">
+    // ---- Firebase SDKs ----
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, query, where, limit, getDocs, onSnapshot, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDfuAaGkDNgUHUUWWplDs2UGy6pP0GDL_s",
+      authDomain: "learner-adventure-app.firebaseapp.com",
+      projectId: "learner-adventure-app",
+      storageBucket: "learner-adventure-app.firebasestorage.app",
+      messagingSenderId: "101819901387",
+      appId: "1:101819901387:web:8a202b55954aa7a6d9824e"
+    };
+
+    // ---- Learning progression map (kept in-code for v1; can move to Firestore later) ----
+    // Early-years friendly language and tiny steps. Scores are 0–100 per subject.
+    const PROGRESSION = {
+      Numeracy: {
+        strands: {
+          "Number Sense": {
+            activities: [
+              { id: "n_ns_1", title: "Count to 10", difficulty: 10, why: "Build number names and stable order." },
+              { id: "n_ns_2", title: "Match number to objects (1–10)", difficulty: 25, why: "Connect symbols to quantities." },
+              { id: "n_ns_3", title: "Compare groups: more/less", difficulty: 40, why: "Introduce comparison language." },
+              { id: "n_ns_4", title: "Count to 20 & teen numbers", difficulty: 55, why: "Extend the count sequence." },
+              { id: "n_ns_5", title: "Make 10 (composing/decomposing)", difficulty: 70, why: "Develop part–whole thinking." },
+              { id: "n_ns_6", title: "Skip count by 2s/5s", difficulty: 85, why: "Prepare for addition & multiplication." }
+            ]
+          },
+          "Addition & Subtraction": {
+            activities: [
+              { id: "n_as_1", title: "Add within 5 using fingers", difficulty: 20, why: "Concrete strategies first." },
+              { id: "n_as_2", title: "Take away within 10", difficulty: 35, why: "Model subtraction as removing." },
+              { id: "n_as_3", title: "Number line jumps", difficulty: 50, why: "Bridge to mental strategies." },
+              { id: "n_as_4", title: "Make 10 to add", difficulty: 65, why: "Use friendly numbers." },
+              { id: "n_as_5", title: "Word problems (1-step)", difficulty: 80, why: "Apply to stories." }
+            ]
+          }
+        }
+      },
+      Literacy: {
+        strands: {
+          "Phonological Awareness": {
+            activities: [
+              { id: "l_pa_1", title: "Rhyme time: find pairs", difficulty: 15, why: "Tune the ear to sounds." },
+              { id: "l_pa_2", title: "Syllable claps", difficulty: 30, why: "Chunk spoken words." },
+              { id: "l_pa_3", title: "Initial sounds (s, a, t)", difficulty: 45, why: "Map sounds to letters." },
+              { id: "l_pa_4", title: "Blend CVC words", difficulty: 60, why: "From sounds to words." },
+              { id: "l_pa_5", title: "Segment CVC words", difficulty: 75, why: "From words to sounds." }
+            ]
+          },
+          "High-Frequency Words": {
+            activities: [
+              { id: "l_hf_1", title: "I, a, the", difficulty: 20, why: "Instant recognition of core words." },
+              { id: "l_hf_2", title: "to, and, is", difficulty: 35, why: "Build a tiny reading bank." },
+              { id: "l_hf_3", title: "you, of, in", difficulty: 55, why: "Widen automaticity." },
+              { id: "l_hf_4", title: "was, said, he", difficulty: 70, why: "More irregulars." }
+            ]
+          }
+        }
+      }
+    };
+
+    // Simple competency bands. Adjust thresholds as desired.
+    const BANDS = [
+      { name: "Emerging", min: 0, max: 24, badge: "bg-red-100 border-red-300" },
+      { name: "Developing", min: 25, max: 49, badge: "bg-amber-100 border-amber-300" },
+      { name: "Proficient", min: 50, max: 74, badge: "bg-emerald-100 border-emerald-300" },
+      { name: "Mastery", min: 75, max: 100, badge: "bg-blue-100 border-blue-300" }
+    ];
+
+    // ---- Tiny DOM helpers (robust: accepts '#id' or 'id' or '.class') ----
+    const $ = (sel) => {
+      if (typeof sel !== 'string') return sel;
+      if (sel.startsWith('#') || sel.startsWith('.') || sel.includes(' ') || sel.includes('[')) return document.querySelector(sel);
+      return document.getElementById(sel);
+    };
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    const show = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); $(id).classList.add('active'); };
+    const fmtDate = (ts) => ts ? new Date(ts).toLocaleDateString() : 'just now';
+
+    // ---- Firebase init ----
+    const fbApp = initializeApp(firebaseConfig);
+    const auth = getAuth(fbApp);
+    const db = getFirestore(fbApp);
+
+    // ---- App State ----
+    let currentUser = null;
+    let currentSubject = null;
+
+    // Ensure code runs after DOM is ready
+    const ready = new Promise((resolve) => {
+      if (document.readyState !== 'loading') resolve();
+      else document.addEventListener('DOMContentLoaded', resolve, { once: true });
+    });
+
+    // ---- Auth Flow ----
+    onAuthStateChanged(auth, async (user) => {
+      await ready; // make sure DOM exists before touching it
+      if (user) {
+        currentUser = user;
+        const learnerRef = doc(db, 'learners', user.uid);
+        const snap = await getDoc(learnerRef);
+        if (snap.exists()) {
+          const { username = 'Explorer', totalScore = 0, tokens = 0 } = snap.data();
+          $('#username-display').textContent = username;
+          $('#total-score-display').textContent = totalScore;
+          $('#total-tokens-display').textContent = tokens;
+          show('home-screen');
+          ensureSubjectDocs(user.uid);
+          attachLiveTotals(user.uid);
+        } else {
+          show('login-screen');
+        }
+      } else {
+        try { await signInAnonymously(auth); } catch (e) {
+          console.error(e); alert('Could not connect. Please refresh.');
+        }
+      }
+    });
+
+    // Create profile (bound after DOM ready)
+    ready.then(() => {
+      document.querySelector('#login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = $('#login-submit-btn');
+        btn.disabled = true; btn.textContent = 'Checking...';
+        const username = $('#username-input').value.trim();
+        if (!username) { btn.disabled = false; btn.textContent = "Let's Go!"; return; }
+
+        // ensure unique username
+        const qSnap = await getDocs(query(collection(db, 'learners'), where('username', '==', username), limit(1)));
+        if (!qSnap.empty) { alert(`The name "${username}" is taken. Try another.`); btn.disabled = false; btn.textContent = "Let's Go!"; return; }
+
+        const uid = auth.currentUser?.uid;
+        if (!uid) { alert('Auth error. Refresh and try again.'); btn.disabled = false; btn.textContent = "Let's Go!"; return; }
+
+        await setDoc(doc(db, 'learners', uid), { username, totalScore: 0, tokens: 0, createdAt: serverTimestamp() });
+        $('#username-display').textContent = username;
+        show('home-screen');
+        ensureSubjectDocs(uid);
+        attachLiveTotals(uid);
+      });
+
+      $('#sign-out-btn').addEventListener('click', async () => {
+        await signOut(auth);
+        show('login-screen');
+        $('#username-input').value = '';
+        $('#login-submit-btn').disabled = false; $('#login-submit-btn').textContent = "Let's Go!";
+      });
+
+      // Subject navigation
+      $$('.subject-btn').forEach(btn => btn.addEventListener('click', () => {
+        currentSubject = btn.dataset.subject;
+        renderSubject(currentSubject);
+        show('subject-screen');
+      }));
+
+      $('#back-to-home').addEventListener('click', () => { show('home-screen'); });
+    });
+
+    // Ensure per-subject score docs exist for the user
+    async function ensureSubjectDocs(uid) {
+      for (const subject of Object.keys(PROGRESSION)) {
+        const ref = doc(db, 'learners', uid, 'scores', subject);
+        const s = await getDoc(ref);
+        if (!s.exists()) {
+          await setDoc(ref, { score: 0, lastUpdated: Date.now() });
+        }
+      }
+    }
+
+    // Live totals (aggregate naive sum of subject scores)
+    function attachLiveTotals(uid) {
+      const scoresCol = collection(db, 'learners', uid, 'scores');
+      onSnapshot(scoresCol, async (qs) => {
+        let total = 0; let count = 0;
+        qs.forEach(d => { total += (d.data().score || 0); count++; });
+        const avg = count ? Math.round(total / count) : 0;
+        $('#total-score-display').textContent = avg;
+        // tokens kept on profile doc; leave as-is
+      });
+    }
+
+    // Compute band for a score
+    function bandFor(score) {
+      return BANDS.find(b => score >= b.min && score <= b.max) || BANDS[0];
+    }
+
+    // Pick an activity close to current score (slightly ahead)
+    function nextActivityFor(subject, score, easeDelta = 0) {
+      const strands = PROGRESSION[subject].strands;
+      const all = Object.values(strands).flatMap(s => s.activities.map(a => ({...a, strand: Object.keys(strands).find(k => PROGRESSION[subject].strands[k] === s)})));
+      const target = Math.min(100, Math.max(0, score + 10 + easeDelta));
+      // choose activity with difficulty nearest to target
+      const sorted = all.slice().sort((a,b) => Math.abs(a.difficulty - target) - Math.abs(b.difficulty - target));
+      return sorted[0];
+    }
+
+    async function renderSubject(subject) {
+      $('#subject-title').textContent = subject;
+      const scoreRef = doc(db, 'learners', currentUser.uid, 'scores', subject);
+      const snap = await getDoc(scoreRef);
+      const score = snap.exists() ? (snap.data().score || 0) : 0;
+      const lastUpdated = snap.exists() ? snap.data().lastUpdated : null;
+
+      const band = bandFor(score);
+      $('#subject-level-badge').className = `chip border ${band.badge}`;
+      $('#subject-level-badge').textContent = band.name;
+      $('#subject-score').textContent = score;
+      $('#subject-competency').textContent = band.name;
+      $('#subject-updated').textContent = fmtDate(lastUpdated);
+      $('#competency-explainer').textContent = band.name === 'Emerging' ? 'We start concrete and playful: short tasks with manipulatives/gestures.'
+        : band.name === 'Developing' ? 'We add visuals and small jumps. More practice, quick wins.'
+        : band.name === 'Proficient' ? 'We stretch with word problems and mental strategies.'
+        : 'We spiral back occasionally to keep it sticky.';
+
+      // recommendation
+      const rec = nextActivityFor(subject, score, 0);
+      $('#recommendation').innerHTML = `
+        <div class="p-3 border rounded-lg">
+          <div class="text-sm text-gray-600">Strand</div>
+          <div class="font-semibold">${rec.strand}</div>
+          <div class="mt-1">${rec.title}</div>
+          <div class="text-xs text-gray-500 mt-1">Why this: ${rec.why}</div>
+          <div class="text-xs text-gray-500">Difficulty ≈ ${rec.difficulty}</div>
+        </div>`;
+
+      // wire buttons
+      $('#start-activity').onclick = async () => completeActivity(subject, rec);
+      $('#too-easy').onclick = () => { const harder = nextActivityFor(subject, score, +15); $('#recommendation').innerHTML = `<div class='p-3 border rounded-lg'><div class='text-sm text-gray-600'>Strand</div><div class='font-semibold'>${harder.strand}</div><div class='mt-1'>${harder.title}</div><div class='text-xs text-gray-500 mt-1'>Why this: ${harder.why}</div><div class='text-xs text-gray-500'>Difficulty ≈ ${harder.difficulty}</div></div>`; $('#start-activity').onclick = async () => completeActivity(subject, harder); };
+      $('#im-stuck').onclick = () => { const easier = nextActivityFor(subject, score, -15); $('#recommendation').innerHTML = `<div class='p-3 border rounded-lg'><div class='text-sm text-gray-600'>Strand</div><div class='font-semibold'>${easier.strand}</div><div class='mt-1'>${easier.title}</div><div class='text-xs text-gray-500 mt-1'>Why this: ${easier.why}</div><div class='text-xs text-gray-500'>Difficulty ≈ ${easier.difficulty}</div></div>`; $('#start-activity').onclick = async () => completeActivity(subject, easier); };
+
+      // strands list
+      const sl = $('#strand-list'); sl.innerHTML = '';
+      const strands = PROGRESSION[subject].strands;
+      Object.entries(strands).forEach(([name, cfg]) => {
+        const highest = cfg.activities[cfg.activities.length - 1].difficulty;
+        const unlocked = Math.min(100, Math.max(0, score));
+        const pct = Math.round((unlocked / highest) * 100);
+        const card = document.createElement('div');
+        card.className = 'p-3 border rounded-lg';
+        card.innerHTML = `<div class='font-semibold'>${name}</div>
+          <div class='text-sm text-gray-600'>${pct}% of pathway unlocked</div>
+          <div class='w-full bg-gray-100 rounded h-2 mt-2'><div class='bg-blue-500 h-2 rounded' style='width:${Math.min(100, Math.max(0, pct))}%'></div></div>`;
+        sl.appendChild(card);
+      });
+    }
+
+    // Simulate completing an activity: bump score towards difficulty, award tokens, write to Firestore
+    async function completeActivity(subject, activity) {
+      const scoreRef = doc(db, 'learners', currentUser.uid, 'scores', subject);
+      const learnerRef = doc(db, 'learners', currentUser.uid);
+      const snap = await getDoc(scoreRef);
+      const current = snap.exists() ? (snap.data().score || 0) : 0;
+      const delta = Math.max(2, Math.min(8, Math.round((activity.difficulty - current) * 0.3)));
+      const newScore = Math.max(0, Math.min(100, current + delta));
+
+      await setDoc(scoreRef, { score: newScore, lastUpdated: Date.now() }, { merge: true });
+
+      // award 1–3 tokens
+      const tokenDelta = newScore > current ? (newScore - current >= 6 ? 3 : 2) : 1;
+      const prof = await getDoc(learnerRef);
+      const prevTokens = prof.exists() ? (prof.data().tokens || 0) : 0;
+      await updateDoc(learnerRef, { tokens: prevTokens + tokenDelta });
+      $('#total-tokens-display').textContent = prevTokens + tokenDelta;
+
+      // small success message
+      alert(`Great effort! +${delta} points, +${tokenDelta} 🐝 tokens`);
+      renderSubject(subject);
+    }
+
+    // ---------- Lightweight Test Cases (run in console) ----------
+    (function runSanityTests(){
+      console.groupCollapsed('%cSanity tests','color:#4b5563');
+      try {
+        // $ helper should find by id or #id
+        const a = $('#login-submit-btn');
+        const b = document.getElementById('login-submit-btn');
+        console.assert(a === b, 'Helper $ should resolve id with or without #');
+
+        // band boundaries
+        const edges = [0,24,25,49,50,74,75,100];
+        const expected = ['Emerging','Emerging','Developing','Developing','Proficient','Proficient','Mastery','Mastery'];
+        const got = edges.map(e => bandFor(e).name);
+        console.assert(JSON.stringify(got) === JSON.stringify(expected), 'Band boundaries correct');
+
+        // progression presence
+        console.assert(PROGRESSION.Numeracy && PROGRESSION.Literacy, 'Progression subjects present');
+
+        // nextActivity basic
+        const nAct = nextActivityFor('Numeracy', 0);
+        console.assert(nAct && nAct.title, 'Next activity returns an object');
+      } catch(e){ console.error('Sanity test error:', e); }
+      finally { console.groupEnd(); }
+    })();
+
+    // Expose for debugging
+    window._LA = { PROGRESSION, BANDS };
+  </script>
+
+  <!-- Suggested Firestore security rules (add in Firebase console)
+  rules_version = '2';
+  service cloud.firestore {
+    match /databases/{database}/documents {
+      match /learners/{uid} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+        match /scores/{subject} {
+          allow read, write: if request.auth != null && request.auth.uid == uid;
+        }
+      }
+    }
+  }
+  -->
+
+</body>
+</html>
