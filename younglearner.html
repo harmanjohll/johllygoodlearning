@@ -1,431 +1,548 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Learner Adventure — v1 (Competency + Recommendations)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-    .screen { display: none; animation: fadeIn 0.3s ease-in-out; }
-    .screen.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-    .btn { transition: transform 0.15s ease, box-shadow 0.15s ease; }
-    .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05); }
-    .btn:disabled { opacity: .6; cursor: not-allowed; }
-    /* No Tailwind @apply in CDN builds */
-    .chip { padding: 0.25rem 0.75rem; border-radius: 9999px; border: 1px solid rgba(0,0,0,0.1); font-size: 0.875rem; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Adventure!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .title-font { font-family: 'Fredoka One', cursive; }
+        .screen { display: none; animation: fadeIn 0.5s ease-in-out; }
+        .screen.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .btn { transition: all 0.2s ease-in-out; }
+        .btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .btn-mcq { text-align: left; }
+        .feedback-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1rem; justify-content: center; max-width: 320px; margin-left: auto; margin-right: auto; }
+        .feedback-circle { width: 18px; height: 18px; background-color: #3b82f6; border-radius: 50%; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
+        .modal-content { background: white; padding: 2rem; border-radius: 1rem; text-align: center; transform: scale(0.9); transition: transform 0.3s ease; }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen">
+<body class="bg-blue-50 text-gray-800 flex items-center justify-center min-h-screen p-4">
 
-  <!-- Top bar / App chrome -->
-  <header class="bg-white border-b sticky top-0 z-20">
-    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
-      <div class="text-2xl font-black text-blue-600">🐾 Learner Adventure</div>
-      <div class="ml-auto flex items-center gap-2">
-        <div class="hidden sm:flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-3 py-1">
-          <span>👤</span>
-          <span id="username-display" class="font-semibold"></span>
-        </div>
-        <div class="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-full px-3 py-1">
-          <span>⭐</span><span id="total-score-display" class="font-bold">0</span>
-        </div>
-        <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1">
-          <span>🐝</span><span id="total-tokens-display" class="font-bold">0</span>
-        </div>
-        <button id="sign-out-btn" class="btn bg-red-500 hover:bg-red-600 text-white font-semibold px-3 py-1 rounded-lg text-sm">Sign Out</button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main -->
-  <main class="max-w-4xl mx-auto px-4 py-6">
     <!-- Login Screen -->
-    <section id="login-screen" class="screen active">
-      <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg max-w-md mx-auto text-center">
-        <h1 class="text-3xl font-black text-blue-600 mb-2">Welcome!</h1>
-        <p id="login-message" class="text-gray-600 mb-6">Enter your name to begin.</p>
-        <form id="login-form">
-          <input type="text" id="username-input" class="text-xl text-center w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your Name" autocomplete="off" required />
-          <button type="submit" id="login-submit-btn" class="btn w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-xl text-xl">Let's Go!</button>
-        </form>
-      </div>
-      <p class="text-xs text-center text-gray-500 mt-3">Tip: We sign you in anonymously and only store a first-name/alias.</p>
-    </section>
-
-    <!-- Home Screen -->
-    <section id="home-screen" class="screen">
-      <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
-        <h2 class="text-2xl font-bold mb-2">Choose a Subject</h2>
-        <p class="text-gray-600 mb-6">We recommend the next best step based on your progress. Short, joyful tasks. Instant feedback.</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <button data-subject="Numeracy" class="btn subject-btn bg-green-500 hover:bg-green-600 text-white font-bold py-6 px-8 rounded-xl text-xl shadow-md">🔢 Numeracy</button>
-          <button data-subject="Literacy" class="btn subject-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-6 px-8 rounded-xl text-xl shadow-md">📚 Literacy</button>
+    <div id="login-container" class="w-full max-w-sm mx-auto text-center">
+        <div class="bg-white p-8 rounded-2xl shadow-xl">
+            <h1 class="title-font text-4xl text-blue-600 mb-2">Welcome!</h1>
+            <p class="text-gray-600 mb-6">Please enter your name to begin.</p>
+            <form id="login-form">
+                <input type="text" id="username-input" class="text-xl text-center w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your Name" required>
+                <button type="submit" id="login-button" class="w-full mt-4 btn bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-xl text-xl" disabled>Loading...</button>
+            </form>
         </div>
-      </div>
-    </section>
+    </div>
 
-    <!-- Subject Screen -->
-    <section id="subject-screen" class="screen">
-      <button id="back-to-home" class="btn mb-4 text-sm px-3 py-1 bg-gray-200 rounded-lg">← Back</button>
-      <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
-        <div class="flex items-center gap-3 mb-4">
-          <h2 id="subject-title" class="text-2xl font-bold"></h2>
-          <span id="subject-level-badge" class="chip"></span>
-        </div>
-
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div class="border rounded-xl p-4">
-            <h3 class="font-semibold mb-2">Your Progress</h3>
-            <div class="flex items-center gap-3">
-              <div class="text-4xl font-black" id="subject-score">0</div>
-              <div>
-                <div class="text-sm text-gray-600">Competency: <span id="subject-competency" class="font-semibold"></span></div>
-                <div class="text-xs text-gray-500">Updated <span id="subject-updated">—</span></div>
-              </div>
+    <!-- Main App Container -->
+    <div id="app-container" class="w-full max-w-2xl mx-auto hidden">
+        <header class="text-center mb-8">
+            <h1 class="title-font text-5xl text-blue-600">Learning Adventure!</h1>
+            <div class="mt-4 bg-white rounded-full inline-flex items-center px-6 py-2 shadow-lg">
+                <span class="text-purple-500 text-2xl">👤</span>
+                <span id="username-display" class="ml-3 text-xl font-bold text-gray-700"></span>
+                <span class="mx-4 text-gray-300">|</span>
+                <span class="text-yellow-500 text-2xl">⭐</span>
+                <span class="ml-3 text-xl font-bold text-gray-700">Score: <span id="score-display">0</span></span>
+                <span class="mx-4 text-gray-300">|</span>
+                <span class="text-2xl">🐝</span>
+                <span class="ml-3 text-xl font-bold text-gray-700">Tokens: <span id="tokens-display">0</span></span>
             </div>
-            <div class="mt-3 text-xs text-gray-600" id="competency-explainer"></div>
-          </div>
-          <div class="border rounded-xl p-4">
-            <h3 class="font-semibold mb-2">Recommended Next Step</h3>
-            <div id="recommendation" class="space-y-2"></div>
-            <div class="flex gap-2 mt-3">
-              <button id="start-activity" class="btn bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-4 py-2 rounded-lg">Start</button>
-              <button id="too-easy" class="btn bg-amber-500 hover:bg-amber-600 text-white font-semibold px-4 py-2 rounded-lg">Too easy</button>
-              <button id="im-stuck" class="btn bg-sky-500 hover:bg-sky-600 text-white font-semibold px-4 py-2 rounded-lg">I'm stuck</button>
+             <button onclick="app.signOut()" class="block mx-auto mt-4 text-sm text-gray-500 hover:text-red-500">Sign Out</button>
+        </header>
+
+        <main id="screens-container" class="bg-white p-8 rounded-2xl shadow-xl min-h-[450px] flex items-center justify-center">
+             <!-- Home Screen -->
+             <div id="home-screen" class="screen flex-col items-center justify-center text-center">
+                <h2 class="text-3xl font-bold mb-6">What shall we practice today?</h2>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button onclick="app.showScreen('numeracy-menu')" class="btn bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-xl text-xl">🔢 Numeracy</button>
+                    <button onclick="app.showScreen('literacy-menu')" class="btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-xl text-xl">📚 Literacy</button>
+                </div>
             </div>
-          </div>
+
+            <!-- Numeracy Menu -->
+            <div id="numeracy-menu" class="screen flex-col items-center justify-center text-center">
+                <h2 class="text-3xl font-bold mb-6">Numeracy Practice</h2>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button onclick="app.showScreen('addition-menu')" class="btn bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-xl text-lg">➕ Addition</button>
+                    <button onclick="app.showScreen('subtraction-menu')" class="btn bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-xl text-lg">➖ Subtraction</button>
+                    <button onclick="app.showScreen('multiplication-menu')" class="btn bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl text-lg">✖️ Multiplication</button>
+                    <button onclick="app.showScreen('division-menu')" class="btn bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-xl text-lg">➗ Division</button>
+                </div>
+                <button onclick="app.showScreen('home-screen')" class="mt-8 text-gray-600 hover:text-blue-600 font-semibold">← Back to Main Menu</button>
+            </div>
+
+            <!-- Literacy Menu -->
+            <div id="literacy-menu" class="screen flex-col items-center justify-center text-center">
+                 <h2 class="text-3xl font-bold mb-6">Literacy Worlds</h2>
+                <div class="flex flex-col gap-4 w-full max-w-md">
+                    <button onclick="app.startLiteracyQuiz('Grammar')" class="btn bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-xl text-lg">📝 Grammar Garage</button>
+                    <button onclick="app.startLiteracyQuiz('Vocabulary')" class="btn bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-xl text-lg">🎨 Vocabulary Voyage</button>
+                    <button onclick="app.startLiteracyQuiz('Reading')" class="btn bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-xl text-lg">📖 Reading Rangers</button>
+                </div>
+                 <button onclick="app.showScreen('home-screen')" class="mt-8 text-gray-600 hover:text-blue-600 font-semibold">← Back to Main Menu</button>
+            </div>
+
+            <!-- Other menus from original -->
+            <div id="multiplication-menu" class="screen flex-col items-center">
+                <h2 class="text-3xl font-bold mb-6 text-center">Multiplication Tables</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 w-full">
+                    <button onclick="app.startQuiz('multiplication', 2)" class="btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg">2 Times Table</button>
+                    <button onclick="app.startQuiz('multiplication', 3)" class="btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg">3 Times Table</button>
+                    <button onclick="app.startQuiz('multiplication', 4)" class="btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg">4 Times Table</button>
+                    <button onclick="app.startQuiz('multiplication', 5)" class="btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg">5 Times Table</button>
+                    <button onclick="app.startQuiz('multiplication', 6)" class="btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg">6 Times Table</button>
+                    <button onclick="app.startQuiz('multiplication', 7)" class="btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg">7 Times Table</button>
+                    <button onclick="app.startQuiz('multiplication', 8)" class="btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg">8 Times Table</button>
+                    <button onclick="app.startQuiz('multiplication', 9)" class="btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg">9 Times Table</button>
+                    <button onclick="app.startQuiz('multiplication', 10)" class="btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg">10 Times Table</button>
+                    <button onclick="app.startQuiz('multiplication', 11)" class="btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg">11 Times Table</button>
+                    <button onclick="app.startQuiz('multiplication', 12)" class="btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg text-lg">12 Times Table</button>
+                    <button onclick="app.startQuiz('multiplication', 'mixed')" class="btn bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg text-lg col-span-full">Mixed Challenge</button>
+                </div>
+                <button onclick="app.showScreen('numeracy-menu')" class="mt-6 text-gray-600 hover:text-blue-600 font-semibold">← Back to Numeracy Menu</button>
+            </div>
+             <div id="addition-menu" class="screen flex-col items-center">
+                <h2 class="text-3xl font-bold mb-6 text-center">Addition Practice</h2>
+                <div class="flex flex-col gap-4 w-full max-w-xs">
+                    <button onclick="app.startQuiz('addition', 10)" class="btn bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg text-lg">Numbers up to 10</button>
+                    <button onclick="app.startQuiz('addition', 20)" class="btn bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg text-lg">Numbers up to 20</button>
+                    <button onclick="app.startQuiz('addition', 30)" class="btn bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg text-lg">Numbers up to 30</button>
+                </div>
+                <button onclick="app.showScreen('numeracy-menu')" class="mt-6 text-gray-600 hover:text-blue-600 font-semibold">← Back to Numeracy Menu</button>
+            </div>
+            <div id="subtraction-menu" class="screen flex-col items-center">
+                <h2 class="text-3xl font-bold mb-6 text-center">Subtraction Practice</h2>
+                <div class="flex flex-col gap-4 w-full max-w-xs">
+                    <button onclick="app.startQuiz('subtraction', 10)" class="btn bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg text-lg">Numbers up to 10</button>
+                    <button onclick="app.startQuiz('subtraction', 20)" class="btn bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg text-lg">Numbers up to 20</button>
+                    <button onclick="app.startQuiz('subtraction', 30)" class="btn bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg text-lg">Numbers up to 30</button>
+                </div>
+                <button onclick="app.showScreen('numeracy-menu')" class="mt-6 text-gray-600 hover:text-blue-600 font-semibold">← Back to Numeracy Menu</button>
+            </div>
+             <div id="division-menu" class="screen flex-col items-center">
+                <h2 class="text-3xl font-bold mb-6 text-center">Division Practice</h2>
+                <div class="flex flex-col gap-4 w-full max-w-xs">
+                    <button onclick="app.startQuiz('division', 'simple')" class="btn bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-lg text-lg">Simple Division</button>
+                    <button onclick="app.startQuiz('division', 'remainder')" class="btn bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-lg text-lg">Division with Remainder</button>
+                </div>
+                <button onclick="app.showScreen('numeracy-menu')" class="mt-6 text-gray-600 hover:text-blue-600 font-semibold">← Back to Numeracy Menu</button>
+            </div>
+
+            <!-- Universal Quiz Screen -->
+            <div id="quiz-screen" class="screen flex-col items-center w-full">
+                <p id="quiz-title" class="text-2xl font-bold mb-4"></p>
+                
+                <!-- Numeracy Question -->
+                <div id="numeracy-question-container" class="hidden">
+                    <div id="question-container" class="text-6xl font-bold my-4 text-center">
+                        <span id="num1"></span>
+                        <span id="operator"></span>
+                        <span id="num2"></span>
+                        <span>= ?</span>
+                    </div>
+                    <input type="number" id="answer-input" class="text-4xl text-center w-48 p-3 border-4 border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-300">
+                </div>
+                
+                <!-- Literacy Question -->
+                <div id="literacy-question-container" class="hidden w-full">
+                    <p id="literacy-question-text" class="text-2xl text-center my-4 leading-relaxed whitespace-pre-wrap"></p>
+                    <div id="mcq-options-container" class="mt-6 grid grid-cols-1 gap-4 w-full max-w-md mx-auto">
+                        <!-- Options will be injected by JS -->
+                    </div>
+                </div>
+
+                <button id="check-btn" onclick="app.checkAnswer()" class="btn mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-12 rounded-lg text-2xl">Check</button>
+                <div id="feedback-container" class="mt-4 text-center h-48"></div>
+                <button onclick="app.showScreen('home-screen')" class="mt-6 text-gray-600 hover:text-blue-600 font-semibold">End Quiz</button>
+            </div>
+        </main>
+
+        <!-- Milestone Modal -->
+        <div id="milestone-modal" class="modal-overlay">
+            <div class="modal-content">
+                <h2 class="text-3xl font-bold text-yellow-500">Congratulations!</h2>
+                <p class="text-6xl my-4">🐝</p>
+                <p class="text-xl">You've earned a Bee Token!</p>
+                <p class="text-gray-600">Keep up the great work!</p>
+                <button onclick="app.closeModal()" class="btn mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-8 rounded-lg">Awesome!</button>
+            </div>
         </div>
+    </div>
 
-        <div class="mt-6">
-          <h3 class="font-semibold mb-2">Strands</h3>
-          <div id="strand-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-        </div>
-      </div>
-    </section>
-  </main>
+    <script type="module">
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-  <!-- Firebase / App Logic -->
-  <script type="module">
-    // ---- Firebase SDKs ----
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, query, where, limit, getDocs, onSnapshot, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // *** IMPORTANT: INSERT YOUR GEMINI API KEY HERE ***
+        const GEMINI_API_KEY = "AIzaSyC9AKQcORYqndRZGhvTh-OqyMvE-Q7F2aI";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDfuAaGkDNgUHUUWWplDs2UGy6pP0GDL_s",
-      authDomain: "learner-adventure-app.firebaseapp.com",
-      projectId: "learner-adventure-app",
-      storageBucket: "learner-adventure-app.firebasestorage.app",
-      messagingSenderId: "101819901387",
-      appId: "1:101819901387:web:8a202b55954aa7a6d9824e"
-    };
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDfuAaGkDNgUHUUWWplDs2UGy6pP0GDL_s",
+            authDomain: "learner-adventure-app.firebaseapp.com",
+            projectId: "learner-adventure-app",
+            storageBucket: "learner-adventure-app.firebasestorage.app",
+            messagingSenderId: "101819901387",
+            appId: "1:101819901387:web:8a202b55954aa7a6d9824e"
+        };
 
-    // ---- Learning progression map (kept in-code for v1; can move to Firestore later) ----
-    // Early-years friendly language and tiny steps. Scores are 0–100 per subject.
-    const PROGRESSION = {
-      Numeracy: {
-        strands: {
-          "Number Sense": {
-            activities: [
-              { id: "n_ns_1", title: "Count to 10", difficulty: 10, why: "Build number names and stable order." },
-              { id: "n_ns_2", title: "Match number to objects (1–10)", difficulty: 25, why: "Connect symbols to quantities." },
-              { id: "n_ns_3", title: "Compare groups: more/less", difficulty: 40, why: "Introduce comparison language." },
-              { id: "n_ns_4", title: "Count to 20 & teen numbers", difficulty: 55, why: "Extend the count sequence." },
-              { id: "n_ns_5", title: "Make 10 (composing/decomposing)", difficulty: 70, why: "Develop part–whole thinking." },
-              { id: "n_ns_6", title: "Skip count by 2s/5s", difficulty: 85, why: "Prepare for addition & multiplication." }
-            ]
-          },
-          "Addition & Subtraction": {
-            activities: [
-              { id: "n_as_1", title: "Add within 5 using fingers", difficulty: 20, why: "Concrete strategies first." },
-              { id: "n_as_2", title: "Take away within 10", difficulty: 35, why: "Model subtraction as removing." },
-              { id: "n_as_3", title: "Number line jumps", difficulty: 50, why: "Bridge to mental strategies." },
-              { id: "n_as_4", title: "Make 10 to add", difficulty: 65, why: "Use friendly numbers." },
-              { id: "n_as_5", title: "Word problems (1-step)", difficulty: 80, why: "Apply to stories." }
-            ]
-          }
-        }
-      },
-      Literacy: {
-        strands: {
-          "Phonological Awareness": {
-            activities: [
-              { id: "l_pa_1", title: "Rhyme time: find pairs", difficulty: 15, why: "Tune the ear to sounds." },
-              { id: "l_pa_2", title: "Syllable claps", difficulty: 30, why: "Chunk spoken words." },
-              { id: "l_pa_3", title: "Initial sounds (s, a, t)", difficulty: 45, why: "Map sounds to letters." },
-              { id: "l_pa_4", title: "Blend CVC words", difficulty: 60, why: "From sounds to words." },
-              { id: "l_pa_5", title: "Segment CVC words", difficulty: 75, why: "From words to sounds." }
-            ]
-          },
-          "High-Frequency Words": {
-            activities: [
-              { id: "l_hf_1", title: "I, a, the", difficulty: 20, why: "Instant recognition of core words." },
-              { id: "l_hf_2", title: "to, and, is", difficulty: 35, why: "Build a tiny reading bank." },
-              { id: "l_hf_3", title: "you, of, in", difficulty: 55, why: "Widen automaticity." },
-              { id: "l_hf_4", title: "was, said, he", difficulty: 70, why: "More irregulars." }
-            ]
-          }
-        }
-      }
-    };
+        const app = {
+            db: null, auth: null,
+            currentUser: { name: null, proficiency: {} }, 
+            score: 0, tokens: 0,
+            currentQuiz: { 
+                type: null, 
+                level: null, // For numeracy
+                skill: null, // For literacy (e.g., 'Grammar')
+                tieredSkill: null, // Specific tiered skill (e.g., 'Grammar_Tier1_Nouns')
+                num1: 0, num2: 0, correctAnswer: 0, 
+                questionBatch: [], 
+                questionIndex: 0 
+            },
 
-    // Simple competency bands. Adjust thresholds as desired.
-    const BANDS = [
-      { name: "Emerging", min: 0, max: 24, badge: "bg-red-100 border-red-300" },
-      { name: "Developing", min: 25, max: 49, badge: "bg-amber-100 border-amber-300" },
-      { name: "Proficient", min: 50, max: 74, badge: "bg-emerald-100 border-emerald-300" },
-      { name: "Mastery", min: 75, max: 100, badge: "bg-blue-100 border-blue-300" }
-    ];
+            // UI Elements
+            loginContainer: document.getElementById('login-container'),
+            appContainer: document.getElementById('app-container'),
+            scoreDisplay: document.getElementById('score-display'),
+            tokensDisplay: document.getElementById('tokens-display'),
+            usernameDisplay: document.getElementById('username-display'),
+            screens: document.querySelectorAll('.screen'),
+            answerInput: document.getElementById('answer-input'),
+            checkBtn: document.getElementById('check-btn'),
+            feedbackContainer: document.getElementById('feedback-container'),
+            milestoneModal: document.getElementById('milestone-modal'),
 
-    // ---- Tiny DOM helpers (robust: accepts '#id' or 'id' or '.class') ----
-    const $ = (sel) => {
-      if (typeof sel !== 'string') return sel;
-      if (sel.startsWith('#') || sel.startsWith('.') || sel.includes(' ') || sel.includes('[')) return document.querySelector(sel);
-      return document.getElementById(sel);
-    };
-    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+            async init() {
+                const firebaseApp = initializeApp(firebaseConfig);
+                this.db = getFirestore(firebaseApp);
+                this.auth = getAuth(firebaseApp);
+                
+                // FIX: Await the sign-in and only enable the login form after it's successful.
+                try {
+                    await signInAnonymously(this.auth);
+                    const loginButton = document.getElementById('login-button');
+                    loginButton.disabled = false;
+                    loginButton.textContent = "Let's Go!";
+                } catch (error) {
+                    console.error("Anonymous sign-in failed:", error);
+                    alert("Could not connect to the learning service. Please check your internet connection.");
+                }
 
-    const show = (id) => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); $(id).classList.add('active'); };
-    const fmtDate = (ts) => ts ? new Date(ts).toLocaleDateString() : 'just now';
+                document.getElementById('login-form').addEventListener('submit', (e) => { e.preventDefault(); this.handleLogin(document.getElementById('username-input').value.trim()); });
+                this.answerInput.addEventListener('keyup', (event) => { if (event.key === 'Enter') this.checkBtn.click(); });
+            },
 
-    // ---- Firebase init ----
-    const fbApp = initializeApp(firebaseConfig);
-    const auth = getAuth(fbApp);
-    const db = getFirestore(fbApp);
+            async handleLogin(username) {
+                document.getElementById('login-button').disabled = true;
+                document.getElementById('login-button').textContent = 'Loading...';
+                const profileRef = doc(this.db, "profiles", username);
+                try {
+                    const docSnap = await getDoc(profileRef);
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        this.score = data.score || 0; 
+                        this.tokens = data.tokens || 0;
+                        this.currentUser.proficiency = data.proficiency || {};
+                    } else {
+                        this.score = 0;
+                        this.tokens = 0;
+                        this.currentUser.proficiency = {};
+                        await setDoc(profileRef, { score: 0, tokens: 0, proficiency: {} });
+                    }
+                    this.currentUser.name = username;
+                    this.updateUIForLogin();
+                } catch (error) {
+                    console.error("Error logging in:", error);
+                    alert("There was a problem logging in. Please try again.");
+                    document.getElementById('login-button').disabled = false;
+                    document.getElementById('login-button').textContent = "Let's Go!";
+                }
+            },
 
-    // ---- App State ----
-    let currentUser = null;
-    let currentSubject = null;
+            updateUIForLogin() {
+                this.scoreDisplay.textContent = this.score;
+                this.tokensDisplay.textContent = this.tokens;
+                this.usernameDisplay.textContent = this.currentUser.name;
+                this.loginContainer.classList.add('hidden');
+                this.appContainer.classList.remove('hidden');
+                this.showScreen('home-screen');
+            },
+            
+            signOut() {
+                this.currentUser.name = null;
+                this.appContainer.classList.add('hidden');
+                this.loginContainer.classList.remove('hidden');
+                document.getElementById('username-input').value = '';
+                document.getElementById('login-button').disabled = false;
+                document.getElementById('login-button').textContent = "Let's Go!";
+            },
 
-    // Ensure code runs after DOM is ready
-    const ready = new Promise((resolve) => {
-      if (document.readyState !== 'loading') resolve();
-      else document.addEventListener('DOMContentLoaded', resolve, { once: true });
-    });
+            showScreen(screenId) {
+                this.screens.forEach(screen => screen.classList.remove('active'));
+                document.getElementById(screenId).classList.add('active');
+            },
 
-    // ---- Auth Flow ----
-    onAuthStateChanged(auth, async (user) => {
-      await ready; // make sure DOM exists before touching it
-      if (user) {
-        currentUser = user;
-        const learnerRef = doc(db, 'learners', user.uid);
-        const snap = await getDoc(learnerRef);
-        if (snap.exists()) {
-          const { username = 'Explorer', totalScore = 0, tokens = 0 } = snap.data();
-          $('#username-display').textContent = username;
-          $('#total-score-display').textContent = totalScore;
-          $('#total-tokens-display').textContent = tokens;
-          show('home-screen');
-          ensureSubjectDocs(user.uid);
-          attachLiveTotals(user.uid);
-        } else {
-          show('login-screen');
-        }
-      } else {
-        try { await signInAnonymously(auth); } catch (e) {
-          console.error(e); alert('Could not connect. Please refresh.');
-        }
-      }
-    });
+            startQuiz(type, level) {
+                this.currentQuiz.type = type;
+                this.currentQuiz.level = level;
+                document.getElementById('quiz-title').textContent = this.getQuizTitle(type, level);
+                document.getElementById('literacy-question-container').classList.add('hidden');
+                document.getElementById('numeracy-question-container').classList.remove('hidden');
+                this.nextQuestion();
+                this.showScreen('quiz-screen');
+            },
 
-    // Create profile (bound after DOM ready)
-    ready.then(() => {
-      document.querySelector('#login-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = $('#login-submit-btn');
-        btn.disabled = true; btn.textContent = 'Checking...';
-        const username = $('#username-input').value.trim();
-        if (!username) { btn.disabled = false; btn.textContent = "Let's Go!"; return; }
+            async startLiteracyQuiz(skill) {
+                this.currentQuiz.type = 'literacy';
+                this.currentQuiz.skill = skill;
+                
+                // Adaptive Logic: Determine which tiered skill to use
+                this.currentQuiz.tieredSkill = this.getTieredSkill(skill);
 
-        // ensure unique username
-        const qSnap = await getDocs(query(collection(db, 'learners'), where('username', '==', username), limit(1)));
-        if (!qSnap.empty) { alert(`The name "${username}" is taken. Try another.`); btn.disabled = false; btn.textContent = "Let's Go!"; return; }
+                document.getElementById('quiz-title').textContent = `Literacy: ${skill}`;
+                document.getElementById('numeracy-question-container').classList.add('hidden');
+                document.getElementById('literacy-question-container').classList.remove('hidden');
+                this.showScreen('quiz-screen');
+                
+                // Fetch the first batch of questions
+                await this.fetchNextLiteracyBatch();
+            },
+            
+            getTieredSkill(baseSkill) {
+                const proficiency = this.currentUser.proficiency;
+                switch (baseSkill) {
+                    case 'Grammar':
+                        return (proficiency.Grammar_Tier1_NounsAndVerbs || 0) < 80 ? 'Grammar_Tier1_NounsAndVerbs' : 'Grammar_Tier2_Punctuation';
+                    case 'Vocabulary':
+                        return (proficiency.Vocabulary_Tier1_SightWords || 0) < 80 ? 'Vocabulary_Tier1_SightWords' : 'Vocabulary_Tier2_SynonymsAndAntonyms';
+                    case 'Reading':
+                        return (proficiency.Reading_Tier1_SingleSentence || 0) < 80 ? 'Reading_Tier1_SingleSentence' : 'Reading_Tier2_Paragraphs';
+                    default:
+                        return 'Grammar_Tier1_NounsAndVerbs';
+                }
+            },
 
-        const uid = auth.currentUser?.uid;
-        if (!uid) { alert('Auth error. Refresh and try again.'); btn.disabled = false; btn.textContent = "Let's Go!"; return; }
+            async fetchNextLiteracyBatch() {
+                this.feedbackContainer.innerHTML = '<p class="text-xl">Generating new questions...</p>';
+                document.getElementById('mcq-options-container').innerHTML = ''; // Clear old options
+                try {
+                    this.currentQuiz.questionBatch = await this.fetchLiteracyQuestionBatch(this.currentQuiz.tieredSkill);
+                    this.currentQuiz.questionIndex = 0;
+                    this.displayLiteracyQuestion();
+                } catch (error) {
+                    console.error("Literacy question error:", error);
+                    this.feedbackContainer.innerHTML = `<p class="text-xl text-red-500">Could not generate questions. Please check the API Key or try again.</p>`;
+                }
+            },
+            
+            getQuizTitle(type, level){
+                switch(type){
+                    case 'multiplication': return level === 'mixed' ? 'Mixed Multiplication' : `${level} Times Table`;
+                    case 'addition': return `Addition up to ${level}`;
+                    case 'subtraction': return `Subtraction up to ${level}`;
+                    case 'division': return level === 'simple' ? 'Simple Division' : 'Division with Remainder';
+                }
+            },
 
-        await setDoc(doc(db, 'learners', uid), { username, totalScore: 0, tokens: 0, createdAt: serverTimestamp() });
-        $('#username-display').textContent = username;
-        show('home-screen');
-        ensureSubjectDocs(uid);
-        attachLiveTotals(uid);
-      });
+            generateQuestion() { // Numeracy only
+                let num1, num2, quotient, remainder;
+                const level = this.currentQuiz.level;
+                switch(this.currentQuiz.type) {
+                    case 'multiplication': num2 = level === 'mixed' ? Math.ceil(Math.random() * 11) + 1 : level; num1 = Math.ceil(Math.random() * 12); this.currentQuiz.correctAnswer = num1 * num2; break;
+                    case 'addition': num1 = Math.ceil(Math.random() * (level -1)); num2 = Math.ceil(Math.random() * (level - num1)); this.currentQuiz.correctAnswer = num1 + num2; break;
+                    case 'subtraction': num1 = Math.ceil(Math.random() * level); num2 = Math.floor(Math.random() * num1); this.currentQuiz.correctAnswer = num1 - num2; break;
+                    case 'division': 
+                        quotient = Math.ceil(Math.random() * 10) + 1; num2 = Math.ceil(Math.random() * 10) + 1;
+                        if (level === 'simple') { num1 = num2 * quotient; this.currentQuiz.correctAnswer = quotient; } 
+                        else { remainder = Math.floor(Math.random() * num2); num1 = num2 * quotient + remainder; this.currentQuiz.correctAnswer = quotient; }
+                        break;
+                }
+                this.currentQuiz.num1 = num1; this.currentQuiz.num2 = num2;
+                document.getElementById('num1').textContent = num1;
+                document.getElementById('operator').textContent = this.getOperator();
+                document.getElementById('num2').textContent = num2;
+            },
+            
+            getOperator(){
+                switch(this.currentQuiz.type){
+                    case 'multiplication': return '×'; case 'addition': return '+'; case 'subtraction': return '−'; case 'division': return '÷';
+                }
+            },
 
-      $('#sign-out-btn').addEventListener('click', async () => {
-        await signOut(auth);
-        show('login-screen');
-        $('#username-input').value = '';
-        $('#login-submit-btn').disabled = false; $('#login-submit-btn').textContent = "Let's Go!";
-      });
+            nextQuestion() {
+                if (this.currentQuiz.type === 'literacy') {
+                    this.currentQuiz.questionIndex++;
+                    if (this.currentQuiz.questionIndex >= this.currentQuiz.questionBatch.length) {
+                        this.fetchNextLiteracyBatch(); // Fetch a new batch when the old one is done
+                    } else {
+                        this.displayLiteracyQuestion(); // Display the next question from the current batch
+                    }
+                } else { // Numeracy
+                    this.answerInput.value = ''; this.answerInput.disabled = false; this.answerInput.focus();
+                    this.checkBtn.style.display = 'block'; this.feedbackContainer.innerHTML = '';
+                    this.generateQuestion();
+                }
+            },
 
-      // Subject navigation
-      $$('.subject-btn').forEach(btn => btn.addEventListener('click', () => {
-        currentSubject = btn.dataset.subject;
-        renderSubject(currentSubject);
-        show('subject-screen');
-      }));
+            displayLiteracyQuestion() {
+                const questionData = this.currentQuiz.questionBatch[this.currentQuiz.questionIndex];
+                if (!questionData) { console.error("No question data found!"); return; }
 
-      $('#back-to-home').addEventListener('click', () => { show('home-screen'); });
-    });
+                document.getElementById('literacy-question-text').textContent = questionData.question_text;
+                const optionsContainer = document.getElementById('mcq-options-container');
+                optionsContainer.innerHTML = '';
+                const options = [...questionData.distractors, questionData.correct_answer].sort(() => Math.random() - 0.5);
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.className = 'btn btn-mcq bg-gray-200 hover:bg-blue-200 text-gray-800 font-semibold py-3 px-4 rounded-lg text-lg';
+                    button.onclick = () => this.checkLiteracyAnswer(option, button);
+                    optionsContainer.appendChild(button);
+                });
+                this.checkBtn.style.display = 'none'; this.feedbackContainer.innerHTML = '';
+            },
 
-    // Ensure per-subject score docs exist for the user
-    async function ensureSubjectDocs(uid) {
-      for (const subject of Object.keys(PROGRESSION)) {
-        const ref = doc(db, 'learners', uid, 'scores', subject);
-        const s = await getDoc(ref);
-        if (!s.exists()) {
-          await setDoc(ref, { score: 0, lastUpdated: Date.now() });
-        }
-      }
-    }
+            checkAnswer() { // Numeracy only
+                const userAnswer = parseInt(this.answerInput.value, 10);
+                if (isNaN(userAnswer)) return;
+                this.answerInput.disabled = true; this.checkBtn.style.display = 'none';
+                
+                if (userAnswer === this.currentQuiz.correctAnswer) {
+                    this.feedbackContainer.innerHTML = `<h3 class="text-3xl font-bold text-green-500">Correct! Well done!</h3>`;
+                    this.updateScore(10); setTimeout(() => this.nextQuestion(), 1500);
+                } else {
+                    let feedbackHTML = `<h3 class="text-3xl font-bold text-red-500">Not quite!</h3><p class="text-xl mt-2">The correct answer is ${this.currentQuiz.correctAnswer}</p>`;
+                    if (this.currentQuiz.type === 'multiplication') {
+                        feedbackHTML += `<p class="text-md text-gray-600 mt-2">${this.currentQuiz.num1} groups of ${this.currentQuiz.num2}</p>`;
+                        feedbackHTML += this.generateVisualFeedback(this.currentQuiz.num1, this.currentQuiz.num2);
+                    }
+                    feedbackHTML += `<button onclick="app.nextQuestion()" class="btn mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Next Question</button>`;
+                    this.feedbackContainer.innerHTML = feedbackHTML;
+                }
+            },
 
-    // Live totals (aggregate naive sum of subject scores)
-    function attachLiveTotals(uid) {
-      const scoresCol = collection(db, 'learners', uid, 'scores');
-      onSnapshot(scoresCol, async (qs) => {
-        let total = 0; let count = 0;
-        qs.forEach(d => { total += (d.data().score || 0); count++; });
-        const avg = count ? Math.round(total / count) : 0;
-        $('#total-score-display').textContent = avg;
-        // tokens kept on profile doc; leave as-is
-      });
-    }
+            checkLiteracyAnswer(selectedOption, selectedButton) {
+                const buttons = document.querySelectorAll('#mcq-options-container button');
+                buttons.forEach(btn => btn.disabled = true);
+                const questionData = this.currentQuiz.questionBatch[this.currentQuiz.questionIndex];
+                const { correct_answer, explanation } = questionData;
 
-    // Compute band for a score
-    function bandFor(score) {
-      return BANDS.find(b => score >= b.min && score <= b.max) || BANDS[0];
-    }
+                let isCorrect = (selectedOption === correct_answer);
+                
+                if (isCorrect) {
+                    selectedButton.classList.remove('bg-gray-200', 'hover:bg-blue-200');
+                    selectedButton.classList.add('bg-green-500', 'text-white');
+                    this.feedbackContainer.innerHTML = `<h3 class="text-2xl font-bold text-green-500">Correct!</h3><p class="text-lg mt-2">${explanation}</p>`;
+                    this.updateScore(15, this.currentQuiz.tieredSkill, true);
+                    setTimeout(() => this.nextQuestion(), 4000);
+                } else {
+                    selectedButton.classList.remove('bg-gray-200', 'hover:bg-blue-200');
+                    selectedButton.classList.add('bg-red-500', 'text-white');
+                    this.feedbackContainer.innerHTML = `<h3 class="text-2xl font-bold text-red-500">Not quite.</h3><p class="text-lg mt-2">${explanation}</p>`;
+                    buttons.forEach(btn => { if (btn.textContent === correct_answer) { btn.classList.add('bg-green-500', 'text-white'); } });
+                    this.updateScore(0, this.currentQuiz.tieredSkill, false);
+                    setTimeout(() => this.nextQuestion(), 5000);
+                }
+            },
 
-    // Pick an activity close to current score (slightly ahead)
-    function nextActivityFor(subject, score, easeDelta = 0) {
-      const strands = PROGRESSION[subject].strands;
-      const all = Object.values(strands).flatMap(s => s.activities.map(a => ({...a, strand: Object.keys(strands).find(k => PROGRESSION[subject].strands[k] === s)})));
-      const target = Math.min(100, Math.max(0, score + 10 + easeDelta));
-      // choose activity with difficulty nearest to target
-      const sorted = all.slice().sort((a,b) => Math.abs(a.difficulty - target) - Math.abs(b.difficulty - target));
-      return sorted[0];
-    }
+            async fetchLiteracyQuestionBatch(tieredSkill) {
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+                
+                const skillDescriptions = {
+                    'Grammar_Tier1_NounsAndVerbs': 'Generate questions that ask the student to identify the noun or the verb in a simple sentence.',
+                    'Grammar_Tier2_Punctuation': 'Generate questions about using correct ending punctuation (period, question mark, exclamation point).',
+                    'Vocabulary_Tier1_SightWords': 'Generate simple "Which word is...?" questions using common CVC or sight words like "the", "cat", "run", "and".',
+                    'Vocabulary_Tier2_SynonymsAndAntonyms': 'Generate questions asking for a synonym or antonym for a highlighted word in a sentence.',
+                    'Reading_Tier1_SingleSentence': 'Generate a single, simple sentence and then ask a direct comprehension question about it.',
+                    'Reading_Tier2_Paragraphs': 'Generate a short paragraph (2-3 sentences) and then ask a direct comprehension question about it.'
+                };
 
-    async function renderSubject(subject) {
-      $('#subject-title').textContent = subject;
-      const scoreRef = doc(db, 'learners', currentUser.uid, 'scores', subject);
-      const snap = await getDoc(scoreRef);
-      const score = snap.exists() ? (snap.data().score || 0) : 0;
-      const lastUpdated = snap.exists() ? snap.data().lastUpdated : null;
+                const prompt = `
+                    You are an expert curriculum designer for a bright 1st or 2nd-grade student.
+                    Your task is to generate a batch of 5 unique multiple-choice questions.
+                    The specific skill to test is: "${tieredSkill.replace(/_/g, ' ')}".
+                    Instructions: ${skillDescriptions[tieredSkill]}
+                    
+                    You MUST return your answer as a single, valid JSON array containing 5 JSON objects.
+                    Do not include any other text, explanation, or markdown formatting outside of this single JSON array.
+                    Each object in the array must have the keys: "question_text", "correct_answer", "distractors", "explanation".
+                `;
 
-      const band = bandFor(score);
-      $('#subject-level-badge').className = `chip border ${band.badge}`;
-      $('#subject-level-badge').textContent = band.name;
-      $('#subject-score').textContent = score;
-      $('#subject-competency').textContent = band.name;
-      $('#subject-updated').textContent = fmtDate(lastUpdated);
-      $('#competency-explainer').textContent = band.name === 'Emerging' ? 'We start concrete and playful: short tasks with manipulatives/gestures.'
-        : band.name === 'Developing' ? 'We add visuals and small jumps. More practice, quick wins.'
-        : band.name === 'Proficient' ? 'We stretch with word problems and mental strategies.'
-        : 'We spiral back occasionally to keep it sticky.';
+                const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
-      // recommendation
-      const rec = nextActivityFor(subject, score, 0);
-      $('#recommendation').innerHTML = `
-        <div class="p-3 border rounded-lg">
-          <div class="text-sm text-gray-600">Strand</div>
-          <div class="font-semibold">${rec.strand}</div>
-          <div class="mt-1">${rec.title}</div>
-          <div class="text-xs text-gray-500 mt-1">Why this: ${rec.why}</div>
-          <div class="text-xs text-gray-500">Difficulty ≈ ${rec.difficulty}</div>
-        </div>`;
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                const data = await response.json();
+                if (!data.candidates || !data.candidates[0].content || !data.candidates[0].content.parts[0].text) {
+                    throw new Error("Invalid response structure from API.");
+                }
+                let jsonString = data.candidates[0].content.parts[0].text;
+                
+                const regex = /```json\s*([\s\S]*?)\s*```/;
+                const match = jsonString.match(regex);
+                if (match && match[1]) { jsonString = match[1]; }
 
-      // wire buttons
-      $('#start-activity').onclick = async () => completeActivity(subject, rec);
-      $('#too-easy').onclick = () => { const harder = nextActivityFor(subject, score, +15); $('#recommendation').innerHTML = `<div class='p-3 border rounded-lg'><div class='text-sm text-gray-600'>Strand</div><div class='font-semibold'>${harder.strand}</div><div class='mt-1'>${harder.title}</div><div class='text-xs text-gray-500 mt-1'>Why this: ${harder.why}</div><div class='text-xs text-gray-500'>Difficulty ≈ ${harder.difficulty}</div></div>`; $('#start-activity').onclick = async () => completeActivity(subject, harder); };
-      $('#im-stuck').onclick = () => { const easier = nextActivityFor(subject, score, -15); $('#recommendation').innerHTML = `<div class='p-3 border rounded-lg'><div class='text-sm text-gray-600'>Strand</div><div class='font-semibold'>${easier.strand}</div><div class='mt-1'>${easier.title}</div><div class='text-xs text-gray-500 mt-1'>Why this: ${easier.why}</div><div class='text-xs text-gray-500'>Difficulty ≈ ${easier.difficulty}</div></div>`; $('#start-activity').onclick = async () => completeActivity(subject, easier); };
+                return JSON.parse(jsonString);
+            },
 
-      // strands list
-      const sl = $('#strand-list'); sl.innerHTML = '';
-      const strands = PROGRESSION[subject].strands;
-      Object.entries(strands).forEach(([name, cfg]) => {
-        const highest = cfg.activities[cfg.activities.length - 1].difficulty;
-        const unlocked = Math.min(100, Math.max(0, score));
-        const pct = Math.round((unlocked / highest) * 100);
-        const card = document.createElement('div');
-        card.className = 'p-3 border rounded-lg';
-        card.innerHTML = `<div class='font-semibold'>${name}</div>
-          <div class='text-sm text-gray-600'>${pct}% of pathway unlocked</div>
-          <div class='w-full bg-gray-100 rounded h-2 mt-2'><div class='bg-blue-500 h-2 rounded' style='width:${Math.min(100, Math.max(0, pct))}%'></div></div>`;
-        sl.appendChild(card);
-      });
-    }
+            generateVisualFeedback(rows, cols) {
+                let gridHTML = '<div class="feedback-grid">';
+                for(let i = 0; i < rows * cols; i++){ gridHTML += '<div class="feedback-circle"></div>'; }
+                gridHTML += '</div>';
+                return gridHTML;
+            },
+            
+            async updateScore(points, skillName = null, wasCorrect = null) {
+                const oldScore = this.score;
+                this.score += points;
+                this.scoreDisplay.textContent = this.score;
+                if (Math.floor(oldScore / 100) < Math.floor(this.score / 100)) {
+                    this.tokens++; this.tokensDisplay.textContent = this.tokens;
+                    this.showModal();
+                }
 
-    // Simulate completing an activity: bump score towards difficulty, award tokens, write to Firestore
-    async function completeActivity(subject, activity) {
-      const scoreRef = doc(db, 'learners', currentUser.uid, 'scores', subject);
-      const learnerRef = doc(db, 'learners', currentUser.uid);
-      const snap = await getDoc(scoreRef);
-      const current = snap.exists() ? (snap.data().score || 0) : 0;
-      const delta = Math.max(2, Math.min(8, Math.round((activity.difficulty - current) * 0.3)));
-      const newScore = Math.max(0, Math.min(100, current + delta));
+                // Update proficiency for literacy questions
+                if (skillName) {
+                    const currentProficiency = this.currentUser.proficiency[skillName] || 0;
+                    // Simple moving average: new_score = old_score * 0.8 + new_answer * 0.2
+                    // where new_answer is 100 for correct, 0 for incorrect
+                    const newAnswerScore = wasCorrect ? 100 : 0;
+                    this.currentUser.proficiency[skillName] = Math.round(currentProficiency * 0.8 + newAnswerScore * 0.2);
+                }
 
-      await setDoc(scoreRef, { score: newScore, lastUpdated: Date.now() }, { merge: true });
-
-      // award 1–3 tokens
-      const tokenDelta = newScore > current ? (newScore - current >= 6 ? 3 : 2) : 1;
-      const prof = await getDoc(learnerRef);
-      const prevTokens = prof.exists() ? (prof.data().tokens || 0) : 0;
-      await updateDoc(learnerRef, { tokens: prevTokens + tokenDelta });
-      $('#total-tokens-display').textContent = prevTokens + tokenDelta;
-
-      // small success message
-      alert(`Great effort! +${delta} points, +${tokenDelta} 🐝 tokens`);
-      renderSubject(subject);
-    }
-
-    // ---------- Lightweight Test Cases (run in console) ----------
-    (function runSanityTests(){
-      console.groupCollapsed('%cSanity tests','color:#4b5563');
-      try {
-        // $ helper should find by id or #id
-        const a = $('#login-submit-btn');
-        const b = document.getElementById('login-submit-btn');
-        console.assert(a === b, 'Helper $ should resolve id with or without #');
-
-        // band boundaries
-        const edges = [0,24,25,49,50,74,75,100];
-        const expected = ['Emerging','Emerging','Developing','Developing','Proficient','Proficient','Mastery','Mastery'];
-        const got = edges.map(e => bandFor(e).name);
-        console.assert(JSON.stringify(got) === JSON.stringify(expected), 'Band boundaries correct');
-
-        // progression presence
-        console.assert(PROGRESSION.Numeracy && PROGRESSION.Literacy, 'Progression subjects present');
-
-        // nextActivity basic
-        const nAct = nextActivityFor('Numeracy', 0);
-        console.assert(nAct && nAct.title, 'Next activity returns an object');
-      } catch(e){ console.error('Sanity test error:', e); }
-      finally { console.groupEnd(); }
-    })();
-
-    // Expose for debugging
-    window._LA = { PROGRESSION, BANDS };
-  </script>
-
-  <!-- Suggested Firestore security rules (add in Firebase console)
-  rules_version = '2';
-  service cloud.firestore {
-    match /databases/{database}/documents {
-      match /learners/{uid} {
-        allow read, write: if request.auth != null && request.auth.uid == uid;
-        match /scores/{subject} {
-          allow read, write: if request.auth != null && request.auth.uid == uid;
-        }
-      }
-    }
-  }
-  -->
-
+                if (this.currentUser.name) {
+                    const profileRef = doc(this.db, "profiles", this.currentUser.name);
+                    try {
+                        await updateDoc(profileRef, { 
+                            score: this.score, 
+                            tokens: this.tokens,
+                            proficiency: this.currentUser.proficiency 
+                        });
+                    } catch (error) {
+                        console.error("Failed to save score:", error);
+                        alert("Could not save your progress. Please check your connection.");
+                    }
+                }
+            },
+            
+            showModal() { this.milestoneModal.classList.add('visible'); },
+            closeModal() { this.milestoneModal.classList.remove('visible'); }
+        };
+        
+        window.app = app;
+        app.init();
+        
+    </script>
 </body>
 </html>
