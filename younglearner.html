@@ -224,7 +224,6 @@
                 this.db = getFirestore(firebaseApp);
                 this.auth = getAuth(firebaseApp);
                 
-                // FIX: Await the sign-in and only enable the login form after it's successful.
                 try {
                     await signInAnonymously(this.auth);
                     const loginButton = document.getElementById('login-button');
@@ -453,7 +452,8 @@
             },
 
             async fetchLiteracyQuestionBatch(tieredSkill) {
-                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+                // CORRECTED: Use the endpoint from the working Malay language app.
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`;
                 
                 const skillDescriptions = {
                     'Grammar_Tier1_NounsAndVerbs': 'Generate questions that ask the student to identify the noun or the verb in a simple sentence.',
@@ -475,24 +475,45 @@
                     Each object in the array must have the keys: "question_text", "correct_answer", "distractors", "explanation".
                 `;
 
-                const payload = { contents: [{ parts: [{ text: prompt }] }] };
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    // Use a schema to enforce the JSON structure
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "ARRAY",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    question_text: { type: "STRING" },
+                                    correct_answer: { type: "STRING" },
+                                    distractors: { type: "ARRAY", items: { type: "STRING" } },
+                                    explanation: { type: "STRING" }
+                                },
+                                required: ["question_text", "correct_answer", "distractors", "explanation"]
+                            }
+                        }
+                    }
+                };
 
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                if (!response.ok) {
+                    // Add more detailed error logging
+                    const errorBody = await response.text();
+                    console.error("API Response Error Body:", errorBody);
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
                 const data = await response.json();
                 if (!data.candidates || !data.candidates[0].content || !data.candidates[0].content.parts[0].text) {
                     throw new Error("Invalid response structure from API.");
                 }
-                let jsonString = data.candidates[0].content.parts[0].text;
                 
-                const regex = /```json\s*([\s\S]*?)\s*```/;
-                const match = jsonString.match(regex);
-                if (match && match[1]) { jsonString = match[1]; }
-
+                // The response should be a clean JSON string because of responseMimeType
+                const jsonString = data.candidates[0].content.parts[0].text;
                 return JSON.parse(jsonString);
             },
 
