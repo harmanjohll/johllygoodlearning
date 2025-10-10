@@ -41,15 +41,18 @@
     <div id="app-container" class="w-full max-w-2xl mx-auto hidden">
         <header class="text-center mb-8">
             <h1 class="title-font text-5xl text-blue-600">Learning Adventure!</h1>
-            <div class="mt-4 bg-white rounded-full inline-flex items-center px-6 py-2 shadow-lg">
-                <span class="text-purple-500 text-2xl">👤</span>
-                <span id="username-display" class="ml-3 text-xl font-bold text-gray-700"></span>
-                <span class="mx-4 text-gray-300">|</span>
-                <span class="text-yellow-500 text-2xl">⭐</span>
-                <span class="ml-3 text-xl font-bold text-gray-700">Score: <span id="score-display">0</span></span>
-                <span class="mx-4 text-gray-300">|</span>
-                <span class="text-2xl">🐝</span>
-                <span class="ml-3 text-xl font-bold text-gray-700">Tokens: <span id="tokens-display">0</span></span>
+            <div class="mt-4 bg-white rounded-full inline-flex flex-wrap justify-center items-center gap-x-4 gap-y-2 px-6 py-2 shadow-lg">
+                <span class="text-purple-500 text-2xl" title="User">👤</span>
+                <span id="username-display" class="ml-2 text-xl font-bold text-gray-700"></span>
+                <span class="hidden md:inline mx-2 text-gray-300">|</span>
+                <span class="text-green-500 text-2xl" title="Numeracy Score">🔢</span>
+                <span class="ml-2 text-xl font-bold text-gray-700"><span id="numeracy-score-display">0</span></span>
+                <span class="hidden md:inline mx-2 text-gray-300">|</span>
+                <span class="text-blue-500 text-2xl" title="Literacy Score">📚</span>
+                <span class="ml-2 text-xl font-bold text-gray-700"><span id="literacy-score-display">0</span></span>
+                 <span class="hidden md:inline mx-2 text-gray-300">|</span>
+                <span class="text-2xl" title="Tokens">🐝</span>
+                <span class="ml-2 text-xl font-bold text-gray-700"><span id="tokens-display">0</span></span>
             </div>
              <button onclick="app.signOut()" class="block mx-auto mt-4 text-sm text-gray-500 hover:text-red-500">Sign Out</button>
         </header>
@@ -173,7 +176,7 @@
 
 
                 <button id="check-btn" onclick="app.checkAnswer()" class="btn mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-12 rounded-lg text-2xl">Check</button>
-                <div id="feedback-container" class="mt-4 text-center h-48"></div>
+                <div id="feedback-container" class="mt-4 text-center h-auto min-h-[12rem]"></div>
                 <button onclick="app.showScreen('home-screen')" class="mt-6 text-gray-600 hover:text-blue-600 font-semibold">End Quiz</button>
             </div>
         </main>
@@ -196,10 +199,7 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // *** IMPORTANT: INSERT YOUR GEMINI API KEY HERE ***
         const GEMINI_API_KEY = "AIzaSyC9AKQcORYqndRZGhvTh-OqyMvE-Q7F2aI";
-
-        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDfuAaGkDNgUHUUWWplDs2UGy6pP0GDL_s",
             authDomain: "learner-adventure-app.firebaseapp.com",
@@ -212,21 +212,18 @@
         const app = {
             db: null, auth: null,
             currentUser: { name: null, proficiency: {} }, 
-            score: 0, tokens: 0,
+            numeracyScore: 0, literacyScore: 0, tokens: 0,
             currentQuiz: { 
-                type: null, 
-                level: null, 
-                skill: null, 
-                tieredSkill: null,
+                type: null, level: null, skill: null, tieredSkill: null,
                 num1: 0, num2: 0, correctAnswer: 0, 
-                questionBatch: [], 
-                questionIndex: 0 
+                questionBatch: [], questionIndex: 0 
             },
 
             // UI Elements
             loginContainer: document.getElementById('login-container'),
             appContainer: document.getElementById('app-container'),
-            scoreDisplay: document.getElementById('score-display'),
+            numeracyScoreDisplay: document.getElementById('numeracy-score-display'),
+            literacyScoreDisplay: document.getElementById('literacy-score-display'),
             tokensDisplay: document.getElementById('tokens-display'),
             usernameDisplay: document.getElementById('username-display'),
             screens: document.querySelectorAll('.screen'),
@@ -242,13 +239,12 @@
                 
                 signInAnonymously(this.auth).catch(error => {
                     console.error("Anonymous sign-in failed:", error);
-                    alert("Could not connect to the learning service. Please check your internet connection.");
                     document.getElementById('login-button').disabled = true;
                     document.getElementById('login-button').textContent = "Connection Failed";
                 });
 
                 document.getElementById('login-form').addEventListener('submit', (e) => { e.preventDefault(); this.handleLogin(document.getElementById('username-input').value.trim()); });
-                document.getElementById('answer-input').addEventListener('keyup', (event) => { if (event.key === 'Enter' && !this.checkBtn.disabled) this.checkBtn.click(); });
+                this.answerInput.addEventListener('keyup', (event) => { if (event.key === 'Enter' && !this.checkBtn.disabled) this.checkBtn.click(); });
             },
 
             async handleLogin(username) {
@@ -261,14 +257,16 @@
                     const docSnap = await getDoc(profileRef);
                     if (docSnap.exists()) {
                         const data = docSnap.data();
-                        this.score = data.score || 0; 
+                        this.numeracyScore = data.numeracyScore || 0; 
+                        this.literacyScore = data.literacyScore || 0;
                         this.tokens = data.tokens || 0;
                         this.currentUser.proficiency = data.proficiency || {};
                     } else {
-                        this.score = 0;
+                        this.numeracyScore = 0;
+                        this.literacyScore = 0;
                         this.tokens = 0;
                         this.currentUser.proficiency = {};
-                        await setDoc(profileRef, { score: 0, tokens: 0, proficiency: {} });
+                        await setDoc(profileRef, { numeracyScore: 0, literacyScore: 0, tokens: 0, proficiency: {} });
                     }
                     this.currentUser.name = username;
                     this.updateUIForLogin();
@@ -281,7 +279,8 @@
             },
             
             updateUIForLogin() {
-                this.scoreDisplay.textContent = this.score;
+                this.numeracyScoreDisplay.textContent = this.numeracyScore;
+                this.literacyScoreDisplay.textContent = this.literacyScore;
                 this.tokensDisplay.textContent = this.tokens;
                 this.usernameDisplay.textContent = this.currentUser.name;
                 this.loginContainer.classList.add('hidden');
@@ -304,7 +303,7 @@
             },
 
             startQuiz(type, level) { // For standard numeracy
-                this.currentQuiz = { type, level, questionBatch: [], questionIndex: 0 };
+                this.currentQuiz = { type, level, questionBatch: [], questionIndex: 0, skill: type };
                 this.setupQuizUI('standard-numeracy');
                 document.getElementById('quiz-title').textContent = this.getQuizTitle(type, level);
                 this.nextQuestion();
@@ -351,10 +350,10 @@
             getLiteracyTier(baseSkill) {
                 const proficiency = this.currentUser.proficiency;
                 switch (baseSkill) {
-                    case 'Grammar': return 'Grammar_Tier2_Punctuation';
-                    case 'Vocabulary': return 'Vocabulary_Tier2_SynonymsAndAntonyms';
-                    case 'Reading': return 'Reading_Tier2_Paragraphs';
-                    default: return 'Grammar_Tier2_Punctuation';
+                    case 'Grammar': return (proficiency.Grammar_Tier1_TensesAndPronouns || 0) < 80 ? 'Grammar_Tier1_TensesAndPronouns' : 'Grammar_Tier2_Punctuation';
+                    case 'Vocabulary': return (proficiency.Vocabulary_Tier1_SightWords || 0) < 80 ? 'Vocabulary_Tier1_SightWords' : 'Vocabulary_Tier2_SynonymsAndAntonyms';
+                    case 'Reading': return (proficiency.Reading_Tier1_SingleSentence || 0) < 80 ? 'Reading_Tier1_SingleSentence' : 'Reading_Tier2_Paragraphs';
+                    default: return 'Grammar_Tier1_TensesAndPronouns';
                 }
             },
 
@@ -364,23 +363,17 @@
 
             async fetchNextBatch() {
                 this.feedbackContainer.innerHTML = '<p class="text-xl">Generating new questions...</p>';
-                if (this.currentQuiz.type === 'literacy') {
-                    document.getElementById('mcq-options-container').innerHTML = '';
-                } else {
-                    document.getElementById('answer-input').value = '';
-                }
+                document.getElementById('mcq-options-container').innerHTML = '';
+                document.getElementById('answer-input').value = '';
 
                 try {
-                    if (this.currentQuiz.type === 'literacy') {
-                        this.currentQuiz.questionBatch = await this.fetchLiteracyBatch();
-                    } else if (this.currentQuiz.type === 'word-problem') {
-                        this.currentQuiz.questionBatch = await this.fetchNumeracyWordProblemBatch();
-                    }
+                    let fetchFunction = this.currentQuiz.type === 'literacy' ? this.fetchLiteracyBatch.bind(this) : this.fetchNumeracyWordProblemBatch.bind(this);
+                    this.currentQuiz.questionBatch = await fetchFunction();
                     this.currentQuiz.questionIndex = 0;
                     this.displayQuestion();
                 } catch (error) {
                     console.error("Question generation error:", error);
-                    this.feedbackContainer.innerHTML = `<p class="text-xl text-red-500">Could not generate questions. Please check the API Key or try again.</p>`;
+                    this.feedbackContainer.innerHTML = `<p class="text-xl text-red-500">Could not generate questions. Please try again.</p>`;
                 }
             },
 
@@ -451,6 +444,7 @@
                         this.displayQuestion();
                         if (this.currentQuiz.type === 'word-problem') {
                             this.answerInput.value = ''; this.answerInput.disabled = false; this.answerInput.focus();
+                            this.checkBtn.style.display = 'block';
                         }
                     }
                 } else { // Standard Numeracy
@@ -460,7 +454,7 @@
                 }
             },
 
-            checkAnswer() { // For Numeracy (standard and word problems)
+            async checkAnswer() { // For Numeracy (standard and word problems)
                 const userAnswer = parseInt(this.answerInput.value, 10);
                 if (isNaN(userAnswer)) return;
                 this.answerInput.disabled = true; 
@@ -469,18 +463,27 @@
                 if (userAnswer === this.currentQuiz.correctAnswer) {
                     this.feedbackContainer.innerHTML = `<h3 class="text-3xl font-bold text-green-500">Correct! Well done!</h3>`;
                     const points = this.currentQuiz.type === 'word-problem' ? 20 : 10;
-                    this.updateScore(points, this.currentQuiz.type === 'word-problem' ? this.currentQuiz.tieredSkill : null, true);
+                    this.updateScore(points, true, this.currentQuiz.skill || this.currentQuiz.tieredSkill);
                     setTimeout(() => this.nextQuestion(), 1500);
                 } else {
-                    let feedbackHTML = `<h3 class="text-3xl font-bold text-red-500">Not quite!</h3><p class="text-xl mt-2">The correct answer is ${this.currentQuiz.correctAnswer}</p>`;
+                    let feedbackHTML = `<h3 class="text-3xl font-bold text-red-500">Not quite!</h3>`;
+                    this.feedbackContainer.innerHTML = feedbackHTML;
+                    
+                    if (this.currentQuiz.type.includes('numeracy') || this.currentQuiz.type === 'word-problem') {
+                        const scaffold = await this.fetchScaffoldingQuestion();
+                        feedbackHTML += `<p class="text-lg mt-2 text-gray-700">${scaffold}</p>`;
+                    }
+                    
+                    feedbackHTML += `<p class="text-xl mt-2">The correct answer is <b>${this.currentQuiz.correctAnswer}</b></p>`;
+                    
                     if (this.currentQuiz.type === 'multiplication') {
                         feedbackHTML += this.generateVisualFeedback(this.currentQuiz.num1, this.currentQuiz.num2);
                     }
+                    
                     feedbackHTML += `<button onclick="app.nextQuestion()" class="btn mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Next Question</button>`;
                     this.feedbackContainer.innerHTML = feedbackHTML;
-                     if (this.currentQuiz.type === 'word-problem') {
-                        this.updateScore(0, this.currentQuiz.tieredSkill, false);
-                    }
+                    
+                    this.updateScore(0, false, this.currentQuiz.skill || this.currentQuiz.tieredSkill);
                 }
             },
 
@@ -495,13 +498,13 @@
                 if (isCorrect) {
                     selectedButton.classList.add('bg-green-500', 'text-white');
                     this.feedbackContainer.innerHTML = `<h3 class="text-2xl font-bold text-green-500">Correct!</h3><p class="text-lg mt-2">${explanation}</p>`;
-                    this.updateScore(15, this.currentQuiz.tieredSkill, true);
+                    this.updateScore(15, true, this.currentQuiz.tieredSkill);
                     setTimeout(() => this.nextQuestion(), 4000);
                 } else {
                     selectedButton.classList.add('bg-red-500', 'text-white');
                     this.feedbackContainer.innerHTML = `<h3 class="text-2xl font-bold text-red-500">Not quite.</h3><p class="text-lg mt-2">${explanation}</p>`;
                     buttons.forEach(btn => { if (btn.textContent === correct_answer) { btn.classList.add('bg-green-500', 'text-white'); } });
-                    this.updateScore(0, this.currentQuiz.tieredSkill, false);
+                    this.updateScore(0, false, this.currentQuiz.tieredSkill);
                     setTimeout(() => this.nextQuestion(), 5000);
                 }
             },
@@ -511,8 +514,11 @@
                 const tieredSkill = this.currentQuiz.tieredSkill;
 
                 const skillDescriptions = {
+                    'Grammar_Tier1_TensesAndPronouns': 'Generate questions about verb tenses (past/present) and personal pronouns (he/she/they/it).',
                     'Grammar_Tier2_Punctuation': 'Generate questions about using correct ending punctuation (period, question mark, exclamation point).',
+                    'Vocabulary_Tier1_SightWords': 'Generate simple "Which word is...?" questions using common sight words.',
                     'Vocabulary_Tier2_SynonymsAndAntonyms': 'Generate questions asking for a synonym or antonym for a highlighted word in a sentence.',
+                    'Reading_Tier1_SingleSentence': 'Generate a single, simple sentence and then ask a direct comprehension question about it.',
                     'Reading_Tier2_Paragraphs': 'Generate a short paragraph (2-3 sentences) and then ask a direct comprehension question about it.'
                 };
                  const prompt = `
@@ -524,22 +530,14 @@
                     Each object must have the keys: "question_text", "correct_answer", "distractors", "explanation".
                 `;
                  const schema = {
-                    type: "ARRAY",
-                    items: {
-                        type: "OBJECT",
-                        properties: {
-                            question_text: { type: "STRING" },
-                            correct_answer: { type: "STRING" },
-                            distractors: { type: "ARRAY", items: { type: "STRING" } },
-                            explanation: { type: "STRING" }
-                        },
-                        required: ["question_text", "correct_answer", "distractors", "explanation"]
+                    type: "ARRAY", items: {
+                        type: "OBJECT", properties: {
+                            question_text: { type: "STRING" }, correct_answer: { type: "STRING" },
+                            distractors: { type: "ARRAY", items: { type: "STRING" } }, explanation: { type: "STRING" }
+                        }, required: ["question_text", "correct_answer", "distractors", "explanation"]
                     }
                 };
-                 const payload = {
-                    contents: [{ parts: [{ text: prompt }] }],
-                    generationConfig: { responseMimeType: "application/json", responseSchema: schema }
-                };
+                 const payload = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", responseSchema: schema } };
 
                 const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if (!response.ok) { throw new Error(`API Error: ${response.status} ${response.statusText}`); }
@@ -560,20 +558,13 @@
                     Each object must have the keys: "question_text" (string) and "correct_answer" (number).
                 `;
                 const schema = {
-                    type: "ARRAY",
-                    items: {
-                        type: "OBJECT",
-                        properties: {
-                            question_text: { type: "STRING" },
-                            correct_answer: { type: "NUMBER" }
-                        },
-                        required: ["question_text", "correct_answer"]
+                    type: "ARRAY", items: {
+                        type: "OBJECT", properties: {
+                            question_text: { type: "STRING" }, correct_answer: { type: "NUMBER" }
+                        }, required: ["question_text", "correct_answer"]
                     }
                 };
-                 const payload = {
-                    contents: [{ parts: [{ text: prompt }] }],
-                    generationConfig: { responseMimeType: "application/json", responseSchema: schema }
-                };
+                 const payload = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", responseSchema: schema } };
 
                 const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if (!response.ok) { throw new Error(`API Error: ${response.status} ${response.statusText}`); }
@@ -582,30 +573,77 @@
                 return JSON.parse(data.candidates[0].content.parts[0].text);
             },
 
+            async fetchScaffoldingQuestion() {
+                try {
+                    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`;
+                    let problemText;
+                    if (this.currentQuiz.type === 'word-problem') {
+                        problemText = this.currentQuiz.questionBatch[this.currentQuiz.questionIndex].question_text;
+                    } else {
+                        problemText = `${this.currentQuiz.num1} ${this.getOperator()} ${this.currentQuiz.num2}`;
+                    }
+
+                    const prompt = `A student answered a math problem incorrectly. The problem was: "${problemText}". The correct answer is ${this.currentQuiz.correctAnswer}. Generate a single, short, encouraging scaffolding question to help them think about the right process. Do not give away the answer.`;
+                    const payload = { contents: [{ parts: [{ text: prompt }] }] };
+                    const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (!response.ok) return "Let's try thinking about it differently.";
+                    const data = await response.json();
+                    return data.candidates[0].content.parts[0].text;
+                } catch (error) {
+                    console.error("Scaffolding question error:", error);
+                    return "Take another look at the numbers!";
+                }
+            },
 
             generateVisualFeedback(rows, cols) {
-                // ... (existing logic)
+                let gridHTML = '<div class="feedback-grid">';
+                for(let i = 0; i < rows * cols; i++){ gridHTML += '<div class="feedback-circle"></div>'; }
+                gridHTML += '</div>';
+                return gridHTML;
             },
             
-            async updateScore(points, skillName = null, wasCorrect = null) {
-                // ... (existing logic)
+            async updateScore(points, wasCorrect, skillName = null) {
+                const oldTotalScore = this.numeracyScore + this.literacyScore;
+
+                if (this.currentQuiz.type.includes('numeracy') || this.currentQuiz.type === 'word-problem') {
+                    this.numeracyScore += points;
+                } else {
+                    this.literacyScore += points;
+                }
+
+                this.numeracyScoreDisplay.textContent = this.numeracyScore;
+                this.literacyScoreDisplay.textContent = this.literacyScore;
+                
+                const newTotalScore = this.numeracyScore + this.literacyScore;
+                if (Math.floor(oldTotalScore / 100) < Math.floor(newTotalScore / 100)) {
+                    this.tokens++; this.tokensDisplay.textContent = this.tokens;
+                    this.showModal();
+                }
+
+                if (skillName) {
+                    const currentProficiency = this.currentUser.proficiency[skillName] || 0;
+                    const newAnswerScore = wasCorrect ? 100 : 0;
+                    this.currentUser.proficiency[skillName] = Math.round(currentProficiency * 0.8 + newAnswerScore * 0.2);
+                }
+
+                if (this.currentUser.name) {
+                    const profileRef = doc(this.db, "profiles", this.currentUser.name);
+                    try {
+                        await updateDoc(profileRef, { 
+                            numeracyScore: this.numeracyScore,
+                            literacyScore: this.literacyScore, 
+                            tokens: this.tokens,
+                            proficiency: this.currentUser.proficiency 
+                        });
+                    } catch (error) {
+                        console.error("Failed to save score:", error);
+                    }
+                }
             },
             
-            showModal() { /* ... */ },
-            closeModal() { /* ... */ }
+            showModal() { this.milestoneModal.classList.add('visible'); },
+            closeModal() { this.milestoneModal.classList.remove('visible'); }
         };
-        
-        // Hoist necessary references
-        app.loginContainer = document.getElementById('login-container');
-        app.appContainer = document.getElementById('app-container');
-        app.scoreDisplay = document.getElementById('score-display');
-        app.tokensDisplay = document.getElementById('tokens-display');
-        app.usernameDisplay = document.getElementById('username-display');
-        app.screens = document.querySelectorAll('.screen');
-        app.answerInput = document.getElementById('answer-input');
-        app.checkBtn = document.getElementById('check-btn');
-        app.feedbackContainer = document.getElementById('feedback-container');
-        app.milestoneModal = document.getElementById('milestone-modal');
         
         window.app = app;
         app.init();
