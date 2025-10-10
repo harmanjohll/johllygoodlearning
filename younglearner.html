@@ -375,10 +375,14 @@
             getLiteracyTier(baseSkill) {
                 const proficiency = this.currentUser.proficiency;
                 switch (baseSkill) {
-                    case 'Grammar': return (proficiency.Grammar_Tier1_TensesAndPronouns || 0) < 80 ? 'Grammar_Tier1_TensesAndPronouns' : 'Grammar_Tier2_Punctuation';
-                    case 'Vocabulary': return (proficiency.Vocabulary_Tier1_SightWords || 0) < 80 ? 'Vocabulary_Tier1_SightWords' : 'Vocabulary_Tier2_SynonymsAndAntonyms';
-                    case 'Reading': return (proficiency.Reading_Tier1_SingleSentence || 0) < 80 ? 'Reading_Tier1_SingleSentence' : 'Reading_Tier2_Paragraphs';
-                    default: return 'Grammar_Tier1_TensesAndPronouns';
+                    case 'Grammar':
+                        return (proficiency.Grammar_Tier1_TensesAndPronouns || 0) < 80 ? 'Grammar_Tier1_TensesAndPronouns' : 'Grammar_Tier2_Punctuation';
+                    case 'Vocabulary':
+                        return (proficiency.Vocabulary_Tier1_ContextualFillInTheBlank || 0) < 80 ? 'Vocabulary_Tier1_ContextualFillInTheBlank' : 'Vocabulary_Tier2_SynonymsAndAntonyms';
+                    case 'Reading':
+                        return 'Reading_Tier2_Paragraphs';
+                    default:
+                        return 'Grammar_Tier1_TensesAndPronouns';
                 }
             },
 
@@ -424,6 +428,10 @@
                 } else if (this.currentQuiz.type === 'word-problem') {
                     document.getElementById('text-question-text').textContent = questionData.question_text;
                     this.currentQuiz.correctAnswer = questionData.correct_answer;
+                    this.answerInput.value = '';
+                    this.answerInput.disabled = false;
+                    this.checkBtn.style.display = 'block';
+                    this.answerInput.focus();
                 }
                 
                 this.feedbackContainer.innerHTML = '';
@@ -470,10 +478,6 @@
                         this.fetchNextBatch();
                     } else {
                         this.displayQuestion();
-                        if (this.currentQuiz.type === 'word-problem') {
-                            this.answerInput.value = ''; this.answerInput.disabled = false; this.answerInput.focus();
-                            this.checkBtn.style.display = 'block';
-                        }
                     }
                 } else { // Standard Numeracy
                     this.answerInput.value = ''; this.answerInput.disabled = false; this.answerInput.focus();
@@ -546,9 +550,8 @@
                 const skillDescriptions = {
                     'Grammar_Tier1_TensesAndPronouns': 'Generate questions about verb tenses (past/present) and personal pronouns (he/she/they/it).',
                     'Grammar_Tier2_Punctuation': 'Generate questions about using correct ending punctuation (period, question mark, exclamation point).',
-                    'Vocabulary_Tier1_SightWords': 'Generate simple "Which word is...?" questions using common sight words.',
+                    'Vocabulary_Tier1_ContextualFillInTheBlank': 'Generate "fill-in-the-blank" sentence questions to test vocabulary in context. Provide four word options. The incorrect options should be plausible but less precise or contextually wrong.',
                     'Vocabulary_Tier2_SynonymsAndAntonyms': 'Generate questions asking for a synonym or antonym for a highlighted word in a sentence.',
-                    'Reading_Tier1_SingleSentence': 'Generate a single, simple sentence and then ask a direct comprehension question about it.',
                     'Reading_Tier2_Paragraphs': 'Generate a short paragraph (2-3 sentences) and then ask a direct comprehension question about it.'
                 };
                  const prompt = `
@@ -706,3 +709,4 @@
     </script>
 </body>
 </html>
+
