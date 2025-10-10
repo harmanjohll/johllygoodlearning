@@ -15,8 +15,33 @@
         .btn { transition: all 0.2s ease-in-out; }
         .btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .btn-mcq { text-align: left; }
-        .feedback-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1rem; justify-content: center; max-width: 320px; margin-left: auto; margin-right: auto; }
-        .feedback-circle { width: 18px; height: 18px; background-color: #3b82f6; border-radius: 50%; }
+        
+        /* NEW: Styles for visual feedback boxes */
+        .feedback-group-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 1rem;
+            justify-content: center;
+            max-width: 100%;
+        }
+        .feedback-box {
+            border: 2px solid #9ca3af; /* gray-400 */
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+        }
+        .feedback-circle { 
+            width: 18px; 
+            height: 18px; 
+            background-color: #3b82f6; /* blue-500 */
+            border-radius: 50%; 
+        }
+
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .modal-overlay.visible { opacity: 1; pointer-events: auto; }
         .modal-content { background: white; padding: 2rem; border-radius: 1rem; text-align: center; transform: scale(0.9); transition: transform 0.3s ease; }
@@ -363,8 +388,11 @@
 
             async fetchNextBatch() {
                 this.feedbackContainer.innerHTML = '<p class="text-xl">Generating new questions...</p>';
-                document.getElementById('mcq-options-container').innerHTML = '';
-                document.getElementById('answer-input').value = '';
+                if (this.currentQuiz.type === 'literacy') {
+                    document.getElementById('mcq-options-container').innerHTML = '';
+                } else {
+                    document.getElementById('answer-input').value = '';
+                }
 
                 try {
                     let fetchFunction = this.currentQuiz.type === 'literacy' ? this.fetchLiteracyBatch.bind(this) : this.fetchNumeracyWordProblemBatch.bind(this);
@@ -476,8 +504,8 @@
                     
                     feedbackHTML += `<p class="text-xl mt-2">The correct answer is <b>${this.currentQuiz.correctAnswer}</b></p>`;
                     
-                    if (this.currentQuiz.type === 'multiplication') {
-                        feedbackHTML += this.generateVisualFeedback(this.currentQuiz.num1, this.currentQuiz.num2);
+                    if (this.currentQuiz.type === 'multiplication' || this.currentQuiz.type === 'division') {
+                        feedbackHTML += this.generateVisualFeedback();
                     }
                     
                     feedbackHTML += `<button onclick="app.nextQuestion()" class="btn mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Next Question</button>`;
@@ -494,19 +522,21 @@
                 const { correct_answer, explanation } = questionData;
 
                 let isCorrect = (selectedOption === correct_answer);
+                let feedbackHTML = '';
                 
                 if (isCorrect) {
                     selectedButton.classList.add('bg-green-500', 'text-white');
-                    this.feedbackContainer.innerHTML = `<h3 class="text-2xl font-bold text-green-500">Correct!</h3><p class="text-lg mt-2">${explanation}</p>`;
+                    feedbackHTML = `<h3 class="text-2xl font-bold text-green-500">Correct!</h3><p class="text-lg mt-2">${explanation}</p>`;
                     this.updateScore(15, true, this.currentQuiz.tieredSkill);
-                    setTimeout(() => this.nextQuestion(), 4000);
                 } else {
                     selectedButton.classList.add('bg-red-500', 'text-white');
-                    this.feedbackContainer.innerHTML = `<h3 class="text-2xl font-bold text-red-500">Not quite.</h3><p class="text-lg mt-2">${explanation}</p>`;
+                    feedbackHTML = `<h3 class="text-2xl font-bold text-red-500">Not quite.</h3><p class="text-lg mt-2">${explanation}</p>`;
                     buttons.forEach(btn => { if (btn.textContent === correct_answer) { btn.classList.add('bg-green-500', 'text-white'); } });
                     this.updateScore(0, false, this.currentQuiz.tieredSkill);
-                    setTimeout(() => this.nextQuestion(), 5000);
                 }
+                
+                feedbackHTML += `<button onclick="app.nextQuestion()" class="btn mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Next Question</button>`;
+                this.feedbackContainer.innerHTML = feedbackHTML;
             },
 
             async fetchLiteracyBatch() {
@@ -595,28 +625,53 @@
                 }
             },
 
-            generateVisualFeedback(rows, cols) {
-                let gridHTML = '<div class="feedback-grid">';
-                for(let i = 0; i < rows * cols; i++){ gridHTML += '<div class="feedback-circle"></div>'; }
-                gridHTML += '</div>';
-                return gridHTML;
+            generateVisualFeedback() {
+                const { type, num1, num2, correctAnswer } = this.currentQuiz;
+                let container = '<div class="feedback-group-container">';
+
+                if (type === 'multiplication') {
+                    // e.g., 3 x 4 means 3 groups of 4
+                    for (let i = 0; i < num1; i++) {
+                        container += '<div class="feedback-box">';
+                        for (let j = 0; j < num2; j++) {
+                            container += '<div class="feedback-circle"></div>';
+                        }
+                        container += '</div>';
+                    }
+                } else if (type === 'division') {
+                    // e.g., 12 / 4 means 12 items split into 4 groups
+                    const groups = num2;
+                    const itemsPerGroup = correctAnswer;
+                    for (let i = 0; i < groups; i++) {
+                        container += '<div class="feedback-box">';
+                        for (let j = 0; j < itemsPerGroup; j++) {
+                            container += '<div class="feedback-circle"></div>';
+                        }
+                        container += '</div>';
+                    }
+                }
+                
+                container += '</div>';
+                return container;
             },
             
             async updateScore(points, wasCorrect, skillName = null) {
-                const oldTotalScore = this.numeracyScore + this.literacyScore;
+                const oldTotalTokens = this.tokens;
 
-                if (this.currentQuiz.type.includes('numeracy') || this.currentQuiz.type === 'word-problem') {
-                    this.numeracyScore += points;
-                } else {
+                if (this.currentQuiz.type === 'literacy') {
                     this.literacyScore += points;
+                } else {
+                    this.numeracyScore += points;
                 }
 
                 this.numeracyScoreDisplay.textContent = this.numeracyScore;
                 this.literacyScoreDisplay.textContent = this.literacyScore;
                 
-                const newTotalScore = this.numeracyScore + this.literacyScore;
-                if (Math.floor(oldTotalScore / 100) < Math.floor(newTotalScore / 100)) {
-                    this.tokens++; this.tokensDisplay.textContent = this.tokens;
+                const totalScore = this.numeracyScore + this.literacyScore;
+                this.tokens = Math.floor(totalScore / 100);
+
+                if (this.tokens > oldTotalTokens) {
+                    this.tokensDisplay.textContent = this.tokens;
                     this.showModal();
                 }
 
