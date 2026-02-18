@@ -1,0 +1,1959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grade 5 Theory — Maestro Mode</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --gold: #e6b84a;
+    --gold2: #f0d080;
+    --gold3: #c9932a;
+    --cream: #f0ead6;
+    --muted: #8b949e;
+    --red: #e05c5c;
+    --green: #56d364;
+    --blue: #79c0ff;
+    --purple: #bc8cff;
+    --orange: #ffa657;
+    --pink: #ff7fc6;
+    --teal: #4fc3a1;
+    --border: rgba(230,184,74,0.2);
+    --card-bg: rgba(22,27,34,0.95);
+    --shadow: 0 8px 32px rgba(0,0,0,0.5);
+    --radius: 12px;
+    --r2: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    font-family: 'Crimson Text', Georgia, serif;
+    background: var(--bg);
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── Scrollbar ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--gold3); border-radius: 3px; }
+
+  /* ─── Staff Lines ─── */
+  .staff-header {
+    position: relative;
+    height: 80px;
+    overflow: hidden;
+    background: linear-gradient(to right, #0d1117, #161b22, #0d1117);
+  }
+  .staff-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px, transparent 14px,
+      rgba(230,184,74,0.25) 14px, rgba(230,184,74,0.25) 15.5px
+    );
+  }
+  .staff-header-clef {
+    position: absolute;
+    left: 24px; top: 4px;
+    font-size: 72px;
+    color: var(--gold);
+    opacity: 0.9;
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(230,184,74,0.4);
+  }
+  .staff-header-title {
+    position: absolute;
+    left: 90px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    color: var(--gold2);
+    text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+  }
+  .staff-header-right {
+    position: absolute;
+    right: 24px; top: 50%;
+    transform: translateY(-50%);
+    display: flex; gap: 16px; align-items: center;
+  }
+
+  /* ─── Screens ─── */
+  .screen { display: none; min-height: calc(100vh - 80px); animation: fadeIn 0.3s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── XP Bar ─── */
+  .xp-pill {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 24px; padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+  .xp-label { color: var(--gold); font-family: 'Playfair Display'; font-weight: 700; }
+  .xp-bar-wrap { width: 100px; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+  .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold3), var(--gold2)); border-radius: 3px; transition: width 0.6s ease; }
+  .streak-badge {
+    background: linear-gradient(135deg, #c9932a, #e6b84a);
+    border-radius: 20px; padding: 4px 12px;
+    font-size: 0.8rem; font-weight: 700;
+    color: #0d1117;
+  }
+
+  /* ─── Dashboard ─── */
+  .dash-container {
+    max-width: 960px; margin: 0 auto; padding: 32px 24px;
+  }
+  .dash-hero {
+    text-align: center; margin-bottom: 40px;
+  }
+  .dash-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem; font-weight: 900;
+    background: linear-gradient(135deg, var(--gold2), var(--gold3));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .dash-hero p { color: var(--muted); font-size: 1.1rem; }
+  .dash-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    margin-bottom: 36px;
+  }
+  .stat-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    text-align: center; transition: transform 0.2s, border-color 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); border-color: var(--gold3); }
+  .stat-card .num {
+    font-family: 'Playfair Display'; font-size: 2.2rem; font-weight: 900;
+    color: var(--gold);
+  }
+  .stat-card .lbl { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
+
+  /* ─── Topic Grid ─── */
+  .section-title {
+    font-family: 'Playfair Display'; font-size: 1.3rem; font-weight: 700;
+    color: var(--gold2); margin-bottom: 16px;
+    border-bottom: 1px solid var(--border); padding-bottom: 8px;
+  }
+  .topic-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px; margin-bottom: 36px;
+  }
+  .topic-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    cursor: pointer; transition: all 0.25s ease; position: relative;
+    overflow: hidden;
+  }
+  .topic-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--accent); opacity: 0.8;
+  }
+  .topic-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  .topic-icon { font-size: 2rem; margin-bottom: 8px; }
+  .topic-name { font-family: 'Playfair Display'; font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+  .topic-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 12px; }
+  .topic-stars { color: var(--gold); font-size: 1rem; letter-spacing: 2px; margin-bottom: 8px; }
+  .topic-prog-bar { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+  .topic-prog-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.5s ease; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 24px; border-radius: var(--r2);
+    font-family: 'Playfair Display'; font-weight: 700; font-size: 1rem;
+    cursor: pointer; border: none; transition: all 0.2s ease; text-decoration: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold3), var(--gold));
+    color: #0d1117;
+    box-shadow: 0 4px 16px rgba(201,147,42,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,147,42,0.5); }
+  .btn-secondary {
+    background: var(--bg3); color: var(--cream);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--gold3); background: var(--bg2); }
+  .btn-sm { padding: 8px 16px; font-size: 0.85rem; }
+  .btn-danger { background: rgba(224,92,92,0.15); color: var(--red); border: 1px solid rgba(224,92,92,0.3); }
+
+  /* ─── Quiz Engine ─── */
+  .quiz-container {
+    max-width: 720px; margin: 0 auto; padding: 32px 24px;
+  }
+  .quiz-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 24px;
+  }
+  .quiz-progress-wrap { flex: 1; margin: 0 20px; }
+  .quiz-progress-bar { height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold3), var(--gold2)); border-radius: 4px; transition: width 0.4s ease; }
+  .quiz-q-num { font-family: 'Playfair Display'; color: var(--muted); font-size: 0.9rem; }
+
+  .question-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 32px;
+    margin-bottom: 20px; box-shadow: var(--shadow);
+  }
+  .question-topic-badge {
+    display: inline-block; padding: 3px 12px; border-radius: 12px;
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+    margin-bottom: 16px; background: rgba(230,184,74,0.12);
+    border: 1px solid rgba(230,184,74,0.3); color: var(--gold2);
+    text-transform: uppercase;
+  }
+  .question-text {
+    font-size: 1.25rem; line-height: 1.6; margin-bottom: 8px;
+    font-style: italic; color: var(--cream);
+  }
+  .question-hint {
+    font-size: 0.85rem; color: var(--muted); margin-bottom: 24px;
+    font-style: normal;
+  }
+
+  /* Musical notation boxes */
+  .music-box {
+    background: #fafaf5; border: 1px solid #ccc; border-radius: 6px;
+    padding: 12px 20px; margin: 16px 0;
+    font-family: 'JetBrains Mono', monospace;
+    color: #222; font-size: 0.9rem; line-height: 1.8;
+    white-space: pre;
+  }
+  .staff-line {
+    font-family: 'JetBrains Mono'; color: #333;
+    letter-spacing: 0.05em; font-size: 1.1rem;
+  }
+
+  .options-grid { display: grid; gap: 10px; }
+  .option-btn {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--r2); padding: 14px 20px;
+    text-align: left; cursor: pointer; transition: all 0.2s ease;
+    color: var(--cream); font-family: 'Crimson Text'; font-size: 1rem;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--gold3); background: rgba(201,147,42,0.08); }
+  .option-btn.correct { background: rgba(86,211,100,0.12) !important; border-color: var(--green) !important; color: var(--green); }
+  .option-btn.wrong { background: rgba(224,92,92,0.12) !important; border-color: var(--red) !important; color: var(--red); }
+  .option-btn.reveal { background: rgba(86,211,100,0.06); border-color: rgba(86,211,100,0.4); }
+  .option-btn:disabled { cursor: default; }
+  .option-letter {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--bg); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display'; font-weight: 700; font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  /* ─── Feedback Banner ─── */
+  .feedback-banner {
+    border-radius: var(--r2); padding: 16px 20px; margin-top: 16px;
+    display: none; animation: slideUp 0.3s ease;
+  }
+  .feedback-banner.correct { background: rgba(86,211,100,0.1); border: 1px solid rgba(86,211,100,0.3); }
+  .feedback-banner.wrong { background: rgba(224,92,92,0.1); border: 1px solid rgba(224,92,92,0.3); }
+  .feedback-banner h4 { font-family: 'Playfair Display'; font-size: 1rem; margin-bottom: 4px; }
+  .feedback-banner.correct h4 { color: var(--green); }
+  .feedback-banner.wrong h4 { color: var(--red); }
+  .feedback-banner p { font-size: 0.95rem; color: var(--cream); line-height: 1.5; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* XP Pop */
+  .xp-pop {
+    position: fixed; pointer-events: none; z-index: 999;
+    font-family: 'Playfair Display'; font-weight: 900;
+    color: var(--gold2); font-size: 1.4rem;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    animation: xpFly 1.2s ease forwards;
+  }
+  @keyframes xpFly {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    60% { opacity: 1; transform: translateY(-40px) scale(1.2); }
+    100% { opacity: 0; transform: translateY(-80px) scale(0.8); }
+  }
+
+  /* ─── Lesson Screen ─── */
+  .lesson-container { max-width: 760px; margin: 0 auto; padding: 32px 24px; }
+  .lesson-header {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 28px;
+  }
+  .lesson-icon { font-size: 3rem; }
+  .lesson-title { font-family: 'Playfair Display'; font-size: 2rem; font-weight: 900; }
+  .lesson-subtitle { color: var(--muted); font-size: 1rem; }
+
+  .lesson-section {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; margin-bottom: 20px;
+  }
+  .lesson-section h3 {
+    font-family: 'Playfair Display'; font-size: 1.2rem; color: var(--gold2);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .lesson-section p { line-height: 1.8; font-size: 1.05rem; color: var(--cream); margin-bottom: 10px; }
+  .lesson-section ul { padding-left: 20px; line-height: 1.9; font-size: 1.05rem; }
+  .lesson-section li { margin-bottom: 4px; }
+
+  .key-point {
+    background: rgba(230,184,74,0.08); border-left: 3px solid var(--gold3);
+    padding: 12px 16px; border-radius: 0 var(--r2) var(--r2) 0;
+    margin: 12px 0; font-size: 1rem; line-height: 1.7;
+  }
+  .warning-point {
+    background: rgba(224,92,92,0.08); border-left: 3px solid var(--red);
+    padding: 12px 16px; border-radius: 0 var(--r2) var(--r2) 0;
+    margin: 12px 0; font-size: 1rem;
+  }
+
+  .table-wrap { overflow-x: auto; margin: 14px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+  th { background: var(--bg3); color: var(--gold2); padding: 10px 14px; text-align: left; font-family: 'Playfair Display'; font-weight: 700; }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--cream); }
+  tr:hover td { background: rgba(230,184,74,0.04); }
+
+  /* ─── Results Screen ─── */
+  .results-container { max-width: 680px; margin: 0 auto; padding: 40px 24px; text-align: center; }
+  .results-score {
+    font-family: 'Playfair Display'; font-size: 5rem; font-weight: 900;
+    background: linear-gradient(135deg, var(--gold2), var(--gold3));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin: 20px 0 8px;
+  }
+  .results-label { color: var(--muted); font-size: 1.1rem; margin-bottom: 28px; }
+  .results-breakdown {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; margin-bottom: 28px;
+    text-align: left;
+  }
+  .breakdown-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-topic { display: flex; align-items: center; gap: 10px; }
+  .breakdown-score-badge { font-family: 'Playfair Display'; font-weight: 700; font-size: 0.9rem; }
+  .score-high { color: var(--green); }
+  .score-mid { color: var(--orange); }
+  .score-low { color: var(--red); }
+
+  /* ─── Quick Ref ─── */
+  .ref-container { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+  .ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .ref-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+  }
+  .ref-card h3 { font-family: 'Playfair Display'; color: var(--gold2); margin-bottom: 14px; font-size: 1.1rem; }
+  .ref-table { width: 100%; font-size: 0.88rem; }
+  .ref-table td { padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+  .ref-table td:first-child { color: var(--gold); font-weight: 600; width: 35%; }
+
+  /* ─── Achievement Toast ─── */
+  .achievement-toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: linear-gradient(135deg, var(--bg3), var(--bg2));
+    border: 1px solid var(--gold3);
+    border-radius: var(--radius); padding: 16px 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(230,184,74,0.2);
+    z-index: 1000; display: none; animation: toastIn 0.4s ease;
+    min-width: 260px;
+  }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+  .achievement-toast .ach-icon { font-size: 2rem; margin-bottom: 4px; }
+  .achievement-toast .ach-title { font-family: 'Playfair Display'; color: var(--gold); font-weight: 700; }
+  .achievement-toast .ach-desc { font-size: 0.85rem; color: var(--muted); }
+
+  /* ─── Modal ─── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+    display: none; align-items: center; justify-content: center; z-index: 999;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 32px; max-width: 520px; width: 90%;
+    box-shadow: var(--shadow); animation: fadeIn 0.3s ease;
+  }
+  .modal-box h2 { font-family: 'Playfair Display'; color: var(--gold2); margin-bottom: 12px; }
+  .modal-box p { color: var(--cream); line-height: 1.7; margin-bottom: 20px; }
+  .modal-actions { display: flex; gap: 12px; }
+
+  /* Nav tabs at bottom of screen */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(13,17,23,0.95); backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: center; gap: 8px; padding: 12px 16px;
+    z-index: 100;
+  }
+  .nav-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 20px; border-radius: var(--r2); cursor: pointer;
+    border: none; background: transparent; color: var(--muted);
+    font-family: 'Crimson Text'; font-size: 0.78rem; transition: all 0.2s;
+  }
+  .nav-btn .nav-icon { font-size: 1.3rem; }
+  .nav-btn:hover, .nav-btn.active { color: var(--gold); background: rgba(230,184,74,0.1); }
+  .main-content { padding-bottom: 80px; }
+
+  /* Streak fire effect */
+  .fire { display: inline-block; animation: flicker 0.8s infinite alternate; }
+  @keyframes flicker { from { transform: scale(1); } to { transform: scale(1.1) rotate(3deg); } }
+
+  /* Confetti particles */
+  .confetti-particle {
+    position: fixed; width: 8px; height: 8px; border-radius: 2px;
+    pointer-events: none; z-index: 9999;
+    animation: confettiFall var(--dur) ease forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .dash-stats { grid-template-columns: repeat(2, 1fr); }
+    .ref-grid { grid-template-columns: 1fr; }
+    .dash-hero h1 { font-size: 2rem; }
+  }
+
+  /* Level badge */
+  .level-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, rgba(201,147,42,0.2), rgba(230,184,74,0.1));
+    border: 1px solid rgba(230,184,74,0.4); border-radius: 20px;
+    padding: 4px 14px; font-family: 'Playfair Display'; font-size: 0.85rem;
+    color: var(--gold2);
+  }
+
+  /* Tooltip */
+  [title] { cursor: help; }
+
+  /* Tag chips */
+  .chip {
+    display: inline-block; padding: 2px 10px; border-radius: 10px;
+    font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em;
+  }
+  .chip-red { background: rgba(224,92,92,0.15); color: var(--red); border: 1px solid rgba(224,92,92,0.3); }
+  .chip-green { background: rgba(86,211,100,0.15); color: var(--green); border: 1px solid rgba(86,211,100,0.3); }
+  .chip-yellow { background: rgba(230,184,74,0.15); color: var(--gold); border: 1px solid rgba(230,184,74,0.3); }
+  .chip-blue { background: rgba(121,192,255,0.15); color: var(--blue); border: 1px solid rgba(121,192,255,0.3); }
+
+  .flex-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .spacer { flex: 1; }
+
+  .bold { font-weight: 700; }
+  .italic { font-style: italic; }
+  .gold { color: var(--gold); }
+
+  /* Lesson nav */
+  .lesson-nav { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .lesson-nav-btn {
+    padding: 6px 14px; border-radius: 20px; cursor: pointer; border: none;
+    background: var(--bg3); color: var(--muted); font-size: 0.83rem;
+    border: 1px solid var(--border); transition: all 0.2s;
+    font-family: 'Crimson Text';
+  }
+  .lesson-nav-btn:hover, .lesson-nav-btn.active {
+    background: rgba(230,184,74,0.12); color: var(--gold); border-color: var(--gold3);
+  }
+
+  /* Diagnostic intro */
+  .diag-intro {
+    max-width: 600px; margin: 60px auto; padding: 24px;
+    text-align: center;
+  }
+  .diag-intro h2 { font-family: 'Playfair Display'; font-size: 2rem; color: var(--gold2); margin-bottom: 12px; }
+  .diag-intro p { color: var(--cream); line-height: 1.8; font-size: 1.1rem; margin-bottom: 24px; }
+
+  /* Mastery indicators */
+  .mastery-dot {
+    width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 4px;
+  }
+  .mastery-0 { background: var(--bg3); border: 1px solid var(--border); }
+  .mastery-1 { background: var(--red); }
+  .mastery-2 { background: var(--orange); }
+  .mastery-3 { background: var(--gold); }
+  .mastery-4 { background: var(--green); }
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<div class="staff-header">
+  <div class="staff-header-clef">𝄞</div>
+  <div class="staff-header-title">Maestro Mode — Grade 5 Theory</div>
+  <div class="staff-header-right">
+    <div class="xp-pill">
+      <span class="xp-label" id="hdr-level">Lvl 1</span>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="hdr-xpbar" style="width:0%"></div></div>
+      <span id="hdr-xp" style="color:var(--gold);font-size:0.8rem">0 XP</span>
+    </div>
+    <div class="streak-badge"><span class="fire">🔥</span> <span id="hdr-streak">0</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
+<div class="main-content">
+
+<!-- ─── DASHBOARD ─── -->
+<div id="screen-dashboard" class="screen active">
+  <div class="dash-container">
+    <div class="dash-hero">
+      <h1 id="dash-greeting">Ready to Conquer Grade 5?</h1>
+      <p id="dash-sub">Your exam is in 2-3 days. Let's focus on what matters most.</p>
+      <div style="margin-top:16px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="startDiagnostic()">🎯 Diagnostic Test</button>
+        <button class="btn btn-secondary" onclick="goScreen('screen-reference')">📖 Quick Reference</button>
+      </div>
+    </div>
+
+    <div class="dash-stats">
+      <div class="stat-card">
+        <div class="num" id="stat-xp">0</div>
+        <div class="lbl">Total XP</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="stat-streak">0 🔥</div>
+        <div class="lbl">Best Streak</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="stat-correct">0%</div>
+        <div class="lbl">Overall Accuracy</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="stat-topics">0/8</div>
+        <div class="lbl">Topics Mastered</div>
+      </div>
+    </div>
+
+    <p class="section-title">📚 Topic Modules</p>
+    <div class="topic-grid" id="topic-grid"></div>
+
+    <p class="section-title" style="margin-top:28px">🎯 Priority Focus Areas</p>
+    <div id="priority-areas" style="color:var(--muted);font-style:italic;padding:16px">
+      Complete the Diagnostic Test to see your weak areas here.
+    </div>
+
+    <div style="margin-top:32px;text-align:center">
+      <button class="btn btn-danger btn-sm" onclick="confirmReset()">↺ Reset All Progress</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DIAGNOSTIC INTRO ─── -->
+<div id="screen-diag-intro" class="screen">
+  <div class="diag-intro">
+    <div style="font-size:4rem;margin-bottom:16px">🎯</div>
+    <h2>Diagnostic Assessment</h2>
+    <p>This 24-question test covers all 8 theory topics. It takes about <strong>10-15 minutes</strong> and will pinpoint your strongest and weakest areas so we can focus your revision where it counts most.</p>
+    <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:20px 0;text-align:left">
+      <p style="color:var(--gold2);font-family:'Playfair Display';font-weight:700;margin-bottom:8px">What's covered:</p>
+      <ul style="padding-left:20px;line-height:2;color:var(--muted)">
+        <li>Rhythm &amp; Time Signatures (3 Qs)</li>
+        <li>Scales &amp; Key Signatures (3 Qs)</li>
+        <li>Intervals (3 Qs)</li>
+        <li>Chords &amp; Harmony (3 Qs)</li>
+        <li>Clefs &amp; Transposition (3 Qs)</li>
+        <li>Terms, Signs &amp; Ornaments (3 Qs)</li>
+        <li>Instruments &amp; Voices (3 Qs)</li>
+        <li>Minor Scales &amp; Modes (3 Qs)</li>
+      </ul>
+    </div>
+    <button class="btn btn-primary" onclick="beginDiagnostic()" style="font-size:1.1rem;padding:14px 32px">
+      Begin Diagnostic ▶
+    </button>
+    <br><br>
+    <button class="btn btn-secondary btn-sm" onclick="goScreen('screen-dashboard')">← Back</button>
+  </div>
+</div>
+
+<!-- ─── QUIZ SCREEN ─── -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-container">
+    <div class="quiz-header">
+      <button class="btn btn-secondary btn-sm" onclick="exitQuiz()">← Exit</button>
+      <div class="quiz-progress-wrap">
+        <div class="quiz-progress-bar">
+          <div class="quiz-progress-fill" id="quiz-progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="quiz-q-num" id="quiz-q-num">Q 1/24</div>
+    </div>
+
+    <div class="question-card" id="question-card">
+      <div class="question-topic-badge" id="q-topic-badge">TOPIC</div>
+      <div class="question-text" id="q-text">Loading...</div>
+      <div id="q-music-box" style="display:none"></div>
+      <div class="question-hint" id="q-hint"></div>
+      <div class="options-grid" id="q-options"></div>
+      <div class="feedback-banner" id="q-feedback">
+        <h4 id="fb-title"></h4>
+        <p id="fb-body"></p>
+      </div>
+    </div>
+
+    <div style="text-align:right">
+      <button class="btn btn-primary" id="quiz-next-btn" style="display:none" onclick="nextQuestion()">
+        Next Question →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── RESULTS SCREEN ─── -->
+<div id="screen-results" class="screen">
+  <div class="results-container">
+    <div style="font-size:4rem" id="results-emoji">🏆</div>
+    <div class="results-score" id="results-score">0/24</div>
+    <div class="results-label" id="results-label">Loading...</div>
+    <div style="margin-bottom:24px" id="results-rank-badge"></div>
+
+    <div class="results-breakdown" id="results-breakdown"></div>
+
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:16px">
+      <button class="btn btn-primary" id="results-practice-btn" onclick="practiceWeak()">
+        🎯 Practice Weak Areas
+      </button>
+      <button class="btn btn-secondary" onclick="goScreen('screen-dashboard')">← Dashboard</button>
+    </div>
+    <p style="color:var(--muted);font-size:0.9rem" id="results-advice"></p>
+  </div>
+</div>
+
+<!-- ─── LESSONS SCREEN ─── -->
+<div id="screen-lesson" class="screen">
+  <div class="lesson-container">
+    <div style="margin-bottom:16px">
+      <button class="btn btn-secondary btn-sm" onclick="goScreen('screen-dashboard')">← Dashboard</button>
+    </div>
+    <div class="lesson-header">
+      <div class="lesson-icon" id="lesson-icon">♩</div>
+      <div>
+        <div class="lesson-title" id="lesson-title">Topic</div>
+        <div class="lesson-subtitle" id="lesson-subtitle">Learn the concepts</div>
+      </div>
+    </div>
+    <div class="lesson-nav" id="lesson-nav"></div>
+    <div id="lesson-content"></div>
+    <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="lesson-practice-btn" onclick="startTopicPractice()">
+        ✏️ Practice This Topic
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── QUICK REFERENCE ─── -->
+<div id="screen-reference" class="screen">
+  <div class="ref-container">
+    <div style="margin-bottom:24px;display:flex;align-items:center;gap:12px">
+      <button class="btn btn-secondary btn-sm" onclick="goScreen('screen-dashboard')">← Back</button>
+      <span class="section-title" style="margin:0;border:none">📖 Quick Reference Sheets</span>
+    </div>
+    <div class="ref-grid">
+
+      <div class="ref-card">
+        <h3>🔑 Key Signatures</h3>
+        <table class="ref-table">
+          <tr><td>C major / A minor</td><td>0 sharps/flats</td></tr>
+          <tr><td>G major / E minor</td><td>F♯</td></tr>
+          <tr><td>D major / B minor</td><td>F♯ C♯</td></tr>
+          <tr><td>A major / F♯ minor</td><td>F♯ C♯ G♯</td></tr>
+          <tr><td>E major / C♯ minor</td><td>F♯ C♯ G♯ D♯</td></tr>
+          <tr><td>B major / G♯ minor</td><td>F♯ C♯ G♯ D♯ A♯</td></tr>
+          <tr><td>F♯ major / D♯ minor</td><td>F♯ C♯ G♯ D♯ A♯ E♯</td></tr>
+          <tr><td>F major / D minor</td><td>B♭</td></tr>
+          <tr><td>B♭ major / G minor</td><td>B♭ E♭</td></tr>
+          <tr><td>E♭ major / C minor</td><td>B♭ E♭ A♭</td></tr>
+          <tr><td>A♭ major / F minor</td><td>B♭ E♭ A♭ D♭</td></tr>
+          <tr><td>D♭ major / B♭ minor</td><td>B♭ E♭ A♭ D♭ G♭</td></tr>
+          <tr><td>G♭ major / E♭ minor</td><td>B♭ E♭ A♭ D♭ G♭ C♭</td></tr>
+        </table>
+      </div>
+
+      <div class="ref-card">
+        <h3>↕️ Intervals</h3>
+        <table class="ref-table">
+          <tr><td>Perfect Unison</td><td>0 semitones</td></tr>
+          <tr><td>Minor 2nd</td><td>1 semitone</td></tr>
+          <tr><td>Major 2nd</td><td>2 semitones</td></tr>
+          <tr><td>Minor 3rd</td><td>3 semitones</td></tr>
+          <tr><td>Major 3rd</td><td>4 semitones</td></tr>
+          <tr><td>Perfect 4th</td><td>5 semitones</td></tr>
+          <tr><td>Augmented 4th / Dim 5th</td><td>6 semitones</td></tr>
+          <tr><td>Perfect 5th</td><td>7 semitones</td></tr>
+          <tr><td>Minor 6th</td><td>8 semitones</td></tr>
+          <tr><td>Major 6th</td><td>9 semitones</td></tr>
+          <tr><td>Minor 7th</td><td>10 semitones</td></tr>
+          <tr><td>Major 7th</td><td>11 semitones</td></tr>
+          <tr><td>Perfect Octave</td><td>12 semitones</td></tr>
+        </table>
+        <p style="color:var(--muted);font-size:0.82rem;margin-top:8px">Compound: add 7 to simple name (e.g. 9th = 2nd + octave)</p>
+      </div>
+
+      <div class="ref-card">
+        <h3>🎭 Terms & Signs — Tempo</h3>
+        <table class="ref-table">
+          <tr><td>Grave</td><td>Very slow, solemn</td></tr>
+          <tr><td>Largo</td><td>Very slow, broad</td></tr>
+          <tr><td>Larghetto</td><td>Slightly faster than Largo</td></tr>
+          <tr><td>Lento</td><td>Slow</td></tr>
+          <tr><td>Adagio</td><td>Slow and stately</td></tr>
+          <tr><td>Andante</td><td>Walking pace</td></tr>
+          <tr><td>Andantino</td><td>Slightly faster than andante</td></tr>
+          <tr><td>Moderato</td><td>At a moderate pace</td></tr>
+          <tr><td>Allegretto</td><td>Moderately fast</td></tr>
+          <tr><td>Allegro</td><td>Fast and lively</td></tr>
+          <tr><td>Vivace</td><td>Lively, vivacious</td></tr>
+          <tr><td>Presto</td><td>Very fast</td></tr>
+          <tr><td>Prestissimo</td><td>As fast as possible</td></tr>
+          <tr><td>accelerando (accel.)</td><td>Getting faster</td></tr>
+          <tr><td>rallentando (rall.)</td><td>Getting slower</td></tr>
+          <tr><td>ritenuto (rit./riten.)</td><td>Held back, slower</td></tr>
+          <tr><td>ritardando (rit./ritard.)</td><td>Gradually getting slower</td></tr>
+          <tr><td>a tempo</td><td>Return to original tempo</td></tr>
+          <tr><td>rubato</td><td>Free, flexible tempo</td></tr>
+        </table>
+      </div>
+
+      <div class="ref-card">
+        <h3>🎭 Terms & Signs — Expression</h3>
+        <table class="ref-table">
+          <tr><td>ppp</td><td>Pianississimo – very very soft</td></tr>
+          <tr><td>pp</td><td>Pianissimo – very soft</td></tr>
+          <tr><td>p</td><td>Piano – soft</td></tr>
+          <tr><td>mp</td><td>Mezzo-piano – moderately soft</td></tr>
+          <tr><td>mf</td><td>Mezzo-forte – moderately loud</td></tr>
+          <tr><td>f</td><td>Forte – loud</td></tr>
+          <tr><td>ff</td><td>Fortissimo – very loud</td></tr>
+          <tr><td>fff</td><td>Fortississimo – very very loud</td></tr>
+          <tr><td>sfz / sf</td><td>Sforzando – forced accent</td></tr>
+          <tr><td>fz</td><td>Forzando – forced</td></tr>
+          <tr><td>crescendo</td><td>Getting louder</td></tr>
+          <tr><td>decrescendo / dim.</td><td>Getting softer</td></tr>
+          <tr><td>agitato</td><td>Agitated</td></tr>
+          <tr><td>amabile</td><td>Amiable, pleasant</td></tr>
+          <tr><td>appassionato</td><td>Passionately</td></tr>
+          <tr><td>cantabile</td><td>In a singing style</td></tr>
+          <tr><td>con brio</td><td>With vigour</td></tr>
+          <tr><td>con fuoco</td><td>With fire</td></tr>
+          <tr><td>con moto</td><td>With movement</td></tr>
+          <tr><td>dolce</td><td>Sweetly</td></tr>
+          <tr><td>espressivo (espress.)</td><td>Expressively</td></tr>
+          <tr><td>giocoso</td><td>Playfully, humorously</td></tr>
+          <tr><td>grazioso</td><td>Gracefully</td></tr>
+          <tr><td>leggiero</td><td>Lightly</td></tr>
+          <tr><td>maestoso</td><td>Majestically</td></tr>
+          <tr><td>marcato</td><td>Marked, stressed</td></tr>
+          <tr><td>scherzando</td><td>Playfully, jokingly</td></tr>
+          <tr><td>semplice</td><td>Simply</td></tr>
+          <tr><td>sostenuto</td><td>Sustained</td></tr>
+          <tr><td>tranquillo</td><td>Calmly, quietly</td></tr>
+          <tr><td>brillante</td><td>Brilliantly</td></tr>
+          <tr><td>comodo</td><td>Comfortable, leisurely</td></tr>
+          <tr><td>forza</td><td>Force, power</td></tr>
+          <tr><td>furioso</td><td>Furiously</td></tr>
+          <tr><td>grandioso</td><td>Grandly</td></tr>
+          <tr><td>lacrimoso</td><td>Tearfully</td></tr>
+          <tr><td>marziale</td><td>In a military style</td></tr>
+          <tr><td>mesto</td><td>Sadly</td></tr>
+          <tr><td>nobilmente</td><td>Nobly</td></tr>
+          <tr><td>pastorale</td><td>Peaceful, rural style</td></tr>
+          <tr><td>risoluto</td><td>Boldly, resolutely</td></tr>
+          <tr><td>teneramente</td><td>Tenderly</td></tr>
+          <tr><td>vivo/vivace</td><td>Lively</td></tr>
+        </table>
+      </div>
+
+      <div class="ref-card">
+        <h3>🎶 Performance Directions</h3>
+        <table class="ref-table">
+          <tr><td>legato</td><td>Smoothly</td></tr>
+          <tr><td>staccato</td><td>Detached</td></tr>
+          <tr><td>staccatissimo</td><td>Very detached</td></tr>
+          <tr><td>tenuto (ten.)</td><td>Held, sustained</td></tr>
+          <tr><td>portato</td><td>Carried, semi-detached</td></tr>
+          <tr><td>pizzicato (pizz.)</td><td>Plucked (strings)</td></tr>
+          <tr><td>arco</td><td>With the bow (strings)</td></tr>
+          <tr><td>col legno</td><td>With the wood of the bow</td></tr>
+          <tr><td>sul ponticello</td><td>Bow near the bridge</td></tr>
+          <tr><td>sul tasto</td><td>Bow over the fingerboard</td></tr>
+          <tr><td>con sordino</td><td>With mute</td></tr>
+          <tr><td>senza sordino</td><td>Without mute</td></tr>
+          <tr><td>tremolo</td><td>Rapid repetition of a note</td></tr>
+          <tr><td>vibrato</td><td>Slight wavering of pitch</td></tr>
+          <tr><td>glissando (gliss.)</td><td>Slide between notes</td></tr>
+          <tr><td>ossia</td><td>Alternatively</td></tr>
+          <tr><td>tacet</td><td>Be silent</td></tr>
+          <tr><td>Da Capo (D.C.)</td><td>From the beginning</td></tr>
+          <tr><td>Dal Segno (D.S.)</td><td>From the sign (𝄋)</td></tr>
+          <tr><td>al Fine</td><td>To the end</td></tr>
+          <tr><td>al Coda</td><td>To the Coda (⊕)</td></tr>
+          <tr><td>8va</td><td>Play an octave higher</td></tr>
+          <tr><td>8vb</td><td>Play an octave lower</td></tr>
+          <tr><td>loco</td><td>At normal pitch (after 8va)</td></tr>
+          <tr><td>simile</td><td>Continue in the same way</td></tr>
+          <tr><td>volta subito (v.s.)</td><td>Turn over quickly</td></tr>
+        </table>
+      </div>
+
+      <div class="ref-card">
+        <h3>🎻 Instruments & Clefs</h3>
+        <table class="ref-table">
+          <tr><td colspan="2" style="color:var(--gold2);font-weight:700;padding-top:8px">Strings</td></tr>
+          <tr><td>Violin</td><td>Treble clef</td></tr>
+          <tr><td>Viola</td><td>Alto clef (C, 3rd line)</td></tr>
+          <tr><td>Cello</td><td>Bass; tenor for high notes</td></tr>
+          <tr><td>Double Bass</td><td>Bass clef (sounds 8va lower)</td></tr>
+          <tr><td colspan="2" style="color:var(--gold2);font-weight:700;padding-top:8px">Woodwind</td></tr>
+          <tr><td>Flute, Oboe</td><td>Treble clef (C instruments)</td></tr>
+          <tr><td>Clarinet in B♭</td><td>Treble; sounds M2nd lower</td></tr>
+          <tr><td>Clarinet in A</td><td>Treble; sounds m3rd lower</td></tr>
+          <tr><td>Bassoon</td><td>Bass &amp; tenor clef</td></tr>
+          <tr><td colspan="2" style="color:var(--gold2);font-weight:700;padding-top:8px">Brass</td></tr>
+          <tr><td>Horn in F</td><td>Treble; sounds P5th lower</td></tr>
+          <tr><td>Trumpet in B♭</td><td>Treble; sounds M2nd lower</td></tr>
+          <tr><td>Trombone, Tuba</td><td>Bass clef (C instruments)</td></tr>
+          <tr><td colspan="2" style="color:var(--gold2);font-weight:700;padding-top:8px">Voice Types</td></tr>
+          <tr><td>Soprano, Mezzo-S, Alto</td><td>Treble clef</td></tr>
+          <tr><td>Tenor</td><td>Treble (sounds 8va lower) or tenor clef</td></tr>
+          <tr><td>Baritone, Bass</td><td>Bass clef</td></tr>
+        </table>
+      </div>
+
+      <div class="ref-card">
+        <h3>🎵 Chord Inversions</h3>
+        <table class="ref-table">
+          <tr><td>Root position</td><td>Root at bottom — 5/3 — no figure or ⁵₃</td></tr>
+          <tr><td>1st inversion</td><td>3rd at bottom — 6/3 — figure: ⁶ or ⁶₃</td></tr>
+          <tr><td>2nd inversion</td><td>5th at bottom — 6/4 — figure: ⁶₄</td></tr>
+        </table>
+        <br>
+        <table class="ref-table">
+          <tr><td colspan="2" style="color:var(--gold2);font-weight:700">Triad Types</td></tr>
+          <tr><td>Major</td><td>M3 + m3 (e.g. C–E–G)</td></tr>
+          <tr><td>Minor</td><td>m3 + M3 (e.g. A–C–E)</td></tr>
+          <tr><td>Augmented</td><td>M3 + M3 (e.g. C–E–G♯)</td></tr>
+          <tr><td>Diminished</td><td>m3 + m3 (e.g. B–D–F)</td></tr>
+        </table>
+        <br>
+        <table class="ref-table">
+          <tr><td colspan="2" style="color:var(--gold2);font-weight:700">Degrees of the Scale</td></tr>
+          <tr><td>I</td><td>Tonic</td></tr>
+          <tr><td>II</td><td>Supertonic</td></tr>
+          <tr><td>III</td><td>Mediant</td></tr>
+          <tr><td>IV</td><td>Subdominant</td></tr>
+          <tr><td>V</td><td>Dominant</td></tr>
+          <tr><td>VI</td><td>Submediant</td></tr>
+          <tr><td>VII</td><td>Leading note</td></tr>
+        </table>
+      </div>
+
+      <div class="ref-card">
+        <h3>🌀 Ornaments</h3>
+        <table class="ref-table">
+          <tr><td>Trill (tr or ~~~)</td><td>Rapid alternation between note and note above (major or minor 2nd). Starts on upper note in Baroque; on written note in Classical/Romantic (ABRSM accepts both for G5)</td></tr>
+          <tr><td>Mordent (♩ with wavy line below)</td><td>Lower mordent: main note → one below → main note</td></tr>
+          <tr><td>Upper mordent / Pralltriller</td><td>main note → one above → main note</td></tr>
+          <tr><td>Turn (~)</td><td>Upper note → main → lower → main (4 notes)</td></tr>
+          <tr><td>Acciaccatura (grace note with slash)</td><td>"Crushed" note – played as quickly as possible before the main note</td></tr>
+          <tr><td>Appoggiatura (plain grace note)</td><td>"Leaning" note – takes half (or two-thirds) the value of the main note; resolved on the beat</td></tr>
+        </table>
+      </div>
+
+      <div class="ref-card">
+        <h3>⏱️ Time Signatures</h3>
+        <table class="ref-table">
+          <tr><td colspan="2" style="color:var(--gold2);font-weight:700">Simple Time</td></tr>
+          <tr><td>2/4</td><td>2 crotchet beats per bar</td></tr>
+          <tr><td>3/4</td><td>3 crotchet beats per bar</td></tr>
+          <tr><td>4/4 (C)</td><td>4 crotchet beats per bar</td></tr>
+          <tr><td>2/2 (𝄵)</td><td>2 minim beats per bar (alla breve)</td></tr>
+          <tr><td>3/2</td><td>3 minim beats per bar</td></tr>
+          <tr><td>3/8</td><td>3 quaver beats per bar</td></tr>
+          <tr><td colspan="2" style="color:var(--gold2);font-weight:700;padding-top:8px">Compound Time</td></tr>
+          <tr><td>6/8</td><td>2 dotted crotchet beats</td></tr>
+          <tr><td>9/8</td><td>3 dotted crotchet beats</td></tr>
+          <tr><td>12/8</td><td>4 dotted crotchet beats</td></tr>
+          <tr><td colspan="2" style="color:var(--gold2);font-weight:700;padding-top:8px">Irregular Time</td></tr>
+          <tr><td>5/4</td><td>5 crotchet beats (usually 2+3 or 3+2)</td></tr>
+          <tr><td>7/4</td><td>7 crotchet beats (usually 4+3 or 3+4)</td></tr>
+          <tr><td>5/8</td><td>5 quaver beats</td></tr>
+          <tr><td>7/8</td><td>7 quaver beats</td></tr>
+        </table>
+        <div class="key-point" style="margin-top:12px;font-size:0.85rem">
+          <strong>Simple:</strong> top ÷ beats per bar, bottom = note value denominator<br>
+          <strong>Compound:</strong> top ÷ 3 = beats, each beat = dotted note<br>
+          <strong>Triplet:</strong> 3 notes in the time of 2
+        </div>
+      </div>
+
+      <div class="ref-card" style="grid-column: span 2">
+        <h3>🎼 French & German Terms (Grade 5)</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div>
+            <p style="color:var(--gold2);font-weight:700;margin-bottom:8px;font-family:'Playfair Display'">French</p>
+            <table class="ref-table">
+              <tr><td>animé</td><td>Animated, lively</td></tr>
+              <tr><td>assez</td><td>Enough, rather</td></tr>
+              <tr><td>avec</td><td>With</td></tr>
+              <tr><td>bien</td><td>Well, very</td></tr>
+              <tr><td>cédez</td><td>Yield, slow down</td></tr>
+              <tr><td>court</td><td>Short</td></tr>
+              <tr><td>doux</td><td>Sweet, gentle</td></tr>
+              <tr><td>en dehors</td><td>Prominent, standing out</td></tr>
+              <tr><td>et</td><td>And</td></tr>
+              <tr><td>expressif</td><td>Expressive</td></tr>
+              <tr><td>légèrement</td><td>Lightly</td></tr>
+              <tr><td>lent</td><td>Slow</td></tr>
+              <tr><td>mais</td><td>But</td></tr>
+              <tr><td>moins</td><td>Less</td></tr>
+              <tr><td>modéré</td><td>Moderate</td></tr>
+              <tr><td>non</td><td>Not</td></tr>
+              <tr><td>peu à peu</td><td>Little by little</td></tr>
+              <tr><td>presser</td><td>To hurry</td></tr>
+              <tr><td>ralentir</td><td>To slow down</td></tr>
+              <tr><td>retenu</td><td>Held back</td></tr>
+              <tr><td>sans</td><td>Without</td></tr>
+              <tr><td>subitement</td><td>Suddenly</td></tr>
+              <tr><td>très</td><td>Very</td></tr>
+              <tr><td>un peu</td><td>A little</td></tr>
+              <tr><td>vif</td><td>Lively</td></tr>
+            </table>
+          </div>
+          <div>
+            <p style="color:var(--gold2);font-weight:700;margin-bottom:8px;font-family:'Playfair Display'">German</p>
+            <table class="ref-table">
+              <tr><td>aber</td><td>But</td></tr>
+              <tr><td>ausdrucksvoll</td><td>Expressive</td></tr>
+              <tr><td>bewegt</td><td>With movement, agitated</td></tr>
+              <tr><td>breit</td><td>Broad</td></tr>
+              <tr><td>einfach</td><td>Simple</td></tr>
+              <tr><td>etwas</td><td>Somewhat, rather</td></tr>
+              <tr><td>fröhlich</td><td>Happy, merry</td></tr>
+              <tr><td>gedämpft</td><td>Muted, damped</td></tr>
+              <tr><td>immer</td><td>Always</td></tr>
+              <tr><td>kräftig</td><td>Strong, vigorous</td></tr>
+              <tr><td>langsam</td><td>Slow</td></tr>
+              <tr><td>lebhaft</td><td>Lively</td></tr>
+              <tr><td>leise</td><td>Soft, gentle</td></tr>
+              <tr><td>mäßig</td><td>Moderate</td></tr>
+              <tr><td>mit</td><td>With</td></tr>
+              <tr><td>nicht</td><td>Not</td></tr>
+              <tr><td>ruhig</td><td>Calm, peaceful</td></tr>
+              <tr><td>schnell</td><td>Fast</td></tr>
+              <tr><td>sehr</td><td>Very</td></tr>
+              <tr><td>stark</td><td>Strong</td></tr>
+              <tr><td>und</td><td>And</td></tr>
+              <tr><td>wenig</td><td>Little</td></tr>
+              <tr><td>zart</td><td>Tender, delicate</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</div><!-- end main-content -->
+
+<!-- ─── BOTTOM NAV ─── -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-dash" onclick="goScreen('screen-dashboard');setActiveNav('nav-dash')">
+    <span class="nav-icon">🏠</span>Dashboard
+  </button>
+  <button class="nav-btn" id="nav-diag" onclick="startDiagnostic();setActiveNav('nav-diag')">
+    <span class="nav-icon">🎯</span>Diagnostic
+  </button>
+  <button class="nav-btn" id="nav-ref" onclick="goScreen('screen-reference');setActiveNav('nav-ref')">
+    <span class="nav-icon">📖</span>Reference
+  </button>
+</nav>
+
+<!-- ─── ACHIEVEMENT TOAST ─── -->
+<div class="achievement-toast" id="ach-toast">
+  <div class="ach-icon" id="ach-icon">🏆</div>
+  <div class="ach-title" id="ach-title">Achievement!</div>
+  <div class="ach-desc" id="ach-desc">Description here</div>
+</div>
+
+<!-- ─── MODAL ─── -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <h2 id="modal-title">Confirm</h2>
+    <p id="modal-body">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="modal-confirm">Confirm</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  DATA — TOPICS
+// ══════════════════════════════════════════════════════
+const TOPICS = [
+  { id:'rhythm', name:'Rhythm & Time', icon:'⏱️', color:'#e05c5c', sub:'Time signatures, grouping, triplets' },
+  { id:'scales', name:'Scales & Key Signatures', icon:'🔑', color:'#56d364', sub:'Major, minor, all 6♯/♭ keys' },
+  { id:'intervals', name:'Intervals', icon:'↕️', color:'#79c0ff', sub:'Major, minor, perfect, aug, dim, compound' },
+  { id:'chords', name:'Chords & Harmony', icon:'🎵', color:'#bc8cff', sub:'Triads, inversions, degrees I–VII' },
+  { id:'clefs', name:'Clefs & Transposition', icon:'𝄞', color:'#ffa657', sub:'Treble, bass, alto, tenor; octave transposition' },
+  { id:'terms', name:'Terms & Signs', icon:'🎭', color:'#4fc3a1', sub:'Tempo, dynamics, expression, ornaments' },
+  { id:'instruments', name:'Instruments & Voices', icon:'🎻', color:'#f0d080', sub:'Families, clefs used, transposing instruments' },
+  { id:'minors', name:'Minor Scales & Modes', icon:'🌑', color:'#ff7fc6', sub:'Natural, harmonic, melodic minor; relative keys' },
+];
+
+// ══════════════════════════════════════════════════════
+//  DATA — QUESTION BANK
+// ══════════════════════════════════════════════════════
+const QB = {
+  rhythm: [
+    { q:"In compound time, the beat is divided into groups of:", opts:["2","3","4","5"], ans:1, exp:"In compound time, the beat is divided into THREE equal parts (e.g., in 6/8, each dotted crotchet beat divides into three quavers). This distinguishes it from simple time, where beats divide into two." },
+    { q:"Which time signature is an IRREGULAR time signature?", opts:["6/8","3/4","5/4","4/4"], ans:2, exp:"5/4 is irregular because it cannot be classified as purely simple or compound. It contains 5 crotchet beats per bar, typically grouped as 2+3 or 3+2. Other irregular signatures: 7/4, 5/8, 7/8." },
+    { q:"A triplet (♩♩♩ with a '3') in simple time means:", opts:["3 notes in the time of 4","3 notes in the time of 2","2 notes in the time of 3","3 notes in the time of 1"], ans:1, exp:"A triplet divides a beat into THREE equal parts instead of the normal TWO in simple time. Three triplet quavers take the same time as two regular quavers." },
+    { q:"In 6/8 time, how many quaver beats are in each bar?", opts:["6","3","2","4"], ans:0, exp:"6/8 has 6 quavers per bar, but they are organised as TWO dotted crotchet beats, each containing 3 quavers. The '6' tells us there are 6 quavers; the '8' tells us the quaver is the counting unit." },
+    { q:"The time signature 𝄵 (cut common time / alla breve) means:", opts:["4 crotchet beats","2 minim beats","3 minim beats","4 minim beats"], ans:1, exp:"𝄵 (alla breve) means 2 minim beats per bar. It is equivalent to 2/2. The music is conducted in 2, with the minim as the beat." },
+    { q:"How would you correctly group 4 semiquavers + 2 quavers in a 4/4 bar (first beat)?", opts:["As one group of 6","As 4 semiquavers (tied) then 2 separate quavers","As one beat of 4 semiquavers + one beat of 2 quavers","You cannot mix these note values in one beat"], ans:2, exp:"In 4/4, each beat is a crotchet. Group notes within beats: beat 1 = 4 semiquavers (= 1 crotchet), beat 2 = 2 quavers (= 1 crotchet). Notes should be beamed within beats, not across them." },
+    { q:"What is a duplet?", opts:["Two notes in the time of three","Three notes in the time of two","Two equal notes tied together","Two bars of compound time"], ans:0, exp:"A duplet is TWO notes played in the time of THREE — the reverse of a triplet. It occurs in compound time (e.g., 6/8), when you want to temporarily subdivide into 2 equal parts instead of 3." },
+    { q:"In 7/8, the beats are typically grouped as:", opts:["3+3+1","4+3 or 3+4","5+2","All 7 are equal"], ans:1, exp:"7/8 is usually grouped as 4+3 (quavers) or 3+4. Some composers use 2+2+3 or other combinations, but the most common exam answer is 4+3 or 3+4." },
+    { q:"A dotted minim in a 3/4 bar:", opts:["Cannot appear — too long","Fills the whole bar","Fills 2 beats out of 3","Must be written as 3 tied crotchets"], ans:1, exp:"A dotted minim = 3 crotchet beats. In 3/4 time, there are exactly 3 crotchet beats per bar, so a dotted minim perfectly fills one complete bar." },
+    { q:"In simple time, the top number tells you:", opts:["The type of beat","The number of beats per bar","Whether it's simple or compound","The note value of each beat"], ans:1, exp:"In simple time: TOP number = number of beats per bar. BOTTOM number = the note that gets one beat (4 = crotchet, 2 = minim, 8 = quaver). E.g., 3/4 = 3 crotchet beats per bar." },
+  ],
+
+  scales: [
+    { q:"What is the key signature of A major?", opts:["F♯, C♯, G♯","F♯, C♯, G♯, D♯","F♯, C♯","B♭, E♭, A♭"], ans:0, exp:"A major has 3 sharps: F♯, C♯, G♯. Memory trick: count up the Circle of 5ths — G(1♯), D(2♯), A(3♯). Each step adds a sharp in the order: F C G D A E B." },
+    { q:"The relative minor of D major is:", opts:["B minor","F♯ minor","D minor","G minor"], ans:0, exp:"The relative minor starts on the 6th degree of the major scale. D major: D–E–F♯–G–A–B–C♯. The 6th note is B. So B minor is relative to D major — they share the same key signature (2 sharps: F♯, C♯)." },
+    { q:"The harmonic minor scale differs from the natural minor by:", opts:["Raising the 6th degree","Raising the 7th degree","Lowering the 7th degree","Raising both 6th and 7th"], ans:1, exp:"Harmonic minor = natural minor with the 7th degree RAISED by a semitone. This creates a leading note that 'leads' strongly to the tonic. The gap between degrees 6 and 7 becomes an augmented 2nd (3 semitones), giving harmonic minor its characteristic exotic sound." },
+    { q:"How many flats does E♭ major have?", opts:["2","3","4","5"], ans:1, exp:"E♭ major has 3 flats: B♭, E♭, A♭. Use the flat mnemonic: B E A D G C F. Count up to include E♭ as a key: F(1♭), B♭(2♭), E♭(3♭)." },
+    { q:"The melodic minor scale ascending uses:", opts:["Raised 6th and raised 7th","Only raised 7th","Natural minor throughout","Lowered 2nd and 7th"], ans:0, exp:"Melodic minor ascending: raise BOTH the 6th and 7th degrees by a semitone compared to the natural minor. Descending, it reverts to the natural minor. This avoids the awkward augmented 2nd of harmonic minor in melodic lines." },
+    { q:"B♭ major has which key signature?", opts:["B♭ only","B♭, E♭","B♭, E♭, A♭","B♭, E♭, A♭, D♭"], ans:1, exp:"B♭ major has 2 flats: B♭ and E♭. The order of flats is B♭ E♭ A♭ D♭ G♭ C♭ F♭." },
+    { q:"Which scale uses the pattern: T-S-T-T-T-S-T?", opts:["Natural minor","Major scale","Harmonic minor","Melodic minor ascending"], ans:1, exp:"The MAJOR scale pattern is: Tone Semitone Tone Tone Tone Semitone Tone (T-S-T-T-T-S-T). The semitones fall between degrees 3–4 and 7–8." },
+    { q:"What is the parallel minor of G major?", opts:["E minor","G minor","B minor","D minor"], ans:1, exp:"The PARALLEL minor shares the same TONIC (starting note) but has a different key signature. G major → G minor (which has 2 flats: B♭, E♭). Compare: RELATIVE minor shares the key signature but has a different tonic." },
+    { q:"C♯ minor (harmonic) — which note is raised compared to the natural minor?", opts:["B becomes B♯","G♯ becomes G♯♯ (A)","A♯ becomes A♯♯","D♯ becomes D♯♯"], ans:1, exp:"C♯ natural minor: C♯-D♯-E-F♯-G♯-A-B-C♯. The 7th degree is B. In harmonic minor, raise the 7th: B becomes B♯. Wait — G♯ is the 5th degree. The 7th is B, so harmonic minor raises B to B♯." },
+    { q:"How many sharps does F♯ major have?", opts:["5","6","7","4"], ans:1, exp:"F♯ major has 6 sharps: F♯, C♯, G♯, D♯, A♯, E♯. It is one of the 'extreme' key signatures at the edge of the Circle of 5ths, relative to D♯ minor." },
+  ],
+
+  intervals: [
+    { q:"The interval from C to G is a:", opts:["Perfect 4th","Perfect 5th","Major 5th","Minor 5th"], ans:1, exp:"C to G spans 5 note names (C–D–E–F–G = 5) and 7 semitones. A Perfect 5th contains 7 semitones. Remember: intervals involving the tonic in a major scale are either MAJOR or PERFECT; they become minor/diminished when reduced, or augmented when enlarged." },
+    { q:"A Major 6th above E is:", opts:["B","C♯","D","C"], ans:1, exp:"Count up 6 note names: E–F–G–A–B–C–(skip)? E(1)–F(2)–G(3)–A(4)–B(5)–C(6) = C. A major 6th = 9 semitones. E to C = 8 semitones (minor 6th). E to C♯ = 9 semitones → Major 6th. Answer: C♯." },
+    { q:"A compound interval is:", opts:["An interval larger than a 5th","An interval larger than an octave","An interval with two accidentals","An interval combining two different notes"], ans:1, exp:"A compound interval is LARGER THAN AN OCTAVE. To name it: subtract 7 from the number (e.g., a 10th = 3rd + octave = a compound 3rd). A 9th = compound 2nd, a 10th = compound 3rd, etc." },
+    { q:"The interval from D to A♭ is:", opts:["Diminished 5th","Perfect 5th","Augmented 4th","Minor 5th"], ans:0, exp:"D to A = Perfect 5th (7 semitones). A♭ is one semitone lower than A, making D to A♭ = 6 semitones. A diminished 5th = 6 semitones. Note: an augmented 4th also = 6 semitones — but the LETTER names tell us: D(1)–E(2)–F(3)–G(4)–A(5) = a 5th." },
+    { q:"Which pair of intervals are enharmonic equivalents?", opts:["Major 3rd and Perfect 4th","Augmented 4th and Diminished 5th","Minor 6th and Major 7th","Perfect 5th and Minor 6th"], ans:1, exp:"An Augmented 4th (tritone, 6 semitones) and a Diminished 5th (also 6 semitones) sound identical but are SPELLED differently. This is called an enharmonic equivalent. e.g., F–B♭ is a Diminished 5th; F–A♯ is an Augmented 4th — both are 6 semitones." },
+    { q:"To name an interval, you need to know:", opts:["Only the number of semitones","Only the letter name distance","Both the letter name distance AND the number of semitones","Only the key signature"], ans:2, exp:"You need BOTH: (1) Count the letter names for the interval NUMBER, (2) Count semitones to determine the QUALITY (perfect/major/minor/augmented/diminished). Letter names alone tell you the number but not whether it's major or minor." },
+    { q:"A Minor 7th above G is:", opts:["E♭","F","F♯","E"], ans:1, exp:"Count 7 letter names up from G: G(1)–A(2)–B(3)–C(4)–D(5)–E(6)–F(7) = F. A minor 7th = 10 semitones. G to F = 10 semitones. Answer: F. (A major 7th = 11 semitones = F♯.)" },
+    { q:"The interval C to E♭ is:", opts:["Major 3rd","Minor 3rd","Diminished 3rd","Augmented 2nd"], ans:1, exp:"C to E = Major 3rd (4 semitones). C to E♭ = 3 semitones. The letter span is still a 3rd (C–D–E = 3 letters), so it's a Minor 3rd." },
+    { q:"A Perfect 4th + a Perfect 5th =", opts:["A Perfect 9th","An Octave","A Major 7th","A compound 4th"], ans:1, exp:"P4 (5 semitones) + P5 (7 semitones) = 12 semitones = one octave. This is a useful rule: the inversion of a Perfect 4th is always a Perfect 5th, and they sum to an octave." },
+    { q:"Which interval quality CANNOT be applied to a 5th or 4th?", opts:["Diminished","Perfect","Major","Augmented"], ans:2, exp:"Intervals 1, 4, 5, and 8 are PERFECT intervals — they use the qualities Perfect, Augmented, or Diminished. They CANNOT be major or minor. Intervals 2, 3, 6, and 7 are major/minor intervals and cannot be 'perfect'." },
+  ],
+
+  chords: [
+    { q:"A triad in first inversion has:", opts:["The root at the bottom","The 3rd at the bottom","The 5th at the bottom","The 7th at the bottom"], ans:1, exp:"First inversion = the THIRD of the chord at the bottom. Root position = root at bottom. Second inversion = fifth at bottom. The figured bass numbers are: root = 5/3 (or blank), 1st inv = 6/3 (or just 6), 2nd inv = 6/4." },
+    { q:"The chord built on the SUPERTONIC (2nd degree) of the scale is chord:", opts:["I","II","III","IV"], ans:1, exp:"Supertonic = 2nd degree of the scale. The chord built on it is chord II. In a major key, chord II is a minor triad (e.g., in C major: D–F–A). ABRSM Grade 5 adds chord II to the previously required I, IV, V." },
+    { q:"In C major, the chord V (dominant) is:", opts:["F–A–C","G–B–D","E–G–B","C–E–G"], ans:1, exp:"The dominant is the 5th degree. In C major: C(I)–D(II)–E(III)–F(IV)–G(V). Chord V = G–B–D. This is a major triad (G major)." },
+    { q:"An augmented triad consists of:", opts:["Two minor 3rds","A major 3rd + a minor 3rd","Two major 3rds","A minor 3rd + a major 3rd"], ans:2, exp:"Augmented triad = Major 3rd + Major 3rd. E.g., C–E–G♯. The outer interval is an augmented 5th (8 semitones). Compare: Major = M3+m3; Minor = m3+M3; Diminished = m3+m3." },
+    { q:"The figured bass '6' (or 6/3) indicates:", opts:["Root position","First inversion","Second inversion","Third inversion"], ans:1, exp:"Figured bass 6 (or ⁶₃) = FIRST INVERSION. The '6' refers to the interval of a 6th between the bass note and the root of the chord, with a 3rd from the bass to the middle note." },
+    { q:"In A minor (harmonic), what is chord V?", opts:["E–G–B","E–G♯–B","E♭–G–B♭","E–G–B♭"], ans:1, exp:"In harmonic minor, the 7th degree is raised. A harmonic minor: A–B–C–D–E–F–G♯. Chord V is built on E: E–G♯–B. The raised G♯ makes it a MAJOR triad, giving a strong dominant-tonic pull." },
+    { q:"Chord IV in G major is:", opts:["C–E–G","D–F♯–A","G–B–D","C–E♭–G"], ans:0, exp:"The subdominant (4th degree) of G major is C. Chord IV = C–E–G = C major triad. In G major, there are no accidentals on C, E, or G, so this is a straightforward C major chord." },
+    { q:"A diminished triad on B (in C major) consists of:", opts:["B–D–F","B–D♯–F♯","B–D–F♯","B♭–D–F"], ans:0, exp:"In C major, B is the 7th degree (leading note). The triad built naturally on B using only C major notes: B–D–F. B to D = minor 3rd (3 semitones); B to F = diminished 5th (6 semitones). This makes it a DIMINISHED triad." },
+    { q:"What does 'root position' mean for a chord?", opts:["The chord is in its simplest form","The lowest note is the root (tonic note of the chord)","The chord has no inversions possible","The chord is played quietly"], ans:1, exp:"Root position means the LOWEST NOTE (bass note) is the root of the chord — the note the chord is named after. E.g., C major in root position = C at the bottom, E and G above it." },
+    { q:"Chord II in E♭ major is:", opts:["F minor (F–A♭–C)","F major (F–A–C)","F diminished (F–A♭–C♭)","G minor (G–B♭–D)"], ans:0, exp:"Chord II in E♭ major is built on F (the 2nd degree). Using only notes from E♭ major (B♭, E♭, A♭): F–A♭–C. F to A♭ = minor 3rd; F to C = perfect 5th → F minor triad. In all major keys, chord II is always minor." },
+  ],
+
+  clefs: [
+    { q:"In the alto clef (C clef on 3rd line), middle C is:", opts:["On the 1st space","On the 3rd line","On the 4th line","On the 2nd ledger line"], ans:1, exp:"The alto clef marks MIDDLE C on the 3RD LINE of the staff. The 'bow' of the B-shaped clef sign always points to middle C. Alto clef is used primarily by the viola." },
+    { q:"In the tenor clef, middle C is on:", opts:["The 3rd line","The 4th line","The 5th line","The 2nd line"], ans:1, exp:"The tenor clef is a C clef on the 4TH LINE — middle C sits on the 4th line. It's used for the upper register of cello, bassoon, and trombone. Remember: alto = 3rd line; tenor = 4th line." },
+    { q:"A note on the 4th line of the treble clef is:", opts:["D","E","F","G"], ans:1, exp:"In treble clef, from bottom: Line 1=E, Space 1=F, Line 2=G, Space 2=A, Line 3=B, Space 3=C, Line 4=D, Space 4=E, Line 5=F. The 4th line = D. Mnemonic: Every Good Boy Deserves Fruit (lines) / FACE (spaces)." },
+    { q:"When transposing a melody up an octave in the treble clef to the bass clef, you:", opts:["Move each note up 8 lines/spaces","Move each note down and add 1 ledger line above middle C","Simply copy it to bass clef","The same note appears two lines higher in bass clef"], ans:3, exp:"When moving from treble to bass clef, the same pitch appears differently on the staff. For example, middle C appears on the first ledger line BELOW in treble clef but on the first ledger line ABOVE in bass clef. When transposing UP an octave (treble→bass for a melody), rewrite the notes at their new positions." },
+    { q:"The viola uses which clef as its primary clef?", opts:["Treble clef","Bass clef","Alto clef (C on 3rd line)","Tenor clef (C on 4th line)"], ans:2, exp:"The viola primarily uses the ALTO CLEF. When notes become very high, the viola player may switch to treble clef. The alto clef was historically used for alto voice parts too." },
+    { q:"In the bass clef, the note on the top (5th) line is:", opts:["A","B","C","D"], ans:0, exp:"Bass clef lines from bottom: G(1)–B(2)–D(3)–F(4)–A(5). Mnemonic: Good Boys Do Fine Always (lines). Spaces: A–C–E–G (All Cows Eat Grass). Top line = A." },
+    { q:"When a piece says '8va' above a note, you play:", opts:["One octave lower","One octave higher","Two octaves higher","At written pitch"], ans:1, exp:"8va (ottava) = play ONE OCTAVE HIGHER than written. 8vb = one octave lower. 15ma = two octaves higher. When the 8va line ends (marked 'loco'), return to written pitch." },
+    { q:"In the alto clef, the note on the top line (5th line) is:", opts:["C","D","E","F"], ans:1, exp:"Alto clef: Middle C is on the 3rd line. Count up: 3rd line = C, 3rd space = D, 4th line = E, 4th space = F, 5th line = G. Wait — let me recount from the middle: 3rd line = C (middle C), count up by steps: space 3 = D, line 4 = E, space 4 = F, line 5 = G." },
+    { q:"Which note appears on the 1st ledger line BELOW the treble clef staff?", opts:["A","B♭","C (middle C)","D"], ans:2, exp:"The first ledger line below the treble clef = MIDDLE C. This is one of the most important reference points. In bass clef, middle C appears on the first ledger line ABOVE the staff." },
+    { q:"The tenor clef is used by which instruments?", opts:["Flute and violin","Viola primarily","Cello and bassoon (for high notes) and trombone","Trumpet and horn"], ans:2, exp:"The tenor clef is used by cello and bassoon when playing in a higher register, and by trombone. These instruments normally use bass clef but switch to tenor clef to avoid many ledger lines above the bass staff." },
+  ],
+
+  terms: [
+    { q:"'Rallentando' (rall.) means:", opts:["Getting faster","Getting louder","Getting gradually slower","Suddenly stopping"], ans:2, exp:"Rallentando = getting gradually slower. It is very similar to ritardando (ritard./rit.), which also means getting gradually slower. Ritenuto (riten./rit.) means immediately slower/held back. In the ABRSM exam, rall. and ritard. are treated as synonymous." },
+    { q:"What does 'sforzando' (sfz) mean?", opts:["Very soft","Suddenly loud, then softer","A forced/strong accent on a single note","Getting gradually louder"], ans:2, exp:"Sforzando (sfz) means a sudden, forced strong accent on a specific note. It is a sudden emphasis, much stronger than a normal accent (>). Sometimes written as sf or fz (forzando). The effect is immediate, not gradual." },
+    { q:"The ornament 'acciaccatura' is represented by:", opts:["A small note with no slash","A small note with a slash through its stem","A wavy line","A bracket above the note"], ans:1, exp:"The acciaccatura (grace note) is shown as a small note with a SLASH through its stem, indicating it should be 'crushed' — played as briefly as possible before the main note, stealing time from whatever comes before." },
+    { q:"'Cantabile' means:", opts:["In a dance style","In a singing style","Vigorously","Sweetly and softly"], ans:1, exp:"Cantabile = 'singable' in Italian — in a SINGING STYLE. It implies a smooth, lyrical, expressive quality, as if a voice is carrying the melody. Common instruction for slow lyrical passages." },
+    { q:"Which of these is a FRENCH musical term?", opts:["Adagio","Lebhaft","Cédez","Scherzando"], ans:2, exp:"Cédez is FRENCH, meaning 'yield/slow down'. Adagio is Italian, Lebhaft is German, Scherzando is Italian. Grade 5 requires knowledge of Italian, French AND German terms." },
+    { q:"A 'turn' (~) ornament played on the note consists of:", opts:["The note — one note above — the note","Upper note — main note — lower note — main note","Main note — lower note — main note","Rapid alternation between note and neighbour"], ans:1, exp:"A turn consists of FOUR notes: upper neighbour → main note → lower neighbour → main note. The exact execution can vary slightly based on context and period, but this is the standard ABRSM description." },
+    { q:"'Ritenuto' (riten.) means:", opts:["Gradually getting slower","Immediately held back / instantly slower","Returning to tempo","Slowing then stopping"], ans:1, exp:"Ritenuto means IMMEDIATELY held back — an instant reduction in speed (not gradual). This contrasts with rallentando/ritardando which are gradual. 'A tempo' then restores the original speed." },
+    { q:"'Mäßig' is a German term meaning:", opts:["Slow","Moderate","Fast","Lively"], ans:1, exp:"Mäßig is a German term meaning MODERATE or at a moderate pace — equivalent to the Italian 'moderato'. German terms frequently appear in Grade 5 exams." },
+    { q:"A trill (tr) means:", opts:["A single accented note","Rapid alternation between the written note and the note above","Play the note twice","A slight delay before the note"], ans:1, exp:"A trill is the rapid alternation between the main written note and the note ONE STEP ABOVE (usually a major or minor 2nd above, depending on the key). In Baroque music it typically starts on the upper note; in later music on the written note." },
+    { q:"'Con sordino' instructs the player to:", opts:["Play without pedal","Use a mute","Play with the bow","Pluck the string"], ans:1, exp:"Con sordino = 'with mute'. A mute is a device placed on the bridge (strings) or in the bell (brass) to dampen and change the quality of the sound. 'Senza sordino' = without mute." },
+  ],
+
+  instruments: [
+    { q:"The clarinet in B♭ sounds a major 2nd LOWER than written. If the player reads C, the actual pitch is:", opts:["D","B","B♭","A"], ans:2, exp:"The B♭ clarinet is a TRANSPOSING INSTRUMENT that sounds a major 2nd lower than written. Written C → sounds B♭. So to hear a concert C, the clarinettist reads D. In exam questions: written note − major 2nd = sounding pitch." },
+    { q:"Which instrument family does the oboe belong to?", opts:["Brass","Woodwind (double reed)","Woodwind (single reed)","Strings"], ans:1, exp:"The oboe is a woodwind instrument with a DOUBLE REED (two thin pieces of cane that vibrate together when blown). Other double-reed instruments: bassoon, cor anglais. Single-reed: clarinet, saxophone." },
+    { q:"The horn in F sounds a perfect 5th LOWER than written. Written C sounds as:", opts:["G above","F","G below","A♭"], ans:2, exp:"Horn in F sounds a P5th LOWER than written. Written C (middle C) → sounds as the F below (or G below, depending on register). If the written note is C4, subtract a P5th = F3. Or more precisely: written C → sounds F (a P5 lower)." },
+    { q:"The double bass is a non-transposing instrument that sounds:", opts:["At written pitch","One octave lower than written","One octave higher than written","A major 2nd lower than written"], ans:1, exp:"The double bass sounds ONE OCTAVE LOWER than written (an octave transposing instrument). This is why it is marked with '8' under the treble clef symbol when written in treble clef. So a written middle C sounds as the C an octave below." },
+    { q:"Which voice type has the highest range?", opts:["Tenor","Mezzo-soprano","Soprano","Baritone"], ans:2, exp:"Voice ranges from highest to lowest: Soprano > Mezzo-soprano > Contralto (Alto) | Tenor > Baritone > Bass. Soprano is the highest female (or treble) voice. For male voices, tenor is highest." },
+    { q:"The viola reads primarily in:", opts:["Treble clef","Bass clef","Alto clef","Tenor clef"], ans:2, exp:"The viola's primary clef is the ALTO clef (C clef on the 3rd line). It switches to treble clef for very high passages. The viola is the only standard orchestral instrument that primarily uses alto clef." },
+    { q:"Orchestral instruments are divided into four families. Which grouping is correct?", opts:["Strings, Woodwind, Brass, Keyboard","Strings, Woodwind, Brass, Percussion","Bowed, Blown, Struck, Plucked","Melody, Harmony, Rhythm, Colour"], ans:1, exp:"The four orchestral families are: STRINGS (violin, viola, cello, double bass, harp), WOODWIND (flute, oboe, clarinet, bassoon), BRASS (horn, trumpet, trombone, tuba), and PERCUSSION (timpani, snare drum, xylophone, etc.)." },
+    { q:"The trumpet in B♭ is a transposing instrument. To sound a concert F, the player reads:", opts:["E♭","G","F","E"], ans:1, exp:"Trumpet in B♭ sounds a major 2nd LOWER than written. To sound concert F, the player must read a note a major 2nd HIGHER: F → G. Written G → sounds F. This is the standard ABRSM transposition for B♭ instruments." },
+    { q:"Which of these instruments is NOT a transposing instrument?", opts:["Clarinet in B♭","Horn in F","Flute","Trumpet in B♭"], ans:2, exp:"The FLUTE is a concert pitch (C) instrument — it is NOT transposing. It sounds exactly as written. Other C instruments: oboe, violin, viola, cello, piano, trombone. Transposing instruments: clarinet (B♭, A), horn (F), trumpet (B♭)." },
+    { q:"The bassoon uses which clef for its main range?", opts:["Treble clef","Bass clef (with tenor for high notes)","Alto clef","Tenor clef only"], ans:1, exp:"The bassoon primarily uses the BASS CLEF. For higher passages, it uses the TENOR CLEF to avoid many ledger lines above the bass staff. It rarely uses treble clef. Bassoon is a double-reed woodwind instrument." },
+  ],
+
+  minors: [
+    { q:"The relative minor of F major is:", opts:["D minor","C minor","A minor","F minor"], ans:0, exp:"The relative minor is found on the 6th degree of the major scale. F major: F–G–A–B♭–C–D–E–F. The 6th note is D. So D minor is relative to F major. They share the same key signature: 1 flat (B♭)." },
+    { q:"Natural minor uses exactly the same notes as its relative major. Which scale form raises NEITHER the 6th nor 7th?", opts:["Harmonic minor","Melodic minor ascending","Natural minor","Melodic minor descending"], ans:2, exp:"NATURAL minor (also called Aeolian mode) uses exactly the same notes as its relative major. No alterations to any degree. It is the 'default' minor scale from which harmonic and melodic forms are derived by raising degrees 7 or 6+7." },
+    { q:"In D harmonic minor, which note is raised?", opts:["G becomes G♯","B becomes B♯","C becomes C♯","A becomes A♯"], ans:2, exp:"D natural minor: D–E–F–G–A–B♭–C–D. The 7th degree is C. In harmonic minor, raise the 7th by a semitone: C → C♯. D harmonic minor: D–E–F–G–A–B♭–C♯–D." },
+    { q:"The melodic minor scale DESCENDS as:", opts:["Natural minor","Harmonic minor","Major scale","The same as ascending"], ans:0, exp:"Melodic minor ASCENDING raises the 6th and 7th degrees; DESCENDING it reverts to NATURAL MINOR (same as descending). So the two forms (asc vs desc) are different! This was designed to create smooth melodic lines in both directions." },
+    { q:"How many semitones are between the 6th and 7th degrees of a harmonic minor scale?", opts:["1 (half step)","2 (tone)","3 (augmented 2nd)","4"], ans:2, exp:"In harmonic minor: natural 6th to raised 7th = 3 semitones = an AUGMENTED 2ND. This interval (A2) is the distinctive 'exotic' sound of harmonic minor. Example: A harmonic minor has F–G♯ (6th to 7th) = 3 semitones." },
+    { q:"G minor (harmonic) — list its notes ascending:", opts:["G–A–B♭–C–D–E♭–F♯–G","G–A–B♭–C–D–E♭–F–G","G–A–B–C–D–E♭–F♯–G","G–A♭–B♭–C–D–E♭–F♯–G"], ans:0, exp:"G natural minor (relative of B♭ major): G–A–B♭–C–D–E♭–F–G. For harmonic minor, raise the 7th (F→F♯): G–A–B♭–C–D–E♭–F♯–G." },
+    { q:"Which degree of the minor scale is called the 'leading note' in harmonic minor?", opts:["6th","7th (raised)","5th","8th"], ans:1, exp:"The RAISED 7TH degree in harmonic minor is called the LEADING NOTE. It is a semitone below the tonic and 'leads' strongly upward to the tonic, creating a powerful V–I (dominant-to-tonic) pull. In natural minor, the 7th is a tone below the tonic and has less tendency to resolve." },
+    { q:"The key of F♯ minor has a key signature of:", opts:["F♯, C♯, G♯","F♯, C♯","F♯, C♯, G♯, D♯","F♯, C♯, G♯, D♯, A♯"], ans:0, exp:"F♯ minor is the RELATIVE minor of A major (which has 3 sharps: F♯, C♯, G♯). Relative keys always share the same key signature. So F♯ minor has 3 sharps." },
+    { q:"In B♭ minor (harmonic), the notes ascending are:", opts:["B♭–C–D♭–E♭–F–G♭–A♭–B♭","B♭–C–D♭–E♭–F–G♭–A–B♭","B♭–C–D–E♭–F–G–A–B♭","B♭–C–D♭–E♭–F–G–A–B♭"], ans:1, exp:"B♭ natural minor (relative of D♭ major, 5 flats: B♭ E♭ A♭ D♭ G♭): B♭–C–D♭–E♭–F–G♭–A♭–B♭. For harmonic minor, raise the 7th: A♭→A♮. Result: B♭–C–D♭–E♭–F–G♭–A♮–B♭." },
+    { q:"E minor is the relative minor of:", opts:["A major","G major","D major","C major"], ans:1, exp:"E minor is relative to G MAJOR (1 sharp: F♯). They share the same key signature. G major scale: G–A–B–C–D–E–F♯–G. The 6th degree is E → E minor is the relative." },
+  ]
+};
+
+// ══════════════════════════════════════════════════════
+//  LESSON CONTENT
+// ══════════════════════════════════════════════════════
+const LESSONS = {
+  rhythm: [
+    {
+      title: "Simple vs Compound Time",
+      content: `<div class='lesson-section'>
+        <h3>⏱️ Simple Time</h3>
+        <p>In <strong>simple time</strong>, each beat divides into <strong>two equal parts</strong>. The top number tells you how many beats per bar; the bottom number tells you what note gets one beat.</p>
+        <div class='key-point'>Top number = beats per bar &nbsp;|&nbsp; Bottom number = note value of each beat (4 = crotchet, 2 = minim, 8 = quaver)</div>
+        <p>Common simple time signatures: <strong>2/4, 3/4, 4/4</strong> (also written as C), <strong>2/2</strong> (alla breve, written as 𝄵), <strong>3/2, 3/8</strong></p>
+      </div>
+      <div class='lesson-section'>
+        <h3>🎶 Compound Time</h3>
+        <p>In <strong>compound time</strong>, each beat divides into <strong>three equal parts</strong>. The beat note is always a dotted note.</p>
+        <p>To find the number of beats: divide the top number by 3.</p>
+        <div class='key-point'>6/8 = 2 beats (dotted crotchet each) &nbsp;|&nbsp; 9/8 = 3 beats &nbsp;|&nbsp; 12/8 = 4 beats</div>
+        <div class='warning-point'>Don't confuse 3/8 (simple: 3 quaver beats) with 6/8 (compound: 2 dotted crotchet beats)!</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>🔺 Irregular Time</h3>
+        <p>New at Grade 5! Irregular time signatures cannot be classified as purely simple or compound. They mix groups of 2s and 3s.</p>
+        <table><tr><th>Signature</th><th>Beats</th><th>Typical grouping</th></tr>
+        <tr><td>5/4</td><td>5 crotchet beats</td><td>2+3 or 3+2</td></tr>
+        <tr><td>7/4</td><td>7 crotchet beats</td><td>4+3 or 3+4</td></tr>
+        <tr><td>5/8</td><td>5 quaver beats</td><td>2+3 or 3+2</td></tr>
+        <tr><td>7/8</td><td>7 quaver beats</td><td>4+3 or 3+4</td></tr></table>
+      </div>`
+    },
+    {
+      title: "Grouping & Beaming",
+      content: `<div class='lesson-section'>
+        <h3>📐 Rules for Grouping Notes</h3>
+        <p>Notes should be beamed (joined) to show the beat structure clearly. The examiner must be able to see where each beat falls.</p>
+        <ul>
+          <li>In <strong>simple time</strong>, group quavers/semiquavers within each beat</li>
+          <li>In <strong>compound time</strong>, group 3 quavers per beat</li>
+          <li>Never beam across the MIDDLE of a bar in 4/4 (treat beats 1-2 and 3-4 as pairs)</li>
+          <li>A semibreve can fill a 4/4 bar alone; a dotted minim fills a 3/4 bar alone</li>
+        </ul>
+        <div class='key-point'>ABRSM rule: In 4/4, avoid beaming across the half-bar. So quavers on beats 2 and 3 can beam together, but not beats 1-2-3-4 across the full bar as one group.</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>🔄 Triplets & Duplets</h3>
+        <p><strong>Triplet:</strong> 3 notes in the time of 2. Used in simple time to create a 3-part subdivision. Marked with a '3'.</p>
+        <p><strong>Duplet:</strong> 2 notes in the time of 3. Used in compound time. Marked with a '2'.</p>
+        <div class='key-point'>Irregular subdivision in compound: a duplet quaver = 3/2 the duration of a normal quaver.</div>
+      </div>`
+    }
+  ],
+  scales: [
+    {
+      title: "Major Scales & Key Signatures",
+      content: `<div class='lesson-section'>
+        <h3>🔑 The Major Scale Pattern</h3>
+        <p>Every major scale follows: <strong>T–T–S–T–T–T–S</strong> (Tone–Tone–Semitone–Tone–Tone–Tone–Semitone).</p>
+        <p>Semitones fall between degrees <strong>3–4</strong> and <strong>7–8</strong>.</p>
+        <div class='key-point'>Order of SHARPS: <strong>F C G D A E B</strong> (Father Charles Goes Down And Ends Battle)<br>Order of FLATS: <strong>B E A D G C F</strong> (Battle Ends And Down Goes Charles's Father) — the reverse!</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>Circle of Fifths</h3>
+        <p>Moving clockwise = add 1 sharp each time. Moving anticlockwise = add 1 flat each time.</p>
+        <table><tr><th>Sharps</th><th>Major Key</th><th>Relative Minor</th></tr>
+        <tr><td>0</td><td>C</td><td>A minor</td></tr>
+        <tr><td>1 (F♯)</td><td>G</td><td>E minor</td></tr>
+        <tr><td>2 (F♯C♯)</td><td>D</td><td>B minor</td></tr>
+        <tr><td>3 (F♯C♯G♯)</td><td>A</td><td>F♯ minor</td></tr>
+        <tr><td>4 (F♯C♯G♯D♯)</td><td>E</td><td>C♯ minor</td></tr>
+        <tr><td>5 (F♯C♯G♯D♯A♯)</td><td>B</td><td>G♯ minor</td></tr>
+        <tr><td>6 (F♯C♯G♯D♯A♯E♯)</td><td>F♯</td><td>D♯ minor</td></tr></table>
+        <table style="margin-top:12px"><tr><th>Flats</th><th>Major Key</th><th>Relative Minor</th></tr>
+        <tr><td>1 (B♭)</td><td>F</td><td>D minor</td></tr>
+        <tr><td>2 (B♭E♭)</td><td>B♭</td><td>G minor</td></tr>
+        <tr><td>3 (B♭E♭A♭)</td><td>E♭</td><td>C minor</td></tr>
+        <tr><td>4 (B♭E♭A♭D♭)</td><td>A♭</td><td>F minor</td></tr>
+        <tr><td>5 (B♭E♭A♭D♭G♭)</td><td>D♭</td><td>B♭ minor</td></tr>
+        <tr><td>6 (B♭E♭A♭D♭G♭C♭)</td><td>G♭</td><td>E♭ minor</td></tr></table>
+      </div>`
+    },
+    {
+      title: "Relative & Parallel Keys",
+      content: `<div class='lesson-section'>
+        <h3>Relative Keys</h3>
+        <p><strong>Relative keys</strong> share the same key signature but have different tonics.</p>
+        <ul>
+          <li>Find the relative minor: go to the <strong>6th degree</strong> of the major scale (or count DOWN 3 semitones from the major tonic)</li>
+          <li>Find the relative major: go UP 3 semitones from the minor tonic</li>
+        </ul>
+        <div class='key-point'>E.g., C major ↔ A minor (both have 0 sharps/flats). G major ↔ E minor (both have F♯).</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>Parallel Keys</h3>
+        <p><strong>Parallel keys</strong> share the same TONIC but have different key signatures.</p>
+        <p>E.g., C major and C minor (C major = 0 accidentals; C minor = 3 flats).</p>
+        <div class='warning-point'>Don't confuse relative (same key sig, different tonic) with parallel (same tonic, different key sig)!</div>
+      </div>`
+    }
+  ],
+  intervals: [
+    {
+      title: "Naming Intervals",
+      content: `<div class='lesson-section'>
+        <h3>📏 Two-Step Method</h3>
+        <p><strong>Step 1:</strong> Count letter names (inclusively) for the INTERVAL NUMBER.</p>
+        <p><strong>Step 2:</strong> Count semitones to determine the QUALITY.</p>
+        <div class='key-point'>C to E: letters C(1)–D(2)–E(3) = a 3rd. Semitones C→E = 4 = Major 3rd.</div>
+        <table><tr><th>Semitones</th><th>Quality of 2nd,3rd,6th,7th</th><th>Quality of 1st,4th,5th,8th</th></tr>
+        <tr><td>0</td><td>Diminished 2nd</td><td>Perfect Unison</td></tr>
+        <tr><td>1</td><td>Minor 2nd</td><td>Augmented Unison / dim 2nd</td></tr>
+        <tr><td>2</td><td>Major 2nd</td><td>—</td></tr>
+        <tr><td>3</td><td>Minor 3rd (Aug 2nd)</td><td>—</td></tr>
+        <tr><td>4</td><td>Major 3rd</td><td>—</td></tr>
+        <tr><td>5</td><td>Dim 4th / Aug 3rd</td><td>Perfect 4th</td></tr>
+        <tr><td>6</td><td>—</td><td>Aug 4th / Dim 5th (tritone)</td></tr>
+        <tr><td>7</td><td>—</td><td>Perfect 5th</td></tr>
+        <tr><td>8</td><td>Minor 6th (Aug 5th)</td><td>—</td></tr>
+        <tr><td>9</td><td>Major 6th</td><td>—</td></tr>
+        <tr><td>10</td><td>Minor 7th (Aug 6th)</td><td>—</td></tr>
+        <tr><td>11</td><td>Major 7th</td><td>—</td></tr>
+        <tr><td>12</td><td>—</td><td>Perfect Octave</td></tr></table>
+      </div>`
+    },
+    {
+      title: "Augmented, Diminished & Compound",
+      content: `<div class='lesson-section'>
+        <h3>Modifying Intervals</h3>
+        <ul>
+          <li>Major → raise 1 semitone → Augmented</li>
+          <li>Major → lower 1 semitone → Minor</li>
+          <li>Minor → lower 1 semitone → Diminished</li>
+          <li>Perfect → raise 1 semitone → Augmented</li>
+          <li>Perfect → lower 1 semitone → Diminished</li>
+        </ul>
+      </div>
+      <div class='lesson-section'>
+        <h3>Compound Intervals</h3>
+        <p>Any interval larger than an octave is called <strong>compound</strong>.</p>
+        <p>Name = simple equivalent + 7. E.g., a 9th = compound 2nd; a 10th = compound 3rd; a 14th = compound 7th.</p>
+        <div class='key-point'>In ABRSM Grade 5, you may need to identify compound intervals by name (e.g., compound minor 3rd = minor 10th).</div>
+      </div>`
+    }
+  ],
+  chords: [
+    {
+      title: "Triads & Inversions",
+      content: `<div class='lesson-section'>
+        <h3>🎵 Building Triads</h3>
+        <p>A triad = root + 3rd + 5th (three notes stacked in 3rds).</p>
+        <table><tr><th>Type</th><th>Intervals</th><th>Example</th></tr>
+        <tr><td>Major</td><td>M3 + m3</td><td>C–E–G</td></tr>
+        <tr><td>Minor</td><td>m3 + M3</td><td>A–C–E</td></tr>
+        <tr><td>Augmented</td><td>M3 + M3</td><td>C–E–G♯</td></tr>
+        <tr><td>Diminished</td><td>m3 + m3</td><td>B–D–F</td></tr></table>
+      </div>
+      <div class='lesson-section'>
+        <h3>Inversions</h3>
+        <table><tr><th>Position</th><th>Bass note</th><th>Figured bass</th></tr>
+        <tr><td>Root position</td><td>Root</td><td>⁵₃ (or blank)</td></tr>
+        <tr><td>1st inversion</td><td>3rd of chord</td><td>⁶₃ (or just 6)</td></tr>
+        <tr><td>2nd inversion</td><td>5th of chord</td><td>⁶₄</td></tr></table>
+        <div class='key-point'>Quick check: to find root position from any inversion, rearrange the notes until all gaps are 3rds.</div>
+      </div>`
+    },
+    {
+      title: "Chords I, II, IV, V in All Keys",
+      content: `<div class='lesson-section'>
+        <h3>Diatonic Chords</h3>
+        <p>In a major key:</p>
+        <ul>
+          <li><strong>Chord I (Tonic)</strong> = major triad on tonic</li>
+          <li><strong>Chord II (Supertonic)</strong> = minor triad — NEW at Grade 5!</li>
+          <li><strong>Chord IV (Subdominant)</strong> = major triad</li>
+          <li><strong>Chord V (Dominant)</strong> = major triad</li>
+        </ul>
+        <div class='key-point'>In minor keys, chord V is MAJOR when using harmonic minor (raised 7th creates a major triad on degree V, giving a strong leading-note pull).</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>Scale Degrees to Remember</h3>
+        <table><tr><th>Roman</th><th>Name</th></tr>
+        <tr><td>I</td><td>Tonic</td></tr>
+        <tr><td>II</td><td>Supertonic</td></tr>
+        <tr><td>III</td><td>Mediant</td></tr>
+        <tr><td>IV</td><td>Subdominant</td></tr>
+        <tr><td>V</td><td>Dominant</td></tr>
+        <tr><td>VI</td><td>Submediant</td></tr>
+        <tr><td>VII</td><td>Leading note</td></tr></table>
+      </div>`
+    }
+  ],
+  clefs: [
+    {
+      title: "The Four Clefs",
+      content: `<div class='lesson-section'>
+        <h3>𝄞 Treble Clef (G clef)</h3>
+        <p>The curl wraps around the <strong>2nd line from the bottom = G4</strong>.</p>
+        <p>Lines (bottom to top): <strong>E G B D F</strong> (Every Good Boy Deserves Fruit)</p>
+        <p>Spaces: <strong>F A C E</strong> (FACE)</p>
+        <p>Used by: violin, flute, oboe, clarinet, trumpet, horn, right hand piano</p>
+      </div>
+      <div class='lesson-section'>
+        <h3>𝄢 Bass Clef (F clef)</h3>
+        <p>The two dots surround the <strong>4th line = F3</strong>.</p>
+        <p>Lines: <strong>G B D F A</strong> (Good Boys Do Fine Always)</p>
+        <p>Spaces: <strong>A C E G</strong> (All Cows Eat Grass)</p>
+        <p>Used by: cello, double bass, bassoon, trombone, tuba, left hand piano</p>
+      </div>
+      <div class='lesson-section'>
+        <h3>C Clef — Alto & Tenor</h3>
+        <p>The C clef (looks like a B) always marks <strong>middle C</strong> on whatever line it sits.</p>
+        <ul>
+          <li><strong>Alto clef:</strong> C on 3rd line — used by viola</li>
+          <li><strong>Tenor clef:</strong> C on 4th line — used by cello, bassoon, trombone (high notes)</li>
+        </ul>
+        <div class='key-point'>Memory: Alto = 3 = A has 3 letters! Tenor = 4 (it's a level above alto in the voice hierarchy).</div>
+      </div>`
+    },
+    {
+      title: "Transposition Between Clefs",
+      content: `<div class='lesson-section'>
+        <h3>Octave Transposition</h3>
+        <p>Grade 5 requires you to transpose a melody <strong>up or down an octave</strong> and <strong>from one clef to another</strong>.</p>
+        <p>The key principle: the SAME pitch appears in different positions on different staves.</p>
+        <ul>
+          <li>Middle C = 1st ledger line BELOW treble staff</li>
+          <li>Middle C = 1st ledger line ABOVE bass staff</li>
+          <li>Middle C = 3rd line of alto staff</li>
+          <li>Middle C = 4th line of tenor staff</li>
+        </ul>
+        <div class='key-point'>To move between clefs: identify the pitch name, then find where that pitch sits in the new clef. Don't just copy the position!</div>
+        <div class='warning-point'>Watch out for key signatures — they also change appearance when clefs change.</div>
+      </div>`
+    }
+  ],
+  terms: [
+    {
+      title: "Tempo & Expression Terms",
+      content: `<div class='lesson-section'>
+        <h3>🎭 Key Italian Tempo Terms</h3>
+        <p>Tempo markings (slowest to fastest):</p>
+        <p>Grave → Largo → Larghetto → Lento → Adagio → Andante → Andantino → Moderato → Allegretto → Allegro → Vivace → Presto → Prestissimo</p>
+        <div class='key-point'>Ritenuto = IMMEDIATELY slower (held back). Rallentando/Ritardando = GRADUALLY slower. These are commonly confused!</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>Expression & Character</h3>
+        <p>These modify HOW the music is played. Most come from Italian but Grade 5 adds French and German:</p>
+        <ul>
+          <li><strong>cantabile</strong> = singing style</li>
+          <li><strong>grazioso</strong> = gracefully</li>
+          <li><strong>maestoso</strong> = majestically</li>
+          <li><strong>scherzando</strong> = playfully</li>
+          <li><strong>espressivo</strong> = expressively</li>
+          <li><strong>leggiero</strong> = lightly</li>
+          <li><strong>con brio</strong> = with vigour</li>
+          <li><strong>dolce</strong> = sweetly</li>
+        </ul>
+      </div>`
+    },
+    {
+      title: "Ornaments",
+      content: `<div class='lesson-section'>
+        <h3>🌀 Ornament Types</h3>
+        <p>ABRSM Grade 5 tests these ornaments:</p>
+        <table><tr><th>Ornament</th><th>Symbol</th><th>What to play</th></tr>
+        <tr><td>Trill</td><td>tr or ~~~</td><td>Rapid alternation: main note ↔ note above</td></tr>
+        <tr><td>Upper mordent (Pralltriller)</td><td>Short wavy line above</td><td>Main → upper → main (3 notes, fast)</td></tr>
+        <tr><td>Lower mordent</td><td>Wavy line with vertical cross</td><td>Main → lower → main (3 notes, fast)</td></tr>
+        <tr><td>Turn</td><td>S-curve (∿)</td><td>Upper → main → lower → main (4 notes)</td></tr>
+        <tr><td>Acciaccatura</td><td>Small note with slash /</td><td>Crushed before the beat</td></tr>
+        <tr><td>Appoggiatura</td><td>Small plain note (no slash)</td><td>On the beat, takes half (or ⅔) of main note's value</td></tr></table>
+        <div class='key-point'>Acciaccatura (with slash) = crushed, extremely short. Appoggiatura (no slash) = leaning note, takes real time from the main note.</div>
+      </div>`
+    }
+  ],
+  instruments: [
+    {
+      title: "Orchestral Families & Clefs",
+      content: `<div class='lesson-section'>
+        <h3>🎻 String Family</h3>
+        <table><tr><th>Instrument</th><th>Clef</th><th>Range notes</th></tr>
+        <tr><td>Violin</td><td>Treble</td><td>G3 to E7</td></tr>
+        <tr><td>Viola</td><td>Alto (main), Treble (high)</td><td>C3 to E6</td></tr>
+        <tr><td>Cello</td><td>Bass, Tenor (high)</td><td>C2 to C6</td></tr>
+        <tr><td>Double Bass</td><td>Bass (sounds 8va lower)</td><td>E1–G4 (sounds 8va lower)</td></tr></table>
+      </div>
+      <div class='lesson-section'>
+        <h3>🎷 Woodwind Family</h3>
+        <table><tr><th>Instrument</th><th>Clef</th><th>Transposing?</th></tr>
+        <tr><td>Flute</td><td>Treble</td><td>No (Concert C)</td></tr>
+        <tr><td>Oboe</td><td>Treble</td><td>No (Concert C)</td></tr>
+        <tr><td>Clarinet in B♭</td><td>Treble</td><td>Yes — sounds M2nd lower</td></tr>
+        <tr><td>Clarinet in A</td><td>Treble</td><td>Yes — sounds m3rd lower</td></tr>
+        <tr><td>Bassoon</td><td>Bass, Tenor</td><td>No (Concert C)</td></tr></table>
+      </div>
+      <div class='lesson-section'>
+        <h3>🎺 Brass Family</h3>
+        <table><tr><th>Instrument</th><th>Clef</th><th>Transposing?</th></tr>
+        <tr><td>Horn in F</td><td>Treble</td><td>Yes — sounds P5th lower</td></tr>
+        <tr><td>Trumpet in B♭</td><td>Treble</td><td>Yes — sounds M2nd lower</td></tr>
+        <tr><td>Trombone</td><td>Bass, Tenor</td><td>No (Concert C)</td></tr>
+        <tr><td>Tuba</td><td>Bass</td><td>No (Concert C in ABRSM)</td></tr></table>
+      </div>`
+    },
+    {
+      title: "Transposing Instruments",
+      content: `<div class='lesson-section'>
+        <h3>Transposing — The Key Concept</h3>
+        <p>A transposing instrument's <strong>written pitch ≠ sounding (concert) pitch</strong>.</p>
+        <div class='key-point'>Clarinet in B♭: sounds a Major 2nd LOWER than written.<br>To find CONCERT pitch from written: go DOWN a major 2nd.<br>To find WRITTEN pitch from concert: go UP a major 2nd.</div>
+        <div class='key-point'>Horn in F: sounds a Perfect 5th LOWER than written.<br>To find concert: go DOWN a P5th.<br>To find written: go UP a P5th.</div>
+        <div class='warning-point'>Double bass and tenor voice sound ONE OCTAVE LOWER than written — they are called "octave transposing".</div>
+        <table><tr><th>Instrument</th><th>Transposition (written→sounding)</th></tr>
+        <tr><td>Clarinet in B♭</td><td>M2nd lower</td></tr>
+        <tr><td>Clarinet in A</td><td>m3rd lower</td></tr>
+        <tr><td>Horn in F</td><td>P5th lower</td></tr>
+        <tr><td>Trumpet in B♭</td><td>M2nd lower</td></tr>
+        <tr><td>Double bass</td><td>Octave lower</td></tr>
+        <tr><td>Piccolo</td><td>Octave higher</td></tr></table>
+      </div>`
+    }
+  ],
+  minors: [
+    {
+      title: "Three Forms of Minor Scale",
+      content: `<div class='lesson-section'>
+        <h3>🌑 Natural Minor</h3>
+        <p>Same notes as the relative major — no alterations. Also called the <strong>Aeolian mode</strong>.</p>
+        <p>A natural minor: A–B–C–D–E–F–G–A</p>
+        <p>Pattern: T–S–T–T–S–T–T</p>
+      </div>
+      <div class='lesson-section'>
+        <h3>Harmonic Minor</h3>
+        <p>Raise the <strong>7th degree</strong> by one semitone (ascending AND descending). This creates a leading note and makes chord V major.</p>
+        <p>A harmonic minor: A–B–C–D–E–F–<strong>G♯</strong>–A</p>
+        <div class='warning-point'>The raised 7th creates an augmented 2nd (3 semitones) between degrees 6 and 7 — that characteristic "exotic" sound.</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>Melodic Minor</h3>
+        <p>Ascending: raise <strong>both</strong> the 6th AND 7th degrees. Descending: revert to NATURAL minor.</p>
+        <p>A melodic minor ascending: A–B–C–D–E–<strong>F♯–G♯</strong>–A</p>
+        <p>A melodic minor descending: A–G–F–E–D–C–B–A (= A natural minor descending)</p>
+        <div class='key-point'>Melodic minor avoids the awkward augmented 2nd of harmonic minor when writing singable melodies. Ascending raises 6+7; descending uses the natural form.</div>
+      </div>`
+    },
+    {
+      title: "Relative & Parallel Minors",
+      content: `<div class='lesson-section'>
+        <h3>Finding Relative Minor</h3>
+        <p>Relative minor = same key signature as major, tonic is on the <strong>6th degree</strong> (or 3 semitones below the major tonic).</p>
+        <table><tr><th>Major</th><th>Relative Minor</th><th>Key Sig</th></tr>
+        <tr><td>C</td><td>A</td><td>0</td></tr>
+        <tr><td>G</td><td>E</td><td>1♯</td></tr>
+        <tr><td>D</td><td>B</td><td>2♯</td></tr>
+        <tr><td>A</td><td>F♯</td><td>3♯</td></tr>
+        <tr><td>E</td><td>C♯</td><td>4♯</td></tr>
+        <tr><td>F</td><td>D</td><td>1♭</td></tr>
+        <tr><td>B♭</td><td>G</td><td>2♭</td></tr>
+        <tr><td>E♭</td><td>C</td><td>3♭</td></tr>
+        <tr><td>A♭</td><td>F</td><td>4♭</td></tr>
+        <tr><td>D♭</td><td>B♭</td><td>5♭</td></tr></table>
+      </div>`
+    }
+  ]
+};
+
+// ══════════════════════════════════════════════════════
+//  STATE MANAGEMENT
+// ══════════════════════════════════════════════════════
+const SAVE_KEY = 'maestro_grade5_v3';
+let STATE = {
+  xp: 0, level: 1, bestStreak: 0,
+  totalCorrect: 0, totalAnswered: 0,
+  topicScores: {}, // {topicId: {correct, total, mastery(0-4)}}
+  diagDone: false, diagResults: null,
+  achievements: [],
+};
+
+function saveState() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(STATE)); } catch(e) {}
+}
+function loadState() {
+  try {
+    const s = localStorage.getItem(SAVE_KEY);
+    if (s) STATE = { ...STATE, ...JSON.parse(s) };
+  } catch(e) {}
+}
+
+const LEVELS = [
+  { name:'Novice', minXP:0, maxXP:100 },
+  { name:'Apprentice', minXP:100, maxXP:300 },
+  { name:'Scholar', minXP:300, maxXP:700 },
+  { name:'Musician', minXP:700, maxXP:1200 },
+  { name:'Theorist', minXP:1200, maxXP:2000 },
+  { name:'Maestro', minXP:2000, maxXP:9999 },
+];
+function getLevelInfo() {
+  let l = LEVELS.find((lv,i) => STATE.xp < lv.maxXP) || LEVELS[LEVELS.length-1];
+  let idx = LEVELS.indexOf(l);
+  if (STATE.xp >= l.maxXP) { l = LEVELS[LEVELS.length-1]; idx = LEVELS.length-1; }
+  const pct = ((STATE.xp - l.minXP) / (l.maxXP - l.minXP)) * 100;
+  return { name: l.name, idx, pct: Math.min(pct, 100) };
+}
+function addXP(amt) {
+  const before = getLevelInfo().idx;
+  STATE.xp += amt;
+  const after = getLevelInfo().idx;
+  if (after > before) showAchievement(`Level Up!`, `You're now a ${getLevelInfo().name}! 🎓`, '🎉');
+  saveState(); updateHeader();
+}
+
+function updateHeader() {
+  const li = getLevelInfo();
+  document.getElementById('hdr-level').textContent = `${li.name}`;
+  document.getElementById('hdr-xpbar').style.width = `${li.pct}%`;
+  document.getElementById('hdr-xp').textContent = `${STATE.xp} XP`;
+  document.getElementById('hdr-streak').textContent = STATE.bestStreak;
+}
+
+// ══════════════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════════════
+function renderDashboard() {
+  // Stats
+  document.getElementById('stat-xp').textContent = STATE.xp;
+  document.getElementById('stat-streak').textContent = `${STATE.bestStreak} 🔥`;
+  const acc = STATE.totalAnswered > 0
+    ? Math.round((STATE.totalCorrect/STATE.totalAnswered)*100) : 0;
+  document.getElementById('stat-correct').textContent = `${acc}%`;
+
+  const mastered = TOPICS.filter(t => (STATE.topicScores[t.id]?.mastery||0) >= 3).length;
+  document.getElementById('stat-topics').textContent = `${mastered}/8`;
+
+  // Topic grid
+  const grid = document.getElementById('topic-grid');
+  grid.innerHTML = '';
+  TOPICS.forEach(t => {
+    const ts = STATE.topicScores[t.id] || {correct:0,total:0,mastery:0};
+    const pct = ts.total > 0 ? Math.round(ts.correct/ts.total*100) : 0;
+    const stars = '★'.repeat(ts.mastery||0) + '☆'.repeat(4-(ts.mastery||0));
+    const card = document.createElement('div');
+    card.className = 'topic-card';
+    card.style.setProperty('--accent', t.color);
+    card.innerHTML = `
+      <div class="topic-icon">${t.icon}</div>
+      <div class="topic-name">${t.name}</div>
+      <div class="topic-sub">${t.sub}</div>
+      <div class="topic-stars">${stars}</div>
+      <div class="topic-prog-bar"><div class="topic-prog-fill" style="width:${pct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:0.8rem;color:var(--muted)">
+        <span>${ts.total > 0 ? pct+'% acc' : 'Not started'}</span>
+        <span>${ts.total} Qs</span>
+      </div>
+    `;
+    card.addEventListener('click', () => openTopic(t.id));
+    grid.appendChild(card);
+  });
+
+  // Priority areas
+  const priority = document.getElementById('priority-areas');
+  if (!STATE.diagDone) {
+    priority.innerHTML = `<div style="padding:16px;color:var(--muted);font-style:italic">Complete the Diagnostic Test to see your weak areas here. <button class="btn btn-primary btn-sm" onclick="startDiagnostic()" style="margin-left:12px">Start Now</button></div>`;
+  } else {
+    const sorted = TOPICS.slice().sort((a,b) => {
+      const sa = STATE.topicScores[a.id]?.mastery||0;
+      const sb = STATE.topicScores[b.id]?.mastery||0;
+      return sa - sb;
+    });
+    priority.innerHTML = sorted.slice(0,3).map(t => {
+      const ts = STATE.topicScores[t.id] || {mastery:0,correct:0,total:0};
+      const chip = ts.mastery <= 1 ? 'chip-red' : ts.mastery <= 2 ? 'chip-yellow' : 'chip-green';
+      const label = ts.mastery <= 1 ? 'Needs Work' : ts.mastery <= 2 ? 'Improving' : 'Good';
+      return `<div style="display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--border)">
+        <span style="font-size:1.5rem">${t.icon}</span>
+        <div style="flex:1"><div style="font-family:'Playfair Display';font-weight:700">${t.name}</div><div style="color:var(--muted);font-size:0.85rem">${t.sub}</div></div>
+        <span class="chip ${chip}">${label}</span>
+        <button class="btn btn-secondary btn-sm" onclick="openTopic('${t.id}')">Study →</button>
+      </div>`;
+    }).join('');
+  }
+}
+
+function openTopic(topicId) {
+  const t = TOPICS.find(x => x.id === topicId);
+  const lessons = LESSONS[topicId] || [];
+  currentTopicId = topicId;
+  currentLessonIdx = 0;
+
+  document.getElementById('lesson-icon').textContent = t.icon;
+  document.getElementById('lesson-title').textContent = t.name;
+  document.getElementById('lesson-subtitle').textContent = t.sub;
+
+  const nav = document.getElementById('lesson-nav');
+  nav.innerHTML = lessons.map((l,i) =>
+    `<button class="lesson-nav-btn ${i===0?'active':''}" onclick="showLesson(${i})">${l.title}</button>`
+  ).join('');
+
+  showLesson(0);
+  goScreen('screen-lesson');
+}
+
+let currentTopicId = null;
+let currentLessonIdx = 0;
+
+function showLesson(idx) {
+  const lessons = LESSONS[currentTopicId] || [];
+  currentLessonIdx = idx;
+  document.querySelectorAll('.lesson-nav-btn').forEach((b,i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  document.getElementById('lesson-content').innerHTML = lessons[idx]?.content || '<p>Content coming soon.</p>';
+}
+
+function startTopicPractice() {
+  const qs = QB[currentTopicId] || [];
+  const shuffled = shuffleArr([...qs]).slice(0, Math.min(10, qs.length));
+  beginQuiz(shuffled, `${TOPICS.find(t=>t.id===currentTopicId)?.name} Practice`, currentTopicId);
+}
+
+// ══════════════════════════════════════════════════════
+//  DIAGNOSTIC
+// ══════════════════════════════════════════════════════
+function startDiagnostic() {
+  goScreen('screen-diag-intro');
+  setActiveNav('nav-diag');
+}
+
+function beginDiagnostic() {
+  // 3 questions per topic
+  let diagQs = [];
+  TOPICS.forEach(t => {
+    const pool = QB[t.id] || [];
+    const picked = shuffleArr([...pool]).slice(0, 3);
+    picked.forEach(q => diagQs.push({ ...q, topicId: t.id, topicName: t.name }));
+  });
+  diagQs = shuffleArr(diagQs);
+  beginQuiz(diagQs, 'Diagnostic Assessment', 'diagnostic');
+}
+
+// ══════════════════════════════════════════════════════
+//  QUIZ ENGINE
+// ══════════════════════════════════════════════════════
+let quizState = {
+  questions: [], current: 0, correct: 0, mode: '',
+  topicId: '', answers: [], streak: 0,
+  topicCorrect: {}, topicTotal: {}
+};
+
+function beginQuiz(qs, title, mode) {
+  quizState = {
+    questions: qs, current: 0, correct: 0, mode,
+    topicId: mode !== 'diagnostic' ? mode : '',
+    answers: [], streak: 0,
+    topicCorrect: {}, topicTotal: {}
+  };
+  goScreen('screen-quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = quizState.questions[quizState.current];
+  const total = quizState.questions.length;
+  const idx = quizState.current;
+
+  document.getElementById('quiz-q-num').textContent = `Q ${idx+1}/${total}`;
+  document.getElementById('quiz-progress-fill').style.width = `${(idx/total)*100}%`;
+
+  const topicObj = TOPICS.find(t => t.id === (q.topicId || quizState.topicId));
+  document.getElementById('q-topic-badge').textContent = topicObj?.name || 'Theory';
+  document.getElementById('q-topic-badge').style.background = `${topicObj?.color||'#e6b84a'}20`;
+  document.getElementById('q-topic-badge').style.borderColor = `${topicObj?.color||'#e6b84a'}50`;
+  document.getElementById('q-topic-badge').style.color = topicObj?.color || '#e6b84a';
+
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-hint').textContent = q.hint || '';
+
+  // Options
+  const optGrid = document.getElementById('q-options');
+  optGrid.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.addEventListener('click', () => selectAnswer(i, q));
+    optGrid.appendChild(btn);
+  });
+
+  document.getElementById('q-feedback').style.display = 'none';
+  document.getElementById('quiz-next-btn').style.display = 'none';
+}
+
+function selectAnswer(chosen, q) {
+  const optBtns = document.querySelectorAll('.option-btn');
+  optBtns.forEach(b => b.disabled = true);
+
+  const isCorrect = chosen === q.ans;
+  const tid = q.topicId || quizState.topicId;
+
+  optBtns.forEach((b, i) => {
+    if (i === q.ans) b.classList.add('correct');
+    else if (i === chosen && !isCorrect) b.classList.add('wrong');
+    else if (i !== q.ans) b.style.opacity = '0.5';
+  });
+
+  // Update stats
+  if (!quizState.topicCorrect[tid]) { quizState.topicCorrect[tid] = 0; quizState.topicTotal[tid] = 0; }
+  quizState.topicTotal[tid]++;
+  STATE.totalAnswered++;
+
+  if (isCorrect) {
+    quizState.correct++;
+    quizState.streak++;
+    quizState.topicCorrect[tid]++;
+    STATE.totalCorrect++;
+    if (quizState.streak > STATE.bestStreak) STATE.bestStreak = quizState.streak;
+    addXP(10 + (quizState.streak > 2 ? 5 : 0));
+    showXPPop(isCorrect ? '+10 XP ✓' : '');
+    checkStreakAchievement(quizState.streak);
+  } else {
+    quizState.streak = 0;
+  }
+
+  quizState.answers.push({ correct: isCorrect, topicId: tid });
+
+  // Feedback
+  const fb = document.getElementById('q-feedback');
+  fb.className = `feedback-banner ${isCorrect ? 'correct' : 'wrong'}`;
+  fb.style.display = 'block';
+  document.getElementById('fb-title').textContent = isCorrect ? '✓ Correct!' : '✗ Not quite...';
+  document.getElementById('fb-body').textContent = q.exp || '';
+
+  document.getElementById('quiz-next-btn').style.display = 'inline-flex';
+  saveState();
+}
+
+function nextQuestion() {
+  quizState.current++;
+  if (quizState.current >= quizState.questions.length) {
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishQuiz() {
+  // Update topic scores
+  TOPICS.forEach(t => {
+    const c = quizState.topicCorrect[t.id] || 0;
+    const total = quizState.topicTotal[t.id] || 0;
+    if (total > 0) {
+      if (!STATE.topicScores[t.id]) STATE.topicScores[t.id] = {correct:0,total:0,mastery:0};
+      STATE.topicScores[t.id].correct += c;
+      STATE.topicScores[t.id].total += total;
+      // Mastery: 0-4 based on running accuracy
+      const ts = STATE.topicScores[t.id];
+      const acc = ts.correct / ts.total;
+      ts.mastery = acc >= 0.9 ? 4 : acc >= 0.75 ? 3 : acc >= 0.5 ? 2 : acc >= 0.25 ? 1 : 0;
+    }
+  });
+
+  if (quizState.mode === 'diagnostic') STATE.diagDone = true;
+  saveState();
+  showResults();
+}
+
+function showResults() {
+  const total = quizState.questions.length;
+  const correct = quizState.correct;
+  const pct = Math.round(correct/total*100);
+
+  document.getElementById('results-score').textContent = `${correct}/${total}`;
+  document.getElementById('results-emoji').textContent = pct >= 80 ? '🏆' : pct >= 60 ? '🎵' : pct >= 40 ? '📝' : '💪';
+  document.getElementById('results-label').textContent =
+    pct >= 80 ? 'Outstanding! You\'re ready!' :
+    pct >= 60 ? 'Good work — nearly there!' :
+    pct >= 40 ? 'Solid start — keep reviewing!' :
+    'Let\'s focus those weak spots!';
+
+  const rank = pct >= 80 ? '🥇 Distinction Territory' : pct >= 65 ? '🥈 Merit Territory' : '🥉 Pass Territory';
+  document.getElementById('results-rank-badge').innerHTML = `<div class="level-badge">${rank}</div>`;
+
+  // Breakdown by topic
+  const breakdown = document.getElementById('results-breakdown');
+  let html = `<div style="font-family:'Playfair Display';font-weight:700;margin-bottom:12px;color:var(--gold2)">Topic Breakdown</div>`;
+  const topics = [...new Set(quizState.answers.map(a => a.topicId))];
+  topics.forEach(tid => {
+    const t = TOPICS.find(x => x.id === tid);
+    if (!t) return;
+    const tAnw = quizState.answers.filter(a => a.topicId === tid);
+    const tc = tAnw.filter(a => a.correct).length;
+    const tt = tAnw.length;
+    const tpct = Math.round(tc/tt*100);
+    const scoreClass = tpct >= 80 ? 'score-high' : tpct >= 50 ? 'score-mid' : 'score-low';
+    html += `<div class="breakdown-row">
+      <div class="breakdown-topic"><span>${t.icon}</span><span>${t.name}</span></div>
+      <div class="breakdown-score-badge ${scoreClass}">${tc}/${tt} (${tpct}%)</div>
+    </div>`;
+  });
+  breakdown.innerHTML = html;
+
+  const advice = pct >= 80 ? 'Focus on any remaining red areas and review the Quick Reference tonight.' :
+    pct >= 60 ? 'Study the topics marked in red and orange. Run a topic practice session on each.' :
+    'Start with the lesson for each weak topic, then do a focused practice session.';
+  document.getElementById('results-advice').textContent = advice;
+
+  goScreen('screen-results');
+}
+
+function practiceWeak() {
+  // Find worst topics
+  const worst = TOPICS.slice().sort((a,b) => {
+    const sa = STATE.topicScores[a.id]?.mastery || 0;
+    const sb = STATE.topicScores[b.id]?.mastery || 0;
+    return sa - sb;
+  }).slice(0,3);
+  let qs = [];
+  worst.forEach(t => {
+    const pool = QB[t.id] || [];
+    const picked = shuffleArr([...pool]).slice(0, 4);
+    picked.forEach(q => qs.push({...q, topicId:t.id}));
+  });
+  beginQuiz(shuffleArr(qs), 'Targeted Practice', 'mixed');
+}
+
+function exitQuiz() {
+  if (quizState.current > 0) {
+    finishQuiz();
+  } else {
+    goScreen('screen-dashboard');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════════
+function goScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if (id === 'screen-dashboard') { renderDashboard(); setActiveNav('nav-dash'); }
+  if (id === 'screen-reference') setActiveNav('nav-ref');
+}
+
+function setActiveNav(id) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+}
+
+function shuffleArr(arr) {
+  for (let i = arr.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function showXPPop(text) {
+  const el = document.createElement('div');
+  el.className = 'xp-pop';
+  el.textContent = text;
+  el.style.left = `${Math.random()*200+100}px`;
+  el.style.top = `${window.scrollY + 200}px`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1300);
+}
+
+function showAchievement(title, desc, icon='🏆') {
+  const t = document.getElementById('ach-toast');
+  document.getElementById('ach-icon').textContent = icon;
+  document.getElementById('ach-title').textContent = title;
+  document.getElementById('ach-desc').textContent = desc;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3500);
+  spawnConfetti();
+}
+
+function checkStreakAchievement(streak) {
+  const milestones = {5: ['Hot Streak!', '5 in a row! 🔥', '🔥'], 10: ['On Fire!', '10 correct in a row! You\'re unstoppable!', '🔥'], 15: ['Unstoppable!', '15 streak! Maestro level!', '⚡']};
+  if (milestones[streak]) {
+    const [t, d, i] = milestones[streak];
+    showAchievement(t, d, i);
+  }
+}
+
+function spawnConfetti() {
+  const colors = ['#e6b84a','#56d364','#79c0ff','#ff7fc6','#ffa657','#bc8cff'];
+  for (let i = 0; i < 30; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-particle';
+    el.style.left = `${Math.random()*100}vw`;
+    el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    el.style.setProperty('--dur', `${0.8 + Math.random()*1.4}s`);
+    el.style.animationDelay = `${Math.random()*0.5}s`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
+  }
+}
+
+function confirmReset() {
+  document.getElementById('modal-title').textContent = 'Reset All Progress?';
+  document.getElementById('modal-body').textContent = 'This will erase all XP, scores, and achievement data. This cannot be undone.';
+  document.getElementById('modal-confirm').onclick = () => {
+    STATE = { xp:0,level:1,bestStreak:0,totalCorrect:0,totalAnswered:0,topicScores:{},diagDone:false,diagResults:null,achievements:[] };
+    saveState(); closeModal(); renderDashboard(); updateHeader();
+  };
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+loadState();
+updateHeader();
+renderDashboard();
+
+// Welcome message
+window.addEventListener('load', () => {
+  if (STATE.xp > 0) {
+    const li = getLevelInfo();
+    document.getElementById('dash-greeting').textContent = `Welcome back, ${li.name}!`;
+    document.getElementById('dash-sub').textContent = `Your exam is almost here. ${STATE.diagDone ? 'Keep working on your weak topics.' : 'Start with the Diagnostic to know where to focus.'}`;
+  }
+});
+</script>
+</body>
+</html>
