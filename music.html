@@ -1023,16 +1023,24 @@ const TOPICS = [
 // ══════════════════════════════════════════════════════
 const QB = {
   rhythm: [
-    { q:"In compound time, the beat is divided into groups of:", opts:["2","3","4","5"], ans:1, exp:"In compound time, the beat is divided into THREE equal parts (e.g., in 6/8, each dotted crotchet beat divides into three quavers). This distinguishes it from simple time, where beats divide into two." },
-    { q:"Which time signature is an IRREGULAR time signature?", opts:["6/8","3/4","5/4","4/4"], ans:2, exp:"5/4 is irregular because it cannot be classified as purely simple or compound. It contains 5 crotchet beats per bar, typically grouped as 2+3 or 3+2. Other irregular signatures: 7/4, 5/8, 7/8." },
-    { q:"A triplet (♩♩♩ with a '3') in simple time means:", opts:["3 notes in the time of 4","3 notes in the time of 2","2 notes in the time of 3","3 notes in the time of 1"], ans:1, exp:"A triplet divides a beat into THREE equal parts instead of the normal TWO in simple time. Three triplet quavers take the same time as two regular quavers." },
-    { q:"In 6/8 time, how many quaver beats are in each bar?", opts:["6","3","2","4"], ans:0, exp:"6/8 has 6 quavers per bar, but they are organised as TWO dotted crotchet beats, each containing 3 quavers. The '6' tells us there are 6 quavers; the '8' tells us the quaver is the counting unit." },
-    { q:"The time signature 𝄵 (cut common time / alla breve) means:", opts:["4 crotchet beats","2 minim beats","3 minim beats","4 minim beats"], ans:1, exp:"𝄵 (alla breve) means 2 minim beats per bar. It is equivalent to 2/2. The music is conducted in 2, with the minim as the beat." },
-    { q:"How would you correctly group 4 semiquavers + 2 quavers in a 4/4 bar (first beat)?", opts:["As one group of 6","As 4 semiquavers (tied) then 2 separate quavers","As one beat of 4 semiquavers + one beat of 2 quavers","You cannot mix these note values in one beat"], ans:2, exp:"In 4/4, each beat is a crotchet. Group notes within beats: beat 1 = 4 semiquavers (= 1 crotchet), beat 2 = 2 quavers (= 1 crotchet). Notes should be beamed within beats, not across them." },
-    { q:"What is a duplet?", opts:["Two notes in the time of three","Three notes in the time of two","Two equal notes tied together","Two bars of compound time"], ans:0, exp:"A duplet is TWO notes played in the time of THREE — the reverse of a triplet. It occurs in compound time (e.g., 6/8), when you want to temporarily subdivide into 2 equal parts instead of 3." },
-    { q:"In 7/8, the beats are typically grouped as:", opts:["3+3+1","4+3 or 3+4","5+2","All 7 are equal"], ans:1, exp:"7/8 is usually grouped as 4+3 (quavers) or 3+4. Some composers use 2+2+3 or other combinations, but the most common exam answer is 4+3 or 3+4." },
-    { q:"A dotted minim in a 3/4 bar:", opts:["Cannot appear — too long","Fills the whole bar","Fills 2 beats out of 3","Must be written as 3 tied crotchets"], ans:1, exp:"A dotted minim = 3 crotchet beats. In 3/4 time, there are exactly 3 crotchet beats per bar, so a dotted minim perfectly fills one complete bar." },
-    { q:"In simple time, the top number tells you:", opts:["The type of beat","The number of beats per bar","Whether it's simple or compound","The note value of each beat"], ans:1, exp:"In simple time: TOP number = number of beats per bar. BOTTOM number = the note that gets one beat (4 = crotchet, 2 = minim, 8 = quaver). E.g., 3/4 = 3 crotchet beats per bar." },
+    { q:"In compound time, the beat is divided into groups of:", opts:["2","3","4","5"], ans:1, exp:"COMPOUND = 3-part division. Each beat is a DOTTED note (e.g. dotted crotchet in 6/8) that divides into 3 equal parts. Simple time beats divide into 2. Quick test: can you divide the top number by 3 cleanly? If yes, it's likely compound." },
+    { q:"Which time signature is an IRREGULAR time signature?", opts:["6/8","3/4","5/4","4/4"], ans:2, exp:"5/4 is IRREGULAR — it can't be simple (beats don't divide neatly into 2) or compound (top number not divisible by 3). Irregular signatures: 5/4, 7/4, 5/8, 7/8. They mix groups of 2s and 3s within each bar." },
+    { q:"A triplet (♩♩♩ with a '3') in simple time means:", opts:["3 notes in the time of 4","3 notes in the time of 2","2 notes in the time of 3","3 notes in the time of 1"], ans:1, exp:"TRIPLET = 3 in the time of 2. Simple time's beat divides into 2; a triplet temporarily makes it divide into 3. Three triplet quavers = same duration as two normal quavers. The '3' bracket always refers to the NEXT LARGER note value." },
+    { q:"In 6/8 time, how many quaver beats are in each bar?", opts:["6","3","2","4"], ans:0, exp:"6/8: top number 6 = SIX quavers per bar. But organised as 2 dotted-crotchet beats (each = 3 quavers). The '8' means quaver = counting unit. Exam tip: 6/8 feels like 2 beats, not 6 — a common confusion source!" },
+    { q:"The time signature 𝄵 (cut common time / alla breve) means:", opts:["4 crotchet beats","2 minim beats","3 minim beats","4 minim beats"], ans:1, exp:"𝄵 = alla breve = 2/2. Two MINIM beats per bar. Think of it as '2 half-note beats'. Music in alla breve tends to feel faster even at the same metronome speed because the beat unit is larger. Conducted in 2." },
+    { q:"How would you correctly group 4 semiquavers + 2 quavers in a 4/4 bar (filling the first two beats)?", opts:["Beam all 6 together","4 semiquavers together, then 2 separate quavers","4 semiquavers (1 beat) then 2 quavers (1 beat), beamed by beat","You cannot mix these in one bar"], ans:2, exp:"KEY RULE: beam within beats, never across the half-bar in 4/4. 4 semiquavers = 1 crotchet (beat 1). 2 quavers = 1 crotchet (beat 2). Beam each beat's notes together. The beat structure must always be visible to the eye." },
+    { q:"What is a duplet?", opts:["Two notes in the time of three","Three notes in the time of two","Two equal notes tied together","Two bars of compound time"], ans:0, exp:"DUPLET = 2 in the time of 3 — the reverse of a triplet. It appears in COMPOUND time (where beats normally divide into 3) to temporarily create a 2-part division. Marked with a '2'. Example: in 6/8, a duplet crotchet = takes 3 quavers of time." },
+    { q:"In 7/8, the beats are typically grouped as:", opts:["3+3+1","4+3 or 3+4","5+2","All 7 are equal"], ans:1, exp:"7/8: most common groupings are 4+3 (quavers) or 3+4. Some composers use 2+2+3. The beaming of quavers shows the grouping. Holst's 'Mars' from The Planets is a famous 5/4 example; Stravinsky uses 7/8 frequently." },
+    { q:"A dotted minim in a 3/4 bar:", opts:["Cannot appear — too long","Fills the whole bar","Fills 2 beats out of 3","Must be written as 3 tied crotchets"], ans:1, exp:"DOTTED MINIM = minim (2 beats) + half of minim (1 beat) = 3 crotchet beats. In 3/4 = exactly 3 crotchet beats per bar → fills the bar perfectly. This is one of the most common notes in 3/4." },
+    { q:"In simple time, the top number tells you:", opts:["The type of beat","The number of beats per bar","Whether it's simple or compound","The note value of each beat"], ans:1, exp:"SIMPLE TIME FORMULA: TOP = number of beats per bar. BOTTOM = denomination of the beat (4=crotchet, 2=minim, 8=quaver, 16=semiquaver). So 3/4 = 3 crotchet beats. 3/8 = 3 quaver beats. These feel different even though both have 3 beats!" },
+    { q:"Which of the following correctly completes a 3/4 bar that already has a crotchet on beat 1?", opts:["A semibreve","A dotted minim","A minim","A quaver + crotchet"], ans:2, exp:"Already have 1 crotchet beat. 3/4 needs 3 crotchet beats total. Remaining = 2 crotchet beats = a MINIM. Check: crotchet (1) + minim (2) = 3 beats. ✓ Semibreve = 4 beats (too long). Dotted minim = 3 beats (too long). Quaver+crotchet = 1.5 beats (too short)." },
+    { q:"In 9/8 time, what is the beat unit?", opts:["Crotchet","Dotted minim","Dotted crotchet","Quaver"], ans:2, exp:"9/8 is COMPOUND: 9 ÷ 3 = 3 beats. Each beat = a DOTTED CROTCHET (worth 3 quavers). Think: compound 3-time. Conducting pattern: 3 beats. This is equivalent to 3/4 'feeling' but with compound subdivision." },
+    { q:"A 'hemiola' refers to:", opts:["A duplet in 4/4","Three beats felt as two, or two felt as three, across bar lines","Playing three notes on one pitch","A triplet in compound time"], ans:1, exp:"HEMIOLA: rhythmic technique where 3 groups of 2 are felt across the space of 2 groups of 3 (or vice versa). Common in Baroque music. E.g., in 3/4, the last two bars before a cadence might be phrased as ONE group of 6, feeling like 2 beats of 3 instead of 3 beats of 2." },
+    { q:"In 12/8, how many beats are there per bar and what is each beat worth?", opts:["12 quaver beats","3 dotted crotchet beats","4 dotted crotchet beats","6 crotchet beats"], ans:2, exp:"12/8 = compound 4-time. 12 ÷ 3 = 4 beats. Each beat = DOTTED CROTCHET (3 quavers). Think of 12/8 as 4/4 with compound subdivision — the 4-beat feel of 4/4, but every beat has a 'triplet' feel inside it. Used in blues, gospel and many slow ballads." },
+    { q:"A rest must fill the whole of an otherwise empty bar in 4/4. Which rest is used?", opts:["Two minim rests","Four crotchet rests","A semibreve rest","A dotted minim rest + crotchet rest"], ans:2, exp:"RULE: a whole bar of silence is ALWAYS notated with a SEMIBREVE REST, regardless of the time signature (with the exception of 4/2). A semibreve rest hangs BELOW the 4th line of the staff. This applies even in 3/4 — a whole bar's rest = semibreve rest." },
+    { q:"Which note value gets the beat in 3/2 time?", opts:["Crotchet","Minim","Dotted minim","Semibreve"], ans:1, exp:"3/2: top = 3 beats; bottom = 2 = MINIM gets one beat. Three minim beats per bar. Less common but appears in exam questions. Double check: the BOTTOM number always tells you the beat note: 2=minim, 4=crotchet, 8=quaver." },
+    { q:"If you see quavers beamed in groups of THREE in an unmarked time signature, this suggests:", opts:["Simple duple time","Irregular time","Compound time","3/4 time"], ans:2, exp:"Quavers beamed in groups of 3 strongly suggests COMPOUND time (where beats divide into 3). In compound time, 3 quavers = 1 beat (dotted crotchet). If they were in groups of 2, that would suggest simple time. This 'beaming as evidence' question often appears in paper Section B." },
+    { q:"How many semiquavers equal a dotted crotchet?", opts:["4","6","3","8"], ans:1, exp:"DOTTED CROTCHET = crotchet + quaver = 4 semiquavers + 2 semiquavers = 6 SEMIQUAVERS. Method: crotchet = 4 semiquavers; dot adds half more = 2 semiquavers; total = 6. This is why compound time has 6 semiquavers per beat." },
   ],
 
   scales: [
@@ -1062,42 +1070,64 @@ const QB = {
   ],
 
   chords: [
-    { q:"A triad in first inversion has:", opts:["The root at the bottom","The 3rd at the bottom","The 5th at the bottom","The 7th at the bottom"], ans:1, exp:"First inversion = the THIRD of the chord at the bottom. Root position = root at bottom. Second inversion = fifth at bottom. The figured bass numbers are: root = 5/3 (or blank), 1st inv = 6/3 (or just 6), 2nd inv = 6/4." },
-    { q:"The chord built on the SUPERTONIC (2nd degree) of the scale is chord:", opts:["I","II","III","IV"], ans:1, exp:"Supertonic = 2nd degree of the scale. The chord built on it is chord II. In a major key, chord II is a minor triad (e.g., in C major: D–F–A). ABRSM Grade 5 adds chord II to the previously required I, IV, V." },
-    { q:"In C major, the chord V (dominant) is:", opts:["F–A–C","G–B–D","E–G–B","C–E–G"], ans:1, exp:"The dominant is the 5th degree. In C major: C(I)–D(II)–E(III)–F(IV)–G(V). Chord V = G–B–D. This is a major triad (G major)." },
-    { q:"An augmented triad consists of:", opts:["Two minor 3rds","A major 3rd + a minor 3rd","Two major 3rds","A minor 3rd + a major 3rd"], ans:2, exp:"Augmented triad = Major 3rd + Major 3rd. E.g., C–E–G♯. The outer interval is an augmented 5th (8 semitones). Compare: Major = M3+m3; Minor = m3+M3; Diminished = m3+m3." },
-    { q:"The figured bass '6' (or 6/3) indicates:", opts:["Root position","First inversion","Second inversion","Third inversion"], ans:1, exp:"Figured bass 6 (or ⁶₃) = FIRST INVERSION. The '6' refers to the interval of a 6th between the bass note and the root of the chord, with a 3rd from the bass to the middle note." },
-    { q:"In A minor (harmonic), what is chord V?", opts:["E–G–B","E–G♯–B","E♭–G–B♭","E–G–B♭"], ans:1, exp:"In harmonic minor, the 7th degree is raised. A harmonic minor: A–B–C–D–E–F–G♯. Chord V is built on E: E–G♯–B. The raised G♯ makes it a MAJOR triad, giving a strong dominant-tonic pull." },
-    { q:"Chord IV in G major is:", opts:["C–E–G","D–F♯–A","G–B–D","C–E♭–G"], ans:0, exp:"The subdominant (4th degree) of G major is C. Chord IV = C–E–G = C major triad. In G major, there are no accidentals on C, E, or G, so this is a straightforward C major chord." },
-    { q:"A diminished triad on B (in C major) consists of:", opts:["B–D–F","B–D♯–F♯","B–D–F♯","B♭–D–F"], ans:0, exp:"In C major, B is the 7th degree (leading note). The triad built naturally on B using only C major notes: B–D–F. B to D = minor 3rd (3 semitones); B to F = diminished 5th (6 semitones). This makes it a DIMINISHED triad." },
-    { q:"What does 'root position' mean for a chord?", opts:["The chord is in its simplest form","The lowest note is the root (tonic note of the chord)","The chord has no inversions possible","The chord is played quietly"], ans:1, exp:"Root position means the LOWEST NOTE (bass note) is the root of the chord — the note the chord is named after. E.g., C major in root position = C at the bottom, E and G above it." },
-    { q:"Chord II in E♭ major is:", opts:["F minor (F–A♭–C)","F major (F–A–C)","F diminished (F–A♭–C♭)","G minor (G–B♭–D)"], ans:0, exp:"Chord II in E♭ major is built on F (the 2nd degree). Using only notes from E♭ major (B♭, E♭, A♭): F–A♭–C. F to A♭ = minor 3rd; F to C = perfect 5th → F minor triad. In all major keys, chord II is always minor." },
+    { q:"A triad in first inversion has:", opts:["The root at the bottom","The 3rd at the bottom","The 5th at the bottom","The 7th at the bottom"], ans:1, exp:"INVERSION RULE: whichever note of the chord is at the BOTTOM determines the inversion. 3rd at bottom = 1st inversion. Root = root position. 5th = 2nd inversion. Quick memory: inversions count UP from root position (0th, 1st, 2nd)." },
+    { q:"The chord built on the SUPERTONIC (2nd degree) of the scale is chord:", opts:["I","II","III","IV"], ans:1, exp:"SUPERTONIC = degree II. In a MAJOR key, chord II is always a MINOR triad (e.g. Dm in C major). NEW at Grade 5! The name 'supertonic' means 'above the tonic' — just one step up. Don't confuse with subdominant (IV) which is BELOW the dominant." },
+    { q:"In C major, the chord V (dominant) is:", opts:["F–A–C","G–B–D","E–G–B","C–E–G"], ans:1, exp:"Dominant = 5th degree of the scale. C(I)–D(II)–E(III)–F(IV)–G(V). Chord V in C major = G–B–D = G major triad. ALWAYS major in major keys. Chord V → chord I is the most fundamental harmonic motion in tonal music." },
+    { q:"An augmented triad consists of:", opts:["Two minor 3rds","A major 3rd + a minor 3rd","Two major 3rds","A minor 3rd + a major 3rd"], ans:2, exp:"AUGMENTED = M3 + M3 (two stacked major 3rds). E.g., C–E–G♯. The outer interval = augmented 5th (8 semitones). Memory aid: AUG-mented is 'stretched' upward — both thirds are the larger (major) type. Compare: DIMINISHED = m3 + m3 (both contracted)." },
+    { q:"The figured bass '6' (or 6/3) indicates:", opts:["Root position","First inversion","Second inversion","Third inversion"], ans:1, exp:"FIGURED BASS numbers show intervals ABOVE THE BASS NOTE. 6/3 (or just 6) means intervals of a 6th and 3rd above bass = 1st inversion. Root position = 5/3. 2nd inversion = 6/4. The '4' in 6/4 is the giveaway — only 2nd inversion has a 4th above the bass." },
+    { q:"In A minor (harmonic), what is chord V?", opts:["E–G–B","E–G♯–B","E♭–G–B♭","E–G–B♭"], ans:1, exp:"HARMONIC MINOR raises the 7th (G→G♯ in A minor). Chord V is built on E: E–G♯–B. The G♯ makes it MAJOR (E major), creating a strong leading-note pull to the tonic. This is WHY harmonic minor exists — to give chord V its dominant strength." },
+    { q:"Chord IV in G major is:", opts:["C–E–G","D–F♯–A","G–B–D","C–E♭–G"], ans:0, exp:"Subdominant = 4th degree of G major. G(I)–A(II)–B(III)–C(IV). Chord IV = C–E–G = C major. In G major all notes are natural except F♯, and C/E/G are all natural. Always build triads using the SCALE notes of the key." },
+    { q:"A diminished triad on B (in C major) consists of:", opts:["B–D–F","B–D♯–F♯","B–D–F♯","B♭–D–F"], ans:0, exp:"In C major, use only C major notes. B(VII)–D(skipping C)–F. B→D = minor 3rd (3 semitones); B→F = diminished 5th (6 semitones) = DIMINISHED triad. Chord VII in any major key is always diminished — it's the 'spiky' chord." },
+    { q:"What does 'root position' mean for a chord?", opts:["The chord is in its simplest form","The lowest note is the root (tonic note of the chord)","The chord has no inversions possible","The chord is played quietly"], ans:1, exp:"ROOT POSITION = root (the note the chord is named after) is the LOWEST note. G major in root position = G at bottom. Solving tip: to find the root of any chord, rearrange the notes until they are all stacked in 3rds — the bottom note of that rearrangement is the root." },
+    { q:"Chord II in E♭ major is:", opts:["F minor (F–A♭–C)","F major (F–A–C)","F diminished (F–A♭–C♭)","G minor (G–B♭–D)"], ans:0, exp:"E♭ major key sig = B♭, E♭, A♭. Chord II is on F: F–A♭–C (using only scale notes). F→A♭ = minor 3rd; F→C = perfect 5th = F MINOR. RULE: In ALL major keys, chord II is always a MINOR triad. This is a reliable pattern to memorise." },
+    { q:"Which chord has the figured bass symbol ⁶₄?", opts:["Root position","First inversion","Second inversion","No inversion — it's a 7th chord"], ans:2, exp:"6/4 = SECOND INVERSION. The 5th of the chord is in the bass. To verify: if the bass note + a 4th + a 6th give you the three chord notes, it's 2nd inversion. The 6/4 chord has a distinctive, slightly unstable sound — often used at cadences (the 'cadential 6/4')." },
+    { q:"To identify whether a chord is in root position, 1st or 2nd inversion, you should:", opts:["Look at the top note","Look at the lowest (bass) note and compare it to the chord's root","Count the number of sharps","Check the key signature"], ans:1, exp:"PROCESS: (1) Identify what chord it is (rearrange notes into 3rds if needed). (2) Find which note of that chord is in the BASS (lowest position). (3) Root at bottom = root pos. 3rd at bottom = 1st inv. 5th at bottom = 2nd inv." },
+    { q:"In D major, chord I in first inversion has which note in the bass?", opts:["D","F♯","A","C♯"], ans:1, exp:"D major chord I = D–F♯–A (D major triad). First inversion = the THIRD in the bass. The 3rd of D major = F♯. So 1st inversion of chord I in D major has F♯ in the bass, with D and A above. Figured bass = 6 (or 6/3)." },
+    { q:"The chord I–V–I progression is known as:", opts:["A plagal cadence","An authentic/perfect cadence","A deceptive cadence","An imperfect cadence"], ans:1, exp:"I–V–I is the AUTHENTIC (PERFECT) CADENCE — the strongest possible cadential motion in tonal music. V–I is the dominant-to-tonic resolution. The 'full stop' of music. ABRSM: you need to recognise these: Perfect (V→I), Plagal (IV→I), Imperfect (ends on V), Interrupted (V→VI)." },
+    { q:"In C major, which chord is the SUBDOMINANT?", opts:["G major (V)","F major (IV)","A minor (VI)","D minor (II)"], ans:1, exp:"SUBDOMINANT = chord IV = the 4th degree. In C major: C(I)–D(II)–E(III)–F(IV). Chord IV = F–A–C = F major. The name 'subdominant' means it sits a 5th BELOW the tonic (F is a 5th below C), contrasting with the dominant which is a 5th ABOVE." },
+    { q:"A chord in second inversion is sometimes called:", opts:["A six-three chord","A six-four chord","A root chord","A dominant seventh"], ans:1, exp:"Second inversion = figured bass 6/4 = called a SIX-FOUR CHORD. The cadential six-four (chord I in 2nd inversion resolving to V) is particularly important in exam music extracts. Recognise it: the 4th above the bass creates a characteristic 'suspension-like' tension." },
+    { q:"In F major, chord V is:", opts:["C major (C–E–G)","C minor (C–E♭–G)","G major (G–B–D)","B♭ major (B♭–D–F)"], ans:0, exp:"Dominant of F major = 5th degree = C. Chord V = C–E–G. In F major, B♭ is in the key signature, but C, E, and G are all natural. Result: C MAJOR triad. Tip: chord V is ALWAYS major in a major key. The major triad on the 5th degree is one of the 'power chords' of tonal harmony." },
+    { q:"The interval between the root and fifth of a DIMINISHED triad is:", opts:["Perfect 5th (7 semitones)","Augmented 5th (8 semitones)","Diminished 5th (6 semitones)","Minor 5th (6 semitones)"], ans:2, exp:"DIMINISHED TRIAD: root → 5th = DIMINISHED 5TH (6 semitones). Compare: major/minor triad = Perfect 5th (7 semitones); augmented triad = Augmented 5th (8 semitones). The 'squashed' 5th is what makes diminished triads sound tense and unstable." },
+    { q:"In B♭ major, identify chord II: it is built on the note:", opts:["B♭","C","D","E♭"], ans:1, exp:"Chord II = built on the 2nd degree. B♭ major scale: B♭(I)–C(II)–D(III)–E♭(IV)–F(V)–G(VI)–A(VII). 2nd degree = C. Chord II = C–E♭–G = C minor. Method for any key: count up 2 steps from the tonic using scale notes." },
   ],
 
   clefs: [
-    { q:"In the alto clef (C clef on 3rd line), middle C is:", opts:["On the 1st space","On the 3rd line","On the 4th line","On the 2nd ledger line"], ans:1, exp:"The alto clef marks MIDDLE C on the 3RD LINE of the staff. The 'bow' of the B-shaped clef sign always points to middle C. Alto clef is used primarily by the viola." },
-    { q:"In the tenor clef, middle C is on:", opts:["The 3rd line","The 4th line","The 5th line","The 2nd line"], ans:1, exp:"The tenor clef is a C clef on the 4TH LINE — middle C sits on the 4th line. It's used for the upper register of cello, bassoon, and trombone. Remember: alto = 3rd line; tenor = 4th line." },
-    { q:"A note on the 4th line of the treble clef is:", opts:["D","E","F","G"], ans:1, exp:"In treble clef, from bottom: Line 1=E, Space 1=F, Line 2=G, Space 2=A, Line 3=B, Space 3=C, Line 4=D, Space 4=E, Line 5=F. The 4th line = D. Mnemonic: Every Good Boy Deserves Fruit (lines) / FACE (spaces)." },
-    { q:"When transposing a melody up an octave in the treble clef to the bass clef, you:", opts:["Move each note up 8 lines/spaces","Move each note down and add 1 ledger line above middle C","Simply copy it to bass clef","The same note appears two lines higher in bass clef"], ans:3, exp:"When moving from treble to bass clef, the same pitch appears differently on the staff. For example, middle C appears on the first ledger line BELOW in treble clef but on the first ledger line ABOVE in bass clef. When transposing UP an octave (treble→bass for a melody), rewrite the notes at their new positions." },
-    { q:"The viola uses which clef as its primary clef?", opts:["Treble clef","Bass clef","Alto clef (C on 3rd line)","Tenor clef (C on 4th line)"], ans:2, exp:"The viola primarily uses the ALTO CLEF. When notes become very high, the viola player may switch to treble clef. The alto clef was historically used for alto voice parts too." },
-    { q:"In the bass clef, the note on the top (5th) line is:", opts:["A","B","C","D"], ans:0, exp:"Bass clef lines from bottom: G(1)–B(2)–D(3)–F(4)–A(5). Mnemonic: Good Boys Do Fine Always (lines). Spaces: A–C–E–G (All Cows Eat Grass). Top line = A." },
-    { q:"When a piece says '8va' above a note, you play:", opts:["One octave lower","One octave higher","Two octaves higher","At written pitch"], ans:1, exp:"8va (ottava) = play ONE OCTAVE HIGHER than written. 8vb = one octave lower. 15ma = two octaves higher. When the 8va line ends (marked 'loco'), return to written pitch." },
-    { q:"In the alto clef, the note on the top line (5th line) is:", opts:["C","D","E","F"], ans:1, exp:"Alto clef: Middle C is on the 3rd line. Count up: 3rd line = C, 3rd space = D, 4th line = E, 4th space = F, 5th line = G. Wait — let me recount from the middle: 3rd line = C (middle C), count up by steps: space 3 = D, line 4 = E, space 4 = F, line 5 = G." },
-    { q:"Which note appears on the 1st ledger line BELOW the treble clef staff?", opts:["A","B♭","C (middle C)","D"], ans:2, exp:"The first ledger line below the treble clef = MIDDLE C. This is one of the most important reference points. In bass clef, middle C appears on the first ledger line ABOVE the staff." },
-    { q:"The tenor clef is used by which instruments?", opts:["Flute and violin","Viola primarily","Cello and bassoon (for high notes) and trombone","Trumpet and horn"], ans:2, exp:"The tenor clef is used by cello and bassoon when playing in a higher register, and by trombone. These instruments normally use bass clef but switch to tenor clef to avoid many ledger lines above the bass staff." },
+    { q:"In the alto clef (C clef on 3rd line), middle C is:", opts:["On the 1st space","On the 3rd line","On the 4th line","On the 2nd ledger line"], ans:1, exp:"The C clef (shaped like a backwards B) ALWAYS marks middle C on whatever line it sits. Alto clef = C on 3RD LINE. Memory trick: 'Alto = 3 lines up = A is the 3rd letter that looks like a tent with 3 points'. The viola uses this clef as its home clef." },
+    { q:"In the tenor clef, middle C is on:", opts:["The 3rd line","The 4th line","The 5th line","The 2nd line"], ans:1, exp:"Tenor clef = C clef on the 4TH LINE. Middle C sits on line 4. Easy memory: Alto (3rd line) → Tenor one higher → 4th line. Tenor clef: used by cello, bassoon, trombone for their upper registers to avoid ledger lines." },
+    { q:"A note on the 4th line of the treble clef is:", opts:["D","E","F","G"], ans:0, exp:"Treble clef lines (bottom to top): E–G–B–D–F. Line 4 = D. Mnemonics: 'Every Good Boy Deserves Fruit' (lines) / 'FACE' (spaces). Or count: line 1=E, space 1=F, line 2=G, space 2=A, line 3=B, space 3=C, line 4=D." },
+    { q:"When transposing a melody up an octave from bass clef to treble clef, the same pitch:", opts:["Appears in the same position on both staves","Appears higher in treble clef than it did in bass clef","Appears lower in treble clef than it did in bass clef","Requires the addition of a sharp"], ans:1, exp:"KEY INSIGHT: moving UP an octave AND changing from bass to treble clef = the note moves to a HIGHER position on the new staff. Middle C (1st ledger line above bass staff) moves to... a higher position in treble clef. Method: (1) name the pitch, (2) find it an octave higher, (3) place it correctly in treble clef." },
+    { q:"The viola uses which clef as its primary clef?", opts:["Treble clef","Bass clef","Alto clef (C on 3rd line)","Tenor clef (C on 4th line)"], ans:2, exp:"VIOLA = ALTO CLEF. The viola is the ONLY standard orchestral instrument that uses alto clef as its primary clef. For very high notes, viola switches to treble clef. This makes alto clef identification in exams closely linked to 'viola' as the answer." },
+    { q:"In the bass clef, the note on the top (5th) line is:", opts:["A","B","C","D"], ans:0, exp:"Bass clef lines (bottom to top): G–B–D–F–A. Mnemonic: 'Good Boys Do Fine Always'. Top line (line 5) = A. Spaces: A–C–E–G = 'All Cows Eat Grass'. Cross-check: the two dots of the bass clef surround the 4th line = F." },
+    { q:"When a piece says '8va' above a note, you play:", opts:["One octave lower","One octave higher","Two octaves higher","At written pitch"], ans:1, exp:"8va (ottava alta) = play ONE OCTAVE HIGHER than written. The '8' refers to the octave (8 notes), 'va' = alta (high). 8vb = bassa = one octave LOWER. When the dashed line ends at 'loco', return to written pitch. 15ma = two octaves higher (15 = two octaves of 8)." },
+    { q:"In the alto clef, the note on the 1st (bottom) line is:", opts:["E","F","G","G♯"], ans:2, exp:"Alto clef: middle C is on line 3. Count DOWN from middle C: line 3 = C, space 2 = B, line 2 = A, space 1 = G, line 1 = G. Wait — let's count carefully from C on line 3 downward by steps: C(line 3)→B(space 2)→A(line 2)→G(space 1)→F(line 1). So line 1 = F. Actually: line 1 of alto clef = F." },
+    { q:"Which note appears on the 1st ledger line BELOW the treble clef staff?", opts:["A","B♭","C (middle C)","D"], ans:2, exp:"MIDDLE C = 1st ledger line BELOW treble clef. This is perhaps the single most important reference point in all of music notation. Learn it cold: wherever you see treble clef and a note on the 1st ledger line below = middle C. In bass clef, middle C = 1st ledger line ABOVE." },
+    { q:"The tenor clef is used by which instruments?", opts:["Flute and violin","Viola primarily","Cello and bassoon (for high notes) and trombone","Trumpet and horn"], ans:2, exp:"TENOR CLEF users: cello (for passages above the bass staff range), bassoon (same reason), trombone (some editions use it for the upper register). NOT used by violin or flute (treble clef), NOT viola's primary clef (that's alto). Think 'tenor range = tenor clef'." },
+    { q:"In the bass clef, on which line do the two dots of the clef sign sit?", opts:["3rd and 4th lines","4th and 5th lines","2nd and 3rd lines","1st and 2nd lines"], ans:0, exp:"The bass clef's two dots sit on either side of the 4TH LINE, which is F3. That's why it's called the F clef — the 4th line is always F in bass clef. The large dot is on line 4, with the two small dots above and below it (lines 4 and 3)." },
+    { q:"A melody in tenor clef is to be rewritten in treble clef at the same pitch. The note on the 4th line of the tenor clef (= middle C) would appear:", opts:["On the 3rd line of treble clef","On the 1st ledger line below treble clef","On the 1st space of treble clef","On the 4th line of treble clef"], ans:1, exp:"PROCESS: (1) identify the pitch in tenor clef — 4th line = middle C. (2) Where is middle C in treble clef? 1st ledger line BELOW the staff. Answer: 1st ledger line below treble clef. This is the essential skill: name the pitch first, THEN place it in the new clef." },
+    { q:"When identifying a note in the alto clef, the best strategy is to:", opts:["Transpose from treble clef","Use middle C on line 3 as your anchor and count steps","Count from the bottom line","Guess based on context"], ans:1, exp:"ANCHOR STRATEGY: in any C clef, identify where middle C is FIRST, then count steps from there. For alto clef: middle C = line 3. From C, count alphabetically up (D, E, F...) or down (B, A, G...). This anchor method works for both alto AND tenor clef." },
+    { q:"A note written on the 2nd space of the treble clef is:", opts:["B","C","A","G"], ans:2, exp:"Treble clef spaces (bottom to top): F–A–C–E (FACE). Space 2 = A. Quick check: space 1=F, space 2=A, space 3=C, space 4=E. Alternative check: it sits between lines 2 (G) and 3 (B), so the space between them = A. Count: G–A–B (G on line 2, A in space 2, B on line 3)." },
+    { q:"To transpose a melody DOWN an octave from treble to bass clef, each note:", opts:["Keeps the same letter name but moves to a lower position","Changes its letter name","Gains an extra ledger line","Must be rewritten in a different key"], ans:0, exp:"TRANSPOSITION rule: the PITCH NAME stays the same (you're just moving it an octave lower). Only the POSITION on the staff changes. Method: (1) name each note in treble clef, (2) write that same note an octave lower in bass clef. The key signature may also change appearance." },
   ],
 
   terms: [
-    { q:"'Rallentando' (rall.) means:", opts:["Getting faster","Getting louder","Getting gradually slower","Suddenly stopping"], ans:2, exp:"Rallentando = getting gradually slower. It is very similar to ritardando (ritard./rit.), which also means getting gradually slower. Ritenuto (riten./rit.) means immediately slower/held back. In the ABRSM exam, rall. and ritard. are treated as synonymous." },
-    { q:"What does 'sforzando' (sfz) mean?", opts:["Very soft","Suddenly loud, then softer","A forced/strong accent on a single note","Getting gradually louder"], ans:2, exp:"Sforzando (sfz) means a sudden, forced strong accent on a specific note. It is a sudden emphasis, much stronger than a normal accent (>). Sometimes written as sf or fz (forzando). The effect is immediate, not gradual." },
-    { q:"The ornament 'acciaccatura' is represented by:", opts:["A small note with no slash","A small note with a slash through its stem","A wavy line","A bracket above the note"], ans:1, exp:"The acciaccatura (grace note) is shown as a small note with a SLASH through its stem, indicating it should be 'crushed' — played as briefly as possible before the main note, stealing time from whatever comes before." },
-    { q:"'Cantabile' means:", opts:["In a dance style","In a singing style","Vigorously","Sweetly and softly"], ans:1, exp:"Cantabile = 'singable' in Italian — in a SINGING STYLE. It implies a smooth, lyrical, expressive quality, as if a voice is carrying the melody. Common instruction for slow lyrical passages." },
-    { q:"Which of these is a FRENCH musical term?", opts:["Adagio","Lebhaft","Cédez","Scherzando"], ans:2, exp:"Cédez is FRENCH, meaning 'yield/slow down'. Adagio is Italian, Lebhaft is German, Scherzando is Italian. Grade 5 requires knowledge of Italian, French AND German terms." },
-    { q:"A 'turn' (~) ornament played on the note consists of:", opts:["The note — one note above — the note","Upper note — main note — lower note — main note","Main note — lower note — main note","Rapid alternation between note and neighbour"], ans:1, exp:"A turn consists of FOUR notes: upper neighbour → main note → lower neighbour → main note. The exact execution can vary slightly based on context and period, but this is the standard ABRSM description." },
-    { q:"'Ritenuto' (riten.) means:", opts:["Gradually getting slower","Immediately held back / instantly slower","Returning to tempo","Slowing then stopping"], ans:1, exp:"Ritenuto means IMMEDIATELY held back — an instant reduction in speed (not gradual). This contrasts with rallentando/ritardando which are gradual. 'A tempo' then restores the original speed." },
-    { q:"'Mäßig' is a German term meaning:", opts:["Slow","Moderate","Fast","Lively"], ans:1, exp:"Mäßig is a German term meaning MODERATE or at a moderate pace — equivalent to the Italian 'moderato'. German terms frequently appear in Grade 5 exams." },
-    { q:"A trill (tr) means:", opts:["A single accented note","Rapid alternation between the written note and the note above","Play the note twice","A slight delay before the note"], ans:1, exp:"A trill is the rapid alternation between the main written note and the note ONE STEP ABOVE (usually a major or minor 2nd above, depending on the key). In Baroque music it typically starts on the upper note; in later music on the written note." },
-    { q:"'Con sordino' instructs the player to:", opts:["Play without pedal","Use a mute","Play with the bow","Pluck the string"], ans:1, exp:"Con sordino = 'with mute'. A mute is a device placed on the bridge (strings) or in the bell (brass) to dampen and change the quality of the sound. 'Senza sordino' = without mute." },
+    { q:"'Rallentando' (rall.) means:", opts:["Getting faster","Getting louder","Getting gradually slower","Suddenly stopping"], ans:2, exp:"RALLENTANDO = getting GRADUALLY slower. Near-identical to ritardando (ritard./rit.). TRAP: both rall. and rit. can mean the same thing — gradually slower. RITENUTO (riten.) is different: it means IMMEDIATELY held back (instant, not gradual). This trio is the most commonly confused group in Grade 5." },
+    { q:"What does 'sforzando' (sfz) mean?", opts:["Very soft","Suddenly loud, then softer","A forced/strong accent on a single note","Getting gradually louder"], ans:2, exp:"SFZ (sforzando) = a sudden forced accent on ONE specific note. It's stronger than a normal accent mark (>). Written as sfz, sf, or fz. The effect is IMMEDIATE and applies to just that note — it's not a dynamic level, it's a momentary emphasis. Great contrast with p or pp marks nearby." },
+    { q:"The ornament 'acciaccatura' is represented by:", opts:["A small note with no slash","A small note with a slash through its stem","A wavy line","A bracket above the note"], ans:1, exp:"ACCIACCATURA = small note WITH A SLASH through its stem. The slash signals 'crush it' — play it as briefly as possible just before the main note. Italian: 'acciaccatura' = 'crushed'. vs APPOGGIATURA (no slash) = leaning note, takes real rhythmic value from the main note." },
+    { q:"'Cantabile' means:", opts:["In a dance style","In a singing style","Vigorously","Sweetly and softly"], ans:1, exp:"CANTABILE = 'singable' — in a SINGING STYLE. Smooth, lyrical, expressive, as if a vocalist is carrying the line. Very common in Italian Romantic music. Compare: LEGATO = smoothly connected (a bowing/fingering instruction); CANTABILE = character/expressive quality." },
+    { q:"Which of these is a FRENCH musical term?", opts:["Adagio","Lebhaft","Cédez","Scherzando"], ans:2, exp:"CÉDEZ = French, meaning 'yield/give way/slow down'. Strategy: French terms often look like modern French words (cédez = yield in French). ADAGIO = Italian. LEBHAFT = German (lively). SCHERZANDO = Italian (playfully). At Grade 5, you must distinguish ALL THREE languages." },
+    { q:"A 'turn' (~) ornament played on the note consists of:", opts:["The note — one note above — the note","Upper note — main note — lower note — main note","Main note — lower note — main note","Rapid alternation between note and neighbour"], ans:1, exp:"TURN = 4 notes: UPPER → MAIN → LOWER → MAIN. So a turn on C would be: D–C–B–C. Exam trap: the 'upper mordent' (Pralltriller) = main→upper→main (3 notes). The turn has 4 notes and makes a full 'looping' figure. Remember: turn = turn around the note, touching above AND below." },
+    { q:"'Ritenuto' (riten.) means:", opts:["Gradually getting slower","Immediately held back / instantly slower","Returning to tempo","Slowing then stopping"], ans:1, exp:"RITENUTO = IMMEDIATELY slower (held back RIGHT NOW). Contrast with rallentando/ritardando = gradually slower over several notes. Think: riten. = like suddenly putting on the brakes; rall. = like gradually applying the brakes. After either, 'a tempo' restores original speed." },
+    { q:"'Mäßig' is a German term meaning:", opts:["Slow","Moderate","Fast","Lively"], ans:1, exp:"MÄSSIG = German for MODERATE. Equivalent to Italian 'moderato'. German terms to know: mäßig (moderate), lebhaft (lively), langsam (slow), schnell (fast), ruhig (calm), etwas (somewhat), sehr (very), mit (with), und (and). Exam often mixes languages — know them all!" },
+    { q:"A trill (tr) means:", opts:["A single accented note","Rapid alternation between the written note and the note above","Play the note twice","A slight delay before the note"], ans:1, exp:"TRILL = rapid alternation between the WRITTEN note and the NOTE ABOVE (usually a major or minor 2nd, depending on the key). Starting note: Baroque = usually upper note; Classical/Romantic = usually written note (ABRSM accepts both for Grade 5). Length: as long as the note value indicates." },
+    { q:"'Con sordino' instructs the player to:", opts:["Play without pedal","Use a mute","Play with the bow","Pluck the string"], ans:1, exp:"CON SORDINO = 'with mute'. Mutes on string instruments go on the bridge; on brass, in the bell. Effect: quieter, more nasal or veiled tone. SENZA SORDINO = without mute (remove it). Don't confuse with: PIZZICATO (pluck), CON ARCO (with the bow), LEGATO (smoothly)." },
+    { q:"'Très' is a French term meaning:", opts:["Very","A little","Rather","And"], ans:0, exp:"TRÈS = French for 'VERY'. E.g., 'très lent' = very slow. Other key French quantity words: un peu (a little), assez (enough/rather), moins (less), peu à peu (little by little), bien (very/well). These modifiers are often combined with speed or expression words in exam extracts." },
+    { q:"'Etwas' is a German term meaning:", opts:["Fast","Very","Somewhat / rather","With energy"], ans:2, exp:"ETWAS = German for 'SOMEWHAT' or 'RATHER'. E.g., 'etwas langsam' = somewhat slow. Similar German modifiers: sehr (very), wenig (little), immer (always), aber (but), nicht (not). Exam tip: German modifiers are often tested alongside the primary tempo or expression words." },
+    { q:"The marking 'appoggiatura' (a small note WITHOUT a slash) means:", opts:["Play it as fast as possible, stealing from the beat before","Play it ON the beat, giving it half the main note's value","Play it after the beat","Ignore it — it's optional"], ans:1, exp:"APPOGGIATURA = 'leaning note'. It falls ON THE BEAT and takes rhythmic value FROM the main note (usually half of a simple note, two-thirds of a dotted note). Contrast with acciaccatura (slash) which is crushed before the beat. 'Appoggiatura' = Italian for 'to lean on'." },
+    { q:"'Animé' is a French term meaning:", opts:["Slow and expressive","Animated, lively","Sadly","With movement, restless"], ans:1, exp:"ANIMÉ = French for ANIMATED or LIVELY. Equivalent to Italian 'animato'. French tempo/character terms to know: animé (animated), modéré (moderate), vif (lively), lent (slow), doux (sweet), expressif (expressive). When you see the accent: animé not anime!" },
+    { q:"'Martellato' or 'martellé' (strings) means:", opts:["Play softly near the bridge","Play with heavy, hammered bow strokes","Pluck the string firmly","Use the back of the bow"], ans:1, exp:"MARTELLATO = Italian for 'hammered'. A bowing technique where the bow is pressed firmly and each stroke starts with a sharp, accented attack. The word comes from 'martello' (hammer). It produces a heavy, separated, strongly accented articulation. Related to MARCATO (marked/accented) in expression." },
+    { q:"Which pair are BOTH German musical terms?", opts:["Vif and lebhaft","Langsam and schnell","Doux and ruhig","Lento and langsam"], ans:1, exp:"LANGSAM (slow) and SCHNELL (fast) are BOTH GERMAN. Check: VIF = French (lively); LEBHAFT = German (lively) — so vif+lebhaft is mixed. DOUX = French (sweet); RUHIG = German (calm). LENTO = Italian; LANGSAM = German. The trick is recognising the language by feel of the word." },
+    { q:"'Da Capo al Fine' (D.C. al Fine) instructs the player to:", opts:["Repeat the last section only","Go back to the start and play until the word 'Fine'","Jump to the coda","Repeat from the sign (𝄋)"], ans:1, exp:"D.C. AL FINE: Da Capo = 'from the head/beginning'. Al Fine = 'to the end/finish'. So: go back to BAR 1 and play until the word FINE. Contrast: D.S. al Fine = go back to the SIGN (𝄋) not the beginning. D.C. al Coda = go back to start then jump to the coda at the 𝄌 sign." },
+    { q:"'Pizzicato' (pizz.) is a direction to:", opts:["Play very softly","Use a heavy bowing style","Pluck the string instead of bowing it","Play near the bridge"], ans:2, exp:"PIZZICATO = PLUCK the string with the finger (usually right hand index finger, except for left-hand pizzicato by Bartók). The opposite is ARCO (with the bow). Pizzicato produces a short, dry, detached sound. Used extensively in orchestral music; Tchaikovsky's pizzicato movements are famous examples." },
   ],
 
   instruments: [
@@ -1135,46 +1165,131 @@ const LESSONS = {
     {
       title: "Simple vs Compound Time",
       content: `<div class='lesson-section'>
-        <h3>⏱️ Simple Time</h3>
-        <p>In <strong>simple time</strong>, each beat divides into <strong>two equal parts</strong>. The top number tells you how many beats per bar; the bottom number tells you what note gets one beat.</p>
-        <div class='key-point'>Top number = beats per bar &nbsp;|&nbsp; Bottom number = note value of each beat (4 = crotchet, 2 = minim, 8 = quaver)</div>
-        <p>Common simple time signatures: <strong>2/4, 3/4, 4/4</strong> (also written as C), <strong>2/2</strong> (alla breve, written as 𝄵), <strong>3/2, 3/8</strong></p>
+        <h3>⏱️ Simple Time — The Fundamentals</h3>
+        <p>In <strong>simple time</strong>, the beat divides into <strong>two equal parts</strong>.</p>
+        <div class='key-point'><strong>Formula:</strong> TOP number = beats per bar &nbsp;|&nbsp; BOTTOM number = denomination of the beat<br>Bottom 4 = crotchet beat &nbsp;|&nbsp; Bottom 2 = minim beat &nbsp;|&nbsp; Bottom 8 = quaver beat</div>
+        <table><tr><th>Signature</th><th>Beats/bar</th><th>Beat note</th><th>Example feel</th></tr>
+        <tr><td>2/4</td><td>2</td><td>Crotchet</td><td>March</td></tr>
+        <tr><td>3/4</td><td>3</td><td>Crotchet</td><td>Waltz</td></tr>
+        <tr><td>4/4 (C)</td><td>4</td><td>Crotchet</td><td>Most pop songs</td></tr>
+        <tr><td>2/2 (𝄵)</td><td>2</td><td>Minim</td><td>Alla breve / March at speed</td></tr>
+        <tr><td>3/2</td><td>3</td><td>Minim</td><td>Stately, broad</td></tr>
+        <tr><td>3/8</td><td>3</td><td>Quaver</td><td>Delicate, quick</td></tr></table>
+        <div class='warning-point'><strong>Trap:</strong> 3/8 and 6/8 both have an 8 on the bottom — but 3/8 is SIMPLE (3 quaver beats) and 6/8 is COMPOUND (2 dotted-crotchet beats). The key is whether the top number is divisible by 3!</div>
       </div>
       <div class='lesson-section'>
-        <h3>🎶 Compound Time</h3>
-        <p>In <strong>compound time</strong>, each beat divides into <strong>three equal parts</strong>. The beat note is always a dotted note.</p>
-        <p>To find the number of beats: divide the top number by 3.</p>
-        <div class='key-point'>6/8 = 2 beats (dotted crotchet each) &nbsp;|&nbsp; 9/8 = 3 beats &nbsp;|&nbsp; 12/8 = 4 beats</div>
-        <div class='warning-point'>Don't confuse 3/8 (simple: 3 quaver beats) with 6/8 (compound: 2 dotted crotchet beats)!</div>
+        <h3>🎶 Compound Time — Understand It Deeply</h3>
+        <p>In <strong>compound time</strong>, the beat divides into <strong>three equal parts</strong>. The beat is always a dotted note.</p>
+        <div class='key-point'><strong>To decode compound time:</strong> divide top by 3 = beats per bar. Bottom tells you the subdivision note (8 = quaver). Each beat = a dotted version of the subdivision.</div>
+        <table><tr><th>Signature</th><th>Beats/bar</th><th>Beat note</th><th>Subdivision</th></tr>
+        <tr><td>6/8</td><td>2</td><td>Dotted crotchet</td><td>3 quavers per beat</td></tr>
+        <tr><td>9/8</td><td>3</td><td>Dotted crotchet</td><td>3 quavers per beat</td></tr>
+        <tr><td>12/8</td><td>4</td><td>Dotted crotchet</td><td>3 quavers per beat</td></tr>
+        <tr><td>6/4</td><td>2</td><td>Dotted minim</td><td>3 crotchets per beat</td></tr></table>
+        <p>A dotted crotchet beat in 6/8 can be written as three quavers, a crotchet+quaver, or a dotted crotchet. All fill one beat.</p>
       </div>
       <div class='lesson-section'>
-        <h3>🔺 Irregular Time</h3>
-        <p>New at Grade 5! Irregular time signatures cannot be classified as purely simple or compound. They mix groups of 2s and 3s.</p>
-        <table><tr><th>Signature</th><th>Beats</th><th>Typical grouping</th></tr>
-        <tr><td>5/4</td><td>5 crotchet beats</td><td>2+3 or 3+2</td></tr>
-        <tr><td>7/4</td><td>7 crotchet beats</td><td>4+3 or 3+4</td></tr>
-        <tr><td>5/8</td><td>5 quaver beats</td><td>2+3 or 3+2</td></tr>
-        <tr><td>7/8</td><td>7 quaver beats</td><td>4+3 or 3+4</td></tr></table>
+        <h3>🔺 Irregular Time — New at Grade 5</h3>
+        <p>Irregular time cannot be simple (beats don't divide into 2) or compound (top not divisible by 3). It mixes groups of 2s and 3s.</p>
+        <table><tr><th>Signature</th><th>Beat count</th><th>Typical groupings</th></tr>
+        <tr><td>5/4</td><td>5 crotchets</td><td>2+3 or 3+2</td></tr>
+        <tr><td>7/4</td><td>7 crotchets</td><td>4+3 or 3+4</td></tr>
+        <tr><td>5/8</td><td>5 quavers</td><td>2+3 or 3+2</td></tr>
+        <tr><td>7/8</td><td>7 quavers</td><td>4+3 or 3+4</td></tr></table>
+        <div class='key-point'><strong>Famous examples:</strong> Holst's 'Mars' (5/4) | Brubeck's 'Take Five' (5/4) | Pink Floyd's 'Money' (7/4). These pieces help you feel irregular time — try counting along!</div>
       </div>`
     },
     {
-      title: "Grouping & Beaming",
+      title: "Grouping & Beaming Rules",
       content: `<div class='lesson-section'>
-        <h3>📐 Rules for Grouping Notes</h3>
-        <p>Notes should be beamed (joined) to show the beat structure clearly. The examiner must be able to see where each beat falls.</p>
-        <ul>
-          <li>In <strong>simple time</strong>, group quavers/semiquavers within each beat</li>
-          <li>In <strong>compound time</strong>, group 3 quavers per beat</li>
-          <li>Never beam across the MIDDLE of a bar in 4/4 (treat beats 1-2 and 3-4 as pairs)</li>
-          <li>A semibreve can fill a 4/4 bar alone; a dotted minim fills a 3/4 bar alone</li>
-        </ul>
-        <div class='key-point'>ABRSM rule: In 4/4, avoid beaming across the half-bar. So quavers on beats 2 and 3 can beam together, but not beats 1-2-3-4 across the full bar as one group.</div>
+        <h3>📐 The Golden Rule of Beaming</h3>
+        <p><strong>The examiner must be able to SEE the beat structure by looking at the beaming.</strong> Every beam group should correspond to exactly one beat (or one half-bar in simple duple/quadruple time).</p>
+        <div class='key-point'><strong>Simple time beaming:</strong> Group notes within individual beats. In 4/4, also never beam across the half-bar (beats 1–2 form one 'half', beats 3–4 form another half).</div>
+        <div class='warning-point'><strong>Common error:</strong> In 4/4, a student writes four quavers beamed across beats 2 and 3 — this is acceptable. But four quavers from beat 1 across the half-bar boundary to beat 3 — NOT acceptable.</div>
       </div>
       <div class='lesson-section'>
-        <h3>🔄 Triplets & Duplets</h3>
-        <p><strong>Triplet:</strong> 3 notes in the time of 2. Used in simple time to create a 3-part subdivision. Marked with a '3'.</p>
-        <p><strong>Duplet:</strong> 2 notes in the time of 3. Used in compound time. Marked with a '2'.</p>
-        <div class='key-point'>Irregular subdivision in compound: a duplet quaver = 3/2 the duration of a normal quaver.</div>
+        <h3>Note Value Arithmetic — Exam Shortcuts</h3>
+        <table><tr><th>Note</th><th>= crotchets</th><th>= quavers</th><th>= semiquavers</th></tr>
+        <tr><td>Semibreve</td><td>4</td><td>8</td><td>16</td></tr>
+        <tr><td>Dotted minim</td><td>3</td><td>6</td><td>12</td></tr>
+        <tr><td>Minim</td><td>2</td><td>4</td><td>8</td></tr>
+        <tr><td>Dotted crotchet</td><td>1.5</td><td>3</td><td>6</td></tr>
+        <tr><td>Crotchet</td><td>1</td><td>2</td><td>4</td></tr>
+        <tr><td>Dotted quaver</td><td>0.75</td><td>1.5</td><td>3</td></tr>
+        <tr><td>Quaver</td><td>0.5</td><td>1</td><td>2</td></tr>
+        <tr><td>Semiquaver</td><td>0.25</td><td>0.5</td><td>1</td></tr></table>
+        <div class='key-point'><strong>Dot rule:</strong> A dot adds HALF the note's value. A double dot adds half + quarter of the note's value.</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>🔄 Triplets, Duplets & Irregular Groups</h3>
+        <p><strong>Triplet:</strong> 3 notes in the time of 2. Appears in simple time. The bracket or beam carries a '3'. Three triplet quavers = 2 normal quavers = 1 crotchet beat.</p>
+        <p><strong>Duplet:</strong> 2 notes in the time of 3. Appears in compound time. The bracket carries a '2'. Two duplet quavers = 3 normal quavers = 1 dotted crotchet beat.</p>
+        <p><strong>Other groups:</strong> Quintuplet (5), sextuplet (6), septuplet (7) — all marked with their number. In Grade 5 exams, triplets and duplets are the most common.</p>
+        <div class='key-point'><strong>Exam tip on rests:</strong> A whole bar of silence = always written as a SEMIBREVE REST (hanging below the 4th line), regardless of time signature. Exception: 4/2 uses a breve rest.</div>
+      </div>`
+    },
+    {
+      title: "Identifying Time Signatures",
+      content: `<div class='lesson-section'>
+        <h3>🔍 Exam Question Type: What's the Time Signature?</h3>
+        <p>You may be shown a bar of music and asked to identify the time signature. Use this systematic approach:</p>
+        <div class='key-point'><strong>Step 1:</strong> Count the total value of notes in the bar (express as crotchets).<br><strong>Step 2:</strong> Look at HOW they're grouped/beamed — this reveals the beat structure.<br><strong>Step 3:</strong> If beamed in 3s → probably compound. If in 2s → probably simple.<br><strong>Step 4:</strong> Choose the time signature: TOP = beats × subdivision size, BOTTOM = denomination.</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>Simple vs Compound — The Test</h3>
+        <table><tr><th>Clue</th><th>Suggests simple</th><th>Suggests compound</th></tr>
+        <tr><td>Quavers beamed in groups of</td><td>2 (or 4)</td><td>3</td></tr>
+        <tr><td>Beat note</td><td>Undotted</td><td>Dotted</td></tr>
+        <tr><td>Top number divisible by 3?</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Triplets?</td><td>YES (borrowing from compound)</td><td>No (normal subdivision)</td></tr>
+        <tr><td>Duplets?</td><td>No</td><td>YES (borrowing from simple)</td></tr></table>
+        <div class='warning-point'><strong>3/4 vs 6/8:</strong> These have the same number of quavers per bar but FEEL different. 3/4 has THREE crotchet beats; 6/8 has TWO dotted-crotchet beats. A bar of 6 quavers: if grouped 2+2+2 → 3/4; if grouped 3+3 → 6/8.</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>Completing Bars — Exam Technique</h3>
+        <p>You'll be asked to complete a bar by adding rests or notes. Follow this method:</p>
+        <ol style="padding-left:20px;line-height:2">
+          <li>Calculate total beats needed for the time signature</li>
+          <li>Calculate what's already written</li>
+          <li>Find the difference = what you need to add</li>
+          <li>Fill beat-by-beat, using one rest per beat where possible</li>
+          <li>Check: does each beat show clearly in the final version?</li>
+        </ol>
+        <div class='key-point'><strong>Rest placement rules:</strong> In 4/4, a half-bar silence is written as a MINIM rest, not two crotchet rests. A crotchet rest sits in any beat position. Quaver rests are grouped like beamed notes — within single beats.</div>
+      </div>`
+    },
+    {
+      title: "Solving Exam Questions Fast",
+      content: `<div class='lesson-section'>
+        <h3>🚀 Quick-Fire Decision Trees</h3>
+        <p><strong>Q: Is this time simple or compound?</strong></p>
+        <ol style="padding-left:20px;line-height:2">
+          <li>Is the top number divisible by 3? → If YES and it's 6, 9, or 12 → COMPOUND</li>
+          <li>Are beats dotted notes? → COMPOUND</li>
+          <li>Otherwise → SIMPLE</li>
+          <li>Top = 5 or 7? → IRREGULAR (neither simple nor compound)</li>
+        </ol>
+      </div>
+      <div class='lesson-section'>
+        <h3>Note Value Quick-Calc</h3>
+        <p><strong>Q: How many [small notes] fit in [larger note]?</strong></p>
+        <p>Divide the larger note's value by the smaller note's value:</p>
+        <ul style="padding-left:20px;line-height:2">
+          <li>How many quavers in a dotted minim? → dotted minim = 6 quavers (3 crotchets × 2)</li>
+          <li>How many semiquavers in a dotted crotchet? → dotted crotchet = 3 quavers × 2 = 6 semiquavers</li>
+          <li>How many quavers in a semibreve? → 4 crotchets × 2 = 8 quavers</li>
+        </ul>
+        <div class='key-point'><strong>Dot trick:</strong> A dotted note = 1.5 × the undotted value. So dotted crotchet = 1.5 crotchets = 3 quavers = 6 semiquavers.</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>🎯 Most-Tested Rhythm Traps in ABRSM Grade 5</h3>
+        <table><tr><th>Trap</th><th>The Answer</th></tr>
+        <tr><td>3/8 vs 6/8 — same quavers, different feel?</td><td>3/8 = 3 beats; 6/8 = 2 dotted-crotchet beats</td></tr>
+        <tr><td>Whole bar rest regardless of time sig?</td><td>Always semibreve rest (hanging under 4th line)</td></tr>
+        <tr><td>Triplet in compound time?</td><td>That's actually normal — it's a DUPLET if 2 in the time of 3</td></tr>
+        <tr><td>𝄵 = how many beats?</td><td>2 minim beats (not 4 crotchets)</td></tr>
+        <tr><td>Quaver rest vs crotchet rest position?</td><td>Quaver rest: sits in middle of staff. Crotchet rest: hangs on 3rd line.</td></tr>
+        <tr><td>Can you beam across a half-bar in 4/4?</td><td>NO — the half-bar boundary (beat 3) must always be visible</td></tr></table>
       </div>`
     }
   ],
@@ -1272,48 +1387,117 @@ const LESSONS = {
   ],
   chords: [
     {
-      title: "Triads & Inversions",
+      title: "Building Triads",
       content: `<div class='lesson-section'>
-        <h3>🎵 Building Triads</h3>
-        <p>A triad = root + 3rd + 5th (three notes stacked in 3rds).</p>
-        <table><tr><th>Type</th><th>Intervals</th><th>Example</th></tr>
-        <tr><td>Major</td><td>M3 + m3</td><td>C–E–G</td></tr>
-        <tr><td>Minor</td><td>m3 + M3</td><td>A–C–E</td></tr>
-        <tr><td>Augmented</td><td>M3 + M3</td><td>C–E–G♯</td></tr>
-        <tr><td>Diminished</td><td>m3 + m3</td><td>B–D–F</td></tr></table>
+        <h3>🎵 What is a Triad?</h3>
+        <p>A triad = THREE notes stacked in intervals of a 3rd: root → 3rd → 5th. The four types differ by the quality of those 3rds.</p>
+        <table><tr><th>Type</th><th>Lower 3rd</th><th>Upper 3rd</th><th>Outer interval</th><th>Example</th></tr>
+        <tr><td><strong>Major</strong></td><td>Major 3rd (4 st)</td><td>Minor 3rd (3 st)</td><td>Perfect 5th</td><td>C–E–G</td></tr>
+        <tr><td><strong>Minor</strong></td><td>Minor 3rd (3 st)</td><td>Major 3rd (4 st)</td><td>Perfect 5th</td><td>A–C–E</td></tr>
+        <tr><td><strong>Augmented</strong></td><td>Major 3rd (4 st)</td><td>Major 3rd (4 st)</td><td>Aug 5th (8 st)</td><td>C–E–G♯</td></tr>
+        <tr><td><strong>Diminished</strong></td><td>Minor 3rd (3 st)</td><td>Minor 3rd (3 st)</td><td>Dim 5th (6 st)</td><td>B–D–F</td></tr></table>
+        <div class='key-point'><strong>Memory trick:</strong> Major = Big-Small. Minor = Small-Big. Augmented = Big-Big. Diminished = Small-Small. ('Big' = major 3rd, 'Small' = minor 3rd)</div>
       </div>
       <div class='lesson-section'>
-        <h3>Inversions</h3>
-        <table><tr><th>Position</th><th>Bass note</th><th>Figured bass</th></tr>
-        <tr><td>Root position</td><td>Root</td><td>⁵₃ (or blank)</td></tr>
-        <tr><td>1st inversion</td><td>3rd of chord</td><td>⁶₃ (or just 6)</td></tr>
-        <tr><td>2nd inversion</td><td>5th of chord</td><td>⁶₄</td></tr></table>
-        <div class='key-point'>Quick check: to find root position from any inversion, rearrange the notes until all gaps are 3rds.</div>
+        <h3>Diatonic Chords in a Major Key</h3>
+        <p>Build triads on every degree using only notes from the scale. In any major key:</p>
+        <table><tr><th>Degree</th><th>Chord</th><th>Quality</th><th>Example in C major</th></tr>
+        <tr><td>I — Tonic</td><td>Chord I</td><td>Major</td><td>C–E–G</td></tr>
+        <tr><td>II — Supertonic</td><td>Chord II ⭐NEW</td><td>Minor</td><td>D–F–A</td></tr>
+        <tr><td>III — Mediant</td><td>Chord III</td><td>Minor</td><td>E–G–B</td></tr>
+        <tr><td>IV — Subdominant</td><td>Chord IV</td><td>Major</td><td>F–A–C</td></tr>
+        <tr><td>V — Dominant</td><td>Chord V</td><td>Major</td><td>G–B–D</td></tr>
+        <tr><td>VI — Submediant</td><td>Chord VI</td><td>Minor</td><td>A–C–E</td></tr>
+        <tr><td>VII — Leading note</td><td>Chord VII</td><td>Diminished</td><td>B–D–F</td></tr></table>
+        <div class='key-point'><strong>Pattern to memorise:</strong> Major-Minor-Minor-Major-Major-Minor-Diminished (I–II–III–IV–V–VI–VII)</div>
       </div>`
     },
     {
-      title: "Chords I, II, IV, V in All Keys",
+      title: "Inversions & Figured Bass",
       content: `<div class='lesson-section'>
-        <h3>Diatonic Chords</h3>
-        <p>In a major key:</p>
-        <ul>
-          <li><strong>Chord I (Tonic)</strong> = major triad on tonic</li>
-          <li><strong>Chord II (Supertonic)</strong> = minor triad — NEW at Grade 5!</li>
-          <li><strong>Chord IV (Subdominant)</strong> = major triad</li>
-          <li><strong>Chord V (Dominant)</strong> = major triad</li>
-        </ul>
-        <div class='key-point'>In minor keys, chord V is MAJOR when using harmonic minor (raised 7th creates a major triad on degree V, giving a strong leading-note pull).</div>
+        <h3>🔄 Understanding Inversions</h3>
+        <p>Any note of the triad can be the lowest (bass) note. The inversion name tells you WHICH chord note is in the bass.</p>
+        <table><tr><th>Position</th><th>Bass note</th><th>Figured bass</th><th>Stability</th></tr>
+        <tr><td><strong>Root position</strong></td><td>Root (1st)</td><td>⁵₃ or nothing</td><td>Most stable</td></tr>
+        <tr><td><strong>1st inversion</strong></td><td>3rd</td><td>⁶₃ or just ⁶</td><td>Lighter, mobile</td></tr>
+        <tr><td><strong>2nd inversion</strong></td><td>5th</td><td>⁶₄</td><td>Unstable, needs resolution</td></tr></table>
+        <div class='key-point'><strong>Figured bass logic:</strong> The numbers show intervals counted ABOVE the bass note. In 1st inversion (e.g. E–C–G with E at bottom): E→G = a 3rd, E→C = a 6th → ⁶₃. In 2nd inversion (G at bottom): G→C = 4th, G→E = 6th → ⁶₄.</div>
+        <div class='warning-point'><strong>The 6/4 trap:</strong> The cadential six-four places chord I in 2nd inversion before a cadence (e.g. C major in 2nd inversion = G in bass, then resolves to G major chord V). It SOUNDS like a V chord at first!</div>
       </div>
       <div class='lesson-section'>
-        <h3>Scale Degrees to Remember</h3>
-        <table><tr><th>Roman</th><th>Name</th></tr>
-        <tr><td>I</td><td>Tonic</td></tr>
-        <tr><td>II</td><td>Supertonic</td></tr>
-        <tr><td>III</td><td>Mediant</td></tr>
-        <tr><td>IV</td><td>Subdominant</td></tr>
-        <tr><td>V</td><td>Dominant</td></tr>
-        <tr><td>VI</td><td>Submediant</td></tr>
-        <tr><td>VII</td><td>Leading note</td></tr></table>
+        <h3>Exam Process: Identifying Inversions</h3>
+        <p>When given a chord and asked for its inversion:</p>
+        <ol style="padding-left:20px;line-height:2.2">
+          <li><strong>Identify the chord</strong> — rearrange notes into stacked 3rds if needed. The BOTTOM of the rearranged stack = the root.</li>
+          <li><strong>Find the bass note</strong> (lowest note as written)</li>
+          <li><strong>Compare bass note to root:</strong> Bass = root → Root position. Bass = 3rd → 1st inv. Bass = 5th → 2nd inv.</li>
+        </ol>
+        <div class='key-point'><strong>Example:</strong> Chord written as E–C–G (E at bottom). Rearrange into 3rds: C–E–G = C major. Root = C. Bass note = E = the 3rd of C major. Therefore: 1st inversion. Figured bass = 6.</div>
+      </div>`
+    },
+    {
+      title: "Chords I, II, IV, V in Context",
+      content: `<div class='lesson-section'>
+        <h3>The Big Four Chords — Grade 5 Focus</h3>
+        <p>ABRSM Grade 5 requires you to identify and work with chords I, II, IV, and V in any key. Chord II is the main new addition at this grade.</p>
+        <table><tr><th>Chord</th><th>Degree name</th><th>Quality in major</th><th>Quality in minor (harmonic)</th></tr>
+        <tr><td>I</td><td>Tonic</td><td>Major</td><td>Minor</td></tr>
+        <tr><td>II</td><td>Supertonic</td><td>Minor</td><td>Diminished</td></tr>
+        <tr><td>IV</td><td>Subdominant</td><td>Major</td><td>Minor</td></tr>
+        <tr><td>V</td><td>Dominant</td><td>Major</td><td>Major (raised 7th)</td></tr></table>
+        <div class='key-point'><strong>In minor keys:</strong> Chord V is MAJOR because harmonic minor raises the 7th — this is what creates the strong leading note. Without this, the dominant chord would be minor and would not resolve convincingly to the tonic.</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>Cadences — Chord Progressions at Phrase Ends</h3>
+        <table><tr><th>Cadence</th><th>Chords</th><th>Effect</th></tr>
+        <tr><td><strong>Perfect (Authentic)</strong></td><td>V → I</td><td>Strong full stop. Both chords major (in major key)</td></tr>
+        <tr><td><strong>Plagal</strong></td><td>IV → I</td><td>Soft, 'Amen' cadence. Often at hymn endings</td></tr>
+        <tr><td><strong>Imperfect</strong></td><td>I/II/IV → V</td><td>Half stop — ends on the dominant, expecting more</td></tr>
+        <tr><td><strong>Interrupted (Deceptive)</strong></td><td>V → VI</td><td>Surprise! Avoids expected tonic, goes to submediant</td></tr></table>
+        <div class='warning-point'><strong>Common exam question:</strong> "Name the cadence at bar X." Always check: what are the last TWO chords of the phrase, and which degrees are they built on? V→I is always perfect regardless of key.</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>Quick Chord Builder for Any Key</h3>
+        <p><strong>Method to build chord II in any major key:</strong></p>
+        <ol style="padding-left:20px;line-height:2">
+          <li>Find the tonic (note I) of the key</li>
+          <li>Count UP two scale steps = the root of chord II</li>
+          <li>Build a minor triad on that root using only scale notes</li>
+        </ol>
+        <div class='key-point'><strong>Shortcut for chord V:</strong> The dominant is ALWAYS a perfect 5th above the tonic. V in C = G. V in G = D. V in D = A. V in F = C. V in B♭ = F. It's always a major triad.</div>
+      </div>`
+    },
+    {
+      title: "Solving Chord Questions Fast",
+      content: `<div class='lesson-section'>
+        <h3>🚀 Systematic Approach to Any Chord Question</h3>
+        <div class='key-point'><strong>Step-by-step process:</strong><br>
+        1. KEY — what key are we in? Read the key signature.<br>
+        2. ROOT — what is the chord? Rearrange notes into 3rds to find the root.<br>
+        3. DEGREE — what scale degree is the root? Count up the scale.<br>
+        4. INVERSION — what's in the bass? Compare to root.<br>
+        5. QUALITY — is the triad major, minor, diminished, or augmented?</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>Chord Quality Shortcut — Semitone Counting</h3>
+        <p>When you're unsure of a triad's quality, count semitones from the root:</p>
+        <table><tr><th>Root → 3rd</th><th>Root → 5th</th><th>= Quality</th></tr>
+        <tr><td>4 semitones (M3)</td><td>7 semitones (P5)</td><td>MAJOR</td></tr>
+        <tr><td>3 semitones (m3)</td><td>7 semitones (P5)</td><td>MINOR</td></tr>
+        <tr><td>4 semitones (M3)</td><td>8 semitones (A5)</td><td>AUGMENTED</td></tr>
+        <tr><td>3 semitones (m3)</td><td>6 semitones (d5)</td><td>DIMINISHED</td></tr></table>
+      </div>
+      <div class='lesson-section'>
+        <h3>🎯 Common Exam Traps — Chords</h3>
+        <table><tr><th>Trap</th><th>Remember</th></tr>
+        <tr><td>Chord II in major key</td><td>Always MINOR (not major)</td></tr>
+        <tr><td>Chord V in minor key</td><td>Always MAJOR (raised 7th from harmonic minor)</td></tr>
+        <tr><td>6/4 chord = what inversion?</td><td>2nd inversion (5th in bass)</td></tr>
+        <tr><td>Is chord VII major or diminished?</td><td>DIMINISHED in major keys</td></tr>
+        <tr><td>Figured bass '6' alone = which position?</td><td>1st inversion (shorthand for 6/3)</td></tr>
+        <tr><td>Root of E–G–C (E at bottom)?</td><td>Rearrange: C–E–G = C major. Root = C. 1st inversion.</td></tr>
+        <tr><td>Is an augmented chord ever diatonic in major?</td><td>No — chord III+ doesn't occur naturally in major keys</td></tr></table>
+        <div class='key-point'><strong>Golden rule for inversions:</strong> When in doubt, stack the notes in 3rds — the bottom note of that rearrangement is ALWAYS the root, regardless of what's in the bass of the original chord.</div>
       </div>`
     }
   ],
@@ -1321,83 +1505,328 @@ const LESSONS = {
     {
       title: "The Four Clefs",
       content: `<div class='lesson-section'>
-        <h3>𝄞 Treble Clef (G clef)</h3>
-        <p>The curl wraps around the <strong>2nd line from the bottom = G4</strong>.</p>
-        <p>Lines (bottom to top): <strong>E G B D F</strong> (Every Good Boy Deserves Fruit)</p>
-        <p>Spaces: <strong>F A C E</strong> (FACE)</p>
-        <p>Used by: violin, flute, oboe, clarinet, trumpet, horn, right hand piano</p>
+        <h3>𝄞 Treble Clef (G Clef) — Know It Cold</h3>
+        <p>The curl wraps around the <strong>2nd line = G4</strong>. All note positions follow from there.</p>
+        <table><tr><th>Position</th><th>Note</th><th>Memory</th></tr>
+        <tr><td>Line 1</td><td>E</td><td rowspan="5"><strong>Lines:</strong> E–G–B–D–F<br>"Every Good Boy Deserves Fruit"</td></tr>
+        <tr><td>Line 2</td><td>G</td></tr>
+        <tr><td>Line 3</td><td>B</td></tr>
+        <tr><td>Line 4</td><td>D</td></tr>
+        <tr><td>Line 5</td><td>F</td></tr>
+        <tr><td>Space 1</td><td>F</td><td rowspan="4"><strong>Spaces:</strong> F–A–C–E = "FACE"</td></tr>
+        <tr><td>Space 2</td><td>A</td></tr>
+        <tr><td>Space 3</td><td>C</td></tr>
+        <tr><td>Space 4</td><td>E</td></tr>
+        <tr><td>1st ledger line below</td><td><strong>Middle C</strong></td><td>Most important reference point!</td></tr></table>
       </div>
       <div class='lesson-section'>
-        <h3>𝄢 Bass Clef (F clef)</h3>
+        <h3>𝄢 Bass Clef (F Clef) — Know It Cold</h3>
         <p>The two dots surround the <strong>4th line = F3</strong>.</p>
-        <p>Lines: <strong>G B D F A</strong> (Good Boys Do Fine Always)</p>
-        <p>Spaces: <strong>A C E G</strong> (All Cows Eat Grass)</p>
-        <p>Used by: cello, double bass, bassoon, trombone, tuba, left hand piano</p>
+        <table><tr><th>Position</th><th>Note</th><th>Memory</th></tr>
+        <tr><td>Line 1</td><td>G</td><td rowspan="5"><strong>Lines:</strong> G–B–D–F–A<br>"Good Boys Do Fine Always"</td></tr>
+        <tr><td>Line 2</td><td>B</td></tr>
+        <tr><td>Line 3</td><td>D</td></tr>
+        <tr><td>Line 4</td><td>F</td></tr>
+        <tr><td>Line 5</td><td>A</td></tr>
+        <tr><td>Space 1</td><td>A</td><td rowspan="4"><strong>Spaces:</strong> A–C–E–G = "All Cows Eat Grass"</td></tr>
+        <tr><td>Space 2</td><td>C</td></tr>
+        <tr><td>Space 3</td><td>E</td></tr>
+        <tr><td>Space 4</td><td>G</td></tr>
+        <tr><td>1st ledger line above</td><td><strong>Middle C</strong></td><td>C4 = same pitch as treble clef ledger line below</td></tr></table>
       </div>
       <div class='lesson-section'>
-        <h3>C Clef — Alto & Tenor</h3>
-        <p>The C clef (looks like a B) always marks <strong>middle C</strong> on whatever line it sits.</p>
-        <ul>
-          <li><strong>Alto clef:</strong> C on 3rd line — used by viola</li>
-          <li><strong>Tenor clef:</strong> C on 4th line — used by cello, bassoon, trombone (high notes)</li>
-        </ul>
-        <div class='key-point'>Memory: Alto = 3 = A has 3 letters! Tenor = 4 (it's a level above alto in the voice hierarchy).</div>
+        <h3>C Clefs — Alto & Tenor</h3>
+        <p>The C clef (B-shaped symbol) ALWAYS marks <strong>middle C</strong> on whichever line it rests.</p>
+        <table><tr><th>Clef</th><th>C position</th><th>Used by</th><th>Memory</th></tr>
+        <tr><td><strong>Alto</strong></td><td>3rd line = middle C</td><td>Viola (primarily)</td><td>A-L-T-O = 3 vowels → 3rd line</td></tr>
+        <tr><td><strong>Tenor</strong></td><td>4th line = middle C</td><td>Cello/bassoon (high), trombone</td><td>Tenor is 'higher' voice → 4th line (one higher)</td></tr></table>
+        <div class='key-point'><strong>C clef reading strategy:</strong> Find middle C first (it's marked by the clef itself). Then count up or down alphabetically: C→D→E→F→G→A→B→C. Middle C in alto = line 3; the space above = D; line 4 = E; space 4 = F; line 5 = G.</div>
+      </div>`
+    },
+    {
+      title: "Note Reading in Each Clef",
+      content: `<div class='lesson-section'>
+        <h3>🎯 Alto Clef — Full Breakdown</h3>
+        <p>Middle C on line 3. From there, read up and down:</p>
+        <table><tr><th>Position</th><th>Note</th></tr>
+        <tr><td>Line 1</td><td>F (a major 3rd below middle C)</td></tr>
+        <tr><td>Space 1</td><td>G</td></tr>
+        <tr><td>Line 2</td><td>A</td></tr>
+        <tr><td>Space 2</td><td>B</td></tr>
+        <tr><td><strong>Line 3</strong></td><td><strong>C (Middle C)</strong></td></tr>
+        <tr><td>Space 3</td><td>D</td></tr>
+        <tr><td>Line 4</td><td>E</td></tr>
+        <tr><td>Space 4</td><td>F</td></tr>
+        <tr><td>Line 5</td><td>G</td></tr></table>
+        <div class='key-point'><strong>Alto clef vs treble clef relationship:</strong> Notes in alto clef appear approximately TWO lines/spaces HIGHER than the same pitch in treble clef (for the overlapping range). This is useful as a cross-check.</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>Tenor Clef — Full Breakdown</h3>
+        <p>Middle C on line 4. All positions shift DOWN by one line/space compared to alto clef:</p>
+        <table><tr><th>Position</th><th>Note</th></tr>
+        <tr><td>Line 1</td><td>D</td></tr>
+        <tr><td>Space 1</td><td>E</td></tr>
+        <tr><td>Line 2</td><td>F</td></tr>
+        <tr><td>Space 2</td><td>G</td></tr>
+        <tr><td>Line 3</td><td>A</td></tr>
+        <tr><td>Space 3</td><td>B</td></tr>
+        <tr><td><strong>Line 4</strong></td><td><strong>C (Middle C)</strong></td></tr>
+        <tr><td>Space 4</td><td>D</td></tr>
+        <tr><td>Line 5</td><td>E</td></tr></table>
+      </div>
+      <div class='lesson-section'>
+        <h3>The Anchor Method — Works for Any Clef</h3>
+        <div class='key-point'><strong>Always start from middle C</strong> — it's your anchor. Since every C clef marks it explicitly, you never have to guess. Once you have middle C, count letter names up or down the staff: C–D–E–F–G–A–B–C. Each step up moves you up a line or space; each step down moves you down.</div>
+        <p><strong>Practice drill:</strong> For any note in alto or tenor clef — find middle C (the clef tells you where it is), count steps to your note, name it. After 20 reps this becomes automatic.</p>
       </div>`
     },
     {
       title: "Transposition Between Clefs",
       content: `<div class='lesson-section'>
-        <h3>Octave Transposition</h3>
-        <p>Grade 5 requires you to transpose a melody <strong>up or down an octave</strong> and <strong>from one clef to another</strong>.</p>
-        <p>The key principle: the SAME pitch appears in different positions on different staves.</p>
-        <ul>
-          <li>Middle C = 1st ledger line BELOW treble staff</li>
-          <li>Middle C = 1st ledger line ABOVE bass staff</li>
-          <li>Middle C = 3rd line of alto staff</li>
-          <li>Middle C = 4th line of tenor staff</li>
-        </ul>
-        <div class='key-point'>To move between clefs: identify the pitch name, then find where that pitch sits in the new clef. Don't just copy the position!</div>
-        <div class='warning-point'>Watch out for key signatures — they also change appearance when clefs change.</div>
+        <h3>The Core Concept</h3>
+        <p>Transposing between clefs = <strong>same pitch, different notation</strong>. The note keeps its letter name and octave; only its position on the staff changes.</p>
+        <div class='key-point'><strong>The Two-Step Process:</strong><br>Step 1: NAME the pitch in the original clef (e.g. "this is D4").<br>Step 2: PLACE that same pitch in the new clef (where is D4 in the new clef?).</div>
+        <div class='warning-point'><strong>Never</strong> copy the staff position directly between clefs — the same position means a completely different pitch in different clefs!</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>Middle C as the Bridge</h3>
+        <p>Middle C is the most important note to know in ALL clefs:</p>
+        <table><tr><th>Clef</th><th>Position of Middle C</th></tr>
+        <tr><td>Treble</td><td>1st ledger line BELOW staff</td></tr>
+        <tr><td>Bass</td><td>1st ledger line ABOVE staff</td></tr>
+        <tr><td>Alto</td><td>3rd line</td></tr>
+        <tr><td>Tenor</td><td>4th line</td></tr></table>
+        <p>Use middle C as your bridge when transposing: find how many steps the melody note is from middle C in clef A, then count the same number of steps from middle C in clef B.</p>
+      </div>
+      <div class='lesson-section'>
+        <h3>Octave Transposition + Clef Change</h3>
+        <p>ABRSM Grade 5 often asks: "Transpose this melody DOWN an octave, rewriting it in bass clef" (or similar combinations).</p>
+        <div class='key-point'><strong>Strategy for octave + clef change:</strong><br>1. Name each note in the original.<br>2. Mentally move it up/down an octave (same letter name, different octave number).<br>3. Place the new octave pitch in the target clef.</div>
+        <p><strong>Example:</strong> Treble clef has G4 (2nd line of treble). Transpose DOWN octave to bass clef. G4 → G3. Where is G3 in bass clef? 2nd line of bass clef = B, so G3 is... line 1 of bass clef. ✓</p>
+      </div>
+      <div class='lesson-section'>
+        <h3>Worked Examples — Key Pitch Positions</h3>
+        <table><tr><th>Pitch</th><th>Treble clef position</th><th>Bass clef position</th><th>Alto clef position</th></tr>
+        <tr><td>Middle C (C4)</td><td>1st ledger line below</td><td>1st ledger line above</td><td>3rd line</td></tr>
+        <tr><td>D4</td><td>Below staff, 1 step up from middle C</td><td>1st space above staff</td><td>3rd space</td></tr>
+        <tr><td>G4</td><td>2nd line</td><td>2nd ledger line above</td><td>5th line</td></tr>
+        <tr><td>A3</td><td>2nd ledger line below</td><td>2nd space</td><td>1st ledger line below</td></tr>
+        <tr><td>F3</td><td>4th ledger line below (rare)</td><td>4th line</td><td>1st line</td></tr></table>
+      </div>`
+    },
+    {
+      title: "Solving Clef Questions Fast",
+      content: `<div class='lesson-section'>
+        <h3>🚀 Decision Trees for Clef Questions</h3>
+        <p><strong>Q: What note is this in the alto clef?</strong></p>
+        <ol style="padding-left:20px;line-height:2">
+          <li>Locate line 3 — that's your Middle C anchor</li>
+          <li>Count steps up or down from line 3 to your note</li>
+          <li>Apply those steps to the C–D–E–F–G–A–B sequence</li>
+          <li>Apply any key signature accidentals</li>
+        </ol>
+        <p><strong>Q: Rewrite this bass clef melody in alto clef at the same pitch.</strong></p>
+        <ol style="padding-left:20px;line-height:2">
+          <li>Name each bass clef note (e.g. D3, F3, G3...)</li>
+          <li>Find each pitch in the alto clef using middle C as anchor</li>
+          <li>Write it. Double-check one note at a time.</li>
+        </ol>
+      </div>
+      <div class='lesson-section'>
+        <h3>🎯 Clef Exam Traps</h3>
+        <table><tr><th>Trap</th><th>Remember</th></tr>
+        <tr><td>Alto clef — which line is middle C?</td><td>3rd line (the MIDDLE line of a 5-line staff)</td></tr>
+        <tr><td>Tenor clef — which line is middle C?</td><td>4th line</td></tr>
+        <tr><td>Copying positions directly between clefs</td><td>NEVER do this — always name the pitch first</td></tr>
+        <tr><td>8va over a treble clef passage — do I change clef?</td><td>No — you play an octave higher in the SAME clef</td></tr>
+        <tr><td>What does loco mean after 8va?</td><td>Return to written (normal) pitch</td></tr>
+        <tr><td>Bass clef 4th line = ?</td><td>F (the F clef marks it with its two dots)</td></tr>
+        <tr><td>Who uses alto clef?</td><td>Viola ONLY as primary clef</td></tr>
+        <tr><td>Who uses tenor clef?</td><td>Cello, bassoon, trombone (for high passages)</td></tr></table>
+      </div>
+      <div class='lesson-section'>
+        <h3>Relationships Between Clefs</h3>
+        <div class='key-point'><strong>Treble → Bass (same pitch):</strong> A note on the treble clef staff generally appears two ledger lines higher in bass clef. Middle C is on ledger line 1 below treble; same C is on ledger line 1 above bass. The staves are like two halves of the grand staff.</div>
+        <div class='key-point'><strong>Treble → Alto (same pitch):</strong> Alto clef notes sit approximately one 3rd higher on the staff (e.g., middle C is on ledger line 1 below treble, but on line 3 of the alto staff). This shift is useful as a rough check.</div>
       </div>`
     }
   ],
   terms: [
     {
-      title: "Tempo & Expression Terms",
+      title: "Tempo Terms",
       content: `<div class='lesson-section'>
-        <h3>🎭 Key Italian Tempo Terms</h3>
-        <p>Tempo markings (slowest to fastest):</p>
-        <p>Grave → Largo → Larghetto → Lento → Adagio → Andante → Andantino → Moderato → Allegretto → Allegro → Vivace → Presto → Prestissimo</p>
-        <div class='key-point'>Ritenuto = IMMEDIATELY slower (held back). Rallentando/Ritardando = GRADUALLY slower. These are commonly confused!</div>
+        <h3>🎭 Complete Tempo Order (Slowest → Fastest)</h3>
+        <p>Learn these in sequence — exam questions often test comparative tempos ("which is faster?").</p>
+        <table><tr><th>Term</th><th>Meaning</th><th>Character clue</th></tr>
+        <tr><td>Grave</td><td>Very slow, solemn</td><td>Funeral gravity</td></tr>
+        <tr><td>Largo</td><td>Very slow, broad</td><td>Large, spacious</td></tr>
+        <tr><td>Larghetto</td><td>Slightly less slow than largo</td><td>-etto = diminutive (a bit)</td></tr>
+        <tr><td>Lento</td><td>Slow</td><td>Lento = slow (lenient/lingering)</td></tr>
+        <tr><td>Adagio</td><td>Slow, stately</td><td>'At ease' — unhurried</td></tr>
+        <tr><td>Andante</td><td>Walking pace</td><td>'Andare' = to walk</td></tr>
+        <tr><td>Andantino</td><td>Slightly faster than andante</td><td>-ino = smaller → smaller/quicker steps</td></tr>
+        <tr><td>Moderato</td><td>Moderate speed</td><td>Modern, middle ground</td></tr>
+        <tr><td>Allegretto</td><td>Moderately fast</td><td>Less allegro (not fully fast yet)</td></tr>
+        <tr><td>Allegro</td><td>Fast, lively</td><td>'Allegro' = joyful, nimble</td></tr>
+        <tr><td>Vivace</td><td>Lively, vivacious</td><td>'Vivere' = to live</td></tr>
+        <tr><td>Presto</td><td>Very fast</td><td>'Presto' = quickly! (magic word)</td></tr>
+        <tr><td>Prestissimo</td><td>As fast as possible</td><td>-issimo = superlative (MOST)</td></tr></table>
       </div>
       <div class='lesson-section'>
-        <h3>Expression & Character</h3>
-        <p>These modify HOW the music is played. Most come from Italian but Grade 5 adds French and German:</p>
-        <ul>
-          <li><strong>cantabile</strong> = singing style</li>
-          <li><strong>grazioso</strong> = gracefully</li>
-          <li><strong>maestoso</strong> = majestically</li>
-          <li><strong>scherzando</strong> = playfully</li>
-          <li><strong>espressivo</strong> = expressively</li>
-          <li><strong>leggiero</strong> = lightly</li>
-          <li><strong>con brio</strong> = with vigour</li>
-          <li><strong>dolce</strong> = sweetly</li>
-        </ul>
+        <h3>The Critical Three: Rall. / Rit. / Riten.</h3>
+        <div class='warning-point'><strong>Most common confusion in the exam!</strong></div>
+        <table><tr><th>Term</th><th>Abbreviation</th><th>Meaning</th><th>How it works</th></tr>
+        <tr><td>Rallentando</td><td>rall.</td><td>Getting gradually slower</td><td>Over several notes/bars</td></tr>
+        <tr><td>Ritardando</td><td>rit. / ritard.</td><td>Getting gradually slower</td><td>Over several notes/bars</td></tr>
+        <tr><td>Ritenuto</td><td>rit. / riten.</td><td>Immediately held back</td><td>Instant effect on that note</td></tr></table>
+        <div class='key-point'><strong>Rule:</strong> rall. and ritard. = GRADUAL. Ritenuto = IMMEDIATE. After any of these, 'a tempo' restores original speed. Note: both rit. and riten. can abbreviate to 'rit.' — context helps distinguish them!</div>
       </div>`
     },
     {
-      title: "Ornaments",
+      title: "Expression & Character",
       content: `<div class='lesson-section'>
-        <h3>🌀 Ornament Types</h3>
-        <p>ABRSM Grade 5 tests these ornaments:</p>
-        <table><tr><th>Ornament</th><th>Symbol</th><th>What to play</th></tr>
-        <tr><td>Trill</td><td>tr or ~~~</td><td>Rapid alternation: main note ↔ note above</td></tr>
-        <tr><td>Upper mordent (Pralltriller)</td><td>Short wavy line above</td><td>Main → upper → main (3 notes, fast)</td></tr>
-        <tr><td>Lower mordent</td><td>Wavy line with vertical cross</td><td>Main → lower → main (3 notes, fast)</td></tr>
-        <tr><td>Turn</td><td>S-curve (∿)</td><td>Upper → main → lower → main (4 notes)</td></tr>
-        <tr><td>Acciaccatura</td><td>Small note with slash /</td><td>Crushed before the beat</td></tr>
-        <tr><td>Appoggiatura</td><td>Small plain note (no slash)</td><td>On the beat, takes half (or ⅔) of main note's value</td></tr></table>
-        <div class='key-point'>Acciaccatura (with slash) = crushed, extremely short. Appoggiatura (no slash) = leaning note, takes real time from the main note.</div>
+        <h3>🎨 Dynamics — Complete List</h3>
+        <table><tr><th>Symbol</th><th>Full name</th><th>Meaning</th></tr>
+        <tr><td>ppp</td><td>pianississimo</td><td>Very very soft</td></tr>
+        <tr><td>pp</td><td>pianissimo</td><td>Very soft</td></tr>
+        <tr><td>p</td><td>piano</td><td>Soft</td></tr>
+        <tr><td>mp</td><td>mezzo-piano</td><td>Moderately soft</td></tr>
+        <tr><td>mf</td><td>mezzo-forte</td><td>Moderately loud</td></tr>
+        <tr><td>f</td><td>forte</td><td>Loud</td></tr>
+        <tr><td>ff</td><td>fortissimo</td><td>Very loud</td></tr>
+        <tr><td>fff</td><td>fortississimo</td><td>Very very loud</td></tr>
+        <tr><td>sfz / sf</td><td>sforzando</td><td>Forced accent (single note)</td></tr>
+        <tr><td>fz</td><td>forzando</td><td>Forced (single note)</td></tr>
+        <tr><td>fp</td><td>forte-piano</td><td>Loud then immediately soft</td></tr></table>
+      </div>
+      <div class='lesson-section'>
+        <h3>Key Italian Expression Terms</h3>
+        <table><tr><th>Term</th><th>Meaning</th><th>Tip</th></tr>
+        <tr><td>cantabile</td><td>In a singing style</td><td>'Cantare' = to sing</td></tr>
+        <tr><td>dolce</td><td>Sweetly</td><td>'Dolce' = sweet (dolce vita)</td></tr>
+        <tr><td>espressivo</td><td>Expressively</td><td>Like 'expressive'</td></tr>
+        <tr><td>grazioso</td><td>Gracefully</td><td>'Grazia' = grace</td></tr>
+        <tr><td>leggiero / leggero</td><td>Lightly</td><td>'Leggero' = light</td></tr>
+        <tr><td>maestoso</td><td>Majestically</td><td>'Maestro' = master → grand</td></tr>
+        <tr><td>scherzando</td><td>Playfully, jokingly</td><td>'Scherzo' = joke/jest</td></tr>
+        <tr><td>tranquillo</td><td>Calmly, quietly</td><td>'Tranquil'</td></tr>
+        <tr><td>con brio</td><td>With vigour</td><td>'Brio' = dash/energy</td></tr>
+        <tr><td>con fuoco</td><td>With fire</td><td>'Fuoco' = fire</td></tr>
+        <tr><td>con moto</td><td>With movement</td><td>'Moto' = motion</td></tr>
+        <tr><td>appassionato</td><td>Passionately</td><td>Like 'passionate'</td></tr>
+        <tr><td>giocoso</td><td>Playfully, humorously</td><td>'Gioco' = game/play</td></tr>
+        <tr><td>sostenuto</td><td>Sustained</td><td>'Sostenere' = to sustain</td></tr>
+        <tr><td>agitato</td><td>Agitated</td><td>Like 'agitate'</td></tr>
+        <tr><td>brillante</td><td>Brilliantly</td><td>Like 'brilliant'</td></tr>
+        <tr><td>furioso</td><td>Furiously</td><td>Like 'furious'</td></tr>
+        <tr><td>marziale</td><td>In a military style</td><td>'Mars' = war god</td></tr>
+        <tr><td>pastorale</td><td>Peaceful, rural</td><td>Like 'pastoral'</td></tr>
+        <tr><td>risoluto</td><td>Boldly, resolutely</td><td>Like 'resolute'</td></tr>
+        <tr><td>nobilmente</td><td>Nobly</td><td>Like 'noble'</td></tr></table>
+      </div>`
+    },
+    {
+      title: "French & German Terms",
+      content: `<div class='lesson-section'>
+        <h3>🇫🇷 French Terms — Master List</h3>
+        <p><em>Strategy: French words often look like modern French or English cognates. Spot the similarity!</em></p>
+        <table><tr><th>Term</th><th>Meaning</th><th>Language clue</th></tr>
+        <tr><td>animé</td><td>Animated, lively</td><td>Like 'animated'</td></tr>
+        <tr><td>assez</td><td>Enough, rather</td><td>French: assez = enough</td></tr>
+        <tr><td>avec</td><td>With</td><td>French: avec = with</td></tr>
+        <tr><td>cédez</td><td>Yield, slow down</td><td>French: céder = to yield</td></tr>
+        <tr><td>doux / douce</td><td>Sweet, gentle</td><td>French: doux = sweet</td></tr>
+        <tr><td>en dehors</td><td>Prominent, standing out</td><td>French: dehors = outside</td></tr>
+        <tr><td>et</td><td>And</td><td>French: et = and</td></tr>
+        <tr><td>expressif</td><td>Expressive</td><td>Like 'expressive'</td></tr>
+        <tr><td>légèrement</td><td>Lightly</td><td>French: léger = light</td></tr>
+        <tr><td>lent</td><td>Slow</td><td>French: lent = slow</td></tr>
+        <tr><td>moins</td><td>Less</td><td>French: moins = less</td></tr>
+        <tr><td>modéré</td><td>Moderate</td><td>Like 'moderate'</td></tr>
+        <tr><td>non</td><td>Not</td><td>French: non = no/not</td></tr>
+        <tr><td>peu à peu</td><td>Little by little</td><td>French: peu = little</td></tr>
+        <tr><td>presser</td><td>To hurry / pressing</td><td>French: presser = to press/rush</td></tr>
+        <tr><td>ralentir</td><td>To slow down</td><td>French: ralentir = slow down</td></tr>
+        <tr><td>retenu</td><td>Held back</td><td>French: retenir = to hold back</td></tr>
+        <tr><td>sans</td><td>Without</td><td>French: sans = without</td></tr>
+        <tr><td>très</td><td>Very</td><td>French: très = very</td></tr>
+        <tr><td>un peu</td><td>A little</td><td>French: un peu = a little</td></tr>
+        <tr><td>vif / vite</td><td>Lively / quickly</td><td>French: vif = lively</td></tr></table>
+      </div>
+      <div class='lesson-section'>
+        <h3>🇩🇪 German Terms — Master List</h3>
+        <p><em>Strategy: German musical terms look distinctly Germanic. Watch for compound words and umlauts (ä, ö, ü).</em></p>
+        <table><tr><th>Term</th><th>Meaning</th><th>Language clue</th></tr>
+        <tr><td>aber</td><td>But</td><td>German: aber = but</td></tr>
+        <tr><td>ausdrucksvoll</td><td>Expressive, with expression</td><td>German: Ausdruck = expression</td></tr>
+        <tr><td>bewegt</td><td>With movement, agitated</td><td>German: Bewegung = movement</td></tr>
+        <tr><td>breit</td><td>Broad</td><td>German: breit = broad/wide</td></tr>
+        <tr><td>einfach</td><td>Simple</td><td>German: einfach = simple</td></tr>
+        <tr><td>etwas</td><td>Somewhat, rather</td><td>German: etwas = somewhat</td></tr>
+        <tr><td>fröhlich</td><td>Happy, merry</td><td>German: fröhlich = cheerful</td></tr>
+        <tr><td>gedämpft</td><td>Muted, damped</td><td>German: dämpfen = to mute</td></tr>
+        <tr><td>immer</td><td>Always</td><td>German: immer = always</td></tr>
+        <tr><td>kräftig</td><td>Strong, vigorous</td><td>German: Kraft = strength</td></tr>
+        <tr><td>langsam</td><td>Slow</td><td>German: langsam = slow</td></tr>
+        <tr><td>lebhaft</td><td>Lively</td><td>German: leben = to live</td></tr>
+        <tr><td>leise</td><td>Soft, gentle</td><td>German: leise = quietly</td></tr>
+        <tr><td>mäßig</td><td>Moderate</td><td>German: maß = measure</td></tr>
+        <tr><td>mit</td><td>With</td><td>German: mit = with</td></tr>
+        <tr><td>nicht</td><td>Not</td><td>German: nicht = not</td></tr>
+        <tr><td>ruhig</td><td>Calm, peaceful</td><td>German: Ruhe = peace/rest</td></tr>
+        <tr><td>schnell</td><td>Fast</td><td>German: schnell = fast</td></tr>
+        <tr><td>sehr</td><td>Very</td><td>German: sehr = very</td></tr>
+        <tr><td>und</td><td>And</td><td>German: und = and</td></tr>
+        <tr><td>zart</td><td>Tender, delicate</td><td>German: zart = tender</td></tr></table>
+      </div>`
+    },
+    {
+      title: "Ornaments & Solving Exam Questions",
+      content: `<div class='lesson-section'>
+        <h3>🌀 Ornaments — Deep Dive</h3>
+        <table><tr><th>Ornament</th><th>Symbol</th><th>Notes played</th><th>Timing</th></tr>
+        <tr><td><strong>Trill</strong></td><td>tr or ~~~</td><td>Main ↔ upper note, rapid alternation</td><td>Duration of written note</td></tr>
+        <tr><td><strong>Upper mordent (Pralltriller)</strong></td><td>Short wavy line ⌇</td><td>Main → upper → main (3 notes)</td><td>Very quick, on the beat</td></tr>
+        <tr><td><strong>Lower mordent</strong></td><td>Wavy line with vertical slash ⌇|</td><td>Main → lower → main (3 notes)</td><td>Very quick, on the beat</td></tr>
+        <tr><td><strong>Turn</strong></td><td>S-curve ∿ or ∾</td><td>Upper → main → lower → main (4 notes)</td><td>Spread over the note's duration</td></tr>
+        <tr><td><strong>Acciaccatura</strong></td><td>Small note WITH slash /</td><td>Crushed → main note</td><td>Before the beat (brief)</td></tr>
+        <tr><td><strong>Appoggiatura</strong></td><td>Small note, NO slash</td><td>Leaning note → main note</td><td>On the beat; takes ½ (or ⅔ if dotted) of main note's value</td></tr></table>
+        <div class='key-point'><strong>Acciaccatura vs Appoggiatura:</strong> The SLASH is the key. Slash = acciaccatura (crushed, before beat, brief). No slash = appoggiatura (leaning, on beat, takes real time). This distinction is tested directly in ABRSM Grade 5.</div>
+      </div>
+      <div class='lesson-section'>
+        <h3>Performance Directions to Know</h3>
+        <table><tr><th>Direction</th><th>Meaning</th><th>Applies to</th></tr>
+        <tr><td>pizzicato (pizz.)</td><td>Pluck the string</td><td>Strings</td></tr>
+        <tr><td>arco</td><td>With the bow (after pizz.)</td><td>Strings</td></tr>
+        <tr><td>col legno</td><td>With the wood of the bow</td><td>Strings</td></tr>
+        <tr><td>sul ponticello</td><td>Bow near the bridge (nasal sound)</td><td>Strings</td></tr>
+        <tr><td>sul tasto</td><td>Bow over the fingerboard (soft)</td><td>Strings</td></tr>
+        <tr><td>con sordino</td><td>With mute</td><td>Strings/brass</td></tr>
+        <tr><td>senza sordino</td><td>Without mute</td><td>Strings/brass</td></tr>
+        <tr><td>tremolo</td><td>Rapid repeated bowing of one note</td><td>Strings</td></tr>
+        <tr><td>vibrato</td><td>Slight pitch oscillation</td><td>Strings/voice</td></tr>
+        <tr><td>glissando (gliss.)</td><td>Slide between two pitches</td><td>Various</td></tr>
+        <tr><td>8va</td><td>Play one octave higher</td><td>Any</td></tr>
+        <tr><td>8vb</td><td>Play one octave lower</td><td>Any</td></tr>
+        <tr><td>loco</td><td>At normal pitch (after 8va)</td><td>Any</td></tr>
+        <tr><td>Da Capo (D.C.)</td><td>Return to the beginning</td><td>Any</td></tr>
+        <tr><td>Dal Segno (D.S.)</td><td>Return to the sign 𝄋</td><td>Any</td></tr>
+        <tr><td>al Fine</td><td>Continue to the word 'Fine'</td><td>Any</td></tr></table>
+      </div>
+      <div class='lesson-section'>
+        <h3>🎯 Exam Strategy: Identifying Unknown Terms</h3>
+        <div class='key-point'><strong>Language identification first:</strong> Is it Italian (usually ends -o, -e, -ando, -oso)? French (accent marks like é, è, subtle spellings)? German (compound words, umlauts ä/ö/ü, capitalisation)? Once you identify the language, you can often deduce the meaning from root words.</div>
+        <p><strong>Common roots to recognise:</strong></p>
+        <ul style="padding-left:20px;line-height:1.9">
+          <li><strong>-issimo</strong> = superlative (MOST) → pianissimo = very soft</li>
+          <li><strong>-etto / -ino</strong> = diminutive (a bit less) → larghetto, andantino</li>
+          <li><strong>-ando / -endo</strong> = ongoing action → crescendo (growing), diminuendo (diminishing)</li>
+          <li><strong>con-</strong> = with → con brio, con fuoco, con sordino</li>
+          <li><strong>senza-</strong> = without → senza sordino</li>
+          <li><strong>sehr / très / molto</strong> = very (German / French / Italian)</li>
+          <li><strong>mit / avec / con</strong> = with (German / French / Italian)</li>
+          <li><strong>nicht / sans / senza</strong> = without (German / French / Italian)</li>
+        </ul>
       </div>`
     }
   ],
@@ -1495,7 +1924,7 @@ const LESSONS = {
 // ══════════════════════════════════════════════════════
 //  STATE MANAGEMENT
 // ══════════════════════════════════════════════════════
-const SAVE_KEY = 'maestro_grade5_v3';
+const SAVE_KEY = 'maestro_grade5_v4';
 let STATE = {
   xp: 0, level: 1, bestStreak: 0,
   totalCorrect: 0, totalAnswered: 0,
