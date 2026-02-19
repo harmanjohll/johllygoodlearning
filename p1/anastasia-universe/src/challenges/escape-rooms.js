@@ -56,6 +56,35 @@ var ESCAPE_ROOMS = [
       { type: 'math', skills: ['area','advmul'], count: 2 },
       { type: 'riddle', riddle: 'I can fly without wings. I can cry without eyes. Wherever I go, darkness follows me. What am I?', answer: 'A cloud', options: ['A cloud','A bird','The wind','A ghost'] }
     ]
+  },
+  {
+    id: 'escape-deepsea',
+    name: 'Deep Sea Discovery',
+    icon: '\uD83C\uDF0A',
+    desc: 'Explore the ocean depths and surface!',
+    unlockFlowers: 20,
+    timeLimit: 360,
+    rooms: [
+      { type: 'stem', skills: ['earth','material'], count: 2 },
+      { type: 'math', skills: ['sub','div'], count: 2 },
+      { type: 'word', skills: ['vocab','spell'], count: 2 },
+      { type: 'cipher', cipher: { text: 'XBUFS', shift: 1, answer: 'WATER' } },
+      { type: 'riddle', riddle: 'I have a heart that doesn\'t beat. I have a mouth but don\'t eat. I have a bed but don\'t sleep. What am I?', answer: 'A river', options: ['A river','A mountain','A tree','A cave'] }
+    ]
+  },
+  {
+    id: 'escape-volcano',
+    name: 'Volcano Escape',
+    icon: '\uD83C\uDF0B',
+    desc: 'Escape before the volcano erupts!',
+    unlockFlowers: 25,
+    timeLimit: 300,
+    rooms: [
+      { type: 'math', skills: ['add10k','sub10k'], count: 2 },
+      { type: 'stem', skills: ['forces','earth'], count: 2 },
+      { type: 'lock', lock: { q1: { text: 'What is 7 + 8?', answer: 15 }, q2: { text: 'What is 6 x 4?', answer: 24 }, q3: { text: 'What is 50 - 17?', answer: 33 } } },
+      { type: 'riddle', riddle: 'I am not alive, but I grow. I don\'t have lungs, but I need air. I don\'t have a mouth, but water kills me. What am I?', answer: 'Fire', options: ['Fire','A plant','A cloud','A rock'] }
+    ]
   }
 ];
 
@@ -121,6 +150,23 @@ function startEscapeRoom(roomId) {
         options: shuffle(section.options),
         answer: section.answer,
         hint: 'Think about it carefully. Read each word of the riddle.'
+      });
+    } else if (section.type === 'cipher') {
+      questions.push({
+        type: 'escape-cipher',
+        cipherText: section.cipher.text,
+        shift: section.cipher.shift,
+        answer: section.cipher.answer,
+        hint: 'Each letter is shifted by ' + section.cipher.shift + '. A becomes B, B becomes C, etc.'
+      });
+    } else if (section.type === 'lock') {
+      questions.push({
+        type: 'escape-lock',
+        q1: section.lock.q1,
+        q2: section.lock.q2,
+        q3: section.lock.q3,
+        answer: '' + section.lock.q1.answer + section.lock.q2.answer + section.lock.q3.answer,
+        hint: 'Solve each mini-problem to get a digit of the code.'
       });
     } else {
       for (var i = 0; i < section.count; i++) {
@@ -204,10 +250,9 @@ function renderEscapeQuestion() {
   card.offsetHeight;
   card.style.animation = 'slide-up 0.4s ease-out';
 
-  if (q.type === 'escape-riddle') {
-    renderEscapeRiddle(card, q);
-    return;
-  }
+  if (q.type === 'escape-riddle') { renderEscapeRiddle(card, q); return; }
+  if (q.type === 'escape-cipher') { renderEscapeCipher(card, q); return; }
+  if (q.type === 'escape-lock') { renderEscapeLock(card, q); return; }
 
   // Use standard renderers
   if (typeof renderMathQuestion === 'function' && renderMathQuestion(card, q)) return;
@@ -234,6 +279,101 @@ function renderEscapeRiddle(card, q) {
   }).join('') + '</div>';
   html += renderHintBtn(q.hint);
   card.innerHTML = html;
+}
+
+// === CIPHER PUZZLE RENDERER ===
+function renderEscapeCipher(card, q) {
+  var html = '<div style="font-size:36px;margin-bottom:8px">\uD83D\uDD10</div>';
+  html += '<div class="question-text" style="font-size:18px">Crack the Code!</div>';
+  html += '<div style="font-size:14px;color:var(--text-secondary);margin:8px 0">Each letter has been shifted forward by ' + q.shift + '. Decode the secret word!</div>';
+
+  // Show cipher text as letter tiles
+  html += '<div style="display:flex;gap:6px;justify-content:center;margin:16px 0">';
+  for (var i = 0; i < q.cipherText.length; i++) {
+    html += '<div style="width:42px;height:48px;background:rgba(255,255,255,0.1);border:2px solid var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--gold)">' + q.cipherText[i] + '</div>';
+  }
+  html += '</div>';
+
+  // Alphabet reference
+  html += '<div style="font-size:12px;color:var(--text-dim);margin:8px 0">A B C D E F G H I J K L M N O P Q R S T U V W X Y Z</div>';
+
+  // Input
+  html += '<div class="text-input-area">';
+  html += '<input class="text-input" type="text" id="cipher-input" placeholder="Type the decoded word..." maxlength="' + q.cipherText.length + '" autocomplete="off" autocapitalize="characters" style="font-size:22px;letter-spacing:6px;text-align:center;text-transform:uppercase" onkeydown="if(event.key===\'Enter\')checkCipher()">';
+  html += '<button class="submit-btn" onclick="checkCipher()">Decode \u2713</button>';
+  html += '</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+  card.dataset.cipherAnswer = q.answer;
+  setTimeout(function() { var el = document.getElementById('cipher-input'); if (el) el.focus(); }, 100);
+}
+
+function checkCipher() {
+  var input = document.getElementById('cipher-input');
+  var card = document.getElementById('escape-card');
+  if (!input || !card) return;
+  var val = input.value.trim().toUpperCase();
+  var expected = card.dataset.cipherAnswer;
+  if (val === expected) {
+    input.style.borderColor = 'var(--success)';
+    escapeCheckAnswer(val, expected, null);
+  } else {
+    input.style.borderColor = 'var(--error)';
+    input.style.animation = 'shake-wrong 0.5s';
+    if (val.length === expected.length) {
+      escapeCheckAnswer(val, expected, null);
+    }
+  }
+}
+
+// === LOCK COMBINATION PUZZLE RENDERER ===
+function renderEscapeLock(card, q) {
+  var html = '<div style="font-size:36px;margin-bottom:8px">\uD83D\uDD12</div>';
+  html += '<div class="question-text" style="font-size:18px">Crack the Lock!</div>';
+  html += '<div style="font-size:14px;color:var(--text-secondary);margin:8px 0">Solve each problem to find the combination!</div>';
+
+  // Three combination slots
+  html += '<div style="display:flex;gap:12px;justify-content:center;margin:16px 0;align-items:flex-end">';
+
+  var questions = [q.q1, q.q2, q.q3];
+  questions.forEach(function(sub, idx) {
+    html += '<div style="text-align:center">';
+    html += '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px">' + sub.text + '</div>';
+    html += '<input type="number" id="lock-input-' + idx + '" class="text-input" style="width:60px;font-size:24px;text-align:center;padding:8px" maxlength="4">';
+    html += '</div>';
+  });
+
+  html += '</div>';
+
+  html += '<button class="submit-btn mt-2" onclick="checkLock()">Unlock \uD83D\uDD13</button>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+  card.dataset.lockAnswer = q.answer;
+  setTimeout(function() { var el = document.getElementById('lock-input-0'); if (el) el.focus(); }, 100);
+}
+
+function checkLock() {
+  var card = document.getElementById('escape-card');
+  if (!card) return;
+  var val = '';
+  for (var i = 0; i < 3; i++) {
+    var input = document.getElementById('lock-input-' + i);
+    val += (input ? input.value.trim() : '');
+  }
+  var expected = card.dataset.lockAnswer;
+  if (val === expected) {
+    escapeCheckAnswer(val, expected, null);
+  } else {
+    // Shake all inputs
+    for (var j = 0; j < 3; j++) {
+      var inp = document.getElementById('lock-input-' + j);
+      if (inp) {
+        inp.style.borderColor = 'var(--error)';
+        inp.style.animation = 'shake-wrong 0.5s';
+      }
+    }
+    escapeCheckAnswer(val, expected, null);
+  }
 }
 
 // Override answer checking for escape rooms

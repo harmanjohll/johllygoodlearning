@@ -280,6 +280,273 @@ function renderCodeDebug(card, q) {
   card.innerHTML = html;
 }
 
+// ===================== GRID-BASED CODING ROBOT =====================
+
+// Grid cell types: 0=empty, 1=wall, 2=gem, 3=goal, 4=start
+// Directions: 0=right, 1=down, 2=left, 3=up
+var GRID_DIR_DELTA = [
+  { dr: 0, dc: 1 },  // right
+  { dr: 1, dc: 0 },  // down
+  { dr: 0, dc: -1 }, // left
+  { dr: -1, dc: 0 }  // up
+];
+var GRID_DIR_ARROWS = ['\u27A1\uFE0F', '\u2B07\uFE0F', '\u2B05\uFE0F', '\u2B06\uFE0F'];
+var GRID_DIR_NAMES = ['right', 'down', 'left', 'up'];
+
+function genCodeGrid(diff) {
+  // Pick a level from the CODE_GRID_LEVELS bank based on skill and difficulty
+  var skillId = ['cseq', 'cloop', 'ccond', 'cvar', 'cdebug'][diff.level] || 'cseq';
+  var levels = CODE_GRID_LEVELS.filter(function(l) { return l.skill === skillId; });
+  if (levels.length === 0) levels = CODE_GRID_LEVELS.filter(function(l) { return l.skill === 'cseq'; });
+  var level = pick(levels);
+
+  return {
+    type: 'code-grid',
+    grid: level.grid,
+    start: level.start,
+    goal: level.goal,
+    gems: level.gems || [],
+    title: level.title || 'Robot Puzzle',
+    maxBlocks: level.maxBlocks || 20,
+    answer: '__grid__',
+    hint: level.hint || 'Guide the robot to the flag! Use the arrow buttons to build your sequence.'
+  };
+}
+
+function renderCodeGrid(card, q) {
+  var rows = q.grid.length;
+  var cols = q.grid[0].length;
+  var cellSize = Math.min(48, Math.floor(280 / Math.max(rows, cols)));
+
+  var html = '<div class="question-text">\uD83E\uDD16 ' + q.title + '</div>';
+  html += '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px">Guide the robot to the flag!</div>';
+
+  // Grid display
+  html += '<div id="code-grid" style="display:inline-grid;grid-template-columns:repeat(' + cols + ',' + cellSize + 'px);gap:2px;margin:8px auto;background:rgba(0,0,0,0.2);padding:4px;border-radius:8px">';
+  for (var r = 0; r < rows; r++) {
+    for (var c = 0; c < cols; c++) {
+      var cell = q.grid[r][c];
+      var content = '';
+      var bg = 'rgba(255,255,255,0.05)';
+
+      if (cell === 1) { content = '\uD83E\uDDF1'; bg = 'rgba(100,100,100,0.3)'; }
+      else if (cell === 2) { content = '\uD83D\uDC8E'; }
+      else if (cell === 3) { content = '\uD83C\uDFC1'; bg = 'rgba(0,255,100,0.1)'; }
+
+      if (r === q.start[0] && c === q.start[1]) { content = '\uD83E\uDD16'; bg = 'rgba(100,200,255,0.15)'; }
+
+      html += '<div class="grid-cell" id="gc-' + r + '-' + c + '" style="width:' + cellSize + 'px;height:' + cellSize + 'px;background:' + bg + ';display:flex;align-items:center;justify-content:center;font-size:' + Math.floor(cellSize * 0.6) + 'px;border-radius:4px;transition:all 0.3s">' + content + '</div>';
+    }
+  }
+  html += '</div>';
+
+  // Command palette
+  html += '<div style="display:flex;gap:6px;justify-content:center;margin:8px 0;flex-wrap:wrap">';
+  html += '<button class="answer-btn" style="font-size:18px;padding:6px 14px" onclick="gridAddCmd(0)">\u27A1\uFE0F</button>';
+  html += '<button class="answer-btn" style="font-size:18px;padding:6px 14px" onclick="gridAddCmd(1)">\u2B07\uFE0F</button>';
+  html += '<button class="answer-btn" style="font-size:18px;padding:6px 14px" onclick="gridAddCmd(2)">\u2B05\uFE0F</button>';
+  html += '<button class="answer-btn" style="font-size:18px;padding:6px 14px" onclick="gridAddCmd(3)">\u2B06\uFE0F</button>';
+  html += '<button class="answer-btn" style="font-size:14px;padding:6px 14px;color:var(--coral)" onclick="gridClearCmds()">\u274C Clear</button>';
+  html += '</div>';
+
+  // Command display
+  html += '<div id="grid-cmds" style="min-height:32px;padding:8px;background:rgba(0,0,0,0.2);border-radius:8px;margin:4px 0;display:flex;flex-wrap:wrap;gap:4px;justify-content:center;font-size:18px"></div>';
+  html += '<div id="grid-cmd-count" style="font-size:12px;color:var(--text-dim)">Commands: 0/' + q.maxBlocks + '</div>';
+
+  // Run button
+  html += '<button class="submit-btn mt-2" onclick="gridRunCode()" id="grid-run-btn">Run \u25B6</button>';
+  html += '<div id="grid-status" style="font-size:14px;color:var(--text-secondary);min-height:20px;margin:4px 0"></div>';
+
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+
+  // Store grid state
+  card.dataset.gridRows = String(rows);
+  card.dataset.gridCols = String(cols);
+  card.dataset.gridData = JSON.stringify(q.grid);
+  card.dataset.gridStart = JSON.stringify(q.start);
+  card.dataset.gridGoal = JSON.stringify(q.goal);
+  card.dataset.gridGems = JSON.stringify(q.gems || []);
+  card.dataset.gridCmds = '[]';
+  card.dataset.gridMax = String(q.maxBlocks);
+}
+
+function gridAddCmd(dir) {
+  var card = document.getElementById('question-card');
+  var cmds = JSON.parse(card.dataset.gridCmds || '[]');
+  var max = parseInt(card.dataset.gridMax || '20');
+  if (cmds.length >= max) return;
+  cmds.push(dir);
+  card.dataset.gridCmds = JSON.stringify(cmds);
+  gridUpdateDisplay();
+}
+
+function gridClearCmds() {
+  var card = document.getElementById('question-card');
+  card.dataset.gridCmds = '[]';
+  gridUpdateDisplay();
+  // Reset grid visuals
+  gridResetVisuals();
+}
+
+function gridUpdateDisplay() {
+  var card = document.getElementById('question-card');
+  var cmds = JSON.parse(card.dataset.gridCmds || '[]');
+  var max = parseInt(card.dataset.gridMax || '20');
+  var el = document.getElementById('grid-cmds');
+  var count = document.getElementById('grid-cmd-count');
+  if (el) el.innerHTML = cmds.map(function(d) { return GRID_DIR_ARROWS[d]; }).join(' ');
+  if (count) count.textContent = 'Commands: ' + cmds.length + '/' + max;
+}
+
+function gridResetVisuals() {
+  var card = document.getElementById('question-card');
+  var grid = JSON.parse(card.dataset.gridData || '[]');
+  var start = JSON.parse(card.dataset.gridStart || '[0,0]');
+  var gems = JSON.parse(card.dataset.gridGems || '[]');
+  var rows = grid.length;
+  var cols = grid[0].length;
+
+  for (var r = 0; r < rows; r++) {
+    for (var c = 0; c < cols; c++) {
+      var cell = document.getElementById('gc-' + r + '-' + c);
+      if (!cell) continue;
+      var v = grid[r][c];
+      var content = '';
+      var bg = 'rgba(255,255,255,0.05)';
+      if (v === 1) { content = '\uD83E\uDDF1'; bg = 'rgba(100,100,100,0.3)'; }
+      else if (v === 2) { content = '\uD83D\uDC8E'; }
+      else if (v === 3) { content = '\uD83C\uDFC1'; bg = 'rgba(0,255,100,0.1)'; }
+      if (r === start[0] && c === start[1]) { content = '\uD83E\uDD16'; bg = 'rgba(100,200,255,0.15)'; }
+      cell.innerHTML = content;
+      cell.style.background = bg;
+    }
+  }
+  var status = document.getElementById('grid-status');
+  if (status) status.textContent = '';
+}
+
+function gridRunCode() {
+  var card = document.getElementById('question-card');
+  var cmds = JSON.parse(card.dataset.gridCmds || '[]');
+  var grid = JSON.parse(card.dataset.gridData || '[]');
+  var start = JSON.parse(card.dataset.gridStart || '[0,0]');
+  var goal = JSON.parse(card.dataset.gridGoal || '[0,0]');
+  var gems = JSON.parse(card.dataset.gridGems || '[]');
+  var rows = grid.length;
+  var cols = grid[0].length;
+
+  if (cmds.length === 0) {
+    var status = document.getElementById('grid-status');
+    if (status) status.textContent = 'Add some commands first!';
+    return;
+  }
+
+  // Disable run button
+  var runBtn = document.getElementById('grid-run-btn');
+  if (runBtn) runBtn.disabled = true;
+
+  // Reset visuals first
+  gridResetVisuals();
+
+  // Animate step by step
+  var pos = { r: start[0], c: start[1] };
+  var gemsCollected = 0;
+  var gemSet = {};
+  gems.forEach(function(g) { gemSet[g[0] + ',' + g[1]] = true; });
+  var step = 0;
+
+  function animateStep() {
+    if (step >= cmds.length) {
+      // Check if reached goal
+      setTimeout(function() {
+        if (pos.r === goal[0] && pos.c === goal[1]) {
+          var statusEl = document.getElementById('grid-status');
+          if (statusEl) statusEl.textContent = '\uD83C\uDF89 Goal reached!';
+          handleCorrect();
+        } else {
+          var statusEl2 = document.getElementById('grid-status');
+          if (statusEl2) statusEl2.textContent = '\u274C Didn\'t reach the flag. Try again!';
+          handleWrong('Reach the flag');
+        }
+        if (runBtn) runBtn.disabled = false;
+      }, 300);
+      return;
+    }
+
+    var dir = cmds[step];
+    var delta = GRID_DIR_DELTA[dir];
+    var nr = pos.r + delta.dr;
+    var nc = pos.c + delta.dc;
+
+    // Check bounds and walls
+    if (nr < 0 || nr >= rows || nc < 0 || nc >= cols || grid[nr][nc] === 1) {
+      // Hit wall or out of bounds
+      var statusEl = document.getElementById('grid-status');
+      if (statusEl) statusEl.textContent = '\uD83E\uDDF1 Blocked! The robot hit a wall.';
+      handleWrong('Avoid walls and stay on the grid');
+      if (runBtn) runBtn.disabled = false;
+      return;
+    }
+
+    // Clear old position
+    var oldCell = document.getElementById('gc-' + pos.r + '-' + pos.c);
+    if (oldCell) {
+      oldCell.innerHTML = '';
+      oldCell.style.background = 'rgba(200,255,200,0.08)'; // trail
+    }
+
+    // Move
+    pos.r = nr;
+    pos.c = nc;
+
+    // Check for gem
+    var gemKey = nr + ',' + nc;
+    if (gemSet[gemKey]) {
+      gemsCollected++;
+      delete gemSet[gemKey];
+    }
+
+    // Draw new position
+    var newCell = document.getElementById('gc-' + nr + '-' + nc);
+    if (newCell) {
+      newCell.innerHTML = '\uD83E\uDD16';
+      newCell.style.background = 'rgba(100,200,255,0.15)';
+    }
+
+    step++;
+    setTimeout(animateStep, 350);
+  }
+
+  animateStep();
+}
+
+// Add grid rendering to the code question router
+var _origRenderCodeQ = renderCodeQuestion;
+renderCodeQuestion = function(card, q) {
+  if (q.type === 'code-grid') { renderCodeGrid(card, q); return true; }
+  return _origRenderCodeQ(card, q);
+};
+
+// At higher difficulty, coding skills use grid puzzles
+var _origGenCodeSeq = genCodeSeq;
+genCodeSeq = function(diff) {
+  if (diff.level >= 3 && typeof CODE_GRID_LEVELS !== 'undefined') {
+    var levels = CODE_GRID_LEVELS.filter(function(l) { return l.skill === 'cseq'; });
+    if (levels.length > 0) return genCodeGrid(diff);
+  }
+  return _origGenCodeSeq(diff);
+};
+
+var _origGenCodeLoop = genCodeLoop;
+genCodeLoop = function(diff) {
+  if (diff.level >= 3 && typeof CODE_GRID_LEVELS !== 'undefined') {
+    var levels = CODE_GRID_LEVELS.filter(function(l) { return l.skill === 'cloop'; });
+    if (levels.length > 0) return genCodeGrid(diff);
+  }
+  return _origGenCodeLoop(diff);
+};
+
 // ===================== CODE HELPERS =====================
 
 function codeStepClick(btn) {

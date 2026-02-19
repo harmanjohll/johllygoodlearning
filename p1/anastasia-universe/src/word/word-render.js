@@ -310,3 +310,145 @@ function submitStory() {
   state.stories.push({ text: text, date: Date.now(), skill: currentGame.skillId });
   handleCorrect(true);
 }
+
+// ===================== ENHANCED RENDERERS =====================
+
+// Override phonics family to use animated letter tiles
+var _origRenderPhonicsFamily = renderPhonicsFamily;
+renderPhonicsFamily = function(card, q) {
+  var html = '<div class="question-text">Which word belongs to the <strong>-' + q.family + '</strong> family?</div>';
+  html += '<div style="font-size:48px;margin:12px 0;letter-spacing:4px;color:var(--gold)">-' + q.family + '</div>';
+
+  // Animated letter tiles for each option
+  html += '<div class="answer-options">' + q.options.map(function(o, idx) {
+    var tiles = '';
+    for (var i = 0; i < o.length; i++) {
+      var isFamily = i >= o.length - q.family.length;
+      tiles += '<span class="letter-tile' + (isFamily ? ' family-highlight' : '') + '" style="display:inline-block;padding:4px 8px;margin:2px;background:' + (isFamily ? 'rgba(255,215,0,0.2)' : 'rgba(255,255,255,0.1)') + ';border-radius:6px;font-size:22px;font-weight:700;letter-spacing:1px;animation:pop-in 0.3s ease-out ' + (idx * 0.1 + i * 0.05) + 's both">' + o[i] + '</span>';
+    }
+    return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:22px;letter-spacing:0;display:flex;align-items:center;justify-content:center;gap:0">' + tiles + '</button>';
+  }).join('') + '</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+};
+
+// Override sentence build to support touch drag reordering
+var _origRenderSentenceBuild = renderSentenceBuild;
+renderSentenceBuild = function(card, q) {
+  var html = '<div class="question-text">Put the words in order to make a sentence!</div>';
+
+  // Result area with drop zone styling
+  html += '<div id="sentence-result" style="min-height:52px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px;margin:12px 0;font-size:20px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;border:2px dashed rgba(255,255,255,0.15);transition:border-color 0.3s">';
+  html += '<span style="color:var(--text-dim);font-size:14px" id="sentence-placeholder">Tap words below to build your sentence</span>';
+  html += '</div>';
+
+  // Word bank with touch-friendly sizing
+  html += '<div id="sentence-bank" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0">';
+  q.words.forEach(function(w, idx) {
+    html += '<button class="answer-btn word-tile" style="font-size:20px;cursor:grab;min-width:60px;animation:pop-in 0.3s ease-out ' + (idx * 0.08) + 's both" onclick="sentenceWordClick(this, \'' + escapeQuote(w) + '\')">' + w + '</button>';
+  });
+  html += '</div>';
+
+  html += '<div style="display:flex;gap:8px;justify-content:center">';
+  html += '<button class="submit-btn" onclick="checkSentenceOrder()">Check \u2713</button>';
+  html += '<button class="answer-btn" style="font-size:14px;padding:8px 14px;color:var(--coral)" onclick="resetSentenceBuilder()">Reset</button>';
+  html += '</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+  card.dataset.sentenceAnswer = q.answer;
+};
+
+function resetSentenceBuilder() {
+  // Move all words back to bank
+  var result = document.getElementById('sentence-result');
+  var bank = document.getElementById('sentence-bank');
+  if (!result || !bank) return;
+
+  var btns = Array.from(result.querySelectorAll('.answer-btn'));
+  btns.forEach(function(btn) {
+    btn.remove();
+    var word = btn.textContent;
+    var newBtn = document.createElement('button');
+    newBtn.className = 'answer-btn word-tile';
+    newBtn.style.cssText = 'font-size:20px;cursor:grab;min-width:60px';
+    newBtn.textContent = word;
+    newBtn.setAttribute('onclick', "sentenceWordClick(this, '" + escapeQuote(word) + "')");
+    bank.appendChild(newBtn);
+  });
+
+  // Restore placeholder
+  var placeholder = document.getElementById('sentence-placeholder');
+  if (!placeholder) {
+    var span = document.createElement('span');
+    span.style.cssText = 'color:var(--text-dim);font-size:14px';
+    span.id = 'sentence-placeholder';
+    span.textContent = 'Tap words below to build your sentence';
+    result.appendChild(span);
+  }
+}
+
+// Override grammar MCQ to highlight parts of speech with colours
+var _origRenderGrammarMCQ = renderGrammarMCQ;
+renderGrammarMCQ = function(card, q) {
+  var html = '<div class="question-text">' + q.instruction + '</div>';
+
+  // Parse sentence for POS colouring based on grammar type
+  var styledSentence = q.sentence;
+  if (q.grammarType && q.grammarType.indexOf('identify') >= 0 && q.answer) {
+    // Bold the answer word in the sentence for visual emphasis after answer
+    styledSentence = q.sentence.replace(new RegExp('\\b' + q.answer + '\\b', 'i'), '<u>' + q.answer + '</u>');
+  }
+
+  html += '<div class="story-prompt" style="font-size:20px;margin:16px 0">' + styledSentence + '</div>';
+
+  // Colour-coded legend
+  html += '<div style="display:flex;gap:12px;justify-content:center;margin:8px 0;font-size:12px">';
+  html += '<span style="color:#64B5F6">\u25CF Noun</span>';
+  html += '<span style="color:#EF5350">\u25CF Verb</span>';
+  html += '<span style="color:#81C784">\u25CF Adjective</span>';
+  html += '</div>';
+
+  html += '<div class="answer-options">' + q.options.map(function(o) {
+    return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:20px">' + o + '</button>';
+  }).join('') + '</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+};
+
+// Enhanced sight word flash — bigger, more dramatic reveal
+var _origRenderSightFlash = renderSightFlash;
+renderSightFlash = function(card, q) {
+  var html = '<div class="question-text">Remember this word!</div>';
+  html += '<div id="flash-word" style="font-size:56px;margin:20px 0;font-family:var(--font-display);color:var(--gold);transition:all 0.5s;text-shadow:0 0 20px rgba(255,215,0,0.3)">' + q.targetWord + '</div>';
+  html += '<div id="flash-countdown" style="font-size:14px;color:var(--text-dim)">Memorize it...</div>';
+  html += '<div id="flash-options" style="display:none">';
+  html += '<div class="question-text" style="font-size:20px;animation:pop-in 0.4s ease-out">Which word did you see?</div>';
+  html += '<div class="answer-options">' + q.options.map(function(o) {
+    return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:24px">' + o + '</button>';
+  }).join('') + '</div>';
+  html += '</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+
+  // Countdown: 3 seconds
+  var countdown = document.getElementById('flash-countdown');
+  var timeLeft = 3;
+  var timer = setInterval(function() {
+    timeLeft--;
+    if (countdown) countdown.textContent = timeLeft + '...';
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      var wordEl = document.getElementById('flash-word');
+      if (wordEl) {
+        wordEl.style.opacity = '0';
+        wordEl.style.transform = 'scale(0.5)';
+      }
+      setTimeout(function() {
+        if (wordEl) wordEl.style.display = 'none';
+        if (countdown) countdown.style.display = 'none';
+        var optEl = document.getElementById('flash-options');
+        if (optEl) optEl.style.display = 'block';
+      }, 400);
+    }
+  }, 1000);
+};
