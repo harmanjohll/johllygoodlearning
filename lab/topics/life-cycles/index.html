@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Life Cycles | Science Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header { background:var(--surface); border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .topic-color-bar { width:4px; height:36px; border-radius:3px; background:var(--cycles); flex-shrink:0; }
+    main { max-width:1100px; margin:0 auto; padding:1.5rem 1.25rem 3rem; }
+    .cue-question { font-size:.78rem; color:var(--muted); margin-bottom:.75rem; border-left:2px solid var(--cycles); padding-left:.6rem; }
+    .summary-text { font-size:.85rem; color:var(--muted); line-height:1.6; }
+
+    /* Organism selector */
+    .org-selector { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
+    .org-btn { padding:.45rem 1rem; border-radius:8px; border:1.5px solid var(--border);
+      background:transparent; color:var(--muted); font-size:.85rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .org-btn.active { background:var(--cycles); color:#fff; border-color:var(--cycles); }
+
+    /* Life cycle stages */
+    .stages-bank { display:flex; flex-wrap:wrap; gap:.5rem; min-height:52px;
+      padding:.6rem; border:1.5px dashed var(--border); border-radius:10px; margin-bottom:1rem;
+      align-items:center; }
+    .stage-chip { padding:.45rem .85rem; border-radius: 8px; border:1.5px solid var(--border);
+      background:var(--surface); cursor:grab; font-size:.82rem; font-weight:600; user-select:none;
+      transition:all .15s; white-space:nowrap; }
+    .stage-chip:active { cursor:grabbing; opacity:.7; }
+    .stage-chip.placed { display:none; }
+
+    /* Sequence row */
+    .sequence-row { display:flex; align-items:center; flex-wrap:wrap; gap:.35rem; }
+    .seq-slot { min-width:100px; min-height:52px; border:2px dashed var(--border); border-radius:10px;
+      display:flex; align-items:center; justify-content:center; font-size:.78rem; color:var(--muted);
+      transition:all .15s; position:relative; flex-shrink:0; padding:.3rem; text-align:center; }
+    .seq-slot.drag-over { border-color:var(--cycles); background:#1a2a4a; }
+    .seq-slot.correct { border-color:var(--diversity); background:#063b27; }
+    .seq-slot.wrong   { border-color:#ef4444; background:#3b0f0f; }
+    .seq-slot .placed-chip { font-size:.82rem; font-weight:600; width:100%; text-align:center; cursor:pointer; }
+    .arrow-sep { color:var(--muted); font-size:1.2rem; }
+
+    /* Cycle canvas */
+    #cycle-canvas { border-radius:10px; background:#0d1117; display:block; margin:0 auto; }
+
+    /* Comparison table */
+    .compare-table { width:100%; border-collapse:collapse; font-size:.82rem; margin-top:.75rem; }
+    .compare-table th { background:var(--surface); color:var(--cycles); padding:.5rem .75rem; text-align:left; font-size:.78rem; }
+    .compare-table td { padding:.45rem .75rem; border-top:1px solid var(--border); color:var(--muted); vertical-align:top; }
+    .compare-table tr:hover td { background:var(--surface); }
+
+    .sub-tabs { display:flex; gap:.35rem; margin-bottom:1rem; flex-wrap:wrap; }
+    .sub-tab { padding:.35rem .85rem; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:.8rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .sub-tab.active { background:var(--cycles); color:#fff; border-color:var(--cycles); }
+    .sub-pane { display:none; } .sub-pane.active { display:block; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🦋 Life Cycles of Animals</h1>
+    <div style="font-size:.78rem;color:var(--muted)">
+      <span class="badge badge-cycles">Cycles</span>&nbsp;
+      <span class="badge badge-p3">P3</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--cycles)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Interact</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════ LEARN ══════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What is metamorphosis?</div>
+        <div class="cue-question">What is the difference between complete and incomplete metamorphosis?</div>
+        <div class="cue-question">Name 3 animals with complete metamorphosis and 3 with incomplete metamorphosis.</div>
+        <div class="cue-question">What stage comes after the egg in a butterfly's life cycle?</div>
+        <div class="cue-question">Why do some animals NOT have a metamorphosis stage?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+        <div class="glossary-term"><div class="term-name">Life Cycle</div><div class="term-def">The series of changes an organism goes through from birth to death. Includes all stages of growth, reproduction, and development.</div></div>
+        <div class="glossary-term"><div class="term-name">Metamorphosis</div><div class="term-def">A process of dramatic physical change in the body form of an organism as it develops from juvenile to adult. Can be complete or incomplete.</div></div>
+        <div class="glossary-term"><div class="term-name">Complete Metamorphosis</div><div class="term-def">A life cycle with FOUR distinct stages: egg → larva → pupa → adult. The organism looks completely different at each stage. Examples: butterfly, mosquito, housefly, beetle.</div></div>
+        <div class="glossary-term"><div class="term-name">Incomplete Metamorphosis</div><div class="term-def">A life cycle with THREE stages: egg → nymph → adult. The nymph resembles a smaller, wingless version of the adult. Examples: grasshopper, cockroach, dragonfly.</div></div>
+        <div class="glossary-term"><div class="term-name">Larva</div><div class="term-def">The second stage in complete metamorphosis. Often looks very different from the adult — e.g. caterpillar (butterfly), maggot (housefly), grub (beetle).</div></div>
+        <div class="glossary-term"><div class="term-name">Pupa / Chrysalis</div><div class="term-def">The third stage in complete metamorphosis. The organism is enclosed in a casing (chrysalis for butterflies, cocoon for moths) and undergoes internal reorganisation.</div></div>
+        <div class="glossary-term"><div class="term-name">Nymph</div><div class="term-def">The juvenile stage in incomplete metamorphosis. Resembles a small adult but lacks wings. Grows through a series of moults.</div></div>
+        <div class="glossary-term"><div class="term-name">Moult</div><div class="term-def">The process of shedding the outer skin (exoskeleton) to grow larger. Nymphs moult several times before becoming adults.</div></div>
+        <div class="glossary-term"><div class="term-name">Tadpole</div><div class="term-def">The aquatic larval stage of a frog or toad. Has a tail and gills; breathes underwater. Gradually develops legs and lungs as it transforms into a froglet.</div></div>
+        <div class="glossary-term"><div class="term-name">Froglet</div><div class="term-def">An intermediate stage between tadpole and adult frog. Has both a tail (shrinking) and legs, and starts breathing air.</div></div>
+        <div class="glossary-term"><div class="term-name">Reproduce</div><div class="term-def">To produce offspring. Life cycles exist so organisms can reproduce and continue their species.</div></div>
+      </div>
+
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🔄 What is a Life Cycle?</h4>
+          <p>Every animal goes through a <strong>life cycle</strong> — a series of stages from birth to death. Life cycles allow animals to <strong>grow</strong>, <strong>develop</strong>, and <strong>reproduce</strong> to continue their species.</p>
+          <div class="highlight">🔑 All life cycles eventually loop back — the adult reproduces to create new offspring, starting the cycle again.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🦋 Complete Metamorphosis (4 stages)</h4>
+          <p>Animals with <strong>complete metamorphosis</strong> look very different at each stage of their life cycle:</p>
+          <div class="equation">Egg → Larva → Pupa → Adult</div>
+          <ul>
+            <li><strong>Egg</strong>: Laid by the adult female, contains the embryo</li>
+            <li><strong>Larva</strong>: Hatches from egg; eats and grows rapidly (caterpillar, maggot, grub)</li>
+            <li><strong>Pupa</strong>: Resting stage inside a casing; larva reorganises into adult form</li>
+            <li><strong>Adult</strong>: Fully formed; can reproduce</li>
+          </ul>
+          <p style="margin-top:.5rem">Examples: <strong>butterfly, moth, mosquito, housefly, bee, beetle</strong></p>
+        </div>
+
+        <div class="note-section">
+          <h4>🦗 Incomplete Metamorphosis (3 stages)</h4>
+          <p>Animals with <strong>incomplete metamorphosis</strong> look similar at all stages — just smaller and without wings:</p>
+          <div class="equation">Egg → Nymph → Adult</div>
+          <ul>
+            <li><strong>Egg</strong>: Laid by the adult female</li>
+            <li><strong>Nymph</strong>: Looks like a small adult; moults (sheds skin) several times to grow</li>
+            <li><strong>Adult</strong>: Fully grown with wings; can reproduce</li>
+          </ul>
+          <p style="margin-top:.5rem">Examples: <strong>grasshopper, cockroach, dragonfly, praying mantis</strong></p>
+        </div>
+
+        <div class="note-section">
+          <h4>🐸 Frog — Special Case</h4>
+          <p>The frog has a unique life cycle that resembles complete metamorphosis but uses different terms:</p>
+          <div class="equation">Egg → Tadpole → Froglet → Adult Frog</div>
+          <p>Tadpoles have gills and tails; adult frogs have lungs and four legs. The transformation is dramatic!</p>
+        </div>
+
+        <div class="note-section">
+          <h4>🐦 Animals Without Metamorphosis</h4>
+          <p>Birds, mammals, and reptiles undergo <strong>no metamorphosis</strong>. They are born (or hatch) looking like smaller versions of the adult:</p>
+          <div class="equation">Egg / Birth → Young → Adult</div>
+          <p>Example: <strong>chicken</strong> (egg → chick → adult), <strong>cat</strong> (kitten → adult)</p>
+        </div>
+
+        <div class="note-section">
+          <h4>📊 Comparison Table</h4>
+          <table class="compare-table">
+            <tr><th>Type</th><th>Stages</th><th>Examples</th><th>Key Difference</th></tr>
+            <tr><td>Complete Metamorphosis</td><td>Egg → Larva → Pupa → Adult</td><td>Butterfly, mosquito, housefly</td><td>Pupa stage; larva looks different from adult</td></tr>
+            <tr><td>Incomplete Metamorphosis</td><td>Egg → Nymph → Adult</td><td>Grasshopper, cockroach</td><td>No pupa; nymph resembles adult</td></tr>
+            <tr><td>No Metamorphosis</td><td>Egg/Birth → Young → Adult</td><td>Chicken, cat, lizard</td><td>Young looks like adult from birth/hatching</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--cycles);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          Life cycles allow organisms to grow, develop, and reproduce. <strong>Complete metamorphosis</strong> (butterfly, mosquito): Egg → Larva → <strong>Pupa</strong> → Adult — 4 stages, looks different at each. <strong>Incomplete metamorphosis</strong> (grasshopper, cockroach): Egg → <strong>Nymph</strong> → Adult — 3 stages, nymph resembles adult. Frogs: Egg → <strong>Tadpole</strong> → Froglet → Adult. Birds/mammals: no metamorphosis stage.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SIMULATE / INTERACT ══════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Think &amp; Reflect</div>
+        <div class="cue-question">Can you arrange all the stages in the correct order?</div>
+        <div class="cue-question">Which stage is unique to complete metamorphosis?</div>
+        <div class="cue-question">How does a nymph differ from a larva?</div>
+        <div class="cue-question">Why must the pupa come AFTER the larva?</div>
+        <p id="seq-score-box" style="font-size:.82rem;color:var(--muted);margin-top:.75rem"></p>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="showSub2('seq-sim','butterfly')">🦋 Butterfly</button>
+          <button class="sub-tab" onclick="showSub2('seq-sim','grasshopper')">🦗 Grasshopper</button>
+          <button class="sub-tab" onclick="showSub2('seq-sim','frog')">🐸 Frog</button>
+          <button class="sub-tab" onclick="showSub2('seq-sim','mosquito')">🦟 Mosquito</button>
+          <button class="sub-tab" onclick="showSub2('cycle-canvas-pane','')">🔄 Cycle View</button>
+        </div>
+
+        <div class="sub-pane active" id="seq-sim">
+          <p style="font-size:.85rem;color:var(--muted);margin-bottom:.75rem">
+            Drag the stage cards into the correct order. Click a placed card to remove it back to the bank.
+          </p>
+
+          <!-- Bank of stage cards -->
+          <div id="stages-bank" class="stages-bank"></div>
+
+          <!-- Sequence slots -->
+          <div class="sequence-row" id="sequence-row"></div>
+
+          <div style="margin-top:.75rem;display:flex;gap:.5rem">
+            <button class="btn btn-primary" onclick="checkSequence()">✔ Check Order</button>
+            <button class="btn btn-ghost" onclick="resetSequence()">↺ Reset</button>
+          </div>
+          <div id="seq-feedback" class="feedback-box" style="margin-top:.75rem"></div>
+        </div>
+
+        <div class="sub-pane" id="cycle-canvas-pane">
+          <canvas id="cycle-canvas" width="560" height="320"></canvas>
+          <div style="display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap">
+            <button class="btn btn-ghost" style="font-size:.82rem" onclick="drawCycle('butterfly')">🦋 Butterfly</button>
+            <button class="btn btn-ghost" style="font-size:.82rem" onclick="drawCycle('frog')">🐸 Frog</button>
+            <button class="btn btn-ghost" style="font-size:.82rem" onclick="drawCycle('grasshopper')">🦗 Grasshopper</button>
+            <button class="btn btn-ghost" style="font-size:.82rem" onclick="drawCycle('mosquito')">🦟 Mosquito</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <p class="summary-text">
+          The key difference is the <strong>pupa</strong> stage — only present in <em>complete</em> metamorphosis. A <strong>nymph</strong> looks like a miniature wingless adult; a <strong>larva</strong> looks nothing like the adult. Frogs are special: tadpoles even live in water and breathe through gills before transforming.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ QUIZ ══════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Common question types:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li>Identify the <strong>type of metamorphosis</strong> from a diagram</li>
+            <li>Name the <strong>missing stage</strong> in a sequence</li>
+            <li><strong>Explain</strong> how one stage leads to the next</li>
+            <li>Compare two animals' life cycles</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Key words to use: <strong>metamorphosis, larva, pupa, nymph, moult, hatch, reproduce</strong>. Always state WHICH stage and WHAT it does.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MIND MAP ══════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ═══════════════════════════════════
+// LIFE CYCLE DATA
+// ═══════════════════════════════════
+const ORGANISMS = {
+  butterfly: {
+    emoji: '🦋', type: 'Complete Metamorphosis',
+    stages: ['Egg','Caterpillar\n(Larva)','Chrysalis\n(Pupa)','Adult Butterfly'],
+    facts: ['Female butterfly lays eggs on leaves — food source for the caterpillar.',
+            'Caterpillar eats leaves constantly to grow. Sheds skin (moults) several times.',
+            'Inside the chrysalis, the caterpillar\'s body is reorganised into the butterfly.',
+            'Adult emerges, pumps wings, and flies off to feed on nectar and find a mate.']
+  },
+  grasshopper: {
+    emoji: '🦗', type: 'Incomplete Metamorphosis',
+    stages: ['Egg','Nymph (young)','Adult Grasshopper'],
+    facts: ['Female lays eggs in the soil.',
+            'Nymph hatches and looks like a tiny wingless adult. Moults 5–6 times to grow.',
+            'After the final moult, full wings develop and the adult can reproduce.']
+  },
+  frog: {
+    emoji: '🐸', type: 'Amphibian Life Cycle',
+    stages: ['Frog Egg\n(Spawn)','Tadpole','Froglet','Adult Frog'],
+    facts: ['Eggs (spawn) are laid in clusters in water.',
+            'Tadpole has gills and a tail; lives entirely in water.',
+            'Froglet develops legs; tail gradually shrinks; starts breathing air.',
+            'Adult frog breathes air with lungs; lives on land and in water; reproduces.']
+  },
+  mosquito: {
+    emoji: '🦟', type: 'Complete Metamorphosis',
+    stages: ['Egg','Larva (Wriggler)','Pupa (Tumbler)','Adult Mosquito'],
+    facts: ['Female lays eggs on stagnant water surface.',
+            'Larva (wriggler) lives in water and feeds on micro-organisms.',
+            'Pupa (tumbler) does not feed; undergoes transformation.',
+            'Adult emerges; females bite to obtain blood for egg development.']
+  }
+};
+
+let currentOrg = 'butterfly';
+
+function showSub2(subId, orgKey) {
+  document.querySelectorAll('.sub-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(subId).classList.add('active');
+  event.target.classList.add('active');
+  if (orgKey) { currentOrg = orgKey; buildSequence(); }
+  if (subId === 'cycle-canvas-pane') drawCycle('butterfly');
+  Progress.recordSimUsed('life-cycles');
+}
+
+// ═══════════════════════════════════
+// SEQUENCE DRAG-AND-DROP
+// ═══════════════════════════════════
+let placedStages = [];
+let draggedChip  = null;
+
+function buildSequence() {
+  const org = ORGANISMS[currentOrg];
+  const n   = org.stages.length;
+  placedStages = new Array(n).fill(null);
+
+  // Build bank
+  const bank = document.getElementById('stages-bank');
+  bank.innerHTML = '';
+  // Shuffle the stages for the bank
+  const shuffled = [...org.stages].sort(() => Math.random() - 0.5);
+  shuffled.forEach(stage => {
+    const chip = document.createElement('div');
+    chip.className = 'stage-chip';
+    chip.textContent = stage.replace('\n',' / ');
+    chip.dataset.stage = stage;
+    chip.draggable = true;
+    chip.addEventListener('dragstart', e => { draggedChip = chip; e.dataTransfer.effectAllowed = 'move'; });
+    chip.addEventListener('dragend',   () => { draggedChip = null; });
+    bank.appendChild(chip);
+  });
+
+  // Build sequence slots
+  const row = document.getElementById('sequence-row');
+  row.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    if (i > 0) {
+      const arrow = document.createElement('span');
+      arrow.className = 'arrow-sep';
+      arrow.textContent = '→';
+      row.appendChild(arrow);
+    }
+    const slot = document.createElement('div');
+    slot.className = 'seq-slot';
+    slot.dataset.index = i;
+    slot.textContent = 'Drop here';
+    slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('drag-over'); });
+    slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+    slot.addEventListener('drop', e => {
+      e.preventDefault();
+      slot.classList.remove('drag-over');
+      if (!draggedChip || placedStages[i] !== null) return;
+      placeChip(i, draggedChip);
+    });
+    row.appendChild(slot);
+  }
+  document.getElementById('seq-feedback').classList.remove('show');
+  document.getElementById('seq-score-box').textContent = '';
+}
+
+function placeChip(index, chip) {
+  placedStages[index] = chip.dataset.stage;
+  const slot = document.querySelector(`.seq-slot[data-index="${index}"]`);
+  slot.innerHTML = '';
+  const placed = document.createElement('div');
+  placed.className = 'placed-chip';
+  placed.textContent = chip.dataset.stage.replace('\n',' / ');
+  placed.onclick = () => returnToBank(index, chip.dataset.stage);
+  slot.appendChild(placed);
+  chip.classList.add('placed');
+}
+
+function returnToBank(index, stage) {
+  placedStages[index] = null;
+  const slot = document.querySelector(`.seq-slot[data-index="${index}"]`);
+  slot.innerHTML = 'Drop here';
+  slot.className = 'seq-slot';
+  document.querySelectorAll('.stage-chip').forEach(c => {
+    if (c.dataset.stage === stage) c.classList.remove('placed');
+  });
+}
+
+function checkSequence() {
+  const org = ORGANISMS[currentOrg];
+  const n   = org.stages.length;
+  let correct = 0;
+
+  for (let i = 0; i < n; i++) {
+    const slot = document.querySelector(`.seq-slot[data-index="${i}"]`);
+    if (!placedStages[i]) { slot.className = 'seq-slot wrong'; continue; }
+    if (placedStages[i] === org.stages[i]) {
+      slot.classList.add('correct'); correct++;
+    } else {
+      slot.classList.add('wrong');
+    }
+  }
+
+  const fb = document.getElementById('seq-feedback');
+  if (correct === n) {
+    fb.className = 'feedback-box show feedback-correct';
+    fb.innerHTML = `🎉 <strong>Perfect!</strong> The correct order for the ${org.emoji} ${currentOrg} is:<br>
+      <em>${org.stages.join(' → ').replace(/\n/g,' ')}</em><br><br>
+      <strong>Did you know?</strong> ${org.facts[0]}`;
+    document.getElementById('seq-score-box').innerHTML = `✅ ${correct}/${n} correct!`;
+    Progress.recordSimUsed('life-cycles');
+  } else {
+    fb.className = 'feedback-box show feedback-wrong';
+    fb.innerHTML = `❌ <strong>${correct}/${n} correct.</strong> Look at the glossary for the correct stage order. Try again!`;
+    document.getElementById('seq-score-box').innerHTML = `${correct}/${n} correct`;
+  }
+}
+
+function resetSequence() {
+  buildSequence();
+}
+
+// ═══════════════════════════════════
+// CYCLE CANVAS (circular diagram)
+// ═══════════════════════════════════
+function drawCycle(orgKey) {
+  currentOrg = orgKey;
+  const org = ORGANISMS[orgKey];
+  const c   = document.getElementById('cycle-canvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(0,0,W,H);
+
+  const cx = W/2, cy = H/2;
+  const n  = org.stages.length;
+  const r  = Math.min(W, H) * 0.36;
+  const COLORS_CYCLE = ['#3b82f6','#10b981','#8b5cf6','#f97316'];
+
+  // Draw circle path
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 40; ctx.stroke();
+
+  // Draw stage nodes
+  for (let i = 0; i < n; i++) {
+    const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    const color = COLORS_CYCLE[i % COLORS_CYCLE.length];
+
+    // Glowing circle
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, 36);
+    grad.addColorStop(0, color + 'aa'); grad.addColorStop(1, 'transparent');
+    ctx.beginPath(); ctx.arc(x, y, 36, 0, Math.PI*2);
+    ctx.fillStyle = grad; ctx.fill();
+
+    ctx.beginPath(); ctx.arc(x, y, 28, 0, Math.PI*2);
+    ctx.fillStyle = '#1e293b'; ctx.fill();
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
+
+    // Emoji / number
+    ctx.fillStyle = color; ctx.font = 'bold 14px Inter'; ctx.textAlign = 'center';
+    ctx.fillText(i + 1, x, y + 5);
+
+    // Arrow to next
+    const nextAngle = ((i + 1) / n) * Math.PI * 2 - Math.PI / 2;
+    const nx = cx + r * Math.cos(nextAngle);
+    const ny = cy + r * Math.sin(nextAngle);
+    const midA = (angle + nextAngle) / 2;
+    const mx = cx + r * Math.cos(midA);
+    const my = cy + r * Math.sin(midA);
+    const arrowAng = Math.atan2(ny - y, nx - x);
+
+    ctx.beginPath(); ctx.arc(mx, my, 8, 0, Math.PI*2);
+    ctx.fillStyle = '#f97316'; ctx.fill();
+    // Mini arrow on orbit
+    ctx.save(); ctx.translate(mx, my); ctx.rotate(arrowAng);
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-5,-3); ctx.lineTo(-5,3); ctx.closePath();
+    ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.restore();
+
+    // Stage label outside circle
+    const labelR = r + 52;
+    const lx = cx + labelR * Math.cos(angle);
+    const ly = cy + labelR * Math.sin(angle);
+    ctx.fillStyle = '#e2e8f0'; ctx.font = 'bold 11px Inter'; ctx.textAlign = 'center';
+    const lines = org.stages[i].split('\n');
+    lines.forEach((line, li) => ctx.fillText(line, lx, ly + li * 14 - (lines.length - 1) * 7));
+  }
+
+  // Centre label
+  ctx.fillStyle = '#94a3b8'; ctx.font = 'bold 13px Inter'; ctx.textAlign = 'center';
+  ctx.fillText(org.emoji, cx, cy - 12);
+  ctx.font = '10px Inter';
+  ctx.fillText(org.type, cx, cy + 6);
+  ctx.fillStyle = '#64748b'; ctx.font = '9px Inter';
+  ctx.fillText(currentOrg.charAt(0).toUpperCase() + currentOrg.slice(1), cx, cy + 20);
+}
+
+// ═══════════════════════════════════
+// QUIZ
+// ═══════════════════════════════════
+const QUIZ_Q = [
+  { question:'A butterfly has 4 stages in its life cycle. Which stage comes BETWEEN the larva and the adult?',
+    options:['Nymph','Egg','Pupa (chrysalis)','Froglet'],
+    correct:2,
+    explanation:'In complete metamorphosis: Egg → Larva (caterpillar) → Pupa (chrysalis) → Adult. The pupa is the resting, transforming stage between larva and adult.' },
+  { question:'An animal goes through these stages: Egg → Nymph → Adult. What TYPE of metamorphosis is this?',
+    options:['Complete metamorphosis','Incomplete metamorphosis','No metamorphosis','Partial metamorphosis'],
+    correct:1,
+    explanation:'Incomplete metamorphosis has only 3 stages: Egg → Nymph → Adult. The nymph resembles the adult but lacks wings. Examples: grasshopper, cockroach.' },
+  { question:'How does a NYMPH differ from a LARVA?',
+    options:['A nymph lives in water; a larva lives on land','A nymph looks like a small adult; a larva looks completely different from the adult','A nymph is the pupa stage; a larva is the egg stage','There is no difference'],
+    correct:1,
+    explanation:'This is a key distinction! A nymph (incomplete metamorphosis) resembles a small wingless adult. A larva (complete metamorphosis) looks completely different — e.g. a caterpillar looks nothing like a butterfly.' },
+  { question:'Which of the following animals undergoes COMPLETE metamorphosis?',
+    options:['Grasshopper','Cockroach','Praying mantis','Mosquito'],
+    correct:3,
+    explanation:'Mosquito undergoes complete metamorphosis: Egg → Larva (wriggler) → Pupa (tumbler) → Adult. Grasshopper, cockroach, and praying mantis undergo incomplete metamorphosis.' },
+  { question:'A frog\'s life cycle includes a tadpole stage. The tadpole breathes using _____ and lives in _____.',
+    options:['Lungs and water','Gills and water','Lungs and land','Gills and land'],
+    correct:1,
+    explanation:'Tadpoles breathe through gills and live entirely in water. As they develop into froglets and adult frogs, they develop lungs and can live on land and in water.' },
+  { question:'Why must a grasshopper MOULT (shed its skin) as it grows?',
+    options:['To change its colour','Because its outer skeleton does not grow with it','To develop wings more quickly','Because it is too warm'],
+    correct:1,
+    explanation:'A grasshopper\'s exoskeleton (outer skeleton) is hard and cannot stretch. To grow larger, the grasshopper must shed its old exoskeleton and develop a new, larger one. This is called moulting.' },
+  { question:'A student finds this life cycle: Egg → Wriggler → Tumbler → Adult. Which animal is this?',
+    options:['Butterfly','Frog','Mosquito','Grasshopper'],
+    correct:2,
+    explanation:'These are the informal names for the mosquito\'s complete metamorphosis stages. Wriggler = larva (lives in water), Tumbler = pupa (does not feed). This is the mosquito.' },
+];
+
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1, label:'Life Cycles\nof Animals', color:{ background:'#0a1f3a', border:'#3b82f6' }, font:{ size:15, color:'#93c5fd' } },
+    { id:2, label:'Complete\nMetamorphosis' }, { id:3, label:'Incomplete\nMetamorphosis' },
+    { id:4, label:'No\nMetamorphosis' }, { id:5, label:'Butterfly 🦋' },
+    { id:6, label:'Mosquito 🦟' }, { id:7, label:'Frog 🐸' },
+    { id:8, label:'Grasshopper 🦗' }, { id:9, label:'Egg → Larva\n→ Pupa → Adult' },
+    { id:10, label:'Egg → Nymph\n→ Adult' }, { id:11, label:'Nymph' }, { id:12, label:'Pupa' },
+  ],
+  edges: [
+    { from:1, to:2 }, { from:1, to:3 }, { from:1, to:4 },
+    { from:2, to:5 }, { from:2, to:6 }, { from:2, to:7, label:'similar' },
+    { from:3, to:8 }, { from:2, to:9, label:'follows' }, { from:3, to:10, label:'follows' },
+    { from:9, to:12, label:'includes' }, { from:10, to:11, label:'includes' },
+  ],
+  required: ['metamorphosis','larva','pupa','nymph','egg','adult','butterfly','frog','grasshopper','moult']
+};
+
+let sciMap;
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('life-cycles');
+  document.getElementById('mastery-pct').textContent = Progress.masteryPct('life-cycles') + '%';
+  buildSequence();
+  new QuizEngine(QUIZ_Q, 'life-cycles', 'quiz-container');
+  sciMap = new ScienceMindMap('mindmap-container', 'life-cycles', MM_TEMPLATE);
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>

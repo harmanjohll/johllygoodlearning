@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electrical Circuits | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--systems); flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .78rem; color: var(--muted); }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    /* Simulator */
+    #circuit-canvas { border-radius: 10px; background: #0d1117; cursor: pointer; }
+    .mode-toggle { display: flex; gap: .5rem; }
+    .mode-btn { padding: .4rem 1rem; border-radius: 7px; border: 1.5px solid var(--border);
+      background: transparent; color: var(--muted); cursor: pointer; font-size: .82rem; font-weight: 600; transition: all .15s; }
+    .mode-btn.active { background: var(--systems); color: #fff; border-color: var(--systems); }
+    .sim-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      padding: .5rem .9rem; font-size: .82rem; text-align: center; }
+    .sim-stat strong { display: block; font-size: 1.1rem; color: var(--systems); }
+
+    /* Bulb count slider */
+    .bulb-counter { display: flex; align-items: center; gap: .5rem; }
+    .count-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text); font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all .15s; }
+    .count-btn:hover { background: var(--border); }
+    .count-display { font-size: 1rem; font-weight: 700; color: var(--systems); min-width: 24px; text-align: center; }
+
+    /* Component palette for free-build */
+    .palette { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .pal-item {
+      padding: .4rem .8rem;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: .8rem; font-weight: 600;
+      transition: all .15s;
+      user-select: none;
+    }
+    .pal-item.selected { border-color: var(--systems); background: #1e183a; color: var(--systems); }
+    .pal-item:hover:not(.selected) { background: var(--card); }
+
+    /* Conductor/insulator test */
+    .material-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: .5rem; margin-top: .75rem; }
+    .material-btn {
+      padding: .6rem; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text);
+      cursor: pointer; font-size: .8rem; font-weight: 600; text-align: center;
+      transition: all .2s;
+    }
+    .material-btn.conductor { border-color: var(--diversity); background: #063b27; color: #6ee7b7; }
+    .material-btn.insulator { border-color: #ef4444; background: #3b0f0f; color: #fca5a5; }
+
+    /* Cornell cue key questions */
+    .cue-question { font-size: .78rem; color: var(--muted); margin-bottom: .75rem; border-left: 2px solid var(--systems); padding-left: .6rem; }
+
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>⚡ Electrical System &amp; Circuits</h1>
+    <div class="meta">
+      <span class="badge badge-systems">Systems</span>&nbsp;
+      <span class="badge badge-p5">P5</span>&nbsp;
+      <span class="badge badge-p6">P6</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--systems)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <!-- TABS -->
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════════ LEARN TAB ══════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <!-- Cue column -->
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What makes a circuit complete?</div>
+        <div class="cue-question">How does a series circuit differ from a parallel circuit?</div>
+        <div class="cue-question">Why does adding more bulbs in series make them dimmer?</div>
+        <div class="cue-question">What is the difference between a conductor and an insulator?</div>
+        <div class="cue-question">What happens when a switch is open?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+
+        <div class="glossary-term">
+          <div class="term-name">Circuit</div>
+          <div class="term-def">A closed path through which electricity can flow. Must include a source of electricity, connecting wires, and at least one component.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Current</div>
+          <div class="term-def">The flow of electric charge through a conductor. Measured in amperes (A). Flows from the positive to the negative terminal of the battery.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Series Circuit</div>
+          <div class="term-def">Components connected in a single loop. Current flows through each component one after another. If one bulb fails, all go out.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Parallel Circuit</div>
+          <div class="term-def">Components connected in separate branches. Each branch gets the full voltage. If one bulb fails, the others stay on.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Conductor</div>
+          <div class="term-def">A material that allows electricity to flow through it easily. E.g. copper, iron, aluminium, graphite.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Insulator</div>
+          <div class="term-def">A material that does not allow electricity to flow through it. E.g. rubber, plastic, wood, glass, dry air.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Switch</div>
+          <div class="term-def">A device that opens or closes a circuit. Open switch = incomplete circuit = no current. Closed switch = complete circuit = current flows.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Cell / Battery</div>
+          <div class="term-def">A source of electrical energy. A cell provides a voltage that drives current around the circuit. A battery is two or more cells joined together.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Voltage</div>
+          <div class="term-def">The "push" that drives current through a circuit. Measured in volts (V). More voltage → brighter bulbs (up to a point).</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Ammeter</div>
+          <div class="term-def">An instrument used to measure electric current. Always connected in series in a circuit.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Filament</div>
+          <div class="term-def">The thin wire inside a bulb that heats up and glows when current passes through it.</div>
+        </div>
+      </div>
+
+      <!-- Main notes area -->
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>⚡ What is an Electrical Circuit?</h4>
+          <p>An electrical circuit is a <strong>closed path</strong> that allows electricity (current) to flow. It must have:</p>
+          <ul style="margin-top:.4rem">
+            <li>A <strong>power source</strong> — battery or cell</li>
+            <li><strong>Conducting wires</strong> to carry current</li>
+            <li>At least one <strong>component</strong> (e.g. a bulb, motor)</li>
+            <li>A <strong>switch</strong> to control the flow (optional but common)</li>
+          </ul>
+          <div class="highlight">🔑 An <strong>incomplete</strong> (open) circuit has a break — no current can flow, so no bulb lights up.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🔄 Series Circuit</h4>
+          <p>In a <strong>series circuit</strong>, all components are connected in <em>one single loop</em>. The same current flows through every component.</p>
+          <ul style="margin-top:.4rem">
+            <li>Adding more bulbs → each bulb gets <em>less</em> voltage → all bulbs are <strong>dimmer</strong></li>
+            <li>Removing one bulb breaks the circuit → <strong>all bulbs go out</strong></li>
+            <li>Only <strong>one path</strong> for current to travel</li>
+          </ul>
+          <div class="equation">Battery → Switch → Bulb 1 → Bulb 2 → back to Battery</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🔀 Parallel Circuit</h4>
+          <p>In a <strong>parallel circuit</strong>, components are connected in <em>separate branches</em>. Each branch gets the full voltage from the battery.</p>
+          <ul style="margin-top:.4rem">
+            <li>Adding more branches → <em>does NOT</em> reduce brightness per bulb</li>
+            <li>Removing one bulb → <strong>others stay lit</strong> (e.g. household lights)</li>
+            <li>Each branch has its own separate path for current</li>
+            <li>Battery <strong>drains faster</strong> in parallel (supplying more total current)</li>
+          </ul>
+          <div class="highlight">💡 Your home is wired in <strong>parallel</strong> so that each appliance works independently at the correct voltage.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🪨 Conductors vs. Insulators</h4>
+          <p>Whether a material is a conductor or insulator depends on how easily electrons can move through it.</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Conductors:</strong> metals (copper, iron, aluminium), graphite (pencil lead), salt water</li>
+            <li><strong>Insulators:</strong> rubber, plastic, glass, dry wood, dry air, porcelain</li>
+            <li>Electric wires are copper (conductor) coated in plastic (insulator) for safety</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🔃 Adding More Cells</h4>
+          <p>More cells in series → higher voltage → <strong>brighter bulbs</strong> (or faster motors). But too much voltage can <strong>blow</strong> a bulb.</p>
+        </div>
+      </div>
+
+      <!-- Summary row -->
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--systems);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          A complete circuit has a <strong>closed path</strong> from battery + to battery −. In a <strong>series</strong> circuit, bulbs share the voltage and grow dimmer as more are added; one break kills all. In a <strong>parallel</strong> circuit, each branch receives full voltage — others stay lit if one fails. <strong>Conductors</strong> (metals) allow current to flow; <strong>insulators</strong> (plastic, rubber) block it. A closed <strong>switch</strong> completes the circuit; an open switch breaks it.
+        </p>
+      </div>
+    </div>
+  </div><!-- /tab-learn -->
+
+  <!-- ══════════════ SIMULATE TAB ══════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">What happens to brightness when you add a 2nd bulb in series?</div>
+        <div class="cue-question">In parallel, does adding a bulb change the brightness of existing bulbs?</div>
+        <div class="cue-question">What happens when the switch is open?</div>
+        <div class="cue-question">Which materials complete the circuit?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Circuit Readings</div>
+        <div class="sim-stat"><strong id="stat-current">—</strong>Current (rel.)</div>
+        <div style="margin-top:.5rem" class="sim-stat"><strong id="stat-brightness">—</strong>Bulb Brightness</div>
+        <div style="margin-top:.5rem" class="sim-stat"><strong id="stat-status">—</strong>Circuit Status</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Conductor Test</div>
+        <p style="font-size:.75rem;color:var(--muted);margin-bottom:.6rem">Click each material to test if it completes the circuit:</p>
+        <div id="material-grid" class="material-grid"></div>
+        <div id="material-result" style="margin-top:.6rem;font-size:.8rem;color:var(--muted);display:none"></div>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <!-- Controls -->
+        <div style="display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-bottom:1rem">
+          <div class="mode-toggle">
+            <button class="mode-btn active" id="btn-series" onclick="setMode('series')">Series</button>
+            <button class="mode-btn" id="btn-parallel" onclick="setMode('parallel')">Parallel</button>
+          </div>
+          <div class="bulb-counter">
+            <span style="font-size:.8rem;color:var(--muted);font-weight:600">Bulbs:</span>
+            <button class="count-btn" onclick="changeBulbs(-1)">−</button>
+            <span class="count-display" id="bulb-count">1</span>
+            <button class="count-btn" onclick="changeBulbs(1)">+</button>
+          </div>
+          <button class="btn btn-ghost" id="switch-btn" onclick="toggleSwitch()" style="font-size:.82rem">
+            🔴 Switch: OPEN
+          </button>
+          <div style="margin-left:auto;display:flex;gap:.5rem">
+            <button class="btn btn-ghost" style="font-size:.8rem" onclick="addCell()">＋ Cell</button>
+            <button class="btn btn-ghost" style="font-size:.8rem" onclick="removeCell()">－ Cell</button>
+            <span style="font-size:.78rem;color:var(--muted);align-self:center">Cells: <strong id="cell-count" style="color:var(--energy)">1</strong></span>
+          </div>
+        </div>
+
+        <!-- Canvas -->
+        <div class="sim-canvas-wrap" style="height:320px">
+          <canvas id="circuit-canvas" width="640" height="310"></canvas>
+        </div>
+
+        <!-- Feedback -->
+        <div id="sim-feedback" style="margin-top:.75rem;padding:.8rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5;min-height:48px"></div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--systems);font-weight:700;margin-bottom:.4rem">What to notice</div>
+        <p class="summary-text">
+          In <strong>series</strong>: more bulbs = dimmer light (voltage is shared). In <strong>parallel</strong>: more bulbs = same brightness per bulb but battery drains faster. An <strong>open switch</strong> breaks all series bulbs; in parallel, other branches survive. More <strong>cells</strong> = more voltage = brighter bulbs.
+        </p>
+      </div>
+    </div>
+  </div><!-- /tab-simulate -->
+
+  <!-- ══════════════ QUIZ TAB ══════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Always state <strong>why</strong> in your answer. Use keywords like:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li><em>"The circuit is <strong>incomplete</strong> because…"</em></li>
+            <li><em>"Bulb X is <strong>dimmer</strong> because the voltage is shared…"</em></li>
+            <li><em>"Copper is a <strong>conductor</strong>, allowing current to flow…"</em></li>
+          </ul>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--systems)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Use the <strong>C-E-R</strong> framework: <strong>Claim</strong> (state what happens) → <strong>Evidence</strong> (refer to the circuit) → <strong>Reasoning</strong> (explain using science keywords).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MIND MAP TAB ══════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+      <span style="font-size:.73rem;color:var(--muted);margin-left:.5rem">Double-click a node to rename it</span>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+    <p style="font-size:.75rem;color:var(--muted);margin-top:.6rem">Build your concept map by adding and connecting ideas. Try to include all key terms from the glossary!</p>
+  </div>
+
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ══════════════════════════════════════════
+// CIRCUIT SIMULATOR
+// ══════════════════════════════════════════
+const canvas = document.getElementById('circuit-canvas');
+const ctx    = canvas.getContext('2d');
+
+const state = {
+  mode: 'series',
+  switchClosed: false,
+  numBulbs: 1,
+  numCells: 1,
+  animOffset: 0,
+  animId: null
+};
+
+const COLORS = {
+  wire:      '#64748b',
+  wireOn:    '#facc15',
+  battery:   '#f97316',
+  bulbOff:   '#374151',
+  bulbRim:   '#6b7280',
+  bgDark:    '#0d1117',
+  text:      '#94a3b8',
+};
+
+function isComplete() {
+  return state.switchClosed && state.numBulbs > 0;
+}
+
+function brightness() {
+  if (!isComplete()) return 0;
+  const base = Math.min(state.numCells, 3);
+  if (state.mode === 'series') return Math.min(1, base / state.numBulbs);
+  return Math.min(1, base);
+}
+
+// ── Drawing helpers ──────────────────────
+function drawWire(x1, y1, x2, y2, on) {
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.strokeStyle = on ? COLORS.wireOn : COLORS.wire;
+  ctx.lineWidth   = on ? 3 : 2;
+  ctx.stroke();
+}
+
+function drawBattery(cx, cy, cells) {
+  // Draw as a stack of cells
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(cx - 18, cy - 40, 36, 80);
+  ctx.strokeStyle = COLORS.battery;
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(cx - 18, cy - 40, 36, 80);
+
+  for (let i = 0; i < Math.min(cells, 3); i++) {
+    const y = cy - 28 + i * 20;
+    // Long line (-)
+    ctx.beginPath(); ctx.moveTo(cx-14, y+6); ctx.lineTo(cx+14, y+6);
+    ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2; ctx.stroke();
+    // Short line (+)
+    ctx.beginPath(); ctx.moveTo(cx-7, y); ctx.lineTo(cx+7, y);
+    ctx.strokeStyle = '#f97316'; ctx.lineWidth = 3; ctx.stroke();
+  }
+  ctx.fillStyle = '#f97316';
+  ctx.font = 'bold 11px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('+', cx, cy - 48);
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillText('−', cx, cy + 54);
+  ctx.fillStyle = COLORS.text;
+  ctx.font = '10px Inter, sans-serif';
+  ctx.fillText(`${cells}V src`, cx, cy + 66);
+}
+
+function drawBulb(cx, cy, bri) {
+  const glow = Math.round(bri * 255);
+  const mid  = Math.round(255 - bri * 80);
+  // Glow effect
+  if (bri > 0) {
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 28);
+    grad.addColorStop(0, `rgba(255,${mid},0,${bri * 0.7})`);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, 28, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+  // Bulb body
+  ctx.beginPath();
+  ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+  ctx.fillStyle = bri > 0 ? `rgb(255,${mid},0)` : COLORS.bulbOff;
+  ctx.fill();
+  ctx.strokeStyle = COLORS.bulbRim;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // Filament
+  ctx.beginPath();
+  ctx.moveTo(cx-5, cy+3); ctx.lineTo(cx-2, cy-3);
+  ctx.lineTo(cx+2, cy+3); ctx.lineTo(cx+5, cy-3);
+  ctx.strokeStyle = bri > 0 ? '#fff' : '#6b7280';
+  ctx.lineWidth = 1.5; ctx.stroke();
+  // Brightness label
+  ctx.fillStyle = COLORS.text;
+  ctx.font = '10px Inter';
+  ctx.textAlign = 'center';
+  const pct = Math.round(bri * 100);
+  ctx.fillText(pct + '%', cx, cy + 28);
+}
+
+function drawSwitch(x1, y1, x2, y2, closed, on) {
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  ctx.strokeStyle = on ? COLORS.wireOn : COLORS.wire;
+  ctx.lineWidth = on ? 3 : 2;
+  if (closed) {
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  } else {
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(mx - 20, my); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(mx - 20, my);
+    ctx.lineTo(mx + 5, my - 18);
+    ctx.strokeStyle = on ? COLORS.wireOn : '#64748b';
+    ctx.lineWidth = 2; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(mx + 20, my); ctx.lineTo(x2, y2);
+    ctx.strokeStyle = COLORS.wire; ctx.lineWidth = 2; ctx.stroke();
+  }
+  // Label
+  ctx.fillStyle = COLORS.text;
+  ctx.font = '10px Inter';
+  ctx.textAlign = 'center';
+  ctx.fillText(closed ? 'SW ●' : 'SW ○', mx, my - 24);
+}
+
+// Animated dots along a path
+function drawDots(path) {
+  if (!isComplete()) return;
+  const bri = brightness();
+  state.animOffset = (state.animOffset + 2) % 30;
+  ctx.fillStyle = `rgba(250,204,21,${0.5 + bri*0.5})`;
+  for (let seg = 0; seg < path.length - 1; seg++) {
+    const [x1,y1] = path[seg], [x2,y2] = path[seg+1];
+    const len = Math.hypot(x2-x1, y2-y1);
+    const steps = Math.floor(len / 30);
+    for (let i = 0; i <= steps; i++) {
+      const t = ((i * 30 + state.animOffset) % len) / len;
+      const dx = x1 + (x2-x1)*t, dy = y1 + (y2-y1)*t;
+      ctx.beginPath();
+      ctx.arc(dx, dy, 3, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+}
+
+// ── Main draw ────────────────────────────
+function drawCircuit() {
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = COLORS.bgDark;
+  ctx.fillRect(0, 0, W, H);
+
+  const on  = isComplete();
+  const bri = brightness();
+  const n   = state.numBulbs;
+
+  if (state.mode === 'series') drawSeries(on, bri, n, W, H);
+  else                         drawParallel(on, bri, n, W, H);
+
+  state.animId = requestAnimationFrame(drawCircuit);
+}
+
+function drawSeries(on, bri, n, W, H) {
+  const bx = 50, by = H/2;      // battery centre
+  const topY = 60, botY = H-60;
+
+  // Outer wires
+  drawWire(bx, by-40, bx, topY, on);
+  drawWire(bx, topY, W-60, topY, on);
+  drawWire(bx, by+40, bx, botY, on);
+  drawWire(bx, botY, W-60, botY, on);
+  drawWire(W-60, topY, W-60, botY, false); // right vertical (switch)
+
+  // Switch (right side)
+  drawSwitch(W-60, topY+10, W-60, botY-10, state.switchClosed, on);
+
+  // Battery
+  drawBattery(bx, by, state.numCells);
+
+  // Bulbs evenly along the top
+  const spacing = (W - 120 - 60) / (n + 1);
+  const bulbCentres = [];
+  for (let i = 0; i < n; i++) {
+    const bx2 = 110 + spacing * (i + 1);
+    bulbCentres.push(bx2);
+    drawBulb(bx2, topY, bri);
+  }
+
+  // Animated dots
+  const path = [[bx, by-40],[bx, topY],[W-60, topY],[W-60, botY],[bx, botY],[bx, by+40]];
+  drawDots(path);
+
+  // Label
+  ctx.fillStyle = '#8b5cf6';
+  ctx.font = 'bold 11px Inter';
+  ctx.textAlign = 'left';
+  ctx.fillText(`SERIES CIRCUIT — ${n} bulb${n>1?'s':''} in one loop`, 16, H-8);
+}
+
+function drawParallel(on, bri, n, W, H) {
+  const bx = 50, by = H/2;
+  const topY = 60, botY = H-60;
+  const mainX1 = 100, mainX2 = W - 80;
+
+  // Main horizontal rails
+  drawWire(bx, by-40, bx, topY, on);
+  drawWire(bx, topY, mainX2, topY, on);
+  drawWire(bx, by+40, bx, botY, on);
+  drawWire(bx, botY, mainX2, botY, on);
+  // Right: switch
+  drawWire(mainX2, topY, mainX2, botY, false);
+  drawSwitch(mainX2, topY+10, mainX2, botY-10, state.switchClosed, on);
+
+  // Battery
+  drawBattery(bx, by, state.numCells);
+
+  // Parallel branches
+  const spacing = (mainX2 - mainX1) / (n + 1);
+  for (let i = 0; i < n; i++) {
+    const bx2 = mainX1 + spacing * (i + 1);
+    drawWire(bx2, topY, bx2, topY + 40, on);
+    drawWire(bx2, botY, bx2, botY - 40, on);
+    drawBulb(bx2, (topY + botY) / 2, bri);
+  }
+
+  // Animated dots (top rail)
+  const path = [[bx, by-40],[bx, topY],[mainX2, topY],[mainX2, botY],[bx, botY],[bx, by+40]];
+  drawDots(path);
+
+  ctx.fillStyle = '#8b5cf6';
+  ctx.font = 'bold 11px Inter';
+  ctx.textAlign = 'left';
+  ctx.fillText(`PARALLEL CIRCUIT — ${n} bulb${n>1?'s':''} in ${n} branch${n>1?'es':''}`, 16, H-8);
+}
+
+// ── Controls ─────────────────────────────
+function setMode(m) {
+  state.mode = m;
+  document.getElementById('btn-series').classList.toggle('active', m==='series');
+  document.getElementById('btn-parallel').classList.toggle('active', m==='parallel');
+  updateStats();
+  Progress.recordSimUsed('circuits');
+}
+
+function toggleSwitch() {
+  state.switchClosed = !state.switchClosed;
+  const btn = document.getElementById('switch-btn');
+  btn.textContent = state.switchClosed ? '🟢 Switch: CLOSED' : '🔴 Switch: OPEN';
+  updateStats();
+  Progress.recordSimUsed('circuits');
+}
+
+function changeBulbs(d) {
+  state.numBulbs = Math.max(1, Math.min(3, state.numBulbs + d));
+  document.getElementById('bulb-count').textContent = state.numBulbs;
+  updateStats();
+}
+
+function addCell()    { state.numCells = Math.min(3, state.numCells+1); document.getElementById('cell-count').textContent = state.numCells; updateStats(); }
+function removeCell() { state.numCells = Math.max(1, state.numCells-1); document.getElementById('cell-count').textContent = state.numCells; updateStats(); }
+
+function updateStats() {
+  const on  = isComplete();
+  const bri = brightness();
+  document.getElementById('stat-current').textContent   = on ? (bri * 100).toFixed(0) + '%' : '0%';
+  document.getElementById('stat-brightness').textContent = on ? (bri * 100).toFixed(0) + '%' : 'Off';
+  document.getElementById('stat-status').textContent     = on ? '✅ Complete' : '❌ Incomplete';
+
+  let fb = '';
+  if (!state.switchClosed) {
+    fb = '🔴 The switch is <strong>open</strong> — the circuit is <strong>incomplete</strong>. No current flows, so no bulb lights up.';
+  } else if (state.mode === 'series') {
+    if (state.numBulbs === 1) fb = `✅ One bulb in a series circuit glows at <strong>full brightness</strong> for ${state.numCells} cell(s).`;
+    else fb = `⚡ ${state.numBulbs} bulbs share the voltage — each glows at only <strong>${Math.round(bri*100)}%</strong> brightness. If you remove one, the circuit breaks and all go out.`;
+  } else {
+    fb = `✅ Parallel circuit: each of ${state.numBulbs} bulb(s) gets the <strong>full voltage</strong> and glows at <strong>${Math.round(bri*100)}%</strong>. If one bulb is removed, the others stay on.`;
+  }
+  document.getElementById('sim-feedback').innerHTML = fb;
+}
+
+// ── Conductor / Insulator test ──────────
+const MATERIALS = [
+  { name:'Copper wire', cond:true },
+  { name:'Rubber', cond:false },
+  { name:'Iron nail', cond:true },
+  { name:'Plastic ruler', cond:false },
+  { name:'Pencil (graphite)', cond:true },
+  { name:'Glass', cond:false },
+  { name:'Salt water', cond:true },
+  { name:'Dry wood', cond:false },
+  { name:'Aluminium foil', cond:true },
+  { name:'Ceramic', cond:false },
+];
+const matGrid = document.getElementById('material-grid');
+MATERIALS.forEach(m => {
+  const btn = document.createElement('button');
+  btn.className = 'material-btn';
+  btn.textContent = m.name;
+  btn.onclick = () => {
+    btn.classList.toggle('conductor', m.cond);
+    btn.classList.toggle('insulator', !m.cond);
+    const res = document.getElementById('material-result');
+    res.style.display = 'block';
+    res.innerHTML = m.cond
+      ? `✅ <strong>${m.name}</strong> is a <span style="color:var(--diversity)">conductor</span> — the bulb lights up!`
+      : `❌ <strong>${m.name}</strong> is an <span style="color:#ef4444">insulator</span> — no current flows, bulb stays off.`;
+    Progress.recordSimUsed('circuits');
+  };
+  matGrid.appendChild(btn);
+});
+
+// ══════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════
+const QUIZ_Q = [
+  { question:'A circuit has a battery, two bulbs in series, and a switch. The switch is open. What happens to the bulbs?',
+    options:['Both bulbs light up brightly','Both bulbs remain unlit','Only one bulb lights up','Both bulbs flicker'],
+    correct:1,
+    explanation:'An open switch creates a break in the circuit. No current can flow, so neither bulb lights up.' },
+  { question:'In a series circuit with one battery and three bulbs, each bulb glows _____ compared to a circuit with just one bulb.',
+    options:['Brighter, because there are more bulbs','Dimmer, because the voltage is shared among all three bulbs','The same brightness — voltage does not change','Dimmer, because the switch is closed'],
+    correct:1,
+    explanation:'In series, the voltage from the battery is shared equally among all bulbs. More bulbs = less voltage per bulb = dimmer glow.' },
+  { question:'In a parallel circuit with two bulbs, Bulb A is removed. What happens to Bulb B?',
+    options:['Bulb B goes out too','Bulb B glows brighter','Bulb B stays lit at the same brightness','Bulb B flickers then goes out'],
+    correct:2,
+    explanation:'In a parallel circuit, each branch is independent. Removing one bulb does not affect the other because the remaining bulb still has a complete path for current.' },
+  { question:'Which of the following is a conductor of electricity?',
+    options:['Rubber glove','Dry wooden ruler','Copper wire','Plastic pen'],
+    correct:2,
+    explanation:'Copper is a metal and a good conductor — electrons can flow through it easily. Rubber, dry wood, and plastic are insulators.' },
+  { question:'A student adds a second cell to her circuit. What change does she observe?',
+    options:['The bulb gets dimmer','The bulb gets brighter','The circuit becomes incomplete','Nothing changes'],
+    correct:1,
+    explanation:'More cells mean a higher voltage. A higher voltage drives a greater current through the bulb, making it glow more brightly.' },
+  { question:'Look at this observation: "When bulb X is unscrewed in a circuit, all other bulbs go out." What type of circuit is this?',
+    options:['Parallel circuit','Series circuit','Open circuit','Short circuit'],
+    correct:1,
+    explanation:'In a series circuit, all components share one path. Removing any one component breaks the circuit for all the others.' },
+  { question:'Which instrument is used to measure electric current, and how is it connected?',
+    options:['Voltmeter, in parallel','Ammeter, in series','Ammeter, in parallel','Voltmeter, in series'],
+    correct:1,
+    explanation:'An ammeter measures current and must be placed in series (in the same path as the current). A voltmeter measures voltage and is placed in parallel.' },
+];
+
+// ══════════════════════════════════════════
+// MIND MAP TEMPLATE
+// ══════════════════════════════════════════
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1, label:'Electrical\nCircuits', color:{ background:'#1e183a', border:'#8b5cf6' }, font:{ size:15, color:'#c4b5fd' } },
+    { id:2, label:'Series Circuit' },
+    { id:3, label:'Parallel Circuit' },
+    { id:4, label:'Components' },
+    { id:5, label:'Conductors &\nInsulators' },
+    { id:6, label:'Switch' },
+    { id:7, label:'Battery / Cell' },
+    { id:8, label:'Bulb / Filament' },
+    { id:9, label:'Current' },
+    { id:10, label:'Voltage' },
+  ],
+  edges: [
+    { from:1, to:2, label:'type of' },
+    { from:1, to:3, label:'type of' },
+    { from:1, to:4, label:'made of' },
+    { from:1, to:5, label:'materials' },
+    { from:4, to:6 }, { from:4, to:7 }, { from:4, to:8 },
+    { from:5, to:9, label:'affect' },
+    { from:7, to:10, label:'provides' },
+    { from:10, to:9, label:'drives' },
+  ],
+  required: ['series','parallel','conductor','insulator','switch','current','voltage','battery','bulb']
+};
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+let sciMap;
+document.addEventListener('DOMContentLoaded', () => {
+  // Progress
+  Progress.recordVisit('circuits');
+  const pct = Progress.masteryPct('circuits');
+  document.getElementById('mastery-pct').textContent = pct + '%';
+
+  // Quiz
+  new QuizEngine(QUIZ_Q, 'circuits', 'quiz-container');
+
+  // Mind Map
+  sciMap = new ScienceMindMap('mindmap-container', 'circuits', MM_TEMPLATE);
+
+  // Start circuit animation
+  drawCircuit();
+  updateStats();
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label (e.g. "Series Circuit", "Conductor"):');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>
