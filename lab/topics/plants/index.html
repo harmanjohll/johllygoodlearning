@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photosynthesis & Plants | Science Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header { background:var(--surface); border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .topic-color-bar { width:4px; height:36px; border-radius:3px; background:var(--energy); flex-shrink:0; }
+    main { max-width:1100px; margin:0 auto; padding:1.5rem 1.25rem 3rem; }
+    .cue-question { font-size:.78rem; color:var(--muted); margin-bottom:.75rem; border-left:2px solid var(--energy); padding-left:.6rem; }
+    .summary-text { font-size:.85rem; color:var(--muted); line-height:1.6; }
+    .sim-stat { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:.5rem .9rem; font-size:.82rem; text-align:center; margin-top:.5rem; }
+    .sim-stat strong { display:block; font-size:1.1rem; color:var(--energy); }
+    .sub-tabs { display:flex; gap:.35rem; margin-bottom:1rem; flex-wrap:wrap; }
+    .sub-tab { padding:.35rem .85rem; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:.8rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .sub-tab.active { background:var(--energy); color:#0d1117; border-color:var(--energy); }
+    .sub-pane { display:none; } .sub-pane.active { display:block; }
+
+    /* Label-the-diagram */
+    .diagram-wrap { position:relative; display:inline-block; }
+    .label-spot { position:absolute; width:20px; height:20px; border-radius:50%; background:var(--energy); opacity:.85; cursor:pointer; transform:translate(-50%,-50%); border:2px solid #fff; transition:all .15s; }
+    .label-spot:hover { transform:translate(-50%,-50%) scale(1.3); }
+    .label-spot.correct { background:var(--diversity); }
+    .label-spot.wrong   { background:#ef4444; }
+    .label-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:.3rem .7rem; font-size:.78rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .label-card:hover { background:var(--border); }
+    .label-card.used { opacity:.4; cursor:default; pointer-events:none; }
+    .label-card.selected { border-color:var(--energy); background:#2e2105; color:var(--energy); }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🌿 Photosynthesis &amp; Plants</h1>
+    <div style="font-size:.78rem;color:var(--muted)">
+      <span class="badge badge-energy">Energy</span>&nbsp;
+      <span class="badge badge-p6">P6</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--energy)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════ LEARN ══════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What are the raw materials for photosynthesis?</div>
+        <div class="cue-question">What are the products of photosynthesis?</div>
+        <div class="cue-question">What is the role of chlorophyll?</div>
+        <div class="cue-question">Where does photosynthesis take place in the plant cell?</div>
+        <div class="cue-question">How do plants transport water and food?</div>
+        <div class="cue-question">What is transpiration and why is it important?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+        <div class="glossary-term"><div class="term-name">Photosynthesis</div><div class="term-def">The process by which green plants use light energy, carbon dioxide, and water to produce glucose and oxygen. Occurs in the chloroplasts.</div></div>
+        <div class="glossary-term"><div class="term-name">Chlorophyll</div><div class="term-def">The green pigment in plant cells that absorbs light energy. Found inside chloroplasts. Gives leaves their green colour.</div></div>
+        <div class="glossary-term"><div class="term-name">Chloroplast</div><div class="term-def">The organelle (structure) in plant cells where photosynthesis takes place. Contains chlorophyll.</div></div>
+        <div class="glossary-term"><div class="term-name">Glucose</div><div class="term-def">A type of sugar produced during photosynthesis. Used by the plant as an energy source for growth, repair, and reproduction. Can be stored as starch.</div></div>
+        <div class="glossary-term"><div class="term-name">Stomata (singular: stoma)</div><div class="term-def">Tiny pores (openings) on the underside of leaves. Allow carbon dioxide to enter and oxygen and water vapour to exit. Controlled by guard cells.</div></div>
+        <div class="glossary-term"><div class="term-name">Transpiration</div><div class="term-def">The process by which water is lost from a plant through the stomata as water vapour. Helps pull water up from roots through the xylem.</div></div>
+        <div class="glossary-term"><div class="term-name">Xylem</div><div class="term-def">Tube-like vessels that transport water and dissolved minerals from roots to leaves. Part of the plant's vascular system.</div></div>
+        <div class="glossary-term"><div class="term-name">Phloem</div><div class="term-def">Tube-like vessels that transport dissolved food (glucose/sucrose) from leaves to all other parts of the plant.</div></div>
+        <div class="glossary-term"><div class="term-name">Root Hair Cells</div><div class="term-def">Tiny hair-like extensions of root cells that increase the surface area for absorbing water and minerals from the soil.</div></div>
+        <div class="glossary-term"><div class="term-name">Carbon Dioxide (CO₂)</div><div class="term-def">A gas in the air that is a raw material for photosynthesis. Enters the leaf through the stomata.</div></div>
+        <div class="glossary-term"><div class="term-name">Starch</div><div class="term-def">A stored form of glucose in plants. Tested for using iodine solution (turns blue-black if starch is present).</div></div>
+        <div class="glossary-term"><div class="term-name">Guard Cells</div><div class="term-def">Pairs of cells surrounding each stoma. Open the stomata in light (for photosynthesis) and close them to prevent excess water loss.</div></div>
+      </div>
+
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🌞 What is Photosynthesis?</h4>
+          <p>Photosynthesis is the process green plants use to make their own food. They are <strong>producers</strong> — they make glucose from simple raw materials using light energy.</p>
+          <div class="equation">
+            Carbon Dioxide + Water → Glucose + Oxygen<br>
+            <span style="font-size:.8rem;color:#64748b">(CO₂) + (H₂O) → (C₆H₁₂O₆) + (O₂)</span>
+          </div>
+          <ul style="margin-top:.5rem">
+            <li><strong>Raw materials (inputs):</strong> Carbon dioxide (from air through stomata), Water (from soil through roots → xylem)</li>
+            <li><strong>Energy source:</strong> Light (from the Sun), absorbed by chlorophyll</li>
+            <li><strong>Products (outputs):</strong> Glucose (food for the plant), Oxygen (released through stomata)</li>
+            <li><strong>Location:</strong> Chloroplasts in the cells of green leaves</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🌿 Factors Affecting Photosynthesis</h4>
+          <ul>
+            <li><strong>Light intensity:</strong> More light → faster rate of photosynthesis (up to a limit)</li>
+            <li><strong>Carbon dioxide concentration:</strong> More CO₂ → faster rate (up to a limit)</li>
+            <li><strong>Water availability:</strong> Less water → slower photosynthesis; guard cells close stomata</li>
+            <li><strong>Temperature:</strong> Warmer (up to ~35°C) → faster; too hot → enzymes damaged</li>
+          </ul>
+          <div class="highlight">💡 The rate of photosynthesis is limited by whichever factor is in shortest supply — the <strong>limiting factor</strong>.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🚿 Transpiration</h4>
+          <p><strong>Transpiration</strong> is the evaporation of water from leaves through the stomata.</p>
+          <ul>
+            <li>Creates a pull (transpiration stream) that draws water up from roots through the xylem</li>
+            <li>More light, higher temperature, more wind → faster transpiration</li>
+            <li>Guard cells <strong>close stomata</strong> when water is scarce to reduce transpiration</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🔬 Plant Transport</h4>
+          <table style="width:100%;font-size:.82rem;border-collapse:collapse;margin-top:.4rem">
+            <tr style="background:var(--surface)">
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--energy)">Vessel</th>
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--energy)">What it transports</th>
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--energy)">Direction</th>
+            </tr>
+            <tr><td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Xylem</td><td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Water &amp; dissolved minerals</td><td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Roots → Leaves (upward)</td></tr>
+            <tr><td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Phloem</td><td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Dissolved food (glucose/sucrose)</td><td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Leaves → All parts (both ways)</td></tr>
+          </table>
+        </div>
+
+        <div class="note-section">
+          <h4>🧪 Testing for Starch (Iodine Test)</h4>
+          <p>To show a leaf has photosynthesised, we test for <strong>starch</strong> (glucose is converted to starch for storage).</p>
+          <ul>
+            <li>Iodine solution turns <strong>blue-black</strong> in the presence of starch</li>
+            <li>Leaves kept in dark (no photosynthesis) → <strong>no starch</strong> → iodine stays brown</li>
+            <li>Leaves in light → <strong>starch present</strong> → iodine turns blue-black</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--energy);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          <strong>Photosynthesis</strong>: CO₂ + Water + <strong>Light</strong> → Glucose + Oxygen. Occurs in <strong>chloroplasts</strong> using <strong>chlorophyll</strong>. More light/CO₂/water = faster rate. <strong>Xylem</strong> carries water up; <strong>phloem</strong> carries food. <strong>Stomata</strong> let CO₂ in and O₂ + water vapour out. <strong>Transpiration</strong> drives the flow of water from roots to leaves. Starch test: iodine turns <strong>blue-black</strong> if photosynthesis occurred.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SIMULATE ══════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">What happens to the oxygen output when light is reduced to zero?</div>
+        <div class="cue-question">If CO₂ is plentiful but light is low, what limits photosynthesis?</div>
+        <div class="cue-question">Why do guard cells close stomata at night?</div>
+        <div class="sim-stat"><strong id="stat-rate">—</strong>Photosynthesis Rate</div>
+        <div class="sim-stat"><strong id="stat-o2">—</strong>O₂ Output (rel.)</div>
+        <div class="sim-stat"><strong id="stat-transpire">—</strong>Transpiration Rate</div>
+        <div class="sim-stat"><strong id="stat-limiting">—</strong>Limiting Factor</div>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="showSubP('ps-sim')">☀ Photosynthesis</button>
+          <button class="sub-tab" onclick="showSubP('label-sim')">🔬 Label the Leaf</button>
+          <button class="sub-tab" onclick="showSubP('transp-sim')">💧 Transpiration</button>
+        </div>
+
+        <!-- PHOTOSYNTHESIS SIM -->
+        <div class="sub-pane active" id="ps-sim">
+          <div class="sim-controls" style="margin-bottom:.75rem">
+            <div class="sim-control-group">
+              <label>Light intensity: <strong id="light-val">70</strong>%</label>
+              <input type="range" id="light-slider" min="0" max="100" value="70" oninput="updatePS()">
+            </div>
+            <div class="sim-control-group">
+              <label>CO₂ level: <strong id="co2-val">60</strong>%</label>
+              <input type="range" id="co2-slider" min="0" max="100" value="60" oninput="updatePS()">
+            </div>
+            <div class="sim-control-group">
+              <label>Water supply: <strong id="water-val">80</strong>%</label>
+              <input type="range" id="water-slider" min="0" max="100" value="80" oninput="updatePS()">
+            </div>
+          </div>
+          <div class="sim-canvas-wrap" style="height:280px">
+            <canvas id="ps-canvas" width="580" height="270"></canvas>
+          </div>
+          <div id="ps-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
+        </div>
+
+        <!-- LABEL THE LEAF -->
+        <div class="sub-pane" id="label-sim">
+          <p style="font-size:.85rem;color:var(--muted);margin-bottom:.75rem">
+            Select a label, then click the matching numbered hotspot on the leaf diagram.
+          </p>
+          <div style="display:flex;flex-wrap:wrap;gap:1.5rem;align-items:flex-start">
+            <!-- Leaf diagram (canvas) -->
+            <div style="position:relative;flex-shrink:0">
+              <canvas id="leaf-canvas" width="320" height="280" style="border-radius:10px;background:#0d1117"></canvas>
+              <!-- Hotspots (positioned by JS) -->
+              <div id="hotspots"></div>
+            </div>
+            <!-- Label cards -->
+            <div>
+              <p style="font-size:.75rem;color:var(--muted);margin-bottom:.5rem;font-weight:600">LABELS — click one, then click a hotspot:</p>
+              <div id="label-cards" style="display:flex;flex-direction:column;gap:.4rem"></div>
+              <div id="label-score" style="margin-top:.75rem;font-size:.85rem;color:var(--muted)"></div>
+              <button class="btn btn-ghost" style="margin-top:.75rem;font-size:.8rem" onclick="resetLabels()">↺ Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRANSPIRATION SIM -->
+        <div class="sub-pane" id="transp-sim">
+          <div class="sim-controls" style="margin-bottom:.75rem">
+            <div class="sim-control-group">
+              <label>Temperature: <strong id="temp-val">25</strong>°C</label>
+              <input type="range" id="temp-slider" min="5" max="45" value="25" oninput="updateTransp()">
+            </div>
+            <div class="sim-control-group">
+              <label>Wind speed: <strong id="wind-val">2</strong> m/s</label>
+              <input type="range" id="wind-slider" min="0" max="10" value="2" oninput="updateTransp()">
+            </div>
+            <div class="sim-control-group">
+              <label>Humidity: <strong id="humid-val">50</strong>%</label>
+              <input type="range" id="humid-slider" min="10" max="100" value="50" oninput="updateTransp()">
+            </div>
+            <div class="sim-control-group">
+              <label>Light: <strong id="tlight-val">On</strong></label>
+              <select id="tlight-sel" onchange="updateTransp()" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.35rem .6rem;font-size:.82rem">
+                <option value="1">Light ON (day)</option>
+                <option value="0">Light OFF (night)</option>
+              </select>
+            </div>
+          </div>
+          <div class="sim-canvas-wrap" style="height:260px">
+            <canvas id="transp-canvas" width="580" height="250"></canvas>
+          </div>
+          <div id="transp-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <p class="summary-text">
+          Photosynthesis rate is limited by the <strong>lowest</strong> factor (light, CO₂, water). Without light, no photosynthesis occurs. Stomata open in light → CO₂ in, O₂ out; <strong>guard cells</strong> close them at night. Higher temperature and wind <strong>speed up transpiration</strong>; high humidity slows it down.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ QUIZ ══════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Common PSLE question types:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li>State the <strong>word equation</strong> for photosynthesis</li>
+            <li>Identify the <strong>raw materials / products</strong></li>
+            <li>Explain how a change in factor affects the rate</li>
+            <li>Predict what happens to the plant when light/CO₂/water changes</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Always specify <strong>which gas</strong>, <strong>which structure</strong>, and <strong>which direction</strong>. e.g. "Carbon dioxide enters through the stomata on the underside of the leaf."</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MIND MAP ══════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+function showSubP(id) {
+  document.querySelectorAll('.sub-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'label-sim') setTimeout(initLeafDiagram, 50);
+}
+
+// ══ PHOTOSYNTHESIS SIMULATOR ══
+function updatePS() {
+  const light = +document.getElementById('light-slider').value;
+  const co2   = +document.getElementById('co2-slider').value;
+  const water = +document.getElementById('water-slider').value;
+  document.getElementById('light-val').textContent = light;
+  document.getElementById('co2-val').textContent   = co2;
+  document.getElementById('water-val').textContent = water;
+
+  const rate = (light / 100) * (co2 / 100) * (water / 100) * 100;
+  const minFactor = Math.min(light, co2, water);
+  let limiting = light <= co2 && light <= water ? 'Light intensity' :
+                 co2 <= light && co2 <= water   ? 'CO₂ concentration' : 'Water supply';
+
+  document.getElementById('stat-rate').textContent      = rate.toFixed(1) + '%';
+  document.getElementById('stat-o2').textContent        = (rate * 0.8).toFixed(1) + ' units';
+  document.getElementById('stat-transpire').textContent = (light / 100 * water / 100 * 60).toFixed(0) + '%';
+  document.getElementById('stat-limiting').textContent  = rate >= 85 ? 'None ✅' : limiting;
+
+  drawPS(light, co2, water, rate, limiting);
+
+  const fb = document.getElementById('ps-feedback');
+  if (light === 0) {
+    fb.innerHTML = '🌑 <strong>No light</strong> = no photosynthesis. Without light energy, chlorophyll cannot absorb energy to convert CO₂ and water into glucose. Rate = 0%.';
+  } else if (rate < 20) {
+    fb.innerHTML = `⚠️ Very low rate (${rate.toFixed(1)}%). The limiting factor is <strong>${limiting}</strong> — increase it to boost photosynthesis.`;
+  } else if (rate >= 85) {
+    fb.innerHTML = `✅ Excellent rate (${rate.toFixed(1)}%)! All three factors are plentiful. The plant is producing glucose and oxygen at a high rate.`;
+  } else {
+    fb.innerHTML = `📊 Rate: <strong>${rate.toFixed(1)}%</strong>. Limiting factor: <strong>${limiting}</strong>. Increasing ${limiting.toLowerCase()} would increase the rate of photosynthesis.`;
+  }
+  Progress.recordSimUsed('plants');
+}
+
+function drawPS(light, co2, water, rate, limiting) {
+  const c = document.getElementById('ps-canvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0d1117'; ctx.fillRect(0,0,W,H);
+
+  // Draw a leaf with glow based on rate
+  const cx = 180, cy = H/2;
+
+  // Sun glow (light)
+  const sunR = (light/100)*45 + 5;
+  const sunGrad = ctx.createRadialGradient(40, 30, 0, 40, 30, sunR*2);
+  sunGrad.addColorStop(0, `rgba(251,191,36,${light/200})`);
+  sunGrad.addColorStop(1, 'transparent');
+  ctx.beginPath(); ctx.arc(40, 30, sunR*2, 0, Math.PI*2);
+  ctx.fillStyle = sunGrad; ctx.fill();
+  ctx.beginPath(); ctx.arc(40, 30, sunR, 0, Math.PI*2);
+  ctx.fillStyle = `rgba(251,191,36,${light/100*0.8+0.2})`; ctx.fill();
+
+  // Leaf shape
+  const leafGreen = `rgb(${34 + Math.round(rate/100*80)}, ${Math.round(100 + rate/100*100)}, ${50})`;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 80);
+  ctx.bezierCurveTo(cx + 70, cy - 80, cx + 70, cy + 80, cx, cy + 80);
+  ctx.bezierCurveTo(cx - 70, cy + 80, cx - 70, cy - 80, cx, cy - 80);
+  ctx.fillStyle = rate > 0 ? leafGreen : '#1e293b';
+  ctx.fill();
+  ctx.strokeStyle = '#166534'; ctx.lineWidth = 2; ctx.stroke();
+
+  // Midrib
+  ctx.beginPath(); ctx.moveTo(cx, cy-78); ctx.lineTo(cx, cy+78);
+  ctx.strokeStyle='#14532d'; ctx.lineWidth=2; ctx.stroke();
+
+  // Arrows: CO2 in, O2 out
+  if (rate > 5) {
+    // CO2 in (left arrows, entering leaf)
+    ctx.fillStyle='#60a5fa';
+    for (let i=0;i<3;i++) {
+      const ay = cy - 40 + i*40;
+      drawPSArrow(ctx, cx-90, ay, cx-75, ay, '#60a5fa');
+      ctx.fillStyle='#60a5fa'; ctx.font='9px Inter'; ctx.textAlign='right';
+      ctx.fillText('CO₂', cx-92, ay+4);
+    }
+    // O2 out (right arrows, leaving leaf)
+    for (let i=0;i<3;i++) {
+      const ay = cy - 40 + i*40;
+      drawPSArrow(ctx, cx+75, ay, cx+90, ay, '#34d399');
+      ctx.fillStyle='#34d399'; ctx.font='9px Inter'; ctx.textAlign='left';
+      ctx.fillText('O₂', cx+92, ay+4);
+    }
+    // Water up (below)
+    drawPSArrow(ctx, cx, cy+95, cx, cy+82, '#38bdf8');
+    ctx.fillStyle='#38bdf8'; ctx.font='9px Inter'; ctx.textAlign='center';
+    ctx.fillText('H₂O', cx, cy+110);
+    // Light down
+    drawPSArrow(ctx, cx, cy-95, cx, cy-82, '#fcd34d');
+    ctx.fillStyle='#fcd34d'; ctx.font='9px Inter'; ctx.textAlign='center';
+    ctx.fillText('Light', cx, cy-100);
+  }
+
+  // Glucose meter
+  const gx = 380, gy = 40;
+  ctx.fillStyle='#1e293b'; ctx.fillRect(gx, gy, 160, 20);
+  const gFill = rate / 100 * 160;
+  ctx.fillStyle='#f59e0b'; ctx.fillRect(gx, gy, gFill, 20);
+  ctx.fillStyle='#e2e8f0'; ctx.font='11px Inter'; ctx.textAlign='center';
+  ctx.fillText('Glucose production: ' + rate.toFixed(0) + '%', gx+80, gy+14);
+
+  // O2 bubbles
+  const numBubbles = Math.floor(rate / 20);
+  for (let i=0; i<numBubbles; i++) {
+    ctx.beginPath();
+    ctx.arc(gx + 20 + i*30, gy + 50, 8, 0, Math.PI*2);
+    ctx.strokeStyle='#34d399'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle='#34d39944'; ctx.fill();
+    ctx.fillStyle='#34d399'; ctx.font='7px Inter'; ctx.textAlign='center';
+    ctx.fillText('O₂', gx+20+i*30, gy+54);
+  }
+  ctx.fillStyle='#64748b'; ctx.font='10px Inter'; ctx.textAlign='left';
+  ctx.fillText('Oxygen produced:', gx, gy+44);
+
+  // Limiting factor bar chart
+  const barsY = H - 70;
+  const barsData = [
+    { label:'Light', val:light, color:'#fcd34d' },
+    { label:'CO₂',  val:co2,   color:'#93c5fd' },
+    { label:'Water', val:water, color:'#38bdf8' },
+  ];
+  const barW = 45, barMax = 60;
+  barsData.forEach((b,i) => {
+    const bx2 = gx + i * 56;
+    const bh  = (b.val/100) * barMax;
+    ctx.fillStyle='#1e293b'; ctx.fillRect(bx2, barsY-barMax, barW, barMax);
+    ctx.fillStyle = b.color; ctx.fillRect(bx2, barsY-bh, barW, bh);
+    ctx.fillStyle='#e2e8f0'; ctx.font='10px Inter'; ctx.textAlign='center';
+    ctx.fillText(b.label, bx2+barW/2, barsY+14);
+    ctx.fillText(b.val+'%', bx2+barW/2, barsY-bh-4);
+  });
+  ctx.fillStyle='#64748b'; ctx.font='10px Inter'; ctx.textAlign='left';
+  ctx.fillText('Factor levels:', gx, barsY - barMax - 10);
+}
+
+function drawPSArrow(ctx, x1,y1,x2,y2,color) {
+  const ang = Math.atan2(y2-y1,x2-x1);
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-8*Math.cos(ang-.4), y2-8*Math.sin(ang-.4));
+  ctx.lineTo(x2-8*Math.cos(ang+.4), y2-8*Math.sin(ang+.4));
+  ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+}
+
+// ══ LABEL THE LEAF DIAGRAM ══
+const LEAF_SPOTS = [
+  { x:160, y:140, answer:'Chloroplast' },
+  { x:160, y:200, answer:'Stomata' },
+  { x:92,  y:170, answer:'Guard Cells' },
+  { x:162, y:60,  answer:'Leaf vein (Xylem/Phloem)' },
+  { x:220, y:140, answer:'Cell Wall' },
+];
+const LEAF_LABELS = ['Chloroplast','Stomata','Guard Cells','Leaf vein (Xylem/Phloem)','Cell Wall'];
+let selectedLabel = null, labelAnswers = {};
+
+function initLeafDiagram() {
+  const c = document.getElementById('leaf-canvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0d1117'; ctx.fillRect(0,0,W,H);
+
+  // Draw cross-section of leaf (simplified)
+  // Upper epidermis
+  ctx.fillStyle='#155e25'; ctx.fillRect(20, 20, W-40, 18);
+  ctx.fillStyle='#4ade80'; ctx.font='8px Inter'; ctx.textAlign='center';
+  ctx.fillText('Upper epidermis', W/2, 33);
+
+  // Palisade cells (tall cells packed with chloroplasts)
+  for (let i=0; i<8; i++) {
+    const cx2 = 32 + i*34;
+    ctx.fillStyle='#166534';
+    ctx.fillRect(cx2, 38, 28, 70);
+    ctx.strokeStyle='#4ade80'; ctx.lineWidth=1;
+    ctx.strokeRect(cx2, 38, 28, 70);
+    // Chloroplasts
+    for (let j=0; j<3; j++) {
+      ctx.beginPath(); ctx.ellipse(cx2+14, 52+j*20, 8,5, 0, 0, Math.PI*2);
+      ctx.fillStyle='#15803d'; ctx.fill();
+      ctx.strokeStyle='#22c55e'; ctx.lineWidth=.8; ctx.stroke();
+    }
+  }
+  ctx.fillStyle='#4ade80'; ctx.textAlign='left';
+  ctx.fillText('Palisade layer', 22, 118);
+
+  // Spongy layer
+  for (let i=0; i<6; i++) {
+    const cx2 = 40 + i*45;
+    ctx.beginPath(); ctx.ellipse(cx2, 150, 18,12, 0,0, Math.PI*2);
+    ctx.fillStyle='#1e3a2a'; ctx.fill();
+    ctx.strokeStyle='#4ade80'; ctx.lineWidth=.8; ctx.stroke();
+  }
+  ctx.fillStyle='#4ade80'; ctx.textAlign='left';
+  ctx.fillText('Spongy layer', 22, 175);
+
+  // Air spaces
+  ctx.fillStyle='#1a3a2a44';
+  ctx.fillRect(20,108,W-40,80);
+
+  // Vein (central)
+  ctx.fillStyle='#7c3aed';
+  ctx.fillRect(148, 35, 24, 145);
+  ctx.strokeStyle='#a78bfa'; ctx.lineWidth=1.5;
+  ctx.strokeRect(148, 35, 24, 145);
+  ctx.fillStyle='#a78bfa'; ctx.font='7px Inter'; ctx.textAlign='center';
+  ctx.fillText('Vein', 160, 30);
+
+  // Lower epidermis
+  ctx.fillStyle='#052e16'; ctx.fillRect(20, 188, W-40, 18);
+  ctx.strokeStyle='#4ade80'; ctx.lineWidth=.5; ctx.strokeRect(20,188,W-40,18);
+
+  // Stomata (pores in lower epidermis)
+  for (let i=0; i<4; i++) {
+    const sx = 50 + i*65;
+    ctx.beginPath(); ctx.ellipse(sx, 197, 10, 4, 0,0, Math.PI*2);
+    ctx.fillStyle='#0f172a'; ctx.fill();
+    ctx.strokeStyle='#22c55e'; ctx.lineWidth=1; ctx.stroke();
+    // Guard cells
+    ctx.beginPath(); ctx.ellipse(sx-10, 197, 8,5, 0,0,Math.PI*2);
+    ctx.fillStyle='#166534'; ctx.fill(); ctx.strokeStyle='#4ade80'; ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(sx+10, 197, 8,5, 0,0,Math.PI*2);
+    ctx.fillStyle='#166534'; ctx.fill(); ctx.strokeStyle='#4ade80'; ctx.stroke();
+  }
+  ctx.fillStyle='#4ade80'; ctx.font='8px Inter'; ctx.textAlign='center';
+  ctx.fillText('Lower epidermis (with stomata & guard cells)', W/2, 216);
+
+  // Arrows: CO2 in, H2O out
+  ctx.fillStyle='#60a5fa'; ctx.font='9px Inter';
+  ctx.fillText('CO₂ ↑', 30, 230); ctx.fillText('H₂O ↓', W-40, 230);
+
+  // Number spots
+  document.getElementById('hotspots').innerHTML = '';
+  LEAF_SPOTS.forEach((spot, i) => {
+    const div = document.createElement('div');
+    div.className = 'label-spot';
+    div.style.left = spot.x + 'px';
+    div.style.top  = (spot.y + 10) + 'px';
+    div.style.position = 'absolute';
+    div.style.width = '22px'; div.style.height = '22px';
+    div.style.display = 'flex'; div.style.alignItems = 'center'; div.style.justifyContent = 'center';
+    div.style.fontSize = '11px'; div.style.fontWeight = '700'; div.style.color = '#0d1117';
+    div.textContent = i + 1;
+    div.dataset.index = i;
+    div.onclick = () => placeLabel(i);
+    if (labelAnswers[i]) { div.className = 'label-spot ' + (labelAnswers[i].correct ? 'correct' : 'wrong'); }
+    document.getElementById('hotspots').appendChild(div);
+  });
+
+  // Build label cards
+  const cardContainer = document.getElementById('label-cards');
+  cardContainer.innerHTML = '';
+  LEAF_LABELS.forEach(lbl => {
+    const used = Object.values(labelAnswers).some(a => a.label === lbl && a.correct);
+    const card = document.createElement('div');
+    card.className = 'label-card' + (used ? ' used' : '') + (selectedLabel === lbl ? ' selected' : '');
+    card.textContent = lbl;
+    card.dataset.label = lbl;
+    card.onclick = () => { selectedLabel = lbl; initLeafDiagram(); };
+    cardContainer.appendChild(card);
+  });
+
+  // Score
+  const correct2 = Object.values(labelAnswers).filter(a => a.correct).length;
+  document.getElementById('label-score').innerHTML =
+    Object.keys(labelAnswers).length > 0
+      ? `${correct2} / ${LEAF_SPOTS.length} correct`
+      : 'Click a label, then click a numbered spot.';
+}
+
+function placeLabel(spotIndex) {
+  if (!selectedLabel) { showToast('Select a label card first!'); return; }
+  const correct = LEAF_SPOTS[spotIndex].answer === selectedLabel;
+  labelAnswers[spotIndex] = { label: selectedLabel, correct };
+  if (correct) { showToast('✅ Correct!'); selectedLabel = null; }
+  else { showToast('❌ ' + selectedLabel + ' is not the right label for spot ' + (spotIndex+1) + '. Try again.'); }
+  initLeafDiagram();
+  Progress.recordSimUsed('plants');
+}
+
+function resetLabels() { labelAnswers = {}; selectedLabel = null; initLeafDiagram(); }
+
+// ══ TRANSPIRATION SIM ══
+function updateTransp() {
+  const temp  = +document.getElementById('temp-slider').value;
+  const wind  = +document.getElementById('wind-slider').value;
+  const humid = +document.getElementById('humid-slider').value;
+  const light = +document.getElementById('tlight-sel').value;
+  document.getElementById('temp-val').textContent  = temp;
+  document.getElementById('wind-val').textContent  = wind;
+  document.getElementById('humid-val').textContent = humid;
+  document.getElementById('tlight-val').textContent = light ? 'On' : 'Off';
+
+  const rate = light === 0 ? 0 :
+    ((temp - 5) / 40) * 0.4 +
+    (wind / 10) * 0.3 +
+    ((100 - humid) / 90) * 0.3;
+  const pct = Math.min(100, Math.max(0, Math.round(rate * 100)));
+  document.getElementById('stat-transpire').textContent = pct + '%';
+
+  drawTransp(temp, wind, humid, light, pct);
+
+  const fb = document.getElementById('transp-feedback');
+  if (!light) {
+    fb.innerHTML = '🌑 <strong>Night:</strong> Guard cells close stomata — transpiration drops to near zero. The plant conserves water.';
+  } else {
+    const factors = [];
+    if (temp > 30) factors.push('high temperature (more evaporation)');
+    if (wind > 6)  factors.push('strong wind (removes water vapour quickly)');
+    if (humid < 40) factors.push('low humidity (steep water vapour gradient)');
+    fb.innerHTML = `💧 Transpiration rate: <strong>${pct}%</strong>. ${factors.length ? 'High because of: ' + factors.join(', ') + '.' : 'Moderate conditions.'}`;
+  }
+  Progress.recordSimUsed('plants');
+}
+
+function drawTransp(temp, wind, humid, light, pct) {
+  const c = document.getElementById('transp-canvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0d1117'; ctx.fillRect(0,0,W,H);
+
+  // Plant stem and leaves
+  const base = H - 30;
+  // Stem
+  ctx.strokeStyle='#4ade80'; ctx.lineWidth=4;
+  ctx.beginPath(); ctx.moveTo(W/2, base); ctx.lineTo(W/2, base-160); ctx.stroke();
+  // Leaves
+  [[W/2,base-80,-1],[W/2,base-120,1],[W/2,base-150,-1]].forEach(([lx,ly,side]) => {
+    ctx.beginPath();
+    ctx.moveTo(lx,ly);
+    ctx.bezierCurveTo(lx+side*40,ly-20, lx+side*60,ly+10, lx+side*55,ly+30);
+    ctx.bezierCurveTo(lx+side*30,ly+35, lx,ly+10, lx,ly);
+    ctx.fillStyle='#166534'; ctx.fill();
+    ctx.strokeStyle='#4ade80'; ctx.lineWidth=1.5; ctx.stroke();
+  });
+
+  // Water vapour droplets rising from leaves (transpiration)
+  const numDrops = Math.floor(pct / 15);
+  for (let i=0; i<numDrops; i++) {
+    const dx = W/2 + (Math.random()-0.5)*80;
+    const dy = base - 160 - Math.random()*60;
+    ctx.beginPath(); ctx.arc(dx, dy, 4, 0, Math.PI*2);
+    ctx.fillStyle='#38bdf866'; ctx.fill();
+    ctx.strokeStyle='#38bdf8'; ctx.lineWidth=1; ctx.stroke();
+  }
+  if (numDrops > 0) {
+    ctx.fillStyle='#38bdf8'; ctx.font='10px Inter'; ctx.textAlign='center';
+    ctx.fillText('H₂O vapour ↑', W/2, base-230);
+  }
+
+  // Water arrows up xylem
+  ctx.strokeStyle = '#1d4ed8'; ctx.lineWidth=2; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(W/2-2, base); ctx.lineTo(W/2-2, base-160); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#60a5fa'; ctx.font='9px Inter'; ctx.textAlign='left';
+  ctx.fillText('Water via xylem ↑', W/2+8, base-100);
+
+  // Root
+  ctx.strokeStyle='#78350f'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(W/2,base); ctx.lineTo(W/2, base+30); ctx.stroke();
+  for (let i=-2;i<=2;i++) {
+    ctx.beginPath(); ctx.moveTo(W/2,base+30); ctx.lineTo(W/2+i*16,base+50); ctx.lineWidth=2; ctx.stroke();
+  }
+  ctx.fillStyle='#92400e'; ctx.font='9px Inter'; ctx.textAlign='center';
+  ctx.fillText('Root absorbs water', W/2, base+62);
+
+  // Stomata open/close indicator
+  const stomX = W/2 + 80, stomY = base-100;
+  ctx.fillStyle='#1e293b'; ctx.fillRect(stomX-30, stomY-40, 60, 80);
+  ctx.strokeStyle='#64748b'; ctx.lineWidth=1; ctx.strokeRect(stomX-30,stomY-40,60,80);
+  ctx.fillStyle='#e2e8f0'; ctx.font='9px Inter'; ctx.textAlign='center';
+  ctx.fillText('Stoma', stomX, stomY-46);
+  // Guard cells
+  const openAmt = light ? (1 - humid/150) : 0;
+  const gap = openAmt * 12;
+  ctx.beginPath(); ctx.ellipse(stomX, stomY-gap, 12, 20, 0,0,Math.PI*2);
+  ctx.fillStyle='#166534'; ctx.fill(); ctx.strokeStyle='#4ade80'; ctx.lineWidth=1; ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(stomX, stomY+gap, 12, 20, 0,0,Math.PI*2);
+  ctx.fillStyle='#166534'; ctx.fill(); ctx.strokeStyle='#4ade80'; ctx.lineWidth=1; ctx.stroke();
+  ctx.fillStyle='#94a3b8'; ctx.font='8px Inter';
+  ctx.fillText(light ? (gap>4 ? 'Open' : 'Partly open') : 'Closed', stomX, stomY+35);
+
+  // Transpiration bar
+  const bx = W-120, by=30;
+  ctx.fillStyle='#1e293b'; ctx.fillRect(bx, by, 100, 20);
+  ctx.fillStyle='#38bdf8'; ctx.fillRect(bx, by, pct, 20);
+  ctx.fillStyle='#e2e8f0'; ctx.font='11px Inter'; ctx.textAlign='center';
+  ctx.fillText('Transpiration: '+pct+'%', bx+50, by+14);
+
+  // Wind arrows
+  if (wind > 3) {
+    for (let i=0;i<3;i++) {
+      const wy = 60 + i*40;
+      ctx.beginPath();
+      for (let j=0;j<3;j++) {
+        ctx.moveTo(30+j*30, wy); ctx.lineTo(55+j*30, wy);
+      }
+      ctx.strokeStyle='#94a3b822'; ctx.lineWidth=2; ctx.stroke();
+    }
+    ctx.fillStyle='#94a3b8'; ctx.font='9px Inter'; ctx.textAlign='left';
+    ctx.fillText('🌬 wind', 20, 55);
+  }
+}
+
+// ══ QUIZ ══
+const QUIZ_Q = [
+  { question:'What are the TWO products of photosynthesis?',
+    options:['Carbon dioxide and water','Glucose and oxygen','Glucose and carbon dioxide','Starch and water'],
+    correct:1,
+    explanation:'Photosynthesis: CO₂ + Water + Light → Glucose + Oxygen. Glucose is used for energy and stored as starch; oxygen is released through the stomata.' },
+  { question:'Where exactly does photosynthesis take place inside a plant cell?',
+    options:['In the nucleus','In the mitochondria','In the chloroplast','In the cell wall'],
+    correct:2,
+    explanation:'Photosynthesis occurs in the chloroplasts — organelles containing chlorophyll, the green pigment that absorbs light energy.' },
+  { question:'A plant is placed in a dark room for 48 hours, then its leaf is tested with iodine solution. What result is expected?',
+    options:['Blue-black — starch is present','Brown — no starch is present','Green — chlorophyll is present','No change'],
+    correct:1,
+    explanation:'Without light, photosynthesis cannot occur, so no glucose (and thus no starch) is produced. Iodine solution remains brown, indicating the absence of starch.' },
+  { question:'A student notices that aquatic plants produce more bubbles when placed closer to a lamp. What do the bubbles most likely contain?',
+    options:['Carbon dioxide — a raw material of photosynthesis','Oxygen — a product of photosynthesis','Water vapour released during transpiration','Nitrogen gas from the water'],
+    correct:1,
+    explanation:'The bubbles are oxygen produced during photosynthesis. More light → faster photosynthesis → more oxygen produced → more bubbles.' },
+  { question:'Which vessel transports water from the roots to the leaves?',
+    options:['Phloem','Xylem','Stomata','Guard cells'],
+    correct:1,
+    explanation:'Xylem vessels carry water and dissolved minerals upward from roots to leaves. Phloem carries dissolved food (glucose) from leaves to all parts of the plant.' },
+  { question:'Guard cells control the opening and closing of stomata. In the daytime, guard cells become TURGID (swollen with water). What effect does this have on the stomata?',
+    options:['Stomata close — less water is lost','Stomata open — carbon dioxide enters for photosynthesis','Stomata remain unchanged','Stomata produce oxygen'],
+    correct:1,
+    explanation:'When guard cells take in water and become turgid (plump), they curve outward, opening the stomata. This allows CO₂ to enter for photosynthesis and O₂ and water vapour to exit.' },
+  { question:'A scientist grows identical plants in three conditions: full sunlight, dim light, and no light. Which plant produces the most starch after one week?',
+    options:['The plant in no light','The plant in dim light','The plant in full sunlight','All produce equal amounts of starch'],
+    correct:2,
+    explanation:'More light intensity = faster rate of photosynthesis = more glucose produced = more starch stored. The plant in full sunlight produces the most starch.' },
+];
+
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1, label:'Photosynthesis', color:{ background:'#1a2e05', border:'#f59e0b' }, font:{ size:15, color:'#fcd34d' } },
+    { id:2, label:'Raw Materials' }, { id:3, label:'Products' },
+    { id:4, label:'CO₂' }, { id:5, label:'Water (H₂O)' }, { id:6, label:'Light' },
+    { id:7, label:'Glucose' }, { id:8, label:'Oxygen' },
+    { id:9, label:'Chloroplast' }, { id:10, label:'Chlorophyll' },
+    { id:11, label:'Stomata' }, { id:12, label:'Xylem' }, { id:13, label:'Phloem' },
+    { id:14, label:'Transpiration' },
+  ],
+  edges: [
+    { from:1, to:2, label:'needs' }, { from:1, to:3, label:'makes' },
+    { from:2, to:4 }, { from:2, to:5 }, { from:2, to:6 },
+    { from:3, to:7 }, { from:3, to:8 },
+    { from:1, to:9, label:'occurs in' }, { from:9, to:10, label:'contains' },
+    { from:4, to:11, label:'enters via' }, { from:5, to:12, label:'travels via' },
+    { from:7, to:13, label:'transported by' }, { from:5, to:14, label:'lost via' },
+  ],
+  required: ['photosynthesis','chlorophyll','chloroplast','glucose','oxygen','co2','water','stomata','xylem','phloem','transpiration']
+};
+
+let sciMap;
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('plants');
+  document.getElementById('mastery-pct').textContent = Progress.masteryPct('plants') + '%';
+  new QuizEngine(QUIZ_Q, 'plants', 'quiz-container');
+  sciMap = new ScienceMindMap('mindmap-container', 'plants', MM_TEMPLATE);
+  updatePS();
+  updateTransp();
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>

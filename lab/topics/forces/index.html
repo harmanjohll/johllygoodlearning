@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forces | Science Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header { background:var(--surface); border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .topic-color-bar { width:4px; height:36px; border-radius:3px; background:var(--interactions); flex-shrink:0; }
+    .page-header h1 { font-size:1.2rem; }
+    main { max-width:1100px; margin:0 auto; padding:1.5rem 1.25rem 3rem; }
+
+    /* Force arrows */
+    .force-arrow { display:flex; align-items:center; gap:.4rem; font-size:.82rem; font-weight:600; }
+    .arrow-bar { height:10px; border-radius:99px; transition:width .3s; min-width:4px; }
+
+    /* Sub-tabs for Simulate */
+    .sub-tabs { display:flex; gap:.35rem; margin-bottom:1rem; flex-wrap:wrap; }
+    .sub-tab { padding:.35rem .85rem; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:.8rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .sub-tab.active { background:var(--interactions); color:#fff; border-color:var(--interactions); }
+    .sub-pane { display:none; } .sub-pane.active { display:block; }
+
+    .cue-question { font-size:.78rem; color:var(--muted); margin-bottom:.75rem; border-left:2px solid var(--interactions); padding-left:.6rem; }
+    .summary-text { font-size:.85rem; color:var(--muted); line-height:1.6; }
+    .sim-stat { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:.5rem .9rem; font-size:.82rem; text-align:center; margin-top:.5rem; }
+    .sim-stat strong { display:block; font-size:1.1rem; color:var(--interactions); }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🏋 Forces</h1>
+    <div class="meta" style="font-size:.78rem;color:var(--muted)">
+      <span class="badge badge-interactions">Interactions</span>&nbsp;
+      <span class="badge badge-p5">P5</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--interactions)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════ LEARN ══════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What is a force?</div>
+        <div class="cue-question">How does friction affect a moving object?</div>
+        <div class="cue-question">What factors affect the amount of friction?</div>
+        <div class="cue-question">How does gravitational force change with mass?</div>
+        <div class="cue-question">What is Hooke's Law?</div>
+        <div class="cue-question">What is the resultant force and why does it matter?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+        <div class="glossary-term"><div class="term-name">Force</div><div class="term-def">A push or pull acting on an object. Forces can change the shape, speed, or direction of an object. Measured in newtons (N).</div></div>
+        <div class="glossary-term"><div class="term-name">Friction</div><div class="term-def">A contact force that opposes motion between two surfaces. Acts in the opposite direction to movement. Can be useful (braking) or unhelpful (wear and heat).</div></div>
+        <div class="glossary-term"><div class="term-name">Gravitational Force</div><div class="term-def">The pull of the Earth (or any large mass) on objects. Always acts downward toward the centre of the Earth. Depends on the mass of the object.</div></div>
+        <div class="glossary-term"><div class="term-name">Weight</div><div class="term-def">The gravitational force acting on an object. Weight = mass × gravitational field strength. Measured in newtons (N), NOT kilograms.</div></div>
+        <div class="glossary-term"><div class="term-name">Mass</div><div class="term-def">The amount of matter in an object. Measured in kilograms (kg). Mass does NOT change with location; weight does.</div></div>
+        <div class="glossary-term"><div class="term-name">Spring Force</div><div class="term-def">The force exerted by a compressed or stretched spring. Follows Hooke's Law: force is proportional to extension (within elastic limit).</div></div>
+        <div class="glossary-term"><div class="term-name">Resultant Force</div><div class="term-def">The single force that represents the combined effect of all forces on an object. If resultant = 0 N, the object is stationary or moves at constant speed.</div></div>
+        <div class="glossary-term"><div class="term-name">Balanced Forces</div><div class="term-def">When two or more forces cancel each other out (resultant = 0 N). A stationary object has balanced forces.</div></div>
+        <div class="glossary-term"><div class="term-name">Elastic Limit</div><div class="term-def">The maximum force a spring can take before it is permanently deformed and no longer returns to original shape.</div></div>
+        <div class="glossary-term"><div class="term-name">Compression</div><div class="term-def">Squeezing or pushing a spring so it becomes shorter than its natural length.</div></div>
+        <div class="glossary-term"><div class="term-name">Extension</div><div class="term-def">Stretching a spring so it becomes longer than its natural length.</div></div>
+        <div class="glossary-term"><div class="term-name">Newton (N)</div><div class="term-def">The SI unit of force. 1 newton is approximately the weight of a 100 g apple on Earth.</div></div>
+      </div>
+
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>💪 What is a Force?</h4>
+          <p>A force is a <strong>push or pull</strong>. Forces can:</p>
+          <ul style="margin-top:.4rem">
+            <li>Make an object <strong>start moving</strong> (from rest)</li>
+            <li>Make an object <strong>stop</strong> or slow down</li>
+            <li><strong>Change direction</strong> of a moving object</li>
+            <li><strong>Change the shape</strong> of an object (compress, stretch)</li>
+          </ul>
+          <div class="highlight">⚖️ Force is measured in <strong>newtons (N)</strong> using a <strong>spring balance / force meter</strong>.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🧊 Friction</h4>
+          <p><strong>Friction</strong> is a contact force that acts between two surfaces in contact and opposes motion.</p>
+          <ul style="margin-top:.4rem">
+            <li>Acts <strong>opposite</strong> to the direction of motion</li>
+            <li>Produces <strong>heat</strong> (rub your hands together!)</li>
+            <li>Increases with: rougher surfaces, heavier objects (greater normal force)</li>
+            <li><strong>Useful</strong>: brakes on a bicycle, shoes gripping the floor, writing with a pencil</li>
+            <li><strong>Not useful</strong>: wear on engine parts, slowing a skateboard; reduced by lubricants (oil, grease), ball bearings, smooth surfaces</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🌏 Gravitational Force</h4>
+          <p>The Earth pulls every object toward its centre. This pull is called <strong>gravitational force</strong> (or simply <strong>gravity</strong>).</p>
+          <ul style="margin-top:.4rem">
+            <li>Acts <strong>downward</strong> on all objects with mass</li>
+            <li>Greater mass → greater gravitational force (weight)</li>
+            <li>On the Moon, gravity is weaker → you weigh less but your <em>mass</em> stays the same</li>
+          </ul>
+          <div class="equation">Weight (N) = Mass (kg) × 10 N/kg</div>
+          <p>A 5 kg bag has a weight of <strong>50 N</strong> on Earth.</p>
+        </div>
+
+        <div class="note-section">
+          <h4>🌀 Spring Force (Hooke's Law)</h4>
+          <p>A spring exerts a force when <strong>compressed</strong> (pushed shorter) or <strong>extended</strong> (stretched longer).</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Hooke's Law</strong>: Extension is directly proportional to the applied force (within the elastic limit)</li>
+            <li>Double the load → double the extension</li>
+            <li>Beyond the <strong>elastic limit</strong>, the spring is permanently deformed</li>
+          </ul>
+          <div class="equation">Force (N) = Spring constant (N/m) × Extension (m)</div>
+        </div>
+
+        <div class="note-section">
+          <h4>⚖️ Resultant Force</h4>
+          <p>When multiple forces act on an object, we find the <strong>resultant</strong> (net force).</p>
+          <ul style="margin-top:.4rem">
+            <li>Forces in the <em>same</em> direction: <strong>add them</strong></li>
+            <li>Forces in <em>opposite</em> directions: <strong>subtract them</strong></li>
+            <li>Resultant = 0 N → <strong>balanced</strong> (stationary or constant speed)</li>
+            <li>Resultant ≠ 0 N → <strong>unbalanced</strong> (object accelerates in direction of bigger force)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--interactions);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          A <strong>force</strong> is a push or pull measured in newtons. <strong>Friction</strong> opposes motion between surfaces — useful for braking, reduced by lubrication. <strong>Gravitational force</strong> pulls all objects toward Earth; greater mass = greater weight. <strong>Spring force</strong> follows Hooke's Law: extension ∝ load (within elastic limit). The <strong>resultant force</strong> determines motion — zero means balanced; non-zero means acceleration.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SIMULATE ══════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">How does surface roughness change friction?</div>
+        <div class="cue-question">What happens to the spring extension as you add more mass?</div>
+        <div class="cue-question">On the Moon, how would the spring reading differ?</div>
+        <div class="cue-question">When is the resultant force zero?</div>
+        <div class="sim-stat"><strong id="stat-friction">—</strong>Friction Force (N)</div>
+        <div class="sim-stat"><strong id="stat-weight">—</strong>Weight (N)</div>
+        <div class="sim-stat"><strong id="stat-resultant">—</strong>Resultant (N)</div>
+        <div class="sim-stat"><strong id="stat-extension">—</strong>Spring Extension (cm)</div>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="showSub('friction-sim')">🏂 Friction</button>
+          <button class="sub-tab" onclick="showSub('gravity-sim')">🌏 Gravity &amp; Weight</button>
+          <button class="sub-tab" onclick="showSub('spring-sim')">🌀 Spring Force</button>
+        </div>
+
+        <!-- FRICTION SIM -->
+        <div class="sub-pane active" id="friction-sim">
+          <div class="sim-controls" style="margin-bottom:.75rem">
+            <div class="sim-control-group">
+              <label>Mass of object: <strong id="mass-val">2</strong> kg</label>
+              <input type="range" id="mass-slider" min="1" max="10" value="2" oninput="updateFriction()">
+            </div>
+            <div class="sim-control-group">
+              <label>Surface roughness: <strong id="rough-val">Medium</strong></label>
+              <input type="range" id="rough-slider" min="1" max="3" step="1" value="2" oninput="updateFriction()">
+            </div>
+            <div class="sim-control-group">
+              <label>Applied force: <strong id="applied-val">0</strong> N</label>
+              <input type="range" id="applied-slider" min="0" max="60" value="0" oninput="updateFriction()">
+            </div>
+          </div>
+          <div class="sim-canvas-wrap" style="height:240px">
+            <canvas id="friction-canvas" width="580" height="230"></canvas>
+          </div>
+          <div id="friction-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
+        </div>
+
+        <!-- GRAVITY SIM -->
+        <div class="sub-pane" id="gravity-sim">
+          <div class="sim-controls" style="margin-bottom:.75rem">
+            <div class="sim-control-group">
+              <label>Mass: <strong id="grav-mass-val">5</strong> kg</label>
+              <input type="range" id="grav-mass-slider" min="1" max="20" value="5" oninput="updateGravity()">
+            </div>
+            <div class="sim-control-group">
+              <label>Location</label>
+              <select id="grav-location" onchange="updateGravity()" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.35rem .6rem;font-size:.82rem">
+                <option value="10">Earth (10 N/kg)</option>
+                <option value="1.6">Moon (1.6 N/kg)</option>
+                <option value="3.7">Mars (3.7 N/kg)</option>
+                <option value="26">Jupiter (26 N/kg)</option>
+              </select>
+            </div>
+          </div>
+          <div class="sim-canvas-wrap" style="height:240px">
+            <canvas id="gravity-canvas" width="580" height="230"></canvas>
+          </div>
+          <div id="gravity-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
+        </div>
+
+        <!-- SPRING SIM -->
+        <div class="sub-pane" id="spring-sim">
+          <div class="sim-controls" style="margin-bottom:.75rem">
+            <div class="sim-control-group">
+              <label>Load: <strong id="spring-load-val">1</strong> N</label>
+              <input type="range" id="spring-load-slider" min="0" max="10" value="1" oninput="updateSpring()">
+            </div>
+            <div class="sim-control-group">
+              <label>Spring stiffness</label>
+              <select id="spring-stiff" onchange="updateSpring()" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.35rem .6rem;font-size:.82rem">
+                <option value="2">Soft (k=2 N/cm)</option>
+                <option value="5" selected>Medium (k=5 N/cm)</option>
+                <option value="10">Stiff (k=10 N/cm)</option>
+              </select>
+            </div>
+          </div>
+          <div class="sim-canvas-wrap" style="height:280px">
+            <canvas id="spring-canvas" width="580" height="270"></canvas>
+          </div>
+          <div id="spring-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <p class="summary-text">
+          <strong>Friction</strong>: Heavier objects and rougher surfaces increase friction. <strong>Weight</strong> = mass × gravitational field strength — same mass weighs less on the Moon. <strong>Hooke's Law</strong>: Doubling the load doubles the extension (within elastic limit). Look for patterns — science is about using evidence to explain observations!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ QUIZ ══════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Forces questions often involve diagrams. Always:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li>State the direction of the force</li>
+            <li>Name the correct force (friction, gravity, spring force)</li>
+            <li>Link to the cause: <em>"Friction acts because the surfaces are in contact and moving relative to each other."</em></li>
+          </ul>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--interactions)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Remember: <strong>weight ≠ mass</strong>. Weight is a force (N); mass is the amount of matter (kg). When describing friction, always state the <strong>direction</strong> it acts and what surfaces are in contact.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MIND MAP ══════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ══ Sub-tabs ══
+function showSub(id) {
+  document.querySelectorAll('.sub-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ══ Friction Simulator ══
+const ROUGH_LABELS = ['','Smooth (ice/oil)','Medium (wood floor)','Rough (sandpaper)'];
+const ROUGH_COEFF  = [0, 0.1, 0.35, 0.7];
+
+function updateFriction() {
+  const mass    = +document.getElementById('mass-slider').value;
+  const roughI  = +document.getElementById('rough-slider').value;
+  const applied = +document.getElementById('applied-slider').value;
+  const mu      = ROUGH_COEFF[roughI];
+  const weight  = mass * 10;
+  const maxFric = mu * weight;
+  const friction= Math.min(applied, maxFric);
+  const resultant = Math.max(0, applied - friction);
+
+  document.getElementById('mass-val').textContent    = mass;
+  document.getElementById('rough-val').textContent   = ROUGH_LABELS[roughI];
+  document.getElementById('applied-val').textContent = applied;
+  document.getElementById('stat-friction').textContent  = friction.toFixed(1) + ' N';
+  document.getElementById('stat-weight').textContent    = weight.toFixed(0) + ' N';
+  document.getElementById('stat-resultant').textContent = resultant.toFixed(1) + ' N';
+
+  drawFriction(mass, roughI, applied, friction, resultant, weight);
+
+  const fb = document.getElementById('friction-feedback');
+  if (applied === 0) {
+    fb.innerHTML = '⏸ No applied force. The object is stationary. Friction = 0 N.';
+  } else if (resultant === 0) {
+    fb.innerHTML = `⚖️ Applied force (${applied} N) equals friction (${friction.toFixed(1)} N) — forces are <strong>balanced</strong>. The object either stays still or moves at <strong>constant speed</strong>.`;
+  } else {
+    fb.innerHTML = `🚀 Applied force (${applied} N) &gt; friction (${friction.toFixed(1)} N). Resultant = <strong>${resultant.toFixed(1)} N</strong> forward — the object <strong>accelerates</strong>.`;
+  }
+  Progress.recordSimUsed('forces');
+}
+
+function drawFriction(mass, roughI, applied, friction, resultant, weight) {
+  const c = document.getElementById('friction-canvas');
+  const x = c.getContext('2d');
+  const W = c.width, H = c.height;
+  x.clearRect(0,0,W,H);
+  x.fillStyle = '#0d1117'; x.fillRect(0,0,W,H);
+
+  const ROUGH_COLORS = ['','#22d3ee','#f59e0b','#ef4444'];
+  const surfY = H - 50;
+
+  // Surface
+  x.fillStyle = ROUGH_COLORS[roughI] + '33';
+  x.fillRect(0, surfY, W, H - surfY);
+  x.strokeStyle = ROUGH_COLORS[roughI];
+  x.lineWidth = 2;
+  x.beginPath(); x.moveTo(0, surfY); x.lineTo(W, surfY); x.stroke();
+
+  // Surface label
+  x.fillStyle = ROUGH_COLORS[roughI];
+  x.font = '11px Inter'; x.textAlign = 'right';
+  x.fillText(ROUGH_LABELS[roughI], W - 10, surfY - 6);
+
+  // Object (box)
+  const boxW = 80, boxH = 50;
+  const boxX = W/2 - boxW/2, boxY = surfY - boxH;
+  x.fillStyle = '#1e3a5a';
+  x.fillRect(boxX, boxY, boxW, boxH);
+  x.strokeStyle = '#38bdf8'; x.lineWidth = 2;
+  x.strokeRect(boxX, boxY, boxW, boxH);
+  x.fillStyle = '#e2e8f0'; x.font = 'bold 11px Inter'; x.textAlign = 'center';
+  x.fillText(`${mass} kg`, W/2, boxY + boxH/2 + 4);
+
+  // Weight arrow (down)
+  drawArrow(x, W/2, surfY, W/2, surfY+30, '#ef4444');
+  x.fillStyle = '#ef4444'; x.font = '10px Inter';
+  x.fillText(`W=${weight}N ↓`, W/2 + 50, surfY + 22);
+
+  // Applied force arrow (right)
+  const aLen = Math.min(applied * 2, 140);
+  if (applied > 0) {
+    drawArrow(x, boxX - 10, boxY + boxH/2, boxX - 10 - aLen, boxY + boxH/2, '#22d3ee');
+    x.fillStyle = '#22d3ee'; x.font = '10px Inter'; x.textAlign = 'center';
+    x.fillText(`Applied: ${applied}N →`, boxX - 10 - aLen/2, boxY + boxH/2 - 14);
+  }
+
+  // Friction arrow (left, opposing)
+  const fLen = Math.min(friction * 2, 140);
+  if (friction > 0) {
+    drawArrow(x, boxX + boxW + 10, boxY + boxH/2, boxX + boxW + 10 + fLen, boxY + boxH/2, '#f97316');
+    x.fillStyle = '#f97316'; x.font = '10px Inter'; x.textAlign = 'center';
+    x.fillText(`Friction: ${friction.toFixed(1)}N ←`, boxX + boxW + 10 + fLen/2, boxY + boxH/2 - 14);
+  }
+
+  // Resultant
+  if (resultant > 0) {
+    const rLen = Math.min(resultant * 3, 80);
+    drawArrow(x, W/2 - rLen/2, boxY - 14, W/2 + rLen/2, boxY - 14, '#10b981');
+    x.fillStyle = '#10b981'; x.font = '10px Inter'; x.textAlign = 'center';
+    x.fillText(`Resultant: ${resultant.toFixed(1)}N`, W/2, boxY - 20);
+  }
+}
+
+function drawArrow(ctx, x1,y1,x2,y2, color) {
+  const ang = Math.atan2(y2-y1,x2-x1);
+  const len = Math.hypot(x2-x1,y2-y1);
+  if (len < 4) return;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+  ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2 - 10*Math.cos(ang-0.4), y2 - 10*Math.sin(ang-0.4));
+  ctx.lineTo(x2 - 10*Math.cos(ang+0.4), y2 - 10*Math.sin(ang+0.4));
+  ctx.closePath();
+  ctx.fillStyle = color; ctx.fill();
+}
+
+// ══ Gravity Simulator ══
+function updateGravity() {
+  const mass = +document.getElementById('grav-mass-slider').value;
+  const g    = +document.getElementById('grav-location').value;
+  const loc  = document.getElementById('grav-location').selectedOptions[0].text;
+  const w    = mass * g;
+  document.getElementById('grav-mass-val').textContent = mass;
+  document.getElementById('stat-weight').textContent   = w.toFixed(1) + ' N';
+
+  drawGravity(mass, g, w, loc);
+
+  document.getElementById('gravity-feedback').innerHTML =
+    `📏 A <strong>${mass} kg</strong> object weighs <strong>${w.toFixed(1)} N</strong> on ${loc.split('(')[0].trim()}. ` +
+    (g < 10 ? `Because gravity is weaker there, it feels <strong>lighter</strong> even though its mass is still ${mass} kg.` :
+     g > 10 ? `Stronger gravity means it feels <strong>heavier</strong> than on Earth.` :
+     `This is the standard weight on Earth.`);
+  Progress.recordSimUsed('forces');
+}
+
+function drawGravity(mass, g, weight, loc) {
+  const c = document.getElementById('gravity-canvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0d1117'; ctx.fillRect(0,0,W,H);
+
+  // Scale bar
+  const maxW = 200; // corresponds to max weight (20*26=520, so scale to fit)
+  const scaleW = Math.min(weight / 3, maxW);
+  const barY = H/2;
+
+  ctx.fillStyle='#1e293b'; ctx.fillRect(W/2-maxW/2-5, barY-20, maxW+10, 40);
+  ctx.fillStyle = g >= 10 ? '#f97316' : '#22d3ee';
+  ctx.fillRect(W/2 - scaleW/2, barY-14, scaleW, 28);
+
+  // Labels
+  ctx.fillStyle='#e2e8f0'; ctx.font='bold 14px Inter'; ctx.textAlign='center';
+  ctx.fillText(`${weight.toFixed(1)} N`, W/2, barY+5);
+  ctx.fillStyle='#94a3b8'; ctx.font='11px Inter';
+  ctx.fillText('Weight', W/2, barY + 26);
+  ctx.fillText(`Mass: ${mass} kg × ${g} N/kg = Weight`, W/2, barY - 30);
+
+  // Person figure (simple)
+  const px = 80, py = H/2 - 20;
+  ctx.strokeStyle='#64748b'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.arc(px, py-30, 12, 0, Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(px,py-18); ctx.lineTo(px,py+20); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(px,py-5); ctx.lineTo(px-15,py+10); ctx.moveTo(px,py-5); ctx.lineTo(px+15,py+10); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(px,py+20); ctx.lineTo(px-10,py+40); ctx.moveTo(px,py+20); ctx.lineTo(px+10,py+40); ctx.stroke();
+
+  // Downward arrow on person
+  const arrowLen = Math.min(weight / 3, 60);
+  drawArrow(ctx, px, py+42, px, py+42+arrowLen, '#ef4444');
+  ctx.fillStyle='#ef4444'; ctx.font='10px Inter'; ctx.textAlign='center';
+  ctx.fillText('Gravity', px, py+42+arrowLen+12);
+
+  // Location label
+  ctx.fillStyle='#94a3b8'; ctx.font='11px Inter'; ctx.textAlign='center';
+  ctx.fillText(loc, W/2, H-8);
+}
+
+// ══ Spring Simulator ══
+function updateSpring() {
+  const load  = +document.getElementById('spring-load-slider').value;
+  const k     = +document.getElementById('spring-stiff').value;
+  const ext   = load / k;
+  const elasticLimitLoad = k * 8; // cm
+  const overLimit = load > elasticLimitLoad;
+
+  document.getElementById('spring-load-val').textContent = load;
+  document.getElementById('stat-extension').textContent  = (ext * 10).toFixed(1) + ' cm';
+
+  drawSpring(load, k, ext, overLimit);
+
+  const fb = document.getElementById('spring-feedback');
+  if (load === 0) {
+    fb.innerHTML = '⏸ No load applied. The spring is at its <strong>natural length</strong>. No extension.';
+  } else if (overLimit) {
+    fb.innerHTML = `⚠️ The load (${load} N) has exceeded the <strong>elastic limit</strong>! The spring is <strong>permanently deformed</strong> and will not return to its original shape.`;
+  } else {
+    fb.innerHTML = `✅ Load: <strong>${load} N</strong> → Extension: <strong>${(ext*10).toFixed(1)} cm</strong>. Double the load = double the extension (Hooke's Law applies).`;
+  }
+  Progress.recordSimUsed('forces');
+}
+
+function drawSpring(load, k, ext, overLimit) {
+  const c = document.getElementById('spring-canvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0d1117'; ctx.fillRect(0,0,W,H);
+
+  const cx = W/2;
+  const topY = 30;
+  const naturalLen = 120;
+  const extPx = Math.min(ext * 30, 120);
+  const totalLen = naturalLen + extPx;
+  const botY = topY + totalLen;
+
+  // Ceiling
+  ctx.fillStyle='#334155'; ctx.fillRect(cx-40, topY-8, 80, 10);
+  ctx.strokeStyle='#64748b'; ctx.lineWidth=2;
+  ctx.beginPath(); for(let i=-30; i<=30; i+=12) { ctx.moveTo(cx+i,topY-8); ctx.lineTo(cx+i-8,topY-18); } ctx.stroke();
+
+  // Spring coils
+  const coils = 8;
+  const coilH = totalLen / coils;
+  const amp   = 18;
+  ctx.beginPath(); ctx.moveTo(cx, topY);
+  for (let i = 0; i <= coils*2; i++) {
+    const y  = topY + (i * totalLen) / (coils * 2);
+    const x2 = (i % 2 === 0) ? cx - amp : cx + amp;
+    ctx.lineTo(x2, y);
+  }
+  ctx.lineTo(cx, topY + totalLen);
+  ctx.strokeStyle = overLimit ? '#ef4444' : (extPx > 60 ? '#f97316' : '#38bdf8');
+  ctx.lineWidth = 2.5; ctx.stroke();
+
+  // Ruler (right side)
+  ctx.strokeStyle='#475569'; ctx.lineWidth=1;
+  const rx = cx + 60;
+  ctx.beginPath(); ctx.moveTo(rx, topY); ctx.lineTo(rx, botY + 30); ctx.stroke();
+  for (let y2 = topY; y2 <= botY + 30; y2 += 10) {
+    ctx.beginPath(); ctx.moveTo(rx-4, y2); ctx.lineTo(rx+4, y2); ctx.stroke();
+  }
+  ctx.fillStyle='#64748b'; ctx.font='10px Inter'; ctx.textAlign='left';
+  ctx.fillText('0', rx+6, topY+4);
+  if (extPx > 0) {
+    ctx.fillStyle='#f97316';
+    ctx.beginPath(); ctx.moveTo(rx-6, topY+naturalLen); ctx.lineTo(rx+6, topY+naturalLen); ctx.strokeStyle='#f97316'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillText('Natural', rx+8, topY+naturalLen+4);
+    ctx.fillStyle='#22d3ee';
+    ctx.beginPath(); ctx.moveTo(rx-6, botY); ctx.lineTo(rx+6, botY); ctx.strokeStyle='#22d3ee'; ctx.stroke();
+    ctx.fillStyle='#22d3ee';
+    ctx.fillText(`+${(ext*10).toFixed(1)}cm`, rx+8, botY+4);
+  }
+
+  // Weight block
+  if (load > 0) {
+    const bW = 70, bH = Math.max(30, load*3);
+    ctx.fillStyle = overLimit ? '#3b0f0f' : '#1e3a5a';
+    ctx.fillRect(cx-bW/2, botY, bW, bH);
+    ctx.strokeStyle = overLimit ? '#ef4444' : '#38bdf8'; ctx.lineWidth=2;
+    ctx.strokeRect(cx-bW/2, botY, bW, bH);
+    ctx.fillStyle='#e2e8f0'; ctx.font='bold 12px Inter'; ctx.textAlign='center';
+    ctx.fillText(`${load} N`, cx, botY + bH/2 + 5);
+
+    // Downward force arrow
+    drawArrow(ctx, cx, botY+bH, cx, botY+bH+30, '#ef4444');
+    ctx.fillStyle='#ef4444'; ctx.font='10px Inter';
+    ctx.fillText('Weight (↓)', cx, botY+bH+44);
+
+    // Upward spring force arrow
+    drawArrow(ctx, cx, botY, cx, botY-24, '#10b981');
+    ctx.fillStyle='#10b981'; ctx.font='10px Inter';
+    ctx.fillText('Spring force (↑)', cx, botY-30);
+  }
+
+  if (overLimit) {
+    ctx.fillStyle='#ef4444'; ctx.font='bold 11px Inter'; ctx.textAlign='center';
+    ctx.fillText('⚠ Elastic limit exceeded — permanent deformation!', cx, H-10);
+  }
+}
+
+// ══ QUIZ ══
+const QUIZ_Q = [
+  { question:'A book is resting on a table. Which statement about the forces on the book is correct?',
+    options:['Only gravity acts on it','The forces are balanced — gravity down equals the table\'s push up','The table pushes harder than gravity','Friction holds the book in place'],
+    correct:1,
+    explanation:'A stationary object has balanced forces. Gravity pulls the book down and the table exerts an equal normal force upward — net force = 0 N.' },
+  { question:'A student pushes a box across a rough floor. She then pushes it across a smooth floor with the same force. What happens?',
+    options:['The box moves slower on the smooth floor','The box moves at the same speed on both','The box moves faster on the smooth floor','The box stops on the smooth floor'],
+    correct:2,
+    explanation:'A smooth surface has less friction. With the same applied force but less friction, the resultant force is greater, so the box accelerates more on the smooth floor.' },
+  { question:'Object A has a mass of 4 kg. Object B has a mass of 8 kg. Which statement about their weights on Earth is correct?',
+    options:['Both weigh the same','Object B weighs twice as much as Object A','Object A weighs twice as much as Object B','Weight does not depend on mass'],
+    correct:1,
+    explanation:'Weight = mass × 10 N/kg. Object A: 40 N. Object B: 80 N. Object B weighs twice as much because its mass is twice as large.' },
+  { question:'A spring stretches 4 cm when a 2 N weight is hung from it. How much will it stretch with a 6 N weight? (Assume within elastic limit.)',
+    options:['6 cm','8 cm','12 cm','2 cm'],
+    correct:2,
+    explanation:'By Hooke\'s Law, extension ∝ load. 2 N → 4 cm, so 1 N → 2 cm, and 6 N → 12 cm. Extension is proportional to the applied load.' },
+  { question:'Which of the following is NOT a useful effect of friction?',
+    options:['Bicycle brakes slowing down','Shoes gripping the floor','An engine piston wearing down over time','Writing with a pencil on paper'],
+    correct:2,
+    explanation:'Engine piston wear is an unwanted effect of friction — it wastes energy as heat and damages parts. The others are useful applications of friction.' },
+  { question:'An astronaut has a mass of 70 kg on Earth. What is her mass on the Moon?',
+    options:['About 11.2 kg — the Moon\'s gravity is weaker','70 kg — mass does not change with location','About 700 kg — the Moon\'s gravity is stronger','0 kg — she is weightless'],
+    correct:1,
+    explanation:'Mass is the amount of matter in an object and does NOT change with location. Her weight changes (70 × 1.6 = 112 N on Moon), but her mass remains 70 kg.' },
+];
+
+// ══ Mind Map Template ══
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1, label:'Forces', color:{ background:'#2d1a0a', border:'#f97316' }, font:{ size:16, color:'#fdba74' } },
+    { id:2, label:'Friction' }, { id:3, label:'Gravitational\nForce' },
+    { id:4, label:'Spring Force' }, { id:5, label:'Resultant Force' },
+    { id:6, label:'Contact Force' }, { id:7, label:'Non-contact Force' },
+    { id:8, label:'Mass' }, { id:9, label:'Weight (N)' },
+    { id:10, label:"Hooke's Law" },
+  ],
+  edges: [
+    { from:1, to:2 }, { from:1, to:3 }, { from:1, to:4 }, { from:1, to:5 },
+    { from:2, to:6, label:'is a' }, { from:3, to:7, label:'is a' },
+    { from:4, to:6, label:'is a' }, { from:3, to:8, label:'depends on' },
+    { from:3, to:9, label:'causes' }, { from:4, to:10, label:'follows' },
+    { from:5, to:1, label:'sum of' },
+  ],
+  required: ['friction','gravity','weight','mass','spring','resultant','hooke','conductor','newton']
+};
+
+let sciMap;
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('forces');
+  document.getElementById('mastery-pct').textContent = Progress.masteryPct('forces') + '%';
+  new QuizEngine(QUIZ_Q, 'forces', 'quiz-container');
+  sciMap = new ScienceMindMap('mindmap-container', 'forces', MM_TEMPLATE);
+  updateFriction();
+  updateGravity();
+  updateSpring();
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>
