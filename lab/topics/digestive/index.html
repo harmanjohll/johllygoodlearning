@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digestive System | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--systems); flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .78rem; color: var(--muted); }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    .cue-question { font-size: .78rem; color: var(--muted); margin-bottom: .75rem; border-left: 2px solid var(--systems); padding-left: .6rem; }
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: var(--accent); }
+    #digest-canvas { border-radius: 10px; background: #0d1117; cursor: pointer; display: block; }
+    .organ-info { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .85rem 1rem; font-size: .85rem; line-height: 1.5; min-height: 80px; margin-top: .75rem; }
+    .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-top: .5rem; }
+    .match-col { display: flex; flex-direction: column; gap: .4rem; }
+    .match-item { padding: .5rem .75rem; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--surface); cursor: pointer; font-size: .78rem; font-weight: 600; transition: all .2s; text-align: center; }
+    .match-item.selected { border-color: var(--systems); background: #1e183a; color: var(--systems); }
+    .match-item.correct   { border-color: var(--diversity); background: #063b27; color: #6ee7b7; cursor: default; }
+    .match-item.wrong     { border-color: #ef4444; background: #3b0f0f; color: #fca5a5; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🍽 The Digestive System</h1>
+    <div class="meta">
+      <span class="badge badge-systems">Systems</span>&nbsp;
+      <span class="badge badge-p4">P4</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--systems)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════════ LEARN ══════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What is the role of each organ in digestion?</div>
+        <div class="cue-question">What is the difference between mechanical and chemical digestion?</div>
+        <div class="cue-question">Where are nutrients absorbed into the blood?</div>
+        <div class="cue-question">What happens to food that cannot be digested?</div>
+        <div class="cue-question">Why do we need to digest food?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+        <div class="glossary-term"><div class="term-name">Digestion</div><div class="term-def">The process of breaking down food into smaller molecules that can be absorbed into the blood and used by the body.</div></div>
+        <div class="glossary-term"><div class="term-name">Mechanical digestion</div><div class="term-def">Physical breaking down of food into smaller pieces without changing its chemical nature. E.g. chewing by teeth, churning in the stomach.</div></div>
+        <div class="glossary-term"><div class="term-name">Chemical digestion</div><div class="term-def">Breaking down food using chemicals (enzymes and acids). Changes the chemical structure of food molecules into smaller ones that can be absorbed.</div></div>
+        <div class="glossary-term"><div class="term-name">Enzyme</div><div class="term-def">A biological chemical that speeds up the breakdown of food molecules. Different enzymes break down different nutrients (e.g. amylase breaks down starch).</div></div>
+        <div class="glossary-term"><div class="term-name">Absorption</div><div class="term-def">The process by which digested nutrients pass through the wall of the small intestine into the bloodstream, where they are carried to cells.</div></div>
+        <div class="glossary-term"><div class="term-name">Peristalsis</div><div class="term-def">Wave-like muscle contractions in the oesophagus and intestines that push food along the digestive tract.</div></div>
+        <div class="glossary-term"><div class="term-name">Faeces</div><div class="term-def">Solid waste remaining after digestion and water absorption in the large intestine. Expelled through the anus.</div></div>
+        <div class="glossary-term"><div class="term-name">Saliva</div><div class="term-def">Liquid produced by salivary glands in the mouth. Contains the enzyme amylase that begins breaking down starch, and lubricates food for swallowing.</div></div>
+      </div>
+
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🍽 Why Do We Digest Food?</h4>
+          <p>Food molecules (carbohydrates, proteins, fats) are too large to enter our cells directly. Digestion breaks them into tiny molecules that can:</p>
+          <ul style="margin-top:.4rem">
+            <li>Pass through the wall of the small intestine into the blood</li>
+            <li>Be transported to every cell in the body</li>
+            <li>Be used for <strong>energy, growth, and repair</strong></li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>👄 1. Mouth</h4>
+          <ul style="margin-top:.4rem">
+            <li><strong>Mechanical digestion:</strong> Teeth chew food into smaller pieces (increasing surface area)</li>
+            <li><strong>Chemical digestion:</strong> Saliva contains <strong>amylase</strong> — begins breaking down starch into simpler sugars</li>
+            <li>Tongue mixes food with saliva and forms a bolus (ball of chewed food) for swallowing</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🔴 2. Oesophagus (Food Pipe)</h4>
+          <p>A muscular tube connecting the mouth to the stomach. Food is pushed down by <strong>peristalsis</strong> — wave-like muscle contractions. No digestion occurs here — it is just a passage.</p>
+        </div>
+
+        <div class="note-section">
+          <h4>🟤 3. Stomach</h4>
+          <ul style="margin-top:.4rem">
+            <li><strong>Mechanical digestion:</strong> Muscular walls churn and mix food</li>
+            <li><strong>Chemical digestion:</strong> Gastric acid and enzymes break down <strong>proteins</strong></li>
+            <li>Produces <strong>gastric juice</strong> (acid + enzymes)</li>
+            <li>Food stays in stomach ~2–4 hours; leaves as semi-liquid <strong>chyme</strong></li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🟡 4. Small Intestine</h4>
+          <p>The <strong>main site</strong> of digestion and absorption. Very long (~6 m) with tiny finger-like projections called <strong>villi</strong> that greatly increase surface area.</p>
+          <ul style="margin-top:.4rem">
+            <li>Receives bile from the <strong>liver</strong> (breaks down fats)</li>
+            <li>Receives enzymes from the <strong>pancreas</strong></li>
+            <li>Fully digested nutrients (<strong>glucose, amino acids, fatty acids</strong>) are absorbed into the bloodstream here</li>
+          </ul>
+          <div class="highlight">🔑 The small intestine is where most nutrients enter the body.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🟠 5. Large Intestine</h4>
+          <ul style="margin-top:.4rem">
+            <li>Receives undigested material from the small intestine</li>
+            <li><strong>Absorbs water</strong> back into the blood (concentrating the waste)</li>
+            <li>What remains becomes <strong>faeces</strong></li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>⬇️ 6. Rectum &amp; Anus</h4>
+          <p>The rectum stores faeces temporarily. The anus is the opening through which faeces are expelled from the body.</p>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--systems);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          Food is digested in order: <strong>Mouth</strong> (chewing + amylase) → <strong>Oesophagus</strong> (passage) → <strong>Stomach</strong> (churning + acid) → <strong>Small intestine</strong> (bile + enzymes; nutrients absorbed) → <strong>Large intestine</strong> (water absorbed; faeces formed) → <strong>Rectum/Anus</strong> (waste expelled). The <strong>small intestine</strong> is the main site of digestion and absorption.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SIMULATE ══════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">Click each organ — what does it do?</div>
+        <div class="cue-question">Which organ absorbs nutrients?</div>
+        <div class="cue-question">Which organ absorbs water?</div>
+
+        <div id="organ-info" class="organ-info" style="margin-top:.5rem">
+          Click an organ on the diagram to learn about it.
+        </div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Match: Organ → Function</div>
+        <p style="font-size:.75rem;color:var(--muted);margin-bottom:.5rem">Click an organ, then click its function:</p>
+        <div class="match-grid">
+          <div class="match-col" id="match-organs"></div>
+          <div class="match-col" id="match-funcs"></div>
+        </div>
+        <div id="match-result" style="margin-top:.6rem;font-size:.8rem;min-height:24px"></div>
+        <button class="btn btn-ghost" style="font-size:.78rem;margin-top:.5rem" onclick="resetMatch()">↺ Reset match</button>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:.6rem">Click an organ to highlight it and read its role. Use <strong>▶ Animate</strong> to watch food travel through the system.</p>
+        <div style="display:flex;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap">
+          <button class="btn btn-primary" style="font-size:.82rem" onclick="startAnimation()">▶ Animate food journey</button>
+          <button class="btn btn-ghost"   style="font-size:.82rem" onclick="stopAnimation()">⏹ Stop</button>
+        </div>
+        <div class="sim-canvas-wrap" style="height:360px">
+          <canvas id="digest-canvas" width="640" height="350"></canvas>
+        </div>
+        <div id="sim-feedback" style="margin-top:.75rem;padding:.8rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5;min-height:48px">
+          Click an organ or press ▶ to animate the food journey.
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--systems);font-weight:700;margin-bottom:.4rem">Journey order</div>
+        <p class="summary-text">
+          Mouth → Oesophagus → Stomach → Small intestine (absorption!) → Large intestine (water!) → Rectum → Anus
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ QUIZ ══════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <ul style="padding-left:1rem">
+            <li><strong>Small intestine</strong> = absorbs nutrients</li>
+            <li><strong>Large intestine</strong> = absorbs water</li>
+            <li><strong>Stomach</strong> = proteins, acid</li>
+            <li><strong>Mouth</strong> = starch (amylase)</li>
+          </ul>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--systems)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main"><div id="quiz-container"></div></div>
+      <div class="cornell-summary">
+        <p class="summary-text">Most common PSLE trap: confusing <strong>small intestine</strong> (nutrients) with <strong>large intestine</strong> (water). Remember: <em>small</em> intestine is where the body gets the <em>big</em> benefit!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MIND MAP ══════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+      <span style="font-size:.73rem;color:var(--muted);margin-left:.5rem">Double-click a node to rename it · Double-click empty space to add a node</span>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ══════════════════════════════════════════
+// DIGESTIVE SYSTEM DIAGRAM
+// ══════════════════════════════════════════
+const canvas = document.getElementById('digest-canvas');
+const ctx    = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+const ORGANS = [
+  {
+    id: 'mouth', label: 'Mouth', num: 1, color: '#f97316',
+    cx: 320, cy: 38, rx: 36, ry: 18,
+    title: '1. Mouth',
+    desc: '🦷 <strong>Mechanical digestion</strong>: teeth chew food into smaller pieces.<br>💧 <strong>Chemical digestion</strong>: saliva (containing <em>amylase</em>) begins breaking down <strong>starch</strong> into sugar.<br>Tongue forms food into a ball (bolus) for swallowing.'
+  },
+  {
+    id: 'oesophagus', label: 'Oesophagus', num: 2, color: '#a78bfa',
+    cx: 320, cy: 95, rx: 14, ry: 38,
+    title: '2. Oesophagus (Food Pipe)',
+    desc: '📏 A muscular tube (~25 cm) connecting the mouth to the stomach.<br>Uses <strong>peristalsis</strong> (wave-like muscle contractions) to push food downward.<br>⚠️ No digestion occurs here — it is just a passage.'
+  },
+  {
+    id: 'stomach', label: 'Stomach', num: 3, color: '#ef4444',
+    cx: 285, cy: 168, rx: 45, ry: 40,
+    title: '3. Stomach',
+    desc: '🔄 <strong>Mechanical digestion</strong>: muscular walls churn and mix food.<br>⚗️ <strong>Chemical digestion</strong>: gastric acid + enzymes break down <strong>proteins</strong>.<br>Food stays here 2–4 hours, becoming a semi-liquid called <em>chyme</em>.'
+  },
+  {
+    id: 'liver', label: 'Liver', num: '3b', color: '#92400e',
+    cx: 370, cy: 158, rx: 30, ry: 22,
+    title: 'Liver',
+    desc: '🟤 Produces <strong>bile</strong>, which breaks down fats in the small intestine.<br>Bile is stored in the <em>gall bladder</em> before being released.<br>Also processes nutrients absorbed from the small intestine.'
+  },
+  {
+    id: 'small', label: 'Small\nIntestine', num: 4, color: '#f59e0b',
+    cx: 320, cy: 248, rx: 42, ry: 48,
+    title: '4. Small Intestine (~6 m)',
+    desc: '⭐ <strong>Main site of digestion AND absorption.</strong><br>Receives bile from the liver (digests fats) and enzymes from the pancreas.<br>Tiny finger-like <em>villi</em> greatly increase surface area.<br>Digested nutrients (<strong>glucose, amino acids, fatty acids</strong>) are absorbed into the <strong>bloodstream</strong> here.'
+  },
+  {
+    id: 'large', label: 'Large\nIntestine', num: 5, color: '#10b981',
+    cx: 410, cy: 248, rx: 30, ry: 48,
+    title: '5. Large Intestine (~1.5 m)',
+    desc: '💧 Receives undigested material from the small intestine.<br>Main function: <strong>absorbs water</strong> back into the blood.<br>What remains becomes solid <strong>faeces</strong>.'
+  },
+  {
+    id: 'rectum', label: 'Rectum\n& Anus', num: 6, color: '#64748b',
+    cx: 380, cy: 320, rx: 22, ry: 18,
+    title: '6. Rectum & Anus',
+    desc: '🔚 The rectum stores faeces temporarily.<br>The anus is the opening through which <strong>faeces are expelled</strong> from the body (defaecation).<br>This is the end of the digestive journey.'
+  },
+];
+
+let selectedOrgan = null;
+let animating = false, animT = 0, animId = null;
+
+// Click detection
+canvas.addEventListener('click', e => {
+  const r = canvas.getBoundingClientRect();
+  const mx = (e.clientX - r.left) * (canvas.width / r.width);
+  const my = (e.clientY - r.top)  * (canvas.height / r.height);
+  for (const o of ORGANS) {
+    const dx = (mx - o.cx) / o.rx, dy = (my - o.cy) / o.ry;
+    if (dx*dx + dy*dy <= 1.2) {
+      selectedOrgan = o.id;
+      document.getElementById('organ-info').innerHTML = `<strong style="color:var(--systems)">${o.title}</strong><br>${o.desc}`;
+      document.getElementById('sim-feedback').innerHTML = o.desc;
+      Progress.recordSimUsed('digestive');
+      return;
+    }
+  }
+});
+
+function drawBody() {
+  // Body silhouette
+  ctx.fillStyle = '#1e293b'; ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(320, 30, 60, 28, 0, 0, Math.PI*2); // head
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath(); // torso
+  ctx.roundRect(240, 55, 160, 280, 12);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath(); // pelvis
+  ctx.ellipse(320, 335, 75, 22, 0, 0, Math.PI*2);
+  ctx.fill(); ctx.stroke();
+}
+
+function drawOrgans() {
+  ORGANS.forEach(o => {
+    const sel = selectedOrgan === o.id;
+    ctx.save();
+    ctx.fillStyle = sel ? o.color : o.color + '99';
+    ctx.strokeStyle = sel ? '#fff' : o.color;
+    ctx.lineWidth = sel ? 2.5 : 1.5;
+    if (o.id === 'small' || o.id === 'large') {
+      // Draw as rounded rect (intestines)
+      ctx.beginPath(); ctx.roundRect(o.cx - o.rx, o.cy - o.ry, o.rx*2, o.ry*2, 8);
+      ctx.fill(); ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.ellipse(o.cx, o.cy, o.rx, o.ry, 0, 0, Math.PI*2);
+      ctx.fill(); ctx.stroke();
+    }
+    // Label
+    ctx.fillStyle = sel ? '#fff' : '#e2e8f0';
+    ctx.font = `${sel ? 'bold ' : ''}11px Inter, sans-serif`;
+    ctx.textAlign = 'center';
+    const lines = o.label.split('\n');
+    lines.forEach((ln, i) => ctx.fillText(ln, o.cx, o.cy + (i - (lines.length-1)/2) * 13 + 4));
+    // Number badge
+    ctx.fillStyle = sel ? '#fff' : o.color;
+    ctx.font = 'bold 9px Inter'; ctx.textAlign = 'left';
+    ctx.fillText(o.num, o.cx - o.rx + 4, o.cy - o.ry + 12);
+    ctx.restore();
+  });
+}
+
+function getOrganPath() {
+  // Returns a series of x,y points tracing the food journey
+  return [
+    {x:320, y:38},   // mouth
+    {x:320, y:60},
+    {x:320, y:95},   // oesophagus
+    {x:320, y:133},
+    {x:300, y:155},  // stomach
+    {x:280, y:168},
+    {x:285, y:200},
+    {x:308, y:215},  // into small intestine
+    {x:320, y:248},
+    {x:332, y:280},
+    {x:320, y:296},
+    {x:380, y:260},  // large intestine
+    {x:410, y:248},
+    {x:410, y:290},
+    {x:390, y:315},  // rectum
+    {x:380, y:325},
+  ];
+}
+
+const foodPath = getOrganPath();
+
+function drawFoodBall(t) {
+  const idx = Math.floor(t);
+  const frac = t - idx;
+  if (idx >= foodPath.length - 1) return;
+  const p1 = foodPath[idx], p2 = foodPath[idx+1];
+  const x = p1.x + (p2.x - p1.x) * frac;
+  const y = p1.y + (p2.y - p1.y) * frac;
+
+  const glow = ctx.createRadialGradient(x, y, 0, x, y, 12);
+  glow.addColorStop(0, 'rgba(253,224,71,0.9)');
+  glow.addColorStop(1, 'rgba(253,224,71,0)');
+  ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(x, y, 12, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2); ctx.fill();
+
+  // Current organ label
+  const orgLabels = ['Mouth','Mouth','Oesophagus','Oesophagus','Stomach','Stomach','Stomach','Small Intestine','Small Intestine','Small Intestine','Small Intestine','Large Intestine','Large Intestine','Large Intestine','Rectum','Anus'];
+  const lbl = orgLabels[Math.min(idx, orgLabels.length-1)] || '';
+  ctx.font = 'bold 11px Inter'; ctx.fillStyle = '#fde68a'; ctx.textAlign = 'center';
+  ctx.fillText('▲ ' + lbl, x, y - 16);
+}
+
+function render() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, W, H);
+  drawBody();
+  drawOrgans();
+  if (animating) {
+    drawFoodBall(animT);
+    animT += 0.04;
+    if (animT >= foodPath.length - 1) { animating = false; animT = 0; }
+  }
+  if (animating) animId = requestAnimationFrame(render);
+  else requestAnimationFrame(render); // keep rendering for hover
+}
+
+function startAnimation() {
+  animating = true; animT = 0; selectedOrgan = null;
+  document.getElementById('sim-feedback').textContent = 'Watch the food (yellow ball) travel through each organ in the digestive system!';
+  Progress.recordSimUsed('digestive');
+  render();
+}
+function stopAnimation() { animating = false; animT = 0; }
+
+// ── Match organ to function ──────────────
+const MATCHES = [
+  { organ: 'Mouth',           func: 'Chewing + amylase breaks down starch' },
+  { organ: 'Stomach',         func: 'Acid + enzymes break down proteins' },
+  { organ: 'Small Intestine', func: 'Absorbs digested nutrients into blood' },
+  { organ: 'Large Intestine', func: 'Absorbs water; forms faeces' },
+  { organ: 'Oesophagus',      func: 'Passes food to stomach (peristalsis)' },
+];
+
+let selectedOrganMatch = null;
+const matchedPairs = new Set();
+
+function renderMatch() {
+  const oCol = document.getElementById('match-organs');
+  const fCol = document.getElementById('match-funcs');
+  oCol.innerHTML = ''; fCol.innerHTML = '';
+  const funcs = [...MATCHES].sort(() => Math.random() - 0.5);
+
+  MATCHES.forEach((m, i) => {
+    const ob = document.createElement('button');
+    ob.className = 'match-item' + (matchedPairs.has(m.organ) ? ' correct' : selectedOrganMatch === m.organ ? ' selected' : '');
+    ob.textContent = m.organ;
+    if (!matchedPairs.has(m.organ)) {
+      ob.onclick = () => {
+        selectedOrganMatch = m.organ;
+        renderMatch();
+      };
+    }
+    oCol.appendChild(ob);
+  });
+
+  funcs.forEach(m => {
+    const fb = document.createElement('button');
+    const matched = [...matchedPairs].some(o => MATCHES.find(x=>x.organ===o)?.func === m.func);
+    fb.className = 'match-item' + (matched ? ' correct' : '');
+    fb.textContent = m.func;
+    if (!matched) {
+      fb.onclick = () => {
+        if (!selectedOrganMatch) { document.getElementById('match-result').textContent = 'Select an organ first!'; return; }
+        const expected = MATCHES.find(x => x.organ === selectedOrganMatch);
+        if (expected && expected.func === m.func) {
+          matchedPairs.add(selectedOrganMatch);
+          document.getElementById('match-result').innerHTML = `✅ Correct! <strong>${selectedOrganMatch}</strong>: ${m.func}`;
+          selectedOrganMatch = null;
+          if (matchedPairs.size === MATCHES.length) {
+            document.getElementById('match-result').innerHTML = '🏆 <strong>All matched!</strong> Excellent work!';
+            Progress.recordSimUsed('digestive');
+          }
+        } else {
+          fb.classList.add('wrong');
+          document.getElementById('match-result').innerHTML = `❌ Not quite. Try again!`;
+          setTimeout(() => { fb.classList.remove('wrong'); }, 800);
+        }
+        renderMatch();
+      };
+    }
+    fCol.appendChild(fb);
+  });
+}
+
+function resetMatch() {
+  matchedPairs.clear(); selectedOrganMatch = null;
+  renderMatch();
+  document.getElementById('match-result').textContent = '';
+}
+
+// ══════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════
+const QUIZ_Q = [
+  { question: 'Which organ is responsible for absorbing most of the digested nutrients into the bloodstream?',
+    options: ['Stomach', 'Large intestine', 'Small intestine', 'Oesophagus'],
+    correct: 2, explanation: 'The small intestine is the main site of absorption. Its finger-like villi provide a huge surface area for nutrients to pass into the blood.' },
+  { question: 'What is the main function of the large intestine?',
+    options: ['Break down proteins using acid', 'Absorb digested nutrients into blood', 'Absorb water from undigested material', 'Produce bile for fat digestion'],
+    correct: 2, explanation: 'The large intestine absorbs water from the remaining undigested material. This concentrates the waste, forming faeces.' },
+  { question: 'In which organ does digestion of starch begin?',
+    options: ['Stomach', 'Mouth', 'Small intestine', 'Oesophagus'],
+    correct: 1, explanation: 'Digestion of starch begins in the mouth, where saliva contains the enzyme amylase that breaks starch into simpler sugars.' },
+  { question: 'What is peristalsis?',
+    options: ['A digestive enzyme that breaks down fats', 'Wave-like muscle contractions that push food along the digestive tract', 'The process of absorbing nutrients into the blood', 'The breakdown of proteins in the stomach'],
+    correct: 1, explanation: 'Peristalsis is the wave-like muscular contractions of the oesophagus and intestines that push food along the digestive system.' },
+  { question: 'A student says the oesophagus digests food using acid. Is this correct?',
+    options: ['Yes — the oesophagus produces acid', 'No — the oesophagus is only a passage; no digestion occurs there', 'Yes — the oesophagus digests starch', 'No — the oesophagus produces bile'],
+    correct: 1, explanation: 'The oesophagus is just a muscular tube that moves food from the mouth to the stomach using peristalsis. No digestion occurs there.' },
+  { question: 'Which organ produces bile, which helps to digest fats?',
+    options: ['Stomach', 'Pancreas', 'Liver', 'Large intestine'],
+    correct: 2, explanation: 'Bile is produced by the liver and stored in the gall bladder before being released into the small intestine to help break down fats.' },
+  { question: 'Why does the small intestine need such a large surface area (villi)?',
+    options: ['To digest food faster using more acid', 'To absorb more nutrients into the bloodstream efficiently', 'To store food for longer periods', 'To produce more digestive enzymes'],
+    correct: 1, explanation: 'The villi (finger-like projections) greatly increase the surface area of the small intestine, allowing more digested nutrients to be absorbed into the blood quickly and efficiently.' },
+];
+
+// ══════════════════════════════════════════
+// MIND MAP
+// ══════════════════════════════════════════
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1, label:'Digestive\nSystem', color:{ background:'#1e183a', border:'#8b5cf6' }, font:{ size:15, color:'#c4b5fd' } },
+    { id:2, label:'Mouth' },
+    { id:3, label:'Oesophagus' },
+    { id:4, label:'Stomach' },
+    { id:5, label:'Small\nIntestine' },
+    { id:6, label:'Large\nIntestine' },
+    { id:7, label:'Absorption' },
+    { id:8, label:'Mechanical\nDigestion' },
+    { id:9, label:'Chemical\nDigestion' },
+    { id:10, label:'Liver\n(bile)' },
+    { id:11, label:'Faeces\n(waste)' },
+  ],
+  edges: [
+    { from:1, to:2, label:'starts at' },
+    { from:2, to:3 }, { from:3, to:4 }, { from:4, to:5 }, { from:5, to:6 },
+    { from:5, to:7, label:'main' },
+    { from:6, to:11, label:'forms' },
+    { from:2, to:8, label:'chewing' },
+    { from:2, to:9, label:'amylase' },
+    { from:4, to:9, label:'acid' },
+    { from:10, to:5, label:'bile →' },
+  ],
+  required: ['mouth','oesophagus','stomach','small intestine','large intestine','absorption','mechanical','chemical','bile','faeces']
+};
+
+let sciMap;
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('digestive');
+  document.getElementById('mastery-pct').textContent = Progress.masteryPct('digestive') + '%';
+  new QuizEngine(QUIZ_Q, 'digestive', 'quiz-container');
+  sciMap = new ScienceMindMap('mindmap-container', 'digestive', MM_TEMPLATE);
+  render();
+  renderMatch();
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>
