@@ -55,16 +55,20 @@ const Progress = {
 };
 
 // ── Tabs ──────────────────────────────────────────────────
+// NOTE: .tab-pane elements are siblings of .tabs-root, NOT children,
+// so we must query the document (not the container) to find them.
 function initTabs(containerSelector) {
   const container = document.querySelector(containerSelector || '.tabs-root');
   if (!container) return;
-  const btns  = container.querySelectorAll('.tab-btn');
-  const panes = container.querySelectorAll('.tab-pane');
+  const btns = container.querySelectorAll('.tab-btn');
 
   btns.forEach(btn => {
     btn.addEventListener('click', () => {
+      // Deactivate every button in this bar
       btns.forEach(b => b.classList.remove('active'));
-      panes.forEach(p => p.classList.remove('active'));
+      // Hide every .tab-pane anywhere on the page
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      // Activate clicked button and show its pane
       btn.classList.add('active');
       const target = document.getElementById(btn.dataset.tab);
       if (target) target.classList.add('active');
@@ -204,25 +208,70 @@ class ScienceMindMap {
       },
       edges: {
         color: { color: '#475569', highlight: '#38bdf8' },
-        width: 1.5, smooth: { type: 'cubicBezier', forceDirection: 'horizontal', roundness: 0.4 }
+        width: 1.5, smooth: { type: 'cubicBezier', roundness: 0.4 },
+        arrows: { to: { enabled: true, scaleFactor: 0.5 } }
       },
-      physics: { enabled: true, solver: 'forceAtlas2Based', stabilization: { iterations: 80 } },
-      interaction: { hover: true, tooltipDelay: 200, navigationButtons: false },
-      manipulation: {
-        enabled: false  // We use our own UI
-      }
+      // Physics on only for the initial auto-layout; disabled once stable
+      // so nodes stay exactly where the student places them.
+      physics: {
+        enabled: true,
+        solver: 'forceAtlas2Based',
+        forceAtlas2Based: { gravitationalConstant: -60, springLength: 130, springConstant: 0.06 },
+        stabilization: { iterations: 150, fit: true }
+      },
+      interaction: {
+        hover: true,
+        tooltipDelay: 200,
+        navigationButtons: true,   // zoom/pan buttons
+        keyboard: false,
+        dragNodes: true,           // free drag at all times
+        dragView: true,
+        zoomView: true
+      },
+      manipulation: { enabled: false }
     };
     this.network = new vis.Network(container, { nodes: this.nodes, edges: this.edges }, options);
 
-    // Double-click to edit node label
+    // After the initial spring-layout settles, turn physics OFF so nodes
+    // stay wherever the student drags them.
+    this.network.once('stabilizationIterationsDone', () => {
+      this.network.setOptions({ physics: { enabled: false } });
+      this.network.fit();
+      this._updatePhysicsBtn(false);
+    });
+
+    // Double-click a node to rename it
     this.network.on('doubleClick', params => {
       if (params.nodes.length) {
         const id  = params.nodes[0];
         const cur = this.nodes.get(id).label;
         const lbl = prompt('Edit node label:', cur);
         if (lbl !== null && lbl.trim()) this.nodes.update({ id, label: lbl.trim() });
+      } else if (params.edges.length === 0) {
+        // Double-click empty space → quick-add node
+        const lbl = prompt('New node label:');
+        if (lbl && lbl.trim()) {
+          const id = ++this.nodeIdCounter;
+          this.nodes.add({ id, label: lbl.trim(),
+            x: params.pointer.canvas.x, y: params.pointer.canvas.y,
+            color: { background: '#1e3a2a', border: '#10b981' } });
+        }
       }
     });
+  }
+
+  // Toggle physics on/off (called by the Re-layout button)
+  togglePhysics() {
+    const on = !this.network.physics.physicsEnabled;
+    this.network.setOptions({ physics: { enabled: on } });
+    if (!on) this.network.fit();
+    this._updatePhysicsBtn(on);
+    showToast(on ? '🌀 Auto-layout ON — drag to pin nodes, then click again to stop.' : '📌 Physics OFF — drag nodes freely.');
+  }
+
+  _updatePhysicsBtn(on) {
+    const btn = document.getElementById('mm-physics-btn');
+    if (btn) btn.textContent = on ? '⏹ Stop Auto-layout' : '🌀 Re-layout';
   }
 
   addNode(label) {

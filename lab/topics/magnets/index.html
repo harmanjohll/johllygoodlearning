@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magnets | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--interactions); flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .78rem; color: var(--muted); }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    .cue-question { font-size: .78rem; color: var(--muted); margin-bottom: .75rem; border-left: 2px solid var(--interactions); padding-left: .6rem; }
+    .sim-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: .5rem .9rem; font-size: .82rem; text-align: center; }
+    .sim-stat strong { display: block; font-size: 1.1rem; color: var(--interactions); }
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: var(--accent); }
+    #magnet-canvas { border-radius: 10px; background: #0d1117; cursor: grab; display: block; }
+    #magnet-canvas:active { cursor: grabbing; }
+    .flip-btn { padding: .4rem 1rem; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface);
+      color: var(--text); cursor: pointer; font-size: .82rem; font-weight: 600; transition: all .15s; }
+    .flip-btn:hover { background: var(--card); }
+    .material-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: .5rem; margin-top: .5rem; }
+    .material-btn { padding: .6rem; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text); cursor: pointer; font-size: .8rem; font-weight: 600; text-align: center; transition: all .2s; }
+    .material-btn.magnetic    { border-color: var(--interactions); background: #073020; color: #6ee7b7; }
+    .material-btn.nonmagnetic { border-color: #ef4444; background: #3b0f0f; color: #fca5a5; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🧲 Magnets</h1>
+    <div class="meta">
+      <span class="badge badge-interactions">Interactions</span>&nbsp;
+      <span class="badge badge-p3">P3</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--interactions)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <!-- TABS -->
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════════ LEARN ══════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What are the two poles of a magnet?</div>
+        <div class="cue-question">What happens when like poles meet? Unlike poles?</div>
+        <div class="cue-question">What materials are attracted to magnets?</div>
+        <div class="cue-question">Is every iron object a magnet?</div>
+        <div class="cue-question">Where is a magnet's force the strongest?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+        <div class="glossary-term"><div class="term-name">Magnet</div><div class="term-def">An object that has the property of attracting magnetic materials. All magnets have a north and a south pole.</div></div>
+        <div class="glossary-term"><div class="term-name">Poles</div><div class="term-def">The two ends of a magnet where its magnetic force is strongest. Called the north (N) and south (S) pole.</div></div>
+        <div class="glossary-term"><div class="term-name">Attraction</div><div class="term-def">The force pulling two unlike poles (N–S) together. Unlike poles attract.</div></div>
+        <div class="glossary-term"><div class="term-name">Repulsion</div><div class="term-def">The force pushing two like poles (N–N or S–S) apart. Like poles repel.</div></div>
+        <div class="glossary-term"><div class="term-name">Magnetic material</div><div class="term-def">A material attracted to a magnet. E.g. iron, steel, nickel, cobalt. NOT all metals — aluminium, copper, gold are not magnetic.</div></div>
+        <div class="glossary-term"><div class="term-name">Non-magnetic material</div><div class="term-def">A material not attracted to a magnet. E.g. wood, plastic, glass, aluminium, copper, rubber.</div></div>
+        <div class="glossary-term"><div class="term-name">Permanent magnet</div><div class="term-def">A magnet that keeps its magnetism. E.g. bar magnet, horseshoe magnet, button magnet.</div></div>
+        <div class="glossary-term"><div class="term-name">Compass</div><div class="term-def">A device with a magnetised needle that always points toward geographic north. Used for navigation.</div></div>
+      </div>
+
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🧲 Properties of Magnets</h4>
+          <p>Magnets have two important properties:</p>
+          <ul style="margin-top:.4rem">
+            <li>They <strong>attract magnetic materials</strong> (iron, steel, nickel, cobalt)</li>
+            <li>They have <strong>two poles</strong> — a north (N) pole and a south (S) pole</li>
+          </ul>
+          <div class="highlight">🔑 The magnetic force is <strong>strongest at the poles</strong> and weakest at the middle of the magnet.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>⚡ The Law of Magnetic Poles</h4>
+          <p>Magnets interact with each other based on their poles:</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Unlike poles attract:</strong> N ← → S (the magnets pull together)</li>
+            <li><strong>Like poles repel:</strong> N → ← N or S → ← S (the magnets push apart)</li>
+          </ul>
+          <div class="equation">N + S → ATTRACT &nbsp;|&nbsp; N + N → REPEL &nbsp;|&nbsp; S + S → REPEL</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🪨 Magnetic vs Non-Magnetic Materials</h4>
+          <p>Not all metals are magnetic! A magnet only attracts objects made of certain materials:</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Magnetic:</strong> iron, steel, nickel, cobalt</li>
+            <li><strong>Non-magnetic metals:</strong> aluminium, copper, gold, silver, tin</li>
+            <li><strong>Non-magnetic non-metals:</strong> wood, plastic, glass, rubber, paper</li>
+          </ul>
+          <div class="highlight">💡 A steel paper clip is magnetic (steel contains iron). An aluminium drink can is <em>not</em> magnetic.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🌏 The Earth as a Magnet</h4>
+          <p>The Earth behaves like a giant magnet. Its geographic north pole is near the magnetic south pole. This is why a compass needle (its N pole) points toward geographic north.</p>
+        </div>
+
+        <div class="note-section">
+          <h4>📌 Uses of Magnets</h4>
+          <ul style="margin-top:.4rem">
+            <li>Compass — navigation</li>
+            <li>Fridge door seals — magnetic strip keeps door closed</li>
+            <li>Speakers and microphones — electromagnets</li>
+            <li>Maglev trains — repulsion used to levitate train</li>
+            <li>Recycling plants — separating iron/steel from other materials</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--interactions);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          Every magnet has a <strong>north (N)</strong> and <strong>south (S) pole</strong>. <strong>Unlike poles attract</strong>; <strong>like poles repel</strong>. Magnets attract only <strong>magnetic materials</strong> — iron, steel, nickel, and cobalt. Not all metals are magnetic (e.g. aluminium, copper are not). The magnetic force is <strong>strongest at the poles</strong>. A compass works because the Earth itself acts like a giant magnet.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SIMULATE ══════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">What happens when you flip one magnet?</div>
+        <div class="cue-question">Which materials are attracted to the magnet?</div>
+        <div class="cue-question">Can you feel a difference in strength when magnets are far apart vs close?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Controls</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.25rem">
+          <button class="flip-btn" onclick="flipMagnet(0)">🔄 Flip Magnet 1</button>
+          <button class="flip-btn" onclick="flipMagnet(1)">🔄 Flip Magnet 2</button>
+          <button class="flip-btn" onclick="resetMagnets()">↺ Reset Positions</button>
+        </div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Interaction</div>
+        <div class="sim-stat" id="stat-interaction" style="margin-bottom:.5rem"><strong>—</strong>Force</div>
+        <div class="sim-stat" id="stat-poles"><strong>—</strong>Facing poles</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Materials Test</div>
+        <p style="font-size:.75rem;color:var(--muted);margin-bottom:.5rem">Click each item to test:</p>
+        <div id="material-grid" class="material-grid"></div>
+        <div id="material-result" style="margin-top:.6rem;font-size:.8rem;color:var(--muted);display:none"></div>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:.6rem">Drag each magnet. Bring them close to see attraction or repulsion. <strong>Red = N pole</strong>, <strong>Blue = S pole</strong>.</p>
+        <div class="sim-canvas-wrap" style="height:320px">
+          <canvas id="magnet-canvas" width="660" height="310"></canvas>
+        </div>
+        <div id="sim-feedback" style="margin-top:.75rem;padding:.8rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5;min-height:48px"></div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--interactions);font-weight:700;margin-bottom:.4rem">What to notice</div>
+        <p class="summary-text">When <strong>unlike poles</strong> (N–S) face each other, the magnets <strong>attract</strong>. When <strong>like poles</strong> (N–N or S–S) face each other, they <strong>repel</strong>. The closer the poles, the stronger the force. Only <strong>magnetic materials</strong> (iron, steel, nickel, cobalt) are attracted to a magnet.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ QUIZ ══════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Use exact science keywords:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li><em>"Unlike poles <strong>attract</strong>…"</em></li>
+            <li><em>"Like poles <strong>repel</strong>…"</em></li>
+            <li><em>"Iron is a <strong>magnetic material</strong>…"</em></li>
+          </ul>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--interactions)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Remember: <strong>unlike poles attract</strong>, <strong>like poles repel</strong>. Magnetic materials: <strong>iron, steel, nickel, cobalt</strong>. Non-magnetic metals (aluminium, copper) are common exam traps!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MIND MAP ══════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+      <span style="font-size:.73rem;color:var(--muted);margin-left:.5rem">Double-click a node to rename it · Double-click empty space to add a node</span>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ══════════════════════════════════════════
+// MAGNET SIMULATOR
+// ══════════════════════════════════════════
+const canvas = document.getElementById('magnet-canvas');
+const ctx    = canvas.getContext('2d');
+
+const MAG_W = 120, MAG_H = 38;
+
+// Each magnet: centre position, flipped (N/S orientation), drag state
+const magnets = [
+  { x: 180, y: 155, flipped: false },   // M1: left=S, right=N
+  { x: 480, y: 155, flipped: true  }    // M2: left=N, right=S  (so N–S face each other = attract)
+];
+
+let dragIdx = -1, dragOffX = 0, dragOffY = 0;
+
+canvas.addEventListener('mousedown', e => {
+  const r = canvas.getBoundingClientRect();
+  const mx = (e.clientX - r.left) * (canvas.width / r.width);
+  const my = (e.clientY - r.top)  * (canvas.height / r.height);
+  for (let i = 0; i < magnets.length; i++) {
+    const m = magnets[i];
+    if (mx >= m.x - MAG_W/2 - 5 && mx <= m.x + MAG_W/2 + 5 &&
+        my >= m.y - MAG_H/2 - 5 && my <= m.y + MAG_H/2 + 5) {
+      dragIdx = i; dragOffX = mx - m.x; dragOffY = my - m.y; break;
+    }
+  }
+});
+canvas.addEventListener('mousemove', e => {
+  if (dragIdx < 0) return;
+  const r = canvas.getBoundingClientRect();
+  const mx = (e.clientX - r.left) * (canvas.width / r.width);
+  const my = (e.clientY - r.top)  * (canvas.height / r.height);
+  magnets[dragIdx].x = Math.max(MAG_W/2 + 5, Math.min(canvas.width  - MAG_W/2 - 5, mx - dragOffX));
+  magnets[dragIdx].y = Math.max(MAG_H/2 + 5, Math.min(canvas.height - MAG_H/2 - 5, my - dragOffY));
+});
+canvas.addEventListener('mouseup', () => { dragIdx = -1; Progress.recordSimUsed('magnets'); });
+canvas.addEventListener('mouseleave', () => { dragIdx = -1; });
+
+// Touch support
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const t = e.touches[0];
+  const r = canvas.getBoundingClientRect();
+  const mx = (t.clientX - r.left) * (canvas.width / r.width);
+  const my = (t.clientY - r.top)  * (canvas.height / r.height);
+  for (let i = 0; i < magnets.length; i++) {
+    const m = magnets[i];
+    if (mx >= m.x - MAG_W/2 - 10 && mx <= m.x + MAG_W/2 + 10 &&
+        my >= m.y - MAG_H/2 - 10 && my <= m.y + MAG_H/2 + 10) {
+      dragIdx = i; dragOffX = mx - m.x; dragOffY = my - m.y; break;
+    }
+  }
+}, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (dragIdx < 0) return;
+  const t = e.touches[0];
+  const r = canvas.getBoundingClientRect();
+  const mx = (t.clientX - r.left) * (canvas.width / r.width);
+  const my = (t.clientY - r.top)  * (canvas.height / r.height);
+  magnets[dragIdx].x = Math.max(MAG_W/2 + 5, Math.min(canvas.width  - MAG_W/2 - 5, mx - dragOffX));
+  magnets[dragIdx].y = Math.max(MAG_H/2 + 5, Math.min(canvas.height - MAG_H/2 - 5, my - dragOffY));
+}, { passive: false });
+canvas.addEventListener('touchend', () => { dragIdx = -1; });
+
+function poleType(m, side) {
+  // side: 'left' or 'right'
+  if (!m.flipped) return side === 'right' ? 'N' : 'S';
+  else             return side === 'right' ? 'S' : 'N';
+}
+
+function polePos(m, side) {
+  const px = side === 'left' ? m.x - MAG_W/2 : m.x + MAG_W/2;
+  return { x: px, y: m.y };
+}
+
+function closestPolePair() {
+  const sides = ['left', 'right'];
+  let best = { dist: Infinity, p1: null, t1: '', p2: null, t2: '' };
+  for (const s1 of sides) {
+    for (const s2 of sides) {
+      const pp1 = polePos(magnets[0], s1), t1 = poleType(magnets[0], s1);
+      const pp2 = polePos(magnets[1], s2), t2 = poleType(magnets[1], s2);
+      const d = Math.hypot(pp1.x - pp2.x, pp1.y - pp2.y);
+      if (d < best.dist) best = { dist: d, p1: pp1, t1, p2: pp2, t2 };
+    }
+  }
+  return best;
+}
+
+function drawFieldLines(m) {
+  const arcs = 4;
+  const nPos = polePos(m, m.flipped ? 'left' : 'right');
+  const sPos = polePos(m, m.flipped ? 'right' : 'left');
+  ctx.save();
+  ctx.strokeStyle = 'rgba(56,189,248,0.25)';
+  ctx.lineWidth = 1.2;
+  for (let i = 0; i < arcs; i++) {
+    const spread = (i + 1) * 28;
+    ctx.beginPath();
+    ctx.moveTo(nPos.x, nPos.y);
+    ctx.bezierCurveTo(
+      nPos.x + (nPos.x > sPos.x ? spread : -spread), nPos.y - spread,
+      sPos.x + (sPos.x > nPos.x ? spread : -spread), sPos.y - spread,
+      sPos.x, sPos.y
+    );
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(nPos.x, nPos.y);
+    ctx.bezierCurveTo(
+      nPos.x + (nPos.x > sPos.x ? spread : -spread), nPos.y + spread,
+      sPos.x + (sPos.x > nPos.x ? spread : -spread), sPos.y + spread,
+      sPos.x, sPos.y
+    );
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawMagnet(m, label) {
+  const { x, y } = m;
+  const hw = MAG_W / 2, hh = MAG_H / 2;
+
+  // Field lines first (behind magnet)
+  drawFieldLines(m);
+
+  // Left half
+  const lType = poleType(m, 'left');
+  ctx.fillStyle = lType === 'N' ? '#dc2626' : '#2563eb';
+  ctx.beginPath(); ctx.roundRect(x - hw, y - hh, hw, MAG_H, [6, 0, 0, 6]); ctx.fill();
+
+  // Right half
+  const rType = poleType(m, 'right');
+  ctx.fillStyle = rType === 'N' ? '#dc2626' : '#2563eb';
+  ctx.beginPath(); ctx.roundRect(x, y - hh, hw, MAG_H, [0, 6, 6, 0]); ctx.fill();
+
+  // Border
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(x - hw, y - hh, MAG_W, MAG_H, 6); ctx.stroke();
+
+  // Pole labels
+  ctx.font = 'bold 15px Inter, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#fff';
+  ctx.fillText(lType, x - hw/2, y + 5);
+  ctx.fillText(rType, x + hw/2, y + 5);
+
+  // Magnet label below
+  ctx.font = '11px Inter, sans-serif'; ctx.fillStyle = '#94a3b8';
+  ctx.fillText(label, x, y + hh + 16);
+}
+
+function drawInteraction(pair) {
+  const { dist, p1, p2, t1, t2 } = pair;
+  if (dist > 240) return;
+
+  const attract = t1 !== t2;
+  const strength = Math.max(0, 1 - dist / 240);
+
+  // Glow between poles
+  const grad = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
+  const col = attract ? `rgba(16,185,129,${strength * 0.6})` : `rgba(239,68,68,${strength * 0.6})`;
+  grad.addColorStop(0, col); grad.addColorStop(0.5, col); grad.addColorStop(1, col);
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = 6 + strength * 10;
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+  ctx.lineCap = 'butt';
+
+  // Force arrows
+  const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
+  const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+  ctx.strokeStyle = attract ? '#10b981' : '#ef4444';
+  ctx.lineWidth = 2;
+
+  if (dist > 20) {
+    if (attract) {
+      // Arrows pointing inward
+      drawArrow(mx - 20, my, angle, 18, true);
+      drawArrow(mx + 20, my, angle + Math.PI, 18, true);
+    } else {
+      // Arrows pointing outward
+      drawArrow(mx - 10, my, angle + Math.PI, 18, false);
+      drawArrow(mx + 10, my, angle, 18, false);
+    }
+  }
+
+  // Label
+  const label = attract ? `⬤ ATTRACT (N–S)` : `◎ REPEL (${t1}–${t2})`;
+  ctx.font = `bold 12px Inter`; ctx.textAlign = 'center'; ctx.fillStyle = attract ? '#10b981' : '#ef4444';
+  ctx.fillText(label, mx, my - 26);
+
+  // Update stats
+  const pctStr = (strength * 100).toFixed(0) + '%';
+  document.getElementById('stat-interaction').innerHTML = `<strong style="color:${attract?'#10b981':'#ef4444'}">${attract?'ATTRACT':'REPEL'}</strong>Force`;
+  document.getElementById('stat-poles').innerHTML = `<strong>${t1}–${t2}</strong>Facing poles`;
+  document.getElementById('sim-feedback').innerHTML = attract
+    ? `🟢 <strong>Unlike poles</strong> (${t1} and ${t2}) are facing each other — the magnets <strong>attract</strong>. Force strength: ${pctStr}.`
+    : `🔴 <strong>Like poles</strong> (${t1} and ${t2}) are facing each other — the magnets <strong>repel</strong>. Force strength: ${pctStr}.`;
+}
+
+function drawArrow(x, y, angle, len, inward) {
+  const tipX = x + Math.cos(angle) * len * (inward ? 1 : -1);
+  const tipY = y + Math.sin(angle) * len * (inward ? 1 : -1);
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(tipX, tipY); ctx.stroke();
+  // Arrowhead
+  const headLen = 8;
+  ctx.beginPath();
+  ctx.moveTo(tipX, tipY);
+  ctx.lineTo(tipX - headLen * Math.cos(angle - 0.4), tipY - headLen * Math.sin(angle - 0.4));
+  ctx.moveTo(tipX, tipY);
+  ctx.lineTo(tipX - headLen * Math.cos(angle + 0.4), tipY - headLen * Math.sin(angle + 0.4));
+  ctx.stroke();
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Grid dots
+  ctx.fillStyle = 'rgba(148,163,184,0.08)';
+  for (let gx = 20; gx < canvas.width; gx += 30)
+    for (let gy = 20; gy < canvas.height; gy += 30) {
+      ctx.beginPath(); ctx.arc(gx, gy, 1, 0, Math.PI*2); ctx.fill();
+    }
+
+  const pair = closestPolePair();
+  drawInteraction(pair);
+  drawMagnet(magnets[0], 'Magnet 1');
+  drawMagnet(magnets[1], 'Magnet 2');
+
+  // Instructions
+  ctx.font = '11px Inter'; ctx.fillStyle = '#475569'; ctx.textAlign = 'left';
+  ctx.fillText('Drag magnets • Use Flip buttons to change pole orientation', 10, canvas.height - 8);
+
+  requestAnimationFrame(draw);
+}
+
+function flipMagnet(i) {
+  magnets[i].flipped = !magnets[i].flipped;
+  Progress.recordSimUsed('magnets');
+}
+function resetMagnets() {
+  magnets[0].x = 180; magnets[0].y = 155; magnets[0].flipped = false;
+  magnets[1].x = 480; magnets[1].y = 155; magnets[1].flipped = true;
+}
+
+// Materials
+const MATERIALS = [
+  { name: 'Iron nail',        mag: true  },
+  { name: 'Steel clip',       mag: true  },
+  { name: 'Nickel coin',      mag: true  },
+  { name: 'Copper coin',      mag: false },
+  { name: 'Aluminium foil',   mag: false },
+  { name: 'Plastic ruler',    mag: false },
+  { name: 'Glass marble',     mag: false },
+  { name: 'Wood block',       mag: false },
+  { name: 'Cobalt (metal)',   mag: true  },
+  { name: 'Rubber band',      mag: false },
+];
+const grid = document.getElementById('material-grid');
+MATERIALS.forEach(m => {
+  const btn = document.createElement('button');
+  btn.className = 'material-btn';
+  btn.textContent = m.name;
+  btn.onclick = () => {
+    btn.classList.toggle('magnetic',    m.mag);
+    btn.classList.toggle('nonmagnetic', !m.mag);
+    const res = document.getElementById('material-result');
+    res.style.display = 'block';
+    res.innerHTML = m.mag
+      ? `✅ <strong>${m.name}</strong> — <span style="color:var(--interactions)">magnetic</span>! The magnet attracts it.`
+      : `❌ <strong>${m.name}</strong> — <span style="color:#ef4444">not magnetic</span>. The magnet has no effect.`;
+    Progress.recordSimUsed('magnets');
+  };
+  grid.appendChild(btn);
+});
+
+// ══════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════
+const QUIZ_Q = [
+  { question: 'Two magnets are placed with their north poles facing each other. What happens?',
+    options: ['They attract each other', 'They repel each other', 'Nothing happens', 'One magnet loses its magnetism'],
+    correct: 1, explanation: 'Like poles (N–N) repel. The magnets push away from each other.' },
+  { question: 'Which of the following materials is attracted to a magnet?',
+    options: ['Aluminium', 'Copper', 'Steel', 'Glass'],
+    correct: 2, explanation: 'Steel contains iron, which is a magnetic material. Aluminium, copper and glass are non-magnetic.' },
+  { question: 'Where is the magnetic force of a bar magnet strongest?',
+    options: ['At the centre of the magnet', 'At both poles', 'Evenly throughout the magnet', 'Only at the north pole'],
+    correct: 1, explanation: 'The magnetic force is strongest at both poles (north and south) and weakest at the middle.' },
+  { question: 'A student says "all metals are attracted to magnets." Is this correct?',
+    options: ['Yes, all metals are magnetic', 'No — only iron, steel, nickel and cobalt are magnetic', 'No — only iron is magnetic', 'Yes, but only when heated'],
+    correct: 1, explanation: 'Many metals like aluminium, copper, and gold are NOT magnetic. Only iron, steel, nickel, and cobalt are attracted to magnets.' },
+  { question: 'A north pole and a south pole are brought close together. What is observed?',
+    options: ['Repulsion — they push apart', 'Attraction — they pull together', 'No interaction', 'Both poles disappear'],
+    correct: 1, explanation: 'Unlike poles (N–S) attract each other. This is the law of magnetic poles.' },
+  { question: 'A compass always points toward geographic north because the Earth:',
+    options: ['Is made of steel', 'Has a magnetic field with a south magnetic pole near geographic north', 'Rotates around the Sun', 'Generates electricity'],
+    correct: 1, explanation: "The Earth acts like a giant magnet. Its geographic north is near its magnetic south pole, so a compass needle's north pole is attracted toward it." },
+  { question: 'Which statement about magnets is FALSE?',
+    options: ['A magnet can attract iron filings', 'Like poles attract each other', 'The strength of a magnet is greatest at its poles', 'A magnet can be used to separate iron from a mixture'],
+    correct: 1, explanation: 'Like poles REPEL, not attract. Unlike poles (N–S) attract each other.' },
+];
+
+// ══════════════════════════════════════════
+// MIND MAP TEMPLATE
+// ══════════════════════════════════════════
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1, label:'Magnets', color:{ background:'#1e2a1a', border:'#10b981' }, font:{ size:15, color:'#6ee7b7' } },
+    { id:2, label:'Poles' },
+    { id:3, label:'North Pole' },
+    { id:4, label:'South Pole' },
+    { id:5, label:'Like poles\nrepel' },
+    { id:6, label:'Unlike poles\nattract' },
+    { id:7, label:'Magnetic\nMaterials' },
+    { id:8, label:'Iron & Steel' },
+    { id:9, label:'Nickel & Cobalt' },
+    { id:10, label:'Non-magnetic\nMaterials' },
+    { id:11, label:'Uses of Magnets' },
+    { id:12, label:'Compass' },
+  ],
+  edges: [
+    { from:1, to:2, label:'has' },
+    { from:2, to:3 }, { from:2, to:4 },
+    { from:2, to:5, label:'same →' },
+    { from:2, to:6, label:'different →' },
+    { from:1, to:7, label:'attracts' },
+    { from:7, to:8 }, { from:7, to:9 },
+    { from:1, to:10, label:'ignores' },
+    { from:1, to:11, label:'used in' },
+    { from:11, to:12 },
+  ],
+  required: ['poles','north','south','attract','repel','iron','steel','magnetic','non-magnetic','compass']
+};
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+let sciMap;
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('magnets');
+  document.getElementById('mastery-pct').textContent = Progress.masteryPct('magnets') + '%';
+  new QuizEngine(QUIZ_Q, 'magnets', 'quiz-container');
+  sciMap = new ScienceMindMap('mindmap-container', 'magnets', MM_TEMPLATE);
+  draw();
+  document.getElementById('sim-feedback').textContent = 'Drag the magnets close together to see their interaction.';
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>
