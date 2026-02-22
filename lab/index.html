@@ -160,7 +160,7 @@
     </p>
     <div class="stats-row">
       <div class="stat-pill">📚 <span id="stat-topics">0</span> Topics</div>
-      <div class="stat-pill">🎮 <span id="stat-sims">4</span> Simulations</div>
+      <div class="stat-pill">🎮 <span id="stat-sims">0</span> Simulations</div>
       <div class="stat-pill">⭐ Overall: <span id="stat-pct">0%</span></div>
       <div class="stat-pill">🗺 <span id="stat-maps">0</span> Mind Maps Saved</div>
     </div>
@@ -255,12 +255,9 @@
 // ── Topic catalogue ───────────────────────────────────────
 const TOPICS = [
   // DIVERSITY
-  { id:'living-nonliving', name:'Living & Non-Living Things', theme:'diversity', levels:['P3'],
-    blurb:'Identify characteristics that distinguish living from non-living things.', url:null },
-  { id:'diversity-plants', name:'Diversity of Plants', theme:'diversity', levels:['P3'],
-    blurb:'Classify plants by their features: flowering/non-flowering, leaves, roots, stems.', url:null },
-  { id:'diversity-animals', name:'Diversity of Animals', theme:'diversity', levels:['P3'],
-    blurb:'Group vertebrates and invertebrates; compare adaptations.', url:null },
+  { id:'diversity', name:'Diversity of Living Things', theme:'diversity', levels:['P3'],
+    blurb:'Classify living vs non-living things; vertebrates, invertebrates, and plant groups.',
+    url:'topics/diversity/index.html', ready:true },
   { id:'diversity-materials', name:'Diversity of Materials', theme:'diversity', levels:['P4'],
     blurb:'Compare properties of materials and match them to uses.', url:null },
 
@@ -281,14 +278,17 @@ const TOPICS = [
     blurb:'Trace food through the digestive tract and understand each organ\'s role.',
     url:'topics/digestive/index.html', ready:true },
   { id:'respiratory', name:'Respiratory System', theme:'systems', levels:['P5'],
-    blurb:'How lungs and the respiratory system supply oxygen to the body.', url:null },
+    blurb:'How lungs, diaphragm and alveoli supply oxygen — animated breathing sim.',
+    url:'topics/respiratory/index.html', ready:true },
   { id:'circulatory', name:'Circulatory System', theme:'systems', levels:['P5'],
-    blurb:'The heart, blood vessels, and blood — how oxygen is transported.', url:null },
+    blurb:'The beating heart, blood vessels, and blood — animated circulation sim.',
+    url:'topics/circulatory/index.html', ready:true },
   { id:'circuits', name:'Electrical System & Circuits', theme:'systems', levels:['P5','P6'],
     blurb:'Build and analyse series & parallel circuits; explore conductors and insulators.',
     url:'topics/circuits/index.html', ready:true },
-  { id:'plant-transport', name:'Plant Transport System', theme:'systems', levels:['P6'],
-    blurb:'Xylem, phloem, transpiration — how water and food move through plants.', url:null },
+  { id:'plants', name:'Photosynthesis & Plants', theme:'systems', levels:['P5','P6'],
+    blurb:'How plants make food using light; leaf anatomy, transpiration, and transport.',
+    url:'topics/plants/index.html', ready:true },
   { id:'cell-system', name:'Cells & Body Systems', theme:'systems', levels:['P6'],
     blurb:'From cell to tissue to organ to system — the hierarchy of life.', url:null },
 
@@ -297,7 +297,8 @@ const TOPICS = [
     blurb:'Properties of magnets, poles, magnetic fields, and everyday uses.',
     url:'topics/magnets/index.html', ready:true },
   { id:'habitats', name:'Habitats & Food Chains', theme:'interactions', levels:['P4'],
-    blurb:'Producers, consumers, food chains, and food webs in different habitats.', url:null },
+    blurb:'Build food webs, explore predator-prey dynamics in different habitats.',
+    url:'topics/habitats/index.html', ready:true },
   { id:'forces', name:'Forces', theme:'interactions', levels:['P5'],
     blurb:'Investigate friction, gravitational force, and spring force with live simulations.',
     url:'topics/forces/index.html', ready:true },
@@ -306,13 +307,11 @@ const TOPICS = [
 
   // ENERGY
   { id:'light', name:'Light & Shadows', theme:'energy', levels:['P4'],
-    blurb:'How light travels, reflection, refraction, and how shadows form.',
+    blurb:'Ray tracing, reflection, refraction, colour mixing — interactive light sim.',
     url:'topics/light/index.html', ready:true },
-  { id:'heat', name:'Heat', theme:'energy', levels:['P4','P5'],
-    blurb:'Heat transfer: conduction, convection, radiation; temperature vs. heat.', url:null },
-  { id:'plants', name:'Photosynthesis & Plants', theme:'energy', levels:['P6'],
-    blurb:'How plants make food using light; the role of chlorophyll and stomata.',
-    url:'topics/plants/index.html', ready:true },
+  { id:'heat', name:'Heat & Temperature', theme:'energy', levels:['P4','P5'],
+    blurb:'Conduction race, thermometer reading, and thermal expansion simulations.',
+    url:'topics/heat/index.html', ready:true },
 ];
 
 const THEME_IDS = ['diversity','cycles','systems','interactions','energy'];
@@ -383,9 +382,10 @@ function buildCards() {
   });
 
   // Stats
-  const availableTopics = TOPICS.filter(t => t.ready).length;
+  const readyTopics = TOPICS.filter(t => t.ready).length;
   const overallPct = overallCount ? Math.round(overallSum / overallCount) : 0;
   document.getElementById('stat-topics').textContent = TOPICS.length;
+  document.getElementById('stat-sims').textContent = readyTopics;
   document.getElementById('stat-pct').textContent = overallPct + '%';
   document.getElementById('stat-maps').textContent = mapsCount;
   document.getElementById('overall-bar').style.width = overallPct + '%';

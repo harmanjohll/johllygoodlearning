@@ -21,17 +21,66 @@
     .cue-question { font-size: .78rem; color: var(--muted); margin-bottom: .75rem; border-left: 2px solid var(--cycles); padding-left: .6rem; }
     .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
     .summary-text strong { color: var(--accent); }
-    #water-canvas { border-radius: 10px; display: block; cursor: pointer; }
-    .sim-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-      padding: .5rem .9rem; font-size: .82rem; text-align: center; margin-bottom: .5rem; }
-    .sim-stat strong { display: block; font-size: 1.1rem; color: var(--cycles); }
-    .slider-row { display: flex; align-items: center; gap: .75rem; margin-top: .6rem; flex-wrap: wrap; }
-    .slider-row label { font-size: .82rem; color: var(--muted); min-width: 100px; }
-    .slider-row input[type=range] { flex: 1; min-width: 120px; accent-color: var(--cycles); }
+
+    /* ── Simulation canvas ── */
+    #wc-canvas {
+      border-radius: 10px; display: block; cursor: crosshair;
+      box-shadow: 0 4px 24px rgba(0,0,0,.5);
+    }
+
+    /* ── Controls ── */
+    .slider-row { display: flex; align-items: center; gap: .75rem; margin-top: .4rem; flex-wrap: wrap; }
+    .slider-row label { font-size: .82rem; color: var(--muted); white-space: nowrap; }
+    .slider-row input[type=range] { flex: 1; min-width: 100px; accent-color: var(--cycles); }
     .slider-val { font-size: .82rem; font-weight: 700; color: var(--cycles); min-width: 44px; text-align: right; }
-    .stage-btn { padding: .35rem .85rem; border-radius: 7px; border: 1.5px solid var(--border);
-      background: var(--surface); color: var(--muted); cursor: pointer; font-size: .78rem; font-weight: 600; transition: all .15s; }
+
+    .stage-btn {
+      padding: .32rem .7rem; border-radius: 7px; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--muted); cursor: pointer;
+      font-size: .75rem; font-weight: 600; transition: all .15s; line-height: 1.4;
+    }
+    .stage-btn:hover { border-color: var(--cycles); color: var(--text); }
     .stage-btn.active { background: var(--cycles); color: #fff; border-color: var(--cycles); }
+
+    .season-btn {
+      padding: .35rem .9rem; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--muted); cursor: pointer;
+      font-size: .8rem; font-weight: 600; transition: all .15s;
+    }
+    .season-btn.active { background: #b45309; color: #fff; border-color: #b45309; }
+    .season-btn.winter.active { background: #1d4ed8; border-color: #1d4ed8; }
+
+    /* ── Stat pills ── */
+    .stat-row { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .6rem; }
+    .sim-stat {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      padding: .4rem .7rem; font-size: .75rem; text-align: center; flex: 1; min-width: 70px;
+    }
+    .sim-stat strong { display: block; font-size: 1rem; color: var(--cycles); }
+
+    /* ── Stage info box ── */
+    #stage-info {
+      font-size: .78rem; color: var(--muted); line-height: 1.55;
+      padding: .65rem .8rem; background: var(--surface);
+      border-radius: 8px; border: 1px solid var(--border);
+      min-height: 56px; transition: all .25s;
+    }
+
+    /* ── Canvas popover ── */
+    #wc-popover {
+      position: absolute; background: rgba(15,25,40,.92); color: #e2e8f0;
+      border: 1px solid #334155; border-radius: 8px; padding: .45rem .8rem;
+      font-size: .78rem; font-weight: 600; pointer-events: none;
+      display: none; z-index: 50; white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0,0,0,.5);
+    }
+
+    /* ── Dynamic summary ── */
+    #dyn-summary {
+      margin-top: .6rem; padding: .7rem 1rem; border-radius: 9px;
+      font-size: .84rem; background: var(--surface); border: 1px solid var(--border);
+      line-height: 1.55; min-height: 44px; transition: background .4s;
+    }
   </style>
 </head>
 <body>
@@ -69,13 +118,15 @@
         <div class="cue-question">Why is the water cycle important?</div>
 
         <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
-        <div class="glossary-term"><div class="term-name">Evaporation</div><div class="term-def">The change of state from liquid water to water vapour (gas). Happens at the surface of water when it is heated by the Sun. Faster with higher temperature, more surface area, or wind.</div></div>
+        <div class="glossary-term"><div class="term-name">Evaporation</div><div class="term-def">The change of state from liquid water to water vapour (gas). Happens at the surface of water when heated by the Sun. Faster with higher temperature, more surface area, or wind.</div></div>
         <div class="glossary-term"><div class="term-name">Condensation</div><div class="term-def">The change of state from water vapour (gas) to liquid water. Occurs when warm, moist air rises and cools. This is how clouds and fog form.</div></div>
         <div class="glossary-term"><div class="term-name">Precipitation</div><div class="term-def">Water falling from clouds as rain, hail, sleet, or snow. Occurs when water droplets in clouds become heavy enough to fall.</div></div>
-        <div class="glossary-term"><div class="term-name">Transpiration</div><div class="term-def">The process by which plants release water vapour through tiny pores (stomata) on their leaves. Contributes to the water cycle.</div></div>
+        <div class="glossary-term"><div class="term-name">Transpiration</div><div class="term-def">The process by which plants release water vapour through tiny pores (stomata) on their leaves. Contributes significantly to the water cycle.</div></div>
         <div class="glossary-term"><div class="term-name">Runoff</div><div class="term-def">Water that flows over land surfaces into rivers, lakes, and eventually the sea after precipitation.</div></div>
         <div class="glossary-term"><div class="term-name">Collection</div><div class="term-def">Water that gathers in oceans, lakes, rivers, and underground aquifers. This is where most evaporation begins.</div></div>
-        <div class="glossary-term"><div class="term-name">Water vapour</div><div class="term-def">Water in its gaseous state. It is invisible and makes up part of the air we breathe. When it cools, it condenses into visible water droplets.</div></div>
+        <div class="glossary-term"><div class="term-name">Infiltration</div><div class="term-def">Water soaking into the ground through soil, eventually reaching underground water stores called aquifers.</div></div>
+        <div class="glossary-term"><div class="term-name">Aquifer</div><div class="term-def">Underground layers of rock or sediment that hold large amounts of groundwater, which can feed springs and wells.</div></div>
+        <div class="glossary-term"><div class="term-name">Water vapour</div><div class="term-def">Water in its gaseous state. It is invisible and makes up part of the air. When it cools, it condenses into visible water droplets.</div></div>
       </div>
 
       <div class="cornell-main">
@@ -84,7 +135,6 @@
           <p>The water cycle (also called the <strong>hydrological cycle</strong>) is the continuous movement of water through Earth's systems. It has no beginning or end — water is constantly recycled.</p>
           <div class="highlight">🔑 The same water that dinosaurs drank is still cycling through Earth today! Water is never created or destroyed in the cycle — just changed in form or moved.</div>
         </div>
-
         <div class="note-section">
           <h4>☀️ Stage 1: Evaporation</h4>
           <p>The Sun heats the surface of oceans, rivers, and lakes. Liquid water absorbs heat energy and <strong>evaporates</strong> — it changes into an invisible gas called <strong>water vapour</strong> and rises into the atmosphere.</p>
@@ -94,29 +144,25 @@
             <li>Wind carries vapour away → speeds up evaporation</li>
           </ul>
         </div>
-
         <div class="note-section">
           <h4>🌿 Stage 1b: Transpiration</h4>
-          <p>Plants also release water vapour through tiny pores called <strong>stomata</strong> on their leaves. This process is called <strong>transpiration</strong>. Forests are major contributors to the water cycle through this process. Together with evaporation, it is called <strong>evapotranspiration</strong>.</p>
+          <p>Plants also release water vapour through tiny pores called <strong>stomata</strong> on their leaves. This process is called <strong>transpiration</strong>. Forests are major contributors through this process. Together with evaporation, it is called <strong>evapotranspiration</strong>.</p>
         </div>
-
         <div class="note-section">
           <h4>☁️ Stage 2: Condensation</h4>
           <p>As warm, moist air rises, it cools. Cool air cannot hold as much water vapour. The vapour <strong>condenses</strong> around tiny dust particles in the air, forming millions of microscopic water droplets. These cluster together to form <strong>clouds</strong>.</p>
           <div class="equation">Water vapour (gas) + cooling → liquid water droplets → clouds</div>
         </div>
-
         <div class="note-section">
           <h4>🌧 Stage 3: Precipitation</h4>
           <p>When water droplets in clouds join together and become <strong>too heavy</strong> to stay airborne, they fall as <strong>precipitation</strong>. In Singapore this is almost always <strong>rain</strong>. In colder climates it may fall as snow or hail.</p>
         </div>
-
         <div class="note-section">
-          <h4>🏞 Stage 4: Runoff &amp; Collection</h4>
+          <h4>🏞 Stage 4: Runoff, Infiltration &amp; Collection</h4>
           <p>Rainwater either:</p>
           <ul style="margin-top:.4rem">
             <li><strong>Runs off</strong> the surface into rivers and streams → eventually reaches the sea</li>
-            <li><strong>Soaks into the ground</strong> (infiltration) → becomes groundwater</li>
+            <li><strong>Infiltrates</strong> (soaks into the ground) → becomes groundwater stored in aquifers</li>
             <li>Is absorbed by plant roots (and later released via transpiration)</li>
           </ul>
           <p style="margin-top:.4rem">The collected water then begins evaporating again, continuing the cycle.</p>
@@ -126,7 +172,7 @@
       <div class="cornell-summary">
         <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--cycles);font-weight:700;margin-bottom:.4rem">Summary</div>
         <p class="summary-text">
-          The water cycle: <strong>Evaporation</strong> (Sun heats water → vapour rises) → <strong>Condensation</strong> (vapour cools → clouds form) → <strong>Precipitation</strong> (droplets too heavy → rain falls) → <strong>Runoff/Collection</strong> (water returns to sea). Plants add vapour via <strong>transpiration</strong>. The cycle is continuous and never-ending.
+          The water cycle: <strong>Evaporation</strong> (Sun heats water → vapour rises) → <strong>Condensation</strong> (vapour cools → clouds form) → <strong>Precipitation</strong> (droplets too heavy → rain falls) → <strong>Runoff/Infiltration/Collection</strong> (water returns to sea or enters ground). Plants add vapour via <strong>transpiration</strong>. The cycle is continuous and never-ending.
         </p>
       </div>
     </div>
@@ -138,43 +184,65 @@
       <div class="cornell-cue">
         <div class="cornell-cue-label">Observe &amp; Infer</div>
         <div class="cue-question">What happens to evaporation when temperature increases?</div>
-        <div class="cue-question">At what stage do clouds form?</div>
-        <div class="cue-question">Click on each stage label on the canvas — what does each step do?</div>
+        <div class="cue-question">How do clouds change when they are "full"?</div>
+        <div class="cue-question">Where does rain go after it hits the ground?</div>
+        <div class="cue-question">What changes in Winter season?</div>
 
-        <div class="cornell-cue-label" style="margin-top:1.25rem">Controls</div>
+        <div class="cornell-cue-label" style="margin-top:1rem">Temperature</div>
         <div class="slider-row" style="flex-direction:column;align-items:flex-start">
-          <label>Temperature: <span id="temp-val" class="slider-val">28°C</span></label>
-          <input type="range" id="temp-slider" min="10" max="45" value="28" style="width:100%">
-        </div>
-        <div style="margin-top:.75rem;display:flex;flex-wrap:wrap;gap:.4rem">
-          <button class="stage-btn active" onclick="setHighlight('all')">All stages</button>
-          <button class="stage-btn" onclick="setHighlight('evap')">Evaporation</button>
-          <button class="stage-btn" onclick="setHighlight('transp')">Transpiration</button>
-          <button class="stage-btn" onclick="setHighlight('cond')">Condensation</button>
-          <button class="stage-btn" onclick="setHighlight('precip')">Precipitation</button>
-          <button class="stage-btn" onclick="setHighlight('runoff')">Runoff</button>
+          <label>Temp: <span id="temp-val" class="slider-val">28°C</span></label>
+          <input type="range" id="temp-slider" min="0" max="45" value="28" style="width:100%">
         </div>
 
-        <div class="cornell-cue-label" style="margin-top:1.25rem">Stage Info</div>
-        <div id="stage-info" style="font-size:.8rem;color:var(--muted);line-height:1.5;padding:.6rem;background:var(--surface);border-radius:8px;border:1px solid var(--border)">
-          Click a stage button to learn about it.
+        <div class="cornell-cue-label" style="margin-top:.85rem">Season</div>
+        <div style="display:flex;gap:.4rem;margin-top:.2rem">
+          <button class="season-btn active" id="btn-summer" onclick="setSeason('summer',event)">☀️ Summer</button>
+          <button class="season-btn winter" id="btn-winter" onclick="setSeason('winter',event)">❄️ Winter</button>
         </div>
 
-        <div class="sim-stat" style="margin-top:.75rem"><strong id="stat-evap">—</strong>Evaporation rate</div>
+        <div class="cornell-cue-label" style="margin-top:.85rem">Highlight Stage</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.2rem">
+          <button class="stage-btn active" onclick="setHighlight('all',event)">All</button>
+          <button class="stage-btn" onclick="setHighlight('evap',event)">Evaporation</button>
+          <button class="stage-btn" onclick="setHighlight('transp',event)">Transpiration</button>
+          <button class="stage-btn" onclick="setHighlight('cond',event)">Condensation</button>
+          <button class="stage-btn" onclick="setHighlight('precip',event)">Precipitation</button>
+          <button class="stage-btn" onclick="setHighlight('runoff',event)">Runoff</button>
+          <button class="stage-btn" onclick="setHighlight('infil',event)">Infiltration</button>
+          <button class="stage-btn" onclick="setHighlight('collect',event)">Collection</button>
+        </div>
+
+        <div class="cornell-cue-label" style="margin-top:.85rem">Stage Info</div>
+        <div id="stage-info">Click a stage button to learn about it.</div>
+
+        <div class="cornell-cue-label" style="margin-top:.85rem">Particle Count</div>
+        <div class="stat-row">
+          <div class="sim-stat"><strong id="stat-evap-n">0</strong>Evaporating</div>
+          <div class="sim-stat"><strong id="stat-cloud-n">0</strong>In clouds</div>
+          <div class="sim-stat"><strong id="stat-rain-n">0</strong>Falling</div>
+        </div>
+        <div class="stat-row" style="margin-top:.35rem">
+          <div class="sim-stat"><strong id="stat-gw-n">0</strong>Groundwater</div>
+          <div class="sim-stat"><strong id="stat-rate">—</strong>Evap rate</div>
+        </div>
       </div>
 
-      <div class="cornell-main" style="padding:1rem">
-        <div class="sim-canvas-wrap" style="height:340px">
-          <canvas id="water-canvas" width="660" height="330"></canvas>
+      <div class="cornell-main" style="padding:1rem;position:relative">
+        <p style="font-size:.78rem;color:var(--muted);margin-bottom:.5rem">
+          Click anywhere on the canvas to identify the process happening there.
+        </p>
+        <div style="position:relative;display:inline-block">
+          <canvas id="wc-canvas" width="700" height="400"></canvas>
+          <div id="wc-popover"></div>
         </div>
-        <div id="sim-feedback" style="margin-top:.75rem;padding:.8rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5;min-height:48px">
-          Adjust temperature to see how it affects the water cycle. Click stage buttons to learn about each step.
+        <div id="dyn-summary">
+          Adjust the temperature slider or click a stage button to explore the water cycle.
         </div>
       </div>
 
       <div class="cornell-summary">
         <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--cycles);font-weight:700;margin-bottom:.4rem">What to notice</div>
-        <p class="summary-text">Higher temperature → <strong>faster evaporation</strong> → more water vapour → more clouds → more precipitation. The cycle is driven by <strong>solar energy</strong> (evaporation) and <strong>gravity</strong> (precipitation, runoff).</p>
+        <p class="summary-text">Higher temperature → <strong>faster evaporation</strong> → more water vapour → clouds fill faster → heavier precipitation. In <strong>Winter</strong>, precipitation falls as <strong>snow</strong> on mountains. <strong>Groundwater</strong> in the aquifer slowly seeps back to the ocean. The cycle is driven by <strong>solar energy</strong> and <strong>gravity</strong>.</p>
       </div>
     </div>
   </div>
@@ -189,13 +257,15 @@
             <li>Don't confuse <strong>evaporation</strong> (liquid→gas) with <strong>condensation</strong> (gas→liquid)</li>
             <li><strong>Transpiration</strong> is only from plants</li>
             <li>Clouds form during <strong>condensation</strong>, not evaporation</li>
+            <li>Rain, snow, hail are all types of <strong>precipitation</strong></li>
+            <li><strong>Infiltration</strong> feeds underground aquifers</li>
           </ul>
           <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--cycles)">—</strong></p>
         </div>
       </div>
       <div class="cornell-main"><div id="quiz-container"></div></div>
       <div class="cornell-summary">
-        <p class="summary-text">The order is: <strong>Evaporation / Transpiration → Condensation (clouds) → Precipitation (rain) → Runoff / Collection</strong>. Then it repeats!</p>
+        <p class="summary-text">The order is: <strong>Evaporation / Transpiration → Condensation (clouds) → Precipitation (rain/snow) → Runoff / Infiltration / Collection</strong>. Then it repeats!</p>
       </div>
     </div>
   </div>
@@ -220,286 +290,844 @@
 
 <script src="../../shared.js"></script>
 <script>
-// ══════════════════════════════════════════
-// WATER CYCLE SIMULATOR
-// ══════════════════════════════════════════
-const canvas = document.getElementById('water-canvas');
+/* =============================================================
+   WATER CYCLE SIMULATOR — Rich canvas animation
+   ============================================================= */
+
+const canvas = document.getElementById('wc-canvas');
 const ctx    = canvas.getContext('2d');
-const W = canvas.width, H = canvas.height;
+const W = canvas.width;   // 700
+const H = canvas.height;  // 400
 
-let highlight = 'all';
-let particles = [];   // evaporation/rain particles
-let time = 0;
+// ── Simulation state ──────────────────────────────────────────
+let highlight  = 'all';
+let season     = 'summer';   // 'summer' | 'winter'
+let simTime    = 0;
+let particles  = [];
+let splashes   = [];
+let cloudFill  = 0;          // 0-1: how full the cloud is
+let lightningTimer = 0;
+let lightningOn    = false;
+let cloudDrift     = 0;      // horizontal offset of clouds
+let gwDots         = [];     // groundwater dots in aquifer
 
+// ── Layout zones (pixel coords) ───────────────────────────────
+const OCEAN_X = 500, OCEAN_Y = 290, OCEAN_W = 180, OCEAN_H = 80;
+const MTN_PEAK_X = 100, MTN_PEAK_Y = 100;
+const TREE_XS    = [210, 240, 270, 300, 330];
+const TREE_Y     = 260;
+const CLOUD_BASE_Y = 90;
+const AQUIFER_Y  = 360;   // top of underground strip
+const RIVER_PTS  = [ // river path from mountains to ocean
+  {x:130,y:280}, {x:200,y:285}, {x:280,y:290}, {x:370,y:295}, {x:460,y:295}
+];
+
+// ── Helpers ───────────────────────────────────────────────────
 function getTemp() { return parseInt(document.getElementById('temp-slider').value); }
-
-// Particle system for vapour and rain
-function spawnParticle(type) {
-  if (type === 'vapour') {
-    particles.push({
-      type: 'vapour',
-      x: 80 + Math.random() * 200,
-      y: H - 80 - Math.random() * 20,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: -(0.5 + Math.random() * 0.8),
-      life: 1, alpha: 0.7, r: 3 + Math.random() * 3
-    });
-  } else if (type === 'transp') {
-    particles.push({
-      type: 'vapour',
-      x: 440 + Math.random() * 60,
-      y: H - 160 - Math.random() * 40,
-      vx: (Math.random() - 0.5) * 0.3,
-      vy: -(0.4 + Math.random() * 0.6),
-      life: 1, alpha: 0.5, r: 2 + Math.random() * 2
-    });
-  } else if (type === 'rain') {
-    particles.push({
-      type: 'rain',
-      x: 260 + Math.random() * 200,
-      y: H - 245,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: 2 + Math.random() * 2,
-      life: 1, alpha: 0.8, r: 2
-    });
-  }
+function isWinter() { return season === 'winter'; }
+function evapRate()  { // 0–1
+  const t = getTemp();
+  return Math.max(0, Math.min(1, (t - 0) / 45));
 }
+function clamp(v,lo,hi) { return Math.max(lo, Math.min(hi, v)); }
 
-function drawScene() {
-  // Sky gradient
-  const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, '#0c1929');
-  sky.addColorStop(0.6, '#1e3a5f');
-  sky.addColorStop(1, '#2d5016');
-  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
-
-  // Sun
-  const temp = getTemp();
-  const sunAlpha = Math.min(1, (temp - 10) / 30);
-  const gSun = ctx.createRadialGradient(W - 80, 50, 5, W - 80, 50, 50);
-  gSun.addColorStop(0, `rgba(253,224,71,${sunAlpha})`);
-  gSun.addColorStop(1, 'rgba(253,224,71,0)');
-  ctx.fillStyle = gSun; ctx.beginPath(); ctx.arc(W - 80, 50, 50, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = `rgba(253,224,71,${sunAlpha})`; ctx.beginPath(); ctx.arc(W - 80, 50, 24, 0, Math.PI*2); ctx.fill();
-
-  // Mountains
-  ctx.fillStyle = '#1a3a1a';
-  ctx.beginPath(); ctx.moveTo(380, H-70); ctx.lineTo(450, H-210); ctx.lineTo(520, H-70); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = '#152e15';
-  ctx.beginPath(); ctx.moveTo(430, H-70); ctx.lineTo(490, H-170); ctx.lineTo(555, H-70); ctx.closePath(); ctx.fill();
-
-  // Trees (transpiration)
-  for (let tx = 440; tx <= 510; tx += 25) {
-    ctx.fillStyle = '#1a4020';
-    ctx.beginPath(); ctx.arc(tx, H-155, 14, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#0f2d14';
-    ctx.fillRect(tx - 3, H - 142, 6, 20);
-  }
-
-  // Sea / lake
-  const seaGrad = ctx.createLinearGradient(0, H-80, 0, H);
-  seaGrad.addColorStop(0, '#1d4ed8'); seaGrad.addColorStop(1, '#1e3a8a');
-  ctx.fillStyle = seaGrad;
-  ctx.beginPath(); ctx.roundRect(30, H-80, 280, 60, [8,8,0,0]); ctx.fill();
-  ctx.fillStyle = 'rgba(147,197,253,0.2)';
-  for (let wx = 60; wx < 280; wx += 40) {
-    ctx.beginPath(); ctx.arc(wx, H - 55, 12, Math.PI, 0); ctx.stroke();
-  }
-
-  // Ground
-  ctx.fillStyle = '#2d4a1e'; ctx.fillRect(0, H - 20, W, 20);
-
-  // Cloud
-  const cloudX = 240 + Math.sin(time * 0.003) * 15;
-  const cloudY = 90 + Math.cos(time * 0.002) * 8;
-  drawCloud(cloudX, cloudY);
-
-  // Runoff arrow
-  const runoffAlpha = highlight === 'runoff' || highlight === 'all' ? 0.9 : 0.25;
-  ctx.globalAlpha = runoffAlpha;
-  ctx.strokeStyle = '#60a5fa'; ctx.lineWidth = 2.5;
-  ctx.beginPath(); ctx.moveTo(390, H-25); ctx.lineTo(340, H-25); ctx.lineTo(310, H-50); ctx.lineTo(290, H-55); ctx.stroke();
-  drawArrowHead(290, H-55, Math.atan2(-30, -100), '#60a5fa');
-  ctx.globalAlpha = 1;
-}
-
-function drawCloud(cx, cy) {
-  const cloudAlpha = highlight === 'cond' || highlight === 'all' ? 0.95 : 0.3;
-  ctx.globalAlpha = cloudAlpha;
-  ctx.fillStyle = '#94a3b8';
-  const puffs = [{dx:-28,dy:10,r:22},{dx:0,dy:0,r:28},{dx:28,dy:8,r:22},{dx:-14,dy:18,r:18},{dx:14,dy:18,r:18}];
-  puffs.forEach(p => { ctx.beginPath(); ctx.arc(cx+p.dx, cy+p.dy, p.r, 0, Math.PI*2); ctx.fill(); });
-  ctx.globalAlpha = 1;
-}
-
-function drawArrowHead(x, y, angle, color) {
-  ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
-  ctx.fillStyle = color;
-  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-10,-5); ctx.lineTo(-10,5); ctx.closePath(); ctx.fill();
-  ctx.restore();
-}
-
-function drawLabels() {
-  const stages = [
-    { key:'evap',   label:'Evaporation', x:130, y:H-110, color:'#fbbf24' },
-    { key:'transp', label:'Transpiration', x:470, y:H-210, color:'#34d399' },
-    { key:'cond',   label:'Condensation', x:215, y:60,    color:'#93c5fd' },
-    { key:'precip', label:'Precipitation', x:340, y:130,  color:'#60a5fa' },
-    { key:'runoff', label:'Runoff',        x:360, y:H-35, color:'#38bdf8' },
-  ];
-  stages.forEach(s => {
-    const active = highlight === 'all' || highlight === s.key;
-    ctx.globalAlpha = active ? 1 : 0.25;
-    ctx.font = `bold 12px Inter`; ctx.textAlign = 'center';
-    // Badge
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
-    const tw = ctx.measureText(s.label).width;
-    ctx.beginPath(); ctx.roundRect(s.x - tw/2 - 8, s.y - 14, tw + 16, 20, 5); ctx.fill();
-    ctx.fillStyle = s.color; ctx.fillText(s.label, s.x, s.y);
-    ctx.globalAlpha = 1;
+// ── Particle factories ────────────────────────────────────────
+function spawnEvap() {
+  const ox = OCEAN_X + 10 + Math.random() * (OCEAN_W - 20);
+  particles.push({
+    type:'evap', x:ox,
+    y: OCEAN_Y + Math.random() * 10,
+    vx:(Math.random()-.5)*.6,
+    vy:-(0.5 + Math.random()*.9),
+    life:1, r:2.5+Math.random()*2
   });
+}
+function spawnTransp() {
+  const tx = TREE_XS[Math.floor(Math.random()*TREE_XS.length)];
+  particles.push({
+    type:'transp', x:tx + (Math.random()-.5)*12,
+    y: TREE_Y - 22 - Math.random()*8,
+    vx:(Math.random()-.5)*.4,
+    vy:-(0.35+Math.random()*.55),
+    life:1, r:2+Math.random()*1.5
+  });
+}
+function spawnRain(x, y) {
+  const isSnow = isWinter() && x < 200;
+  particles.push({
+    type: isSnow ? 'snow':'rain',
+    x: x + (Math.random()-.5)*60,
+    y: y || CLOUD_BASE_Y + 30,
+    vx:(Math.random()-.5)*.8 + (isSnow?((Math.random()-.5)*.6):0),
+    vy: isSnow ? (1.2+Math.random()*.8) : (3.5+Math.random()*2),
+    life:1, r: isSnow? 3:1.5,
+    landed:false
+  });
+}
+function spawnRunoff(x, y) {
+  particles.push({
+    type:'runoff', x, y,
+    vx: 0.6+Math.random()*.4, vy:0.3+Math.random()*.3,
+    life:1, r:2
+  });
+}
+function spawnInfil(x, y) {
+  particles.push({
+    type:'infil', x, y,
+    vx:(Math.random()-.5)*.2, vy:0.6+Math.random()*.5,
+    life:1, r:2
+  });
+}
+
+// ── Groundwater dot pool ──────────────────────────────────────
+function initGW() {
+  gwDots = [];
+  for (let i=0;i<12;i++) {
+    gwDots.push({ x:80+Math.random()*480, y:AQUIFER_Y+8+Math.random()*18, vx:0.15+Math.random()*.2 });
+  }
+}
+
+// ── Update loop ───────────────────────────────────────────────
+function updateSim() {
+  simTime++;
+  const er = evapRate();
+  const t  = getTemp();
+
+  // Spawn evaporation
+  if (Math.random() < er * 0.55) spawnEvap();
+  // Spawn transpiration (slower)
+  if (Math.random() < er * 0.18) spawnTransp();
+
+  // Cloud fill: vapour that reaches cloud height adds to cloudFill
+  let evapInCloud = 0;
+
+  // Update particles
+  for (let i = particles.length-1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+
+    if (p.type === 'evap' || p.type === 'transp') {
+      // Rising vapour
+      p.life -= 0.008;
+      // Horizontal drift toward cloud zone
+      if (p.y < CLOUD_BASE_Y + 50) {
+        p.vy *= 0.96;   // slow rise near cloud
+        evapInCloud++;
+        p.life -= 0.015;
+      }
+      if (p.y < CLOUD_BASE_Y) p.life = 0; // absorbed by cloud
+    }
+
+    if (p.type === 'rain') {
+      if (!p.landed && p.y >= H - 70) {
+        p.landed = true;
+        // Splash
+        splashes.push({ x:p.x, y:p.y, r:0, life:1 });
+        // 50% chance runoff, 50% infiltration
+        if (Math.random() < 0.5 && p.x > 140 && p.x < 480) spawnRunoff(p.x, p.y);
+        else if (p.x > 100 && p.x < 500)                    spawnInfil(p.x, p.y);
+        p.life = 0;
+      }
+    }
+
+    if (p.type === 'snow') {
+      p.vx += (Math.random()-.5)*.1;
+      if (!p.landed && p.y >= H - 70) { p.landed=true; p.life=0; }
+    }
+
+    if (p.type === 'runoff') {
+      p.vy += 0.05; // gravity
+      if (p.x > OCEAN_X || p.y > H - 30) p.life = 0;
+      p.life -= 0.012;
+    }
+
+    if (p.type === 'infil') {
+      if (p.y > AQUIFER_Y + 4) {
+        // Reached aquifer — spawn a gw dot if pool is small
+        if (gwDots.length < 20) {
+          gwDots.push({ x:p.x, y:AQUIFER_Y+8+Math.random()*18, vx:0.12+Math.random()*.18 });
+        }
+        p.life = 0;
+      }
+      p.life -= 0.01;
+    }
+
+    if (p.life <= 0) { particles.splice(i,1); continue; }
+  }
+
+  // Cloud fill: absorb rising vapour count
+  cloudFill += evapInCloud * 0.0004;
+  cloudFill  = clamp(cloudFill, 0, 1);
+
+  // Precipitation trigger
+  if (cloudFill > 0.45 && Math.random() < 0.18 + cloudFill * 0.22) {
+    const rainX = 280 + cloudDrift + (Math.random()-.5)*90;
+    spawnRain(rainX, CLOUD_BASE_Y + 40);
+    cloudFill -= 0.002;  // cloud empties as it rains
+  }
+  cloudFill = clamp(cloudFill, 0, 1);
+
+  // Cloud drift (right to left, wraps)
+  cloudDrift -= 0.18;
+  if (cloudDrift < -80) cloudDrift = 0;
+
+  // Lightning in dark cloud
+  lightningTimer--;
+  if (cloudFill > 0.7 && lightningTimer <= 0) {
+    lightningOn   = true;
+    lightningTimer = 80 + Math.floor(Math.random()*120);
+    setTimeout(() => { lightningOn = false; }, 120);
+  }
+
+  // Groundwater dots move right toward ocean
+  for (const g of gwDots) {
+    g.x += g.vx;
+    if (g.x > OCEAN_X) {
+      g.x = 80 + Math.random()*100;  // reset on left side
+    }
+  }
+
+  // Splash decay
+  for (let i = splashes.length-1; i >= 0; i--) {
+    splashes[i].r  += 1.6;
+    splashes[i].life -= 0.08;
+    if (splashes[i].life <= 0) splashes.splice(i,1);
+  }
+
+  // Update stats
+  const nEvap  = particles.filter(p=>p.type==='evap'||p.type==='transp').length;
+  const nRain  = particles.filter(p=>p.type==='rain'||p.type==='snow').length;
+  const nGw    = gwDots.length;
+  const nCloud = Math.round(cloudFill * 60);
+  document.getElementById('stat-evap-n').textContent = nEvap;
+  document.getElementById('stat-cloud-n').textContent = nCloud;
+  document.getElementById('stat-rain-n').textContent  = nRain;
+  document.getElementById('stat-gw-n').textContent    = nGw;
+  const t2 = getTemp();
+  document.getElementById('stat-rate').textContent =
+    t2 < 8 ? 'Minimal' : t2 < 20 ? 'Slow' : t2 < 33 ? 'Moderate' : 'Fast';
+  document.getElementById('temp-val').textContent = t2 + '°C';
+
+  updateDynSummary();
+}
+
+// ── Dynamic summary ───────────────────────────────────────────
+function updateDynSummary() {
+  const t = getTemp();
+  let msg;
+  if (t <= 5)
+    msg = `At <strong>${t}°C</strong>, evaporation is barely occurring. The air is cold and dry. Little cloud formation. Expect <strong>snow</strong> in high mountains.`;
+  else if (t <= 15)
+    msg = `At <strong>${t}°C</strong>, evaporation is slow. Clouds build gradually. Precipitation is light, possibly <strong>snow</strong> on peaks.`;
+  else if (t <= 25)
+    msg = `At <strong>${t}°C</strong>, evaporation is moderate. Clouds form at a steady rate. Expect regular <strong>rainfall</strong> as clouds fill.`;
+  else if (t <= 35)
+    msg = `At <strong>${t}°C</strong>, evaporation is fast. Clouds grow quickly. Expect <strong>heavy rainfall</strong> — the cycle is vigorous.`;
+  else
+    msg = `At <strong>${t}°C</strong>, evaporation is very fast. Clouds fill rapidly. Expect intense <strong>storms</strong>. The water cycle is at maximum activity!`;
+  document.getElementById('dyn-summary').innerHTML = msg;
+}
+
+// ── DRAW FUNCTIONS ────────────────────────────────────────────
+
+function drawSky() {
+  const t = getTemp();
+  const isCold = t < 15 || isWinter();
+  const skyTop    = isCold ? '#0a1628' : '#0c1929';
+  const skyMid    = isCold ? '#1a3a6e' : '#1e3a5f';
+  const skyBottom = isCold ? '#2a4060' : '#1d3a70';
+  const g = ctx.createLinearGradient(0,0,0,H-80);
+  g.addColorStop(0, skyTop); g.addColorStop(0.65, skyMid); g.addColorStop(1, skyBottom);
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+}
+
+function drawSun() {
+  const t     = getTemp();
+  const bright = clamp((t-5)/40, 0, 1);
+  const sunX  = isWinter() ? W-120 : W-90;
+  const sunY  = isWinter() ? 55 : 38;
+  // Glow halo
+  const gSun = ctx.createRadialGradient(sunX,sunY,4,sunX,sunY,54);
+  gSun.addColorStop(0, `rgba(255,220,50,${bright*0.55})`);
+  gSun.addColorStop(1, 'rgba(255,200,30,0)');
+  ctx.fillStyle=gSun; ctx.beginPath(); ctx.arc(sunX,sunY,54,0,Math.PI*2); ctx.fill();
+  // Core
+  ctx.fillStyle=`rgba(255,225,50,${0.5+bright*0.5})`;
+  ctx.beginPath(); ctx.arc(sunX,sunY,isWinter()?18:24,0,Math.PI*2); ctx.fill();
+}
+
+function drawMountains() {
+  const t   = getTemp();
+  const snowy = isWinter() || t < 10;
+
+  // Back mountain (darker)
+  ctx.fillStyle='#1a2e38';
+  ctx.beginPath();
+  ctx.moveTo(0,H-70); ctx.lineTo(60,180); ctx.lineTo(140,H-70); ctx.closePath();
+  ctx.fill();
+
+  // Main mountain
+  ctx.fillStyle='#1e3a28';
+  ctx.beginPath();
+  ctx.moveTo(0,H-70); ctx.lineTo(100,MTN_PEAK_Y); ctx.lineTo(200,H-70); ctx.closePath();
+  ctx.fill();
+
+  // Right mountain shoulder
+  ctx.fillStyle='#162d20';
+  ctx.beginPath();
+  ctx.moveTo(140,H-70); ctx.lineTo(185,150); ctx.lineTo(250,H-70); ctx.closePath();
+  ctx.fill();
+
+  // Snow caps
+  if (snowy) {
+    ctx.fillStyle='rgba(230,240,255,0.92)';
+    ctx.beginPath();
+    ctx.moveTo(100, MTN_PEAK_Y);
+    ctx.lineTo(74, MTN_PEAK_Y+42); ctx.lineTo(128,MTN_PEAK_Y+38);
+    ctx.closePath(); ctx.fill();
+    // shoulder snow
+    ctx.beginPath();
+    ctx.moveTo(185,150); ctx.lineTo(170,175); ctx.lineTo(202,172);
+    ctx.closePath(); ctx.fill();
+    // back mountain snow
+    ctx.beginPath();
+    ctx.moveTo(60,180); ctx.lineTo(48,204); ctx.lineTo(74,200);
+    ctx.closePath(); ctx.fill();
+  }
+}
+
+function drawBuildings() {
+  // City silhouette in middle distance
+  const bldgs = [
+    {x:340,w:28,h:60},{x:372,w:22,h:50},{x:396,w:32,h:75},{x:430,w:20,h:45},
+    {x:454,w:26,h:58},{x:348,w:14,h:35}
+  ];
+  ctx.fillStyle='#0d1e14';
+  for (const b of bldgs) {
+    ctx.fillRect(b.x, H-70-b.h, b.w, b.h);
+    // Windows
+    ctx.fillStyle='rgba(253,224,71,0.35)';
+    for (let wy=H-70-b.h+6; wy<H-70-8; wy+=10) {
+      for (let wx=b.x+4; wx<b.x+b.w-4; wx+=8) {
+        if (Math.random()>.3) ctx.fillRect(wx,wy,4,5);
+      }
+    }
+    ctx.fillStyle='#0d1e14';
+  }
+}
+
+function drawGround() {
+  // Ground strip
+  const gg = ctx.createLinearGradient(0,H-72,0,H-50);
+  gg.addColorStop(0,'#2a4a1e'); gg.addColorStop(1,'#1a3014');
+  ctx.fillStyle=gg; ctx.fillRect(0,H-72,W,42);
+  ctx.fillStyle='#1a2a10'; ctx.fillRect(0,H-32,W,32);
+}
+
+function drawUnderground() {
+  // Underground section + aquifer
+  ctx.fillStyle='#0d1a12';
+  ctx.fillRect(0,AQUIFER_Y,W,H-AQUIFER_Y);
+  // Rock layers
+  ctx.fillStyle='#111e16'; ctx.fillRect(0,AQUIFER_Y+2,W,8);
+  ctx.fillStyle='#0f1d14'; ctx.fillRect(0,AQUIFER_Y+14,W,6);
+  // Aquifer band
+  const ag=ctx.createLinearGradient(0,AQUIFER_Y+22,0,AQUIFER_Y+40);
+  ag.addColorStop(0,'rgba(29,78,216,0.35)'); ag.addColorStop(1,'rgba(29,78,216,0.12)');
+  ctx.fillStyle=ag; ctx.fillRect(0,AQUIFER_Y+22,W,22);
+  // Label
+  const aquiA = highlight==='infil'||highlight==='collect'||highlight==='all' ? 0.7:0.2;
+  ctx.globalAlpha=aquiA;
+  ctx.font='bold 10px Inter'; ctx.fillStyle='#7dd3fc'; ctx.textAlign='left';
+  ctx.fillText('AQUIFER', 14, AQUIFER_Y+36);
+  ctx.globalAlpha=1;
+}
+
+function drawRiver() {
+  const riverA = highlight==='runoff'||highlight==='collect'||highlight==='all'?0.9:0.3;
+  ctx.globalAlpha=riverA;
+  // Animated dash offset
+  ctx.save();
+  ctx.strokeStyle='#3b82f6'; ctx.lineWidth=4;
+  ctx.setLineDash([8,5]); ctx.lineDashOffset = -(simTime*0.6 % 13);
+  ctx.beginPath();
+  ctx.moveTo(RIVER_PTS[0].x, RIVER_PTS[0].y);
+  for (let i=1;i<RIVER_PTS.length;i++) {
+    const prev=RIVER_PTS[i-1], curr=RIVER_PTS[i];
+    const cpx=(prev.x+curr.x)/2;
+    ctx.quadraticCurveTo(cpx,prev.y,curr.x,curr.y);
+  }
+  ctx.stroke(); ctx.setLineDash([]);
+  ctx.restore();
+  ctx.globalAlpha=1;
+}
+
+function drawOcean() {
+  const collectA = highlight==='collect'||highlight==='all'?1:0.4;
+  ctx.globalAlpha=collectA;
+  // Body
+  const og=ctx.createLinearGradient(OCEAN_X,OCEAN_Y,OCEAN_X,OCEAN_Y+OCEAN_H);
+  og.addColorStop(0,'#1d4ed8'); og.addColorStop(1,'#1e3a8a');
+  ctx.fillStyle=og;
+  ctx.beginPath(); ctx.roundRect(OCEAN_X,OCEAN_Y,OCEAN_W,OCEAN_H,[6,6,0,0]); ctx.fill();
+  // Animated waves
+  ctx.strokeStyle='rgba(147,197,253,0.4)'; ctx.lineWidth=1.5;
+  for (let i=0;i<3;i++) {
+    const waveY = OCEAN_Y + 14 + i*16;
+    ctx.beginPath();
+    for (let wx=OCEAN_X+5;wx<OCEAN_X+OCEAN_W-5;wx+=2) {
+      const wy = waveY + Math.sin((wx+simTime*0.8+i*30)*0.12)*4;
+      wx===OCEAN_X+5 ? ctx.moveTo(wx,wy) : ctx.lineTo(wx,wy);
+    }
+    ctx.stroke();
+  }
+  // Label
+  ctx.font='bold 11px Inter'; ctx.fillStyle='#93c5fd'; ctx.textAlign='center';
+  ctx.fillText('OCEAN',OCEAN_X+OCEAN_W/2, OCEAN_Y+OCEAN_H-8);
+  ctx.globalAlpha=1;
+}
+
+function drawTrees() {
+  const transpA = highlight==='transp'||highlight==='all'?1:0.4;
+  ctx.globalAlpha=transpA;
+  for (const tx of TREE_XS) {
+    // Trunk
+    ctx.fillStyle='#5c3d1e';
+    ctx.fillRect(tx-3, TREE_Y-4, 6, 18);
+    // Foliage (layered circles for lush look)
+    ctx.fillStyle='#14532d';
+    ctx.beginPath(); ctx.arc(tx, TREE_Y-22, 16, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle='#166534';
+    ctx.beginPath(); ctx.arc(tx-5, TREE_Y-16, 12, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle='#15803d';
+    ctx.beginPath(); ctx.arc(tx+4, TREE_Y-18, 11, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle='#4ade80';
+    ctx.beginPath(); ctx.arc(tx, TREE_Y-26, 7, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.globalAlpha=1;
+}
+
+function cloudCenter() {
+  // Cloud center x drifts
+  return clamp(300 + cloudDrift, 200, 420);
+}
+
+function drawClouds() {
+  const condA = highlight==='cond'||highlight==='precip'||highlight==='all'?1:0.3;
+  ctx.globalAlpha=condA;
+
+  const cx = cloudCenter();
+  const cy = CLOUD_BASE_Y;
+  const fill = cloudFill;
+
+  // Cloud darkness increases with fill
+  const dark = Math.round(148 - fill*80);
+  const clr  = `rgb(${dark},${dark+2},${dark+10})`;
+
+  // Draw fluffy cloud (overlapping circles)
+  const puffs=[
+    {dx:-38,dy:18,r:24},{dx:-18,dy:8,r:30},{dx:10,dy:4,r:34},
+    {dx:38,dy:10,r:28},{dx:55,dy:20,r:22},
+    {dx:-28,dy:24,r:20},{dx:20,dy:24,r:22},{dx:46,dy:26,r:18}
+  ];
+  ctx.fillStyle=clr;
+  for (const p of puffs) {
+    ctx.beginPath(); ctx.arc(cx+p.dx,cy+p.dy,p.r,0,Math.PI*2); ctx.fill();
+  }
+
+  // Cloud 2 (smaller, behind)
+  const cx2 = cx - 130;
+  if (cx2 > 80) {
+    const clr2 = `rgb(${dark+10},${dark+12},${dark+18})`;
+    ctx.fillStyle=clr2;
+    const p2=[{dx:-22,dy:12,r:18},{dx:0,dy:6,r:22},{dx:22,dy:10,r:18},{dx:-10,dy:18,r:14},{dx:14,dy:18,r:14}];
+    for (const p of p2) { ctx.beginPath(); ctx.arc(cx2+p.dx,cy+12+p.dy,p.r,0,Math.PI*2); ctx.fill(); }
+  }
+
+  // Lightning bolt
+  if (lightningOn && fill > 0.7) {
+    ctx.strokeStyle='rgba(250,230,50,0.9)'; ctx.lineWidth=2.5;
+    ctx.globalAlpha=0.95;
+    ctx.beginPath();
+    ctx.moveTo(cx+8,cy+30); ctx.lineTo(cx,cy+52); ctx.lineTo(cx+10,cy+52); ctx.lineTo(cx-2,cy+74);
+    ctx.stroke();
+  }
+
+  ctx.globalAlpha=1;
+}
+
+function drawGWDots() {
+  const gwA = highlight==='infil'||highlight==='collect'||highlight==='all'?0.8:0.2;
+  ctx.globalAlpha=gwA;
+  ctx.fillStyle='#60a5fa';
+  for (const g of gwDots) {
+    ctx.beginPath(); ctx.arc(g.x, g.y, 2.5, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.globalAlpha=1;
 }
 
 function drawParticles() {
-  particles.forEach(p => {
-    const a = highlight === 'all'
-      || (highlight === 'evap'   && p.type === 'vapour' && p.x < 320)
-      || (highlight === 'transp' && p.type === 'vapour' && p.x >= 320)
-      || (highlight === 'precip' && p.type === 'rain')
-      ? p.alpha : p.alpha * 0.2;
-
-    ctx.globalAlpha = a * p.life;
-    if (p.type === 'vapour') {
-      ctx.fillStyle = '#bae6fd';
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
-    } else {
-      ctx.strokeStyle = '#60a5fa'; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + p.vx * 5, p.y + p.vy * 5); ctx.stroke();
+  for (const p of particles) {
+    let alpha = p.life;
+    // Dim particles of non-highlighted types
+    if (highlight !== 'all') {
+      const typeMap = {
+        evap:'evap', transp:'transp', rain:'precip', snow:'precip',
+        runoff:'runoff', infil:'infil'
+      };
+      if (typeMap[p.type] !== highlight) alpha *= 0.1;
     }
-    ctx.globalAlpha = 1;
-  });
+    ctx.globalAlpha = clamp(alpha, 0, 1);
+
+    if (p.type==='evap') {
+      ctx.fillStyle='#bae6fd';
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    } else if (p.type==='transp') {
+      ctx.fillStyle='#86efac';
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    } else if (p.type==='rain') {
+      ctx.strokeStyle='#60a5fa'; ctx.lineWidth=1.5;
+      ctx.beginPath();
+      ctx.moveTo(p.x,p.y); ctx.lineTo(p.x+p.vx*3,p.y+p.vy*3); ctx.stroke();
+    } else if (p.type==='snow') {
+      ctx.fillStyle='#e0f2fe';
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+      // Snowflake arms
+      ctx.strokeStyle='rgba(219,239,254,0.7)'; ctx.lineWidth=0.8;
+      for (let a=0;a<3;a++) {
+        const ang=a*Math.PI/3;
+        ctx.beginPath();
+        ctx.moveTo(p.x+Math.cos(ang)*p.r*1.5,p.y+Math.sin(ang)*p.r*1.5);
+        ctx.lineTo(p.x-Math.cos(ang)*p.r*1.5,p.y-Math.sin(ang)*p.r*1.5);
+        ctx.stroke();
+      }
+    } else if (p.type==='runoff') {
+      ctx.fillStyle='#38bdf8';
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    } else if (p.type==='infil') {
+      ctx.fillStyle='#818cf8';
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    }
+  }
+  ctx.globalAlpha=1;
 }
 
-function updateParticles() {
-  const temp = getTemp();
-  const evapRate = Math.max(0, (temp - 10) / 35); // 0 at 10°C, 1 at 45°C
-
-  // Spawn evaporation particles
-  if (Math.random() < evapRate * 0.4) spawnParticle('vapour');
-  if (Math.random() < evapRate * 0.2) spawnParticle('transp');
-
-  // Cloud raining when temp is moderate (clouds form, then fall)
-  const cloudPresent = particles.filter(p => p.type === 'vapour' && p.y < 120).length > 3;
-  if (cloudPresent && Math.random() < 0.15) spawnParticle('rain');
-
-  particles.forEach(p => {
-    p.x += p.vx; p.y += p.vy;
-    if (p.type === 'vapour') {
-      p.life -= 0.005;
-      if (p.y < 80) { p.vy *= 0.95; p.life -= 0.01; }  // slow near cloud height
-    } else {
-      p.life -= 0.02;
-    }
-  });
-  particles = particles.filter(p => p.life > 0 && p.y < H && p.y > -10);
+function drawSplashes() {
+  for (const s of splashes) {
+    ctx.globalAlpha = s.life * 0.6;
+    ctx.strokeStyle='#93c5fd'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.stroke();
+  }
+  ctx.globalAlpha=1;
 }
 
-function animate() {
-  time++;
-  updateParticles();
-  drawScene();
+function drawStageLabels() {
+  const labels = [
+    {key:'evap',   text:'Evaporation',   x:OCEAN_X+OCEAN_W/2, y:OCEAN_Y-10,     col:'#fbbf24'},
+    {key:'transp', text:'Transpiration', x:265,               y:TREE_Y-56,      col:'#4ade80'},
+    {key:'cond',   text:'Condensation',  x:cloudCenter()-10,  y:CLOUD_BASE_Y-12, col:'#93c5fd'},
+    {key:'precip', text:'Precipitation', x:cloudCenter()+50,  y:CLOUD_BASE_Y+80,col:'#60a5fa'},
+    {key:'runoff', text:'Runoff',        x:310,               y:H-80,           col:'#38bdf8'},
+    {key:'infil',  text:'Infiltration',  x:220,               y:AQUIFER_Y-8,    col:'#a78bfa'},
+    {key:'collect',text:'Collection',    x:OCEAN_X+OCEAN_W/2, y:OCEAN_Y+OCEAN_H+14,col:'#34d399'},
+  ];
+  ctx.font='bold 11px Inter';
+  for (const lb of labels) {
+    const active = highlight==='all'||highlight===lb.key;
+    ctx.globalAlpha = active ? 1 : 0.18;
+    const tw = ctx.measureText(lb.text).width;
+    // Badge bg
+    ctx.fillStyle='rgba(0,0,0,0.6)';
+    ctx.beginPath();
+    ctx.roundRect(lb.x-tw/2-7, lb.y-13, tw+14, 19, 5); ctx.fill();
+    // Pulsing glow for active
+    if (active && highlight!=='all') {
+      ctx.fillStyle=lb.col.replace(')',',0.18)').replace('rgb','rgba').replace('#',`rgba(${parseInt(lb.col.slice(1,3),16)},${parseInt(lb.col.slice(3,5),16)},${parseInt(lb.col.slice(5,7),16)},0.22)`);
+      ctx.beginPath();
+      ctx.roundRect(lb.x-tw/2-11, lb.y-17, tw+22, 27, 8); ctx.fill();
+    }
+    ctx.fillStyle=lb.col; ctx.textAlign='center';
+    ctx.fillText(lb.text, lb.x, lb.y);
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawEvapArrow() {
+  const a = highlight==='evap'||highlight==='all'?0.85:0.15;
+  ctx.globalAlpha=a;
+  ctx.strokeStyle='#fbbf24'; ctx.lineWidth=2;
+  ctx.setLineDash([6,4]);
+  ctx.beginPath();
+  ctx.moveTo(OCEAN_X+OCEAN_W/2, OCEAN_Y-2);
+  ctx.quadraticCurveTo(OCEAN_X+OCEAN_W/2-30, OCEAN_Y-60, cloudCenter()+50, CLOUD_BASE_Y+50);
+  ctx.stroke(); ctx.setLineDash([]);
+  arrowHead(cloudCenter()+50, CLOUD_BASE_Y+50, -0.9, '#fbbf24', 8);
+  ctx.globalAlpha=1;
+}
+
+function arrowHead(x,y,angle,color,size=10) {
+  ctx.save(); ctx.translate(x,y); ctx.rotate(angle);
+  ctx.fillStyle=color;
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-size,-size/2); ctx.lineTo(-size,size/2); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+// ── Main render ───────────────────────────────────────────────
+function render() {
+  ctx.clearRect(0,0,W,H);
+  drawSky();
+  drawSun();
+  drawMountains();
+  drawUnderground();
+  drawGround();
+  drawRiver();
+  drawOcean();
+  drawBuildings();
+  drawTrees();
+  drawClouds();
+  drawEvapArrow();
+  drawGWDots();
   drawParticles();
-  drawLabels();
-
-  // Evap arrows
-  const temp = getTemp();
-  const arrowAlpha = highlight === 'evap' || highlight === 'all' ? 0.8 : 0.2;
-  ctx.globalAlpha = arrowAlpha;
-  ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(170, H-85); ctx.quadraticCurveTo(170, H-160, 210, H-220); ctx.stroke();
-  drawArrowHead(210, H-220, -1.1, '#fbbf24');
-  ctx.globalAlpha = 1;
-
-  // Precip arrow from cloud down
-  const precipAlpha = highlight === 'precip' || highlight === 'all' ? 0.7 : 0.2;
-  ctx.globalAlpha = precipAlpha;
-  ctx.strokeStyle = '#60a5fa'; ctx.lineWidth = 2; ctx.setLineDash([6,4]);
-  ctx.beginPath(); ctx.moveTo(310, 120); ctx.lineTo(310, H-90); ctx.stroke();
-  ctx.setLineDash([]);
-  drawArrowHead(310, H-90, Math.PI/2, '#60a5fa');
-  ctx.globalAlpha = 1;
-
-  // Update stats
-  document.getElementById('stat-evap').textContent = (temp < 15 ? 'Slow' : temp < 30 ? 'Moderate' : 'Fast');
-  document.getElementById('temp-val').textContent = temp + '°C';
-
-  const fbMap = {
-    evap:   `☀️ <strong>Evaporation</strong>: Heat from the Sun causes liquid water to turn into water vapour and rise into the atmosphere. Current temp: <strong>${temp}°C</strong> — ${temp > 35 ? 'very fast evaporation!' : temp > 22 ? 'moderate evaporation.' : 'slow evaporation.'}`,
-    transp: `🌿 <strong>Transpiration</strong>: Plants absorb water through their roots and release water vapour through tiny pores (stomata) in their leaves. Forests add huge amounts of water vapour to the atmosphere.`,
-    cond:   `☁️ <strong>Condensation</strong>: As water vapour rises and cools, it condenses around dust particles, forming tiny droplets. Billions of droplets together make a cloud.`,
-    precip: `🌧 <strong>Precipitation</strong>: When cloud droplets merge and become too heavy, they fall as rain (or snow/hail in cold climates). Singapore receives about 2,400 mm of rain per year!`,
-    runoff: `🏞 <strong>Runoff</strong>: Rainwater flows over land into rivers, streams, and eventually back to the sea or lakes — completing the cycle.`,
-    all:    `The water cycle is driven by <strong>solar energy</strong> (causing evaporation) and <strong>gravity</strong> (causing precipitation and runoff). Adjust the temperature to see how it affects evaporation rate.`
-  };
-  document.getElementById('sim-feedback').innerHTML = fbMap[highlight] || fbMap['all'];
-
-  requestAnimationFrame(animate);
+  drawSplashes();
+  drawStageLabels();
 }
 
-document.getElementById('temp-slider').addEventListener('input', () => Progress.recordSimUsed('water-cycle'));
+// ── Animation loop ────────────────────────────────────────────
+function loop() {
+  updateSim();
+  render();
+  requestAnimationFrame(loop);
+}
 
+// ── Canvas click: popover label ───────────────────────────────
+const popover = document.getElementById('wc-popover');
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (W / rect.width);
+  const my = (e.clientY - rect.top)  * (H / rect.height);
+
+  let label = '';
+  const cx = cloudCenter();
+
+  if (mx>=OCEAN_X && mx<=OCEAN_X+OCEAN_W && my>=OCEAN_Y && my<=OCEAN_Y+OCEAN_H)
+    label = 'Collection: Water accumulates in the ocean';
+  else if (my >= AQUIFER_Y+22 && my <= AQUIFER_Y+44)
+    label = 'Aquifer: Groundwater stored in rock layers';
+  else if (my >= AQUIFER_Y && my < AQUIFER_Y+22 && mx>80 && mx<500)
+    label = 'Infiltration: Water seeping into the ground';
+  else if (mx>=cx-70 && mx<=cx+80 && my>=CLOUD_BASE_Y-20 && my<=CLOUD_BASE_Y+55)
+    label = 'Condensation: Water vapour forming clouds here';
+  else if (mx>=cx-40 && mx<=cx+70 && my>CLOUD_BASE_Y+40 && my<H-90)
+    label = 'Precipitation: Raindrops falling from cloud';
+  else if (mx>=MTN_PEAK_X-60 && mx<=MTN_PEAK_X+80 && my<MTN_PEAK_Y+50)
+    label = 'Mountains: Snow-capped peaks in cold conditions';
+  else if (mx>=200 && mx<=360 && my>=TREE_Y-42 && my<=TREE_Y+10)
+    label = 'Transpiration: Trees releasing water vapour through stomata';
+  else if (my>=H-72 && my<=H-30 && mx>130 && mx<480)
+    label = 'Runoff: Rainwater flowing over land toward the river';
+  else if (mx>=OCEAN_X && my>=OCEAN_Y-60 && my<=OCEAN_Y)
+    label = 'Evaporation: Sun heats ocean surface — water vapour rises';
+  else
+    label = 'Click near a feature to identify the water cycle process';
+
+  const canvasRect = canvas.getBoundingClientRect();
+  const offX = e.clientX - canvasRect.left + 12;
+  const offY = e.clientY - canvasRect.top  - 16;
+  popover.style.left  = offX + 'px';
+  popover.style.top   = offY + 'px';
+  popover.textContent = label;
+  popover.style.display = 'block';
+  setTimeout(() => { popover.style.display='none'; }, 3200);
+  Progress.recordSimUsed('water-cycle');
+});
+
+// ── Stage highlight ───────────────────────────────────────────
 const STAGE_INFO = {
-  all:    'The complete water cycle: evaporation → condensation → precipitation → runoff → collection → repeat.',
-  evap:   'Evaporation: Sun heats water → liquid turns to water vapour → rises. Faster at higher temperatures.',
-  transp: 'Transpiration: Plants release water vapour through leaf pores (stomata). Trees are major contributors.',
-  cond:   'Condensation: Water vapour rises and cools → forms tiny droplets around dust → clouds appear.',
-  precip: 'Precipitation: Droplets in clouds merge, become heavy → fall as rain (or snow/hail in colder areas).',
-  runoff: 'Runoff: Rainwater flows over land into rivers → streams → lakes → sea. Also soaks into soil (infiltration).',
+  all:    'The complete water cycle: evaporation → condensation → precipitation → runoff / infiltration → collection → repeat. Driven by solar energy and gravity.',
+  evap:   'Evaporation: The Sun heats the ocean and lake surfaces. Liquid water turns into water vapour (gas) and rises. Rate is higher at higher temperatures.',
+  transp: 'Transpiration: Plants absorb water through their roots and release water vapour through tiny pores called stomata in their leaves. Forests contribute greatly.',
+  cond:   'Condensation: Rising water vapour cools at altitude. Cool air holds less vapour, so it condenses into tiny droplets around dust particles — forming clouds.',
+  precip: 'Precipitation: Cloud droplets merge and grow. When too heavy to float, they fall as rain (warm) or snow/hail (cold). Singapore receives ~2,400 mm/year.',
+  runoff: 'Runoff: Rainwater that cannot soak in flows over land surfaces into rivers, streams, then back to the sea. Carries dissolved minerals and sediment.',
+  infil:  'Infiltration: Some rainwater soaks into the ground through soil and rock. It becomes groundwater, stored in underground aquifers. Can emerge as springs.',
+  collect:'Collection: Water gathers in oceans, lakes, rivers, and aquifers. The ocean holds 97% of all Earth\'s water. This is where most evaporation starts again.',
 };
 
-function setHighlight(stage) {
+function setHighlight(stage, ev) {
   highlight = stage;
-  document.querySelectorAll('.stage-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById('stage-info').textContent = STAGE_INFO[stage] || '';
+  document.querySelectorAll('.stage-btn').forEach(b=>b.classList.remove('active'));
+  if (ev && ev.target) ev.target.classList.add('active');
+  document.getElementById('stage-info').innerHTML = STAGE_INFO[stage] || '';
   Progress.recordSimUsed('water-cycle');
 }
 
+// ── Season toggle ─────────────────────────────────────────────
+function setSeason(s, ev) {
+  season = s;
+  document.querySelectorAll('.season-btn').forEach(b=>b.classList.remove('active'));
+  if (ev && ev.target) ev.target.classList.add('active');
+  // Adjust temp slider for season feel
+  const slider = document.getElementById('temp-slider');
+  if (s==='winter' && parseInt(slider.value)>15) slider.value=8;
+  if (s==='summer' && parseInt(slider.value)<18) slider.value=30;
+  Progress.recordSimUsed('water-cycle');
+}
+
+document.getElementById('temp-slider').addEventListener('input', () => {
+  Progress.recordSimUsed('water-cycle');
+  updateDynSummary();
+});
+
 // ══════════════════════════════════════════
-// QUIZ
+// QUIZ — 15 questions
 // ══════════════════════════════════════════
 const QUIZ_Q = [
-  { question: 'What process causes water to change from liquid to water vapour in the water cycle?',
-    options: ['Condensation', 'Precipitation', 'Evaporation', 'Transpiration'],
-    correct: 2, explanation: 'Evaporation is the change from liquid water to water vapour. It is driven by heat from the Sun.' },
-  { question: 'How are clouds formed?',
-    options: ['Water vapour evaporates from the sea', 'Water vapour rises, cools, and condenses into tiny water droplets', 'Rain falls and forms puddles that float up', 'Wind carries water droplets from rivers'],
-    correct: 1, explanation: 'Clouds form through condensation — water vapour in the air cools as it rises, turning back into tiny liquid water droplets that cluster together.' },
-  { question: 'What is transpiration?',
-    options: ['Water evaporating from rivers', 'Rain falling from clouds', 'Plants releasing water vapour through their leaves', 'Water vapour cooling into clouds'],
-    correct: 2, explanation: 'Transpiration is the release of water vapour from plant leaves through tiny pores called stomata. It is plants\' contribution to the water cycle.' },
-  { question: 'On a hot day, puddles disappear quickly. Which process explains this?',
-    options: ['Condensation', 'Precipitation', 'Runoff', 'Evaporation'],
-    correct: 3, explanation: 'Higher temperature causes water to evaporate faster. The puddle water turns into water vapour and rises into the atmosphere.' },
-  { question: 'Which of the following correctly shows the order of the water cycle?',
+  {
+    question: 'What process causes liquid water to change into water vapour and rise into the atmosphere?',
+    options: ['Condensation','Precipitation','Evaporation','Transpiration'],
+    correct: 2,
+    explanation: 'Evaporation is the change from liquid water to water vapour (gas), driven by heat from the Sun.'
+  },
+  {
+    question: 'How are clouds formed?',
     options: [
-      'Condensation → Evaporation → Precipitation',
+      'Water vapour evaporates directly from the sea and floats as clouds',
+      'Water vapour rises, cools, and condenses into tiny water droplets',
+      'Rainwater evaporates before reaching the ground and forms clouds',
+      'Wind blows water droplets from rivers up into the sky'
+    ],
+    correct: 1,
+    explanation: 'Clouds form through condensation — water vapour cools as it rises and condenses around tiny dust particles to form millions of tiny droplets.'
+  },
+  {
+    question: 'What is transpiration?',
+    options: [
+      'Water evaporating from rivers and lakes',
+      'Rain falling from clouds',
+      'Plants releasing water vapour through their leaves',
+      'Water vapour cooling into clouds'
+    ],
+    correct: 2,
+    explanation: 'Transpiration is the release of water vapour from plant leaves through tiny pores called stomata. Plants contribute significantly to the water cycle this way.'
+  },
+  {
+    question: 'On a hot day, puddles disappear quickly. Which process best explains this?',
+    options: ['Condensation','Precipitation','Runoff','Evaporation'],
+    correct: 3,
+    explanation: 'Higher temperature causes faster evaporation. The liquid water in the puddle absorbs heat and turns into invisible water vapour.'
+  },
+  {
+    question: 'Which correctly shows the order of the main stages of the water cycle?',
+    options: [
+      'Condensation → Evaporation → Precipitation → Runoff',
       'Evaporation → Condensation → Precipitation → Runoff',
       'Precipitation → Evaporation → Runoff → Condensation',
       'Runoff → Precipitation → Evaporation → Condensation'
     ],
-    correct: 1, explanation: 'The correct order is: Evaporation (Sun heats water) → Condensation (vapour cools, clouds form) → Precipitation (rain falls) → Runoff (water returns to sea).' },
-  { question: 'Water from a swimming pool disappears over time even though it does not rain. Why?',
-    options: ['The water leaked through the pool walls', 'The water evaporated due to heat from the Sun', 'The water condensed into clouds', 'The water was absorbed by the ground'],
-    correct: 1, explanation: 'The Sun heats the water surface, causing it to evaporate — liquid water turns into invisible water vapour and enters the atmosphere.' },
-  { question: 'Which statement about the water cycle is TRUE?',
+    correct: 1,
+    explanation: 'Evaporation (water vapour rises) → Condensation (clouds form) → Precipitation (rain falls) → Runoff (water returns to sea).'
+  },
+  {
+    question: 'What is the difference between evaporation and transpiration?',
     options: [
-      'The water cycle uses new water created by the Sun',
+      'Both are identical processes that produce the same amount of water vapour',
+      'Evaporation is from water surfaces; transpiration is from plant leaves',
+      'Transpiration is from water surfaces; evaporation is from plant leaves',
+      'Evaporation produces rain; transpiration produces clouds'
+    ],
+    correct: 1,
+    explanation: 'Evaporation occurs at water surfaces (oceans, lakes, rivers) when heated by the Sun. Transpiration occurs specifically in plants — water is released through stomata in leaves.'
+  },
+  {
+    question: 'What causes water droplets in a cloud to fall as precipitation?',
+    options: [
+      'The cloud moves to a warmer region',
+      'Evaporation removes water from the cloud',
+      'Droplets merge and become too heavy to float',
+      'Wind pushes the droplets downward'
+    ],
+    correct: 2,
+    explanation: 'Cloud droplets collide and join together, growing larger. When they become too heavy to remain suspended, gravity pulls them down as precipitation.'
+  },
+  {
+    question: 'Which factor increases the rate of evaporation?',
+    options: [
+      'Lower temperature',
+      'Smaller water surface area',
+      'Higher temperature',
+      'Calm (still) air with no wind'
+    ],
+    correct: 2,
+    explanation: 'Higher temperature gives water molecules more energy to escape from the liquid surface, so evaporation is faster. Wind and larger surface area also speed it up.'
+  },
+  {
+    question: 'In cold mountain regions, precipitation falls as snow instead of rain. Why?',
+    options: [
+      'Mountain clouds are darker and produce solid water',
+      'The air temperature is below 0°C, so water freezes before reaching the ground',
+      'Mountain winds are stronger, freezing the raindrops',
+      'Snow is lighter than rain and can only form at high altitudes'
+    ],
+    correct: 1,
+    explanation: 'When air temperature is at or below 0°C, water droplets in clouds freeze into ice crystals that join to form snowflakes, falling as snow instead of rain.'
+  },
+  {
+    question: 'What is infiltration in the water cycle?',
+    options: [
+      'Water flowing over land into rivers',
+      'Water vapour rising from oceans',
+      'Water soaking into the ground to become groundwater',
+      'Clouds releasing rain over the sea'
+    ],
+    correct: 2,
+    explanation: 'Infiltration is when rainwater seeps into the soil and rock, slowly moving downward to become groundwater stored in underground layers called aquifers.'
+  },
+  {
+    question: 'An underground layer of rock that stores large amounts of water is called a(n):',
+    options: ['Reservoir','Aquifer','Glacier','Tributory'],
+    correct: 1,
+    explanation: 'An aquifer is an underground layer of permeable rock or sediment that holds groundwater. Wells and springs draw from aquifers.'
+  },
+  {
+    question: 'Which statement about the water cycle is TRUE?',
+    options: [
+      'New water is created by the Sun to replace water that is lost',
       'Water is only found in liquid form during the cycle',
-      'The same water molecules cycle continuously — water is recycled',
+      'The same water molecules cycle continuously — water is never lost',
       'The cycle only occurs over oceans, not on land'
     ],
-    correct: 2, explanation: 'Water is not created or destroyed in the cycle. The same water molecules cycle endlessly between the atmosphere, land, and oceans.' },
+    correct: 2,
+    explanation: 'Water is never created or destroyed on Earth. The same water molecules cycle endlessly between the atmosphere, land, oceans, and underground.'
+  },
+  {
+    question: 'What provides the main energy that drives the water cycle?',
+    options: ['The Moon\'s gravitational pull','Heat energy from the Sun','Wind from weather systems','The Earth\'s rotation'],
+    correct: 1,
+    explanation: 'The Sun provides the heat energy that causes evaporation and transpiration, which move water vapour into the atmosphere. Gravity then drives precipitation and runoff.'
+  },
+  {
+    question: 'Water runs off a hillside after heavy rain and eventually reaches the sea. What happens NEXT in the cycle?',
+    options: [
+      'The water immediately turns into clouds',
+      'The water condenses in the sea',
+      'The water evaporates from the sea surface and rises as water vapour',
+      'The water flows underground into an aquifer'
+    ],
+    correct: 2,
+    explanation: 'After collection in the sea, solar energy heats the water surface, causing evaporation. Water vapour rises, cools, condenses into clouds, and the cycle continues.'
+  },
+  {
+    question: 'Why is the water cycle important for life on Earth?',
+    options: [
+      'It creates new oxygen from water molecules',
+      'It distributes fresh water across the land and replenishes rivers, lakes and groundwater',
+      'It only benefits ocean life by keeping ocean temperatures stable',
+      'It removes salt from seawater before it falls as rain'
+    ],
+    correct: 1,
+    explanation: 'The water cycle continuously distributes fresh water across Earth\'s surface — replenishing rivers, lakes, soil moisture, and groundwater that all living things depend on. Salt is left behind when seawater evaporates, so rainwater is fresh.'
+  }
 ];
 
 // ══════════════════════════════════════════
@@ -513,13 +1141,16 @@ const MM_TEMPLATE = {
     { id:4, label:'Precipitation' },
     { id:5, label:'Transpiration' },
     { id:6, label:'Runoff' },
-    { id:7, label:'Collection\n(sea / lakes)' },
+    { id:7, label:'Collection\n(ocean / lakes)' },
     { id:8, label:'Solar energy\ndrives cycle' },
     { id:9, label:'Water vapour' },
     { id:10, label:'Clouds\nform' },
+    { id:11, label:'Infiltration' },
+    { id:12, label:'Aquifer\n(groundwater)' },
   ],
   edges: [
     { from:1, to:2 }, { from:1, to:3 }, { from:1, to:4 }, { from:1, to:5 }, { from:1, to:6 },
+    { from:1, to:11 },
     { from:7, to:2, label:'heated by Sun' },
     { from:2, to:9, label:'produces' },
     { from:5, to:9, label:'adds' },
@@ -529,8 +1160,11 @@ const MM_TEMPLATE = {
     { from:4, to:6, label:'rain →' },
     { from:6, to:7, label:'returns to' },
     { from:8, to:2, label:'drives' },
+    { from:4, to:11, label:'some water' },
+    { from:11, to:12, label:'feeds' },
+    { from:12, to:7, label:'seeps to' },
   ],
-  required: ['evaporation','condensation','precipitation','transpiration','runoff','cloud','vapour','solar','collection']
+  required: ['evaporation','condensation','precipitation','transpiration','runoff','cloud','vapour','solar','collection','infiltration','aquifer']
 };
 
 let sciMap;
@@ -539,7 +1173,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('mastery-pct').textContent = Progress.masteryPct('water-cycle') + '%';
   new QuizEngine(QUIZ_Q, 'water-cycle', 'quiz-container');
   sciMap = new ScienceMindMap('mindmap-container', 'water-cycle', MM_TEMPLATE);
-  animate();
+  initGW();
+  loop();
 });
 
 function addMindNode() {

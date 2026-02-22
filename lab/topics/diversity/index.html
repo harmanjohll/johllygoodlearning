@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diversity of Living Things | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--diversity); flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .78rem; color: var(--muted); }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    /* ── Learn tab helpers ── */
+    .cue-question {
+      font-size: .78rem; color: var(--muted); margin-bottom: .75rem;
+      border-left: 2px solid var(--diversity); padding-left: .6rem;
+    }
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: var(--diversity); }
+    .mrs-nerg-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr));
+      gap: .5rem; margin: .75rem 0;
+    }
+    .nerg-card {
+      background: #0f2a1a; border: 1px solid var(--diversity); border-radius: 9px;
+      padding: .5rem .75rem; font-size: .8rem;
+    }
+    .nerg-card .letter { font-size: 1.2rem; font-weight: 800; color: var(--diversity); }
+    .nerg-card .word   { font-weight: 700; color: var(--text); font-size: .82rem; }
+    .nerg-card .desc   { color: var(--muted); font-size: .72rem; margin-top: .1rem; }
+
+    .animal-group-table { width: 100%; border-collapse: collapse; margin: .6rem 0; font-size: .83rem; }
+    .animal-group-table th { background: #0f2a1a; color: var(--diversity); padding: .45rem .7rem; text-align: left; border-bottom: 2px solid var(--diversity); }
+    .animal-group-table td { padding: .4rem .7rem; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+    .animal-group-table tr:hover td { background: #162032; }
+
+    /* ── Simulate tab ── */
+    .sim-stat {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: .5rem .9rem; font-size: .82rem; text-align: center;
+    }
+    .sim-stat strong { display: block; font-size: 1.1rem; color: var(--diversity); }
+    #diversity-canvas { border-radius: 10px; background: #0d1117; display: block; }
+    .flip-btn {
+      padding: .4rem 1rem; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text); cursor: pointer;
+      font-size: .82rem; font-weight: 600; transition: all .15s;
+    }
+    .flip-btn:hover { background: var(--card); border-color: var(--diversity); }
+    .flip-btn.active { background: #0f2a1a; border-color: var(--diversity); color: var(--diversity); }
+    .mode-select {
+      width: 100%; padding: .45rem .6rem; border-radius: 8px;
+      border: 1.5px solid var(--border); background: var(--surface);
+      color: var(--text); font-size: .83rem; cursor: pointer; margin-bottom: .75rem;
+    }
+    .mode-select:focus { outline: none; border-color: var(--diversity); }
+
+    /* Animal drag cards */
+    .animal-cards-wrap {
+      display: flex; flex-wrap: wrap; gap: .45rem; margin: .6rem 0; min-height: 50px;
+    }
+    .animal-card {
+      display: inline-flex; align-items: center; gap: .3rem;
+      padding: .35rem .65rem; border-radius: 8px;
+      border: 1.5px solid var(--border); background: var(--surface);
+      cursor: grab; font-size: .82rem; font-weight: 600; color: var(--text);
+      user-select: none; transition: all .15s; white-space: nowrap;
+    }
+    .animal-card:active { cursor: grabbing; box-shadow: 0 4px 14px rgba(16,185,129,.35); }
+    .animal-card.placed  { opacity: .4; cursor: not-allowed; }
+    .animal-card.correct-flash { border-color: var(--diversity); background: #063b27; }
+    .animal-card.wrong-flash   { border-color: #ef4444; background: #3b0f0f; }
+
+    /* Score row */
+    .score-row { display: flex; gap: .5rem; margin-top: .5rem; }
+
+    /* Trait sorter */
+    .trait-area { display: flex; gap: .5rem; margin-top: .5rem; }
+    .trait-pool { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .trait-card {
+      padding: .3rem .65rem; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--surface); cursor: pointer; font-size: .78rem;
+      font-weight: 600; color: var(--text); transition: all .2s; user-select: none;
+    }
+    .trait-card:hover { border-color: var(--diversity); background: #0f2a1a; }
+    .trait-card.living    { border-color: var(--diversity); background: #063b27; color: #6ee7b7; }
+    .trait-card.nonliving { border-color: #ef4444;          background: #3b0f0f; color: #fca5a5; }
+    .sorter-bin {
+      flex: 1; border: 2px dashed var(--border); border-radius: 10px;
+      padding: .6rem; min-height: 90px; font-size: .78rem;
+    }
+    .sorter-bin h5 { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .4rem; }
+    .sorter-bin.living-bin    { border-color: var(--diversity); }
+    .sorter-bin.nonliving-bin { border-color: #ef4444; }
+    .sorter-bin .trait-tags   { display: flex; flex-wrap: wrap; gap: .3rem; }
+    .sorter-bin .ttag {
+      padding: .15rem .45rem; border-radius: 6px; font-size: .73rem; font-weight: 600;
+    }
+    .living-bin .ttag    { background: #063b27; color: #6ee7b7; border: 1px solid var(--diversity); }
+    .nonliving-bin .ttag { background: #3b0f0f; color: #fca5a5; border: 1px solid #ef4444; }
+
+    .check-btn {
+      padding: .5rem 1.1rem; border-radius: 8px;
+      background: var(--diversity); color: #fff; border: none;
+      font-size: .84rem; font-weight: 700; cursor: pointer; transition: all .15s; margin-top: .5rem;
+    }
+    .check-btn:hover { background: #0ea070; }
+
+    #sim-feedback2 {
+      margin-top: .6rem; padding: .7rem .9rem; border-radius: 9px;
+      font-size: .84rem; background: var(--surface); border: 1px solid var(--border);
+      line-height: 1.5; min-height: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ PAGE HEADER ══════════════ -->
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🌿 Diversity of Living Things</h1>
+    <div class="meta">
+      <span class="badge badge-diversity">Life Cycles</span>&nbsp;
+      <span class="badge badge-p3">P3</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--diversity)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <!-- TABS -->
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════════ LEARN ══════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+
+      <!-- CUE COLUMN -->
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What are the 7 characteristics shared by all living things?</div>
+        <div class="cue-question">What is the difference between a vertebrate and an invertebrate?</div>
+        <div class="cue-question">What are the five groups of vertebrates?</div>
+        <div class="cue-question">How do we tell a mammal from a reptile?</div>
+        <div class="cue-question">What is the difference between flowering and non-flowering plants?</div>
+        <div class="cue-question">Why do scientists classify living things?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+
+        <div class="glossary-term">
+          <div class="term-name">Living thing</div>
+          <div class="term-def">Any organism that carries out all 7 life processes (MRS NERG). E.g. plants, animals, fungi, bacteria.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Non-living thing</div>
+          <div class="term-def">An object that does not carry out life processes. It was never alive (e.g. rock, water) or once alive (e.g. dead wood).</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Vertebrate</div>
+          <div class="term-def">An animal with a backbone (spine). Five groups: mammals, birds, reptiles, amphibians, fish.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Invertebrate</div>
+          <div class="term-def">An animal without a backbone. E.g. insects, spiders, worms, crabs, snails.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Mammal</div>
+          <div class="term-def">Warm-blooded vertebrate with fur/hair; gives birth to live young (mostly) and feeds young with milk.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Bird</div>
+          <div class="term-def">Warm-blooded vertebrate with feathers, wings, and a beak; lays hard-shelled eggs.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Reptile</div>
+          <div class="term-def">Cold-blooded vertebrate with dry, scaly skin; lays leathery eggs on land.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Amphibian</div>
+          <div class="term-def">Cold-blooded vertebrate with moist skin; lives in water and on land; lays eggs in water.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Fish</div>
+          <div class="term-def">Cold-blooded vertebrate; lives in water; has scales and fins; breathes through gills.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Insect</div>
+          <div class="term-def">An invertebrate with 3 body parts (head, thorax, abdomen), 6 legs, and usually 2 pairs of wings. E.g. ants, butterflies, bees.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Classify</div>
+          <div class="term-def">To group living things based on shared observable characteristics so they are easier to study and remember.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Characteristic</div>
+          <div class="term-def">A feature of a living thing that can be observed and used to sort or identify it (e.g. number of legs, body covering).</div>
+        </div>
+      </div>
+
+      <!-- MAIN NOTES COLUMN -->
+      <div class="cornell-main">
+
+        <div class="note-section">
+          <h4>🌱 Living vs Non-Living Things</h4>
+          <p>All living things share <strong>7 characteristics</strong>, remembered with the mnemonic <strong>MRS NERG</strong>:</p>
+          <div class="mrs-nerg-grid">
+            <div class="nerg-card">
+              <div class="letter">M</div>
+              <div class="word">Movement</div>
+              <div class="desc">Move by themselves (plants move slowly — e.g. sunflowers turn to face the sun)</div>
+            </div>
+            <div class="nerg-card">
+              <div class="letter">R</div>
+              <div class="word">Respiration</div>
+              <div class="desc">Release energy from food (all cells respire, even plants)</div>
+            </div>
+            <div class="nerg-card">
+              <div class="letter">S</div>
+              <div class="word">Sensitivity</div>
+              <div class="desc">Respond to changes in the environment (light, touch, temperature)</div>
+            </div>
+            <div class="nerg-card">
+              <div class="letter">N</div>
+              <div class="word">Nutrition</div>
+              <div class="desc">Obtain and use food for energy (plants make their own; animals eat)</div>
+            </div>
+            <div class="nerg-card">
+              <div class="letter">E</div>
+              <div class="word">Excretion</div>
+              <div class="desc">Remove waste products from the body (e.g. sweat, carbon dioxide)</div>
+            </div>
+            <div class="nerg-card">
+              <div class="letter">R</div>
+              <div class="word">Reproduction</div>
+              <div class="desc">Produce offspring of the same kind to continue the species</div>
+            </div>
+            <div class="nerg-card">
+              <div class="letter">G</div>
+              <div class="word">Growth</div>
+              <div class="desc">Increase in size and complexity over time using materials from food</div>
+            </div>
+          </div>
+          <div class="highlight">🔑 A <strong>non-living thing</strong> does NOT carry out any of these 7 processes. A <strong>dead thing</strong> once carried them out but no longer does — it is non-living.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🐾 Animals: Vertebrates and Invertebrates</h4>
+          <p>Animals are first split into two broad groups based on whether they have a <strong>backbone (spine)</strong>:</p>
+          <ul style="margin: .4rem 0 .75rem">
+            <li><strong>Vertebrates</strong> — have a backbone (about 5% of all animal species)</li>
+            <li><strong>Invertebrates</strong> — no backbone (about 95% of all animal species!)</li>
+          </ul>
+
+          <p>Vertebrates are further divided into <strong>5 groups</strong>:</p>
+          <table class="animal-group-table">
+            <thead>
+              <tr>
+                <th>Group</th>
+                <th>Body covering</th>
+                <th>Temperature</th>
+                <th>Reproduction</th>
+                <th>Examples</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong style="color:#f97316">Mammals</strong></td>
+                <td>Fur / hair</td>
+                <td>Warm-blooded</td>
+                <td>Live birth; suckle young with milk</td>
+                <td>Dog, whale, bat, human, lion</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#3b82f6">Birds</strong></td>
+                <td>Feathers</td>
+                <td>Warm-blooded</td>
+                <td>Hard-shelled eggs</td>
+                <td>Eagle, penguin, sparrow, ostrich</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#10b981">Reptiles</strong></td>
+                <td>Dry scales</td>
+                <td>Cold-blooded</td>
+                <td>Leathery eggs on land</td>
+                <td>Crocodile, lizard, snake, tortoise</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#14b8a6">Amphibians</strong></td>
+                <td>Moist, smooth skin</td>
+                <td>Cold-blooded</td>
+                <td>Jelly-covered eggs in water</td>
+                <td>Frog, toad, salamander, newt</td>
+              </tr>
+              <tr>
+                <td><strong style="color:#06b6d4">Fish</strong></td>
+                <td>Wet scales + fins</td>
+                <td>Cold-blooded</td>
+                <td>Eggs in water</td>
+                <td>Salmon, shark, clownfish, goldfish</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="highlight">💡 <strong>Warm-blooded</strong> = body temperature stays constant regardless of surroundings (mammals and birds). <strong>Cold-blooded</strong> = body temperature changes with surroundings (reptiles, amphibians, fish).</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🐜 Invertebrates</h4>
+          <p>Invertebrates have no backbone. Common groups include:</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Insects</strong> — 6 legs, 3 body parts (head, thorax, abdomen), antennae. E.g. ant, butterfly, beetle, mosquito.</li>
+            <li><strong>Arachnids</strong> — 8 legs, 2 body parts. E.g. spider, scorpion, mite.</li>
+            <li><strong>Crustaceans</strong> — hard outer shell, many legs. E.g. crab, prawn, woodlouse.</li>
+            <li><strong>Worms</strong> — long, soft, segmented bodies, no legs. E.g. earthworm.</li>
+            <li><strong>Molluscs</strong> — soft bodies, often with a shell. E.g. snail, slug, clam, octopus.</li>
+          </ul>
+          <div class="equation">Insect = 6 legs &nbsp;|&nbsp; Arachnid = 8 legs &nbsp;|&nbsp; Crustacean = 10+ legs</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🌸 Plants: Flowering and Non-Flowering</h4>
+          <p>Plants are classified by whether they produce flowers (and therefore seeds inside fruits):</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Flowering plants (Angiosperms)</strong> — produce flowers, fruits, and seeds. E.g. rose, mango tree, grass, orchid, bougainvillea.</li>
+            <li><strong>Non-flowering plants</strong> — do NOT produce flowers. They reproduce by spores or cones:
+              <ul style="margin-top:.3rem">
+                <li><em>Ferns</em> — reproduce by spores on the underside of leaves</li>
+                <li><em>Mosses</em> — small, grow in moist places, reproduce by spores</li>
+                <li><em>Conifers</em> — produce cones (not flowers). E.g. pine tree, cedar</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🔍 Using Observable Characteristics to Classify</h4>
+          <p>Scientists classify living things by looking at observable characteristics — features we can see, feel, or count without special equipment:</p>
+          <ul style="margin-top:.4rem">
+            <li>Number of legs (0, 4, 6, 8…)</li>
+            <li>Body covering (fur, feathers, scales, moist skin, shell…)</li>
+            <li>How they breathe (lungs, gills, through skin…)</li>
+            <li>How they reproduce (live birth, eggs, spores…)</li>
+            <li>Where they live (water, land, both…)</li>
+          </ul>
+          <div class="highlight">📝 A dichotomous key is a tool that uses yes/no questions based on observable characteristics to identify a living thing step by step.</div>
+        </div>
+
+      </div><!-- end cornell-main -->
+
+      <!-- SUMMARY ROW -->
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--diversity);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          All <strong>living things</strong> carry out <strong>7 life processes</strong> (MRS NERG): Movement, Respiration, Sensitivity, Nutrition, Excretion, Reproduction, Growth. Animals are classified as <strong>vertebrates</strong> (with backbone) or <strong>invertebrates</strong> (without backbone). The five vertebrate groups are <strong>mammals</strong> (fur, warm-blooded, milk), <strong>birds</strong> (feathers, warm-blooded, hard eggs), <strong>reptiles</strong> (dry scales, cold-blooded), <strong>amphibians</strong> (moist skin, cold-blooded) and <strong>fish</strong> (wet scales, gills). Plants are either <strong>flowering</strong> (produce flowers and seeds) or <strong>non-flowering</strong> (ferns, mosses, conifers). We use <strong>observable characteristics</strong> — such as body covering, number of legs, and how they reproduce — to classify living things.
+        </p>
+      </div>
+    </div>
+  </div><!-- end tab-learn -->
+
+  <!-- ══════════════ SIMULATE ══════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+
+      <!-- CUE / CONTROLS PANEL -->
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Classification Mode</div>
+
+        <label style="font-size:.75rem;color:var(--muted);font-weight:600;display:block;margin-bottom:.3rem">Choose activity:</label>
+        <select class="mode-select" id="sim-mode-select">
+          <option value="animals">🐾 Animal Kingdom</option>
+          <option value="living">🌱 Living vs Non-Living</option>
+          <option value="plants">🌸 Plant Types</option>
+        </select>
+
+        <div class="cornell-cue-label" style="margin-top:.75rem">Animal Cards</div>
+        <p style="font-size:.73rem;color:var(--muted);margin-bottom:.4rem">Drag each card to the correct branch on the tree:</p>
+        <div class="animal-cards-wrap" id="animal-cards-pool"></div>
+
+        <div class="score-row">
+          <div class="sim-stat" style="flex:1"><strong id="score-correct">0</strong>Correct</div>
+          <div class="sim-stat" style="flex:1"><strong id="score-wrong">0</strong>Wrong</div>
+        </div>
+
+        <button class="check-btn" id="check-btn" style="width:100%;margin-top:.75rem" onclick="checkClassification()">✔ Check Classification</button>
+        <button class="flip-btn" style="width:100%;margin-top:.4rem" onclick="resetSim()">↺ Reset</button>
+
+        <!-- Trait Sorter section -->
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Characteristics Sorter</div>
+        <p style="font-size:.72rem;color:var(--muted);margin-bottom:.4rem">Click each trait card — is it a characteristic of living things?</p>
+        <div class="trait-pool" id="trait-pool"></div>
+
+        <div id="trait-feedback" style="font-size:.77rem;color:var(--muted);margin-top:.5rem;line-height:1.4"></div>
+        <button class="flip-btn" style="width:100%;margin-top:.5rem" onclick="resetTraits()">↺ Reset Sorter</button>
+      </div>
+
+      <!-- MAIN CANVAS AREA -->
+      <div class="cornell-main" style="padding:.85rem 1rem">
+        <p style="font-size:.78rem;color:var(--muted);margin-bottom:.6rem">
+          <strong style="color:var(--diversity)">Animal Kingdom Explorer</strong> — Drag the animal cards (left panel) onto the correct group in the classification tree. Then click <em>Check Classification</em>.
+        </p>
+        <div class="sim-canvas-wrap" style="height:390px">
+          <canvas id="diversity-canvas" width="660" height="380"></canvas>
+        </div>
+        <div id="sim-feedback" style="margin-top:.65rem;padding:.75rem 1rem;border-radius:9px;font-size:.84rem;background:var(--surface);border:1px solid var(--border);line-height:1.5;min-height:44px"></div>
+      </div>
+
+      <!-- SUMMARY ROW -->
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--diversity);font-weight:700;margin-bottom:.4rem">Key Idea</div>
+        <p class="summary-text">
+          Animals are sorted first into <strong>vertebrates</strong> (backbone) and <strong>invertebrates</strong> (no backbone). Vertebrates split into <strong>mammals, birds, reptiles, amphibians</strong> and <strong>fish</strong> — each with unique body coverings, reproduction methods, and temperature regulation. Only organisms that carry out all <strong>7 life processes</strong> (MRS NERG) are classed as living things.
+        </p>
+      </div>
+    </div>
+  </div><!-- end tab-simulate -->
+
+  <!-- ══════════════ QUIZ ══════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Use exact science keywords in your answers:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li><em>"Mammals are <strong>warm-blooded</strong>…"</em></li>
+            <li><em>"Frogs are <strong>amphibians</strong>…"</em></li>
+            <li><em>"Insects have <strong>6 legs</strong> and <strong>3 body parts</strong>…"</em></li>
+            <li><em>"It is a <strong>non-living thing</strong> because it does not carry out any life processes."</em></li>
+          </ul>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--diversity)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Remember: <strong>MRS NERG</strong> (7 life processes). Vertebrates: <strong>mammals, birds, reptiles, amphibians, fish</strong>. Common exam trap — a spider is NOT an insect (8 legs, arachnid). A whale IS a mammal (breathes air, feeds young with milk). Penguins ARE birds (they have feathers even though they can't fly).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MIND MAP ══════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+      <span style="font-size:.73rem;color:var(--muted);margin-left:.5rem">Double-click a node to rename it · Double-click empty space to add a node</span>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════════════════ -->
+<script src="../../shared.js"></script>
+<script>
+/* ================================================================
+   DIVERSITY SIMULATOR — Animal Kingdom Explorer
+   ================================================================ */
+
+const canvas = document.getElementById('diversity-canvas');
+const ctx    = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+// ── Colour palette ──────────────────────────────────────────────
+const COL = {
+  bg:          '#0d1117',
+  gridDot:     'rgba(148,163,184,0.07)',
+  trunk:       '#334155',
+  vertebrate:  '#38bdf8',
+  invertebrate:'#a78bfa',
+  mammal:      '#f97316',
+  bird:        '#3b82f6',
+  reptile:     '#10b981',
+  amphibian:   '#14b8a6',
+  fish:        '#06b6d4',
+  insect:      '#f59e0b',
+  node_bg:     '#1e293b',
+  node_border: '#475569',
+  text:        '#e2e8f0',
+  muted:       '#64748b',
+};
+
+// ── Tree node definitions ───────────────────────────────────────
+// Each node: { id, label, x, y, w, h, color, parentId, dropTarget }
+const TREE_NODES = [
+  { id:'root',        label:'Animals',        x:330, y:30,  w:120, h:32, color:'#38bdf8', parentId:null,          dropTarget:false },
+  { id:'vertebrate',  label:'Vertebrates',    x:160, y:100, w:130, h:32, color:'#38bdf8', parentId:'root',        dropTarget:false },
+  { id:'invertebrate',label:'Invertebrates',  x:500, y:100, w:140, h:32, color:'#a78bfa', parentId:'root',        dropTarget:false },
+  { id:'mammal',      label:'Mammals',        x:30,  y:195, w:100, h:30, color:'#f97316', parentId:'vertebrate',  dropTarget:true  },
+  { id:'bird',        label:'Birds',          x:145, y:195, w:80,  h:30, color:'#3b82f6', parentId:'vertebrate',  dropTarget:true  },
+  { id:'reptile',     label:'Reptiles',       x:235, y:195, w:90,  h:30, color:'#10b981', parentId:'vertebrate',  dropTarget:true  },
+  { id:'amphibian',   label:'Amphibians',     x:330, y:195, w:110, h:30, color:'#14b8a6', parentId:'vertebrate',  dropTarget:true  },
+  { id:'fish',        label:'Fish',           x:450, y:195, w:80,  h:30, color:'#06b6d4', parentId:'vertebrate',  dropTarget:true  },
+  { id:'insect',      label:'Insects',        x:550, y:195, w:90,  h:30, color:'#f59e0b', parentId:'invertebrate',dropTarget:true  },
+];
+
+// ── Animal card data ────────────────────────────────────────────
+const ANIMALS = [
+  { id:'lion',      emoji:'🦁', name:'Lion',      group:'mammal'    },
+  { id:'eagle',     emoji:'🦅', name:'Eagle',     group:'bird'      },
+  { id:'crocodile', emoji:'🐊', name:'Crocodile', group:'reptile'   },
+  { id:'frog',      emoji:'🐸', name:'Frog',      group:'amphibian' },
+  { id:'salmon',    emoji:'🐟', name:'Salmon',    group:'fish'      },
+  { id:'ant',       emoji:'🐜', name:'Ant',       group:'insect'    },
+  { id:'butterfly', emoji:'🦋', name:'Butterfly', group:'insect'    },
+  { id:'spider',    emoji:'🕷', name:'Spider',    group:'invertebrate' },
+];
+
+// State
+let placed   = {};   // animalId → treeNodeId
+let fx       = [];   // flying animations { x, y, tx, ty, progress, color, emoji, name }
+let flashNode = {};  // treeNodeId → { frames, color }
+let checked  = false;
+let scoreCorrect = 0, scoreWrong = 0;
+
+// ── Build DOM cards ─────────────────────────────────────────────
+function buildAnimalCards() {
+  const pool = document.getElementById('animal-cards-pool');
+  pool.innerHTML = '';
+  ANIMALS.forEach(a => {
+    const el = document.createElement('div');
+    el.className = 'animal-card';
+    el.id = 'card-' + a.id;
+    el.draggable = true;
+    el.innerHTML = `${a.emoji} ${a.name}`;
+    el.dataset.animalId = a.id;
+
+    el.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('animalId', a.id);
+      el.classList.add('dragging');
+    });
+    el.addEventListener('dragend', () => el.classList.remove('dragging'));
+    pool.appendChild(el);
+  });
+}
+
+// Canvas drag-and-drop (canvas as drop target)
+canvas.addEventListener('dragover', e => { e.preventDefault(); });
+canvas.addEventListener('drop', e => {
+  e.preventDefault();
+  const animalId = e.dataTransfer.getData('animalId');
+  if (!animalId) return;
+  const r  = canvas.getBoundingClientRect();
+  const mx = (e.clientX - r.left) * (W / r.width);
+  const my = (e.clientY - r.top)  * (H / r.height);
+  const node = hitTestNode(mx, my);
+  if (node && node.dropTarget) {
+    placeAnimal(animalId, node.id, mx, my);
+    Progress.recordSimUsed('diversity');
+  } else {
+    setFeedback('Drop the card onto a highlighted group box on the tree!', 'neutral');
+  }
+});
+
+// Touch drag on canvas (for mobile)
+let touchDragId = null;
+canvas.addEventListener('touchstart', e => {
+  // Only intercept if started inside a card on canvas
+}, { passive: true });
+
+function hitTestNode(mx, my) {
+  for (const n of TREE_NODES) {
+    const cx = n.x - n.w/2, cy = n.y - n.h/2;
+    if (mx >= cx && mx <= cx + n.w && my >= cy && my <= cy + n.h) return n;
+  }
+  return null;
+}
+
+function placeAnimal(animalId, nodeId, fromX, fromY) {
+  const node = TREE_NODES.find(n => n.id === nodeId);
+  const animal = ANIMALS.find(a => a.id === animalId);
+  // Already placed elsewhere → remove old
+  delete placed[animalId];
+  placed[animalId] = nodeId;
+  // Hide card in pool
+  const card = document.getElementById('card-' + animalId);
+  if (card) card.classList.add('placed');
+
+  // Start fly animation
+  fx.push({ x: fromX, y: fromY, tx: node.x, ty: node.y + 55 + getSlotIndex(nodeId) * 22,
+            progress: 0, color: node.color, emoji: animal.emoji, name: animal.name, animalId });
+  setFeedback(`Placed ${animal.emoji} ${animal.name} in <strong>${nodeId}</strong>. Click "Check Classification" when done!`, 'neutral');
+  checked = false;
+}
+
+function getSlotIndex(nodeId) {
+  const placed_list = Object.entries(placed).filter(([,v]) => v === nodeId);
+  return placed_list.length - 1;
+}
+
+function checkClassification() {
+  scoreCorrect = 0; scoreWrong = 0;
+  flashNode = {};
+  let details = [];
+
+  ANIMALS.forEach(a => {
+    const p = placed[a.id];
+    if (!p) return;
+    const correct = (a.group === p) || (a.group === 'invertebrate' && p === 'insect' && a.id !== 'spider')
+                    || (a.group === 'invertebrate' && p === 'invertebrate');
+
+    // For spider: group=invertebrate, correct if placed in invertebrate or insect? 
+    // Strictly: spider → arachnid (invertebrate). Accept 'invertebrate' but not insect.
+    const strictCorrect = a.group === p;
+
+    if (strictCorrect) {
+      scoreCorrect++;
+      flashNode[p] = { frames: 40, color: '#10b981' };
+      const card = document.getElementById('card-' + a.id);
+      if (card) { card.classList.add('correct-flash'); card.classList.remove('wrong-flash'); }
+    } else {
+      scoreWrong++;
+      flashNode[p] = { frames: 40, color: '#ef4444' };
+      const card = document.getElementById('card-' + a.id);
+      if (card) { card.classList.add('wrong-flash'); card.classList.remove('correct-flash'); }
+      details.push(`${a.emoji} ${a.name} belongs to <strong>${a.group}</strong>`);
+    }
+  });
+
+  document.getElementById('score-correct').textContent = scoreCorrect;
+  document.getElementById('score-wrong').textContent   = scoreWrong;
+
+  const total = Object.keys(placed).length;
+  if (total === 0) {
+    setFeedback('Drag the animal cards onto the tree first, then check!', 'neutral');
+    return;
+  }
+  if (scoreWrong === 0) {
+    setFeedback(`Excellent! All ${scoreCorrect} animals correctly classified! You're a scientist! 🎉`, 'correct');
+  } else {
+    setFeedback(`${scoreCorrect} correct, ${scoreWrong} wrong. Check: ${details.join('; ')}.`, 'wrong');
+  }
+  checked = true;
+}
+
+function resetSim() {
+  placed = {}; fx = []; flashNode = {}; checked = false;
+  scoreCorrect = 0; scoreWrong = 0;
+  document.getElementById('score-correct').textContent = '0';
+  document.getElementById('score-wrong').textContent   = '0';
+  buildAnimalCards();
+  setFeedback('Drag animal cards from the left panel onto the classification tree. Then click Check Classification.', 'neutral');
+}
+
+function setFeedback(msg, type) {
+  const el = document.getElementById('sim-feedback');
+  el.innerHTML = msg;
+  el.style.borderColor = type === 'correct' ? '#10b981' : type === 'wrong' ? '#ef4444' : 'var(--border)';
+  el.style.color       = type === 'correct' ? '#6ee7b7' : type === 'wrong' ? '#fca5a5' : 'var(--muted)';
+}
+
+// ── Canvas drawing ──────────────────────────────────────────────
+function drawGrid() {
+  ctx.fillStyle = COL.gridDot;
+  for (let gx = 20; gx < W; gx += 28)
+    for (let gy = 16; gy < H; gy += 28) {
+      ctx.beginPath(); ctx.arc(gx, gy, 1, 0, Math.PI*2); ctx.fill();
+    }
+}
+
+function drawBranch(x1, y1, x2, y2, color, alpha) {
+  ctx.save();
+  ctx.strokeStyle = color || '#334155';
+  ctx.globalAlpha = alpha || 0.9;
+  ctx.lineWidth   = 2;
+  ctx.lineCap     = 'round';
+  const cx = x1, cy = (y1 + y2) / 2;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.bezierCurveTo(cx, cy, cx, cy, x2, y2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawTreeNode(n) {
+  const flash = flashNode[n.id];
+  const cx    = n.x - n.w/2, cy = n.y - n.h/2;
+  const isFlashing = flash && flash.frames > 0;
+  const borderCol  = isFlashing ? flash.color : (n.dropTarget ? n.color : COL.node_border);
+  const bgCol      = n.dropTarget
+    ? (isFlashing ? (flash.color === '#10b981' ? '#063b27' : '#3b0f0f') : '#111827')
+    : '#1e293b';
+
+  // Glow if drop target
+  if (n.dropTarget) {
+    ctx.save();
+    ctx.shadowColor = borderCol;
+    ctx.shadowBlur  = isFlashing ? 18 : 6;
+    ctx.fillStyle   = bgCol;
+    ctx.strokeStyle = borderCol;
+    ctx.lineWidth   = isFlashing ? 2.5 : 1.5;
+    ctx.beginPath();
+    roundRect(ctx, cx, cy, n.w, n.h, 8);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  } else {
+    ctx.fillStyle   = bgCol;
+    ctx.strokeStyle = borderCol;
+    ctx.lineWidth   = 1.5;
+    ctx.beginPath();
+    roundRect(ctx, cx, cy, n.w, n.h, 8);
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  // Label
+  ctx.fillStyle  = n.dropTarget ? n.color : COL.text;
+  ctx.font       = `${n.dropTarget ? 600 : 700} ${n.dropTarget ? 11 : 12}px Inter, sans-serif`;
+  ctx.textAlign  = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(n.label, n.x, n.y);
+  ctx.textBaseline = 'alphabetic';
+
+  if (flash && flash.frames > 0) flash.frames--;
+}
+
+// Draw placed animals under their node
+function drawPlacedAnimals() {
+  // Group placed animals by node
+  const byNode = {};
+  Object.entries(placed).forEach(([aid, nid]) => {
+    if (!byNode[nid]) byNode[nid] = [];
+    byNode[nid].push(ANIMALS.find(a => a.id === aid));
+  });
+
+  Object.entries(byNode).forEach(([nid, animals]) => {
+    const node = TREE_NODES.find(n => n.id === nid);
+    if (!node) return;
+    const startX = node.x - (animals.length - 1) * 18;
+    animals.forEach((a, i) => {
+      const ax = startX + i * 36;
+      const ay = node.y + 22;
+      ctx.font = '16px serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(a.emoji, ax, ay + 14);
+    });
+  });
+}
+
+// Flying animations
+function updateFx() {
+  fx = fx.filter(f => f.progress < 1);
+  fx.forEach(f => {
+    f.progress = Math.min(1, f.progress + 0.05);
+    const t  = f.progress;
+    const et = t * t * (3 - 2 * t); // smoothstep
+    const cx = f.x + (f.tx - f.x) * et;
+    const cy = f.y + (f.ty - f.y) * et - Math.sin(Math.PI * t) * 35;
+
+    ctx.save();
+    ctx.globalAlpha = 1 - t * 0.2;
+    ctx.font = '18px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(f.emoji, cx, cy);
+    ctx.globalAlpha = (1 - t) * 0.8;
+    ctx.font = 'bold 10px Inter';
+    ctx.fillStyle = f.color;
+    ctx.fillText(f.name, cx, cy - 14);
+    ctx.restore();
+  });
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// Draw a legend strip at the bottom
+function drawLegend() {
+  const groups = [
+    { label: 'Mammals',     color: COL.mammal     },
+    { label: 'Birds',       color: COL.bird       },
+    { label: 'Reptiles',    color: COL.reptile    },
+    { label: 'Amphibians',  color: COL.amphibian  },
+    { label: 'Fish',        color: COL.fish       },
+    { label: 'Invertebrates', color: COL.invertebrate },
+  ];
+  const startX = 10, y = H - 20;
+  ctx.font = '9.5px Inter, sans-serif';
+  let cx = startX;
+  groups.forEach(g => {
+    ctx.fillStyle = g.color;
+    ctx.beginPath(); ctx.arc(cx + 5, y - 3, 4, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = COL.muted;
+    ctx.textAlign = 'left';
+    ctx.fillText(g.label, cx + 13, y);
+    cx += ctx.measureText(g.label).width + 25;
+  });
+}
+
+function drawLoop() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = COL.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  drawGrid();
+
+  // Draw branches first
+  TREE_NODES.forEach(n => {
+    if (!n.parentId) return;
+    const parent = TREE_NODES.find(p => p.id === n.parentId);
+    if (!parent) return;
+    const col = n.parentId === 'root'
+      ? (n.id === 'vertebrate' ? '#38bdf8' : '#a78bfa')
+      : n.color;
+    drawBranch(parent.x, parent.y + parent.h/2, n.x, n.y - n.h/2, col, 0.55);
+  });
+
+  // Draw nodes
+  TREE_NODES.forEach(drawTreeNode);
+
+  // Draw placed animals
+  drawPlacedAnimals();
+
+  // Flying animations
+  updateFx();
+
+  drawLegend();
+
+  // Hint text
+  ctx.font = '10px Inter'; ctx.fillStyle = '#3a4a5a'; ctx.textAlign = 'left';
+  ctx.fillText('Drop animal cards from the left panel onto the coloured group boxes above', 10, H - 34);
+
+  requestAnimationFrame(drawLoop);
+}
+
+/* ================================================================
+   CHARACTERISTICS SORTER MINI-GAME
+   ================================================================ */
+const TRAITS = [
+  { name: 'Breathes',     living: true  },
+  { name: 'Moves',        living: true  },
+  { name: 'Grows',        living: true  },
+  { name: 'Eats / Feeds', living: true  },
+  { name: 'Reproduces',   living: true  },
+  { name: 'Responds',     living: true  },
+  { name: 'Excretes',     living: true  },
+  { name: 'Made of metal',living: false },
+];
+
+let traitState = {}; // name → 'living'|'nonliving'|null
+
+function buildTraitCards() {
+  const pool = document.getElementById('trait-pool');
+  pool.innerHTML = '';
+  traitState = {};
+  TRAITS.forEach(t => {
+    traitState[t.name] = null;
+    const el = document.createElement('div');
+    el.className = 'trait-card';
+    el.id = 'trait-' + t.name.replace(/\s/g,'_');
+    el.textContent = t.name;
+    el.addEventListener('click', () => clickTrait(t, el));
+    pool.appendChild(el);
+  });
+  document.getElementById('trait-feedback').textContent = 'Click a trait to classify it — is it something ONLY living things do?';
+}
+
+function clickTrait(t, el) {
+  const prev = traitState[t.name];
+
+  // Cycle: null → living → nonliving → null
+  let next;
+  if (prev === null)       next = 'living';
+  else if (prev === 'living') next = 'nonliving';
+  else next = null;
+
+  traitState[t.name] = next;
+
+  el.classList.remove('living','nonliving');
+  if (next === 'living')    el.classList.add('living');
+  if (next === 'nonliving') el.classList.add('nonliving');
+
+  // Check answer immediately
+  let fb = '';
+  if (next !== null) {
+    const correct = (next === 'living') === t.living;
+    fb = correct
+      ? `Correct! "${t.name}" is ${t.living ? 'a life process' : 'NOT a life process — it describes a non-living object'}. ✅`
+      : `Not quite! "${t.name}" is ${t.living ? 'actually a life process (living things do this)' : 'NOT a life process'}. Try again! ❌`;
+    document.getElementById('trait-feedback').innerHTML = fb;
+    document.getElementById('trait-feedback').style.color = correct ? '#6ee7b7' : '#fca5a5';
+  } else {
+    document.getElementById('trait-feedback').textContent = 'Classify the trait by clicking it.';
+    document.getElementById('trait-feedback').style.color = '';
+  }
+  Progress.recordSimUsed('diversity');
+}
+
+function resetTraits() {
+  buildTraitCards();
+  document.getElementById('trait-feedback').textContent = 'Click a trait to classify it — is it something ONLY living things do?';
+  document.getElementById('trait-feedback').style.color = '';
+}
+
+/* ================================================================
+   QUIZ — 15 questions, pool 10
+   ================================================================ */
+const QUIZ_Q = [
+  {
+    question: 'Which of the following is a characteristic shared by ALL living things?',
+    options: ['Has a fixed shape', 'Can reproduce', 'Is made of metal', 'Does not need food'],
+    correct: 1,
+    explanation: 'All living things reproduce. The other options describe non-living things or are incorrect for all living things.'
+  },
+  {
+    question: 'A frog has moist, smooth skin, lives both in water and on land, and lays jelly-covered eggs in water. Which animal group does a frog belong to?',
+    options: ['Reptiles', 'Fish', 'Amphibians', 'Mammals'],
+    correct: 2,
+    explanation: 'Frogs are amphibians — cold-blooded vertebrates with moist skin that live on land and in water and lay eggs in water.'
+  },
+  {
+    question: 'What is the key difference between a vertebrate and an invertebrate?',
+    options: [
+      'Vertebrates are large; invertebrates are small',
+      'Vertebrates have a backbone; invertebrates do not',
+      'Vertebrates live in water; invertebrates live on land',
+      'Vertebrates are warm-blooded; invertebrates are cold-blooded'
+    ],
+    correct: 1,
+    explanation: 'The defining difference is the backbone (spine). Vertebrates have one; invertebrates do not.'
+  },
+  {
+    question: 'A bat flies, gives birth to live young, and feeds its babies with milk. What type of animal is a bat?',
+    options: ['Bird', 'Reptile', 'Insect', 'Mammal'],
+    correct: 3,
+    explanation: 'A bat is a mammal — it has fur, gives birth to live young, and feeds them with milk. Bats are the only flying mammals.'
+  },
+  {
+    question: 'Which body covering is found on birds?',
+    options: ['Dry scales', 'Moist smooth skin', 'Feathers', 'Fur or hair'],
+    correct: 2,
+    explanation: 'Birds are the only animals with feathers. This is the key characteristic that identifies them as birds.'
+  },
+  {
+    question: 'A spider has 8 legs and 2 body parts. Which group does it belong to?',
+    options: ['Insect', 'Amphibian', 'Arachnid (invertebrate)', 'Fish'],
+    correct: 2,
+    explanation: 'Spiders are arachnids, not insects. Insects have 6 legs and 3 body parts. Arachnids have 8 legs and 2 body parts.'
+  },
+  {
+    question: 'Which of these is a NON-LIVING thing?',
+    options: ['A dried-up leaf still on the branch', 'Coral reef (coral animals)', 'A rock that has moss growing on it', 'A rock with no living organisms on it'],
+    correct: 3,
+    explanation: 'A plain rock does not carry out any life processes — it is a non-living thing. Moss is living; coral animals are living; a leaf still connected to a living branch is part of a living thing.'
+  },
+  {
+    question: 'Salmon live in water, have scales and fins, and breathe through gills. Which group do they belong to?',
+    options: ['Amphibians', 'Reptiles', 'Fish', 'Invertebrates'],
+    correct: 2,
+    explanation: 'Salmon are fish — cold-blooded vertebrates that live in water, have scales and fins, and breathe through gills.'
+  },
+  {
+    question: 'Which of these plants is a NON-FLOWERING plant?',
+    options: ['Rose', 'Mango tree', 'Fern', 'Orchid'],
+    correct: 2,
+    explanation: 'Ferns are non-flowering plants — they reproduce using spores, not flowers and seeds. Roses, mango trees, and orchids all produce flowers.'
+  },
+  {
+    question: 'Which mnemonic helps us remember the 7 characteristics of living things?',
+    options: ['PLANTS', 'MRS NERG', 'SMART', 'ABC XYZ'],
+    correct: 1,
+    explanation: 'MRS NERG stands for Movement, Respiration, Sensitivity, Nutrition, Excretion, Reproduction, Growth — the 7 life processes.'
+  },
+  {
+    question: 'A crocodile has dry, scaly skin and lays leathery eggs on land. It is cold-blooded. Which group does it belong to?',
+    options: ['Amphibians', 'Reptiles', 'Fish', 'Mammals'],
+    correct: 1,
+    explanation: 'Crocodiles are reptiles — cold-blooded vertebrates with dry, scaly skin that lay leathery eggs on land.'
+  },
+  {
+    question: 'Which characteristic is used FIRST to classify an animal as a vertebrate or invertebrate?',
+    options: ['The colour of its skin', 'Whether it has a backbone', 'The number of eyes it has', 'Where it lives'],
+    correct: 1,
+    explanation: 'The presence or absence of a backbone (spine) is the first and most important feature used to classify animals into vertebrates or invertebrates.'
+  },
+  {
+    question: 'A penguin cannot fly, but it has feathers and lays hard-shelled eggs. What type of animal is a penguin?',
+    options: ['Reptile', 'Fish', 'Bird', 'Amphibian'],
+    correct: 2,
+    explanation: 'Penguins are birds — they have feathers and lay hard-shelled eggs. Not all birds can fly; the defining feature is feathers, not flight.'
+  },
+  {
+    question: 'Butterflies, ants, and beetles are all insects. What feature do they all share?',
+    options: ['8 legs', '4 legs', '6 legs and 3 body parts', '2 legs and 2 body parts'],
+    correct: 2,
+    explanation: 'All insects have exactly 6 legs and 3 body parts (head, thorax, abdomen). This is what makes them insects.'
+  },
+  {
+    question: 'Which of these groups correctly shows plants with flowers?',
+    options: [
+      'Fern, moss, pine tree',
+      'Rose, mango tree, orchid',
+      'Fern, rose, pine tree',
+      'Moss, orchid, fern'
+    ],
+    correct: 1,
+    explanation: 'Roses, mango trees, and orchids are all flowering plants (angiosperms). Fern, moss, and pine trees are non-flowering plants.'
+  },
+];
+
+/* ================================================================
+   MIND MAP TEMPLATE
+   ================================================================ */
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1,  label:'Diversity of\nLiving Things', color:{ background:'#0f2a1a', border:'#10b981' }, font:{ size:15, color:'#6ee7b7' } },
+    { id:2,  label:'Living Things',   color:{ background:'#0f2a1a', border:'#10b981' } },
+    { id:3,  label:'Non-Living\nThings', color:{ background:'#1e293b', border:'#475569' } },
+    { id:4,  label:'Animals' },
+    { id:5,  label:'Plants' },
+    { id:6,  label:'Vertebrates' },
+    { id:7,  label:'Invertebrates' },
+    { id:8,  label:'Mammals',    color:{ background:'#1e1208', border:'#f97316' }, font:{ color:'#fb923c' } },
+    { id:9,  label:'Birds',      color:{ background:'#0c1530', border:'#3b82f6' }, font:{ color:'#60a5fa' } },
+    { id:10, label:'Reptiles',   color:{ background:'#0f2a1a', border:'#10b981' }, font:{ color:'#34d399' } },
+    { id:11, label:'Amphibians', color:{ background:'#0b2222', border:'#14b8a6' }, font:{ color:'#2dd4bf' } },
+    { id:12, label:'Fish',       color:{ background:'#082025', border:'#06b6d4' }, font:{ color:'#22d3ee' } },
+    { id:13, label:'Flowering\nPlants',     color:{ background:'#1e1012', border:'#f43f5e' }, font:{ color:'#fb7185' } },
+    { id:14, label:'Non-Flowering\nPlants', color:{ background:'#12180f', border:'#84cc16' }, font:{ color:'#a3e635' } },
+    { id:15, label:'MRS NERG\n(7 life processes)' },
+    { id:16, label:'Classify by\nCharacteristics' },
+  ],
+  edges: [
+    { from:1,  to:2,  label:'includes' },
+    { from:1,  to:3,  label:'vs' },
+    { from:2,  to:4,  label:'e.g.' },
+    { from:2,  to:5,  label:'e.g.' },
+    { from:2,  to:15, label:'defined by' },
+    { from:4,  to:6,  label:'→ backbone' },
+    { from:4,  to:7,  label:'→ no backbone' },
+    { from:6,  to:8 }, { from:6, to:9 }, { from:6, to:10 },
+    { from:6,  to:11 }, { from:6, to:12 },
+    { from:5,  to:13 }, { from:5, to:14 },
+    { from:1,  to:16, label:'method' },
+  ],
+  required: ['vertebrate','invertebrate','mammal','classify','living','bird','reptile','amphibian','fish','plant']
+};
+
+/* ================================================================
+   INIT
+   ================================================================ */
+let sciMap;
+
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('diversity');
+  document.getElementById('mastery-pct').textContent = Progress.masteryPct('diversity') + '%';
+
+  buildAnimalCards();
+  buildTraitCards();
+  setFeedback('Drag animal cards from the left panel onto the classification tree. Then click Check Classification.', 'neutral');
+  drawLoop();
+
+  new QuizEngine(QUIZ_Q, 'diversity', 'quiz-container', 10);
+
+  sciMap = new ScienceMindMap('mindmap-container', 'diversity', MM_TEMPLATE);
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>

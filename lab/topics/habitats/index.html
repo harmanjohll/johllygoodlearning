@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habitats &amp; Food Chains | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: #f59e0b; flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .78rem; color: var(--muted); }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    /* Cue questions */
+    .cue-question { font-size: .78rem; color: var(--muted); margin-bottom: .75rem; border-left: 2px solid #f59e0b; padding-left: .6rem; }
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: #f59e0b; }
+
+    /* Override accent to amber for this topic's highlights */
+    #tab-learn .highlight { background: #2a1a00; border-left-color: #f59e0b; color: #fcd34d; }
+    #tab-learn .note-section h4 { color: #f59e0b; }
+    #tab-learn .equation { border-color: #f59e0b44; color: #fcd34d; background: #1a1200; }
+
+    /* Canvas */
+    #habitat-canvas { border-radius: 10px; background: #0d1117; display: block; cursor: default; }
+    .sim-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: .5rem .9rem; font-size: .82rem; text-align: center; }
+    .sim-stat strong { display: block; font-size: 1.1rem; color: #f59e0b; }
+
+    /* Organism info panel */
+    #org-info { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .85rem; font-size: .82rem; color: var(--muted); min-height: 90px; margin-top: .75rem; }
+    #org-info .org-name { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: .25rem; }
+    #org-info .org-role { display: inline-block; padding: .1rem .5rem; border-radius: 99px; font-size: .7rem; font-weight: 700; margin-bottom: .4rem; }
+    .role-producer   { background:#063b1a; color:#6ee7b7; border:1px solid #10b981; }
+    .role-herbivore  { background:#2a1a00; color:#fcd34d; border:1px solid #f59e0b; }
+    .role-omnivore   { background:#2a1200; color:#fdba74; border:1px solid #f97316; }
+    .role-carnivore  { background:#3b0f0f; color:#fca5a5; border:1px solid #ef4444; }
+    .role-decomposer { background:#1a1000; color:#d4a574; border:1px solid #92400e; }
+
+    /* Population simulator mini-chart */
+    #pop-canvas { display: block; border-radius: 6px; background: #0d1117; margin-top: .5rem; }
+
+    /* Sim controls */
+    .sim-btn { padding: .38rem .85rem; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text); cursor: pointer; font-size: .79rem;
+      font-weight: 600; transition: all .15s; white-space: nowrap; }
+    .sim-btn:hover { background: var(--card); border-color: #f59e0b; }
+    .sim-btn.active { background: #2a1a00; border-color: #f59e0b; color: #fcd34d; }
+    .sim-btn.danger { border-color: #ef4444; }
+    .sim-btn.danger:hover { background: #3b0f0f; color: #fca5a5; }
+
+    /* Slider label row */
+    .slider-row { display: flex; align-items: center; gap: .5rem; margin-bottom: .3rem; }
+    .slider-row label { font-size: .75rem; color: var(--muted); width: 55px; font-weight: 600; flex-shrink: 0; }
+    .slider-row input { flex: 1; }
+    .slider-row span  { font-size: .75rem; color: var(--text); width: 22px; text-align: right; }
+
+    /* Challenge panel */
+    #challenge-panel { background: #1a1a00; border: 1px solid #f59e0b44; border-radius: 10px; padding: .75rem; font-size: .79rem; color: var(--muted); margin-top: .75rem; display: none; }
+    #challenge-panel .ch-title { font-size: .8rem; font-weight: 700; color: #fcd34d; margin-bottom: .35rem; }
+    #challenge-panel .ch-link  { margin-bottom: .2rem; display: flex; align-items: center; gap: .4rem; }
+    #challenge-panel .ch-link .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+    #challenge-panel .ch-link.found .dot { background: #10b981; }
+
+    /* Feedback strip */
+    #sim-feedback { margin-top: .75rem; padding: .8rem 1rem; border-radius: 9px; font-size: .85rem;
+      background: var(--surface); border: 1px solid var(--border); line-height: 1.5; min-height: 48px; }
+
+    /* Chain count badge */
+    #chain-count { display: inline-block; padding: .15rem .65rem; border-radius: 99px; background: #2a1a00;
+      border: 1px solid #f59e0b; color: #fcd34d; font-size: .78rem; font-weight: 700; }
+
+    /* Mind map container */
+    #mindmap-container { border: 1.5px solid var(--border); border-radius: 10px; background: #0d1a2e; height: 480px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🌿 Habitats &amp; Food Chains</h1>
+    <div class="meta">
+      <span class="badge badge-energy">Ecosystems</span>&nbsp;
+      <span class="badge badge-p4">P4</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:#f59e0b">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <!-- TABS -->
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════════ LEARN ══════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What is a habitat?</div>
+        <div class="cue-question">What is a food chain?</div>
+        <div class="cue-question">What is a producer? A consumer? A decomposer?</div>
+        <div class="cue-question">How does energy flow along a food chain?</div>
+        <div class="cue-question">What is a food web?</div>
+        <div class="cue-question">What happens if one organism is removed from a food web?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+        <div class="glossary-term"><div class="term-name">Habitat</div><div class="term-def">The natural environment where an organism lives, finds food, shelter, and mates. Examples: forest, ocean, desert, pond, rainforest.</div></div>
+        <div class="glossary-term"><div class="term-name">Organism</div><div class="term-def">Any living thing — plants, animals, fungi, and bacteria are all organisms.</div></div>
+        <div class="glossary-term"><div class="term-name">Food Chain</div><div class="term-def">A sequence showing how energy passes from one organism to the next through feeding. Always starts with a producer.</div></div>
+        <div class="glossary-term"><div class="term-name">Food Web</div><div class="term-def">A network of many interconnected food chains in an ecosystem. More realistic than a single food chain.</div></div>
+        <div class="glossary-term"><div class="term-name">Producer</div><div class="term-def">An organism that makes its own food using sunlight (photosynthesis). Always a plant or plant-like organism. E.g. grass, trees, algae.</div></div>
+        <div class="glossary-term"><div class="term-name">Primary Consumer</div><div class="term-def">An organism that eats producers (plants). Also called a herbivore. E.g. rabbit, caterpillar, grasshopper, deer.</div></div>
+        <div class="glossary-term"><div class="term-name">Secondary Consumer</div><div class="term-def">An organism that eats primary consumers. Can be a carnivore or omnivore. E.g. frog, fox, small snake.</div></div>
+        <div class="glossary-term"><div class="term-name">Predator</div><div class="term-def">An animal that hunts and eats other animals. E.g. hawk, snake, fox, frog.</div></div>
+        <div class="glossary-term"><div class="term-name">Prey</div><div class="term-def">An animal that is hunted and eaten by a predator. E.g. rabbit, grasshopper, caterpillar.</div></div>
+        <div class="glossary-term"><div class="term-name">Decomposer</div><div class="term-def">An organism that breaks down dead plants and animals, returning nutrients to the soil. E.g. mushrooms (fungi), bacteria, worms.</div></div>
+        <div class="glossary-term"><div class="term-name">Adaptation</div><div class="term-def">A feature that helps an organism survive in its habitat. E.g. a camel's hump stores fat for energy in the desert.</div></div>
+        <div class="glossary-term"><div class="term-name">Environment</div><div class="term-def">The surroundings of an organism, including all living and non-living things around it.</div></div>
+      </div>
+
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🏕 What is a Habitat?</h4>
+          <p>A <strong>habitat</strong> is the place where an organism <strong>lives and finds everything it needs</strong> — food, water, shelter, and space to reproduce. Different organisms are adapted to different habitats.</p>
+          <ul style="margin-top:.5rem">
+            <li><strong>Forest:</strong> Deer, foxes, owls, squirrels, ferns — sheltered from sun, rich leaf litter</li>
+            <li><strong>Ocean:</strong> Sharks, fish, crabs, seaweed, coral — saltwater, high pressure at depth</li>
+            <li><strong>Desert:</strong> Camels, scorpions, cacti — very little rain, extreme heat/cold</li>
+            <li><strong>Pond:</strong> Frogs, dragonflies, water lilies, ducks — freshwater, shallow</li>
+            <li><strong>Rainforest:</strong> Toucans, jaguars, orchids, tree frogs — warm, very high rainfall</li>
+          </ul>
+          <div class="highlight">🔑 An organism that is well <strong>adapted</strong> to its habitat has a better chance of survival. Remove the habitat and the organism cannot survive.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🌱 Producers, Consumers &amp; Decomposers</h4>
+          <p>Every organism in an ecosystem has a <strong>feeding role</strong>:</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Producers (Plants):</strong> Make their own food by photosynthesis. The starting point of every food chain.</li>
+            <li><strong>Consumers — Herbivores:</strong> Eat only plants. E.g. rabbit, caterpillar, grasshopper, deer.</li>
+            <li><strong>Consumers — Carnivores:</strong> Eat only animals. E.g. hawk, snake, lion.</li>
+            <li><strong>Consumers — Omnivores:</strong> Eat both plants and animals. E.g. fox, crow, humans.</li>
+            <li><strong>Decomposers:</strong> Break down dead organisms. Return nutrients to soil for plants. E.g. mushrooms, bacteria, earthworms.</li>
+          </ul>
+          <div class="highlight">💡 Decomposers are vital — without them, nutrients would stay locked in dead matter and producers could not grow.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>⛓ Food Chains</h4>
+          <p>A <strong>food chain</strong> shows the path of energy from one organism to the next. The <strong>arrow means "is eaten by"</strong> or "energy flows to".</p>
+          <div class="equation">Grass 🌿 → Grasshopper 🦗 → Frog 🐸 → Snake 🐍 → Hawk 🦅</div>
+          <ul style="margin-top:.4rem">
+            <li>The chain always <strong>starts with a producer</strong> (plant).</li>
+            <li>Energy is <strong>lost as heat</strong> at each link — so longer chains have less energy at the end.</li>
+            <li>Each position is called a <strong>trophic level</strong>.</li>
+            <li>Primary consumer = 1st animal in chain; Secondary = 2nd; Tertiary = 3rd.</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🕸 Food Webs</h4>
+          <p>In nature, most organisms eat more than one type of food. A <strong>food web</strong> connects many food chains to show the real feeding relationships in an ecosystem.</p>
+          <div class="highlight">🔑 A food web is more <strong>stable</strong> than a single chain. If one prey disappears, a predator can switch to another food source.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>📉 Energy Flow &amp; Population Balance</h4>
+          <p>Energy decreases at every trophic level because organisms use energy for their own life processes:</p>
+          <div class="equation">Sun → Producer (100%) → Herbivore (~10%) → Carnivore (~1%)</div>
+          <p style="margin-top:.5rem"><strong>Population balance — what happens when numbers change?</strong></p>
+          <ul style="margin-top:.4rem">
+            <li>If <strong>hawk numbers increase</strong> → more snakes eaten → snake population falls → frogs increase → grasshoppers decrease → grass increases.</li>
+            <li>If <strong>grass is destroyed</strong> → grasshoppers starve → frogs decrease → snakes decrease → hawk decrease. Whole chain collapses.</li>
+            <li>Removing <strong>any organism</strong> from a web causes a <strong>ripple effect</strong> through all connected organisms.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#f59e0b;font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          A <strong>habitat</strong> provides everything an organism needs to survive. <strong>Producers</strong> (plants) make food from sunlight and are always first in a food chain. <strong>Consumers</strong> eat producers or other consumers; <strong>decomposers</strong> break down dead matter. The arrow in a food chain means <strong>"is eaten by"</strong> — energy flows from left to right. <strong>Food webs</strong> show multiple interconnected chains. <strong>Energy decreases</strong> at each level. Removing any one organism causes a <strong>ripple effect</strong> throughout the whole food web.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SIMULATE ══════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+
+      <!-- CUE (left panel) -->
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">Which organism is eaten by the hawk?</div>
+        <div class="cue-question">What happens when you remove the rabbit?</div>
+        <div class="cue-question">How many food chains start with grass?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1rem">Organism Info</div>
+        <div id="org-info">
+          <div style="color:var(--muted);font-size:.8rem">Click any node to see its role in the ecosystem.</div>
+        </div>
+
+        <div style="margin-top:.75rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <button class="sim-btn danger" id="remove-btn" disabled onclick="removeSelectedOrganism()">🗑 Remove</button>
+          <button class="sim-btn" onclick="resetSimulation()">↺ Reset</button>
+          <button class="sim-btn" id="validate-btn" onclick="validateWeb()">✔ Validate</button>
+          <button class="sim-btn" id="challenge-btn" onclick="toggleChallenge()">🎯 Challenge</button>
+        </div>
+
+        <div class="cornell-cue-label" style="margin-top:1rem">Food Chains</div>
+        <div class="sim-stat"><strong id="chain-count-val">0</strong>Links in your web</div>
+
+        <div class="cornell-cue-label" style="margin-top:1rem">Population Sim</div>
+        <p style="font-size:.73rem;color:var(--muted);margin-bottom:.4rem">Adjust sliders to see predator–prey cycles:</p>
+        <div class="slider-row">
+          <label>🐰 Rabbits</label>
+          <input type="range" id="rabbit-slider" min="1" max="20" value="10" oninput="updatePopSim()">
+          <span id="rabbit-val">10</span>
+        </div>
+        <div class="slider-row">
+          <label>🦊 Foxes</label>
+          <input type="range" id="fox-slider" min="1" max="10" value="3" oninput="updatePopSim()">
+          <span id="fox-val">3</span>
+        </div>
+        <canvas id="pop-canvas" width="220" height="100"></canvas>
+        <p id="pop-status" style="font-size:.72rem;color:var(--muted);margin-top:.3rem">Balanced ecosystem.</p>
+
+        <!-- Challenge panel -->
+        <div id="challenge-panel">
+          <div class="ch-title">🎯 Forest Food Web Challenge</div>
+          <p style="font-size:.72rem;margin-bottom:.5rem;color:var(--muted)">Draw these food chain links:</p>
+          <div class="ch-link" id="ch-grass-rabbit"><div class="dot"></div>Grass → Rabbit</div>
+          <div class="ch-link" id="ch-grass-grasshopper"><div class="dot"></div>Grass → Grasshopper</div>
+          <div class="ch-link" id="ch-grass-deer"><div class="dot"></div>Grass → Deer</div>
+          <div class="ch-link" id="ch-rabbit-fox"><div class="dot"></div>Rabbit → Fox</div>
+          <div class="ch-link" id="ch-rabbit-hawk"><div class="dot"></div>Rabbit → Hawk</div>
+          <div class="ch-link" id="ch-grasshopper-frog"><div class="dot"></div>Grasshopper → Frog</div>
+          <div class="ch-link" id="ch-frog-snake"><div class="dot"></div>Frog → Snake</div>
+          <div class="ch-link" id="ch-snake-hawk"><div class="dot"></div>Snake → Hawk</div>
+          <div class="ch-link" id="ch-deer-fox"><div class="dot"></div>Deer → Fox</div>
+        </div>
+      </div>
+
+      <!-- MAIN (canvas area) -->
+      <div class="cornell-main" style="padding:.75rem">
+        <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.5rem">
+          <p style="font-size:.78rem;color:var(--muted);margin:0;flex:1">
+            <strong style="color:var(--text)">Drag nodes</strong> to arrange them.
+            <strong style="color:var(--text)">Click a node</strong> to select it, then <strong style="color:var(--text)">click another</strong> to draw a food chain arrow.
+          </p>
+          <div style="display:flex;gap:.35rem;align-items:center;flex-wrap:wrap">
+            <span style="font-size:.72rem;color:#10b981">⬤ Producer</span>
+            <span style="font-size:.72rem;color:#f59e0b">⬤ Herbivore</span>
+            <span style="font-size:.72rem;color:#f97316">⬤ Omnivore</span>
+            <span style="font-size:.72rem;color:#ef4444">⬤ Carnivore</span>
+            <span style="font-size:.72rem;color:#a16207">⬤ Decomposer</span>
+          </div>
+        </div>
+
+        <div class="sim-canvas-wrap" style="height:390px;padding:0;overflow:hidden">
+          <canvas id="habitat-canvas" width="660" height="380"></canvas>
+        </div>
+
+        <div id="sim-feedback">Click a node to select it. Then click another node to draw a food chain arrow between them.</div>
+
+        <div style="margin-top:.6rem;font-size:.78rem;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.55rem .85rem;line-height:1.5">
+          <strong style="color:#f59e0b">Did you know?</strong>
+          <span id="did-you-know">A single hawk needs to eat hundreds of grasshoppers' worth of energy over its lifetime — which is why there are always fewer predators than prey in any ecosystem.</span>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#f59e0b;font-weight:700;margin-bottom:.4rem">What to notice</div>
+        <p class="summary-text">Food chains always begin with a <strong>producer</strong>. The arrow direction shows which organism is <strong>eaten</strong>. When you remove an organism, populations of connected organisms <strong>increase or decrease</strong> — this is the predator–prey balance. A food <strong>web</strong> is more stable than a single chain because organisms have multiple food sources.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ QUIZ ══════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tips</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Use exact keywords:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li><em>"The arrow means <strong>is eaten by</strong>…"</em></li>
+            <li><em>"Grass is the <strong>producer</strong>…"</em></li>
+            <li><em>"The rabbit is a <strong>primary consumer</strong>…"</em></li>
+            <li><em>"The fox is a <strong>predator</strong> of the rabbit…"</em></li>
+          </ul>
+          <p style="margin-top:.75rem">When asked "what happens if X is removed", always explain <em>why</em> using the food chain direction.</p>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:#f59e0b">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Remember: <strong>producers</strong> make food, <strong>consumers</strong> eat it, <strong>decomposers</strong> recycle it. The arrow in a food chain means <strong>"is eaten by"</strong>. Energy flows from producer → consumer and <strong>decreases</strong> at each level. Removing any organism causes a <strong>ripple effect</strong> in the food web.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MIND MAP ══════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+      <span style="font-size:.73rem;color:var(--muted);margin-left:.5rem">Double-click a node to rename · Double-click empty space to add</span>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// FOOD WEB BUILDER SIMULATION
+// ══════════════════════════════════════════════════════════════
+
+const canvas = document.getElementById('habitat-canvas');
+const ctx    = canvas.getContext('2d');
+
+// ── Organism definitions ──────────────────────────────────────
+const ORGANISMS = [
+  { id:'grass',       emoji:'🌿', name:'Grass',       role:'producer',   diet:'Photosynthesis', habitat:'Forest/Grassland', color:'#10b981', info:'Grass is a producer. It uses sunlight, water and CO₂ to make food (photosynthesis). It is the base of most land food chains.' },
+  { id:'flowers',     emoji:'🌸', name:'Flowers',     role:'producer',   diet:'Photosynthesis', habitat:'Forest/Garden',     color:'#10b981', info:'Flowering plants are producers. They also provide nectar for insects and seeds for birds and small mammals.' },
+  { id:'caterpillar', emoji:'🐛', name:'Caterpillar', role:'herbivore',  diet:'Leaves',         habitat:'Forest',           color:'#f59e0b', info:'The caterpillar is a primary consumer (herbivore). It eats leaves and is eaten by birds and frogs.' },
+  { id:'rabbit',      emoji:'🐰', name:'Rabbit',      role:'herbivore',  diet:'Grass',          habitat:'Grassland/Forest', color:'#f59e0b', info:'The rabbit is a primary consumer (herbivore). It eats grass and is prey for foxes and hawks.' },
+  { id:'grasshopper', emoji:'🦗', name:'Grasshopper', role:'herbivore',  diet:'Grass',          habitat:'Grassland',        color:'#f59e0b', info:'The grasshopper is a primary consumer (herbivore). It feeds on grass and is eaten by frogs and birds.' },
+  { id:'frog',        emoji:'🐸', name:'Frog',        role:'omnivore',   diet:'Insects',        habitat:'Pond/Forest',      color:'#f97316', info:'The frog is a secondary consumer (carnivore in practice). It eats insects like grasshoppers and caterpillars, and is eaten by snakes.' },
+  { id:'snake',       emoji:'🐍', name:'Snake',       role:'carnivore',  diet:'Frogs/Mice',     habitat:'Forest/Grassland', color:'#ef4444', info:'The snake is a secondary or tertiary consumer (carnivore). It eats frogs and small mammals, and is preyed upon by hawks.' },
+  { id:'hawk',        emoji:'🦅', name:'Hawk',        role:'carnivore',  diet:'Rabbits/Snakes', habitat:'Forest/Sky',       color:'#ef4444', info:'The hawk is a top predator (tertiary consumer). It hunts rabbits, snakes, and other small animals. It has no natural predators in this web.' },
+  { id:'fox',         emoji:'🦊', name:'Fox',         role:'omnivore',   diet:'Rabbits/Plants', habitat:'Forest/Grassland', color:'#f97316', info:'The fox is an omnivore. It eats rabbits, deer fawns, insects, berries, and carrion. It is a secondary or tertiary consumer.' },
+  { id:'mushroom',    emoji:'🍄', name:'Mushroom',    role:'decomposer', diet:'Dead matter',    habitat:'Forest',           color:'#a16207', info:'Mushrooms are decomposers (fungi). They break down dead plants and animals, returning nutrients to the soil for producers to use.' },
+  { id:'worm',        emoji:'🪱', name:'Worm',        role:'decomposer', diet:'Dead matter',    habitat:'Soil/Forest',      color:'#a16207', info:'Earthworms are decomposers. They eat dead organic matter and their castings enrich the soil, helping producers grow.' },
+  { id:'deer',        emoji:'🦌', name:'Deer',        role:'herbivore',  diet:'Grass/Leaves',   habitat:'Forest',           color:'#f59e0b', info:'The deer is a primary consumer (herbivore). It eats grass and leaves and is preyed upon by foxes and wolves.' },
+];
+
+// ── Node layout (initial positions on 660×380 canvas) ────────
+const NODE_R = 34;  // radius of node circle
+
+// Grid-like initial positions
+const initPositions = [
+  { id:'grass',       x: 80,  y: 190 },
+  { id:'flowers',     x: 80,  y: 310 },
+  { id:'caterpillar', x: 210, y: 90  },
+  { id:'rabbit',      x: 210, y: 210 },
+  { id:'grasshopper', x: 210, y: 320 },
+  { id:'frog',        x: 360, y: 200 },
+  { id:'snake',       x: 480, y: 130 },
+  { id:'hawk',        x: 600, y: 60  },
+  { id:'fox',         x: 480, y: 270 },
+  { id:'mushroom',    x: 580, y: 320 },
+  { id:'worm',        x: 600, y: 190 },
+  { id:'deer',        x: 340, y: 320 },
+];
+
+// Build node objects
+let nodes = [];
+let links = [];          // { from: id, to: id } — "from is eaten by to" (arrow direction)
+let selectedNode = null; // id of currently selected node
+let dragNode     = null; // node being dragged
+let dragOffX = 0, dragOffY = 0;
+let removedNodes = new Set();  // ids of removed nodes
+let flashNodes   = {};         // id → { color, until }
+let animFrame;
+let challengeActive = false;
+
+// ── "Did you know" facts ─────────────────────────────────────
+const DID_YOU_KNOW = [
+  'A single hawk needs to eat hundreds of grasshoppers worth of energy over its lifetime — which is why there are always fewer predators than prey.',
+  'Earthworms can consume their own weight in soil every day, making them incredibly important decomposers.',
+  'A food web can have hundreds of species connected by thousands of feeding relationships.',
+  'The word "ecosystem" was coined in 1935 by British botanist Arthur Tansley.',
+  'Rabbits can reproduce so fast that, without predators like foxes and hawks, they would quickly overgraze all the grass in an area.',
+  'Decomposers are sometimes called "nature\'s recyclers" because they return nutrients locked in dead matter back to the soil.',
+  'Only about 10% of energy passes from one trophic level to the next — 90% is lost as heat.',
+  'The longest food chains in the ocean can have 6 or more levels — much longer than typical land food chains.',
+];
+let didYouKnowIdx = 0;
+
+function initNodes() {
+  nodes = [];
+  links = [];
+  selectedNode = null;
+  dragNode     = null;
+  removedNodes = new Set();
+  flashNodes   = {};
+
+  initPositions.forEach(pos => {
+    const org = ORGANISMS.find(o => o.id === pos.id);
+    if (org) {
+      nodes.push({ ...org, x: pos.x, y: pos.y });
+    }
+  });
+  updateChainCount();
+}
+
+function getNode(id) { return nodes.find(n => n.id === id && !removedNodes.has(id)); }
+function visibleNodes() { return nodes.filter(n => !removedNodes.has(n.id)); }
+function visibleLinks() { return links.filter(l => !removedNodes.has(l.from) && !removedNodes.has(l.to)); }
+
+// ── Coordinate helpers ────────────────────────────────────────
+function canvasXY(e) {
+  const r = canvas.getBoundingClientRect();
+  const scaleX = canvas.width  / r.width;
+  const scaleY = canvas.height / r.height;
+  if (e.touches) {
+    return { x: (e.touches[0].clientX - r.left) * scaleX, y: (e.touches[0].clientY - r.top) * scaleY };
+  }
+  return { x: (e.clientX - r.left) * scaleX, y: (e.clientY - r.top) * scaleY };
+}
+
+function nodeAt(x, y) {
+  return visibleNodes().find(n => Math.hypot(n.x - x, n.y - y) <= NODE_R + 4);
+}
+
+// ── Mouse & Touch events ──────────────────────────────────────
+canvas.addEventListener('mousedown',  onPointerDown);
+canvas.addEventListener('touchstart', e => { e.preventDefault(); onPointerDown(e); }, { passive: false });
+canvas.addEventListener('mousemove',  onPointerMove);
+canvas.addEventListener('touchmove',  e => { e.preventDefault(); onPointerMove(e); }, { passive: false });
+canvas.addEventListener('mouseup',    onPointerUp);
+canvas.addEventListener('touchend',   e => { e.preventDefault(); onPointerUp(e); }, { passive: false });
+canvas.addEventListener('mouseleave', () => { if (dragNode) { dragNode = null; canvas.style.cursor = 'default'; } });
+
+function onPointerDown(e) {
+  const { x, y } = canvasXY(e);
+  const hit = nodeAt(x, y);
+  if (hit) {
+    dragNode = hit;
+    dragOffX = x - hit.x;
+    dragOffY = y - hit.y;
+    canvas.style.cursor = 'grabbing';
+  }
+}
+
+function onPointerMove(e) {
+  const { x, y } = canvasXY(e);
+  if (dragNode) {
+    dragNode.x = Math.max(NODE_R + 2, Math.min(canvas.width  - NODE_R - 2, x - dragOffX));
+    dragNode.y = Math.max(NODE_R + 2, Math.min(canvas.height - NODE_R - 2, y - dragOffY));
+    canvas.style.cursor = 'grabbing';
+  } else {
+    canvas.style.cursor = nodeAt(x, y) ? 'pointer' : 'default';
+  }
+}
+
+function onPointerUp(e) {
+  const { x, y } = canvasXY(e);
+  const moved = dragNode && (Math.abs(dragNode.x - (x - dragOffX)) > 4 || Math.abs(dragNode.y - (y - dragOffY)) > 4);
+  dragNode = null;
+  canvas.style.cursor = 'default';
+
+  if (!moved) {
+    // It was a click (not a drag)
+    const hit = nodeAt(x, y);
+    if (hit) handleNodeClick(hit);
+    else {
+      // Click empty space — deselect
+      selectedNode = null;
+      document.getElementById('remove-btn').disabled = true;
+    }
+  }
+  Progress.recordSimUsed('habitats');
+}
+
+function handleNodeClick(node) {
+  if (!selectedNode) {
+    // First click — select node
+    selectedNode = node.id;
+    document.getElementById('remove-btn').disabled = false;
+    showOrgInfo(node);
+  } else if (selectedNode === node.id) {
+    // Click same node — deselect
+    selectedNode = null;
+    document.getElementById('remove-btn').disabled = true;
+  } else {
+    // Second click on different node — create link
+    addLink(selectedNode, node.id);
+    selectedNode = null;
+    document.getElementById('remove-btn').disabled = true;
+  }
+}
+
+function addLink(fromId, toId) {
+  // Check no duplicate
+  const already = links.find(l => l.from === fromId && l.to === toId);
+  if (already) {
+    setFeedback('⚠️ This food chain link already exists!', 'var(--border)');
+    return;
+  }
+  // Prevent reverse duplicates (which would create a cycle in one step)
+  const reverse = links.find(l => l.from === toId && l.to === fromId);
+  if (reverse) {
+    setFeedback('⚠️ You already have an arrow going the other way. Food chains don\'t loop!', 'var(--border)');
+    return;
+  }
+  links.push({ from: fromId, to: toId });
+  updateChainCount();
+  checkChallengeLink(fromId, toId);
+
+  const fromNode = getNode(fromId);
+  const toNode   = getNode(toId);
+  setFeedback(`✅ Added: <strong>${fromNode ? fromNode.emoji + ' ' + fromNode.name : fromId}</strong> → <strong>${toNode ? toNode.emoji + ' ' + toNode.name : toId}</strong> (${fromNode ? fromNode.name : fromId} is eaten by ${toNode ? toNode.name : toId})`, '#063b27');
+
+  // Quick educational flash
+  if (fromNode && toNode) {
+    const isValid = isValidLink(fromNode, toNode);
+    if (!isValid) {
+      setTimeout(() => setFeedback(`💡 Tip: Arrows usually go from <strong>producer → consumer</strong> or <strong>prey → predator</strong>. Check the direction!`, '#2a1a00'), 1500);
+    }
+  }
+}
+
+function isValidLink(fromNode, toNode) {
+  const ORDER = { producer: 0, herbivore: 1, omnivore: 2, carnivore: 3, decomposer: 4 };
+  if (toNode.role === 'decomposer') return true;   // anything can be eaten by decomposers
+  if (fromNode.role === 'producer' && (toNode.role === 'herbivore' || toNode.role === 'omnivore')) return true;
+  if (fromNode.role === 'herbivore' && (toNode.role === 'carnivore' || toNode.role === 'omnivore')) return true;
+  if (fromNode.role === 'omnivore'  && (toNode.role === 'carnivore')) return true;
+  if (fromNode.role === 'carnivore' && toNode.role === 'carnivore') return true; // apex predators possible
+  return false;
+}
+
+function updateChainCount() {
+  const count = visibleLinks().length;
+  document.getElementById('chain-count-val').textContent = count;
+}
+
+function setFeedback(html, borderColor) {
+  const el = document.getElementById('sim-feedback');
+  el.innerHTML = html;
+  el.style.borderColor = borderColor || 'var(--border)';
+}
+
+function showOrgInfo(org) {
+  const roleLabels = { producer:'Producer', herbivore:'Herbivore (Primary Consumer)', omnivore:'Omnivore', carnivore:'Carnivore', decomposer:'Decomposer' };
+  const roleCls    = { producer:'role-producer', herbivore:'role-herbivore', omnivore:'role-omnivore', carnivore:'role-carnivore', decomposer:'role-decomposer' };
+  const panel = document.getElementById('org-info');
+  panel.innerHTML = `
+    <div class="org-name">${org.emoji} ${org.name}</div>
+    <span class="org-role ${roleCls[org.role]}">${roleLabels[org.role]}</span>
+    <div style="margin-top:.35rem">${org.info}</div>
+    <div style="margin-top:.35rem;font-size:.76rem"><strong style="color:var(--text)">Diet:</strong> ${org.diet} &nbsp;|&nbsp; <strong style="color:var(--text)">Habitat:</strong> ${org.habitat}</div>
+  `;
+}
+
+// ── Remove organism ───────────────────────────────────────────
+function removeSelectedOrganism() {
+  if (!selectedNode) return;
+  const id = selectedNode;
+  removedNodes.add(id);
+  selectedNode = null;
+  document.getElementById('remove-btn').disabled = true;
+
+  // Find connected nodes
+  const connected = new Set();
+  links.forEach(l => {
+    if (l.from === id) connected.add(l.to);
+    if (l.to   === id) connected.add(l.from);
+  });
+
+  // Flash connected nodes
+  const now = Date.now();
+  connected.forEach(cid => {
+    // Nodes that were eaten by removed node → more prey → population increases (green)
+    // Nodes that ate removed node → lose food → population decreases (red)
+    const ateRemoved  = links.some(l => l.from === cid && l.to === id);   // cid ate id → cid loses food → red
+    const eatenByRem  = links.some(l => l.from === id  && l.to === cid);  // id ate cid → cid has fewer predators → green
+    flashNodes[cid] = { color: eatenByRem ? '#10b981' : '#ef4444', until: now + 2500 };
+  });
+
+  const node = ORGANISMS.find(o => o.id === id);
+  setFeedback(`🗑 Removed <strong>${node ? node.emoji + ' ' + node.name : id}</strong>. Watch how connected organisms are affected — <span style="color:#10b981">green</span> = population increases, <span style="color:#ef4444">red</span> = population decreases.`, '#3b0f0f');
+  updateChainCount();
+  document.getElementById('org-info').innerHTML = '<div style="color:var(--muted);font-size:.8rem">Organism removed from the ecosystem.</div>';
+
+  // Rotate "Did you know" fact
+  didYouKnowIdx = (didYouKnowIdx + 1) % DID_YOU_KNOW.length;
+  document.getElementById('did-you-know').textContent = DID_YOU_KNOW[didYouKnowIdx];
+}
+
+// ── Reset simulation ──────────────────────────────────────────
+function resetSimulation() {
+  initNodes();
+  document.getElementById('org-info').innerHTML = '<div style="color:var(--muted);font-size:.8rem">Click any node to see its role in the ecosystem.</div>';
+  document.getElementById('remove-btn').disabled = true;
+  resetChallengeUI();
+  setFeedback('Simulation reset. Click a node to select it. Then click another to draw a food chain arrow.', 'var(--border)');
+}
+
+// ── Validate web ──────────────────────────────────────────────
+function validateWeb() {
+  const vLinks = visibleLinks();
+  if (vLinks.length === 0) {
+    setFeedback('⚠️ Draw some food chain arrows first!', 'var(--border)');
+    return;
+  }
+  let errors = 0, warnings = [];
+  vLinks.forEach(l => {
+    const from = getNode(l.from);
+    const to   = getNode(l.to);
+    if (!from || !to) return;
+    if (!isValidLink(from, to)) {
+      errors++;
+      warnings.push(`${from.emoji}${from.name} → ${to.emoji}${to.name}`);
+    }
+  });
+  if (errors === 0) {
+    setFeedback(`✅ <strong>All ${vLinks.length} arrows look correct!</strong> Energy flows from producers to consumers in the right direction. Well done!`, '#063b27');
+    Progress.recordSimUsed('habitats');
+  } else {
+    setFeedback(`⚠️ <strong>${errors} arrow(s) may be wrong</strong>: ${warnings.join(', ')}. Remember arrows go from <em>eaten</em> → <em>eater</em> (prey → predator).`, '#3b0f0f');
+  }
+}
+
+// ── Challenge mode ────────────────────────────────────────────
+const CHALLENGE_LINKS = [
+  { id:'ch-grass-rabbit',      from:'grass',       to:'rabbit'      },
+  { id:'ch-grass-grasshopper', from:'grass',       to:'grasshopper' },
+  { id:'ch-grass-deer',        from:'grass',       to:'deer'        },
+  { id:'ch-rabbit-fox',        from:'rabbit',      to:'fox'         },
+  { id:'ch-rabbit-hawk',       from:'rabbit',      to:'hawk'        },
+  { id:'ch-grasshopper-frog',  from:'grasshopper', to:'frog'        },
+  { id:'ch-frog-snake',        from:'frog',        to:'snake'       },
+  { id:'ch-snake-hawk',        from:'snake',       to:'hawk'        },
+  { id:'ch-deer-fox',          from:'deer',        to:'fox'         },
+];
+
+function toggleChallenge() {
+  challengeActive = !challengeActive;
+  const panel = document.getElementById('challenge-panel');
+  const btn   = document.getElementById('challenge-btn');
+  if (challengeActive) {
+    panel.style.display = 'block';
+    btn.classList.add('active');
+    btn.textContent = '🎯 Challenge ON';
+    setFeedback('🎯 <strong>Challenge Mode:</strong> Draw all the forest food web links listed in the left panel!', '#2a1a00');
+  } else {
+    panel.style.display = 'none';
+    btn.classList.remove('active');
+    btn.textContent = '🎯 Challenge';
+  }
+}
+
+function checkChallengeLink(fromId, toId) {
+  if (!challengeActive) return;
+  const match = CHALLENGE_LINKS.find(cl => cl.from === fromId && cl.to === toId);
+  if (match) {
+    const el = document.getElementById(match.id);
+    if (el) el.classList.add('found');
+    const foundCount = CHALLENGE_LINKS.filter(cl => {
+      const el2 = document.getElementById(cl.id);
+      return el2 && el2.classList.contains('found');
+    }).length;
+    if (foundCount === CHALLENGE_LINKS.length) {
+      setFeedback('🏆 <strong>Challenge Complete!</strong> You have built the full forest food web. Excellent work!', '#063b27');
+    }
+  }
+}
+
+function resetChallengeUI() {
+  CHALLENGE_LINKS.forEach(cl => {
+    const el = document.getElementById(cl.id);
+    if (el) el.classList.remove('found');
+  });
+}
+
+// ── Drawing helpers ───────────────────────────────────────────
+function drawArrow(x1, y1, x2, y2, color, alpha) {
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  const dist  = Math.hypot(x2 - x1, y2 - y1);
+  if (dist < 2) return;
+
+  // Shorten endpoints to node edge
+  const sx = x1 + Math.cos(angle) * (NODE_R + 4);
+  const sy = y1 + Math.sin(angle) * (NODE_R + 4);
+  const ex = x2 - Math.cos(angle) * (NODE_R + 4);
+  const ey = y2 - Math.sin(angle) * (NODE_R + 4);
+
+  ctx.save();
+  ctx.globalAlpha = alpha || 1;
+  ctx.strokeStyle = color;
+  ctx.fillStyle   = color;
+  ctx.lineWidth   = 2.5;
+  ctx.lineCap     = 'round';
+
+  // Line
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  ctx.lineTo(ex, ey);
+  ctx.stroke();
+
+  // Arrowhead
+  const headLen = 10;
+  ctx.beginPath();
+  ctx.moveTo(ex, ey);
+  ctx.lineTo(ex - headLen * Math.cos(angle - 0.42), ey - headLen * Math.sin(angle - 0.42));
+  ctx.lineTo(ex - headLen * Math.cos(angle + 0.42), ey - headLen * Math.sin(angle + 0.42));
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawNode(node, selected, flashColor) {
+  const { x, y, color, emoji, name, role } = node;
+
+  ctx.save();
+
+  // Selection glow / flash glow
+  if (selected || flashColor) {
+    ctx.shadowColor = selected ? '#f59e0b' : flashColor;
+    ctx.shadowBlur  = selected ? 20 : 24;
+  }
+
+  // Background circle
+  const bgMap = { producer:'#063b1a', herbivore:'#2a1a00', omnivore:'#2a1200', carnivore:'#3b0f0f', decomposer:'#1a1000' };
+  ctx.beginPath();
+  ctx.arc(x, y, NODE_R, 0, Math.PI * 2);
+  ctx.fillStyle = flashColor || bgMap[role] || '#1e293b';
+  ctx.fill();
+
+  // Border
+  ctx.strokeStyle = selected ? '#f59e0b' : (flashColor || color);
+  ctx.lineWidth   = selected ? 3 : 2;
+  ctx.stroke();
+
+  ctx.shadowBlur = 0;
+
+  // Emoji
+  ctx.font      = '18px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(emoji, x, y - 4);
+
+  // Name
+  ctx.font         = '9px Inter, sans-serif';
+  ctx.fillStyle    = '#cbd5e1';
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText(name, x, y + NODE_R - 2);
+
+  ctx.restore();
+}
+
+// ── Main draw loop ────────────────────────────────────────────
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Background
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Grid dots
+  ctx.fillStyle = 'rgba(148,163,184,0.07)';
+  for (let gx = 20; gx < canvas.width; gx += 32)
+    for (let gy = 20; gy < canvas.height; gy += 32) {
+      ctx.beginPath(); ctx.arc(gx, gy, 1, 0, Math.PI * 2); ctx.fill();
+    }
+
+  const now = Date.now();
+
+  // Draw links
+  const vLinks = visibleLinks();
+  vLinks.forEach(link => {
+    const from = getNode(link.from);
+    const to   = getNode(link.to);
+    if (!from || !to) return;
+
+    // Color arrow by relationship
+    let arrowColor = '#475569';
+    if (isValidLink(from, to)) arrowColor = '#64748b';
+
+    // Check if either endpoint is flashing
+    const ff = flashNodes[link.from];
+    const tf = flashNodes[link.to];
+    if ((ff && now < ff.until) || (tf && now < tf.until)) {
+      arrowColor = (ff && now < ff.until) ? ff.color : tf.color;
+    }
+
+    drawArrow(from.x, from.y, to.x, to.y, arrowColor, 0.85);
+  });
+
+  // Draw nodes
+  visibleNodes().forEach(node => {
+    const isSelected = (node.id === selectedNode);
+    const flash = flashNodes[node.id];
+    const flashCol = (flash && now < flash.until)
+      ? (flash.color + 'AA')
+      : null;
+    drawNode(node, isSelected, flashCol);
+  });
+
+  // If a node is selected and we hover another, show preview arrow
+  if (selectedNode) {
+    const from = getNode(selectedNode);
+    if (from) {
+      ctx.save();
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = '#f59e0b66';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(from.x, from.y, NODE_R + 8, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+  }
+
+  // Instructions overlay (fades out after 5s)
+  if (now - simStartTime < 5000) {
+    const alpha = Math.max(0, 1 - (now - simStartTime) / 4000);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.font = '11px Inter, sans-serif';
+    ctx.fillStyle = '#94a3b8';
+    ctx.textAlign = 'left';
+    ctx.fillText('Drag nodes to rearrange • Click a node, then click another to draw an arrow', 10, canvas.height - 8);
+    ctx.restore();
+  }
+
+  // Clean up expired flashes
+  Object.keys(flashNodes).forEach(id => {
+    if (now >= flashNodes[id].until) delete flashNodes[id];
+  });
+
+  animFrame = requestAnimationFrame(draw);
+}
+
+let simStartTime;
+
+// ══════════════════════════════════════════════════════════════
+// POPULATION SIMULATOR (mini predator-prey chart)
+// ══════════════════════════════════════════════════════════════
+const popCanvas = document.getElementById('pop-canvas');
+const popCtx    = popCanvas.getContext('2d');
+
+function lotkaVolterra(R0, F0, steps) {
+  // Simplified discrete Lotka–Volterra
+  const alpha = 0.1,  // rabbit birth rate
+        beta  = 0.02, // predation rate
+        gamma = 0.01, // fox birth from eating
+        delta = 0.15; // fox death rate
+
+  const Rs = [R0], Fs = [F0];
+  let R = R0, F = F0;
+  for (let i = 0; i < steps; i++) {
+    const dR =  alpha * R - beta  * R * F;
+    const dF = -delta * F + gamma * R * F;
+    R = Math.max(0.5, R + dR);
+    F = Math.max(0.5, F + dF);
+    Rs.push(Math.min(R, 40));
+    Fs.push(Math.min(F, 40));
+  }
+  return { Rs, Fs };
+}
+
+function updatePopSim() {
+  const R0 = parseInt(document.getElementById('rabbit-slider').value);
+  const F0 = parseInt(document.getElementById('fox-slider').value);
+  document.getElementById('rabbit-val').textContent = R0;
+  document.getElementById('fox-val').textContent    = F0;
+
+  const { Rs, Fs } = lotkaVolterra(R0, F0, 49);
+  const steps = Rs.length;
+  const W = popCanvas.width, H = popCanvas.height;
+  const maxV = Math.max(...Rs, ...Fs, 5);
+  const pad  = { t:8, b:18, l:6, r:6 };
+  const iW   = W - pad.l - pad.r;
+  const iH   = H - pad.t - pad.b;
+
+  popCtx.clearRect(0, 0, W, H);
+  popCtx.fillStyle = '#0d1117';
+  popCtx.fillRect(0, 0, W, H);
+
+  // Grid lines
+  popCtx.strokeStyle = '#1e293b';
+  popCtx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const gy = pad.t + iH - (i / 4) * iH;
+    popCtx.beginPath(); popCtx.moveTo(pad.l, gy); popCtx.lineTo(W - pad.r, gy); popCtx.stroke();
+  }
+
+  function plotLine(vals, color) {
+    popCtx.beginPath();
+    popCtx.strokeStyle = color;
+    popCtx.lineWidth = 1.8;
+    popCtx.lineJoin = 'round';
+    vals.forEach((v, i) => {
+      const px = pad.l + (i / (steps - 1)) * iW;
+      const py = pad.t + iH - (v / maxV) * iH;
+      i === 0 ? popCtx.moveTo(px, py) : popCtx.lineTo(px, py);
+    });
+    popCtx.stroke();
+  }
+
+  plotLine(Rs, '#f59e0b');  // rabbits — amber
+  plotLine(Fs, '#ef4444');  // foxes  — red
+
+  // Legend
+  popCtx.font = '8px Inter, sans-serif';
+  popCtx.fillStyle = '#f59e0b'; popCtx.fillText('🐰 Rabbits', pad.l + 2, H - 5);
+  popCtx.fillStyle = '#ef4444'; popCtx.fillText('🦊 Foxes',   pad.l + 72, H - 5);
+
+  // Status text
+  const finalR = Rs[Rs.length - 1], finalF = Fs[Fs.length - 1];
+  let status = '';
+  if (finalF < 1.2) status = '⚠️ Fox population collapsed! Rabbits will overpopulate.';
+  else if (finalR < 1.2) status = '⚠️ Rabbit population collapsed! Foxes will starve.';
+  else if (F0 > R0 * 0.6) status = '⚠️ Too many foxes — rabbits under heavy pressure.';
+  else if (F0 < R0 * 0.1) status = '⚠️ Too few foxes — rabbit population may overshoot.';
+  else status = '✅ Balanced predator–prey cycle.';
+  document.getElementById('pop-status').textContent = status;
+}
+
+// ══════════════════════════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════════════════════════
+const QUIZ_Q = [
+  {
+    question: 'Look at this food chain: Grass → Grasshopper → Frog → Snake → Hawk. What does the arrow mean in a food chain?',
+    options: ['The organism on the left eats the one on the right', 'The organism on the left is eaten by the one on the right', 'The two organisms live in the same habitat', 'The organism on the left is larger than the one on the right'],
+    correct: 1,
+    explanation: 'The arrow in a food chain means "is eaten by". Energy flows from left to right: the grasshopper is eaten by the frog, the frog is eaten by the snake, and so on.'
+  },
+  {
+    question: 'In a food chain, which organism is always at the START?',
+    options: ['A herbivore', 'A carnivore', 'A producer (plant)', 'A decomposer'],
+    correct: 2,
+    explanation: 'A food chain always starts with a PRODUCER — a plant that makes its own food using sunlight. Producers are the source of energy for all other organisms.'
+  },
+  {
+    question: 'A rabbit eats grass. A fox eats the rabbit. What roles do the rabbit and fox have?',
+    options: ['Rabbit = producer; Fox = consumer', 'Rabbit = primary consumer; Fox = secondary consumer', 'Rabbit = decomposer; Fox = predator', 'Rabbit = secondary consumer; Fox = tertiary consumer'],
+    correct: 1,
+    explanation: 'The rabbit eats the producer (grass), so it is the PRIMARY consumer. The fox eats the rabbit (primary consumer), so it is the SECONDARY consumer.'
+  },
+  {
+    question: 'Mushrooms and bacteria break down dead organisms and return nutrients to the soil. What role do they play?',
+    options: ['Producers', 'Primary consumers', 'Decomposers', 'Carnivores'],
+    correct: 2,
+    explanation: 'Mushrooms and bacteria are DECOMPOSERS. They break down dead plants and animals, recycling nutrients back into the soil so that producers can use them again.'
+  },
+  {
+    question: 'In the food chain: Seaweed → Shrimp → Small fish → Large fish → Shark. What is the shrimp?',
+    options: ['A producer', 'A primary consumer', 'A secondary consumer', 'A decomposer'],
+    correct: 1,
+    explanation: 'Shrimp eats seaweed (the producer), so it is the PRIMARY consumer — the first animal in the food chain.'
+  },
+  {
+    question: 'A forest food web contains: Grass → Rabbit → Fox and Grass → Rabbit → Hawk. If the rabbit population suddenly decreases greatly, what would most likely happen to the fox population?',
+    options: ['It would increase because there is less competition', 'It would stay the same', 'It would decrease because there is less food', 'It would move to a different habitat immediately'],
+    correct: 2,
+    explanation: 'Foxes eat rabbits. If rabbit numbers fall, foxes have less food and their population would DECREASE. This is the predator–prey relationship.'
+  },
+  {
+    question: 'Energy passes along a food chain. At each step (trophic level), energy:',
+    options: ['Doubles because organisms grow larger', 'Stays exactly the same', 'Decreases because organisms use energy for their own life processes', 'Increases because predators are more powerful'],
+    correct: 2,
+    explanation: 'At each trophic level, organisms use energy for movement, growth, and keeping warm. Only about 10% of energy passes to the next level — the rest is lost as heat.'
+  },
+  {
+    question: 'A camel can survive in the desert by storing fat in its hump. This is an example of:',
+    options: ['A food chain', 'An adaptation', 'A food web', 'Decomposition'],
+    correct: 1,
+    explanation: 'An ADAPTATION is a feature that helps an organism survive in its habitat. The camel\'s hump is an adaptation to the desert — it stores energy (fat) for when food is scarce.'
+  },
+  {
+    question: 'Which of the following is a food web rather than a food chain?',
+    options: ['Grass → Rabbit → Hawk', 'Algae → Fish → Seal → Shark', 'Grass → Grasshopper → Frog → Snake → Hawk, AND Grass → Rabbit → Fox → Hawk', 'Leaves → Caterpillar → Bird'],
+    correct: 2,
+    explanation: 'A food WEB contains multiple interconnected food chains. Option C shows two chains that share organisms (grass and hawk), making it a food web.'
+  },
+  {
+    question: 'In the food chain Leaves → Caterpillar → Blue tit (bird) → Sparrowhawk, what is the caterpillar\'s role?',
+    options: ['Producer', 'Primary consumer and prey of the blue tit', 'Decomposer', 'Secondary consumer'],
+    correct: 1,
+    explanation: 'The caterpillar eats leaves (the producer), so it is the PRIMARY consumer. It is also PREY for the blue tit, which eats it.'
+  },
+  {
+    question: 'A pond habitat has: Water plant → Water snail → Pond skater → Frog. If pollution kills all the water plants, what will happen?',
+    options: ['Only frogs will be affected', 'Water snails will increase because there is no competition', 'Water snails, pond skaters, and frogs will all eventually decrease or disappear', 'Pond skaters will find a new food source immediately'],
+    correct: 2,
+    explanation: 'The water plant is the PRODUCER — the base of the food chain. Without it, water snails starve, causing pond skaters to starve, then frogs. The WHOLE chain collapses.'
+  },
+  {
+    question: 'A fox eats rabbits, berries, and insects. This makes the fox an:',
+    options: ['Herbivore', 'Carnivore', 'Omnivore', 'Decomposer'],
+    correct: 2,
+    explanation: 'An OMNIVORE eats both plants (berries) and animals (rabbits, insects). The fox is a good example of an omnivore.'
+  },
+  {
+    question: 'Which habitat adaptation is correctly matched?',
+    options: ['Cactus — thick waxy leaves to store water in the desert', 'Polar bear — thin white fur to stay cool in the Arctic', 'Fish — wings to catch food underwater', 'Desert rat — huge water-filled body for the Sahara'],
+    correct: 0,
+    explanation: 'Cacti have thick, waxy stems (not leaves) that store water — a perfect desert adaptation. Polar bears have THICK fur (not thin) for insulation, fish have fins (not wings), and desert rats have small bodies to reduce water loss.'
+  },
+  {
+    question: 'Why is a food web more stable than a single food chain?',
+    options: ['Because it has more producers', 'Because organisms have multiple food sources, so losing one does not wipe out a predator', 'Because decomposers recycle everything', 'Because it has more energy at the top'],
+    correct: 1,
+    explanation: 'In a food web, a predator can switch to another prey if one food source disappears. This makes the ecosystem more stable. In a single food chain, removing one organism breaks the whole chain.'
+  },
+  {
+    question: 'In a garden: Rose bush → Aphid → Ladybird → Blue tit. The blue tit is a:',
+    options: ['Primary consumer', 'Secondary consumer', 'Tertiary consumer', 'Producer'],
+    correct: 2,
+    explanation: 'Rose bush (producer) → Aphid (primary consumer) → Ladybird (secondary consumer) → Blue tit (TERTIARY consumer — 3rd animal in the chain).'
+  },
+];
+
+// ══════════════════════════════════════════════════════════════
+// MIND MAP TEMPLATE
+// ══════════════════════════════════════════════════════════════
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1, label:'Ecosystem',      color:{ background:'#1a2e1a', border:'#f59e0b' }, font:{ size:16, color:'#fcd34d' } },
+    { id:2, label:'Habitat' },
+    { id:3, label:'Forest' },
+    { id:4, label:'Pond' },
+    { id:5, label:'Desert' },
+    { id:6, label:'Food Chain' },
+    { id:7, label:'Food Web' },
+    { id:8, label:'Producer' },
+    { id:9, label:'Consumer' },
+    { id:10, label:'Decomposer' },
+    { id:11, label:'Predator' },
+    { id:12, label:'Prey' },
+    { id:13, label:'Adaptation' },
+    { id:14, label:'Energy Flow' },
+    { id:15, label:'Herbivore' },
+    { id:16, label:'Carnivore' },
+    { id:17, label:'Omnivore' },
+  ],
+  edges: [
+    { from:1, to:2, label:'contains' },
+    { from:2, to:3 }, { from:2, to:4 }, { from:2, to:5 },
+    { from:1, to:6, label:'has' },
+    { from:6, to:7, label:'→ many chains =' },
+    { from:6, to:8, label:'starts with' },
+    { from:6, to:9, label:'includes' },
+    { from:6, to:10, label:'ends with' },
+    { from:9, to:15 }, { from:9, to:16 }, { from:9, to:17 },
+    { from:6, to:14, label:'shows' },
+    { from:9, to:11, label:'can be' },
+    { from:9, to:12, label:'can be' },
+    { from:2, to:13, label:'requires' },
+  ],
+  required: ['producer', 'consumer', 'habitat', 'food chain', 'adaptation']
+};
+
+// ══════════════════════════════════════════════════════════════
+// INITIALISATION
+// ══════════════════════════════════════════════════════════════
+let sciMap;
+
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('habitats');
+  document.getElementById('mastery-pct').textContent = Progress.masteryPct('habitats') + '%';
+
+  // Init quiz
+  new QuizEngine(QUIZ_Q, 'habitats', 'quiz-container', 10);
+
+  // Init mind map
+  sciMap = new ScienceMindMap('mindmap-container', 'habitats', MM_TEMPLATE);
+
+  // Init simulation
+  initNodes();
+  simStartTime = Date.now();
+  draw();
+  updatePopSim();
+
+  // Rotate "did you know" every 12s
+  setInterval(() => {
+    didYouKnowIdx = (didYouKnowIdx + 1) % DID_YOU_KNOW.length;
+    const el = document.getElementById('did-you-know');
+    if (el) el.textContent = DID_YOU_KNOW[didYouKnowIdx];
+  }, 12000);
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>

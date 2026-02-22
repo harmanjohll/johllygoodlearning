@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Human Circulatory System | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--systems); flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .78rem; color: var(--muted); }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    /* ── Cornell extras ── */
+    .cue-question {
+      font-size: .78rem; color: var(--muted);
+      margin-bottom: .75rem;
+      border-left: 2px solid var(--systems);
+      padding-left: .6rem;
+    }
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: var(--accent); }
+
+    /* ── Simulator layout ── */
+    #heart-canvas {
+      border-radius: 10px;
+      background: #0d1117;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+      max-width: 660px;
+    }
+    .sim-panel {
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+    }
+    .canvas-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .canvas-col { flex: 1 1 auto; min-width: 0; }
+
+    /* ── Heart rate slider ── */
+    .hr-control {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .6rem .9rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      flex-wrap: wrap;
+    }
+    .hr-control label { font-size: .8rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+    #bpm-slider { width: 160px; }
+    #bpm-display {
+      font-size: 1rem; font-weight: 700; color: var(--systems);
+      min-width: 70px;
+    }
+
+    /* ── Info panel ── */
+    #info-panel {
+      background: var(--surface);
+      border: 1.5px solid var(--systems);
+      border-radius: 10px;
+      padding: .8rem 1rem;
+      font-size: .86rem;
+      line-height: 1.55;
+      min-height: 56px;
+      transition: border-color .2s;
+    }
+    #info-panel .info-title {
+      font-weight: 700;
+      color: var(--systems);
+      margin-bottom: .3rem;
+      font-size: .9rem;
+    }
+    #info-panel .info-body { color: var(--muted); }
+    #info-panel .info-exam {
+      margin-top: .4rem;
+      padding: .35rem .7rem;
+      background: #2e1a5a;
+      border-radius: 6px;
+      font-size: .8rem;
+      color: #c4b5fd;
+    }
+
+    /* ── Blood composition panel ── */
+    .blood-comp {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: .5rem;
+    }
+    .blood-comp-btn {
+      padding: .55rem .75rem;
+      border-radius: 9px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: .78rem;
+      font-weight: 600;
+      text-align: left;
+      transition: all .18s;
+      line-height: 1.3;
+    }
+    .blood-comp-btn:hover { border-color: var(--systems); background: #1e183a; }
+    .blood-comp-btn.active { border-color: var(--systems); background: #1e183a; color: var(--systems); }
+    .blood-comp-btn .comp-icon { font-size: 1.2rem; display: block; margin-bottom: .15rem; }
+
+    #blood-comp-detail {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: .7rem .9rem;
+      font-size: .82rem;
+      color: var(--muted);
+      line-height: 1.5;
+      min-height: 44px;
+    }
+
+    /* ── Stat boxes ── */
+    .sim-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .5rem .9rem;
+      font-size: .82rem;
+      text-align: center;
+    }
+    .sim-stat strong { display: block; font-size: 1.05rem; color: var(--systems); }
+
+    /* ── Organ match game ── */
+    .match-game { margin-top: .75rem; }
+    .match-pair {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      margin-bottom: .5rem;
+    }
+    .match-label {
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: .35rem .6rem;
+      white-space: nowrap;
+      min-width: 120px;
+      text-align: center;
+    }
+    .match-arrow { color: var(--muted); font-size: .75rem; flex-shrink: 0; }
+    .match-select {
+      flex: 1;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      color: var(--text);
+      font-size: .78rem;
+      padding: .3rem .5rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .match-select:focus { outline: none; border-color: var(--systems); }
+    .match-select.correct { border-color: var(--diversity); background: #063b27; color: #6ee7b7; }
+    .match-select.wrong   { border-color: #ef4444; background: #3b0f0f; color: #fca5a5; }
+    #match-check-btn { margin-top: .5rem; width: 100%; }
+    #match-result { margin-top: .5rem; font-size: .8rem; line-height: 1.5; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>Human Circulatory System</h1>
+    <div class="meta">
+      <span class="badge badge-systems">Systems</span>&nbsp;
+      <span class="badge badge-p5">P5</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--systems)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <!-- TABS -->
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">Mind Map</button>
+  </div>
+
+  <!-- ══════════════ LEARN TAB ══════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <!-- Cue column -->
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What are the components of blood and their functions?</div>
+        <div class="cue-question">What is the difference between arteries, veins, and capillaries?</div>
+        <div class="cue-question">How does blood flow through the heart?</div>
+        <div class="cue-question">Which is the ONLY artery that carries deoxygenated blood?</div>
+        <div class="cue-question">Why does the left ventricle have thicker walls than the right?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+
+        <div class="glossary-term">
+          <div class="term-name">Atrium</div>
+          <div class="term-def">An upper chamber of the heart that receives blood. The right atrium receives deoxygenated blood from the body; the left atrium receives oxygenated blood from the lungs.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Ventricle</div>
+          <div class="term-def">A lower chamber of the heart that pumps blood out. The right ventricle pumps to the lungs; the left ventricle pumps to the entire body.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Artery</div>
+          <div class="term-def">A blood vessel that carries blood AWAY from the heart. Has thick, elastic walls to withstand high pressure. Usually carries oxygenated blood — EXCEPT the pulmonary artery.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Vein</div>
+          <div class="term-def">A blood vessel that carries blood TOWARDS the heart. Has thinner walls and valves to prevent backflow. Usually carries deoxygenated blood — EXCEPT the pulmonary veins.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Capillary</div>
+          <div class="term-def">The tiniest blood vessel — only one cell thick. Connects arteries to veins in organs and tissues. Site of exchange: O₂ and nutrients pass into cells; CO₂ and waste pass into blood.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Haemoglobin</div>
+          <div class="term-def">A protein inside red blood cells that binds to oxygen. Gives blood its red colour. Carries O₂ from the lungs to body cells, and helps carry some CO₂ back.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Oxygenated</div>
+          <div class="term-def">Blood rich in oxygen. Appears bright red. Found in pulmonary veins, left side of heart, and arteries (except pulmonary artery).</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Deoxygenated</div>
+          <div class="term-def">Blood low in oxygen (but rich in CO₂). Appears dark red/purple. Found in veins (except pulmonary veins), right side of heart, and pulmonary artery.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Aorta</div>
+          <div class="term-def">The largest artery in the body. Carries oxygenated blood from the left ventricle to the entire body. Branches into smaller arteries.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Pulmonary Artery</div>
+          <div class="term-def">Carries deoxygenated blood from the right ventricle to the lungs for oxygenation. The ONLY artery carrying deoxygenated blood — a common exam question!</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Pulmonary Vein</div>
+          <div class="term-def">Carries oxygenated blood from the lungs back to the left atrium. The ONLY vein carrying oxygenated blood.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Vena Cava</div>
+          <div class="term-def">The largest vein. Carries deoxygenated blood from the body back to the right atrium of the heart.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Plasma</div>
+          <div class="term-def">The straw-coloured liquid part of blood (~55% of blood volume). Carries nutrients, hormones, CO₂, and waste products. Water makes up most of plasma.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Heart Rate</div>
+          <div class="term-def">The number of times the heart beats per minute (bpm). Average resting rate: 60–100 bpm. Can be felt as a pulse in arteries (e.g. wrist, neck). Increases during exercise.</div>
+        </div>
+      </div>
+
+      <!-- Main notes -->
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>Functions of the Circulatory System</h4>
+          <p>The circulatory system is a <strong>transport network</strong> that moves substances around the body:</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Transport oxygen</strong> from the lungs to all body cells</li>
+            <li><strong>Transport nutrients</strong> (glucose, amino acids) from the digestive system to cells</li>
+            <li><strong>Transport hormones</strong> from glands to target organs</li>
+            <li><strong>Remove carbon dioxide</strong> from cells to the lungs for exhalation</li>
+            <li><strong>Remove waste</strong> (urea, etc.) to the kidneys for excretion</li>
+            <li><strong>Defend the body</strong> via white blood cells that fight infection</li>
+            <li><strong>Maintain body temperature</strong> by distributing heat</li>
+          </ul>
+          <div class="highlight">Key: The circulatory system connects to EVERY other body system — it is the body's delivery service.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>Components of Blood</h4>
+          <p>Blood is a liquid tissue made of four main components:</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Red blood cells (RBCs):</strong> Most numerous cell. Contains haemoglobin which binds to O₂ in the lungs and releases it at body cells. Has no nucleus (to fit more haemoglobin). Biconcave disc shape for large surface area.</li>
+            <li><strong>White blood cells (WBCs):</strong> Part of the immune system. Destroy pathogens (bacteria, viruses) by engulfing them or producing antibodies. Larger than RBCs, has a nucleus.</li>
+            <li><strong>Platelets:</strong> Tiny cell fragments (no nucleus). Trigger blood clotting at wound sites — they clump together and form a mesh to stop bleeding.</li>
+            <li><strong>Plasma:</strong> The pale yellow liquid medium. Carries dissolved substances: glucose, amino acids, CO₂, urea, hormones, and proteins. About 55% of blood volume.</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>Heart Anatomy — 4 Chambers</h4>
+          <p>The heart has <strong>four chambers</strong>. A muscular wall (septum) separates the left and right sides — oxygenated and deoxygenated blood never mix.</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Right Atrium (RA):</strong> Receives deoxygenated blood from the body via the vena cava</li>
+            <li><strong>Right Ventricle (RV):</strong> Pumps deoxygenated blood to the lungs via the pulmonary artery</li>
+            <li><strong>Left Atrium (LA):</strong> Receives oxygenated blood from the lungs via pulmonary veins</li>
+            <li><strong>Left Ventricle (LV):</strong> Pumps oxygenated blood to the entire body via the aorta — has the THICKEST walls</li>
+          </ul>
+          <div class="highlight">The left ventricle walls are thicker because it must pump blood all the way to the far reaches of the body (legs, arms, head) — it requires much more force than the right ventricle, which only pumps to the nearby lungs.</div>
+          <p style="margin-top:.6rem"><strong>Valves</strong> between chambers ensure blood flows in one direction only — they prevent backflow.</p>
+        </div>
+
+        <div class="note-section">
+          <h4>Complete Blood Flow Sequence</h4>
+          <div class="equation">Body → Vena Cava → Right Atrium → Right Ventricle → Pulmonary Artery → Lungs (gas exchange) → Pulmonary Veins → Left Atrium → Left Ventricle → Aorta → Body</div>
+          <p style="margin-top:.5rem">This circuit has two loops:</p>
+          <ul style="margin-top:.3rem">
+            <li><strong>Pulmonary circulation:</strong> Right side of heart → Lungs → Left side of heart (picks up O₂, drops CO₂)</li>
+            <li><strong>Systemic circulation:</strong> Left side of heart → All body organs → Right side of heart (delivers O₂ and nutrients, collects CO₂ and waste)</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>Blood Vessels: Arteries, Veins, Capillaries</h4>
+          <ul style="margin-top:.4rem">
+            <li><strong>Arteries:</strong> Carry blood AWAY from the heart. Thick, muscular, elastic walls to handle high pressure. Blood pulses. Usually oxygenated. No valves needed (high pressure keeps blood moving).</li>
+            <li><strong>Veins:</strong> Carry blood TOWARDS the heart. Thinner walls (lower pressure). Have valves to prevent backflow. Usually deoxygenated. Blood flows more smoothly (less pulsing).</li>
+            <li><strong>Capillaries:</strong> Microscopic vessels only ONE CELL thick. Connect arteries to veins in tissues. Thin walls allow O₂, nutrients, CO₂, and waste to diffuse in and out of cells.</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>Oxygenated vs. Deoxygenated — Which Side Carries Which?</h4>
+          <ul style="margin-top:.4rem">
+            <li><strong>Right side of heart + pulmonary artery:</strong> Deoxygenated blood</li>
+            <li><strong>Left side of heart + pulmonary veins + aorta:</strong> Oxygenated blood</li>
+          </ul>
+          <div class="highlight">EXAM PITFALL: The pulmonary ARTERY carries DEoxygenated blood — this is the ONLY artery that does so. Arteries are NOT always oxygenated; veins are NOT always deoxygenated. It depends on which direction the blood is travelling.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>Heart Rate and Pulse</h4>
+          <p>The <strong>heart rate</strong> is measured in beats per minute (bpm). Average resting heart rate: 60–100 bpm. During exercise, muscles need more O₂, so the heart beats faster.</p>
+          <p style="margin-top:.4rem">You can feel a <strong>pulse</strong> wherever an artery passes close to the skin surface (e.g., wrist = radial artery; neck = carotid artery). Pulse rate = heart rate.</p>
+          <ul style="margin-top:.3rem">
+            <li>You feel a pulse in <strong>arteries</strong>, not veins — because arteries have high pressure surges with each heartbeat</li>
+            <li>Regular exercise strengthens the heart muscle, allowing it to pump more blood per beat</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Summary row -->
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--systems);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          The circulatory system transports <strong>O₂, nutrients, and hormones</strong> to cells and removes <strong>CO₂ and waste</strong>. Blood is made of <strong>red blood cells</strong> (O₂ via haemoglobin), <strong>white blood cells</strong> (immunity), <strong>platelets</strong> (clotting), and <strong>plasma</strong> (liquid carrier). The heart has four chambers — the <strong>left ventricle</strong> has the thickest walls as it pumps blood to the entire body. Blood flows: <em>body → right atrium → right ventricle → lungs → left atrium → left ventricle → body</em>. <strong>Arteries</strong> carry blood away (thick walls, high pressure); <strong>veins</strong> carry blood to heart (valves); <strong>capillaries</strong> are where exchange happens. Exam key: the <strong>pulmonary artery</strong> is the only artery carrying deoxygenated blood.
+        </p>
+      </div>
+    </div>
+  </div><!-- /tab-learn -->
+
+  <!-- ══════════════ SIMULATE TAB ══════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <!-- Cue column -->
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">Which side of the heart carries oxygenated blood?</div>
+        <div class="cue-question">Why are the red droplets going to the body from the left side?</div>
+        <div class="cue-question">What happens to blue droplets at the lungs?</div>
+        <div class="cue-question">Can you see the left ventricle walls are thicker?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Heart Stats</div>
+        <div class="sim-stat"><strong id="stat-bpm">72</strong>Heart Rate (bpm)</div>
+        <div style="margin-top:.5rem" class="sim-stat"><strong id="stat-beat">Systole</strong>Beat Phase</div>
+        <div style="margin-top:.5rem" class="sim-stat"><strong id="stat-circuit">Dual Loop</strong>Circulation</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Blood Composition</div>
+        <p style="font-size:.75rem;color:var(--muted);margin-bottom:.6rem">Click a component to learn its role:</p>
+        <div class="blood-comp">
+          <button class="blood-comp-btn" data-comp="rbc">
+            <span class="comp-icon">🔴</span>Red Blood Cells
+          </button>
+          <button class="blood-comp-btn" data-comp="wbc">
+            <span class="comp-icon">🟡</span>White Blood Cells
+          </button>
+          <button class="blood-comp-btn" data-comp="plt">
+            <span class="comp-icon">🟠</span>Platelets
+          </button>
+          <button class="blood-comp-btn" data-comp="pls">
+            <span class="comp-icon">💧</span>Plasma
+          </button>
+        </div>
+        <div id="blood-comp-detail" style="margin-top:.5rem">Click a blood component above to see its function.</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Organ Match Game</div>
+        <p style="font-size:.75rem;color:var(--muted);margin-bottom:.6rem">Match each part to its correct function:</p>
+        <div class="match-game" id="match-game"></div>
+        <button id="match-check-btn" class="btn btn-success" style="font-size:.78rem;margin-top:.5rem;width:100%">Check Answers</button>
+        <div id="match-result"></div>
+      </div>
+
+      <!-- Main simulation area -->
+      <div class="cornell-main" style="padding:1rem">
+        <div class="sim-panel">
+          <!-- Heart rate control -->
+          <div class="hr-control">
+            <label for="bpm-slider">Heart Rate:</label>
+            <input type="range" id="bpm-slider" min="40" max="180" value="72" step="1">
+            <span id="bpm-display">72 bpm</span>
+            <span style="font-size:.75rem;color:var(--muted);margin-left:auto">Resting: 60–100 bpm &nbsp;|&nbsp; Exercise: up to 180 bpm</span>
+          </div>
+
+          <!-- Canvas -->
+          <div class="sim-canvas-wrap" style="height:370px; background:#0d1117;">
+            <canvas id="heart-canvas" width="660" height="360"></canvas>
+          </div>
+
+          <!-- Info panel -->
+          <div id="info-panel">
+            <div class="info-title">Click any heart chamber or vessel to learn about it</div>
+            <div class="info-body">Use the heart rate slider to speed up or slow down the simulation. Click the coloured chambers and vessels to see exam-relevant information.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--systems);font-weight:700;margin-bottom:.4rem">What to notice</div>
+        <p class="summary-text">
+          The <strong>right side</strong> (dark blue) handles deoxygenated blood — from body to lungs. The <strong>left side</strong> (bright red) handles oxygenated blood — from lungs to body. The <strong>left ventricle</strong> has visibly thicker walls. Blue droplets travel to the lungs and return as red — this is <strong>gas exchange</strong>. The pulse in the <strong>aorta</strong> is what you feel when you take your own pulse.
+        </p>
+      </div>
+    </div>
+  </div><!-- /tab-simulate -->
+
+  <!-- ══════════════ QUIZ TAB ══════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Always state <strong>why</strong> in your answer. Use keywords like:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li><em>"The left ventricle has <strong>thicker walls</strong> because it pumps blood to the entire body…"</em></li>
+            <li><em>"The pulmonary artery carries <strong>deoxygenated</strong> blood because…"</em></li>
+            <li><em>"Capillaries allow exchange because they are <strong>only one cell thick</strong>…"</em></li>
+          </ul>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--systems)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Use the <strong>C-E-R</strong> framework: <strong>Claim</strong> (state what happens) → <strong>Evidence</strong> (refer to the structure) → <strong>Reasoning</strong> (explain using science keywords like haemoglobin, oxygenated, pressure, exchange).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MIND MAP TAB ══════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">+ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved!')">Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">Check My Map</button>
+      <span style="font-size:.73rem;color:var(--muted);margin-left:.5rem">Double-click a node to rename it</span>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+    <p style="font-size:.75rem;color:var(--muted);margin-top:.6rem">Build your concept map by adding and connecting ideas. Include all key terms from the glossary!</p>
+  </div>
+
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// CIRCULATORY SYSTEM SIMULATOR
+// ══════════════════════════════════════════════════════════════
+
+const canvas = document.getElementById('heart-canvas');
+const ctx    = canvas.getContext('2d');
+const W = canvas.width;   // 660
+const H = canvas.height;  // 360
+
+// ── Simulation state ──────────────────────────────────────────
+const sim = {
+  bpm:         72,
+  beatPhase:   0,    // 0..1, cycles continuously
+  beatT:       0,    // ms accumulated within current beat
+  lastTime:    null,
+  droplets:    [],   // { x, y, t, path, oxygenated, speed }
+  selectedId:  null, // which chamber/vessel is highlighted
+  animId:      null,
+  valveOpen:   false // true during systole (ejection phase)
+};
+
+// ── Colour palette ────────────────────────────────────────────
+const C = {
+  bg:          '#0d1117',
+  oxy:         '#e53e3e',   // bright red — oxygenated
+  oxy2:        '#ff6b6b',   // lighter red highlight
+  deoxy:       '#3730a3',   // dark indigo/blue — deoxygenated
+  deoxy2:      '#6366f1',   // lighter blue highlight
+  heartL:      '#7f1d1d',   // left heart dark red fill
+  heartR:      '#1e1b4b',   // right heart dark blue fill
+  heartLH:     '#991b1b',   // highlighted left
+  heartRH:     '#312e81',   // highlighted right
+  vessel:      '#475569',
+  text:        '#94a3b8',
+  white:       '#e2e8f0',
+  lung:        '#1a3a2a',
+  body:        '#1a2a3a',
+  valve:       '#fbbf24',
+};
+
+// ── Layout constants ──────────────────────────────────────────
+// Heart centre
+const HX = 330, HY = 185;
+const CW = 70, CH = 55;   // chamber width/height
+const GAP = 8;             // gap between chambers
+
+// Chamber boxes [x, y, w, h] — centre-based, so top-left = x-w/2, y-h/2
+const chambers = {
+  LA: { id:'LA', x: HX-CW/2-GAP, y: HY-CH/2-GAP-4, w: CW, h: CH,   label:'Left\nAtrium',   side:'left'  },
+  RA: { id:'RA', x: HX+CW/2+GAP, y: HY-CH/2-GAP-4, w: CW, h: CH,   label:'Right\nAtrium',  side:'right' },
+  LV: { id:'LV', x: HX-CW/2-GAP, y: HY+CH/2+GAP-4, w: CW, h: CH+8, label:'Left\nVentricle',side:'left'  },
+  RV: { id:'RV', x: HX+CW/2+GAP, y: HY+CH/2+GAP-4, w: CW, h: CH,   label:'Right\nVentricle',side:'right' },
+};
+
+// Vessel hit-zones (for click detection) — [cx, cy, radius]
+const vessels = {
+  aorta:   { id:'aorta',   label:'Aorta',            cx: 230, cy: 80,  r: 14 },
+  pulmArt: { id:'pulmArt', label:'Pulmonary Artery',  cx: 460, cy: 75,  r: 14 },
+  pulmVein:{ id:'pulmVein',label:'Pulmonary Veins',   cx: 220, cy: 48,  r: 12 },
+  venaCava:{ id:'venaCava',label:'Vena Cava',          cx: 480, cy: 130, r: 12 },
+};
+
+// ── Info panel data ───────────────────────────────────────────
+const INFO = {
+  LA: {
+    title: 'Left Atrium',
+    body: 'Receives oxygenated blood returning from the lungs via the pulmonary veins. Contracts to push blood down into the left ventricle.',
+    exam: null
+  },
+  RA: {
+    title: 'Right Atrium',
+    body: 'Receives deoxygenated blood from the body via the vena cava. Contracts to push blood down into the right ventricle.',
+    exam: null
+  },
+  LV: {
+    title: 'Left Ventricle',
+    body: 'Pumps oxygenated blood to the ENTIRE body via the aorta. Has the thickest muscular walls of all four chambers — it must generate the highest pressure.',
+    exam: 'Exam: The left ventricle walls are thicker because it pumps blood much farther (to legs, arms, brain) than the right ventricle, which only pumps to the nearby lungs.'
+  },
+  RV: {
+    title: 'Right Ventricle',
+    body: 'Pumps deoxygenated blood to the lungs via the pulmonary artery. Thinner walls than the left ventricle — the lungs are close by and need lower pressure.',
+    exam: null
+  },
+  aorta: {
+    title: 'Aorta',
+    body: 'The largest artery in the body. Carries oxygenated blood away from the left ventricle and branches into smaller arteries supplying the whole body. You can feel its pulse at the wrist (radial artery).',
+    exam: null
+  },
+  pulmArt: {
+    title: 'Pulmonary Artery',
+    body: 'Carries deoxygenated blood from the right ventricle to the lungs, where CO₂ is released and O₂ is picked up.',
+    exam: 'EXAM PITFALL: The pulmonary artery is the ONLY artery in the body that carries deoxygenated blood. Arteries carry blood AWAY from the heart — not always oxygenated!'
+  },
+  pulmVein: {
+    title: 'Pulmonary Veins',
+    body: 'Carry oxygenated blood from the lungs back to the left atrium. There are four pulmonary veins in total.',
+    exam: 'Exam: Pulmonary veins are the ONLY veins carrying oxygenated blood. Veins carry blood TOWARDS the heart — not always deoxygenated!'
+  },
+  venaCava: {
+    title: 'Vena Cava',
+    body: 'The largest vein. Carries deoxygenated blood from the body back to the right atrium. The superior vena cava comes from the upper body; the inferior vena cava from the lower body.',
+    exam: null
+  }
+};
+
+// ── Bezier path helpers ───────────────────────────────────────
+// Returns points along a quadratic bezier curve
+function bezierPoints(x0, y0, cx, cy, x1, y1, n) {
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n;
+    const mt = 1 - t;
+    pts.push({
+      x: mt*mt*x0 + 2*mt*t*cx + t*t*x1,
+      y: mt*mt*y0 + 2*mt*t*cy + t*t*y1
+    });
+  }
+  return pts;
+}
+
+// ── Vessel path definitions ───────────────────────────────────
+// Each path: array of {x,y} control points for smooth drawing + droplet travel
+// Paths are defined for the animation loops
+
+// Body loop (systemic): LV → aorta → body zone → vena cava → RA
+const BODY_LOOP_PTS = [
+  // Exit LV (left ventricle top-left region)
+  {x: HX - CW - GAP - 10, y: HY + 30},
+  {x: 190, y: 100},
+  {x: 200, y: 75},   // aorta area
+  {x: 140, y: 55},
+  {x: 90,  y: 50},   // body top-left
+  {x: 55,  y: 100},
+  {x: 50,  y: 200},  // body left
+  {x: 55,  y: 290},
+  {x: 90,  y: 320},  // body bottom
+  {x: 200, y: 335},
+  {x: 380, y: 335},
+  {x: 500, y: 320},  // body right bottom
+  {x: 560, y: 250},
+  {x: 575, y: 160},
+  {x: 560, y: 100},  // vena cava area top-right
+  {x: 510, y: 85},
+  {x: HX + CW + GAP + 20, y: HY - 30}, // Enter RA
+];
+
+// Lung loop (pulmonary): RV → pulmonary artery → lungs → pulmonary veins → LA
+const LUNG_LOOP_PTS = [
+  // Exit RV top
+  {x: HX + CW + GAP + 10, y: HY + 10},
+  {x: 460, y: 95},
+  {x: 470, y: 60},   // pulmonary artery
+  {x: 490, y: 30},   // right lung
+  {x: 560, y: 20},
+  {x: 590, y: 40},
+  {x: 575, y: 60},
+  {x: 520, y: 55},   // right lung return
+  {x: 460, y: 38},
+  {x: 380, y: 25},   // cross top
+  {x: 300, y: 22},
+  {x: 230, y: 30},   // left lung
+  {x: 175, y: 20},
+  {x: 120, y: 30},
+  {x: 100, y: 55},
+  {x: 130, y: 68},   // left lung return
+  {x: 200, y: 55},   // pulmonary vein area
+  {x: 230, y: 65},
+  {x: HX - CW - GAP - 15, y: HY - 25}, // Enter LA
+];
+
+// Total path lengths (approximated by summing segment distances)
+function pathLength(pts) {
+  let len = 0;
+  for (let i = 1; i < pts.length; i++) {
+    len += Math.hypot(pts[i].x - pts[i-1].x, pts[i].y - pts[i-1].y);
+  }
+  return len;
+}
+
+// Interpolate position along a path at fraction t (0..1)
+function pathAt(pts, t) {
+  const total = pathLength(pts);
+  let target = t * total;
+  let acc = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const seg = Math.hypot(pts[i].x - pts[i-1].x, pts[i].y - pts[i-1].y);
+    if (acc + seg >= target || i === pts.length - 1) {
+      const frac = seg > 0 ? (target - acc) / seg : 0;
+      return {
+        x: pts[i-1].x + (pts[i].x - pts[i-1].x) * frac,
+        y: pts[i-1].y + (pts[i].y - pts[i-1].y) * frac
+      };
+    }
+    acc += seg;
+  }
+  return pts[pts.length - 1];
+}
+
+// ── Droplet management ────────────────────────────────────────
+function spawnDroplets() {
+  sim.droplets = [];
+  const n = 10; // droplets per loop
+  for (let i = 0; i < n; i++) {
+    // Body loop — starts oxygenated (red), becomes deoxygenated after midpoint
+    sim.droplets.push({ loop: 'body', t: i / n, oxygenated: true  });
+    // Lung loop — starts deoxygenated (blue), becomes oxygenated after midpoint
+    sim.droplets.push({ loop: 'lung', t: i / n, oxygenated: false });
+  }
+}
+
+// ── Chamber beat pulse ────────────────────────────────────────
+// Returns a scale factor (1.0 normal, slight shrink at systole peak)
+function chamberScale(id, phase) {
+  // Systole (contraction) peaks at phase ~0.25 for ventricles
+  // Diastole (fill) fills atria first
+  let contractPhase, strength;
+  if (id === 'LA' || id === 'RA') {
+    contractPhase = 0.05;
+    strength = 0.06;
+  } else {
+    contractPhase = 0.25;
+    strength = 0.10;
+  }
+  // Sine-based pulse — contract (shrink) then relax
+  const delta = ((phase - contractPhase + 1) % 1);
+  const pulse = Math.exp(-20 * delta * delta); // gaussian near contractPhase
+  return 1 - strength * pulse;
+}
+
+// ── Drawing: heart chambers ───────────────────────────────────
+function drawChamber(ch, phase, selected) {
+  const isLeft = ch.side === 'left';
+  const scale  = chamberScale(ch.id, phase);
+  const fillNormal = isLeft ? C.heartL : C.heartR;
+  const fillHigh   = isLeft ? C.heartLH : C.heartRH;
+  const fill   = selected ? fillHigh : fillNormal;
+  const border = selected ? (isLeft ? C.oxy2 : C.deoxy2) : (isLeft ? C.oxy : C.deoxy);
+
+  // Scaled dimensions around centre
+  const cx = ch.x;
+  const cy = ch.y;
+  const hw = (ch.w * scale) / 2;
+  const hh = (ch.h * scale) / 2;
+  const r  = 8; // corner radius
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(cx - hw, cy - hh, hw*2, hh*2, r);
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.strokeStyle = border;
+  ctx.lineWidth = selected ? 2.5 : 1.8;
+  // LV has extra thick wall — simulate with extra stroke passes
+  if (ch.id === 'LV') {
+    ctx.lineWidth = selected ? 4 : 3;
+  }
+  ctx.stroke();
+  ctx.restore();
+
+  // Label
+  ctx.fillStyle = C.white;
+  ctx.font = 'bold 9.5px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const lines = ch.label.split('\n');
+  const lineH = 11;
+  lines.forEach((line, i) => {
+    const oy = (i - (lines.length - 1) / 2) * lineH;
+    ctx.fillText(line, cx, cy + oy);
+  });
+
+  // Side indicator dot
+  ctx.beginPath();
+  ctx.arc(cx, cy + ch.h/2 + 3, 3, 0, Math.PI*2);
+  ctx.fillStyle = isLeft ? C.oxy : C.deoxy;
+  ctx.fill();
+}
+
+// ── Drawing: valves ───────────────────────────────────────────
+function drawValves(phase) {
+  // Atrioventricular valves between atria and ventricles
+  // Open during diastole (phase 0.6..1.0), closed during systole
+  const open = phase > 0.6 || phase < 0.05;
+  const col  = open ? C.valve : '#6b7280';
+  const lw   = 1.5;
+
+  // Left AV valve (mitral) — between LA and LV
+  const lavx = chambers.LA.x, lavy = chambers.LA.y + chambers.LA.h/2 + 2;
+  ctx.strokeStyle = col; ctx.lineWidth = lw;
+  ctx.beginPath();
+  if (open) {
+    ctx.moveTo(lavx - 10, lavy); ctx.lineTo(lavx, lavy + 7); ctx.lineTo(lavx + 10, lavy);
+  } else {
+    ctx.moveTo(lavx - 10, lavy + 4); ctx.lineTo(lavx + 10, lavy + 4);
+  }
+  ctx.stroke();
+
+  // Right AV valve (tricuspid) — between RA and RV
+  const ravx = chambers.RA.x, ravy = chambers.RA.y + chambers.RA.h/2 + 2;
+  ctx.beginPath();
+  if (open) {
+    ctx.moveTo(ravx - 10, ravy); ctx.lineTo(ravx, ravy + 7); ctx.lineTo(ravx + 10, ravy);
+  } else {
+    ctx.moveTo(ravx - 10, ravy + 4); ctx.lineTo(ravx + 10, ravy + 4);
+  }
+  ctx.stroke();
+}
+
+// ── Drawing: vessel tubes ─────────────────────────────────────
+function drawVesselTube(pts, color, lineW, selected) {
+  if (pts.length < 2) return;
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) {
+    ctx.lineTo(pts[i].x, pts[i].y);
+  }
+  ctx.strokeStyle = selected ? (color === C.oxy ? C.oxy2 : C.deoxy2) : color;
+  ctx.lineWidth   = lineW;
+  ctx.lineCap     = 'round';
+  ctx.lineJoin    = 'round';
+  ctx.globalAlpha = 0.55;
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ── Drawing: organs (lungs + body) ───────────────────────────
+function drawOrgans() {
+  // Lungs — top area
+  ctx.save();
+  // Right lung
+  ctx.beginPath();
+  ctx.ellipse(555, 35, 38, 22, 0, 0, Math.PI*2);
+  ctx.fillStyle = '#0f2d1a'; ctx.fill();
+  ctx.strokeStyle = '#166534'; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.fillStyle = '#4ade80'; ctx.font = 'bold 8px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Right Lung', 555, 36);
+
+  // Left lung
+  ctx.beginPath();
+  ctx.ellipse(140, 35, 38, 22, 0, 0, Math.PI*2);
+  ctx.fillStyle = '#0f2d1a'; ctx.fill();
+  ctx.strokeStyle = '#166534'; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.fillStyle = '#4ade80'; ctx.font = 'bold 8px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Left Lung', 140, 36);
+
+  // Gas exchange label
+  ctx.fillStyle = '#86efac'; ctx.font = '7.5px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('O₂ in / CO₂ out', 348, 18);
+
+  ctx.restore();
+
+  // Body organs zone — bottom
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(110, 305, 440, 42, 8);
+  ctx.fillStyle = '#0d1929'; ctx.fill();
+  ctx.strokeStyle = '#1e3a5a'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = '#60a5fa'; ctx.font = 'bold 8px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Body Organs & Tissues', 330, 322);
+  ctx.fillStyle = '#93c5fd'; ctx.font = '7.5px Inter';
+  ctx.fillText('O₂ delivered → CO₂ collected', 330, 335);
+  ctx.restore();
+}
+
+// ── Drawing: vessel labels ────────────────────────────────────
+function drawVesselLabels(selectedId) {
+  const labels = [
+    { id: 'aorta',    x: 215, y: 95,  color: C.oxy2,   text: 'Aorta' },
+    { id: 'pulmArt',  x: 462, y: 90,  color: C.deoxy2,  text: 'Pulm. Artery' },
+    { id: 'pulmVein', x: 218, y: 52,  color: C.oxy2,   text: 'Pulm. Veins' },
+    { id: 'venaCava', x: 497, y: 140, color: C.deoxy2,  text: 'Vena Cava' },
+  ];
+
+  labels.forEach(l => {
+    const sel = selectedId === l.id;
+    ctx.save();
+    if (sel) {
+      ctx.fillStyle = l.color + '33';
+      ctx.beginPath();
+      ctx.roundRect(l.x - 42, l.y - 9, 84, 18, 5);
+      ctx.fill();
+    }
+    ctx.fillStyle = sel ? l.color : C.text;
+    ctx.font = (sel ? 'bold ' : '') + '8px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(l.text, l.x, l.y);
+
+    // Hit-zone dot
+    ctx.beginPath();
+    ctx.arc(vessels[l.id].cx, vessels[l.id].cy, vessels[l.id].r, 0, Math.PI*2);
+    ctx.fillStyle = sel ? l.color + '44' : '#ffffff08';
+    ctx.fill();
+    ctx.strokeStyle = sel ? l.color : '#ffffff18';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+  });
+}
+
+// ── Drawing: droplets ─────────────────────────────────────────
+function drawDroplets(phase) {
+  // Droplet speed proportional to bpm
+  const speedFactor = sim.bpm / 72;
+  const dt = 0.004 * speedFactor; // per-frame advance
+
+  sim.droplets.forEach(d => {
+    d.t = (d.t + dt) % 1;
+    const pts = d.loop === 'body' ? BODY_LOOP_PTS : LUNG_LOOP_PTS;
+
+    // Colour transition: body loop red→blue at ~50%; lung loop blue→red at ~60%
+    let isOxy;
+    if (d.loop === 'body') {
+      // Oxygenated until 50% of body loop (reached body organs), then deoxygenated
+      isOxy = d.t < 0.50;
+    } else {
+      // Deoxygenated until 55% of lung loop (reached lungs), then oxygenated
+      isOxy = d.t > 0.55;
+    }
+
+    const pos = pathAt(pts, d.t);
+    const color = isOxy ? C.oxy : C.deoxy;
+    const glow  = isOxy ? C.oxy2 : C.deoxy2;
+
+    // Glow
+    ctx.save();
+    const grad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, 7);
+    grad.addColorStop(0, glow + 'aa');
+    grad.addColorStop(1, 'transparent');
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, 7, 0, Math.PI*2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.restore();
+
+    // Core droplet
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, 4, 0, Math.PI*2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+// ── Drawing: legend ───────────────────────────────────────────
+function drawLegend() {
+  const items = [
+    { color: C.oxy,   label: 'Oxygenated blood' },
+    { color: C.deoxy, label: 'Deoxygenated blood' },
+  ];
+  let lx = 14, ly = H - 16;
+  items.forEach(item => {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(lx + 5, ly, 5, 0, Math.PI*2);
+    ctx.fillStyle = item.color; ctx.fill();
+    ctx.fillStyle = C.text;
+    ctx.font = '9px Inter, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(item.label, lx + 14, ly);
+    ctx.restore();
+    lx += item.label.length * 6.2 + 24;
+  });
+}
+
+// ── Drawing: septum ───────────────────────────────────────────
+function drawSeptum() {
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(HX, HY - CH/2 - GAP - 4 - 2);
+  ctx.lineTo(HX, HY + CH/2 + GAP - 4 + CH/2 + 4);
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 5;
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ── Main draw loop ────────────────────────────────────────────
+function drawFrame(ts) {
+  if (!sim.lastTime) sim.lastTime = ts;
+  const dt = Math.min(ts - sim.lastTime, 50); // cap at 50ms (handle tab freeze)
+  sim.lastTime = ts;
+
+  const beatDuration = 60000 / sim.bpm; // ms per beat
+  sim.beatT = (sim.beatT + dt) % beatDuration;
+  sim.beatPhase = sim.beatT / beatDuration; // 0..1
+
+  // Clear
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = C.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Organs backdrop
+  drawOrgans();
+
+  // Vessel tubes (low-alpha background paths)
+  drawVesselTube(BODY_LOOP_PTS, C.oxy,   3, false);
+  drawVesselTube(LUNG_LOOP_PTS, C.deoxy, 3, false);
+
+  // Droplets on vessels
+  drawDroplets(sim.beatPhase);
+
+  // Septum
+  drawSeptum();
+
+  // Chambers
+  const sel = sim.selectedId;
+  Object.values(chambers).forEach(ch => drawChamber(ch, sim.beatPhase, sel === ch.id));
+
+  // Valves
+  drawValves(sim.beatPhase);
+
+  // Vessel labels / hit zones
+  drawVesselLabels(sel);
+
+  // Legend
+  drawLegend();
+
+  // Heartbeat label
+  const phase = sim.beatPhase;
+  const beatLabel = phase < 0.4 ? 'Systole (contraction)' : 'Diastole (filling)';
+  ctx.fillStyle = phase < 0.4 ? '#fbbf24' : '#60a5fa';
+  ctx.font = 'bold 9px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText(beatLabel, W - 10, H - 6);
+
+  sim.animId = requestAnimationFrame(drawFrame);
+}
+
+// ── Click detection ───────────────────────────────────────────
+canvas.addEventListener('click', function(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = W / rect.width;
+  const scaleY = H / rect.height;
+  const mx = (e.clientX - rect.left) * scaleX;
+  const my = (e.clientY - rect.top)  * scaleY;
+
+  let hit = null;
+
+  // Check chambers
+  for (const ch of Object.values(chambers)) {
+    const hw = ch.w / 2 + 8, hh = ch.h / 2 + 8;
+    if (mx >= ch.x - hw && mx <= ch.x + hw && my >= ch.y - hh && my <= ch.y + hh) {
+      hit = ch.id;
+      break;
+    }
+  }
+
+  // Check vessels
+  if (!hit) {
+    for (const v of Object.values(vessels)) {
+      if (Math.hypot(mx - v.cx, my - v.cy) <= v.r + 10) {
+        hit = v.id;
+        break;
+      }
+    }
+  }
+
+  if (hit) {
+    sim.selectedId = (sim.selectedId === hit) ? null : hit;
+    showInfoPanel(sim.selectedId ? INFO[sim.selectedId] : null);
+    Progress.recordSimUsed('circulatory');
+  } else {
+    sim.selectedId = null;
+    showInfoPanel(null);
+  }
+});
+
+function showInfoPanel(info) {
+  const panel = document.getElementById('info-panel');
+  if (!info) {
+    panel.innerHTML = `
+      <div class="info-title">Click any heart chamber or vessel to learn about it</div>
+      <div class="info-body">Use the heart rate slider to speed up or slow down the simulation. Click the coloured chambers and vessels to see exam-relevant information.</div>
+    `;
+    return;
+  }
+  panel.innerHTML = `
+    <div class="info-title">${info.title}</div>
+    <div class="info-body">${info.body}</div>
+    ${info.exam ? `<div class="info-exam">Exam note: ${info.exam}</div>` : ''}
+  `;
+}
+
+// ── Heart rate slider ─────────────────────────────────────────
+document.getElementById('bpm-slider').addEventListener('input', function() {
+  sim.bpm = parseInt(this.value);
+  document.getElementById('bpm-display').textContent = sim.bpm + ' bpm';
+  document.getElementById('stat-bpm').textContent = sim.bpm;
+  Progress.recordSimUsed('circulatory');
+});
+
+// ── Blood composition panel ───────────────────────────────────
+const BLOOD_COMP = {
+  rbc: {
+    name: 'Red Blood Cells',
+    detail: 'Contain haemoglobin — a protein that binds to oxygen in the lungs and releases it at body cells. Biconcave disc shape for maximum surface area. No nucleus, so more haemoglobin fits inside. Give blood its red colour.'
+  },
+  wbc: {
+    name: 'White Blood Cells',
+    detail: 'Part of the immune system. Fight infection by engulfing pathogens (phagocytosis) or producing antibodies. Larger than red blood cells and have a nucleus. There are fewer WBCs than RBCs in blood.'
+  },
+  plt: {
+    name: 'Platelets',
+    detail: 'Tiny cell fragments with no nucleus. Triggered when a blood vessel is damaged — they clump together at the wound and form a fibrin mesh (clot) to stop bleeding and prevent infection entering.'
+  },
+  pls: {
+    name: 'Plasma',
+    detail: 'The pale yellow liquid that makes up ~55% of blood. Carries red blood cells, white blood cells, and platelets. Also transports dissolved substances: glucose, amino acids, hormones, CO₂, urea, and proteins.'
+  }
+};
+
+document.querySelectorAll('.blood-comp-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.blood-comp-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    const comp = BLOOD_COMP[this.dataset.comp];
+    document.getElementById('blood-comp-detail').innerHTML =
+      `<strong style="color:var(--accent)">${comp.name}:</strong> ${comp.detail}`;
+    Progress.recordSimUsed('circulatory');
+  });
+});
+
+// ══════════════════════════════════════════════════════════════
+// ORGAN MATCH GAME
+// ══════════════════════════════════════════════════════════════
+const MATCH_PAIRS = [
+  { part: 'Left Ventricle',  correct: 'Pumps oxygenated blood to body' },
+  { part: 'Right Ventricle', correct: 'Pumps deoxygenated blood to lungs' },
+  { part: 'Left Atrium',     correct: 'Receives blood from lungs' },
+  { part: 'Right Atrium',    correct: 'Receives blood from body' },
+  { part: 'Aorta',           correct: 'Largest artery to body' },
+];
+
+const allFunctions = MATCH_PAIRS.map(p => p.correct);
+
+function buildMatchGame() {
+  const container = document.getElementById('match-game');
+  container.innerHTML = '';
+  MATCH_PAIRS.forEach((pair, idx) => {
+    // Shuffle options differently for each question
+    const shuffled = [...allFunctions].sort(() => Math.random() - 0.5);
+    const row = document.createElement('div');
+    row.className = 'match-pair';
+    row.innerHTML = `
+      <span class="match-label">${pair.part}</span>
+      <span class="match-arrow">→</span>
+      <select class="match-select" data-idx="${idx}">
+        <option value="">— select —</option>
+        ${shuffled.map(fn => `<option value="${fn}">${fn}</option>`).join('')}
+      </select>
+    `;
+    container.appendChild(row);
+  });
+}
+
+document.getElementById('match-check-btn').addEventListener('click', function() {
+  const selects = document.querySelectorAll('.match-select');
+  let correct = 0;
+  selects.forEach(sel => {
+    const idx = parseInt(sel.dataset.idx);
+    sel.classList.remove('correct', 'wrong');
+    if (sel.value === MATCH_PAIRS[idx].correct) {
+      sel.classList.add('correct');
+      correct++;
+    } else if (sel.value !== '') {
+      sel.classList.add('wrong');
+    }
+  });
+  const resultEl = document.getElementById('match-result');
+  const total = MATCH_PAIRS.length;
+  if (correct === total) {
+    resultEl.innerHTML = `<span style="color:var(--diversity)">Perfect! ${correct}/${total} correct. You know all four chambers and the aorta!</span>`;
+  } else {
+    const msgs = MATCH_PAIRS.map((p, i) => {
+      const sel = document.querySelectorAll('.match-select')[i];
+      return sel.value !== p.correct ? `<br>• ${p.part} → <em>${p.correct}</em>` : '';
+    }).join('');
+    resultEl.innerHTML = `<span style="color:var(--energy)">${correct}/${total} correct.</span>${msgs}`;
+  }
+  Progress.recordSimUsed('circulatory');
+});
+
+// ══════════════════════════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════════════════════════
+const QUIZ_Q = [
+  {
+    question: 'Which chamber of the heart pumps oxygenated blood to the entire body?',
+    options: ['Left Atrium', 'Right Ventricle', 'Left Ventricle', 'Right Atrium'],
+    correct: 2,
+    explanation: 'The left ventricle pumps oxygenated blood through the aorta to the whole body. It has the thickest walls because it must generate the highest pressure.'
+  },
+  {
+    question: 'The pulmonary artery is unusual among arteries because it:',
+    options: [
+      'Carries blood to the heart',
+      'Carries deoxygenated blood',
+      'Is the smallest artery in the body',
+      'Connects directly to the left ventricle'
+    ],
+    correct: 1,
+    explanation: 'The pulmonary artery is the ONLY artery that carries deoxygenated blood. It takes blood from the right ventricle to the lungs to pick up oxygen.'
+  },
+  {
+    question: 'What is the correct order of blood flow through the heart?',
+    options: [
+      'Right atrium → Right ventricle → Lungs → Left atrium → Left ventricle',
+      'Left atrium → Left ventricle → Lungs → Right atrium → Right ventricle',
+      'Right ventricle → Right atrium → Lungs → Left ventricle → Left atrium',
+      'Left ventricle → Left atrium → Lungs → Right ventricle → Right atrium'
+    ],
+    correct: 0,
+    explanation: 'Deoxygenated blood enters the right atrium from the body, moves to the right ventricle, goes to the lungs via the pulmonary artery, returns to the left atrium via pulmonary veins, then is pumped by the left ventricle to the body.'
+  },
+  {
+    question: 'Which blood component contains haemoglobin?',
+    options: ['White blood cells', 'Platelets', 'Plasma', 'Red blood cells'],
+    correct: 3,
+    explanation: 'Red blood cells contain haemoglobin, a protein that binds to oxygen in the lungs and releases it at body tissues. This is what makes blood red.'
+  },
+  {
+    question: 'Why does the left ventricle have thicker walls than the right ventricle?',
+    options: [
+      'It contains more blood',
+      'It pumps blood to the entire body and needs more force',
+      'It is connected to more blood vessels',
+      'It receives blood from both lungs and the body'
+    ],
+    correct: 1,
+    explanation: 'The left ventricle must pump oxygenated blood to the entire body (legs, arms, brain, organs), requiring much greater force and pressure. The right ventricle only pumps to the nearby lungs.'
+  },
+  {
+    question: 'Blood vessels where gas exchange (oxygen and carbon dioxide) takes place are called:',
+    options: ['Arteries', 'Veins', 'Capillaries', 'The aorta'],
+    correct: 2,
+    explanation: 'Capillaries are the smallest blood vessels — only one cell thick. This thin wall allows O₂ and nutrients to pass into cells, and CO₂ and waste to pass back into the blood.'
+  },
+  {
+    question: 'What is the main function of platelets?',
+    options: [
+      'Carry oxygen around the body',
+      'Fight bacterial infections',
+      'Form blood clots to stop bleeding',
+      'Transport nutrients from the gut'
+    ],
+    correct: 2,
+    explanation: 'Platelets are tiny cell fragments that clump together at a wound site and help form a fibrin clot, which stops bleeding and prevents infection.'
+  },
+  {
+    question: 'Which of the following correctly describes an artery?',
+    options: [
+      'Carries blood towards the heart; has valves; thin walls',
+      'Carries blood away from the heart; thick elastic walls; high pressure',
+      'Only one cell thick; site of gas exchange',
+      'Always carries oxygenated blood'
+    ],
+    correct: 1,
+    explanation: 'Arteries carry blood AWAY from the heart under high pressure, so they have thick, elastic, muscular walls. Note: arteries usually carry oxygenated blood, but the pulmonary artery is the exception.'
+  },
+  {
+    question: 'A student measures their pulse at the wrist. They are feeling:',
+    options: [
+      'The flow of blood through a vein',
+      'The rhythmic pressure wave in an artery',
+      'The beating of the left atrium',
+      'The movement of oxygen through capillaries'
+    ],
+    correct: 1,
+    explanation: 'Pulse is the rhythmic pressure wave caused by the heart pumping blood into arteries. It is felt in arteries (not veins) because arterial blood is under high pressure from the heart\'s contractions.'
+  },
+  {
+    question: 'Oxygenated blood from the lungs is first received by which heart chamber?',
+    options: ['Right Atrium', 'Left Ventricle', 'Right Ventricle', 'Left Atrium'],
+    correct: 3,
+    explanation: 'Oxygenated blood returns from the lungs via the pulmonary veins and enters the left atrium first. It then moves to the left ventricle, which pumps it to the body.'
+  },
+  {
+    question: 'What is the main role of plasma in blood?',
+    options: [
+      'Fight infection and produce antibodies',
+      'Carry oxygen using haemoglobin',
+      'Clot the blood at wound sites',
+      'Transport dissolved nutrients, hormones, and waste products'
+    ],
+    correct: 3,
+    explanation: 'Plasma is the liquid component of blood that acts as the transport medium. It carries dissolved substances including glucose, amino acids, CO₂, urea, and hormones throughout the body.'
+  },
+  {
+    question: 'The vena cava carries blood to which part of the heart?',
+    options: ['Left Ventricle', 'Right Atrium', 'Left Atrium', 'Right Ventricle'],
+    correct: 1,
+    explanation: 'The vena cava (the largest vein) carries deoxygenated blood from the body back to the right atrium, completing the systemic circulation loop.'
+  },
+  {
+    question: 'Which of the following statements about veins is correct?',
+    options: [
+      'Veins carry blood away from the heart at high pressure',
+      'Veins always carry deoxygenated blood',
+      'Veins have valves to prevent backflow of blood',
+      'Veins have the thickest walls of all blood vessels'
+    ],
+    correct: 2,
+    explanation: 'Veins carry blood under lower pressure towards the heart, so they need valves to prevent backflow. Note: veins usually carry deoxygenated blood, but pulmonary veins carry oxygenated blood — so "always" is incorrect.'
+  },
+  {
+    question: 'In pulmonary circulation, which of these is the correct sequence?',
+    options: [
+      'Right ventricle → Aorta → Lungs → Left atrium',
+      'Left ventricle → Pulmonary artery → Lungs → Right atrium',
+      'Right ventricle → Pulmonary artery → Lungs → Left atrium',
+      'Right atrium → Vena cava → Lungs → Left ventricle'
+    ],
+    correct: 2,
+    explanation: 'Pulmonary circulation: right ventricle pumps deoxygenated blood through the pulmonary artery to the lungs. After gas exchange, oxygenated blood returns via pulmonary veins to the left atrium.'
+  },
+  {
+    question: 'A student says: "White blood cells destroy germs." Which additional detail makes this answer more complete?',
+    options: [
+      'White blood cells contain haemoglobin',
+      'They engulf pathogens or produce antibodies to fight infection',
+      'They clump together to form clots',
+      'They are found only in arteries'
+    ],
+    correct: 1,
+    explanation: 'White blood cells defend the body by engulfing and digesting pathogens (phagocytosis) or by producing antibodies that neutralise specific pathogens. They are part of the immune system.'
+  }
+];
+
+// ══════════════════════════════════════════════════════════════
+// MIND MAP TEMPLATE
+// ══════════════════════════════════════════════════════════════
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1,  label:'Circulatory\nSystem',    color:{ background:'#1e183a', border:'#8b5cf6' }, font:{ size:15, color:'#c4b5fd' } },
+    { id:2,  label:'Heart' },
+    { id:3,  label:'Blood Vessels' },
+    { id:4,  label:'Blood' },
+    { id:5,  label:'Arteries' },
+    { id:6,  label:'Veins' },
+    { id:7,  label:'Capillaries' },
+    { id:8,  label:'Oxygenated' },
+    { id:9,  label:'Deoxygenated' },
+    { id:10, label:'Haemoglobin' },
+    { id:11, label:'Plasma' },
+    { id:12, label:'Pulmonary\nCirculation' },
+    { id:13, label:'Atrium' },
+    { id:14, label:'Ventricle' },
+  ],
+  edges: [
+    { from:1, to:2,  label:'contains' },
+    { from:1, to:3,  label:'contains' },
+    { from:1, to:4,  label:'transports' },
+    { from:1, to:12, label:'includes' },
+    { from:2, to:13, label:'has upper' },
+    { from:2, to:14, label:'has lower' },
+    { from:3, to:5  },
+    { from:3, to:6  },
+    { from:3, to:7  },
+    { from:5, to:8,  label:'usually' },
+    { from:6, to:9,  label:'usually' },
+    { from:4, to:10, label:'contains' },
+    { from:4, to:11, label:'contains' },
+    { from:10, to:8, label:'carries' },
+    { from:12, to:9, label:'uses' },
+  ],
+  required: ['heart','artery','vein','capillary','haemoglobin','oxygenated','deoxygenated','plasma','atrium','ventricle']
+};
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+let sciMap;
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Progress
+  Progress.recordVisit('circulatory');
+  const pct = Progress.masteryPct('circulatory');
+  document.getElementById('mastery-pct').textContent = pct + '%';
+
+  // Quiz
+  new QuizEngine(QUIZ_Q, 'circulatory', 'quiz-container', 8);
+
+  // Mind map
+  sciMap = new ScienceMindMap('mindmap-container', 'circulatory', MM_TEMPLATE);
+
+  // Spawn droplets and start animation
+  spawnDroplets();
+  sim.animId = requestAnimationFrame(drawFrame);
+
+  // Build match game
+  buildMatchGame();
+
+  // Responsive canvas sizing
+  function resizeCanvas() {
+    const wrap = canvas.parentElement;
+    const maxW = Math.min(660, wrap.clientWidth - 2);
+    canvas.style.width  = maxW + 'px';
+    canvas.style.height = Math.round(maxW * (360/660)) + 'px';
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label (e.g. "Haemoglobin", "Left Ventricle"):');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>
