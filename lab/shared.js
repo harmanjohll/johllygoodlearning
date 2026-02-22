@@ -99,8 +99,23 @@ function showToast(msg, durationMs = 3000) {
 
 // ── Quiz engine ────────────────────────────────────────────
 class QuizEngine {
-  constructor(questions, topicId, containerId) {
-    this.questions = questions;
+  // poolSize: how many questions to pick (0 = all). Questions & options are
+  // always shuffled so every attempt is a fresh draw.
+  constructor(questions, topicId, containerId, poolSize = 0) {
+    // Shuffle questions
+    const shuffled = [...questions].sort(() => Math.random() - 0.5);
+    const pool = poolSize > 0 ? shuffled.slice(0, Math.min(poolSize, shuffled.length)) : shuffled;
+
+    // Shuffle options within each question, keeping correct pointer valid
+    this.questions = pool.map(q => {
+      const indices = q.options.map((_, i) => i).sort(() => Math.random() - 0.5);
+      return {
+        ...q,
+        options: indices.map(i => q.options[i]),
+        correct: indices.indexOf(q.correct)
+      };
+    });
+
     this.topicId   = topicId;
     this.container = document.getElementById(containerId);
     this.current   = 0;
