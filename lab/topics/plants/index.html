@@ -272,7 +272,7 @@
         </div>
       </div>
       <div class="cornell-main">
-        <div id="quiz-container"></div>
+        <div id="quiz-container" data-topic-id="plants" data-topic-name="Photosynthesis and Plants" data-topic-level="5"></div>
       </div>
       <div class="cornell-summary">
         <p class="summary-text">Always specify <strong>which gas</strong>, <strong>which structure</strong>, and <strong>which direction</strong>. e.g. "Carbon dioxide enters through the stomata on the underside of the leaf."</p>
@@ -773,7 +773,7 @@ let sciMap;
 document.addEventListener('DOMContentLoaded', () => {
   Progress.recordVisit('plants');
   document.getElementById('mastery-pct').textContent = Progress.masteryPct('plants') + '%';
-  new QuizEngine(QUIZ_Q, 'plants', 'quiz-container');
+  initAIQuizToggle(QUIZ_Q);
   sciMap = new ScienceMindMap('mindmap-container', 'plants', MM_TEMPLATE);
   updatePS();
   updateTransp();

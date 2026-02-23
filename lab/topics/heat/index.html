@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heat &amp; Temperature | Science Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header { background:var(--surface); border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .topic-color-bar { width:4px; height:36px; border-radius:3px; background:var(--energy); flex-shrink:0; }
+    .page-header h1 { font-size:1.2rem; }
+    main { max-width:1100px; margin:0 auto; padding:1.5rem 1.25rem 3rem; }
+
+    /* Sub-tabs for Simulate */
+    .sub-tabs { display:flex; gap:.35rem; margin-bottom:1rem; flex-wrap:wrap; }
+    .sub-tab { padding:.35rem .85rem; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:.8rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .sub-tab.active { background:var(--energy); color:#0f172a; border-color:var(--energy); }
+    .sub-pane { display:none; } .sub-pane.active { display:block; }
+
+    .cue-question { font-size:.78rem; color:var(--muted); margin-bottom:.75rem; border-left:2px solid var(--energy); padding-left:.6rem; }
+    .summary-text { font-size:.85rem; color:var(--muted); line-height:1.6; }
+    .sim-stat { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:.5rem .9rem; font-size:.82rem; text-align:center; margin-top:.5rem; }
+    .sim-stat strong { display:block; font-size:1.1rem; color:var(--energy); }
+
+    /* Energy-themed highlight */
+    .highlight-energy { background:#2e1f00; border-left:3px solid var(--energy); padding:.6rem .9rem; border-radius:0 8px 8px 0; font-size:.88rem; color:#fde68a; margin:.75rem 0; }
+    .note-section h4 { color:var(--energy) !important; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🌡 Heat &amp; Temperature</h1>
+    <div class="meta" style="font-size:.78rem;color:var(--muted)">
+      <span class="badge badge-energy">Energy</span>&nbsp;
+      <span class="badge badge-p4">P4</span>&nbsp;
+      <span class="badge badge-p5">P5</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--energy)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════ LEARN ══════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What is the difference between heat and temperature?</div>
+        <div class="cue-question">How does heat travel through a solid?</div>
+        <div class="cue-question">Why are metals good conductors of heat?</div>
+        <div class="cue-question">What is a convection current and how does it form?</div>
+        <div class="cue-question">Can heat travel through empty space? How?</div>
+        <div class="cue-question">Which surfaces absorb radiation best?</div>
+        <div class="cue-question">What happens when two objects reach the same temperature?</div>
+        <div class="cue-question">Why do railway tracks have gaps between them?</div>
+        <div class="cue-question">How does a thermometer measure temperature?</div>
+        <div class="cue-question">What is the difference between melting and boiling?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+        <div class="glossary-term"><div class="term-name">Heat</div><div class="term-def">A form of energy that flows from a hotter object to a cooler object. Measured in joules (J). Heat is not the same as temperature.</div></div>
+        <div class="glossary-term"><div class="term-name">Temperature</div><div class="term-def">A measure of the degree of hotness or coldness of an object. Measured in degrees Celsius (°C) using a thermometer. It does not depend on the amount of substance.</div></div>
+        <div class="glossary-term"><div class="term-name">Conduction</div><div class="term-def">The transfer of heat through direct contact between particles. Heat moves from hotter to cooler regions. Common in solids, especially metals.</div></div>
+        <div class="glossary-term"><div class="term-name">Conductor</div><div class="term-def">A material that allows heat to pass through it easily. Metals such as copper, aluminium, and iron are good conductors. Copper conducts best.</div></div>
+        <div class="glossary-term"><div class="term-name">Insulator</div><div class="term-def">A material that does not allow heat to pass through it easily. Examples include wood, plastic, rubber, air, wool, and glass. Used to reduce heat loss.</div></div>
+        <div class="glossary-term"><div class="term-name">Convection</div><div class="term-def">The transfer of heat through a fluid (liquid or gas) by the movement of the fluid itself. Hot fluid rises; cool fluid sinks, forming a convection current.</div></div>
+        <div class="glossary-term"><div class="term-name">Convection current</div><div class="term-def">The circular movement of a fluid caused by differences in density due to temperature. Warm fluid rises (less dense) and cool fluid sinks (more dense).</div></div>
+        <div class="glossary-term"><div class="term-name">Radiation</div><div class="term-def">The transfer of heat energy as electromagnetic waves (infrared radiation). It does not require a medium — it can travel through a vacuum. The Sun heats Earth by radiation.</div></div>
+        <div class="glossary-term"><div class="term-name">Thermal equilibrium</div><div class="term-def">The state reached when two objects in contact have the same temperature and heat transfer between them stops.</div></div>
+        <div class="glossary-term"><div class="term-name">Thermal expansion</div><div class="term-def">The increase in size of a material when its temperature rises. Particles move faster and further apart. Most solids, liquids, and gases expand when heated.</div></div>
+        <div class="glossary-term"><div class="term-name">Melting point</div><div class="term-def">The temperature at which a solid changes to a liquid. For ice (water), the melting point is 0°C.</div></div>
+        <div class="glossary-term"><div class="term-name">Boiling point</div><div class="term-def">The temperature at which a liquid changes to a gas (vapour) throughout its entire volume. For water, the boiling point is 100°C.</div></div>
+      </div>
+
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🔥 What is Heat?</h4>
+          <p><strong>Heat</strong> is a form of <strong>energy</strong> that flows from a hotter object to a cooler object. <strong>Temperature</strong> is a measure of how hot or cold an object is — it does not tell us the total energy stored.</p>
+          <ul style="margin-top:.4rem">
+            <li>Heat always flows from <strong>higher temperature → lower temperature</strong></li>
+            <li>Temperature is measured in <strong>degrees Celsius (°C)</strong></li>
+            <li>A large bucket of warm water has more <em>heat energy</em> than a small cup of boiling water — even though the cup has a higher <em>temperature</em></li>
+          </ul>
+          <div class="highlight-energy">🌡 Key distinction: <strong>Heat</strong> is energy transferred; <strong>Temperature</strong> is a measure of hotness. They are NOT the same!</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🔩 Conduction</h4>
+          <p>Conduction is the transfer of heat through <strong>direct contact</strong>. When one end of a metal rod is heated, its particles <strong>vibrate faster</strong> and pass energy to neighbouring particles, gradually spreading the heat.</p>
+          <ul style="margin-top:.4rem">
+            <li>Only occurs through <strong>direct contact</strong> — no material movement</li>
+            <li><strong>Metals</strong> are good conductors: copper &gt; aluminium &gt; iron</li>
+            <li><strong>Non-metals</strong> (wood, plastic, rubber, air) are poor conductors = <strong>insulators</strong></li>
+            <li>Insulators are used in pot handles, oven mitts, building walls</li>
+            <li>Double-layered walls with trapped air reduce heat loss from buildings</li>
+          </ul>
+          <div class="equation">Conduction: heat travels from particle to particle (solid/liquid) — no bulk movement of material</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🌊 Convection</h4>
+          <p>Convection is the transfer of heat through <strong>fluids</strong> (liquids and gases). When a fluid is heated, it <strong>expands, becomes less dense, and rises</strong>. Cooler, denser fluid sinks to take its place — forming a <strong>convection current</strong>.</p>
+          <ul style="margin-top:.4rem">
+            <li>Requires a <strong>fluid medium</strong> (liquid or gas)</li>
+            <li>Hot fluid rises ↑ (less dense) · Cool fluid sinks ↓ (more dense)</li>
+            <li><strong>Sea breeze</strong>: land heats faster than sea → hot air over land rises → cool sea air flows in</li>
+            <li><strong>Boiling water</strong>: hot water at bottom rises; cooler water descends</li>
+            <li>Room heaters work by convection — warm air rises and circulates</li>
+          </ul>
+          <div class="highlight-energy">💡 Convection needs a fluid — it <em>cannot</em> occur in solids. Conduction occurs in both solids and fluids.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>☀ Radiation</h4>
+          <p>Radiation is the transfer of heat as <strong>infrared (thermal) radiation</strong> — electromagnetic waves. It does <strong>not</strong> need a medium and can travel through a vacuum.</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>All objects</strong> emit thermal radiation at all times</li>
+            <li>Hotter objects emit more radiation</li>
+            <li><strong>Dark / dull surfaces</strong> absorb and emit radiation <em>better</em></li>
+            <li><strong>Light / shiny surfaces</strong> reflect radiation and are poor absorbers/emitters</li>
+            <li>The Sun heats the Earth by radiation across 150 million km of space</li>
+            <li>Silver emergency blankets reflect radiation to keep people warm</li>
+          </ul>
+          <div class="equation">Dark dull = better absorber &amp; emitter | Light shiny = better reflector</div>
+        </div>
+
+        <div class="note-section">
+          <h4>⚖ Thermal Equilibrium</h4>
+          <p>When a hotter object and a cooler object are in contact (or nearby), heat flows from hot to cool until <strong>both reach the same temperature</strong>. At this point, heat transfer stops — they are in <strong>thermal equilibrium</strong>.</p>
+          <ul style="margin-top:.4rem">
+            <li>A hot drink cools until it matches room temperature</li>
+            <li>A cold drink warms until it matches room temperature</li>
+            <li>At thermal equilibrium, the <em>net</em> heat flow is zero</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🌡 Effects of Gaining / Losing Heat</h4>
+          <p>When objects gain or lose heat, two main things happen: <strong>temperature change</strong> and/or <strong>change of state</strong>.</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Thermal expansion</strong>: solids, liquids, and gases <em>expand</em> when heated; <em>contract</em> when cooled</li>
+            <li>Railway tracks have <strong>expansion gaps</strong> to prevent buckling in heat</li>
+            <li>Thermometers use expansion of liquid mercury or alcohol</li>
+            <li><strong>Melting</strong>: solid → liquid (gains heat at melting point)</li>
+            <li><strong>Boiling / Evaporation</strong>: liquid → gas (gains heat at boiling point)</li>
+            <li><strong>Condensation</strong>: gas → liquid (loses heat)</li>
+            <li><strong>Freezing</strong>: liquid → solid (loses heat at freezing/melting point)</li>
+          </ul>
+          <div class="highlight-energy">During a change of state, temperature stays <strong>constant</strong> even though heat is still being gained or lost.</div>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--energy);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          <strong>Heat</strong> is energy that flows from hotter to cooler objects; <strong>temperature</strong> measures degree of hotness. Heat travels by three methods: <strong>conduction</strong> (direct contact — metals conduct best, non-metals insulate), <strong>convection</strong> (through fluids — hot fluid rises, cool fluid sinks, forming convection currents), and <strong>radiation</strong> (infrared waves — no medium needed; dark dull surfaces absorb and emit best). When objects reach the same temperature, <strong>thermal equilibrium</strong> is achieved and heat transfer stops.
+        </p>
+        <p class="summary-text" style="margin-top:.5rem">
+          Gaining heat causes <strong>thermal expansion</strong> (particles move further apart) and can cause <strong>changes of state</strong>: melting (solid → liquid at melting point), boiling (liquid → gas at boiling point). Losing heat causes contraction, condensation, and freezing. During a change of state, temperature stays constant while energy is absorbed or released.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SIMULATE ══════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">Which metal conducts heat fastest?</div>
+        <div class="cue-question">How does heat intensity affect convection speed?</div>
+        <div class="cue-question">What happens to water particles at 100°C?</div>
+        <div class="cue-question">Why does the thermometer level rise when heated?</div>
+        <div class="sim-stat"><strong id="stat-rod-speed">—</strong>Copper Heat Speed</div>
+        <div class="sim-stat"><strong id="stat-conv-speed">—</strong>Convection Speed</div>
+        <div class="sim-stat"><strong id="stat-therm-temp">—</strong>Current Temp (°C)</div>
+        <div class="sim-stat"><strong id="stat-therm-state">—</strong>Current State</div>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="showHeatSub('cond-sim', this)">🏆 Conduction Race</button>
+          <button class="sub-tab" onclick="showHeatSub('conv-sim', this)">🌊 Convection Current</button>
+          <button class="sub-tab" onclick="showHeatSub('therm-sim', this)">🌡 Thermometer &amp; States</button>
+        </div>
+
+        <!-- CONDUCTION SIM -->
+        <div class="sub-pane active" id="cond-sim">
+          <div class="sim-controls" style="margin-bottom:.75rem">
+            <div class="sim-control-group">
+              <label>Heat source temperature: <strong id="heat-temp-val">120</strong> °C</label>
+              <input type="range" id="heat-temp-slider" min="50" max="200" value="120" oninput="updateCondSim()">
+            </div>
+            <div class="sim-control-group">
+              <label>Rod thickness: <strong id="rod-thick-val">3</strong></label>
+              <input type="range" id="rod-thick-slider" min="1" max="5" value="3" oninput="updateCondSim()">
+            </div>
+          </div>
+          <div class="sim-canvas-wrap" style="height:320px">
+            <canvas id="cond-canvas" width="480" height="300"></canvas>
+          </div>
+          <div id="cond-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
+        </div>
+
+        <!-- CONVECTION SIM -->
+        <div class="sub-pane" id="conv-sim">
+          <div class="sim-controls" style="margin-bottom:.75rem">
+            <div class="sim-control-group">
+              <label>Heat intensity: <strong id="conv-intensity-val">Medium</strong></label>
+              <input type="range" id="conv-intensity-slider" min="1" max="3" step="1" value="2" oninput="updateConvSim()">
+            </div>
+          </div>
+          <div class="sim-canvas-wrap" style="height:340px">
+            <canvas id="conv-canvas" width="460" height="320"></canvas>
+          </div>
+          <div id="conv-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
+        </div>
+
+        <!-- THERMOMETER SIM -->
+        <div class="sub-pane" id="therm-sim">
+          <div class="sim-controls" style="margin-bottom:.75rem">
+            <div class="sim-control-group">
+              <label>Substance</label>
+              <select id="substance-select" onchange="updateThermSim()" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.35rem .6rem;font-size:.82rem">
+                <option value="water">Water (mp 0°C, bp 100°C)</option>
+                <option value="butter">Butter (mp 32°C, bp 250°C)</option>
+                <option value="wax">Wax (mp 60°C, bp 370°C)</option>
+                <option value="iron">Iron (mp 1538°C — always solid)</option>
+              </select>
+            </div>
+            <div class="sim-control-group">
+              <label>Temperature: <strong id="therm-temp-val">20</strong> °C</label>
+              <input type="range" id="therm-temp-slider" min="-20" max="400" value="20" oninput="updateThermSim()">
+            </div>
+          </div>
+          <div class="sim-canvas-wrap" style="height:360px">
+            <canvas id="therm-canvas" width="400" height="340"></canvas>
+          </div>
+          <div id="therm-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <p class="summary-text">
+          <strong>Conduction Race</strong>: Copper always wins — its free electrons transfer energy fastest. <strong>Convection</strong>: More heat = faster particle movement = stronger convection currents. <strong>Thermometer</strong>: The liquid expands as temperature rises. Notice how the state changes exactly at the melting and boiling points — and the temperature holds steady during state changes!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ QUIZ ══════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Heat questions often require you to identify the <em>method</em> of transfer and explain it fully:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li>State <strong>which method</strong> (conduction / convection / radiation)</li>
+            <li>Name the <strong>medium</strong> (or state no medium for radiation)</li>
+            <li>Describe the <strong>direction</strong> of heat flow</li>
+            <li>For convection, mention that <em>hot fluid rises</em> and <em>cool fluid sinks</em></li>
+          </ul>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--energy)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container" data-topic-id="heat" data-topic-name="Heat &amp; Temperature" data-topic-level="4"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Remember: <strong>conduction</strong> needs direct contact, <strong>convection</strong> needs a fluid, <strong>radiation</strong> needs no medium. Dark dull surfaces are better absorbers and emitters of radiation. Thermal expansion explains gaps in railway tracks and how thermometers work.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MIND MAP ══════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">+ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ══ Sub-tab switcher ══
+function showHeatSub(id, btn) {
+  document.querySelectorAll('#tab-simulate .sub-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#tab-simulate .sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// SUB-SIM 1: CONDUCTION RACE
+// ══════════════════════════════════════════
+const ROD_METALS = [
+  { name: 'Copper',    color: '#f97316', speed: 400, conductivity: 400 },
+  { name: 'Aluminium', color: '#94a3b8', speed: 200, conductivity: 200 },
+  { name: 'Iron',      color: '#64748b', speed:  80, conductivity:  80 }
+];
+
+let condAnimId = null;
+let heatFronts = [0, 0, 0]; // fraction of rod heated (0–1) per metal
+let heatTemp   = 120;
+let rodThick   = 3;
+let condRunning = false;
+
+function updateCondSim() {
+  heatTemp  = +document.getElementById('heat-temp-slider').value;
+  rodThick  = +document.getElementById('rod-thick-slider').value;
+  document.getElementById('heat-temp-val').textContent = heatTemp;
+  document.getElementById('rod-thick-val').textContent = rodThick;
+
+  // Reset fronts when slider moves
+  heatFronts = [0, 0, 0];
+
+  if (!condRunning) {
+    condRunning = true;
+    condAnimate();
+  }
+  updateCondFeedback();
+  Progress.recordSimUsed('heat');
+}
+
+function condAnimate() {
+  const canvas = document.getElementById('cond-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Update fronts
+  const dt     = 1 / 60;
+  const scale  = (heatTemp / 120) * (rodThick / 3);
+  heatFronts[0] = Math.min(1, heatFronts[0] + dt * 0.9 * scale);
+  heatFronts[1] = Math.min(1, heatFronts[1] + dt * 0.45 * scale);
+  heatFronts[2] = Math.min(1, heatFronts[2] + dt * 0.18 * scale);
+
+  drawCondCanvas(ctx, W, H);
+
+  // Update stats
+  const copperSpeed = Math.round(ROD_METALS[0].conductivity * (heatTemp / 120) * (rodThick / 3));
+  document.getElementById('stat-rod-speed').textContent = copperSpeed + ' W/mK';
+
+  const allFull = heatFronts.every(f => f >= 1);
+  if (!allFull) {
+    condAnimId = requestAnimationFrame(condAnimate);
+  } else {
+    condRunning = false;
+    updateCondFeedback();
+  }
+}
+
+function drawCondCanvas(ctx, W, H) {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, W, H);
+
+  const rodH     = Math.max(8, rodThick * 6);
+  const rodLeft  = 70;
+  const rodRight = W - 30;
+  const rodLen   = rodRight - rodLeft;
+  const spacing  = 72;
+  const startY   = 60;
+
+  // Flame icon on the left
+  ctx.font = '28px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('🔥', rodLeft - 30, startY + spacing + rodH / 2 + 10);
+
+  ROD_METALS.forEach((metal, i) => {
+    const y = startY + i * spacing;
+    const front = heatFronts[i];
+
+    // Background rod (cold = blue tint)
+    ctx.fillStyle = '#1e3a5a';
+    ctx.fillRect(rodLeft, y, rodLen, rodH);
+
+    // Heated segment: gradient from flame-red to cooler blue
+    if (front > 0) {
+      const grad = ctx.createLinearGradient(rodLeft, 0, rodLeft + rodLen * front, 0);
+      grad.addColorStop(0, '#ef4444');   // hottest (left)
+      grad.addColorStop(0.35, '#f97316');
+      grad.addColorStop(0.65, '#facc15');
+      grad.addColorStop(1, '#38bdf8');   // cool end
+      ctx.fillStyle = grad;
+      ctx.fillRect(rodLeft, y, rodLen * front, rodH);
+    }
+
+    // Rod border
+    ctx.strokeStyle = metal.color;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(rodLeft, y, rodLen, rodH);
+
+    // Metal label (left)
+    ctx.fillStyle = metal.color;
+    ctx.font = 'bold 11px Inter';
+    ctx.textAlign = 'right';
+    ctx.fillText(metal.name, rodLeft - 5, y + rodH / 2 + 4);
+
+    // Speed label (right)
+    const pct = Math.round(front * 100);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = '10px Inter';
+    ctx.textAlign = 'left';
+    ctx.fillText(pct + '% heated', rodRight + 5, y + rodH / 2 + 4);
+  });
+
+  // Legend: ranking
+  ctx.fillStyle = '#64748b';
+  ctx.font = '10px Inter';
+  ctx.textAlign = 'left';
+  ctx.fillText('Conductivity: Copper (400) > Aluminium (200) > Iron (80) W/mK', rodLeft, H - 12);
+
+  // Heat source marker
+  ctx.fillStyle = '#ef4444';
+  ctx.font = '10px Inter';
+  ctx.textAlign = 'center';
+  ctx.fillText('Heat Source (' + heatTemp + '°C)', rodLeft + 40, H - 28);
+}
+
+function updateCondFeedback() {
+  const doc = document.getElementById('cond-feedback');
+  const tempEffect = heatTemp >= 150 ? 'high' : heatTemp >= 100 ? 'medium' : 'low';
+  const thickNote = rodThick >= 4 ? 'Thicker rods carry more heat.' : 'Thin rods heat up faster along their length.';
+  doc.innerHTML = `<strong>Copper</strong> conducts heat fastest because its <em>free electrons</em> can carry energy rapidly through the metal lattice. Aluminium conducts at roughly half the rate, and iron is slowest among these metals. At <strong>${heatTemp}°C</strong> heat source (${tempEffect} temperature), ${thickNote} In real life, copper is used in cooking pots and heat exchangers for this reason.`;
+}
+
+// Auto-start animation
+window.addEventListener('load', () => {
+  // Slight delay so layout is ready
+  setTimeout(() => {
+    updateCondSim();
+  }, 200);
+});
+
+// ══════════════════════════════════════════
+// SUB-SIM 2: CONVECTION CURRENT
+// ══════════════════════════════════════════
+const CONV_PARTICLE_COUNT = 40;
+let convParticles = [];
+let convIntensity  = 2; // 1,2,3
+let convAnimId    = null;
+let convInitDone  = false;
+
+function initConvParticles(W, H) {
+  convParticles = [];
+  for (let i = 0; i < CONV_PARTICLE_COUNT; i++) {
+    convParticles.push({
+      x: 30 + Math.random() * (W - 60),
+      y: 30 + Math.random() * (H - 80),
+      r: 5 + Math.random() * 3,
+      vx: 0,
+      vy: 0,
+      temp: 0.5 // 0=cold, 1=hot
+    });
+  }
+}
+
+function updateConvSim() {
+  convIntensity = +document.getElementById('conv-intensity-slider').value;
+  const labels = ['', 'Low', 'Medium', 'High'];
+  document.getElementById('conv-intensity-val').textContent = labels[convIntensity];
+
+  const speedMap = { 1: 'Slow', 2: 'Moderate', 3: 'Fast' };
+  document.getElementById('stat-conv-speed').textContent = speedMap[convIntensity];
+
+  updateConvFeedback();
+  Progress.recordSimUsed('heat');
+
+  if (!convAnimId) {
+    convAnimate();
+  }
+}
+
+function convAnimate() {
+  const canvas = document.getElementById('conv-canvas');
+  if (!canvas) { convAnimId = null; return; }
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  if (!convInitDone || convParticles.length === 0) {
+    initConvParticles(W, H);
+    convInitDone = true;
+  }
+
+  const margin  = 20;
+  const floorY  = H - 50;
+  const ceilY   = margin;
+  const leftX   = margin;
+  const rightX  = W - margin;
+  const speed   = [0, 0.6, 1.2, 2.2][convIntensity];
+
+  // Update each particle
+  convParticles.forEach(p => {
+    // Proximity to heat source (bottom centre)
+    const heatX  = W / 2;
+    const heatDist = Math.abs(p.x - heatX) / (W / 2);
+    const heatProximity = Math.max(0, 1 - heatDist * 1.4);
+    const depthFactor = (p.y - ceilY) / (floorY - ceilY); // 0=top,1=bottom
+
+    // Temperature of particle
+    p.temp += (depthFactor * heatProximity * 1.2 - p.temp) * 0.05;
+    p.temp  = Math.max(0, Math.min(1, p.temp));
+
+    // Buoyancy: hot rises, cold sinks
+    const buoyancy = (p.temp - 0.5) * speed * 1.6;
+    p.vy += -buoyancy * 0.08;
+
+    // Horizontal circulation: top flows outward from centre, bottom flows inward
+    const centreOffset = (p.x - W / 2) / (W / 2);
+    if (p.y < H / 2) {
+      // Top half — hot fluid rises and fans out sideways
+      p.vx += centreOffset * speed * 0.04;
+    } else {
+      // Bottom half — cool fluid sweeps inward toward heat source
+      p.vx -= centreOffset * speed * 0.06;
+    }
+
+    // Damping
+    p.vx *= 0.92;
+    p.vy *= 0.92;
+
+    // Cap speed
+    const maxV = speed * 2.5;
+    p.vx = Math.max(-maxV, Math.min(maxV, p.vx));
+    p.vy = Math.max(-maxV, Math.min(maxV, p.vy));
+
+    p.x += p.vx;
+    p.y += p.vy;
+
+    // Bounce off walls
+    if (p.x < leftX + p.r)  { p.x = leftX + p.r; p.vx = Math.abs(p.vx) * 0.5; }
+    if (p.x > rightX - p.r) { p.x = rightX - p.r; p.vx = -Math.abs(p.vx) * 0.5; }
+    if (p.y < ceilY + p.r)  { p.y = ceilY + p.r; p.vy = Math.abs(p.vy) * 0.5; }
+    if (p.y > floorY - p.r) { p.y = floorY - p.r; p.vy = -Math.abs(p.vy) * 0.5; }
+  });
+
+  drawConvCanvas(ctx, W, H, margin, floorY, ceilY, leftX, rightX, speed);
+
+  convAnimId = requestAnimationFrame(convAnimate);
+}
+
+function drawConvCanvas(ctx, W, H, margin, floorY, ceilY, leftX, rightX, speed) {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, W, H);
+
+  // Container (water tank)
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(leftX, ceilY, rightX - leftX, floorY - ceilY);
+
+  // Water background gradient
+  const waterGrad = ctx.createLinearGradient(0, ceilY, 0, floorY);
+  waterGrad.addColorStop(0, '#0c1f3a');
+  waterGrad.addColorStop(1, '#1e3a5a');
+  ctx.fillStyle = waterGrad;
+  ctx.fillRect(leftX + 1, ceilY + 1, rightX - leftX - 2, floorY - ceilY - 2);
+
+  // Heat source (flame at bottom)
+  const flameW = 80;
+  const flameGrad = ctx.createRadialGradient(W / 2, floorY, 0, W / 2, floorY, flameW);
+  flameGrad.addColorStop(0, 'rgba(239,68,68,0.7)');
+  flameGrad.addColorStop(0.5, 'rgba(249,115,22,0.3)');
+  flameGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = flameGrad;
+  ctx.beginPath();
+  ctx.ellipse(W / 2, floorY, flameW, 20, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.font = '18px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('🔥', W / 2, H - 20);
+
+  // Particles
+  convParticles.forEach(p => {
+    // Colour: blue (cold) → cyan → yellow → orange → red (hot)
+    const t = p.temp;
+    let r, g, b;
+    if (t < 0.5) {
+      // cold: blue → cyan
+      r = Math.round(t * 2 * 56);
+      g = Math.round(150 + t * 2 * 70);
+      b = Math.round(200 + t * 2 * 55);
+    } else {
+      // hot: yellow → red
+      const s = (t - 0.5) * 2;
+      r = 255;
+      g = Math.round(220 - s * 180);
+      b = Math.round(20 - s * 20);
+    }
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fill();
+
+    // Velocity arrow
+    if (speed > 0.4) {
+      const vMag = Math.hypot(p.vx, p.vy);
+      if (vMag > 0.3) {
+        const ax = p.x + p.vx * 3;
+        const ay = p.y + p.vy * 3;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(ax, ay);
+        ctx.strokeStyle = `rgba(${r},${g},${b},0.45)`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+    }
+  });
+
+  // Labels
+  ctx.fillStyle = '#ef4444';
+  ctx.font = 'bold 10px Inter';
+  ctx.textAlign = 'center';
+  ctx.fillText('HOT — rises ↑', W / 2, floorY - 8);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText('COOL — sinks ↓', W / 2, ceilY + 14);
+
+  // Intensity label
+  ctx.fillStyle = '#64748b';
+  ctx.font = '10px Inter';
+  ctx.textAlign = 'right';
+  ctx.fillText(['', 'Low intensity', 'Medium intensity', 'High intensity'][convIntensity], rightX, H - 5);
+}
+
+function updateConvFeedback() {
+  const msgs = [
+    '',
+    'At <strong>low heat intensity</strong>, particles move slowly. A weak convection current forms — hot fluid barely rises above the heat source.',
+    'At <strong>medium heat intensity</strong>, you can clearly see the convection loop: hot fluid (red/orange) rising near the bottom centre and cool fluid (blue) sinking at the sides.',
+    'At <strong>high heat intensity</strong>, the convection current is strong and fast. The entire body of water circulates rapidly. This is how a room heater warms the air and how sea breezes form!'
+  ];
+  document.getElementById('conv-feedback').innerHTML = msgs[convIntensity] ||
+    'Hot fluid is less dense and rises. Cool fluid is denser and sinks. This circular movement is a <strong>convection current</strong> — the main way heat travels through fluids.';
+}
+
+// ══════════════════════════════════════════
+// SUB-SIM 3: THERMOMETER & STATES
+// ══════════════════════════════════════════
+const SUBSTANCES = {
+  water:  { name: 'Water',   mp: 0,    bp: 100,  solidColor:'#93c5fd', liquidColor:'#3b82f6', gasColor:'#bfdbfe', label:'Ice → Water → Steam' },
+  butter: { name: 'Butter',  mp: 32,   bp: 250,  solidColor:'#fef08a', liquidColor:'#fbbf24', gasColor:'#fde68a', label:'Solid → Liquid → Vapour' },
+  wax:    { name: 'Wax',     mp: 60,   bp: 370,  solidColor:'#f5f5f4', liquidColor:'#e7e5e4', gasColor:'#d6d3d1', label:'Solid → Liquid → Vapour' },
+  iron:   { name: 'Iron',    mp: 1538, bp: 2862, solidColor:'#64748b', liquidColor:'#94a3b8', gasColor:'#cbd5e1', label:'Always solid in this range' }
+};
+
+let thermAnimId = null;
+let thermParticles = [];
+let thermTemp = 20;
+let thermSubstance = 'water';
+
+function initThermParticles(state) {
+  thermParticles = [];
+  const cx = 290, cy = 170, boxW = 90, boxH = 80;
+  const count = state === 'Gas' ? 18 : state === 'Liquid' ? 22 : 20;
+  for (let i = 0; i < count; i++) {
+    thermParticles.push({
+      x: cx - boxW / 2 + Math.random() * boxW,
+      y: cy - boxH / 2 + Math.random() * boxH,
+      vx: (Math.random() - 0.5) * 2,
+      vy: (Math.random() - 0.5) * 2,
+      r: state === 'Gas' ? 4 : 5
+    });
+  }
+}
+
+function getState(subKey, temp) {
+  const sub = SUBSTANCES[subKey];
+  if (temp < sub.mp)  return 'Solid';
+  if (temp < sub.bp)  return 'Liquid';
+  return 'Gas';
+}
+
+function updateThermSim() {
+  thermTemp      = +document.getElementById('therm-temp-slider').value;
+  thermSubstance = document.getElementById('substance-select').value;
+  document.getElementById('therm-temp-val').textContent = thermTemp;
+
+  const state = getState(thermSubstance, thermTemp);
+  document.getElementById('stat-therm-temp').textContent  = thermTemp + ' °C';
+  document.getElementById('stat-therm-state').textContent = state;
+
+  initThermParticles(state);
+  updateThermFeedback(state);
+  Progress.recordSimUsed('heat');
+
+  if (!thermAnimId) {
+    thermAnimate();
+  }
+}
+
+function thermAnimate() {
+  const canvas = document.getElementById('therm-canvas');
+  if (!canvas) { thermAnimId = null; return; }
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const sub   = SUBSTANCES[thermSubstance];
+  const state = getState(thermSubstance, thermTemp);
+
+  // Particle speed based on state and temperature
+  const speedMult = state === 'Gas' ? 3.5 : state === 'Liquid' ? 1.4 : 0.25;
+  const boxCx = 290, boxCy = 170, boxHW = 45, boxHH = 40;
+
+  thermParticles.forEach(p => {
+    const jitter = (Math.random() - 0.5) * speedMult * 0.6;
+    p.vx += jitter;
+    p.vy += jitter;
+    p.vx *= 0.92;
+    p.vy *= 0.92;
+    p.x  += p.vx * speedMult;
+    p.y  += p.vy * speedMult;
+
+    if (state === 'Solid') {
+      // Vibrate in place — pull back to a home position
+      const hx = boxCx - boxHW + 10 + (thermParticles.indexOf(p) % 5) * 14;
+      const hy = boxCy - boxHH + 14 + Math.floor(thermParticles.indexOf(p) / 5) * 18;
+      p.x += (hx - p.x) * 0.15;
+      p.y += (hy - p.y) * 0.15;
+    } else {
+      // Bounce inside box
+      if (p.x < boxCx - boxHW + p.r)  { p.x = boxCx - boxHW + p.r;  p.vx = Math.abs(p.vx); }
+      if (p.x > boxCx + boxHW - p.r)  { p.x = boxCx + boxHW - p.r;  p.vx = -Math.abs(p.vx); }
+      if (p.y < boxCy - boxHH + p.r)  { p.y = boxCy - boxHH + p.r;  p.vy = Math.abs(p.vy); }
+      if (p.y > boxCy + boxHH - p.r)  { p.y = boxCy + boxHH - p.r;  p.vy = -Math.abs(p.vy); }
+    }
+  });
+
+  drawThermCanvas(ctx, W, H, sub, state);
+  thermAnimId = requestAnimationFrame(thermAnimate);
+}
+
+function drawThermCanvas(ctx, W, H, sub, state) {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, W, H);
+
+  // ─── Thermometer (left side) ───
+  const tx = 70, ty = 30, tH = 240, tW = 18;
+  const bulbR = 16;
+  const bulbY = ty + tH + bulbR;
+
+  // Scale: -20°C (bottom) to 400°C (top of range)
+  const minT = -20, maxT = 400;
+  const clampedTemp = Math.max(minT, Math.min(maxT, thermTemp));
+  const fillFrac = (clampedTemp - minT) / (maxT - minT);
+  const fillHeight = tH * fillFrac;
+  const fillTop = ty + tH - fillHeight;
+
+  // Thermometer tube background
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath();
+  ctx.roundRect(tx - tW / 2, ty, tW, tH, [tW / 2, tW / 2, 0, 0]);
+  ctx.fill();
+
+  // Mercury fill colour based on temperature
+  let mercuryColor;
+  if (thermTemp < 0)       mercuryColor = '#93c5fd';
+  else if (thermTemp < 50) mercuryColor = '#22d3ee';
+  else if (thermTemp < 150)mercuryColor = '#f97316';
+  else                     mercuryColor = '#ef4444';
+
+  // Mercury fill
+  ctx.fillStyle = mercuryColor;
+  ctx.fillRect(tx - tW / 2 + 2, fillTop, tW - 4, fillHeight + tW / 2);
+
+  // Tube border
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(tx - tW / 2, ty, tW, tH, [tW / 2, tW / 2, 0, 0]);
+  ctx.stroke();
+
+  // Bulb
+  ctx.beginPath();
+  ctx.arc(tx, bulbY, bulbR, 0, Math.PI * 2);
+  ctx.fillStyle = mercuryColor;
+  ctx.fill();
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Tick marks
+  const tickTemps = [-20, 0, 50, 100, 150, 200, 300, 400];
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '8px Inter';
+  ctx.textAlign = 'right';
+  tickTemps.forEach(tt => {
+    const f = (tt - minT) / (maxT - minT);
+    const y = ty + tH - tH * f;
+    ctx.beginPath();
+    ctx.moveTo(tx - tW / 2 - 2, y);
+    ctx.lineTo(tx - tW / 2 - 7, y);
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillText(tt + '°', tx - tW / 2 - 9, y + 3);
+  });
+
+  // Current temperature marker
+  const curY = ty + tH - tH * fillFrac;
+  ctx.beginPath();
+  ctx.moveTo(tx + tW / 2 + 2, curY);
+  ctx.lineTo(tx + tW / 2 + 12, curY);
+  ctx.strokeStyle = mercuryColor;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Thermometer label
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = 'bold 10px Inter';
+  ctx.textAlign = 'center';
+  ctx.fillText('Thermometer', tx, ty - 10);
+  ctx.fillStyle = mercuryColor;
+  ctx.font = 'bold 13px Inter';
+  ctx.fillText(thermTemp + '°C', tx, bulbY + bulbR + 16);
+
+  // ─── Substance display (right side) ───
+  const boxCx = 290, boxCy = 170, boxHW = 45, boxHH = 40;
+
+  // Box border
+  const stateColor = state === 'Solid' ? sub.solidColor : state === 'Liquid' ? sub.liquidColor : sub.gasColor;
+  ctx.strokeStyle = stateColor;
+  ctx.lineWidth   = state === 'Gas' ? 1 : 2;
+  if (state === 'Gas') {
+    ctx.setLineDash([4, 4]);
+  }
+  ctx.strokeRect(boxCx - boxHW - 5, boxCy - boxHH - 5, (boxHW + 5) * 2, (boxHH + 5) * 2);
+  ctx.setLineDash([]);
+
+  // Particles
+  thermParticles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = stateColor;
+    ctx.fill();
+    if (state === 'Solid') {
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth   = 1;
+      ctx.stroke();
+    }
+  });
+
+  // State label
+  ctx.fillStyle = stateColor;
+  ctx.font = 'bold 14px Inter';
+  ctx.textAlign = 'center';
+  ctx.fillText(state, boxCx, boxCy + boxHH + 24);
+
+  ctx.fillStyle = '#64748b';
+  ctx.font = '11px Inter';
+  ctx.fillText(sub.name, boxCx, boxCy - boxHH - 14);
+  ctx.font = '9px Inter';
+  ctx.fillText(sub.label, boxCx, H - 8);
+
+  // Melting/boiling point markers
+  const mp = sub.mp;
+  const bp = sub.bp;
+  if (mp >= minT && mp <= maxT) {
+    const mpY = ty + tH - tH * ((mp - minT) / (maxT - minT));
+    ctx.beginPath();
+    ctx.moveTo(tx - tW / 2 - 2, mpY);
+    ctx.lineTo(tx + tW / 2 + 20, mpY);
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#10b981';
+    ctx.font = '8px Inter';
+    ctx.textAlign = 'left';
+    ctx.fillText('mp ' + mp + '°C', tx + tW / 2 + 4, mpY - 2);
+  }
+  if (bp >= minT && bp <= maxT) {
+    const bpY = ty + tH - tH * ((bp - minT) / (maxT - minT));
+    ctx.beginPath();
+    ctx.moveTo(tx - tW / 2 - 2, bpY);
+    ctx.lineTo(tx + tW / 2 + 20, bpY);
+    ctx.strokeStyle = '#f97316';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#f97316';
+    ctx.font = '8px Inter';
+    ctx.textAlign = 'left';
+    ctx.fillText('bp ' + bp + '°C', tx + tW / 2 + 4, bpY - 2);
+  }
+
+  // State description in top-right
+  ctx.fillStyle = '#475569';
+  ctx.font = '9px Inter';
+  ctx.textAlign = 'right';
+  if (state === 'Solid')  ctx.fillText('Particles vibrate in fixed positions', W - 10, 16);
+  if (state === 'Liquid') ctx.fillText('Particles flow freely, close together', W - 10, 16);
+  if (state === 'Gas')    ctx.fillText('Particles move fast, far apart', W - 10, 16);
+}
+
+function updateThermFeedback(state) {
+  const sub  = SUBSTANCES[thermSubstance];
+  const temp = thermTemp;
+  let msg    = '';
+
+  if (thermSubstance === 'iron' && temp <= 400) {
+    msg = `<strong>Iron</strong> has an extremely high melting point of 1538°C — far beyond this thermometer's range. It remains a <strong>solid</strong> at ${temp}°C. That is why iron is used in construction and engineering where high strength is needed.`;
+  } else if (state === 'Solid') {
+    msg = `<strong>${sub.name}</strong> is a <strong>solid</strong> at ${temp}°C. Its particles vibrate in fixed positions. To melt it, you need to reach its melting point of <strong>${sub.mp}°C</strong>.`;
+  } else if (state === 'Liquid') {
+    msg = `<strong>${sub.name}</strong> is a <strong>liquid</strong> at ${temp}°C — it has melted (mp ${sub.mp}°C). Particles flow freely. To boil it, you need to reach its boiling point of <strong>${sub.bp}°C</strong>.`;
+  } else {
+    msg = `<strong>${sub.name}</strong> is a <strong>gas (vapour)</strong> at ${temp}°C — above its boiling point of ${sub.bp}°C. Particles move very fast and far apart. Cooling it below ${sub.bp}°C would cause <em>condensation</em>.`;
+  }
+
+  document.getElementById('therm-feedback').innerHTML = msg;
+}
+
+// ══════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════
+const QUIZ_Q = [
+  {
+    question: 'A metal spoon is left in a bowl of hot soup. After a while, the handle becomes warm. Which method of heat transfer is responsible?',
+    options: ['Convection', 'Radiation', 'Conduction', 'Evaporation'],
+    correct: 2,
+    explanation: 'Heat travels through the solid metal spoon from the hot end (in soup) to the cool handle by conduction — particle-to-particle transfer through direct contact.'
+  },
+  {
+    question: 'Why does a wooden spoon handle stay cool even when placed in boiling water?',
+    options: ['Wood absorbs heat but stores it all at the tip','Wood is an insulator — it does not conduct heat well','Water cannot transfer heat to wood','Wood reflects radiation from the water'],
+    correct: 1,
+    explanation: 'Wood is a poor conductor of heat (an insulator). Very little heat passes through the wood particles, so the handle stays cool and safe to touch.'
+  },
+  {
+    question: 'Which of these materials conducts heat the best?',
+    options: ['Plastic', 'Wood', 'Copper', 'Glass'],
+    correct: 2,
+    explanation: 'Copper is an excellent conductor of heat. Metals have free electrons that transfer energy rapidly. Copper has a thermal conductivity of about 400 W/mK.'
+  },
+  {
+    question: 'A student observes coloured dye spreading upward from the bottom of a beaker of water being heated. This is an example of:',
+    options: ['Conduction — heat moving through the glass','Convection — hot water rising, cool water sinking','Radiation — heat emitting from the water surface','Evaporation — water turning to steam'],
+    correct: 1,
+    explanation: 'Hot water at the bottom becomes less dense and rises, carrying the dye upward. Cooler, denser water sinks to replace it. This circular flow is a convection current.'
+  },
+  {
+    question: 'The Sun heats the Earth even though there is mostly empty space between them. Which method of heat transfer makes this possible?',
+    options: ['Conduction — through solar particles','Convection — through space gases','Radiation — infrared waves travel without a medium','Reflection — sunlight bounces off the atmosphere'],
+    correct: 2,
+    explanation: 'Radiation (infrared / electromagnetic waves) does not need a medium. It can travel through the vacuum of space, which is why the Sun can heat Earth across 150 million km.'
+  },
+  {
+    question: 'Two cups of tea, one in a black cup and one in a white cup, are left on a table. Which cup will cool faster, and why?',
+    options: ['White cup — light surfaces emit radiation better','Black cup — dark surfaces emit radiation better','Both cool at exactly the same rate','White cup — it reflects heat outward'],
+    correct: 1,
+    explanation: 'Dark / dull surfaces are better emitters of thermal radiation. The black cup loses heat faster by radiation, so its tea cools more quickly than in the white cup.'
+  },
+  {
+    question: 'Why are railway tracks designed with small gaps between sections?',
+    options: ['To allow water to drain away during rain','To allow the metal to expand when it gets hot without buckling','To reduce the weight of the track','To make it easier to replace damaged sections'],
+    correct: 1,
+    explanation: 'Metals undergo thermal expansion when heated. Without gaps, the rails would buckle and curve dangerously. The gaps allow the metal to expand safely in hot weather.'
+  },
+  {
+    question: 'A thermometer measures temperature because:',
+    options: ['Its glass tube reacts to light','Its liquid expands when heated and contracts when cooled','It absorbs radiation and changes colour','Its markings light up in response to electricity'],
+    correct: 1,
+    explanation: 'The liquid in a thermometer (mercury or coloured alcohol) expands when temperature rises and contracts when temperature falls. This thermal expansion is used to measure temperature.'
+  },
+  {
+    question: 'A hot cup of tea is left to cool on a table. It eventually reaches the same temperature as the room. This is called:',
+    options: ['Thermal contraction', 'Thermal equilibrium', 'Conduction equilibrium', 'Radiation balance'],
+    correct: 1,
+    explanation: 'Thermal equilibrium is reached when the tea and the surrounding air reach the same temperature. At this point, there is no net heat transfer between them.'
+  },
+  {
+    question: 'Which of these is an insulator of heat?',
+    options: ['Copper wire', 'Aluminium foil', 'Iron nail', 'Plastic handle'],
+    correct: 3,
+    explanation: 'Plastic is a non-metal and a poor conductor of heat — it is an insulator. That is why kitchen utensils often have plastic handles to protect users from burns.'
+  },
+  {
+    question: 'Ice is being heated in a beaker. Which of the following correctly describes what happens at 0°C?',
+    options: ['The ice immediately turns to steam','The temperature rises rapidly above 0°C','The ice melts to water while the temperature remains at 0°C','Nothing happens until more heat is added above 0°C'],
+    correct: 2,
+    explanation: 'At the melting point (0°C for ice), the temperature stays constant while the solid changes to a liquid. All the heat energy is used to break the bonds between particles, not to raise temperature.'
+  },
+  {
+    question: 'A pot of soup is heated on a stove. The soup near the bottom heats up first, and the heat spreads through the soup mainly by:',
+    options: ['Conduction — particles vibrate in place','Convection — hot soup rises, cool soup sinks','Radiation — heat radiates from the bottom','Evaporation — steam carries heat upward'],
+    correct: 1,
+    explanation: 'In liquids, heat spreads mainly by convection. The soup near the hot base becomes less dense and rises; cooler, denser soup sinks to take its place, forming a convection current.'
+  },
+  {
+    question: 'Which statement about dark and light surfaces and radiation is correct?',
+    options: ['Light surfaces absorb more radiation than dark surfaces','Dark surfaces absorb and emit radiation better than light surfaces','Both surfaces absorb and emit equal amounts of radiation','Shiny surfaces absorb more radiation but emit less'],
+    correct: 1,
+    explanation: 'Dark, dull surfaces are both better absorbers and better emitters of thermal radiation. Light, shiny surfaces are better reflectors and poor absorbers/emitters.'
+  },
+  {
+    question: 'Students wrap one ice cube in black cloth and another in aluminium foil and leave both in sunlight. Which ice cube melts faster?',
+    options: ['The one in foil — foil is a better conductor','The one in black cloth — black absorbs more radiation','Both melt at the same rate','The one in foil — foil reflects heat into the ice'],
+    correct: 1,
+    explanation: 'Black cloth absorbs more solar radiation than the shiny aluminium foil, which reflects most of the radiation. The ice in black cloth receives more heat and melts faster.'
+  },
+  {
+    question: 'A building in a hot country has walls painted white. What is the scientific reason for this?',
+    options: ['White paint is cheaper to produce','White surfaces reflect radiation, keeping the building cooler','White paint prevents conduction through the walls','White surfaces emit less radiation than dark surfaces'],
+    correct: 1,
+    explanation: 'White / light surfaces are good reflectors of radiation. By reflecting more of the Sun\'s infrared radiation away from the building, less heat is absorbed and the interior stays cooler.'
+  }
+];
+
+// ══════════════════════════════════════════
+// MIND MAP TEMPLATE
+// ══════════════════════════════════════════
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1, label:'Heat &\nTemperature', color:{ background:'#2e1f00', border:'#f59e0b' }, font:{ size:16, color:'#fde68a' } },
+    { id:2, label:'Conduction' },
+    { id:3, label:'Convection' },
+    { id:4, label:'Radiation' },
+    { id:5, label:'Thermal\nExpansion' },
+    { id:6, label:'Thermal\nEquilibrium' },
+    { id:7, label:'Temperature' },
+    { id:8, label:'Conductors' },
+    { id:9, label:'Insulators' },
+    { id:10, label:'Convection\nCurrent' },
+    { id:11, label:'Melting' },
+    { id:12, label:'Boiling' },
+    { id:13, label:'Dark &\nDull Surfaces' },
+    { id:14, label:'No Medium\nNeeded' },
+  ],
+  edges: [
+    { from:1, to:2, label:'transfers heat via' },
+    { from:1, to:3, label:'transfers heat via' },
+    { from:1, to:4, label:'transfers heat via' },
+    { from:1, to:5, label:'causes' },
+    { from:1, to:6, label:'leads to' },
+    { from:1, to:7, label:'measured by' },
+    { from:2, to:8, label:'good: metals' },
+    { from:2, to:9, label:'blocked by' },
+    { from:3, to:10, label:'forms' },
+    { from:3, to:2, label:'requires medium\n(unlike)' },
+    { from:4, to:13, label:'absorbed best by' },
+    { from:4, to:14, label:'can travel through' },
+    { from:5, to:11, label:'related to' },
+    { from:5, to:12, label:'related to' },
+  ],
+  required: ['conduction','convection','radiation','conductor','insulator','expansion','equilibrium','temperature']
+};
+
+let sciMap;
+
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('heat');
+  document.getElementById('mastery-pct').textContent = Progress.masteryPct('heat') + '%';
+  initAIQuizToggle(QUIZ_Q);
+  sciMap = new ScienceMindMap('mindmap-container', 'heat', MM_TEMPLATE);
+
+  // Start simulations
+  updateCondSim();
+  updateConvSim();
+  updateThermSim();
+  updateConvFeedback();
+  updateCondFeedback();
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>

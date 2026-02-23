@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synoptic Assessment | Science Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+    main { max-width: 860px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+
+    /* Setup card */
+    .setup-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .setup-card h3 { color: var(--text); margin-bottom: .35rem; font-size: 1rem; }
+    .setup-card p  { font-size: .82rem; margin-bottom: .75rem; }
+
+    .option-row { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .75rem; }
+    .option-pill {
+      padding: .35rem .9rem;
+      border-radius: 99px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .option-pill.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+
+    /* Question card */
+    .q-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .q-progress-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+    }
+    .q-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--systems));
+      border-radius: 99px;
+      transition: width .4s ease;
+    }
+
+    /* Open-ended submitted answer display */
+    .selected-answer-display {
+      margin-top: .75rem;
+      padding: .75rem 1rem;
+      background: var(--surface);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: .85rem;
+      color: var(--muted);
+    }
+
+    /* Results */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: .75rem;
+      margin-top: 1.25rem;
+    }
+    .result-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    .result-item.correct-item  { border-color: var(--diversity); }
+    .result-item.partial-item  { border-color: var(--energy); }
+    .result-item.wrong-item    { border-color: #ef4444; }
+
+    .topic-tags { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .4rem; }
+    .topic-tag {
+      font-size: .65rem;
+      padding: .1rem .45rem;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* AI generation panel */
+    .ai-panel {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 1.1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .ai-panel-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .ai-panel-text { flex: 1; min-width: 180px; }
+    .ai-panel-text strong { color: var(--accent); display: block; font-size: .9rem; }
+    .ai-panel-text span { font-size: .78rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="assess-header">
+  <div style="font-size:1.5rem">🧠</div>
+  <div style="flex:1">
+    <h1 style="font-size:1.15rem;margin-bottom:.15rem">Synoptic Assessment</h1>
+    <div style="font-size:.78rem;color:var(--muted)">
+      Cross-topic questions · Adaptive · Open-ended with phrase bank
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+  <button class="btn btn-ghost" onclick="showAISetup()" style="font-size:.82rem" title="Configure AI">⚙️ AI</button>
+</div>
+
+<main>
+
+  <!-- ═══ SETUP SCREEN ═══ -->
+  <div id="screen-setup">
+
+    <!-- AI panel -->
+    <div class="ai-panel" id="ai-panel-bar">
+      <div class="ai-panel-icon">🤖</div>
+      <div class="ai-panel-text">
+        <strong id="ai-panel-title">AI Question Generation</strong>
+        <span id="ai-panel-desc">Loading…</span>
+      </div>
+      <button class="btn btn-ghost" onclick="showAISetup()" style="font-size:.8rem" id="ai-panel-btn">Set Up</button>
+    </div>
+
+    <!-- Topic selector -->
+    <div class="setup-card">
+      <h3>📚 Choose Topics to Include</h3>
+      <p>Select at least 2 topics. Questions will draw on concepts across your chosen topics.</p>
+      <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+        <button class="btn btn-ghost" style="font-size:.78rem" onclick="selectAll(true)">Select All</button>
+        <button class="btn btn-ghost" style="font-size:.78rem" onclick="selectAll(false)">Deselect All</button>
+      </div>
+      <div class="topic-selector" id="topic-selector"></div>
+    </div>
+
+    <!-- Options -->
+    <div class="setup-card">
+      <h3>⚙️ Assessment Options</h3>
+
+      <p style="margin-bottom:.4rem">Number of questions</p>
+      <div class="option-row" id="opt-count">
+        <button class="option-pill" data-val="8">8 questions</button>
+        <button class="option-pill active" data-val="10">10 questions</button>
+        <button class="option-pill" data-val="12">12 questions</button>
+      </div>
+
+      <p style="margin-bottom:.4rem;margin-top:.5rem">Difficulty level</p>
+      <div class="option-row" id="opt-difficulty">
+        <button class="option-pill" data-val="foundation">P3–P4 Foundation</button>
+        <button class="option-pill active" data-val="mixed">Mixed (P3–P6)</button>
+        <button class="option-pill" data-val="advanced">P5–P6 Advanced</button>
+      </div>
+
+      <p style="margin-bottom:.4rem;margin-top:.5rem">Question types</p>
+      <div class="option-row" id="opt-types">
+        <button class="option-pill active" data-val="mcq">Multiple Choice</button>
+        <button class="option-pill active" data-val="open">Open-ended (Phrase Bank)</button>
+      </div>
+      <p style="font-size:.75rem;color:var(--muted)">Tip: hold Ctrl/Cmd to toggle multiple selections above.</p>
+    </div>
+
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-primary" id="generate-btn" onclick="startAssessment()" style="font-size:.95rem;padding:.65rem 1.5rem">
+        🚀 Generate Assessment
+      </button>
+      <span id="gen-error" style="font-size:.82rem;color:#f87171"></span>
+    </div>
+  </div><!-- /screen-setup -->
+
+  <!-- ═══ ASSESSMENT SCREEN ═══ -->
+  <div id="screen-assess" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div>
+        <span style="font-size:.82rem;color:var(--muted)" id="assess-progress-label">Question 1 of 10</span>
+      </div>
+      <div style="display:flex;gap:.75rem;align-items:center">
+        <span style="font-size:.82rem;color:var(--muted)">Score: <strong id="running-score" style="color:var(--accent)">0</strong></span>
+        <button class="btn btn-ghost" style="font-size:.78rem" onclick="abandonAssessment()">✕ Quit</button>
+      </div>
+    </div>
+    <div class="q-progress-bar">
+      <div class="q-progress-fill" id="q-progress-fill" style="width:0%"></div>
+    </div>
+
+    <div id="question-area"></div>
+
+    <div class="assess-nav">
+      <span style="font-size:.78rem;color:var(--muted)" id="answer-hint">Choose an answer to continue</span>
+      <button class="btn btn-primary" id="next-btn" style="display:none" onclick="nextQuestion()">
+        Next →
+      </button>
+    </div>
+  </div><!-- /screen-assess -->
+
+  <!-- ═══ RESULTS SCREEN ═══ -->
+  <div id="screen-results" style="display:none">
+    <div style="text-align:center;padding:2rem 1rem 1.5rem">
+      <div style="font-size:3.5rem;margin-bottom:.5rem" id="results-emoji">🏆</div>
+      <h2 id="results-title" style="margin-bottom:.5rem">Assessment Complete</h2>
+      <p id="results-subtitle" style="margin-bottom:1.25rem"></p>
+
+      <div style="max-width:320px;margin:0 auto 1.5rem">
+        <div class="progress-bar-wrap" style="height:8px">
+          <div class="progress-bar-fill" id="results-bar" style="width:0%"></div>
+        </div>
+        <p style="font-size:.78rem;margin-top:.4rem" id="results-score-label"></p>
+      </div>
+
+      <!-- Score breakdown pills -->
+      <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem">
+        <div class="stat-pill" style="background:var(--surface);border:1px solid var(--border);padding:.5rem 1rem;border-radius:99px;font-size:.82rem">
+          MCQ: <strong id="r-mcq" style="color:var(--diversity)">—</strong>
+        </div>
+        <div class="stat-pill" style="background:var(--surface);border:1px solid var(--border);padding:.5rem 1rem;border-radius:99px;font-size:.82rem">
+          Open-ended: <strong id="r-open" style="color:var(--systems)">—</strong>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="resetToSetup()">🔄 New Assessment</button>
+        <button class="btn btn-ghost" onclick="window.location.href='../index.html'">← Back to Lab</button>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:.75rem;font-size:.95rem">Question Review</h3>
+    <div class="results-grid" id="results-grid"></div>
+  </div><!-- /screen-results -->
+
+</main>
+
+<script src="../shared.js"></script>
+<script>
+// ══════════════════════════════════════════════════════
+//  QUESTION BANK  — pre-built synoptic + cross-topic
+// ══════════════════════════════════════════════════════
+
+const BANK_MCQ = [
+  // ── CROSS-TOPIC MCQ ──────────────────────────────────────
+
+  {
+    id: 'm1', type: 'mcq', difficulty: 'mixed',
+    topics: ['plants', 'water-cycle'],
+    question: 'Water enters a plant through its roots and is eventually released into the air through tiny pores in leaves. Which two processes are involved?',
+    options: ['Photosynthesis and respiration', 'Transpiration and evaporation from the leaf surface', 'Absorption and condensation', 'Precipitation and filtration'],
+    correct: 1,
+    explanation: 'Water absorbed by roots travels up the stem. It exits through stomata in a process called transpiration, and then evaporates into the air — feeding the water cycle.'
+  },
+  {
+    id: 'm2', type: 'mcq', difficulty: 'mixed',
+    topics: ['habitats', 'plants'],
+    question: 'In a food chain: Grass → Grasshopper → Frog → Snake. Which organism is the producer and how does it obtain energy?',
+    options: ['Grasshopper — it eats the grass directly', 'Grass — it makes food from sunlight through photosynthesis', 'Frog — it is in the middle and passes energy both ways', 'Snake — it is the top predator and stores the most energy'],
+    correct: 1,
+    explanation: 'Producers are always plants (or other photosynthetic organisms). Grass converts light energy into chemical energy (glucose) through photosynthesis — all other organisms get energy by eating.'
+  },
+  {
+    id: 'm3', type: 'mcq', difficulty: 'mixed',
+    topics: ['forces', 'magnets'],
+    question: 'A compass needle is a small magnet. When a bar magnet is held nearby, the needle swings without being touched. What type of force acts here, and how is it similar to gravity?',
+    options: ['A contact force — the magnet must touch the needle to move it', 'A non-contact force — both magnetism and gravity can act across empty space', 'A friction force — the needle and magnet rub against the air', 'A spring force — magnets store elastic potential energy'],
+    correct: 1,
+    explanation: 'Both magnetic force and gravitational force are non-contact forces — they act across a distance without the objects touching each other.'
+  },
+  {
+    id: 'm4', type: 'mcq', difficulty: 'advanced',
+    topics: ['circulatory', 'respiratory'],
+    question: 'After blood passes through the lungs, it is described as oxygenated. What change has occurred in the blood, and which structure enables this?',
+    options: ['Carbon dioxide has entered the red blood cells from the alveoli', 'Oxygen has diffused from the alveoli into the blood through thin alveolar walls', 'The blood pressure doubles as the heart pumps harder during breathing', 'Water vapour replaces nitrogen in the blood plasma'],
+    correct: 1,
+    explanation: 'In the alveoli, oxygen diffuses from the high-concentration air space through the thin alveolar walls into the surrounding capillaries, where it binds to haemoglobin in red blood cells.'
+  },
+  {
+    id: 'm5', type: 'mcq', difficulty: 'advanced',
+    topics: ['heat', 'circuits'],
+    question: 'When electric current flows through a light bulb filament, the bulb glows and feels hot. Which statement best explains the energy transfers happening?',
+    options: ['Electrical energy converts entirely to light energy with no waste', 'Electrical energy converts to heat (thermal) energy and light energy', 'Chemical energy is released from the filament as it burns', 'Gravitational energy is converted to light as electrons fall through the wire'],
+    correct: 1,
+    explanation: 'In a light bulb, electrical energy is transferred to heat (the filament gets so hot it glows) and light. Most household bulbs waste more energy as heat than they emit as light — which is why LEDs were developed.'
+  },
+  {
+    id: 'm6', type: 'mcq', difficulty: 'foundation',
+    topics: ['life-cycles', 'diversity'],
+    question: 'A scientist observes an organism that hatches from an egg, breathes through gills as a juvenile, and develops lungs as an adult. Which animal group does it belong to?',
+    options: ['Mammals', 'Reptiles', 'Amphibians', 'Birds'],
+    correct: 2,
+    explanation: 'Amphibians (like frogs and toads) undergo metamorphosis: they hatch from eggs into aquatic larvae that breathe through gills, then develop lungs and legs to live on land as adults.'
+  },
+  {
+    id: 'm7', type: 'mcq', difficulty: 'mixed',
+    topics: ['water-cycle', 'heat'],
+    question: 'On a hot sunny day, puddles disappear. The same water later appears as rain clouds. Which sequence of heat transfer and water-cycle processes explains this?',
+    options: ['Radiation warms water → evaporation → condensation into clouds → precipitation', 'Conduction cools water → freezing → melting into clouds → precipitation', 'Convection moves water upward → freezing → condensation → evaporation', 'Radiation causes condensation → droplets fall → re-evaporate before hitting the ground'],
+    correct: 0,
+    explanation: 'Solar radiation heats the puddle, causing evaporation. Water vapour rises, cools at altitude, and condenses into clouds. When droplets are heavy enough, precipitation (rain) falls.'
+  },
+  {
+    id: 'm8', type: 'mcq', difficulty: 'mixed',
+    topics: ['digestive', 'circulatory'],
+    question: 'After food is digested in the small intestine, how do nutrients reach the muscles and organs that need them?',
+    options: ['Nutrients are stored in the liver and released only when needed by the brain', 'Nutrients pass into the large intestine and are absorbed from there into the body', 'Nutrients are absorbed through the wall of the small intestine into the bloodstream, which delivers them', 'Nutrients re-enter the stomach and are absorbed directly through the stomach lining'],
+    correct: 2,
+    explanation: 'The small intestine has a huge surface area (via villi) for absorption. Digested nutrients pass through its thin walls into the surrounding blood capillaries and are transported by the circulatory system.'
+  },
+  {
+    id: 'm9', type: 'mcq', difficulty: 'advanced',
+    topics: ['forces', 'life-cycles'],
+    question: 'A maple seed spins slowly as it falls. Which force opposes its fall, and how does the seed\'s shape help it survive long enough to land far from the parent tree?',
+    options: ['Gravity opposes the fall; the heavy seed sinks straight down to stay close to the parent', 'Air resistance (friction with air) slows the fall; the wing-like shape increases drag, letting wind carry it further', 'Magnetic force slows the fall; iron in the seed is repelled by the Earth\'s magnetic field', 'Spring force decelerates the seed; it stores elastic energy and bounces on landing'],
+    correct: 1,
+    explanation: 'The spinning "wing" shape increases air resistance, slowing the descent. This gives wind more time to disperse the seed — a seed dispersal adaptation that reduces competition with the parent plant.'
+  },
+  {
+    id: 'm10', type: 'mcq', difficulty: 'advanced',
+    topics: ['plants', 'respiratory'],
+    question: 'During the day, a rainforest plant produces oxygen. At night, it only respires. Why might animals deep in dense vegetation struggle more at night than in the daytime?',
+    options: ['Plants produce carbon dioxide during photosynthesis at night, poisoning animals', 'At night, plants stop producing oxygen and consume it for respiration, reducing the oxygen available', 'Gravity pulls oxygen downward at night, away from where animals breathe', 'Animals breathe much faster at night, depleting all available oxygen'],
+    correct: 1,
+    explanation: 'During daylight, photosynthesis produces far more oxygen than respiration consumes, giving a net oxygen gain. At night, only respiration occurs — plants consume oxygen and release CO₂, reducing the local oxygen concentration.'
+  },
+  {
+    id: 'm11', type: 'mcq', difficulty: 'mixed',
+    topics: ['magnets', 'circuits'],
+    question: 'A student tests iron, copper, and aluminium rods in a circuit — all light the bulb. She then tests them with a magnet — only iron is attracted. What do these results tell us?',
+    options: ['All magnetic materials conduct electricity', 'Electrical conductivity and magnetism are separate properties — good conductors are not necessarily magnetic', 'Only iron can be used in electrical circuits because it is magnetic', 'Copper and aluminium are non-conductors that only work in this circuit by accident'],
+    correct: 1,
+    explanation: 'Electrical conductivity (ability to carry electric current) is a separate property from magnetic attraction. Iron, copper, and aluminium are all conductors; only iron (and steel, nickel) is magnetic.'
+  },
+  {
+    id: 'm12', type: 'mcq', difficulty: 'foundation',
+    topics: ['habitats', 'diversity'],
+    question: 'A whale lives entirely in the ocean but must surface to breathe air. What does this tell us about the whale\'s classification?',
+    options: ['Whales are fish because they live in water and have streamlined bodies', 'Whales are amphibians because they can survive at the surface and underwater', 'Whales are mammals — they breathe air with lungs, are warm-blooded, and nurse young with milk', 'Whales are reptiles because they have smooth skin and live in cold water'],
+    correct: 2,
+    explanation: 'Classification is based on body features, not habitat. Whales breathe air, have lungs, are warm-blooded, give birth to live young, and nurse them with milk — all defining mammal characteristics.'
+  },
+  {
+    id: 'm13', type: 'mcq', difficulty: 'advanced',
+    topics: ['plants', 'heat'],
+    question: 'A student places one plant in a sunny window and another in a shaded corner at the same room temperature. After two weeks, the sunny plant grows more. Beyond photosynthesis, which process linked to heat also helps explain stronger growth?',
+    options: ['Conduction — the sunny plant conducts heat through its leaves to grow faster', 'Higher temperature speeds up enzyme activity, increasing the rate of photosynthesis and nutrient uptake', 'Radiation from the window directly converts to glucose inside the leaf cells', 'Convection currents in the soil move nutrients faster toward the sunny plant\'s roots'],
+    correct: 1,
+    explanation: 'Within a safe range, higher temperatures increase the rate of enzyme-controlled reactions including photosynthesis and mineral absorption — not just light availability.'
+  },
+  {
+    id: 'm14', type: 'mcq', difficulty: 'foundation',
+    topics: ['magnets', 'forces'],
+    question: 'Two bar magnets are brought together. The north pole of one faces the south pole of the other. What happens, and which type of force causes it?',
+    options: ['They repel — a contact force pushes them apart when they touch', 'They attract — a non-contact magnetic force pulls them together even before they touch', 'Nothing happens — opposite poles cancel out and have no effect', 'They attract — gravity pulls the heavier magnet toward the lighter one'],
+    correct: 1,
+    explanation: 'Unlike poles (N and S) attract each other through the non-contact magnetic force, which acts across a gap before the magnets physically touch.'
+  },
+  {
+    id: 'm15', type: 'mcq', difficulty: 'mixed',
+    topics: ['digestive', 'diversity'],
+    question: 'A cow eats only grass (a herbivore). A lion eats only meat (a carnivore). Both have digestive systems, but the cow\'s small intestine is much longer. What is the most likely reason?',
+    options: ['Longer intestines help cows run faster when escaping predators', 'Plant material (cellulose) is harder to digest than meat, so more time and surface area are needed for absorption', 'Cows need more oxygen from their food, which requires a longer digestive tract', 'The longer intestine acts as a water store for cows living in dry habitats'],
+    correct: 1,
+    explanation: 'Cellulose (plant cell walls) is extremely tough to break down. Herbivores need a longer digestive tract to maximise the time for digestion and absorption of nutrients from plant material.'
+  },
+  {
+    id: 'm16', type: 'mcq', difficulty: 'advanced',
+    topics: ['circulatory', 'heat'],
+    question: 'During vigorous exercise, your heart beats faster and you feel warm. Which two body processes explain these observations?',
+    options: ['Slower circulation cools the blood; less respiration produces the warmth', 'Increased heart rate delivers more oxygenated blood to muscles; faster respiration releases more heat energy', 'Increased blood pressure heats the blood; the heart slows to compensate', 'More oxygen is inhaled to cool the body; the heart races to push cool blood to the muscles'],
+    correct: 1,
+    explanation: 'During exercise, muscles need more oxygen for respiration. The heart beats faster to deliver it. Cellular respiration also releases heat as a by-product, raising body temperature.'
+  },
+
+  // ── SINGLE-TOPIC APPLIED MCQ ─────────────────────────────
+
+  {
+    id: 'm17', type: 'mcq', difficulty: 'foundation',
+    topics: ['forces'],
+    question: 'A book rests on a table without moving. What can you conclude about the forces acting on it?',
+    options: ['Only gravity acts on the book — the table has no effect', 'The forces are balanced: gravity downward equals the normal force from the table upward', 'The table pushes harder than gravity, so the book is about to fly off', 'Friction holds the book still against a sideways pull'],
+    correct: 1,
+    explanation: 'A stationary object has balanced (equal and opposite) forces. Gravity pulls the book down; the table exerts an equal normal (contact) force upward. Resultant force = 0 N.'
+  },
+  {
+    id: 'm18', type: 'mcq', difficulty: 'foundation',
+    topics: ['water-cycle'],
+    question: 'Why does a cold glass of water appear to "sweat" on the outside on a humid day?',
+    options: ['Water leaks through the glass from the cold drink inside', 'Warm moist air near the cold glass loses temperature; water vapour condenses on the surface', 'The glass produces water through a chemical reaction with air', 'Cold temperatures cause oxygen and hydrogen in the air to combine into water'],
+    correct: 1,
+    explanation: 'When warm, humid air touches the cold glass surface, it cools rapidly. As it falls below the dew point, water vapour in the air condenses into liquid droplets on the glass — condensation.'
+  },
+  {
+    id: 'm19', type: 'mcq', difficulty: 'foundation',
+    topics: ['light'],
+    question: 'Why can you see your reflection in a calm lake but not in a rough, choppy lake?',
+    options: ['A calm lake absorbs more light, making images clearer', 'Calm water has a smooth flat surface that reflects light at uniform angles, forming a clear image', 'Choppy water produces more light through friction with the wind', 'Light travels faster over calm water, making images sharper'],
+    correct: 1,
+    explanation: 'Reflection requires a smooth, flat surface. A calm lake reflects parallel light rays at consistent angles, forming a clear mirror image. Choppy water scatters reflected rays in all directions — no clear image forms.'
+  },
+  {
+    id: 'm20', type: 'mcq', difficulty: 'advanced',
+    topics: ['circuits'],
+    question: 'Three identical bulbs are connected in parallel to a battery. One bulb is removed. What happens to the other two bulbs?',
+    options: ['They go out because the circuit is broken', 'They get dimmer because less current flows through them', 'They remain at the same brightness because voltage across each is unchanged', 'They get brighter because all the current now flows through two bulbs'],
+    correct: 2,
+    explanation: 'In a parallel circuit, each branch has the same voltage across it as the battery. Removing one bulb does not affect the voltage or current in the other branches — they stay equally bright.'
+  }
+];
+
+const BANK_OPEN = [
+  {
+    id: 'o1', type: 'open', difficulty: 'mixed',
+    topics: ['plants'],
+    question: 'A plant is placed in a dark cupboard for five days. Using scientific vocabulary, explain what happens inside the plant and why the leaves may begin to turn yellow.',
+    phrases: [
+      { text: 'Photosynthesis stops without light', correct: true },
+      { text: 'Chlorophyll cannot absorb light energy', correct: true },
+      { text: 'Glucose and starch reserves are used up', correct: true },
+      { text: 'Chlorophyll breaks down, causing leaves to yellow', correct: true },
+      { text: 'Oxygen production stops', correct: true },
+      { text: 'The plant produces more chlorophyll to find light', correct: false },
+      { text: 'Respiration also stops in the dark', correct: false },
+      { text: 'Carbon dioxide is absorbed from the soil instead', correct: false },
+      { text: 'The plant grows taller faster in the dark', correct: false },
+    ],
+    modelAnswer: 'Without light, the plant cannot photosynthesise. Chlorophyll cannot absorb light energy, so glucose production ceases. The plant uses up stored glucose and starch for respiration. Chlorophyll itself breaks down over time, causing the green colour to fade — leaves turn yellow.',
+    minRequired: 3
+  },
+  {
+    id: 'o2', type: 'open', difficulty: 'mixed',
+    topics: ['respiratory', 'circulatory'],
+    question: 'Explain the journey oxygen takes from the moment you inhale air to the moment it reaches a muscle cell in your leg.',
+    phrases: [
+      { text: 'Air travels through the trachea and bronchi', correct: true },
+      { text: 'Oxygen diffuses through alveoli walls into blood capillaries', correct: true },
+      { text: 'Red blood cells carry oxygen bound to haemoglobin', correct: true },
+      { text: 'The heart pumps oxygenated blood around the body', correct: true },
+      { text: 'Oxygen diffuses from blood into muscle cells', correct: true },
+      { text: 'Oxygen is dissolved in the stomach acid before entering blood', correct: false },
+      { text: 'White blood cells transport oxygen to muscles', correct: false },
+      { text: 'The diaphragm pushes oxygen directly into the muscles', correct: false },
+      { text: 'Carbon dioxide carries oxygen molecules to the cells', correct: false },
+      { text: 'Oxygen travels through the trachea directly to the leg muscles', correct: false },
+    ],
+    modelAnswer: 'Inhaled air passes through the trachea → bronchi → bronchioles → alveoli. Oxygen diffuses through the thin alveolar walls into surrounding capillaries, where it binds to haemoglobin in red blood cells. The heart pumps this oxygenated blood through arteries to the leg. Oxygen diffuses from the blood capillaries into the muscle cells.',
+    minRequired: 3
+  },
+  {
+    id: 'o3', type: 'open', difficulty: 'mixed',
+    topics: ['heat'],
+    question: 'A metal spoon resting in a mug of hot soup becomes warm to touch after a few minutes. Explain why, using your knowledge of heat transfer and the particle model.',
+    phrases: [
+      { text: 'Heat is conducted through the metal spoon', correct: true },
+      { text: 'Hot soup particles vibrate faster and pass energy to spoon particles', correct: true },
+      { text: 'Metal is a good thermal conductor', correct: true },
+      { text: 'Energy moves from higher temperature to lower temperature', correct: true },
+      { text: 'The spoon eventually reaches thermal equilibrium with the soup', correct: true },
+      { text: 'Heat is transferred by convection through the solid spoon', correct: false },
+      { text: 'The spoon absorbs radiation directly from the soup liquid', correct: false },
+      { text: 'Spoon particles stop moving when they become hot', correct: false },
+      { text: 'Hot soup molecules physically enter the spoon material', correct: false },
+    ],
+    modelAnswer: 'Heat energy flows from the hot soup (higher temperature) into the cooler spoon by conduction. The rapidly vibrating particles of the hot soup collide with spoon particles, transferring kinetic energy along the metal. Because metal is a good conductor, this transfer is efficient. Eventually the spoon reaches the same temperature as the soup — thermal equilibrium.',
+    minRequired: 3
+  },
+  {
+    id: 'o4', type: 'open', difficulty: 'advanced',
+    topics: ['habitats', 'plants'],
+    question: 'A forest is cleared for farmland. Using your knowledge of food chains and photosynthesis, explain why this affects many animals in the area, not just the ones that live in the trees.',
+    phrases: [
+      { text: 'Producers (plants) are removed from the food chain', correct: true },
+      { text: 'Herbivores lose their food source and may die or migrate', correct: true },
+      { text: 'Predators lose prey and are also affected', correct: true },
+      { text: 'Less photosynthesis means less oxygen and food energy in the ecosystem', correct: true },
+      { text: 'Decomposers break down dead organisms, recycling nutrients', correct: true },
+      { text: 'Only animals that lived in the trees are affected', correct: false },
+      { text: 'Predators benefit because there are more open spaces to hunt', correct: false },
+      { text: 'New plants grow immediately, restoring the food chain at once', correct: false },
+      { text: 'Removing trees has no effect on herbivores that eat grass', correct: false },
+    ],
+    modelAnswer: 'Plants are the producers at the base of every food chain. Clearing them removes the primary source of food and energy for the whole ecosystem. Herbivores that eat leaves, fruits, and seeds lose their food source. Their predators then also suffer food shortages. Fewer plants also mean less photosynthesis — less oxygen produced and less chemical energy entering the food web. The entire community is destabilised.',
+    minRequired: 3
+  },
+  {
+    id: 'o5', type: 'open', difficulty: 'foundation',
+    topics: ['magnets', 'forces'],
+    question: 'Compare the force of magnetism and the force of gravity. Describe what they have in common and how they differ.',
+    phrases: [
+      { text: 'Both are non-contact forces', correct: true },
+      { text: 'Both can attract objects without touching them', correct: true },
+      { text: 'Gravity always attracts; magnetism can attract or repel', correct: true },
+      { text: 'Gravity acts on all objects with mass; magnetism only on magnetic materials', correct: true },
+      { text: 'Both decrease with increasing distance', correct: true },
+      { text: 'Both are caused by electrical charge', correct: false },
+      { text: 'Magnetism is stronger than gravity in all situations', correct: false },
+      { text: 'Gravity can repel objects just like opposite magnetic poles', correct: false },
+      { text: 'Only gravity is a non-contact force', correct: false },
+    ],
+    modelAnswer: 'Both gravity and magnetism are non-contact forces that can act across a gap. Both decrease with distance. However, gravity only attracts — it pulls every object with mass toward every other mass. Magnetism can both attract (unlike poles, or magnetic materials) and repel (like poles). Gravity acts on all matter; magnetism only acts on magnetic materials like iron and steel.',
+    minRequired: 3
+  },
+  {
+    id: 'o6', type: 'open', difficulty: 'advanced',
+    topics: ['circuits', 'heat'],
+    question: 'A torch uses a battery, a switch, and a bulb in a series circuit. When switched on, the bulb lights up and the battery gets slightly warm. Explain what is happening in terms of energy transfer.',
+    phrases: [
+      { text: 'Chemical energy stored in the battery converts to electrical energy', correct: true },
+      { text: 'Electrical energy is transferred to the bulb through the circuit', correct: true },
+      { text: 'The bulb converts electrical energy into light and heat energy', correct: true },
+      { text: 'The battery warms because some energy is lost as heat during current flow', correct: true },
+      { text: 'Energy is created inside the bulb from nothing', correct: false },
+      { text: 'The switch stores energy when it is open', correct: false },
+      { text: 'Heat energy from the bulb travels back through the wire to recharge the battery', correct: false },
+      { text: 'Light energy is converted back into electrical energy in the battery', correct: false },
+    ],
+    modelAnswer: 'The battery converts stored chemical energy into electrical energy. This flows through the circuit (wire and switch) to the bulb. The bulb\'s filament resists the flow of current, converting electrical energy into light and heat. The battery also warms slightly because energy is dissipated as heat within its internal resistance — energy is transferred but never created or destroyed.',
+    minRequired: 3
+  }
+];
+
+// ══════════════════════════════════════════════════════
+//  READY TOPICS
+// ══════════════════════════════════════════════════════
+
+const READY_TOPICS = [
+  { id:'diversity',   name:'Diversity of Living Things', theme:'diversity' },
+  { id:'life-cycles', name:'Life Cycles of Animals',     theme:'cycles' },
+  { id:'water-cycle', name:'Water Cycle',                theme:'cycles' },
+  { id:'digestive',   name:'Digestive System',           theme:'systems' },
+  { id:'respiratory', name:'Respiratory System',         theme:'systems' },
+  { id:'circulatory', name:'Circulatory System',         theme:'systems' },
+  { id:'circuits',    name:'Electrical Circuits',        theme:'systems' },
+  { id:'plants',      name:'Photosynthesis & Plants',    theme:'systems' },
+  { id:'magnets',     name:'Magnets',                    theme:'interactions' },
+  { id:'habitats',    name:'Habitats & Food Chains',     theme:'interactions' },
+  { id:'forces',      name:'Forces',                     theme:'interactions' },
+  { id:'light',       name:'Light & Shadows',            theme:'energy' },
+  { id:'heat',        name:'Heat & Temperature',         theme:'energy' },
+];
+
+const THEME_COLORS = {
+  diversity:'var(--diversity)', cycles:'var(--cycles)', systems:'var(--systems)',
+  interactions:'var(--interactions)', energy:'var(--energy)'
+};
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+
+let selectedTopics = new Set(READY_TOPICS.map(t => t.id));
+let optCount       = 10;
+let optDifficulty  = 'mixed';
+let optTypes       = new Set(['mcq', 'open']);
+
+let assessment     = [];   // array of question objects for current run
+let currentIdx     = 0;
+let answers        = [];   // { qId, correct: bool|null, pointsEarned, maxPoints }
+let runningScore   = 0;
+let maxScore       = 0;
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('back-btn').addEventListener('click', () => {
+    window.location.href = '../index.html';
+  });
+
+  buildTopicSelector();
+  buildOptionPills('opt-count',       v => { optCount = parseInt(v); }, '10');
+  buildOptionPills('opt-difficulty',  v => { optDifficulty = v; },     'mixed');
+  buildOptionPillsMulti('opt-types',  v => { optTypes.has(v) ? optTypes.delete(v) : optTypes.add(v); });
+  updateAIPanel();
+});
+
+function updateAIPanel() {
+  const hasKey = AIConfig.hasKey();
+  document.getElementById('ai-panel-title').textContent = hasKey
+    ? '🤖 AI Questions Active' : 'AI Question Generation';
+  document.getElementById('ai-panel-desc').textContent = hasKey
+    ? `Gemini will generate additional synoptic questions tailored to your selected topics and level.`
+    : 'Set up a free Google Gemini API key to generate extra questions on the fly.';
+  document.getElementById('ai-panel-btn').textContent = hasKey ? '✏️ Change Key' : 'Set Up Free Key';
+}
+
+// ══════════════════════════════════════════════════════
+//  TOPIC SELECTOR
+// ══════════════════════════════════════════════════════
+
+function buildTopicSelector() {
+  const container = document.getElementById('topic-selector');
+  READY_TOPICS.forEach(t => {
+    const item = document.createElement('label');
+    item.className = 'topic-check-item selected';
+    item.dataset.id = t.id;
+    item.innerHTML = `
+      <input type="checkbox" checked value="${t.id}">
+      <span style="color:${THEME_COLORS[t.theme]};font-size:.8rem">●</span>
+      <span>${t.name}</span>
+    `;
+    item.querySelector('input').addEventListener('change', e => {
+      if (e.target.checked) { selectedTopics.add(t.id); item.classList.add('selected'); }
+      else { selectedTopics.delete(t.id); item.classList.remove('selected'); }
+    });
+    container.appendChild(item);
+  });
+}
+
+function selectAll(val) {
+  document.querySelectorAll('#topic-selector .topic-check-item').forEach(item => {
+    const cb = item.querySelector('input');
+    cb.checked = val;
+    if (val) { selectedTopics.add(item.dataset.id); item.classList.add('selected'); }
+    else      { selectedTopics.delete(item.dataset.id); item.classList.remove('selected'); }
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  OPTION PILLS
+// ══════════════════════════════════════════════════════
+
+function buildOptionPills(groupId, onChange, activeVal) {
+  const group = document.getElementById(groupId);
+  group.querySelectorAll('.option-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      group.querySelectorAll('.option-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      onChange(pill.dataset.val);
+    });
+  });
+}
+
+function buildOptionPillsMulti(groupId, onToggle) {
+  const group = document.getElementById(groupId);
+  group.querySelectorAll('.option-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      pill.classList.toggle('active');
+      onToggle(pill.dataset.val);
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  GENERATE ASSESSMENT
+// ══════════════════════════════════════════════════════
+
+async function startAssessment() {
+  const errEl = document.getElementById('gen-error');
+  errEl.textContent = '';
+
+  if (selectedTopics.size < 2) {
+    errEl.textContent = 'Please select at least 2 topics.';
+    return;
+  }
+  if (optTypes.size === 0) {
+    errEl.textContent = 'Please enable at least one question type.';
+    return;
+  }
+
+  const btn = document.getElementById('generate-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Building assessment…';
+
+  assessment = buildAssessment();
+
+  // If AI key set, optionally fetch AI questions too
+  if (AIConfig.hasKey() && assessment.length < optCount) {
+    try {
+      const aiQs = await generateAIQuestions(optCount - assessment.length);
+      assessment = [...assessment, ...aiQs].slice(0, optCount);
+    } catch (e) { /* silently use static questions */ }
+  }
+
+  // Shuffle
+  assessment = assessment.sort(() => Math.random() - 0.5).slice(0, optCount);
+
+  if (assessment.length === 0) {
+    errEl.textContent = 'No questions found for the selected topics. Please select more topics.';
+    btn.disabled = false;
+    btn.textContent = '🚀 Generate Assessment';
+    return;
+  }
+
+  // Calculate max score
+  maxScore = assessment.reduce((sum, q) => {
+    if (q.type === 'mcq') return sum + 1;
+    const correctCount = q.phrases.filter(p => p.correct).length;
+    return sum + correctCount;
+  }, 0);
+
+  currentIdx   = 0;
+  runningScore = 0;
+  answers      = [];
+
+  btn.disabled = false;
+  btn.textContent = '🚀 Generate Assessment';
+
+  showScreen('assess');
+  renderQuestion();
+}
+
+function buildAssessment() {
+  const topics = [...selectedTopics];
+  let pool = [];
+
+  if (optTypes.has('mcq')) {
+    let mcqs = BANK_MCQ.filter(q => {
+      const diffOk = optDifficulty === 'mixed' || q.difficulty === optDifficulty ||
+        (optDifficulty === 'foundation' && q.difficulty === 'foundation') ||
+        (optDifficulty === 'advanced' && q.difficulty === 'advanced');
+      const topicOk = q.topics.some(t => topics.includes(t));
+      return diffOk && topicOk;
+    });
+    pool = [...pool, ...mcqs];
+  }
+
+  if (optTypes.has('open')) {
+    let opens = BANK_OPEN.filter(q => {
+      const diffOk = optDifficulty === 'mixed' || q.difficulty === optDifficulty ||
+        (optDifficulty === 'foundation' && q.difficulty === 'foundation') ||
+        (optDifficulty === 'advanced' && q.difficulty === 'advanced');
+      const topicOk = q.topics.some(t => topics.includes(t));
+      return diffOk && topicOk;
+    });
+    pool = [...pool, ...opens];
+  }
+
+  return pool;
+}
+
+// ══════════════════════════════════════════════════════
+//  AI QUESTION GENERATION
+// ══════════════════════════════════════════════════════
+
+async function generateAIQuestions(count) {
+  const topicNames = [...selectedTopics]
+    .map(id => READY_TOPICS.find(t => t.id === id)?.name)
+    .filter(Boolean)
+    .slice(0, 5)
+    .join(', ');
+
+  const levelDesc = optDifficulty === 'foundation' ? 'Primary 3–4 (age 8–10)'
+    : optDifficulty === 'advanced' ? 'Primary 5–6 (age 11–12)'
+    : 'Primary 3–6 (mixed levels)';
+
+  const prompt = `You are an experienced Singapore MOE Primary Science teacher.
+Generate exactly ${count} synoptic multiple-choice questions that link concepts ACROSS these topics: ${topicNames}.
+These questions should require students to connect ideas from 2 or more topics.
+Target level: ${levelDesc}.
+
+Rules:
+- Each question has exactly 4 options, exactly 1 correct (index 0–3)
+- Explicitly reference concepts from at least 2 different topics
+- Align with Singapore Primary Science syllabus
+- Include a clear explanation (2 sentences)
+
+Respond ONLY with a JSON array, no markdown, no code blocks:
+[{"question":"…","options":["A","B","C","D"],"correct":0,"explanation":"…","topics":["topic1","topic2"]}]`;
+
+  const key = AIConfig.getKey();
+  const resp = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(key)}`,
+    { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ contents:[{parts:[{text:prompt}]}],
+        generationConfig:{ temperature:0.75, maxOutputTokens:2048 } }) }
+  );
+  if (!resp.ok) throw new Error('AI error');
+  const data = await resp.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const match = text.match(/\[[\s\S]*\]/);
+  if (!match) throw new Error('Bad AI format');
+  const qs = JSON.parse(match[0]);
+  return qs.map((q, i) => ({
+    id: `ai_${i}`, type:'mcq', difficulty:'mixed',
+    topics: q.topics || [...selectedTopics].slice(0,2),
+    question: q.question,
+    options: q.options,
+    correct: q.correct,
+    explanation: q.explanation,
+    isAI: true
+  }));
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER QUESTION
+// ══════════════════════════════════════════════════════
+
+function renderQuestion() {
+  const q    = assessment[currentIdx];
+  const area = document.getElementById('question-area');
+  const pct  = Math.round((currentIdx / assessment.length) * 100);
+
+  document.getElementById('q-progress-fill').style.width = pct + '%';
+  document.getElementById('assess-progress-label').textContent =
+    `Question ${currentIdx + 1} of ${assessment.length}`;
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('answer-hint').textContent = q.type === 'mcq'
+    ? 'Choose an answer to continue' : 'Select phrases, then click Submit';
+
+  const typeLabel = q.type === 'open' ? 'Open-ended' : q.isAI ? '🤖 AI · Synoptic' : 'Multiple Choice';
+  const typeCls   = q.type === 'open' ? 'q-type-open' : q.isAI ? 'q-type-synoptic' : 'q-type-mcq';
+
+  const topicTags = (q.topics || []).map(id => {
+    const t = READY_TOPICS.find(r => r.id === id);
+    return t ? `<span class="topic-tag" style="border-color:${THEME_COLORS[t.theme]};color:${THEME_COLORS[t.theme]}">${t.name}</span>` : '';
+  }).join('');
+
+  if (q.type === 'mcq') {
+    area.innerHTML = `
+      <div class="q-card">
+        <div class="assess-q-header">
+          <span class="q-type-badge ${typeCls}">${typeLabel}</span>
+          <div class="topic-tags">${topicTags}</div>
+        </div>
+        <p style="font-size:.98rem;font-weight:600;color:var(--text);margin-bottom:1rem">${q.question}</p>
+        <div style="display:flex;flex-direction:column;gap:.5rem" id="mcq-options">
+          ${q.options.map((opt,i) => `<button class="quiz-option" data-index="${i}">${opt}</button>`).join('')}
+        </div>
+        <div class="feedback-box" id="qfeedback"></div>
+      </div>
+    `;
+    area.querySelectorAll('.quiz-option').forEach(btn => {
+      btn.addEventListener('click', () => answerMCQ(parseInt(btn.dataset.index), q));
+    });
+
+  } else {
+    // Shuffle phrases
+    const shuffled = [...q.phrases].sort(() => Math.random() - 0.5);
+    area.innerHTML = `
+      <div class="q-card">
+        <div class="assess-q-header">
+          <span class="q-type-badge ${typeCls}">${typeLabel}</span>
+          <div class="topic-tags">${topicTags}</div>
+        </div>
+        <p style="font-size:.98rem;font-weight:600;color:var(--text);margin-bottom:.6rem">${q.question}</p>
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem">
+          Select <strong>all the phrases</strong> that correctly answer this question. Be precise — some options sound similar but only the scientifically accurate ones are correct.
+        </p>
+        <div class="phrase-bank" id="phrase-bank">
+          <span class="phrase-bank-label">Phrase Bank — click to select</span>
+          ${shuffled.map((p,i) =>
+            `<button class="phrase-chip" data-idx="${i}" data-correct="${p.correct}">${p.text}</button>`
+          ).join('')}
+        </div>
+        <div style="display:flex;gap:.75rem;align-items:center;margin-top:.75rem">
+          <button class="btn btn-primary" id="submit-open-btn" onclick="submitOpenEnded()">
+            ✓ Submit Answer
+          </button>
+          <span style="font-size:.78rem;color:var(--muted)" id="selected-count">0 phrases selected</span>
+        </div>
+        <div class="feedback-box" id="qfeedback"></div>
+        <div id="model-answer-area"></div>
+      </div>
+    `;
+    // Toggle phrase chips
+    area.querySelectorAll('.phrase-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (chip.classList.contains('locked')) return;
+        chip.classList.toggle('selected');
+        const count = area.querySelectorAll('.phrase-chip.selected').length;
+        document.getElementById('selected-count').textContent =
+          count + ' phrase' + (count === 1 ? '' : 's') + ' selected';
+      });
+    });
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  ANSWER HANDLERS
+// ══════════════════════════════════════════════════════
+
+function answerMCQ(index, q) {
+  const opts = document.querySelectorAll('#mcq-options .quiz-option');
+  const fb   = document.getElementById('qfeedback');
+  opts.forEach(b => b.disabled = true);
+
+  const isCorrect = index === q.correct;
+  if (isCorrect) {
+    opts[index].classList.add('correct');
+    fb.className = 'feedback-box show feedback-correct';
+    fb.innerHTML = `✅ <strong>Correct!</strong> ${q.explanation}`;
+    runningScore += 1;
+  } else {
+    opts[index].classList.add('wrong');
+    if (opts[q.correct]) opts[q.correct].classList.add('correct');
+    fb.className = 'feedback-box show feedback-wrong';
+    fb.innerHTML = `❌ <strong>Not quite.</strong> ${q.explanation}`;
+  }
+
+  document.getElementById('running-score').textContent = runningScore.toFixed(1);
+  answers.push({ qId: q.id, type:'mcq', correct: isCorrect, pointsEarned: isCorrect ? 1 : 0, maxPoints: 1, q });
+
+  document.getElementById('answer-hint').textContent = '';
+  document.getElementById('next-btn').style.display = 'inline-flex';
+}
+
+function submitOpenEnded() {
+  const q       = assessment[currentIdx];
+  const chips   = document.querySelectorAll('#phrase-bank .phrase-chip');
+  const btn     = document.getElementById('submit-open-btn');
+  const fb      = document.getElementById('qfeedback');
+  const maArea  = document.getElementById('model-answer-area');
+
+  // Lock chips
+  chips.forEach(chip => chip.classList.add('locked'));
+  btn.disabled = true;
+
+  let pointsEarned = 0;
+  const correctPhrases  = q.phrases.filter(p => p.correct);
+  const maxPoints       = correctPhrases.length;
+
+  chips.forEach(chip => {
+    const isCorrect = chip.dataset.correct === 'true';
+    const selected  = chip.classList.contains('selected');
+
+    if (selected && isCorrect)    { chip.classList.add('correct-chip');  pointsEarned += 1; }
+    else if (selected && !isCorrect) { chip.classList.add('wrong-chip'); pointsEarned -= 0.5; }
+    else if (!selected && isCorrect) { chip.classList.add('correct-chip'); } // show missed correct
+  });
+
+  pointsEarned = Math.max(0, pointsEarned);
+  runningScore += pointsEarned;
+
+  const pctThis = Math.round((pointsEarned / maxPoints) * 100);
+  fb.className = 'feedback-box show ' + (pctThis >= 60 ? 'feedback-correct' : 'feedback-wrong');
+  fb.innerHTML = `${pctThis >= 60 ? '✅' : '⚠️'} <strong>${pointsEarned.toFixed(1)} / ${maxPoints} points.</strong>
+    ${pctThis === 100 ? ' Excellent — all key phrases selected!' : ' Green = correct phrases; red = inaccurate vocabulary.'}`;
+
+  // Model answer
+  maArea.innerHTML = `
+    <div style="margin-top:.9rem;padding:.85rem 1rem;background:var(--surface);border-radius:8px;border:1px solid var(--border)">
+      <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:700;margin-bottom:.4rem">
+        Model Answer
+      </div>
+      <p style="font-size:.85rem;color:var(--muted);line-height:1.6">${q.modelAnswer}</p>
+    </div>
+  `;
+
+  document.getElementById('running-score').textContent = runningScore.toFixed(1);
+  answers.push({ qId: q.id, type:'open', correct: pctThis >= 60, pointsEarned, maxPoints, q });
+
+  document.getElementById('answer-hint').textContent = '';
+  document.getElementById('next-btn').style.display = 'inline-flex';
+}
+
+// ══════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════
+
+function nextQuestion() {
+  currentIdx++;
+  if (currentIdx >= assessment.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+function abandonAssessment() {
+  if (confirm('Quit this assessment? Your progress will be lost.')) {
+    showScreen('setup');
+    updateAIPanel();
+  }
+}
+
+function resetToSetup() {
+  showScreen('setup');
+  updateAIPanel();
+}
+
+// ══════════════════════════════════════════════════════
+//  RESULTS
+// ══════════════════════════════════════════════════════
+
+function showResults() {
+  showScreen('results');
+
+  const totalEarned = answers.reduce((s, a) => s + a.pointsEarned, 0);
+  const totalMax    = answers.reduce((s, a) => s + a.maxPoints, 0);
+  const pct = totalMax ? Math.round((totalEarned / totalMax) * 100) : 0;
+
+  const mcqAnswers  = answers.filter(a => a.type === 'mcq');
+  const openAnswers = answers.filter(a => a.type === 'open');
+  const mcqScore    = mcqAnswers.filter(a => a.correct).length;
+  const openScore   = openAnswers.reduce((s, a) => s + a.pointsEarned, 0);
+  const openMax     = openAnswers.reduce((s, a) => s + a.maxPoints, 0);
+
+  document.getElementById('results-emoji').textContent   = pct >= 85 ? '🏆' : pct >= 65 ? '⭐' : '📖';
+  document.getElementById('results-title').textContent   = pct >= 85 ? 'Outstanding!' : pct >= 65 ? 'Well done!' : 'Keep going!';
+  document.getElementById('results-subtitle').textContent =
+    pct >= 85 ? 'You are connecting ideas across topics beautifully.'
+    : pct >= 65 ? 'Solid understanding — review the explanations below to refine.'
+    : 'Revisit the topic pages and simulations, then try again.';
+
+  const barColour = pct >= 85 ? 'var(--diversity)' : pct >= 65 ? 'var(--energy)' : 'var(--interactions)';
+  document.getElementById('results-bar').style.cssText = `width:${pct}%;background:${barColour}`;
+  document.getElementById('results-score-label').textContent =
+    `${totalEarned.toFixed(1)} / ${totalMax} points · ${pct}%`;
+
+  document.getElementById('r-mcq').textContent  = mcqAnswers.length ? `${mcqScore}/${mcqAnswers.length}` : '—';
+  document.getElementById('r-open').textContent = openAnswers.length ? `${openScore.toFixed(1)}/${openMax}` : '—';
+
+  // Per-question review
+  const grid = document.getElementById('results-grid');
+  grid.innerHTML = '';
+  answers.forEach((a, i) => {
+    const pctQ = Math.round((a.pointsEarned / a.maxPoints) * 100);
+    const cls  = pctQ >= 100 ? 'correct-item' : pctQ >= 50 ? 'partial-item' : 'wrong-item';
+    const topicTags = (a.q.topics || []).map(id => {
+      const t = READY_TOPICS.find(r => r.id === id);
+      return t ? `<span class="topic-tag" style="border-color:${THEME_COLORS[t.theme]};color:${THEME_COLORS[t.theme]}">${t.name}</span>` : '';
+    }).join('');
+
+    const item = document.createElement('div');
+    item.className = `result-item ${cls}`;
+    item.innerHTML = `
+      <div style="display:flex;justify-content:space-between;margin-bottom:.4rem">
+        <span style="font-size:.72rem;color:var(--muted)">Q${i + 1}</span>
+        <span style="font-size:.78rem;font-weight:700;color:${pctQ===100?'var(--diversity)':pctQ>=50?'var(--energy)':'#ef4444'}">
+          ${a.pointsEarned.toFixed(1)} / ${a.maxPoints} pts
+        </span>
+      </div>
+      <p style="font-size:.82rem;color:var(--text);margin-bottom:.5rem;font-weight:600">
+        ${a.q.question.length > 90 ? a.q.question.slice(0,87) + '…' : a.q.question}
+      </p>
+      <div class="topic-tags">${topicTags}</div>
+    `;
+    grid.appendChild(item);
+  });
+
+  // Record to progress (synoptic)
+  Progress.recordQuiz('synoptic', Math.round(totalEarned), Math.round(totalMax));
+}
+
+// ══════════════════════════════════════════════════════
+//  SCREEN SWITCHER
+// ══════════════════════════════════════════════════════
+
+function showScreen(name) {
+  ['setup','assess','results'].forEach(s => {
+    document.getElementById(`screen-${s}`).style.display = s === name ? 'block' : 'none';
+  });
+}
+</script>
+</body>
+</html>

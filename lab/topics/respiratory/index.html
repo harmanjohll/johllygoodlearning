@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Respiratory System | Science Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header { background:var(--surface); border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .topic-color-bar { width:4px; height:36px; border-radius:3px; background:var(--systems); flex-shrink:0; }
+    .page-header h1 { font-size:1.2rem; }
+    main { max-width:1100px; margin:0 auto; padding:1.5rem 1.25rem 3rem; }
+
+    /* Sub-tabs for Simulate */
+    .sub-tabs { display:flex; gap:.35rem; margin-bottom:1rem; flex-wrap:wrap; }
+    .sub-tab { padding:.35rem .85rem; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:.8rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .sub-tab.active { background:var(--systems); color:#fff; border-color:var(--systems); }
+    .sub-pane { display:none; } .sub-pane.active { display:block; }
+
+    .cue-question { font-size:.78rem; color:var(--muted); margin-bottom:.75rem; border-left:2px solid var(--systems); padding-left:.6rem; }
+    .summary-text { font-size:.85rem; color:var(--muted); line-height:1.6; }
+    .sim-stat { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:.5rem .9rem; font-size:.82rem; text-align:center; margin-top:.5rem; }
+    .sim-stat strong { display:block; font-size:1.1rem; color:var(--systems); }
+
+    /* Lung capacity chart */
+    .cap-chart { display:flex; gap:1.5rem; align-items:flex-end; justify-content:center; padding:1rem 0; height:260px; }
+    .cap-bar-wrap { display:flex; flex-direction:column; align-items:center; gap:.4rem; width:80px; }
+    .cap-bar-outer { width:56px; background:var(--surface); border:1px solid var(--border); border-radius:6px; position:relative; overflow:hidden; }
+    .cap-bar-fill { position:absolute; bottom:0; left:0; right:0; border-radius:4px; transition:height .7s ease; }
+    .cap-bar-label { font-size:.7rem; color:var(--muted); text-align:center; font-weight:600; }
+    .cap-bar-value { font-size:.72rem; color:var(--systems); font-weight:700; }
+    .cap-scenario-btns { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.75rem; }
+    .cap-scenario-btn { padding:.35rem .75rem; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:.78rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .cap-scenario-btn.active { background:var(--systems); color:#fff; border-color:var(--systems); }
+    .toggle-row { display:flex; align-items:center; gap:.75rem; margin-bottom:.75rem; }
+    .toggle-label { font-size:.8rem; color:var(--muted); font-weight:600; }
+    .toggle-switch { position:relative; width:42px; height:22px; cursor:pointer; }
+    .toggle-switch input { opacity:0; width:0; height:0; }
+    .toggle-slider { position:absolute; inset:0; background:var(--border); border-radius:99px; transition:.25s; }
+    .toggle-slider:before { content:''; position:absolute; height:16px; width:16px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.25s; }
+    .toggle-switch input:checked + .toggle-slider { background:#ef4444; }
+    .toggle-switch input:checked + .toggle-slider:before { transform:translateX(20px); }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🫁 Respiratory System</h1>
+    <div class="meta" style="font-size:.78rem;color:var(--muted)">
+      <span class="badge badge-systems">Systems</span>&nbsp;
+      <span class="badge badge-p5">P5</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--systems)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════ LEARN ══════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">Why do our cells need oxygen?</div>
+        <div class="cue-question">What path does air take from the nose to the lungs?</div>
+        <div class="cue-question">What is the role of the alveoli in gas exchange?</div>
+        <div class="cue-question">What happens to the diaphragm when we inhale?</div>
+        <div class="cue-question">What happens to the ribs during exhalation?</div>
+        <div class="cue-question">How is exhaled air different from inhaled air?</div>
+        <div class="cue-question">What is diffusion and how does it apply to gas exchange?</div>
+        <div class="cue-question">Why do the alveoli have a large surface area?</div>
+        <div class="cue-question">How do cilia and mucus protect the lungs?</div>
+        <div class="cue-question">What effect does smoking have on the respiratory system?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+        <div class="glossary-term"><div class="term-name">Respiration</div><div class="term-def">The process by which cells use oxygen to release energy from food. Carbon dioxide and water are produced as waste products. Do not confuse with breathing — respiration happens inside cells.</div></div>
+        <div class="glossary-term"><div class="term-name">Trachea</div><div class="term-def">The windpipe. A tube reinforced with rings of cartilage that carries air from the throat down to the lungs. It splits into two bronchi at the bottom.</div></div>
+        <div class="glossary-term"><div class="term-name">Bronchi</div><div class="term-def">Two large tubes (singular: bronchus) that branch off the trachea, one leading into each lung. They further divide into smaller bronchioles.</div></div>
+        <div class="glossary-term"><div class="term-name">Bronchioles</div><div class="term-def">Smaller branches of the bronchi inside the lungs. They carry air to and from the alveoli. Smooth muscle in their walls can dilate or constrict airflow.</div></div>
+        <div class="glossary-term"><div class="term-name">Alveoli</div><div class="term-def">Tiny air sacs (singular: alveolus) at the end of the bronchioles. Their thin, moist walls and rich blood supply make them the site of gas exchange between air and blood.</div></div>
+        <div class="glossary-term"><div class="term-name">Diaphragm</div><div class="term-def">A dome-shaped muscle below the lungs. When it contracts (flattens), the chest volume increases and air is drawn in. When it relaxes (curves upward), air is pushed out.</div></div>
+        <div class="glossary-term"><div class="term-name">Inhale</div><div class="term-def">Breathing in. The diaphragm contracts and ribs move up and out, increasing chest volume, decreasing pressure, so air flows into the lungs.</div></div>
+        <div class="glossary-term"><div class="term-name">Exhale</div><div class="term-def">Breathing out. The diaphragm relaxes and ribs move down and in, decreasing chest volume, increasing pressure, so air is pushed out of the lungs.</div></div>
+        <div class="glossary-term"><div class="term-name">Diffusion</div><div class="term-def">The movement of particles from an area of high concentration to an area of low concentration. Oxygen diffuses from the alveoli (high O₂) into the blood (low O₂). CO₂ diffuses in the opposite direction.</div></div>
+        <div class="glossary-term"><div class="term-name">Gas Exchange</div><div class="term-def">The process by which oxygen passes from the alveoli into the blood and carbon dioxide passes from the blood into the alveoli. Occurs at the alveolar walls by diffusion.</div></div>
+        <div class="glossary-term"><div class="term-name">Cilia</div><div class="term-def">Tiny hair-like structures lining the airways. They beat rhythmically to sweep mucus (with trapped dust and bacteria) upward toward the throat, keeping the lungs clean.</div></div>
+        <div class="glossary-term"><div class="term-name">Mucus</div><div class="term-def">A sticky substance produced by cells lining the airways. It traps dust, pollen, and bacteria before they can reach the lungs. Cilia move the mucus to be swallowed or coughed out.</div></div>
+      </div>
+
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🔥 Why We Need to Breathe</h4>
+          <p>Every cell in our body needs <strong>energy</strong> to carry out life processes — growing, moving, thinking, and repairing. This energy comes from <strong>cellular respiration</strong>: cells break down glucose using oxygen to release energy.</p>
+          <div class="equation">Glucose + Oxygen → Carbon Dioxide + Water + Energy</div>
+          <ul style="margin-top:.5rem">
+            <li>Oxygen (O₂) must be supplied continuously — cells cannot store it</li>
+            <li>Carbon dioxide (CO₂) and water are waste products that must be removed</li>
+            <li>Without oxygen, cells begin to die within minutes (brain cells are most sensitive)</li>
+          </ul>
+          <div class="highlight">🧠 Respiration happens <em>inside</em> cells. Breathing is how the body gets O₂ in and removes CO₂ — it supports cellular respiration.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🗺 The Respiratory Organs</h4>
+          <p>Air follows a specific pathway into the lungs, being filtered and conditioned along the way:</p>
+          <ul style="margin-top:.5rem">
+            <li><strong>Nose / Mouth</strong> — Entry points. The nose filters large particles with nasal hairs, warms the air, and moistens it to protect delicate lung tissue</li>
+            <li><strong>Trachea (windpipe)</strong> — A tube ~12 cm long held open by C-shaped rings of cartilage. It prevents the airway from collapsing</li>
+            <li><strong>Bronchi</strong> — The trachea divides into left and right bronchus, one entering each lung</li>
+            <li><strong>Bronchioles</strong> — Bronchi branch repeatedly into smaller tubes, like a tree, distributing air throughout each lung</li>
+            <li><strong>Alveoli</strong> — Tiny air sacs where gas exchange occurs. There are about 300 million alveoli in the lungs</li>
+          </ul>
+          <div class="highlight">📍 Air pathway: Nose/Mouth → Trachea → Bronchi → Bronchioles → Alveoli</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🫧 The Lungs and Alveoli</h4>
+          <p>The lungs are the main organs of the respiratory system. The right lung has 3 lobes; the left has 2 (to make room for the heart).</p>
+          <ul style="margin-top:.5rem">
+            <li>Alveoli have very <strong>thin walls</strong> (one cell thick) — allows fast diffusion</li>
+            <li>Alveoli are <strong>moist</strong> — gases dissolve more easily in moisture</li>
+            <li>Surrounded by a rich network of <strong>blood capillaries</strong></li>
+            <li>Together, ~300 million alveoli provide a surface area of about <strong>70 m²</strong> — the size of a tennis court!</li>
+          </ul>
+          <div class="equation">O₂ diffuses: Alveolus (high O₂) → Blood capillary (low O₂)<br>CO₂ diffuses: Blood capillary (high CO₂) → Alveolus (low CO₂)</div>
+          <p style="margin-top:.5rem">Red blood cells pick up O₂ and turn bright red (oxygenated). Deoxygenated blood is dark red/purple.</p>
+        </div>
+
+        <div class="note-section">
+          <h4>💨 Breathing Mechanics</h4>
+          <p>Breathing is driven by changes in <strong>chest volume</strong> and <strong>air pressure</strong>:</p>
+          <table style="width:100%;border-collapse:collapse;font-size:.85rem;margin-top:.5rem">
+            <thead>
+              <tr style="background:var(--surface)">
+                <th style="padding:.4rem .6rem;text-align:left;border:1px solid var(--border);color:var(--accent)">Action</th>
+                <th style="padding:.4rem .6rem;text-align:left;border:1px solid var(--border);color:var(--accent)">Diaphragm</th>
+                <th style="padding:.4rem .6rem;text-align:left;border:1px solid var(--border);color:var(--accent)">Ribs</th>
+                <th style="padding:.4rem .6rem;text-align:left;border:1px solid var(--border);color:var(--accent)">Volume</th>
+                <th style="padding:.4rem .6rem;text-align:left;border:1px solid var(--border);color:var(--accent)">Pressure</th>
+                <th style="padding:.4rem .6rem;text-align:left;border:1px solid var(--border);color:var(--accent)">Air flow</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)"><strong style="color:#38bdf8">Inhale</strong></td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Contracts (flattens)</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Move up and out</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Increases</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Decreases</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Air rushes IN</td>
+              </tr>
+              <tr style="background:var(--surface)">
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)"><strong style="color:#f97316">Exhale</strong></td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Relaxes (curves up)</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Move down and in</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Decreases</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Increases</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Air pushed OUT</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note-section">
+          <h4>📊 What We Inhale vs Exhale</h4>
+          <p>The composition of air changes as it passes through the lungs:</p>
+          <table style="width:100%;border-collapse:collapse;font-size:.85rem;margin-top:.5rem">
+            <thead>
+              <tr style="background:var(--surface)">
+                <th style="padding:.4rem .6rem;text-align:left;border:1px solid var(--border);color:var(--accent)">Gas</th>
+                <th style="padding:.4rem .6rem;text-align:left;border:1px solid var(--border);color:var(--accent)">Inhaled</th>
+                <th style="padding:.4rem .6rem;text-align:left;border:1px solid var(--border);color:var(--accent)">Exhaled</th>
+                <th style="padding:.4rem .6rem;text-align:left;border:1px solid var(--border);color:var(--accent)">Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Oxygen (O₂)</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">21%</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">16%</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:#22d3ee">Decreases ↓</td>
+              </tr>
+              <tr style="background:var(--surface)">
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Carbon Dioxide (CO₂)</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">0.04%</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">4%</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:#f97316">Increases ↑</td>
+              </tr>
+              <tr>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Water Vapour</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Low (variable)</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">High (saturated)</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:#f97316">Increases ↑</td>
+              </tr>
+              <tr style="background:var(--surface)">
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Nitrogen (N₂)</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">~78%</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">~78%</td>
+                <td style="padding:.4rem .6rem;border:1px solid var(--border);color:var(--muted)">Unchanged →</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note-section">
+          <h4>🛡 Protecting the Respiratory System</h4>
+          <ul style="margin-top:.4rem">
+            <li><strong>Nasal hairs</strong> — trap large dust particles at the entrance</li>
+            <li><strong>Mucus</strong> — sticky lining of airways traps bacteria, dust, and pollen</li>
+            <li><strong>Cilia</strong> — microscopic hairs beat mucus (with trapped particles) upward toward the throat to be swallowed or expelled</li>
+          </ul>
+          <div class="highlight">🚬 Effects of smoking: Smoke paralyses and destroys cilia → mucus and toxins build up in lungs → increased risk of infections and lung cancer. Tar coats the alveoli, reducing surface area for gas exchange → shortness of breath.</div>
+          <ul style="margin-top:.5rem">
+            <li><strong>Exercise</strong> — strengthens respiratory muscles, increases lung capacity and efficiency; more oxygen delivered to muscles</li>
+            <li><strong>Avoid polluted air</strong> — reduces exposure to harmful particles</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--systems);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          Cells need <strong>oxygen</strong> to release energy from food through cellular respiration, producing CO₂ and water as waste. Air travels through the <strong>nose → trachea → bronchi → bronchioles → alveoli</strong>, where gas exchange occurs by diffusion. The diaphragm and ribcage drive breathing: <strong>inhaling</strong> when the diaphragm flattens and ribs rise (volume increases, pressure falls); <strong>exhaling</strong> when they return (volume decreases, pressure rises). Exhaled air contains less O₂ (16%) and much more CO₂ (4%) than inhaled air (21% O₂, 0.04% CO₂).
+        </p>
+        <p class="summary-text" style="margin-top:.5rem">
+          The <strong>alveoli</strong> are perfectly adapted for gas exchange — thin walls, moist surface, and vast surface area (~70 m²) allow rapid diffusion. <strong>Cilia</strong> and <strong>mucus</strong> defend the airways against dust and bacteria. Smoking destroys cilia and coats alveoli with tar, drastically reducing lung function. Regular <strong>exercise</strong> improves lung efficiency and capacity, keeping the respiratory system healthy.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SIMULATE ══════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">What does the diaphragm do during inhalation?</div>
+        <div class="cue-question">How does exercise rate change O₂ demand?</div>
+        <div class="cue-question">Why does the lung volume of a smoker decrease?</div>
+        <div class="cue-question">What drives gas exchange across alveoli walls?</div>
+        <div class="sim-stat"><strong id="stat-bpm">—</strong>Breaths/min</div>
+        <div class="sim-stat"><strong id="stat-phase">—</strong>Breath Phase</div>
+        <div class="sim-stat"><strong id="stat-o2-alv">—</strong>O₂ in Alveolus</div>
+        <div class="sim-stat"><strong id="stat-tidal">—</strong>Tidal Volume (mL)</div>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="showSub('breathing-sim', this)">🫁 Breathing</button>
+          <button class="sub-tab" onclick="showSub('alveoli-sim', this)">🔴 Gas Exchange</button>
+          <button class="sub-tab" onclick="showSub('capacity-sim', this)">📊 Lung Capacity</button>
+        </div>
+
+        <!-- BREATHING SIM -->
+        <div class="sub-pane active" id="breathing-sim">
+          <div class="sim-controls" style="margin-bottom:.75rem">
+            <div class="sim-control-group">
+              <label>Breathing rate: <strong id="brate-val">15</strong> breaths/min</label>
+              <input type="range" id="brate-slider" min="10" max="20" step="5" value="15" oninput="setBrateLabel()">
+            </div>
+            <div class="sim-control-group" style="margin-top:.25rem">
+              <span style="font-size:.75rem;color:var(--muted);font-weight:600">Rate labels: 10=Slow, 15=Normal, 20=Fast</span>
+            </div>
+          </div>
+          <div class="sim-canvas-wrap" style="height:350px">
+            <canvas id="breathing-canvas" width="460" height="340"></canvas>
+          </div>
+          <div id="breathing-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5">
+            Watch the lungs expand as you inhale. The diaphragm (bottom) flattens and the ribcage widens.
+          </div>
+        </div>
+
+        <!-- ALVEOLI SIM -->
+        <div class="sub-pane" id="alveoli-sim">
+          <div class="sim-controls" style="margin-bottom:.75rem">
+            <div class="sim-control-group">
+              <label>Exercise level: <strong id="exercise-val">Rest</strong></label>
+              <input type="range" id="exercise-slider" min="0" max="2" step="1" value="0" oninput="setExerciseLabel()">
+            </div>
+            <div class="sim-control-group" style="margin-top:.25rem">
+              <span style="font-size:.75rem;color:var(--muted);font-weight:600">0=Rest, 1=Light, 2=Vigorous</span>
+            </div>
+          </div>
+          <div class="sim-canvas-wrap" style="height:330px">
+            <canvas id="alveoli-canvas" width="460" height="320"></canvas>
+          </div>
+          <div id="alveoli-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5">
+            O₂ (blue) diffuses from the alveolus into blood. CO₂ (orange) diffuses from blood into the alveolus. Concentration gradient drives diffusion.
+          </div>
+        </div>
+
+        <!-- LUNG CAPACITY SIM -->
+        <div class="sub-pane" id="capacity-sim">
+          <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:.75rem">
+            <div class="cap-scenario-btns">
+              <button class="cap-scenario-btn active" onclick="setCapScenario(0,this)">At Rest</button>
+              <button class="cap-scenario-btn" onclick="setCapScenario(1,this)">Mild Exercise</button>
+              <button class="cap-scenario-btn" onclick="setCapScenario(2,this)">Trained Athlete</button>
+            </div>
+            <div class="toggle-row">
+              <span class="toggle-label">Smoker</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="smoker-toggle" onchange="updateCapacity()">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div id="cap-chart-wrap" class="cap-chart"></div>
+          <div id="capacity-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5">
+            Tidal volume is the amount of air breathed in or out per breath. Vital capacity is the maximum amount that can be exhaled after a maximum inhalation.
+          </div>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <p class="summary-text">
+          <strong>Breathing</strong>: The diaphragm contracts and flattens on inhalation, increasing chest volume. <strong>Gas exchange</strong>: O₂ and CO₂ move by diffusion down concentration gradients across thin alveolar walls. <strong>Lung capacity</strong>: Exercise increases tidal and vital capacity; smoking dramatically reduces vital capacity. Use evidence from the simulations to explain your observations.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ QUIZ ══════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Respiratory system questions often require you to:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li>State the correct <em>direction</em> of gas movement</li>
+            <li>Name the organ and its function precisely</li>
+            <li>Link breathing mechanics to volume and pressure changes</li>
+            <li>Use the term <em>diffusion</em> correctly when explaining gas exchange</li>
+          </ul>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--systems)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container" data-topic-id="respiratory" data-topic-name="Respiratory System" data-topic-level="5"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Remember: <strong>breathing is not the same as respiration</strong>. Breathing moves air in and out; respiration is the chemical process inside cells. When describing gas exchange, always state the direction of diffusion and explain <em>why</em> gases move that way (high → low concentration).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MIND MAP ══════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ══ Sub-tabs ══
+function showSub(id, btn) {
+  document.querySelectorAll('#tab-simulate .sub-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#tab-simulate .sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  Progress.recordSimUsed('respiratory');
+}
+
+// ═══════════════════════════════════════════════════
+// SIM 1: BREATHING SIMULATOR
+// ═══════════════════════════════════════════════════
+let breathAnim = null;
+let breathT    = 0;
+let breathBpm  = 15;
+
+function setBrateLabel() {
+  breathBpm = +document.getElementById('brate-slider').value;
+  const label = breathBpm === 10 ? 'Slow (10)' : breathBpm === 15 ? 'Normal (15)' : 'Fast (20)';
+  document.getElementById('brate-val').textContent = breathBpm;
+  document.getElementById('stat-bpm').textContent  = breathBpm + ' bpm';
+  Progress.recordSimUsed('respiratory');
+}
+
+function drawBreathing() {
+  const canvas = document.getElementById('breathing-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Cycle: full inhale+exhale in one period
+  const period = (60 / breathBpm) * 60; // frames at 60fps
+  breathT = (breathT + 1) % period;
+  // phase 0..1 mapped to sin wave: 0=exhale, 0.5=inhale peak, 1=exhale
+  const rawPhase = breathT / period;
+  // smooth sine: 0 at rest, 1 at full inhale
+  const phase = 0.5 - 0.5 * Math.cos(rawPhase * 2 * Math.PI);
+  const isInhale = rawPhase < 0.5;
+
+  // Update stats
+  document.getElementById('stat-phase').textContent = isInhale ? 'Inhaling' : 'Exhaling';
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0,0,W,H);
+
+  const cx = W / 2;
+  const cy = H / 2 - 20;
+
+  // ── Ribcage lines ──
+  const ribSpread = 10 + phase * 18; // ribs move out on inhale
+  const ribTop    = cy - 60 - phase * 8;
+  const ribCount  = 5;
+  for (let i = 0; i < ribCount; i++) {
+    const ry = ribTop + i * 22;
+    const rw = 90 + ribSpread + i * 4;
+    ctx.beginPath();
+    ctx.ellipse(cx, ry, rw, 10, 0, 0, Math.PI, false);
+    ctx.strokeStyle = `rgba(100,130,160,${0.5 + i * 0.08})`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  // ── Left Lung ──
+  const lungW = 68 + phase * 22;
+  const lungH = 120 + phase * 30;
+  const leftX = cx - 20 - lungW / 2;
+  const topY  = cy - lungH / 2 + 10;
+  ctx.beginPath();
+  ctx.ellipse(leftX, cy + 10, lungW / 2, lungH / 2, -0.12, 0, Math.PI * 2);
+  const lGrad = ctx.createRadialGradient(leftX, cy, 0, leftX, cy, lungW / 2 + 20);
+  lGrad.addColorStop(0, `rgba(100,160,220,${0.18 + phase * 0.18})`);
+  lGrad.addColorStop(1, `rgba(50,80,140,${0.08})`);
+  ctx.fillStyle = lGrad;
+  ctx.fill();
+  ctx.strokeStyle = `rgba(100,160,220,${0.55 + phase * 0.25})`;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // ── Right Lung ──
+  const rightX = cx + 20 + lungW / 2;
+  ctx.beginPath();
+  ctx.ellipse(rightX, cy + 10, lungW / 2, lungH / 2, 0.12, 0, Math.PI * 2);
+  const rGrad = ctx.createRadialGradient(rightX, cy, 0, rightX, cy, lungW / 2 + 20);
+  rGrad.addColorStop(0, `rgba(100,160,220,${0.18 + phase * 0.18})`);
+  rGrad.addColorStop(1, `rgba(50,80,140,${0.08})`);
+  ctx.fillStyle = rGrad;
+  ctx.fill();
+  ctx.strokeStyle = `rgba(100,160,220,${0.55 + phase * 0.25})`;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // ── Trachea ──
+  const tracheaTop = cy - lungH / 2 - 10;
+  ctx.beginPath();
+  ctx.moveTo(cx, tracheaTop - 30);
+  ctx.lineTo(cx, tracheaTop + 10);
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 6;
+  ctx.stroke();
+  // Label
+  ctx.fillStyle = '#64748b';
+  ctx.font = '10px Inter';
+  ctx.textAlign = 'left';
+  ctx.fillText('Trachea', cx + 5, tracheaTop - 10);
+
+  // ── Bronchi ──
+  ctx.beginPath();
+  ctx.moveTo(cx, tracheaTop + 10);
+  ctx.lineTo(leftX, cy - lungH / 2 + 20);
+  ctx.moveTo(cx, tracheaTop + 10);
+  ctx.lineTo(rightX, cy - lungH / 2 + 20);
+  ctx.strokeStyle = '#4b6080';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // ── Diaphragm ──
+  const diaphY = cy + lungH / 2 + 10;
+  const curve  = 20 - phase * 14; // flattens on inhale
+  ctx.beginPath();
+  ctx.moveTo(cx - 130, diaphY);
+  ctx.quadraticCurveTo(cx, diaphY + curve, cx + 130, diaphY);
+  ctx.strokeStyle = '#8b5cf6';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = '#8b5cf6';
+  ctx.font = '10px Inter';
+  ctx.textAlign = 'center';
+  ctx.fillText('Diaphragm', cx, diaphY + curve + 14);
+
+  // ── Air flow arrows ──
+  if (isInhale) {
+    drawBreathArrow(ctx, cx, tracheaTop - 50, cx, tracheaTop - 18, '#22d3ee');
+    ctx.fillStyle = '#22d3ee';
+    ctx.font = 'bold 10px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText('AIR IN', cx - 30, tracheaTop - 34);
+  } else {
+    drawBreathArrow(ctx, cx, tracheaTop - 18, cx, tracheaTop - 50, '#f97316');
+    ctx.fillStyle = '#f97316';
+    ctx.font = 'bold 10px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText('AIR OUT', cx - 30, tracheaTop - 34);
+  }
+
+  // ── Phase label ──
+  ctx.fillStyle = isInhale ? '#22d3ee' : '#f97316';
+  ctx.font = 'bold 12px Inter';
+  ctx.textAlign = 'right';
+  ctx.fillText(isInhale ? '↓ Diaphragm contracts (flattens)' : '↑ Diaphragm relaxes (curves up)', W - 10, H - 12);
+
+  // ── Feedback ──
+  const fb = document.getElementById('breathing-feedback');
+  if (fb) {
+    if (isInhale) {
+      fb.innerHTML = `<strong style="color:#22d3ee">Inhaling</strong> — Diaphragm contracts and <strong>flattens downward</strong>. Ribs move <strong>up and outward</strong>. Chest volume <strong>increases</strong>, pressure <strong>decreases</strong>, and air flows in. (${breathBpm} breaths/min)`;
+    } else {
+      fb.innerHTML = `<strong style="color:#f97316">Exhaling</strong> — Diaphragm <strong>relaxes</strong> and curves back upward. Ribs move <strong>down and inward</strong>. Chest volume <strong>decreases</strong>, pressure <strong>increases</strong>, pushing air out.`;
+    }
+  }
+
+  breathAnim = requestAnimationFrame(drawBreathing);
+}
+
+function drawBreathArrow(ctx, x1, y1, x2, y2, color) {
+  const ang = Math.atan2(y2-y1, x2-x1);
+  ctx.beginPath();
+  ctx.moveTo(x1,y1);
+  ctx.lineTo(x2,y2);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2 - 10*Math.cos(ang-0.4), y2 - 10*Math.sin(ang-0.4));
+  ctx.lineTo(x2 - 10*Math.cos(ang+0.4), y2 - 10*Math.sin(ang+0.4));
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+// ═══════════════════════════════════════════════════
+// SIM 2: ALVEOLI GAS EXCHANGE
+// ═══════════════════════════════════════════════════
+let alvAnim    = null;
+let alvT       = 0;
+let exerciseLevel = 0;
+const O2_PARTICLES  = [];
+const CO2_PARTICLES = [];
+const RBC_LIST      = [];
+
+function setExerciseLabel() {
+  exerciseLevel = +document.getElementById('exercise-slider').value;
+  const labels = ['Rest', 'Light Exercise', 'Vigorous Exercise'];
+  document.getElementById('exercise-val').textContent = labels[exerciseLevel];
+  Progress.recordSimUsed('respiratory');
+}
+
+function initAlvParticles() {
+  O2_PARTICLES.length = 0;
+  CO2_PARTICLES.length = 0;
+  RBC_LIST.length = 0;
+  // O2 in alveolus (left side)
+  for (let i = 0; i < 12; i++) {
+    O2_PARTICLES.push({ x: 80 + Math.random()*90, y: 80 + Math.random()*100, vx:(Math.random()-.5)*.6, vy:(Math.random()-.5)*.6, alpha:1, crossing:false, progress:0 });
+  }
+  // CO2 in blood (right side)
+  for (let i = 0; i < 8; i++) {
+    CO2_PARTICLES.push({ x: 270 + Math.random()*80, y: 80 + Math.random()*100, vx:(Math.random()-.5)*.6, vy:(Math.random()-.5)*.6, alpha:1, crossing:false, progress:0 });
+  }
+  // Red blood cells
+  for (let i = 0; i < 4; i++) {
+    RBC_LIST.push({ x: 260 + i * 60, y: 180, oxygenated: false, t: i * 0.25 });
+  }
+}
+
+function drawAlveoli() {
+  const canvas = document.getElementById('alveoli-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  alvT++;
+  const speed = [0.3, 0.7, 1.4][exerciseLevel];
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0,0,W,H);
+
+  // ── Alveolus (left bubble) ──
+  const alvCX = 125, alvCY = 150, alvR = 95;
+  ctx.beginPath();
+  ctx.arc(alvCX, alvCY, alvR, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(56,189,248,0.07)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(56,189,248,0.5)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = '#64748b';
+  ctx.font = '11px Inter';
+  ctx.textAlign = 'center';
+  ctx.fillText('Alveolus', alvCX, alvCY - alvR - 8);
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = '10px Inter';
+  ctx.fillText('(high O₂, low CO₂)', alvCX, alvCY - alvR + 4);
+
+  // ── Capillary (right side) ──
+  const capX = 245, capW = 140;
+  ctx.beginPath();
+  ctx.roundRect(capX, 60, capW, 180, 18);
+  ctx.fillStyle = 'rgba(239,68,68,0.07)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(239,68,68,0.45)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px Inter';
+  ctx.textAlign = 'center';
+  ctx.fillText('Blood Capillary', capX + capW/2, 50);
+  ctx.fillStyle = '#f87171';
+  ctx.font = '10px Inter';
+  ctx.fillText('(low O₂, high CO₂)', capX + capW/2, 62);
+
+  // ── Diffusion zone (membrane) ──
+  ctx.beginPath();
+  ctx.moveTo(capX, 60);
+  ctx.lineTo(capX, 240);
+  ctx.strokeStyle = 'rgba(148,163,184,0.3)';
+  ctx.setLineDash([5,5]);
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#475569';
+  ctx.font = '9px Inter';
+  ctx.textAlign = 'center';
+  ctx.fillText('thin wall', capX, 260);
+  ctx.fillText('(1 cell thick)', capX, 272);
+
+  // ── Diffusion arrows (O2 left→right, CO2 right→left) ──
+  for (let k = 0; k < 3; k++) {
+    const ay = 90 + k * 45;
+    const pulse = 0.4 + 0.5 * Math.abs(Math.sin(alvT * 0.04 + k));
+    // O2 arrow →
+    ctx.globalAlpha = pulse;
+    drawCapArrow(ctx, capX - 28, ay, capX + 8, ay, '#38bdf8');
+    // CO2 arrow ←
+    drawCapArrow(ctx, capX + 28, ay + 20, capX - 8, ay + 20, '#fb923c');
+    ctx.globalAlpha = 1;
+  }
+
+  // Label arrows
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = '9px Inter';
+  ctx.textAlign = 'right';
+  ctx.fillText('O₂ →', capX - 5, 94);
+  ctx.fillStyle = '#fb923c';
+  ctx.textAlign = 'left';
+  ctx.fillText('← CO₂', capX + 5, 120);
+
+  // ── O2 particles in alveolus ──
+  const o2Count = Math.min(12, 12 - exerciseLevel * 2);
+  const o2Pct   = Math.round(100 * o2Count / 12);
+  document.getElementById('stat-o2-alv').textContent = o2Pct + '% O₂';
+
+  O2_PARTICLES.forEach((p, i) => {
+    if (i >= o2Count) return;
+    p.x += p.vx * speed;
+    p.y += p.vy * speed;
+    if (p.x < alvCX - alvR + 12) { p.vx = Math.abs(p.vx); }
+    if (p.x > capX - 5)          { p.vx = -Math.abs(p.vx); }
+    if (p.y < 60)  { p.vy = Math.abs(p.vy); }
+    if (p.y > 240) { p.vy = -Math.abs(p.vy); }
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 5, 0, Math.PI*2);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fill();
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 7px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText('O₂', p.x, p.y + 2.5);
+  });
+
+  // ── CO2 particles in capillary ──
+  const co2Count = Math.min(8, 3 + exerciseLevel * 2);
+  const co2Pct   = Math.round(100 * co2Count / 8);
+  document.getElementById('stat-bpm').textContent = [10,15,20][exerciseLevel] + ' bpm';
+
+  CO2_PARTICLES.forEach((p, i) => {
+    if (i >= co2Count) return;
+    p.x += p.vx * speed;
+    p.y += p.vy * speed;
+    if (p.x < capX + 8)          { p.vx = Math.abs(p.vx); }
+    if (p.x > capX + capW - 10)  { p.vx = -Math.abs(p.vx); }
+    if (p.y < 65)  { p.vy = Math.abs(p.vy); }
+    if (p.y > 235) { p.vy = -Math.abs(p.vy); }
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 5, 0, Math.PI*2);
+    ctx.fillStyle = '#fb923c';
+    ctx.fill();
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 6px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText('CO₂', p.x, p.y + 2.5);
+  });
+
+  // ── Red blood cells ──
+  const rbcSpeed = 0.004 + exerciseLevel * 0.004;
+  RBC_LIST.forEach(rbc => {
+    rbc.t = (rbc.t + rbcSpeed) % 1;
+    // Travel top to bottom along capillary
+    const ry = 75 + rbc.t * 160;
+    const rx = capX + capW / 2 + Math.sin(rbc.t * Math.PI * 4) * 15;
+    rbc.oxygenated = rbc.t > 0.45;
+    const col = rbc.oxygenated ? '#ef4444' : '#7f1d1d';
+    ctx.beginPath();
+    ctx.ellipse(rx, ry, 13, 8, 0, 0, Math.PI*2);
+    ctx.fillStyle = col;
+    ctx.fill();
+    ctx.strokeStyle = rbc.oxygenated ? '#fca5a5' : '#451a1a';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // ── Legend ──
+  ctx.fillStyle = '#ef4444';
+  ctx.font = '10px Inter';
+  ctx.textAlign = 'left';
+  ctx.fillText('● Oxygenated RBC', capX + capW + 10, 100);
+  ctx.fillStyle = '#7f1d1d';
+  ctx.fillText('● Deoxygenated RBC', capX + capW + 10, 116);
+
+  // ── Feedback ──
+  const exLabels = ['rest','light exercise','vigorous exercise'];
+  const fb = document.getElementById('alveoli-feedback');
+  if (fb) {
+    fb.innerHTML = `<strong>At ${exLabels[exerciseLevel]}</strong>: O₂ diffuses from the alveolus (high concentration) into the blood (low concentration). CO₂ diffuses the other way. ` +
+      (exerciseLevel > 0 ? `During <strong>exercise</strong>, muscles use more O₂ and produce more CO₂ — the concentration gradient is steeper, so diffusion is faster.` :
+       `At rest, the rate of gas exchange is low and steady.`);
+  }
+
+  alvAnim = requestAnimationFrame(drawAlveoli);
+}
+
+function drawCapArrow(ctx, x1, y1, x2, y2, color) {
+  const ang = Math.atan2(y2-y1, x2-x1);
+  ctx.beginPath();
+  ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+  ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2 - 8*Math.cos(ang-0.45), y2 - 8*Math.sin(ang-0.45));
+  ctx.lineTo(x2 - 8*Math.cos(ang+0.45), y2 - 8*Math.sin(ang+0.45));
+  ctx.closePath();
+  ctx.fillStyle = color; ctx.fill();
+}
+
+// ═══════════════════════════════════════════════════
+// SIM 3: LUNG CAPACITY
+// ═══════════════════════════════════════════════════
+// Data: [tidalVol, vitalCapacity, residualVol] in mL
+const CAP_SCENARIOS = [
+  { label:'At Rest',        tidal:500,  vital:4500, residual:1200 },
+  { label:'Mild Exercise',  tidal:1200, vital:5000, residual:1200 },
+  { label:'Trained Athlete',tidal:1800, vital:6500, residual:1000 },
+];
+let capScenarioIdx = 0;
+let isSmoker = false;
+
+function setCapScenario(idx, btn) {
+  capScenarioIdx = idx;
+  document.querySelectorAll('.cap-scenario-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  updateCapacity();
+  Progress.recordSimUsed('respiratory');
+}
+
+function updateCapacity() {
+  isSmoker = document.getElementById('smoker-toggle').checked;
+  const base = CAP_SCENARIOS[capScenarioIdx];
+  const smokerFactor = isSmoker ? 0.55 : 1;
+  const tidal   = Math.round(base.tidal   * smokerFactor);
+  const vital   = Math.round(base.vital   * smokerFactor);
+  const residual = base.residual;
+
+  document.getElementById('stat-tidal').textContent = tidal + ' mL';
+
+  // Build bars
+  const maxVol = 7500;
+  const bars = [
+    { label:'Tidal Volume',    value:tidal,    color:'#8b5cf6', desc:'Amount per normal breath' },
+    { label:'Vital Capacity',  value:vital,    color:isSmoker ? '#ef4444' : '#22d3ee', desc:'Max exhale after max inhale' },
+    { label:'Residual Volume', value:residual, color:'#f59e0b', desc:'Air remaining after max exhale' },
+    { label:'Total Capacity',  value:vital + residual, color:'#10b981', desc:'Vital + Residual' },
+  ];
+
+  const wrap = document.getElementById('cap-chart-wrap');
+  const barH = 200;
+  wrap.innerHTML = bars.map(b => {
+    const pct = Math.min(100, (b.value / maxVol) * 100);
+    return `
+      <div class="cap-bar-wrap">
+        <div class="cap-bar-value">${b.value.toLocaleString()} mL</div>
+        <div class="cap-bar-outer" style="height:${barH}px">
+          <div class="cap-bar-fill" style="height:${pct}%;background:${b.color}"></div>
+        </div>
+        <div class="cap-bar-label">${b.label}</div>
+        <div style="font-size:.65rem;color:var(--muted);text-align:center;max-width:72px">${b.desc}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Animate fills (wait one tick for DOM)
+  setTimeout(() => {
+    wrap.querySelectorAll('.cap-bar-fill').forEach((el, i) => {
+      const pct = Math.min(100, (bars[i].value / maxVol) * 100);
+      el.style.height = pct + '%';
+    });
+  }, 50);
+
+  const fb = document.getElementById('capacity-feedback');
+  if (fb) {
+    const smokerMsg = isSmoker
+      ? ` <strong style="color:#ef4444">Smoker:</strong> Tar and mucus block alveoli, reducing vital capacity by ~45%. Each breath delivers far less oxygen.`
+      : '';
+    fb.innerHTML = `<strong>${CAP_SCENARIOS[capScenarioIdx].label}</strong>: Tidal volume = <strong>${tidal.toLocaleString()} mL</strong>, Vital capacity = <strong>${vital.toLocaleString()} mL</strong>.${smokerMsg}` +
+      (capScenarioIdx === 2 ? ` Trained athletes develop stronger respiratory muscles and more efficient alveoli — their lungs hold and exchange much more air per breath.` :
+       capScenarioIdx === 1 ? ` During exercise, tidal volume increases significantly so that more O₂ reaches the blood per breath.` :
+       ` At rest, only a small fraction of the lungs' capacity is used.`);
+  }
+
+  Progress.recordSimUsed('respiratory');
+}
+
+// ═══════════════════════════════════════════════════
+// QUIZ DATA
+// ═══════════════════════════════════════════════════
+const QUIZ_Q = [
+  {
+    question: 'What is the main function of the alveoli in the lungs?',
+    options: [
+      'To filter dust and bacteria from the air',
+      'To carry air from the nose to the trachea',
+      'To allow gas exchange between air and blood',
+      'To produce mucus to protect the airways'
+    ],
+    correct: 2,
+    explanation: 'The alveoli are tiny air sacs where gas exchange takes place — oxygen diffuses from the alveoli into the blood, and carbon dioxide diffuses from the blood into the alveoli.'
+  },
+  {
+    question: 'What happens to the diaphragm when we inhale?',
+    options: [
+      'It relaxes and curves upward',
+      'It contracts and flattens downward',
+      'It moves up and outward',
+      'It stays still while the ribs do all the work'
+    ],
+    correct: 1,
+    explanation: 'When we inhale, the diaphragm contracts (flattens). This increases the volume of the chest cavity, decreasing air pressure inside, so air rushes in from outside.'
+  },
+  {
+    question: 'A student breathes on a cold mirror. What does the moisture on the mirror show?',
+    options: [
+      'Exhaled air contains no oxygen',
+      'Exhaled air contains more water vapour than inhaled air',
+      'Inhaled air contains more water vapour than exhaled air',
+      'Exhaled air is colder than inhaled air'
+    ],
+    correct: 1,
+    explanation: 'Exhaled air is saturated with water vapour (from the moist surfaces of the lungs). When it meets the cold mirror it condenses, showing that exhaled air contains much more water vapour than inhaled air.'
+  },
+  {
+    question: 'Which correctly describes the path air takes when entering the body?',
+    options: [
+      'Alveoli → Bronchi → Trachea → Nose',
+      'Nose → Bronchi → Trachea → Alveoli',
+      'Nose → Trachea → Bronchi → Alveoli',
+      'Trachea → Nose → Bronchi → Alveoli'
+    ],
+    correct: 2,
+    explanation: 'Air enters through the nose, passes through the trachea (windpipe), then divides into the bronchi, then bronchioles, and finally reaches the alveoli where gas exchange occurs.'
+  },
+  {
+    question: 'Inhaled air contains 21% oxygen and 0.04% carbon dioxide. Exhaled air contains 16% oxygen. What percentage of carbon dioxide does exhaled air approximately contain?',
+    options: ['0.04%', '1%', '4%', '21%'],
+    correct: 2,
+    explanation: 'Exhaled air contains approximately 4% carbon dioxide — about 100 times more than inhaled air (0.04%). This CO₂ is a waste product of cellular respiration in the body\'s cells.'
+  },
+  {
+    question: 'Why do the alveoli have very thin walls?',
+    options: [
+      'To prevent gases from escaping into the blood',
+      'To allow gases to diffuse quickly between air and blood',
+      'To filter dust particles from the air',
+      'To produce surfactant that keeps the lungs moist'
+    ],
+    correct: 1,
+    explanation: 'The alveolar walls are just one cell thick, which minimises the distance gases must diffuse. This allows oxygen and carbon dioxide to pass quickly and efficiently between the alveoli and surrounding blood capillaries.'
+  },
+  {
+    question: 'What is the correct description of gas exchange by diffusion?',
+    options: [
+      'Gases move from low concentration to high concentration',
+      'Gases are pumped across cell walls by active energy',
+      'Gases move from high concentration to low concentration',
+      'Only oxygen can diffuse; carbon dioxide is transported differently'
+    ],
+    correct: 2,
+    explanation: 'Diffusion is the movement of particles from an area of high concentration to low concentration. O₂ moves from the alveolus (high O₂) to the blood (low O₂). CO₂ moves from the blood (high CO₂) to the alveolus (low CO₂).'
+  },
+  {
+    question: 'What is the role of cilia in the respiratory system?',
+    options: [
+      'To warm and moisten incoming air',
+      'To carry oxygen from alveoli into the blood',
+      'To sweep mucus and trapped particles upward out of the airways',
+      'To increase the surface area for gas exchange'
+    ],
+    correct: 2,
+    explanation: 'Cilia are tiny hair-like structures lining the airways. They beat rhythmically to move mucus (with trapped dust and bacteria) upward toward the throat, keeping the lungs clean and protected.'
+  },
+  {
+    question: 'A smoker\'s lung capacity is much lower than a non-smoker\'s. What is the main reason?',
+    options: [
+      'Smoking causes the trachea to shrink',
+      'Tar coats the alveoli and destroys cilia, reducing surface area for gas exchange',
+      'Smoking causes the diaphragm to weaken permanently',
+      'Nicotine increases the thickness of the alveolar walls'
+    ],
+    correct: 1,
+    explanation: 'Cigarette tar coats the alveoli and destroys cilia. Without functioning cilia, mucus and toxins build up. Damaged alveoli reduce the surface area available for gas exchange, causing reduced lung capacity and breathlessness.'
+  },
+  {
+    question: 'When we exhale, what happens to the ribcage?',
+    options: [
+      'The ribs move upward and outward, increasing chest volume',
+      'The ribs move downward and inward, decreasing chest volume',
+      'The ribs stay still while only the diaphragm moves',
+      'The ribs expand to the sides only'
+    ],
+    correct: 1,
+    explanation: 'During exhalation, the intercostal muscles relax and the ribs move downward and inward. Together with the diaphragm relaxing (curving upward), this decreases chest volume and increases air pressure, pushing air out.'
+  },
+  {
+    question: 'Which of the following is a function of the nose (not the mouth) in breathing?',
+    options: [
+      'Producing saliva to moisten food',
+      'Filtering, warming, and moistening incoming air using nasal hairs and mucus',
+      'Providing a wider airway for faster breathing during exercise',
+      'Detecting oxygen levels in the blood'
+    ],
+    correct: 1,
+    explanation: 'The nose filters large particles using nasal hairs, warms the air (cold air can damage lungs), and moistens it using mucus membranes. The mouth bypasses these protections, which is why nose-breathing is healthier.'
+  },
+  {
+    question: 'Nitrogen makes up about 78% of inhaled air. What percentage of nitrogen is present in exhaled air?',
+    options: ['0% — it is used by cells', '40% — half is absorbed', '78% — the same as inhaled air', '90% — it concentrates as other gases are absorbed'],
+    correct: 2,
+    explanation: 'Nitrogen is not used by the body in breathing. It passes in and out unchanged. Therefore, exhaled air still contains approximately 78% nitrogen — the same as inhaled air.'
+  },
+  {
+    question: 'How does regular exercise benefit the respiratory system?',
+    options: [
+      'It reduces the number of alveoli needed',
+      'It causes the trachea to widen permanently',
+      'It strengthens respiratory muscles and increases lung efficiency and capacity',
+      'It eliminates the need for cilia and mucus'
+    ],
+    correct: 2,
+    explanation: 'Regular exercise strengthens the diaphragm and intercostal muscles, improves lung capacity (more air per breath), increases the efficiency of gas exchange, and helps deliver more oxygen to working muscles.'
+  },
+  {
+    question: 'Red blood cells entering the alveolar capillaries are dark red. They leave bright red. What has changed?',
+    options: [
+      'They have absorbed CO₂ from the alveoli',
+      'They have released O₂ into the alveoli',
+      'They have picked up O₂ from the alveoli and released CO₂',
+      'They have become smaller after losing water'
+    ],
+    correct: 2,
+    explanation: 'Deoxygenated blood is dark red. As red blood cells pass the alveoli, they pick up oxygen (becoming oxygenated, bright red) and release carbon dioxide into the alveoli, which is then exhaled.'
+  },
+  {
+    question: 'The alveoli have a combined surface area of about 70 m² — the size of a tennis court. Why is this large surface area important?',
+    options: [
+      'It increases the strength of the lungs',
+      'It allows more air to be stored in the lungs at once',
+      'It provides more area for gas exchange, making the process faster and more efficient',
+      'It prevents too much oxygen from entering the blood at once'
+    ],
+    correct: 2,
+    explanation: 'A larger surface area means more alveoli are in contact with blood at the same time, allowing more oxygen and carbon dioxide to diffuse simultaneously. This makes gas exchange fast enough to supply all body cells during activity.'
+  }
+];
+
+// ═══════════════════════════════════════════════════
+// MIND MAP DATA
+// ═══════════════════════════════════════════════════
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1, label:'Respiratory\nSystem', color:{ background:'#1e183a', border:'#8b5cf6' }, font:{ size:16, color:'#c4b5fd' } },
+    { id:2, label:'Organs' },
+    { id:3, label:'Breathing\nMechanics' },
+    { id:4, label:'Gas\nExchange' },
+    { id:5, label:'Inhaled Air' },
+    { id:6, label:'Exhaled Air' },
+    { id:7, label:'Trachea' },
+    { id:8, label:'Bronchi' },
+    { id:9, label:'Alveoli' },
+    { id:10, label:'Diaphragm' },
+    { id:11, label:'Ribs' },
+    { id:12, label:'Oxygen' },
+    { id:13, label:'Carbon\nDioxide' },
+    { id:14, label:'Diffusion' },
+    { id:15, label:'Inhale' },
+    { id:16, label:'Exhale' },
+    { id:17, label:'Cilia &\nMucus' },
+  ],
+  edges: [
+    { from:1, to:2, label:'has' },
+    { from:1, to:3, label:'uses' },
+    { from:1, to:4, label:'enables' },
+    { from:1, to:5 },
+    { from:1, to:6 },
+    { from:2, to:7, label:'part of' },
+    { from:2, to:8, label:'part of' },
+    { from:2, to:9, label:'contains' },
+    { from:2, to:17, label:'protected by' },
+    { from:3, to:10, label:'contracts to' },
+    { from:3, to:11, label:'moves' },
+    { from:3, to:15 },
+    { from:3, to:16 },
+    { from:4, to:12, label:'allows' },
+    { from:4, to:13, label:'removes' },
+    { from:4, to:14, label:'via' },
+    { from:5, to:12, label:'21% O₂' },
+    { from:6, to:13, label:'4% CO₂' },
+  ],
+  required: ['alveoli', 'diaphragm', 'trachea', 'bronchi', 'oxygen', 'carbon dioxide', 'diffusion', 'exhale', 'inhale']
+};
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+let sciMap;
+
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('respiratory');
+  document.getElementById('mastery-pct').textContent = Progress.masteryPct('respiratory') + '%';
+
+  initAIQuizToggle(QUIZ_Q);
+
+  sciMap = new ScienceMindMap('mindmap-container', 'respiratory', MM_TEMPLATE);
+
+  // Init breathing sim
+  document.getElementById('stat-bpm').textContent  = '15 bpm';
+  document.getElementById('stat-phase').textContent = 'Inhaling';
+  setBrateLabel();
+  drawBreathing();
+
+  // Init alveoli sim
+  initAlvParticles();
+  setExerciseLabel();
+  drawAlveoli();
+
+  // Init capacity sim
+  updateCapacity();
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>

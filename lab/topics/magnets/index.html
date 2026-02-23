@@ -196,7 +196,7 @@
         </div>
       </div>
       <div class="cornell-main">
-        <div id="quiz-container"></div>
+        <div id="quiz-container" data-topic-id="magnets" data-topic-name="Magnets" data-topic-level="3"></div>
       </div>
       <div class="cornell-summary">
         <p class="summary-text">Remember: <strong>unlike poles attract</strong>, <strong>like poles repel</strong>. Magnetic materials: <strong>iron, steel, nickel, cobalt</strong>. Non-magnetic metals (aluminium, copper) are common exam traps!</p>
@@ -568,7 +568,7 @@ let sciMap;
 document.addEventListener('DOMContentLoaded', () => {
   Progress.recordVisit('magnets');
   document.getElementById('mastery-pct').textContent = Progress.masteryPct('magnets') + '%';
-  new QuizEngine(QUIZ_Q, 'magnets', 'quiz-container');
+  initAIQuizToggle(QUIZ_Q);
   sciMap = new ScienceMindMap('mindmap-container', 'magnets', MM_TEMPLATE);
   draw();
   document.getElementById('sim-feedback').textContent = 'Drag the magnets close together to see their interaction.';

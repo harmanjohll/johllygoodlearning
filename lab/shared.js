@@ -1,6 +1,6 @@
 /* =========================================================
    Singapore Primary Science Lab — Shared Utilities
-   Progress tracking · Tabs · Glossary · Toast · Cornell
+   Progress · Tabs · Glossary · Toast · Quiz · MindMap · AI
    ========================================================= */
 
 // ── Progress (localStorage) ────────────────────────────────
@@ -47,16 +47,114 @@ const Progress = {
 
   recordQuiz(topicId, score, total) {
     const p = this.get(topicId);
-    // Keep the best score
     if (score >= (p.quizScore || 0)) {
       this.set(topicId, { quizScore: score, quizTotal: total });
     }
   }
 };
 
+// ── AI Configuration ───────────────────────────────────────
+// Uses Google Gemini API (gemini-1.5-flash) — supports browser CORS.
+// Get a free API key at: https://aistudio.google.com/app/apikey
+const AIConfig = {
+  GEMINI_KEY: 'sciLab_gemini_key',
+  LEVEL_KEY:  'sciLab_levels',
+
+  getKey()  { return localStorage.getItem(this.GEMINI_KEY) || ''; },
+  setKey(k) { localStorage.setItem(this.GEMINI_KEY, k.trim()); },
+  hasKey()  { return !!this.getKey(); },
+
+  getLevels() {
+    try { return JSON.parse(localStorage.getItem(this.LEVEL_KEY)) || {}; }
+    catch { return {}; }
+  },
+
+  // Per-topic adaptive level (3–6). Defaults to the topic's primary year.
+  getLevel(topicId, defaultLevel = 4) {
+    return this.getLevels()[topicId] || defaultLevel;
+  },
+
+  setLevel(topicId, level) {
+    const levels = this.getLevels();
+    levels[topicId] = Math.max(3, Math.min(6, level));
+    localStorage.setItem(this.LEVEL_KEY, JSON.stringify(levels));
+  }
+};
+
+// ── AI Setup Modal ─────────────────────────────────────────
+function showAISetup() {
+  let overlay = document.getElementById('ai-setup-overlay');
+  if (overlay) { overlay.style.display = 'flex'; return; }
+
+  overlay = document.createElement('div');
+  overlay.id = 'ai-setup-overlay';
+  overlay.innerHTML = `
+    <div class="ai-modal">
+      <h3 style="margin-bottom:.25rem">🤖 Set Up AI Quizzes</h3>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:1.25rem">
+        AI quizzes use Google Gemini to generate fresh questions pitched at your level.<br>
+        Your key is stored only in this browser — never sent anywhere else.
+      </p>
+      <label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:.35rem">
+        Google AI Studio API Key
+        <a href="https://aistudio.google.com/app/apikey" target="_blank"
+           style="color:var(--accent);margin-left:.4rem;font-size:.75rem">
+          Get a free key ↗
+        </a>
+      </label>
+      <input id="ai-key-input" type="password" placeholder="AIza…"
+        style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);
+               color:var(--text);border-radius:8px;padding:.6rem .85rem;font-size:.88rem;
+               outline:none;margin-bottom:.75rem;"
+        value="${AIConfig.getKey()}">
+      <div id="ai-key-status" style="font-size:.78rem;min-height:1.2rem;margin-bottom:.75rem"></div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+        <button id="ai-key-test" class="btn btn-ghost" style="font-size:.82rem">🔍 Test Key</button>
+        <button id="ai-key-save" class="btn btn-primary" style="font-size:.82rem">💾 Save Key</button>
+        <button id="ai-key-close" class="btn btn-ghost" style="font-size:.82rem">✕ Close</button>
+      </div>
+    </div>
+  `;
+  overlay.style.cssText = `
+    position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;
+    align-items:center;justify-content:center;z-index:9999;padding:1rem;
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
+  document.getElementById('ai-key-close').addEventListener('click', () => { overlay.style.display = 'none'; });
+
+  document.getElementById('ai-key-save').addEventListener('click', () => {
+    const key = document.getElementById('ai-key-input').value.trim();
+    if (!key) { document.getElementById('ai-key-status').innerHTML = '<span style="color:#f87171">Please enter a key.</span>'; return; }
+    AIConfig.setKey(key);
+    document.getElementById('ai-key-status').innerHTML = '<span style="color:#34d399">✅ Key saved!</span>';
+    setTimeout(() => { overlay.style.display = 'none'; }, 1200);
+  });
+
+  document.getElementById('ai-key-test').addEventListener('click', async () => {
+    const key = document.getElementById('ai-key-input').value.trim();
+    const statusEl = document.getElementById('ai-key-status');
+    if (!key) { statusEl.innerHTML = '<span style="color:#f87171">Enter a key first.</span>'; return; }
+    statusEl.innerHTML = '<span style="color:var(--muted)">Testing…</span>';
+    try {
+      const r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(key)}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: 'Reply with the single word: OK' }] }] }) }
+      );
+      if (r.ok) statusEl.innerHTML = '<span style="color:#34d399">✅ Key works! Ready for AI quizzes.</span>';
+      else {
+        const err = await r.json().catch(() => ({}));
+        statusEl.innerHTML = `<span style="color:#f87171">❌ ${err.error?.message || 'Invalid key'}</span>`;
+      }
+    } catch {
+      statusEl.innerHTML = '<span style="color:#f87171">❌ Network error. Check your connection.</span>';
+    }
+  });
+}
+
 // ── Tabs ──────────────────────────────────────────────────
-// NOTE: .tab-pane elements are siblings of .tabs-root, NOT children,
-// so we must query the document (not the container) to find them.
 function initTabs(containerSelector) {
   const container = document.querySelector(containerSelector || '.tabs-root');
   if (!container) return;
@@ -64,11 +162,8 @@ function initTabs(containerSelector) {
 
   btns.forEach(btn => {
     btn.addEventListener('click', () => {
-      // Deactivate every button in this bar
       btns.forEach(b => b.classList.remove('active'));
-      // Hide every .tab-pane anywhere on the page
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-      // Activate clicked button and show its pane
       btn.classList.add('active');
       const target = document.getElementById(btn.dataset.tab);
       if (target) target.classList.add('active');
@@ -99,14 +194,10 @@ function showToast(msg, durationMs = 3000) {
 
 // ── Quiz engine ────────────────────────────────────────────
 class QuizEngine {
-  // poolSize: how many questions to pick (0 = all). Questions & options are
-  // always shuffled so every attempt is a fresh draw.
   constructor(questions, topicId, containerId, poolSize = 0) {
-    // Shuffle questions
     const shuffled = [...questions].sort(() => Math.random() - 0.5);
     const pool = poolSize > 0 ? shuffled.slice(0, Math.min(poolSize, shuffled.length)) : shuffled;
 
-    // Shuffle options within each question, keeping correct pointer valid
     this.questions = pool.map(q => {
       const indices = q.options.map((_, i) => i).sort(() => Math.random() - 0.5);
       return {
@@ -117,7 +208,7 @@ class QuizEngine {
     });
 
     this.topicId   = topicId;
-    this.container = document.getElementById(containerId);
+    this.container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
     this.current   = 0;
     this.score     = 0;
     this.answered  = false;
@@ -125,10 +216,7 @@ class QuizEngine {
   }
 
   render() {
-    if (this.current >= this.questions.length) {
-      this.showResult();
-      return;
-    }
+    if (this.current >= this.questions.length) { this.showResult(); return; }
     const q = this.questions[this.current];
     this.answered = false;
     this.container.innerHTML = `
@@ -137,14 +225,11 @@ class QuizEngine {
       </div>
       <p style="font-size:.95rem;color:var(--text);margin-bottom:1rem;font-weight:600">${q.question}</p>
       <div class="quiz-options" style="display:flex;flex-direction:column;gap:.5rem">
-        ${q.options.map((opt, i) => `
-          <button class="quiz-option" data-index="${i}">${opt}</button>
-        `).join('')}
+        ${q.options.map((opt, i) => `<button class="quiz-option" data-index="${i}">${opt}</button>`).join('')}
       </div>
       <div class="feedback-box" id="qfeedback"></div>
       ${q.image ? `<div style="margin-top:1rem;text-align:center">${q.image}</div>` : ''}
     `;
-
     this.container.querySelectorAll('.quiz-option').forEach(btn => {
       btn.addEventListener('click', () => this.answer(parseInt(btn.dataset.index)));
     });
@@ -169,11 +254,7 @@ class QuizEngine {
       fb.className = 'feedback-box show feedback-wrong';
       fb.innerHTML = `❌ <strong>Not quite.</strong> ${q.explanation}`;
     }
-
-    setTimeout(() => {
-      this.current++;
-      this.render();
-    }, 3200);
+    setTimeout(() => { this.current++; this.render(); }, 3200);
   }
 
   showResult() {
@@ -199,12 +280,274 @@ class QuizEngine {
   }
 }
 
+// ── LLM Quiz Engine (Gemini-powered, adaptive difficulty) ──
+class LLMQuizEngine {
+  /**
+   * @param {string}   topicId       - e.g. 'forces'
+   * @param {string}   topicName     - e.g. 'Forces'
+   * @param {number}   defaultLevel  - Primary level 3–6
+   * @param {string|HTMLElement} container - container id or element
+   * @param {Array}    staticFallback - static questions for when AI unavailable
+   */
+  constructor(topicId, topicName, defaultLevel, container, staticFallback = []) {
+    this.topicId       = topicId;
+    this.topicName     = topicName;
+    this.defaultLevel  = defaultLevel;
+    this.container     = typeof container === 'string' ? document.getElementById(container) : container;
+    this.staticFallback = staticFallback;
+    this.questions     = [];
+    this.current       = 0;
+    this.score         = 0;
+    this.answered      = false;
+  }
+
+  get level() { return AIConfig.getLevel(this.topicId, this.defaultLevel); }
+
+  async start(count = 6) {
+    this.score = 0; this.current = 0;
+    this.container.innerHTML = `
+      <div style="text-align:center;padding:3rem 1rem">
+        <div style="font-size:2.5rem;margin-bottom:.75rem;animation:spin 1.5s linear infinite;display:inline-block">⚙️</div>
+        <p style="color:var(--text);font-weight:600">Generating P${this.level} questions…</p>
+        <p style="font-size:.78rem;color:var(--muted);margin-top:.5rem">Powered by Google Gemini AI</p>
+      </div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    `;
+    try {
+      this.questions = await this._generate(count);
+      this._render();
+    } catch (err) {
+      if (this.staticFallback.length) {
+        this.container.innerHTML = `
+          <div class="feedback-box show" style="background:#1a2a1a;border-color:#34d399;margin-bottom:.75rem;font-size:.8rem">
+            ⚠️ AI unavailable — using built-in questions instead.
+            <button onclick="showAISetup()" style="margin-left:.5rem;background:none;border:none;color:var(--accent);cursor:pointer;font-size:.78rem">Configure API key ↗</button>
+          </div>
+        `;
+        new QuizEngine(this.staticFallback, this.topicId, this.container, 6);
+      } else {
+        this.container.innerHTML = `
+          <div class="feedback-box show feedback-wrong">
+            ❌ Could not generate questions: ${err.message}
+            <br><button class="btn btn-ghost" onclick="showAISetup()" style="margin-top:.75rem;font-size:.8rem">⚙️ Set up AI key</button>
+          </div>
+        `;
+      }
+    }
+  }
+
+  async _generate(count) {
+    const key = AIConfig.getKey();
+    if (!key) throw new Error('No Gemini API key configured.');
+
+    const levelDesc = {
+      3: 'Primary 3 (age 9) — simple recall and basic understanding',
+      4: 'Primary 4 (age 10) — apply concepts to familiar situations',
+      5: 'Primary 5 (age 11) — analyse data, explain processes',
+      6: 'Primary 6 (age 12) — evaluate, compare, synthesise across topics'
+    }[this.level] || 'Primary 5';
+
+    const prompt = `You are an experienced Singapore MOE Primary Science teacher.
+Generate exactly ${count} multiple-choice questions about "${this.topicName}" for ${levelDesc} students.
+
+Rules:
+- Each question has exactly 4 options, with exactly 1 correct answer (index 0–3)
+- Align with Singapore Primary Science syllabus and vocabulary
+- Vary question style: some recall, some application, some diagram-description
+- Include a clear, precise explanation (1–2 sentences)
+
+Respond with ONLY a JSON array — no markdown, no code fences, no extra text:
+[{"question":"…","options":["A","B","C","D"],"correct":0,"explanation":"…"}]`;
+
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(key)}`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.75, maxOutputTokens: 2048 }
+        }) }
+    );
+
+    if (!resp.ok) {
+      const e = await resp.json().catch(() => ({}));
+      throw new Error(e.error?.message || `API error ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const match = text.match(/\[[\s\S]*\]/);
+    if (!match) throw new Error('Unexpected response format from AI.');
+    const qs = JSON.parse(match[0]);
+    if (!Array.isArray(qs) || !qs.length) throw new Error('No questions in AI response.');
+    return qs;
+  }
+
+  _render() {
+    if (this.current >= this.questions.length) { this._showResult(); return; }
+    const q = this.questions[this.current];
+    this.answered = false;
+    this.container.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+        <span style="font-size:.75rem;color:var(--muted)">Question ${this.current + 1} of ${this.questions.length}</span>
+        <span class="ai-badge">🤖 AI · P${this.level}</span>
+      </div>
+      <p style="font-size:.95rem;color:var(--text);margin-bottom:1rem;font-weight:600">${q.question}</p>
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+        ${q.options.map((opt, i) => `<button class="quiz-option" data-index="${i}">${opt}</button>`).join('')}
+      </div>
+      <div class="feedback-box" id="qfeedback"></div>
+    `;
+    this.container.querySelectorAll('.quiz-option').forEach(btn => {
+      btn.addEventListener('click', () => this._answer(parseInt(btn.dataset.index)));
+    });
+  }
+
+  _answer(index) {
+    if (this.answered) return;
+    this.answered = true;
+    const q    = this.questions[this.current];
+    const opts = this.container.querySelectorAll('.quiz-option');
+    const fb   = this.container.querySelector('#qfeedback');
+    opts.forEach(b => b.disabled = true);
+
+    if (index === q.correct) {
+      this.score++;
+      opts[index].classList.add('correct');
+      fb.className = 'feedback-box show feedback-correct';
+      fb.innerHTML = `✅ <strong>Correct!</strong> ${q.explanation}`;
+    } else {
+      opts[index].classList.add('wrong');
+      if (opts[q.correct]) opts[q.correct].classList.add('correct');
+      fb.className = 'feedback-box show feedback-wrong';
+      fb.innerHTML = `❌ <strong>Not quite.</strong> ${q.explanation}`;
+    }
+    setTimeout(() => { this.current++; this._render(); }, 3200);
+  }
+
+  _showResult() {
+    const pct = Math.round((this.score / this.questions.length) * 100);
+    Progress.recordQuiz(this.topicId, this.score, this.questions.length);
+
+    // Adaptive level adjustment
+    const lv = this.level;
+    if (pct >= 80 && lv < 6) {
+      AIConfig.setLevel(this.topicId, lv + 1);
+      setTimeout(() => showToast(`⬆️ Next AI quiz will step up to P${lv + 1} level!`), 600);
+    } else if (pct < 45 && lv > 3) {
+      AIConfig.setLevel(this.topicId, lv - 1);
+      setTimeout(() => showToast(`📖 Next AI quiz will be pitched at P${lv - 1} — keep practising!`), 600);
+    }
+
+    let msg, colour;
+    if (pct === 100) { msg = '🏆 Perfect score! Outstanding work!'; colour = 'var(--diversity)'; }
+    else if (pct >= 70) { msg = '🎉 Great work! A few more to go.'; colour = 'var(--energy)'; }
+    else { msg = '📚 Keep going — use the Learn and Simulate tabs for help.'; colour = 'var(--interactions)'; }
+
+    this.container.innerHTML = `
+      <div style="text-align:center;padding:2rem 1rem">
+        <div style="font-size:3rem;margin-bottom:.75rem">${pct === 100 ? '🏆' : pct >= 70 ? '⭐' : '📖'}</div>
+        <h3 style="margin-bottom:.5rem">${this.score} / ${this.questions.length} correct · ${pct}%</h3>
+        <div class="progress-bar-wrap" style="max-width:260px;margin:.75rem auto 1rem">
+          <div class="progress-bar-fill" style="width:${pct}%;background:${colour}"></div>
+        </div>
+        <p style="margin-bottom:1.5rem">${msg}</p>
+        <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" id="retry-ai-btn">🔄 New AI Questions</button>
+          <button class="btn btn-ghost" onclick="location.reload()">↺ Reset</button>
+        </div>
+        <p style="font-size:.72rem;color:var(--muted);margin-top:1rem">Next quiz: P${this.level} difficulty</p>
+      </div>
+    `;
+    document.getElementById('retry-ai-btn')?.addEventListener('click', () => this.start(this.questions.length));
+  }
+}
+
+// ── AI Quiz Toggle (auto-injects into topic pages) ─────────
+// Call this after DOMContentLoaded on any topic page.
+// The quiz container must have data-topic-id, data-topic-name, data-topic-level.
+function initAIQuizToggle(staticQuestions = []) {
+  const container = document.getElementById('quiz-container');
+  if (!container) return;
+
+  const topicId   = container.dataset.topicId;
+  const topicName = container.dataset.topicName;
+  const level     = parseInt(container.dataset.topicLevel) || 4;
+  if (!topicId) return;
+
+  // Build the toggle bar above the quiz area
+  const wrapper = document.createElement('div');
+  wrapper.id = 'quiz-mode-wrapper';
+
+  const toggleBar = document.createElement('div');
+  toggleBar.className = 'quiz-mode-bar';
+  toggleBar.innerHTML = `
+    <button class="quiz-mode-btn active" data-mode="static">📋 Standard Quiz</button>
+    <button class="quiz-mode-btn" data-mode="ai">🤖 AI Quiz${AIConfig.hasKey() ? '' : ' <span class="ai-setup-hint">— set up key</span>'}</button>
+  `;
+
+  const quizArea = document.createElement('div');
+  quizArea.id = 'quiz-area';
+
+  // Move container's existing children into quizArea
+  while (container.firstChild) quizArea.appendChild(container.firstChild);
+
+  wrapper.appendChild(toggleBar);
+  wrapper.appendChild(quizArea);
+  container.appendChild(wrapper);
+
+  // Lazy instances
+  let staticEngine = null;
+  let aiEngine     = null;
+
+  function showStatic() {
+    quizArea.innerHTML = '';
+    quizArea.id = 'quiz-inner-static';
+    if (staticQuestions.length) {
+      staticEngine = new QuizEngine(staticQuestions, topicId, quizArea, 0);
+    } else {
+      quizArea.innerHTML = '<p style="color:var(--muted)">No static questions available for this topic.</p>';
+    }
+  }
+
+  function showAI() {
+    if (!AIConfig.hasKey()) {
+      quizArea.innerHTML = `
+        <div style="text-align:center;padding:2.5rem 1rem">
+          <div style="font-size:2.5rem;margin-bottom:.75rem">🤖</div>
+          <h3 style="margin-bottom:.5rem">AI Quizzes</h3>
+          <p style="font-size:.85rem;color:var(--muted);margin-bottom:1.25rem">
+            Get fresh, adaptive questions generated by Google Gemini AI.<br>
+            A free API key takes under 1 minute to set up.
+          </p>
+          <button class="btn btn-primary" onclick="showAISetup()">⚙️ Set Up AI Key</button>
+        </div>
+      `;
+      return;
+    }
+    quizArea.innerHTML = '';
+    aiEngine = new LLMQuizEngine(topicId, topicName, level, quizArea, staticQuestions);
+    aiEngine.start(6);
+  }
+
+  // Default: show static
+  showStatic();
+
+  toggleBar.querySelectorAll('.quiz-mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggleBar.querySelectorAll('.quiz-mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (btn.dataset.mode === 'static') showStatic();
+      else showAI();
+    });
+  });
+}
+
 // ── Mind Map (vis-network wrapper) ─────────────────────────
 class ScienceMindMap {
   constructor(containerId, topicId, template) {
     this.containerId = containerId;
     this.topicId     = topicId;
-    this.template    = template;  // { nodes: [], edges: [], required: [] }
+    this.template    = template;
     this.nodes = new vis.DataSet(template.nodes.map(n => ({ ...n })));
     this.edges = new vis.DataSet(template.edges.map(e => ({ ...e })));
     this.network = null;
@@ -226,8 +569,6 @@ class ScienceMindMap {
         width: 1.5, smooth: { type: 'cubicBezier', roundness: 0.4 },
         arrows: { to: { enabled: true, scaleFactor: 0.5 } }
       },
-      // Physics on only for the initial auto-layout; disabled once stable
-      // so nodes stay exactly where the student places them.
       physics: {
         enabled: true,
         solver: 'forceAtlas2Based',
@@ -235,27 +576,18 @@ class ScienceMindMap {
         stabilization: { iterations: 150, fit: true }
       },
       interaction: {
-        hover: true,
-        tooltipDelay: 200,
-        navigationButtons: true,   // zoom/pan buttons
-        keyboard: false,
-        dragNodes: true,           // free drag at all times
-        dragView: true,
-        zoomView: true
+        hover: true, tooltipDelay: 200,
+        navigationButtons: true, keyboard: false,
+        dragNodes: true, dragView: true, zoomView: true
       },
       manipulation: { enabled: false }
     };
     this.network = new vis.Network(container, { nodes: this.nodes, edges: this.edges }, options);
-
-    // After the initial spring-layout settles, turn physics OFF so nodes
-    // stay wherever the student drags them.
     this.network.once('stabilizationIterationsDone', () => {
       this.network.setOptions({ physics: { enabled: false } });
       this.network.fit();
       this._updatePhysicsBtn(false);
     });
-
-    // Double-click a node to rename it
     this.network.on('doubleClick', params => {
       if (params.nodes.length) {
         const id  = params.nodes[0];
@@ -263,7 +595,6 @@ class ScienceMindMap {
         const lbl = prompt('Edit node label:', cur);
         if (lbl !== null && lbl.trim()) this.nodes.update({ id, label: lbl.trim() });
       } else if (params.edges.length === 0) {
-        // Double-click empty space → quick-add node
         const lbl = prompt('New node label:');
         if (lbl && lbl.trim()) {
           const id = ++this.nodeIdCounter;
@@ -275,13 +606,12 @@ class ScienceMindMap {
     });
   }
 
-  // Toggle physics on/off (called by the Re-layout button)
   togglePhysics() {
     const on = !this.network.physics.physicsEnabled;
     this.network.setOptions({ physics: { enabled: on } });
     if (!on) this.network.fit();
     this._updatePhysicsBtn(on);
-    showToast(on ? '🌀 Auto-layout ON — drag to pin nodes, then click again to stop.' : '📌 Physics OFF — drag nodes freely.');
+    showToast(on ? '🌀 Auto-layout ON — drag to pin, click again to stop.' : '📌 Physics OFF — drag freely.');
   }
 
   _updatePhysicsBtn(on) {
@@ -295,18 +625,8 @@ class ScienceMindMap {
     return id;
   }
 
-  addEdge() {
-    // Enable vis built-in edge adding mode
-    this.network.addEdgeMode();
-    showToast('Click a node, then drag to another to connect them. Press Esc to cancel.');
-  }
-
-  deleteSelected() {
-    const sel = this.network.getSelectedNodes();
-    const edgeSel = this.network.getSelectedEdges();
-    if (sel.length) this.nodes.remove(sel);
-    if (edgeSel.length) this.edges.remove(edgeSel);
-  }
+  addEdge()         { this.network.addEdgeMode(); showToast('Drag from one node to another to connect. Press Esc to cancel.'); }
+  deleteSelected()  { this.nodes.remove(this.network.getSelectedNodes()); this.edges.remove(this.network.getSelectedEdges()); }
 
   save() {
     const data = { nodes: this.nodes.get(), edges: this.edges.get() };
@@ -320,8 +640,7 @@ class ScienceMindMap {
       const saved = JSON.parse(localStorage.getItem(`sciLab_mindmap_${this.topicId}`));
       if (saved) {
         this.nodes.clear(); this.edges.clear();
-        this.nodes.add(saved.nodes);
-        this.edges.add(saved.edges);
+        this.nodes.add(saved.nodes); this.edges.add(saved.edges);
         showToast('Mind map loaded!');
       }
     } catch { showToast('No saved mind map found.'); }
@@ -361,4 +680,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initTabs();
   initGlossary();
   initBackBtn();
+  // Auto-inject AI quiz toggle if quiz container has data-topic-id
+  const qc = document.getElementById('quiz-container');
+  if (qc && qc.dataset.topicId) {
+    // initAIQuizToggle() is called explicitly by each topic page with its static questions
+    // so we don't call it here automatically
+  }
 });
