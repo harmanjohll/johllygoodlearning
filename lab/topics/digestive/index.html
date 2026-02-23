@@ -208,7 +208,7 @@
           <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--systems)">—</strong></p>
         </div>
       </div>
-      <div class="cornell-main"><div id="quiz-container"></div></div>
+      <div class="cornell-main"><div id="quiz-container" data-topic-id="digestive" data-topic-name="Human Digestive System" data-topic-level="4"></div></div>
       <div class="cornell-summary">
         <p class="summary-text">Most common PSLE trap: confusing <strong>small intestine</strong> (nutrients) with <strong>large intestine</strong> (water). Remember: <em>small</em> intestine is where the body gets the <em>big</em> benefit!</p>
       </div>
@@ -546,7 +546,7 @@ let sciMap;
 document.addEventListener('DOMContentLoaded', () => {
   Progress.recordVisit('digestive');
   document.getElementById('mastery-pct').textContent = Progress.masteryPct('digestive') + '%';
-  new QuizEngine(QUIZ_Q, 'digestive', 'quiz-container');
+  initAIQuizToggle(QUIZ_Q);
   sciMap = new ScienceMindMap('mindmap-container', 'digestive', MM_TEMPLATE);
   render();
   renderMatch();

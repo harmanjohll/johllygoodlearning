@@ -263,7 +263,7 @@
         </div>
       </div>
       <div class="cornell-main">
-        <div id="quiz-container"></div>
+        <div id="quiz-container" data-topic-id="forces" data-topic-name="Forces" data-topic-level="5"></div>
       </div>
       <div class="cornell-summary">
         <p class="summary-text">Remember: <strong>weight ≠ mass</strong>. Weight is a force (N); mass is the amount of matter (kg). When describing friction, always state the <strong>direction</strong> it acts and what surfaces are in contact.</p>
@@ -624,7 +624,7 @@ let sciMap;
 document.addEventListener('DOMContentLoaded', () => {
   Progress.recordVisit('forces');
   document.getElementById('mastery-pct').textContent = Progress.masteryPct('forces') + '%';
-  new QuizEngine(QUIZ_Q, 'forces', 'quiz-container');
+  initAIQuizToggle(QUIZ_Q);
   sciMap = new ScienceMindMap('mindmap-container', 'forces', MM_TEMPLATE);
   updateFriction();
   updateGravity();

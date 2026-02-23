@@ -198,7 +198,7 @@
           <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--energy)">—</strong></p>
         </div>
       </div>
-      <div class="cornell-main"><div id="quiz-container"></div></div>
+      <div class="cornell-main"><div id="quiz-container" data-topic-id="light" data-topic-name="Light and Shadows" data-topic-level="4"></div></div>
       <div class="cornell-summary">
         <p class="summary-text">Key rule: shadow size depends on <strong>distance from light source</strong>. Shadow is always on the <strong>opposite side</strong> from the light. Only <strong>opaque</strong> objects form clear, dark shadows.</p>
       </div>
@@ -466,7 +466,7 @@ let sciMap;
 document.addEventListener('DOMContentLoaded', () => {
   Progress.recordVisit('light');
   document.getElementById('mastery-pct').textContent = Progress.masteryPct('light') + '%';
-  new QuizEngine(QUIZ_Q, 'light', 'quiz-container');
+  initAIQuizToggle(QUIZ_Q);
   sciMap = new ScienceMindMap('mindmap-container', 'light', MM_TEMPLATE);
   draw();
 });

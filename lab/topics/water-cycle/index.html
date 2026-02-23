@@ -263,7 +263,7 @@
           <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--cycles)">—</strong></p>
         </div>
       </div>
-      <div class="cornell-main"><div id="quiz-container"></div></div>
+      <div class="cornell-main"><div id="quiz-container" data-topic-id="water-cycle" data-topic-name="Water Cycle" data-topic-level="5"></div></div>
       <div class="cornell-summary">
         <p class="summary-text">The order is: <strong>Evaporation / Transpiration → Condensation (clouds) → Precipitation (rain/snow) → Runoff / Infiltration / Collection</strong>. Then it repeats!</p>
       </div>
@@ -1171,7 +1171,7 @@ let sciMap;
 document.addEventListener('DOMContentLoaded', () => {
   Progress.recordVisit('water-cycle');
   document.getElementById('mastery-pct').textContent = Progress.masteryPct('water-cycle') + '%';
-  new QuizEngine(QUIZ_Q, 'water-cycle', 'quiz-container');
+  initAIQuizToggle(QUIZ_Q);
   sciMap = new ScienceMindMap('mindmap-container', 'water-cycle', MM_TEMPLATE);
   initGW();
   loop();
