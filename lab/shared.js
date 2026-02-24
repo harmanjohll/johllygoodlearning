@@ -88,68 +88,114 @@ function showAISetup() {
 
   overlay = document.createElement('div');
   overlay.id = 'ai-setup-overlay';
+  overlay.className = 'ai-overlay';
   overlay.innerHTML = `
     <div class="ai-modal">
-      <h3 style="margin-bottom:.25rem">🤖 Set Up AI Quizzes</h3>
-      <p style="font-size:.82rem;color:var(--muted);margin-bottom:1.25rem">
-        AI quizzes use Google Gemini to generate fresh questions pitched at your level.<br>
-        Your key is stored only in this browser — never sent anywhere else.
-      </p>
-      <label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:.35rem">
-        Google AI Studio API Key
-        <a href="https://aistudio.google.com/app/apikey" target="_blank"
-           style="color:var(--accent);margin-left:.4rem;font-size:.75rem">
-          Get a free key ↗
-        </a>
-      </label>
-      <input id="ai-key-input" type="password" placeholder="AIza…"
-        style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);
-               color:var(--text);border-radius:8px;padding:.6rem .85rem;font-size:.88rem;
-               outline:none;margin-bottom:.75rem;"
-        value="${AIConfig.getKey()}">
-      <div id="ai-key-status" style="font-size:.78rem;min-height:1.2rem;margin-bottom:.75rem"></div>
-      <div style="display:flex;gap:.75rem;flex-wrap:wrap">
-        <button id="ai-key-test" class="btn btn-ghost" style="font-size:.82rem">🔍 Test Key</button>
-        <button id="ai-key-save" class="btn btn-primary" style="font-size:.82rem">💾 Save Key</button>
-        <button id="ai-key-close" class="btn btn-ghost" style="font-size:.82rem">✕ Close</button>
+
+      <!-- Header -->
+      <div class="ai-modal-header">
+        <div class="ai-modal-icon">🤖</div>
+        <div class="ai-modal-title-block">
+          <h3>Set Up AI Quizzes</h3>
+          <p>Google Gemini · Free · Stored only in your browser</p>
+        </div>
+        <button id="ai-key-close" class="ai-modal-close" title="Close">✕</button>
       </div>
+
+      <!-- Step-by-step guide -->
+      <div class="ai-guide-box">
+        <div class="ai-guide-title">📋 How to get your free API key (2 minutes)</div>
+        <ol class="ai-guide-steps">
+          <li>
+            Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" class="ai-link">Google AI Studio ↗</a>
+            and sign in with any Google account — it's completely free.
+          </li>
+          <li>
+            Click <strong>"Get API key"</strong> in the sidebar, then
+            <strong>"Create API key"</strong> → choose <em>"Create API key in new project"</em>.
+          </li>
+          <li>
+            Copy the key shown — it will start with <code>AIza</code>.
+          </li>
+          <li>Paste it into the box below, click <strong>Test Key</strong>, then <strong>Save</strong>.</li>
+        </ol>
+        <p class="ai-guide-note">
+          The free tier gives you hundreds of quiz generations per day. No credit card is needed.
+        </p>
+      </div>
+
+      <!-- Key input -->
+      <div class="ai-key-field-wrap">
+        <label class="ai-key-label">Your Gemini API Key</label>
+        <div class="ai-key-row">
+          <input id="ai-key-input" type="password" placeholder="Paste your key here — starts with AIza…"
+            class="ai-key-input" value="${AIConfig.getKey()}">
+          <button id="ai-key-toggle" class="btn btn-ghost ai-toggle-btn" title="Show/hide key">👁</button>
+        </div>
+      </div>
+
+      <!-- Status line -->
+      <div id="ai-key-status" class="ai-key-status"></div>
+
+      <!-- Actions -->
+      <div class="ai-modal-actions">
+        <button id="ai-key-test" class="btn btn-ghost">🔍 Test Key</button>
+        <button id="ai-key-save" class="btn btn-primary">💾 Save Key</button>
+      </div>
+
+      <p class="ai-privacy-note">🔒 Your key never leaves this device — it is not sent to our servers.</p>
     </div>
-  `;
-  overlay.style.cssText = `
-    position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;
-    align-items:center;justify-content:center;z-index:9999;padding:1rem;
   `;
   document.body.appendChild(overlay);
 
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
   document.getElementById('ai-key-close').addEventListener('click', () => { overlay.style.display = 'none'; });
 
-  document.getElementById('ai-key-save').addEventListener('click', () => {
-    const key = document.getElementById('ai-key-input').value.trim();
-    if (!key) { document.getElementById('ai-key-status').innerHTML = '<span style="color:#f87171">Please enter a key.</span>'; return; }
-    AIConfig.setKey(key);
-    document.getElementById('ai-key-status').innerHTML = '<span style="color:#34d399">✅ Key saved!</span>';
-    setTimeout(() => { overlay.style.display = 'none'; }, 1200);
+  // Show / hide key toggle
+  document.getElementById('ai-key-toggle').addEventListener('click', () => {
+    const input = document.getElementById('ai-key-input');
+    const btn   = document.getElementById('ai-key-toggle');
+    if (input.type === 'password') { input.type = 'text';     btn.textContent = '🙈'; }
+    else                           { input.type = 'password'; btn.textContent = '👁';  }
   });
 
-  document.getElementById('ai-key-test').addEventListener('click', async () => {
-    const key = document.getElementById('ai-key-input').value.trim();
+  // Save
+  document.getElementById('ai-key-save').addEventListener('click', () => {
+    const key      = document.getElementById('ai-key-input').value.trim();
     const statusEl = document.getElementById('ai-key-status');
-    if (!key) { statusEl.innerHTML = '<span style="color:#f87171">Enter a key first.</span>'; return; }
-    statusEl.innerHTML = '<span style="color:var(--muted)">Testing…</span>';
+    if (!key) { statusEl.innerHTML = '<span class="ai-status-error">Please enter a key before saving.</span>'; return; }
+    AIConfig.setKey(key);
+    statusEl.innerHTML = '<span class="ai-status-ok">✅ Key saved! AI quizzes are now active.</span>';
+    setTimeout(() => { overlay.style.display = 'none'; }, 1500);
+  });
+
+  // Test
+  document.getElementById('ai-key-test').addEventListener('click', async () => {
+    const key      = document.getElementById('ai-key-input').value.trim();
+    const statusEl = document.getElementById('ai-key-status');
+    if (!key) { statusEl.innerHTML = '<span class="ai-status-error">Paste your key first, then test it.</span>'; return; }
+    statusEl.innerHTML = '<span class="ai-status-info">⏳ Testing your key with Google…</span>';
     try {
       const r = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(key)}`,
         { method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contents: [{ parts: [{ text: 'Reply with the single word: OK' }] }] }) }
       );
-      if (r.ok) statusEl.innerHTML = '<span style="color:#34d399">✅ Key works! Ready for AI quizzes.</span>';
-      else {
+      if (r.ok) {
+        statusEl.innerHTML = '<span class="ai-status-ok">✅ Key works! Click Save to activate AI quizzes.</span>';
+      } else {
         const err = await r.json().catch(() => ({}));
-        statusEl.innerHTML = `<span style="color:#f87171">❌ ${err.error?.message || 'Invalid key'}</span>`;
+        const msg = err.error?.message || '';
+        if (msg.toLowerCase().includes('api key') || msg.toLowerCase().includes('invalid')) {
+          statusEl.innerHTML = '<span class="ai-status-error">❌ Key not recognised — check you copied it fully from Google AI Studio (step 3 above).</span>';
+        } else if (msg.toLowerCase().includes('quota')) {
+          statusEl.innerHTML = '<span class="ai-status-error">❌ Daily quota exceeded on this key. Try again tomorrow, or create a new key.</span>';
+        } else {
+          statusEl.innerHTML = `<span class="ai-status-error">❌ ${msg || 'Unknown error — try again.'}</span>`;
+        }
       }
     } catch {
-      statusEl.innerHTML = '<span style="color:#f87171">❌ Network error. Check your connection.</span>';
+      statusEl.innerHTML = '<span class="ai-status-error">❌ Could not reach Google — check your internet connection.</span>';
     }
   });
 }
