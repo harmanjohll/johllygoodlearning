@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactions Within Environment | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--interactions); flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .78rem; color: var(--muted); }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    /* Accent override for this topic — orange/interactions */
+    .cue-question { font-size: .78rem; color: var(--muted); margin-bottom: .75rem; border-left: 2px solid var(--interactions); padding-left: .6rem; }
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: var(--interactions); }
+
+    #tab-learn .highlight { background: #2a1200; border-left-color: var(--interactions); color: #fdba74; }
+    #tab-learn .note-section h4 { color: var(--interactions); }
+    #tab-learn .equation { border-color: #f9731644; color: #fdba74; background: #1a0e00; }
+
+    /* Sub-tabs for simulate */
+    .sub-tabs { display: flex; gap: .35rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .sub-tab { padding: .35rem .85rem; border-radius: 7px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: .8rem; font-weight: 600; cursor: pointer; transition: all .15s; }
+    .sub-tab.active { background: var(--interactions); color: #0d1117; border-color: var(--interactions); }
+    .sub-pane { display: none; }
+    .sub-pane.active { display: block; }
+
+    /* Sim controls */
+    .sim-btn { padding: .38rem .85rem; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text); cursor: pointer; font-size: .79rem;
+      font-weight: 600; transition: all .15s; white-space: nowrap; }
+    .sim-btn:hover { background: var(--card); border-color: var(--interactions); }
+    .sim-btn.active { background: #2a1200; border-color: var(--interactions); color: #fdba74; }
+    .sim-btn.running { background: #3b0f0f; border-color: #ef4444; color: #fca5a5; }
+
+    /* Slider rows */
+    .slider-row { display: flex; align-items: center; gap: .5rem; margin-bottom: .4rem; }
+    .slider-row label { font-size: .75rem; color: var(--muted); width: 70px; font-weight: 600; flex-shrink: 0; }
+    .slider-row input { flex: 1; }
+    .slider-row span  { font-size: .75rem; color: var(--text); width: 24px; text-align: right; flex-shrink: 0; }
+
+    /* Population sim canvas */
+    #pp-canvas { display: block; border-radius: 8px; background: #0d1117; }
+
+    /* Sim stats */
+    .sim-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: .45rem .75rem; font-size: .8rem; text-align: center; margin-bottom: .4rem; }
+    .sim-stat strong { display: block; font-size: 1.05rem; color: var(--interactions); }
+
+    /* Mind map container */
+    #mindmap-container { border: 1.5px solid var(--border); border-radius: 10px; background: #0d1a2e; height: 480px; }
+
+    /* Adaptation gallery habitat buttons */
+    .habitat-btn { padding: .4rem .9rem; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-size: .8rem; font-weight: 600; transition: all .15s; }
+    .habitat-btn:hover { border-color: var(--interactions); }
+    .habitat-btn.active { background: #2a1200; border-color: var(--interactions); color: #fdba74; }
+
+    /* Adaptation canvas */
+    #adapt-canvas { display: block; border-radius: 10px; background: #0d1117; }
+
+    /* Sim feedback strip */
+    #pp-feedback { margin-top: .6rem; padding: .7rem 1rem; border-radius: 9px; font-size: .84rem;
+      background: var(--surface); border: 1px solid var(--border); line-height: 1.5; min-height: 44px; }
+
+    /* Table style for notes */
+    .note-table { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: .5rem; }
+    .note-table th { background: var(--surface); color: var(--interactions); padding: .4rem .6rem; text-align: left; font-weight: 600; }
+    .note-table td { padding: .38rem .6rem; border-top: 1px solid var(--border); color: var(--muted); }
+    .note-table tr:hover td { background: var(--surface); }
+
+    /* Positive/negative impact lists */
+    .impact-list li { margin-bottom: .35rem; font-size: .84rem; color: var(--muted); }
+    .impact-list li::marker { color: var(--interactions); }
+  </style>
+</head>
+<body>
+
+<div class="page-header" data-topic-level="6" data-topic-name="Interactions Within Environment">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🌍 Interactions Within Environment</h1>
+    <div class="meta">
+      <span class="badge badge-interactions">Interactions</span>&nbsp;
+      <span class="badge badge-p6">P6</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--interactions)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <!-- TABS -->
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       LEARN TAB — Cornell Notes
+       ══════════════════════════════════════════════════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+
+      <!-- CUE (left panel) -->
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What is an ecosystem? How is it different from a habitat?</div>
+        <div class="cue-question">What is a population? A community?</div>
+        <div class="cue-question">How do predator and prey populations affect each other?</div>
+        <div class="cue-question">What is adaptation and give two examples.</div>
+        <div class="cue-question">What happens when an invasive species is introduced?</div>
+        <div class="cue-question">Describe two ways humans negatively affect ecosystems.</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+
+        <div class="glossary-term"><div class="term-name">Ecosystem</div><div class="term-def">All the living organisms (biotic factors) and non-living components (abiotic factors: light, water, temperature, soil) in an area, and how they interact.</div></div>
+        <div class="glossary-term"><div class="term-name">Population</div><div class="term-def">All the individuals of the SAME species living in the same area at the same time. e.g. all the tigers in a forest.</div></div>
+        <div class="glossary-term"><div class="term-name">Community</div><div class="term-def">All the different populations of organisms living together in the same area. e.g. all the tigers, deer, trees, and insects in a forest.</div></div>
+        <div class="glossary-term"><div class="term-name">Habitat</div><div class="term-def">The specific environment where an organism lives and finds what it needs (food, water, shelter). e.g. a pond, a rainforest canopy.</div></div>
+        <div class="glossary-term"><div class="term-name">Predator</div><div class="term-def">An animal that hunts and kills other animals for food. e.g. lion, hawk, spider.</div></div>
+        <div class="glossary-term"><div class="term-name">Prey</div><div class="term-def">An animal that is hunted and eaten by predators. e.g. zebra, mouse, fly.</div></div>
+        <div class="glossary-term"><div class="term-name">Adaptation</div><div class="term-def">A feature (structural or behavioural) that helps an organism survive in its environment. e.g. cactus has thick stem to store water; polar bear has thick fur for insulation.</div></div>
+        <div class="glossary-term"><div class="term-name">Competition</div><div class="term-def">The struggle between organisms for the same limited resource (food, water, space, light, mates).</div></div>
+        <div class="glossary-term"><div class="term-name">Interdependence</div><div class="term-def">The way organisms depend on each other and on their environment for survival. e.g. plants depend on bees for pollination; bees depend on flowers for nectar.</div></div>
+        <div class="glossary-term"><div class="term-name">Producer</div><div class="term-def">An organism that makes its own food using light energy (photosynthesis). Always plants/algae. The base of every food chain.</div></div>
+        <div class="glossary-term"><div class="term-name">Consumer</div><div class="term-def">An organism that obtains energy by eating other organisms. Primary consumers eat producers; secondary consumers eat primary consumers.</div></div>
+        <div class="glossary-term"><div class="term-name">Decomposer</div><div class="term-def">Organisms (bacteria, fungi) that break down dead organisms and waste into simple substances. Recycle nutrients back into the ecosystem.</div></div>
+      </div>
+
+      <!-- MAIN notes area -->
+      <div class="cornell-main">
+
+        <div class="note-section">
+          <h4>🌿 Ecosystem Structure</h4>
+          <p><strong>Biotic factors:</strong> all living things — plants, animals, bacteria, fungi.</p>
+          <p style="margin-top:.35rem"><strong>Abiotic factors:</strong> non-living components — sunlight, water, temperature, soil type, air.</p>
+          <p style="margin-top:.35rem">The two interact: more sunlight → more plant growth → more food for herbivores → more food for carnivores.</p>
+          <ul style="margin-top:.5rem">
+            <li><strong>Population</strong> — all individuals of one species in an area (e.g. all rabbits in a forest)</li>
+            <li><strong>Community</strong> — all different populations together (e.g. rabbits + foxes + grass + beetles)</li>
+            <li><strong>Ecosystem</strong> — community + all abiotic (non-living) factors of that environment</li>
+          </ul>
+          <div class="highlight" style="margin-top:.6rem">🔑 Order: <strong>Population (one species) → Community (all species) → Ecosystem (community + environment)</strong></div>
+        </div>
+
+        <div class="note-section">
+          <h4>🦁 Predator-Prey Relationships</h4>
+          <p>Predators and prey are <strong>interdependent</strong> — changes in one population affect the other. This creates an oscillating (up-down) cycle:</p>
+          <div class="equation" style="margin-top:.5rem">
+            Prey increase → Predators have more food → Predators increase →
+            Prey decrease → Predators decrease → Prey increase again …
+          </div>
+          <p style="margin-top:.5rem"><strong>Example — Rabbits &amp; Foxes:</strong></p>
+          <ul style="margin-top:.3rem">
+            <li>Rabbits increase → foxes have more food → foxes increase</li>
+            <li>Foxes increase → more rabbits eaten → rabbits decrease</li>
+            <li>Rabbits decrease → foxes starve → foxes decrease</li>
+            <li>Foxes decrease → fewer rabbits eaten → rabbits increase again</li>
+          </ul>
+          <div class="highlight" style="margin-top:.6rem">📈 The rabbit and fox population lines form <strong>waves slightly out of phase</strong> — the fox wave always follows the rabbit wave.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🐾 Adaptation</h4>
+          <p><strong>Structural adaptations</strong> — physical features:</p>
+          <ul style="margin-top:.3rem">
+            <li>Cactus spines → reduce water loss; deter predators</li>
+            <li>Polar bear white fur → camouflage in snow + insulation against cold</li>
+            <li>Fish streamlined body → move through water with less resistance</li>
+          </ul>
+          <p style="margin-top:.5rem"><strong>Behavioural adaptations</strong> — actions:</p>
+          <ul style="margin-top:.3rem">
+            <li>Migration — birds fly south in winter to find warmer climates and food</li>
+            <li>Hibernation — bears sleep through cold winters to conserve energy</li>
+            <li>Nocturnal behaviour — owls hunt at night when prey is less alert</li>
+          </ul>
+          <div class="highlight" style="margin-top:.6rem">🔑 Organisms are adapted to their <strong>specific habitat</strong>. Change the habitat → organisms may not survive.</div>
+
+          <table class="note-table" style="margin-top:.75rem">
+            <tr><th>Habitat</th><th>Organism</th><th>Adaptation</th><th>Purpose</th></tr>
+            <tr><td>Desert</td><td>Cactus</td><td>Thick waxy stem</td><td>Stores water; reduces water loss</td></tr>
+            <tr><td>Arctic</td><td>Polar bear</td><td>Thick white fur</td><td>Insulation against cold; camouflage</td></tr>
+            <tr><td>Ocean</td><td>Shark</td><td>Streamlined body</td><td>Reduces water resistance for fast swimming</td></tr>
+            <tr><td>Rainforest</td><td>Toucan</td><td>Large coloured beak</td><td>Reaching fruit on thin branches; display</td></tr>
+          </table>
+        </div>
+
+        <div class="note-section">
+          <h4>🚨 Human Impact on Ecosystems</h4>
+          <p><strong>Negative impacts:</strong></p>
+          <ul class="impact-list" style="margin-top:.4rem;padding-left:1.25rem">
+            <li><strong>Deforestation</strong> — removes habitat → loss of biodiversity → disrupts food webs</li>
+            <li><strong>Pollution</strong> (water, air, land) — harms organisms, contaminates food chains</li>
+            <li><strong>Overhunting/overfishing</strong> — removes species from food chains → imbalance</li>
+            <li><strong>Invasive species</strong> — compete with or predate native species → native species decline or extinction</li>
+          </ul>
+          <div class="highlight" style="margin-top:.6rem">
+            <strong>Invasive species example:</strong> Cane toad introduced to Australia to eat pests → had no natural predators → multiplied rapidly → ate native insects → disrupted native food webs.
+          </div>
+          <p style="margin-top:.6rem"><strong>Positive human actions:</strong></p>
+          <ul class="impact-list" style="margin-top:.4rem;padding-left:1.25rem">
+            <li>Nature reserves and national parks protect habitats</li>
+            <li>Captive breeding programs for endangered species</li>
+            <li>Pollution control and clean-up efforts</li>
+            <li>Reforestation</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- SUMMARY strip -->
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--interactions);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          An <strong>ecosystem</strong> = biotic + abiotic factors interacting.
+          <strong>Predator-prey</strong> populations oscillate in a natural cycle.
+          Organisms are <strong>adapted</strong> (structurally and behaviourally) to their habitats.
+          Humans can disrupt ecosystems through <strong>deforestation, pollution, overhunting,</strong> and <strong>invasive species</strong>.
+          <strong>Interdependence</strong> means disrupting one part affects the whole system.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SIMULATE TAB
+       ══════════════════════════════════════════════════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+
+      <!-- CUE -->
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">What happens to fox numbers when rabbit numbers are high?</div>
+        <div class="cue-question">Why do the two populations never stay constant?</div>
+        <div class="cue-question">Which habitat has the most extreme adaptations?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1rem">Simulation Stats</div>
+        <div class="sim-stat"><strong id="stat-rabbits">50</strong>Rabbits</div>
+        <div class="sim-stat"><strong id="stat-foxes">10</strong>Foxes</div>
+        <div id="pp-status-left" style="font-size:.75rem;color:var(--muted);margin-top:.35rem;line-height:1.4">Set sliders and press Run.</div>
+
+        <div style="margin-top:1rem">
+          <div class="cornell-cue-label">Controls</div>
+          <div class="slider-row">
+            <label>🐰 Rabbits</label>
+            <input type="range" id="slider-prey" min="10" max="100" value="50" oninput="updateSliderDisplay()">
+            <span id="val-prey">50</span>
+          </div>
+          <div class="slider-row">
+            <label>🦊 Foxes</label>
+            <input type="range" id="slider-pred" min="1" max="20" value="10" oninput="updateSliderDisplay()">
+            <span id="val-pred">10</span>
+          </div>
+          <div style="display:flex;gap:.4rem;margin-top:.6rem;flex-wrap:wrap">
+            <button class="sim-btn" id="pp-run-btn" onclick="togglePPSim()">▶ Run simulation</button>
+            <button class="sim-btn" onclick="resetPPSim()">↺ Reset</button>
+          </div>
+        </div>
+
+        <div class="cornell-cue-label" style="margin-top:1rem">Habitat Gallery</div>
+        <div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.4rem">
+          <button class="habitat-btn active" id="hbtn-Desert" onclick="selectHabitat('Desert')">Desert</button>
+          <button class="habitat-btn" id="hbtn-Ocean" onclick="selectHabitat('Ocean')">Ocean</button>
+          <button class="habitat-btn" id="hbtn-Rainforest" onclick="selectHabitat('Rainforest')">Rainforest</button>
+          <button class="habitat-btn" id="hbtn-Arctic" onclick="selectHabitat('Arctic')">Arctic</button>
+        </div>
+      </div>
+
+      <!-- MAIN canvas area -->
+      <div class="cornell-main" style="padding:.75rem">
+        <div class="sub-tabs">
+          <button class="sub-tab active" id="subtab-pp" onclick="showSubTab('pp')">🐇 Predator-Prey Simulator</button>
+          <button class="sub-tab" id="subtab-adapt" onclick="showSubTab('adapt')">🌵 Adaptation Gallery</button>
+        </div>
+
+        <!-- PREDATOR-PREY SUB-PANE -->
+        <div class="sub-pane active" id="subpane-pp">
+          <div class="sim-canvas-wrap" style="height:290px">
+            <canvas id="pp-canvas" width="580" height="280"></canvas>
+          </div>
+          <div id="pp-feedback">Set the initial rabbit and fox counts using the sliders, then press <strong>Run simulation</strong>.</div>
+        </div>
+
+        <!-- ADAPTATION GALLERY SUB-PANE -->
+        <div class="sub-pane" id="subpane-adapt">
+          <div class="sim-canvas-wrap" style="height:310px">
+            <canvas id="adapt-canvas" width="580" height="300"></canvas>
+          </div>
+          <div style="margin-top:.6rem;font-size:.8rem;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.55rem .85rem;line-height:1.5">
+            <strong style="color:var(--interactions)">Tip:</strong>
+            <span id="adapt-tip">Click a habitat button on the left to explore its organism's adaptations.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--interactions);font-weight:700;margin-bottom:.4rem">What to notice</div>
+        <p class="summary-text">In the predator-prey simulator, <strong>fox numbers follow rabbit numbers</strong> — always slightly behind. The populations form natural <strong>oscillating waves</strong>. In the adaptation gallery, every feature shown is a direct response to the <strong>challenges of that habitat</strong>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       QUIZ TAB
+       ══════════════════════════════════════════════════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tips</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Use exact keywords:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li><em>"Population = same <strong>species</strong>…"</em></li>
+            <li><em>"Community = all <strong>populations</strong>…"</em></li>
+            <li><em>"Ecosystem = community + <strong>abiotic</strong> factors…"</em></li>
+            <li><em>"Invasive species → no natural <strong>predators</strong>…"</em></li>
+          </ul>
+          <p style="margin-top:.75rem">When asked about adaptations, always state the <em>feature</em> AND the <em>purpose</em>.</p>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--interactions)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container" data-topic-id="ecosystems" data-topic-name="Interactions Within Environment" data-topic-level="6"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">
+          Remember: <strong>Predator-prey</strong> populations cycle — when prey increase, predators follow.
+          <strong>Adaptations</strong> are structural (physical) or behavioural (actions).
+          <strong>Deforestation</strong> and <strong>invasive species</strong> are the most commonly examined human impacts.
+          <strong>Interdependence</strong> means every part of an ecosystem is connected.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       MIND MAP TAB
+       ══════════════════════════════════════════════════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+      <span style="font-size:.73rem;color:var(--muted);margin-left:.5rem">Double-click a node to rename · Double-click empty space to add</span>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// QUIZ QUESTIONS
+// ══════════════════════════════════════════════════════════════════════
+const QUIZ_Q = [
+  {
+    question: 'What is the correct order from smallest to largest ecological unit?',
+    options: [
+      'Community → Population → Ecosystem',
+      'Ecosystem → Community → Population',
+      'Population → Community → Ecosystem',
+      'Organism → Ecosystem → Community'
+    ],
+    correct: 2,
+    explanation: 'A population is one species. A community is all species in an area. An ecosystem is the community plus all abiotic (non-living) factors.'
+  },
+  {
+    question: 'Foxes eat rabbits. Rabbits eat grass. If the grass disappears due to drought, what will most likely happen?',
+    options: [
+      'Foxes will increase',
+      'Foxes will decrease',
+      'Rabbits will increase',
+      'The food chain is unaffected'
+    ],
+    correct: 1,
+    explanation: 'Less grass → fewer rabbits (primary consumer) → less food for foxes (secondary consumer) → fox population decreases. This shows interdependence in food chains.'
+  },
+  {
+    question: 'A cactus has a thick waxy stem and few leaves. These features are adaptations that help the cactus survive by:',
+    options: [
+      'Growing faster in sunlight',
+      'Reducing water loss in dry conditions',
+      'Attracting more pollinators',
+      'Competing with other cacti'
+    ],
+    correct: 1,
+    explanation: 'The thick waxy stem stores water; reduced leaf surface area (spines instead of broad leaves) minimises water loss through transpiration. Ideal for a dry desert habitat.'
+  },
+  {
+    question: 'Which of the following BEST explains why introducing an invasive species can be harmful to an ecosystem?',
+    options: [
+      'Invasive species always eat plants',
+      'Invasive species compete with native species and may have no natural predators, causing native species to decline',
+      'Invasive species are always larger than native species',
+      'Invasive species cannot reproduce in new habitats'
+    ],
+    correct: 1,
+    explanation: 'Invasive species often have no natural predators in the new environment and compete with native species for food, water, and space. This can cause native species to decline or become extinct.'
+  },
+  {
+    question: 'In a predator-prey relationship, what typically happens when the prey population increases sharply?',
+    options: [
+      'Predator population immediately decreases',
+      'Predator population eventually increases as more food becomes available',
+      'Prey population continues to increase indefinitely',
+      'Predator population remains unchanged'
+    ],
+    correct: 1,
+    explanation: 'More prey = more food for predators → predator population grows. This creates the classic oscillating (up-down) cycle between predator and prey populations.'
+  },
+  {
+    question: 'Which of the following is a BEHAVIOURAL adaptation?',
+    options: [
+      "A polar bear's thick white fur",
+      "The streamlined shape of a dolphin's body",
+      'Birds migrating south for winter',
+      'A cactus having spines instead of leaves'
+    ],
+    correct: 2,
+    explanation: 'Migration is a behaviour — a change in what the animal does. Structural adaptations involve physical features of the body (fur, shape, spines).'
+  },
+  {
+    question: 'Decomposers such as bacteria and fungi play a vital role in ecosystems by:',
+    options: [
+      'Producing food through photosynthesis',
+      'Breaking down dead organisms and recycling nutrients into the soil',
+      'Hunting and eating other organisms',
+      'Competing with plants for sunlight'
+    ],
+    correct: 1,
+    explanation: 'Decomposers break down dead organisms and waste into simple minerals and nutrients that are returned to the soil. Without them, nutrients would not be recycled and ecosystems could not function.'
+  }
+];
+
+// ══════════════════════════════════════════════════════════════════════
+// MIND MAP TEMPLATE
+// ══════════════════════════════════════════════════════════════════════
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1,  label:'Ecosystem',      color:{ background:'#2a1200', border:'#f97316' }, font:{ size:16, color:'#fdba74' } },
+    { id:2,  label:'Biotic' },
+    { id:3,  label:'Abiotic' },
+    { id:4,  label:'Population' },
+    { id:5,  label:'Community' },
+    { id:6,  label:'Predator' },
+    { id:7,  label:'Prey' },
+    { id:8,  label:'Adaptation' },
+    { id:9,  label:'Structural' },
+    { id:10, label:'Behavioural' },
+    { id:11, label:'Human Impact' },
+    { id:12, label:'Decomposer' },
+    { id:13, label:'Producer' },
+    { id:14, label:'Consumer' },
+    { id:15, label:'Interdependence' },
+  ],
+  edges: [
+    { from:1,  to:2,  label:'includes' },
+    { from:1,  to:3,  label:'includes' },
+    { from:1,  to:4,  label:'has' },
+    { from:1,  to:5,  label:'has' },
+    { from:4,  to:6,  label:'e.g.' },
+    { from:4,  to:7,  label:'e.g.' },
+    { from:8,  to:9  },
+    { from:8,  to:10 },
+    { from:1,  to:8,  label:'shapes' },
+    { from:1,  to:11, label:'affected by' },
+    { from:1,  to:15, label:'relies on' },
+    { from:1,  to:13, label:'has' },
+    { from:1,  to:14, label:'has' },
+    { from:1,  to:12, label:'has' },
+    { from:6,  to:7,  label:'eats' },
+  ],
+  required: ['ecosystem','population','adaptation','predator','prey','producer','consumer','decomposer','interdependence']
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// PREDATOR-PREY SIMULATOR
+// ══════════════════════════════════════════════════════════════════════
+const ppCanvas = document.getElementById('pp-canvas');
+const ppCtx    = ppCanvas.getContext('2d');
+const PP_W = ppCanvas.width;
+const PP_H = ppCanvas.height;
+
+const BIRTH_RATE      = 0.1;
+const PREDATION_RATE  = 0.01;
+const PRED_DEATH_RATE = 0.05;
+const CONVERSION_RATE = 0.002;
+const MAX_STEPS = 100;
+const STEP_INTERVAL_MS = 300;
+
+let ppRunning    = false;
+let ppInterval   = null;
+let ppHistory    = [];   // [{prey, pred}]
+let ppStep       = 0;
+let ppPrey       = 50;
+let ppPred       = 10;
+
+function updateSliderDisplay() {
+  const prey = +document.getElementById('slider-prey').value;
+  const pred = +document.getElementById('slider-pred').value;
+  document.getElementById('val-prey').textContent = prey;
+  document.getElementById('val-pred').textContent = pred;
+}
+
+function resetPPSim() {
+  if (ppInterval) { clearInterval(ppInterval); ppInterval = null; }
+  ppRunning = false;
+  ppHistory = [];
+  ppStep    = 0;
+  ppPrey    = +document.getElementById('slider-prey').value;
+  ppPred    = +document.getElementById('slider-pred').value;
+  document.getElementById('pp-run-btn').textContent = '▶ Run simulation';
+  document.getElementById('pp-run-btn').classList.remove('running');
+  document.getElementById('stat-rabbits').textContent = Math.round(ppPrey);
+  document.getElementById('stat-foxes').textContent   = Math.round(ppPred);
+  document.getElementById('pp-status-left').textContent = 'Set sliders and press Run.';
+  document.getElementById('pp-feedback').innerHTML = 'Set the initial rabbit and fox counts using the sliders, then press <strong>Run simulation</strong>.';
+  drawPPChart();
+}
+
+function togglePPSim() {
+  if (ppRunning) {
+    clearInterval(ppInterval);
+    ppInterval = null;
+    ppRunning  = false;
+    document.getElementById('pp-run-btn').textContent = '▶ Run simulation';
+    document.getElementById('pp-run-btn').classList.remove('running');
+  } else {
+    // Fresh start
+    ppPrey    = +document.getElementById('slider-prey').value;
+    ppPred    = +document.getElementById('slider-pred').value;
+    ppHistory = [{ prey: ppPrey, pred: ppPred }];
+    ppStep    = 0;
+    ppRunning = true;
+    document.getElementById('pp-run-btn').textContent = '⏹ Stop';
+    document.getElementById('pp-run-btn').classList.add('running');
+    Progress.recordSimUsed('ecosystems');
+    ppInterval = setInterval(ppTick, STEP_INTERVAL_MS);
+  }
+}
+
+function ppTick() {
+  if (ppStep >= MAX_STEPS) {
+    clearInterval(ppInterval);
+    ppInterval = null;
+    ppRunning  = false;
+    document.getElementById('pp-run-btn').textContent = '▶ Run simulation';
+    document.getElementById('pp-run-btn').classList.remove('running');
+    document.getElementById('pp-feedback').innerHTML = '✅ Simulation complete. Notice the <strong>oscillating waves</strong> — foxes peak shortly after rabbits.';
+    return;
+  }
+
+  const newPrey = ppPrey + ppPrey * BIRTH_RATE - ppPrey * ppPred * PREDATION_RATE;
+  const newPred = ppPred + ppPred * CONVERSION_RATE * ppPrey - ppPred * PRED_DEATH_RATE;
+
+  ppPrey = Math.max(1, Math.min(200, newPrey));
+  ppPred = Math.max(0.5, Math.min(50, newPred));
+  ppStep++;
+
+  ppHistory.push({ prey: ppPrey, pred: ppPred });
+  if (ppHistory.length > MAX_STEPS + 1) ppHistory.shift();
+
+  document.getElementById('stat-rabbits').textContent = Math.round(ppPrey);
+  document.getElementById('stat-foxes').textContent   = Math.round(ppPred);
+
+  // Status text
+  const prevPrey = ppHistory.length >= 3 ? ppHistory[ppHistory.length - 3].prey : ppPrey;
+  let trend = Math.abs(ppPrey - prevPrey) < 2 ? 'stable' : ppPrey > prevPrey ? 'thriving' : 'declining';
+  document.getElementById('pp-status-left').textContent =
+    'Rabbits: ' + trend + ' | Step ' + ppStep + '/' + MAX_STEPS;
+  document.getElementById('pp-feedback').innerHTML =
+    'Rabbits: <strong style="color:#4ade80">' + Math.round(ppPrey) + '</strong> &nbsp;|&nbsp; Foxes: <strong style="color:#f97316">' + Math.round(ppPred) + '</strong> &nbsp;|&nbsp; Rabbits ' + trend;
+
+  drawPPChart();
+}
+
+function drawPPChart() {
+  ppCtx.clearRect(0, 0, PP_W, PP_H);
+  ppCtx.fillStyle = '#0d1117';
+  ppCtx.fillRect(0, 0, PP_W, PP_H);
+
+  const PAD = { t:24, b:32, l:36, r:16 };
+  const iW  = PP_W - PAD.l - PAD.r;
+  const iH  = PP_H - PAD.t - PAD.b;
+
+  // Grid
+  ppCtx.strokeStyle = '#1e293b';
+  ppCtx.lineWidth   = 1;
+  for (let i = 0; i <= 4; i++) {
+    const gy = PAD.t + (i / 4) * iH;
+    ppCtx.beginPath(); ppCtx.moveTo(PAD.l, gy); ppCtx.lineTo(PP_W - PAD.r, gy); ppCtx.stroke();
+  }
+  for (let i = 0; i <= 5; i++) {
+    const gx = PAD.l + (i / 5) * iW;
+    ppCtx.beginPath(); ppCtx.moveTo(gx, PAD.t); ppCtx.lineTo(gx, PAD.t + iH); ppCtx.stroke();
+  }
+
+  // Axes
+  ppCtx.strokeStyle = '#334155'; ppCtx.lineWidth = 1.5;
+  ppCtx.beginPath(); ppCtx.moveTo(PAD.l, PAD.t); ppCtx.lineTo(PAD.l, PAD.t + iH); ppCtx.stroke();
+  ppCtx.beginPath(); ppCtx.moveTo(PAD.l, PAD.t + iH); ppCtx.lineTo(PP_W - PAD.r, PAD.t + iH); ppCtx.stroke();
+
+  // Axis labels
+  ppCtx.fillStyle = '#64748b'; ppCtx.font = '9px Inter, sans-serif'; ppCtx.textAlign = 'center';
+  ppCtx.fillText('Time (steps)', PAD.l + iW / 2, PP_H - 4);
+  ppCtx.save(); ppCtx.translate(10, PAD.t + iH / 2); ppCtx.rotate(-Math.PI / 2);
+  ppCtx.fillText('Population', 0, 0); ppCtx.restore();
+
+  if (ppHistory.length < 2) {
+    // Placeholder message
+    ppCtx.fillStyle = '#475569'; ppCtx.font = '13px Inter, sans-serif'; ppCtx.textAlign = 'center';
+    ppCtx.fillText('Press ▶ Run simulation to start', PP_W / 2, PP_H / 2);
+    ppCtx.font = '10px Inter, sans-serif';
+    ppCtx.fillText('🟢 Rabbits (prey)   🟠 Foxes (predators)', PP_W / 2, PP_H / 2 + 22);
+    return;
+  }
+
+  // Determine scale
+  const allPrey = ppHistory.map(h => h.prey);
+  const allPred = ppHistory.map(h => h.pred);
+  const maxVal  = Math.max(...allPrey, ...allPred, 10);
+
+  function plotLine(vals, color) {
+    const n = vals.length;
+    ppCtx.beginPath();
+    ppCtx.strokeStyle = color;
+    ppCtx.lineWidth   = 2.5;
+    ppCtx.lineJoin    = 'round';
+    vals.forEach((v, i) => {
+      const px = PAD.l + (i / (MAX_STEPS)) * iW;
+      const py = PAD.t + iH - (v / maxVal) * iH;
+      i === 0 ? ppCtx.moveTo(px, py) : ppCtx.lineTo(px, py);
+    });
+    ppCtx.stroke();
+  }
+
+  plotLine(allPrey, '#4ade80');  // rabbits — green
+  plotLine(allPred, '#f97316');  // foxes — orange
+
+  // Legend
+  ppCtx.font = '9px Inter, sans-serif'; ppCtx.textAlign = 'left';
+  ppCtx.fillStyle = '#4ade80';
+  ppCtx.fillRect(PAD.l + 4, PAD.t + 4, 10, 3);
+  ppCtx.fillText('Rabbits (prey)', PAD.l + 18, PAD.t + 8);
+  ppCtx.fillStyle = '#f97316';
+  ppCtx.fillRect(PAD.l + 110, PAD.t + 4, 10, 3);
+  ppCtx.fillText('Foxes (predators)', PAD.l + 124, PAD.t + 8);
+
+  // Current value dots
+  if (ppHistory.length > 1) {
+    const last = ppHistory[ppHistory.length - 1];
+    const lx   = PAD.l + ((ppHistory.length - 1) / MAX_STEPS) * iW;
+    ppCtx.beginPath();
+    ppCtx.arc(lx, PAD.t + iH - (last.prey / maxVal) * iH, 4, 0, Math.PI * 2);
+    ppCtx.fillStyle = '#4ade80'; ppCtx.fill();
+    ppCtx.beginPath();
+    ppCtx.arc(lx, PAD.t + iH - (last.pred / maxVal) * iH, 4, 0, Math.PI * 2);
+    ppCtx.fillStyle = '#f97316'; ppCtx.fill();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ADAPTATION GALLERY
+// ══════════════════════════════════════════════════════════════════════
+const adaptCanvas = document.getElementById('adapt-canvas');
+const adaptCtx    = adaptCanvas.getContext('2d');
+const AD_W = adaptCanvas.width;
+const AD_H = adaptCanvas.height;
+
+const ADAPT_TIPS = {
+  Desert:     'The cactus stores water in its thick waxy stem and uses spines instead of leaves to reduce water loss.',
+  Ocean:      'The shark\'s streamlined body reduces drag, while its lateral line detects vibrations — helping it hunt efficiently.',
+  Rainforest: 'The toucan\'s oversized colourful beak helps it reach fruit on slender branches and attract mates.',
+  Arctic:     'The polar bear\'s white fur provides camouflage in snow, while thick underfur and fat insulate against extreme cold.'
+};
+
+let currentHabitat = 'Desert';
+
+function selectHabitat(habitat) {
+  currentHabitat = habitat;
+  document.querySelectorAll('.habitat-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('hbtn-' + habitat).classList.add('active');
+  document.getElementById('adapt-tip').textContent = ADAPT_TIPS[habitat];
+  drawAdaptationScene(habitat);
+}
+
+function drawAdaptationScene(habitat) {
+  adaptCtx.clearRect(0, 0, AD_W, AD_H);
+
+  switch (habitat) {
+    case 'Desert':    drawDesert();    break;
+    case 'Ocean':     drawOcean();     break;
+    case 'Rainforest':drawRainforest();break;
+    case 'Arctic':    drawArctic();    break;
+  }
+}
+
+// ── Helper: draw label line + text ────────────────────────────────────
+function drawLabel(x1, y1, x2, y2, text, color) {
+  const c = adaptCtx;
+  color = color || '#fdba74';
+  c.save();
+  c.strokeStyle = color;
+  c.lineWidth   = 1.2;
+  c.setLineDash([3, 3]);
+  c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke();
+  c.setLineDash([]);
+  c.fillStyle = color;
+  c.font      = '10px Inter, sans-serif';
+  c.textAlign = x2 > x1 ? 'left' : 'right';
+  c.fillText(text, x2 + (x2 > x1 ? 4 : -4), y2 + 3);
+  c.restore();
+}
+
+// ── Desert Scene ───────────────────────────────────────────────────────
+function drawDesert() {
+  const c = adaptCtx;
+  // Sky gradient
+  const sky = c.createLinearGradient(0, 0, 0, AD_H * 0.65);
+  sky.addColorStop(0, '#1a0a00');
+  sky.addColorStop(1, '#7c3b00');
+  c.fillStyle = sky; c.fillRect(0, 0, AD_W, AD_H * 0.65);
+
+  // Sand
+  const sand = c.createLinearGradient(0, AD_H * 0.65, 0, AD_H);
+  sand.addColorStop(0, '#b45309');
+  sand.addColorStop(1, '#78350f');
+  c.fillStyle = sand; c.fillRect(0, AD_H * 0.65, AD_W, AD_H * 0.35);
+
+  // Sun
+  c.beginPath(); c.arc(60, 50, 28, 0, Math.PI * 2);
+  const sunG = c.createRadialGradient(60, 50, 0, 60, 50, 28);
+  sunG.addColorStop(0, '#fde68a'); sunG.addColorStop(1, '#f59e0b');
+  c.fillStyle = sunG; c.fill();
+
+  // Cactus stem
+  const cx = 230, baseY = AD_H * 0.65;
+  c.fillStyle = '#166534';
+  c.beginPath();
+  c.roundRect(cx - 20, baseY - 160, 40, 160, 10);
+  c.fill();
+  c.strokeStyle = '#4ade80'; c.lineWidth = 1.5; c.stroke();
+
+  // Left arm
+  c.fillStyle = '#166534';
+  c.beginPath(); c.roundRect(cx - 60, baseY - 120, 42, 20, 8); c.fill(); c.stroke();
+  c.beginPath(); c.roundRect(cx - 63, baseY - 140, 20, 50, 8); c.fill(); c.stroke();
+
+  // Right arm
+  c.beginPath(); c.roundRect(cx + 18, baseY - 100, 42, 20, 8); c.fill(); c.stroke();
+  c.beginPath(); c.roundRect(cx + 43, baseY - 130, 20, 50, 8); c.fill(); c.stroke();
+
+  // Spines
+  c.strokeStyle = '#fde68a'; c.lineWidth = 1;
+  const spinePositions = [
+    [cx - 20, baseY - 140], [cx - 20, baseY - 100], [cx - 20, baseY - 60],
+    [cx + 20, baseY - 130], [cx + 20, baseY - 85],  [cx + 20, baseY - 45],
+  ];
+  spinePositions.forEach(([sx, sy]) => {
+    for (let a = -0.4; a <= 0.4; a += 0.2) {
+      const dir = sx < cx ? -1 : 1;
+      c.beginPath(); c.moveTo(sx, sy); c.lineTo(sx + dir * 10 * Math.cos(a), sy + 10 * Math.sin(a)); c.stroke();
+    }
+  });
+
+  // Deep roots (dashed)
+  c.strokeStyle = '#92400e'; c.lineWidth = 1.5; c.setLineDash([4, 3]);
+  c.beginPath(); c.moveTo(cx, baseY); c.lineTo(cx, baseY + 60); c.stroke();
+  c.beginPath(); c.moveTo(cx, baseY + 40); c.lineTo(cx - 50, baseY + 70); c.stroke();
+  c.beginPath(); c.moveTo(cx, baseY + 40); c.lineTo(cx + 50, baseY + 70); c.stroke();
+  c.setLineDash([]);
+
+  // Labels
+  drawLabel(cx + 22, baseY - 150, cx + 130, baseY - 155, 'Thick waxy stem → stores water');
+  drawLabel(cx + 22, baseY - 110, cx + 130, baseY - 115, 'Spines → reduce water loss, deter predators');
+  drawLabel(cx, baseY + 55, cx + 100, baseY + 75, 'Deep roots → reach groundwater');
+
+  // Title
+  c.fillStyle = '#fde68a'; c.font = 'bold 13px Inter, sans-serif'; c.textAlign = 'left';
+  c.fillText('Desert — Cactus', 12, 22);
+  c.fillStyle = '#b45309'; c.font = '10px Inter, sans-serif';
+  c.fillText('Habitat: Hot, dry, very little rainfall', 12, 38);
+}
+
+// ── Ocean Scene ────────────────────────────────────────────────────────
+function drawOcean() {
+  const c = adaptCtx;
+  // Water gradient
+  const water = c.createLinearGradient(0, 0, 0, AD_H);
+  water.addColorStop(0, '#0c2a4a');
+  water.addColorStop(1, '#0a1628');
+  c.fillStyle = water; c.fillRect(0, 0, AD_W, AD_H);
+
+  // Light rays from surface
+  c.strokeStyle = 'rgba(96,165,250,0.07)'; c.lineWidth = 20;
+  for (let i = 0; i < 6; i++) {
+    c.beginPath(); c.moveTo(80 + i * 90, 0); c.lineTo(40 + i * 85, AD_H); c.stroke();
+  }
+
+  // Bubbles
+  for (let i = 0; i < 12; i++) {
+    c.beginPath();
+    const bx = 30 + Math.floor(i * 47.3) % (AD_W - 60);
+    const by = 30 + Math.floor(i * 33.7) % (AD_H - 60);
+    const br = 2 + (i % 3);
+    c.arc(bx, by, br, 0, Math.PI * 2);
+    c.strokeStyle = 'rgba(147,197,253,0.3)'; c.lineWidth = 1; c.stroke();
+  }
+
+  // Shark body (streamlined)
+  const sx = 200, sy = 140;
+  c.save();
+  c.translate(sx, sy);
+
+  // Main body
+  c.beginPath();
+  c.moveTo(-120, 0);
+  c.bezierCurveTo(-80, -32, 60, -28, 100, 0);
+  c.bezierCurveTo(60, 28, -80, 32, -120, 0);
+  c.fillStyle = '#64748b'; c.fill();
+  c.strokeStyle = '#94a3b8'; c.lineWidth = 1; c.stroke();
+
+  // Belly
+  c.beginPath();
+  c.moveTo(-90, 0);
+  c.bezierCurveTo(-50, 14, 50, 12, 90, 0);
+  c.bezierCurveTo(50, 20, -50, 22, -90, 0);
+  c.fillStyle = '#cbd5e1'; c.fill();
+
+  // Dorsal fin
+  c.beginPath(); c.moveTo(20, -28); c.lineTo(40, -68); c.lineTo(70, -28); c.closePath();
+  c.fillStyle = '#475569'; c.fill();
+
+  // Tail fin
+  c.beginPath(); c.moveTo(-110, 0); c.lineTo(-140, -30); c.lineTo(-120, 0); c.lineTo(-140, 30); c.closePath();
+  c.fillStyle = '#475569'; c.fill();
+
+  // Pectoral fin
+  c.beginPath(); c.moveTo(10, 10); c.lineTo(10, 40); c.lineTo(50, 20); c.closePath();
+  c.fillStyle = '#475569'; c.fill();
+
+  // Eye
+  c.beginPath(); c.arc(72, -8, 5, 0, Math.PI * 2);
+  c.fillStyle = '#1e293b'; c.fill();
+  c.beginPath(); c.arc(74, -9, 1.5, 0, Math.PI * 2);
+  c.fillStyle = '#e2e8f0'; c.fill();
+
+  // Gills (lines)
+  c.strokeStyle = '#94a3b8'; c.lineWidth = 1.5;
+  for (let g = 0; g < 4; g++) {
+    c.beginPath();
+    c.moveTo(50 + g * 8, -14);
+    c.lineTo(48 + g * 8, 14);
+    c.stroke();
+  }
+
+  // Lateral line
+  c.strokeStyle = '#38bdf8'; c.lineWidth = 1; c.setLineDash([3, 4]);
+  c.beginPath(); c.moveTo(-80, -2); c.lineTo(60, -2); c.stroke();
+  c.setLineDash([]);
+
+  c.restore();
+
+  // Labels
+  drawLabel(sx + 50, sy - 28, sx + 200, sy - 60, 'Streamlined body → fast swimming', '#93c5fd');
+  drawLabel(sx + 15, sy + 2,  sx + 200, sy + 30,  'Gills → extract oxygen from water', '#93c5fd');
+  drawLabel(sx - 30, sy - 2,  sx + 200, sy + 70,  'Lateral line → detect vibrations', '#38bdf8');
+
+  // Title
+  c.fillStyle = '#93c5fd'; c.font = 'bold 13px Inter, sans-serif'; c.textAlign = 'left';
+  c.fillText('Ocean — Shark', 12, 22);
+  c.fillStyle = '#1d4ed8'; c.font = '10px Inter, sans-serif';
+  c.fillText('Habitat: Saltwater ocean, open water', 12, 38);
+}
+
+// ── Rainforest Scene ───────────────────────────────────────────────────
+function drawRainforest() {
+  const c = adaptCtx;
+  // Background
+  const bg = c.createLinearGradient(0, 0, 0, AD_H);
+  bg.addColorStop(0, '#052e16');
+  bg.addColorStop(1, '#0a1f0a');
+  c.fillStyle = bg; c.fillRect(0, 0, AD_W, AD_H);
+
+  // Background foliage
+  c.fillStyle = '#052e16';
+  for (let i = 0; i < 5; i++) {
+    c.beginPath();
+    c.arc(60 + i * 120, 80, 60, 0, Math.PI * 2);
+    c.fillStyle = i % 2 === 0 ? '#064e1e' : '#052e16';
+    c.fill();
+  }
+
+  // Branch
+  const branchX = 100, branchY = 100;
+  c.strokeStyle = '#78350f'; c.lineWidth = 12; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(0, branchY + 20); c.lineTo(AD_W * 0.6, branchY - 10); c.stroke();
+  c.strokeStyle = '#92400e'; c.lineWidth = 8;
+  c.beginPath(); c.moveTo(AD_W * 0.6, branchY - 10); c.lineTo(AD_W * 0.6 + 60, branchY + 40); c.stroke();
+
+  // Leaves on branch
+  c.fillStyle = '#15803d';
+  [[160, 60], [250, 50], [350, 55], [430, 60]].forEach(([lx, ly]) => {
+    c.beginPath();
+    c.ellipse(lx, ly, 22, 10, -0.3, 0, Math.PI * 2);
+    c.fill();
+    c.strokeStyle = '#4ade80'; c.lineWidth = 0.8; c.stroke();
+  });
+
+  // Toucan body on branch
+  const tx = 220, ty = branchY + 20;
+  c.save(); c.translate(tx, ty);
+
+  // Body
+  c.beginPath(); c.ellipse(0, 0, 30, 22, 0, 0, Math.PI * 2);
+  c.fillStyle = '#1e293b'; c.fill();
+
+  // White chest patch
+  c.beginPath(); c.ellipse(8, 4, 14, 12, 0.2, 0, Math.PI * 2);
+  c.fillStyle = '#f8fafc'; c.fill();
+
+  // Head
+  c.beginPath(); c.arc(28, -12, 16, 0, Math.PI * 2);
+  c.fillStyle = '#1e293b'; c.fill();
+
+  // Eye
+  c.beginPath(); c.arc(37, -16, 5, 0, Math.PI * 2);
+  c.fillStyle = '#3b82f6'; c.fill();
+  c.beginPath(); c.arc(38, -17, 2, 0, Math.PI * 2);
+  c.fillStyle = '#0f172a'; c.fill();
+  c.beginPath(); c.arc(39, -18, 0.8, 0, Math.PI * 2);
+  c.fillStyle = '#fff'; c.fill();
+
+  // Large beak (multi-coloured)
+  c.beginPath();
+  c.moveTo(42, -16);
+  c.lineTo(95, -8);
+  c.lineTo(90, 0);
+  c.lineTo(42, -4);
+  c.closePath();
+  const beakG = c.createLinearGradient(42, -16, 95, 0);
+  beakG.addColorStop(0, '#f59e0b');
+  beakG.addColorStop(0.4, '#10b981');
+  beakG.addColorStop(1, '#ef4444');
+  c.fillStyle = beakG; c.fill();
+  c.strokeStyle = '#1e293b'; c.lineWidth = 1; c.stroke();
+
+  // Wing
+  c.beginPath(); c.ellipse(-8, 4, 24, 14, -0.15, 0, Math.PI * 2);
+  c.fillStyle = '#1e293b'; c.fill();
+  c.strokeStyle = '#334155'; c.lineWidth = 1; c.stroke();
+
+  // Tail feathers
+  c.fillStyle = '#1e293b';
+  c.beginPath(); c.moveTo(-28, 0); c.lineTo(-55, -8); c.lineTo(-50, 6); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(-28, 4); c.lineTo(-58, 10); c.lineTo(-50, 18); c.closePath(); c.fill();
+
+  // Feet gripping branch
+  c.strokeStyle = '#78350f'; c.lineWidth = 2.5; c.lineCap = 'round';
+  [[-6, 20], [8, 20]].forEach(([fx, fy]) => {
+    c.beginPath(); c.moveTo(fx, 16); c.lineTo(fx, fy + 6); c.stroke();
+    for (let t = -1; t <= 1; t++) {
+      c.beginPath(); c.moveTo(fx, fy + 6);
+      c.lineTo(fx + t * 10, fy + 14); c.stroke();
+    }
+  });
+
+  c.restore();
+
+  // Labels
+  drawLabel(tx + 70, ty - 10, tx + 200, ty - 50, 'Large beak → reach fruit on thin branches', '#4ade80');
+  drawLabel(tx + 50, ty - 6,  tx + 200, ty + 10,  'Bright colours → attract mate', '#fbbf24');
+  drawLabel(tx + 4,  ty + 22, tx + 200, ty + 60,  'Curved talons → grip branches', '#f97316');
+
+  // Title
+  c.fillStyle = '#4ade80'; c.font = 'bold 13px Inter, sans-serif'; c.textAlign = 'left';
+  c.fillText('Rainforest — Toucan', 12, 22);
+  c.fillStyle = '#166534'; c.font = '10px Inter, sans-serif';
+  c.fillText('Habitat: Tropical rainforest canopy', 12, 38);
+}
+
+// ── Arctic Scene ────────────────────────────────────────────────────────
+function drawArctic() {
+  const c = adaptCtx;
+  // Sky gradient
+  const sky = c.createLinearGradient(0, 0, 0, AD_H * 0.5);
+  sky.addColorStop(0, '#0f172a');
+  sky.addColorStop(1, '#1e3a5f');
+  c.fillStyle = sky; c.fillRect(0, 0, AD_W, AD_H * 0.5);
+
+  // Snow ground
+  const snow = c.createLinearGradient(0, AD_H * 0.5, 0, AD_H);
+  snow.addColorStop(0, '#cbd5e1');
+  snow.addColorStop(1, '#94a3b8');
+  c.fillStyle = snow; c.fillRect(0, AD_H * 0.5, AD_W, AD_H * 0.5);
+
+  // Ice cracks
+  c.strokeStyle = '#64748b'; c.lineWidth = 0.8;
+  [[80, 190, 130, 220], [200, 210, 240, 240], [350, 185, 400, 215]].forEach(([x1, y1, x2, y2]) => {
+    c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke();
+  });
+
+  // Aurora hint
+  c.save(); c.globalAlpha = 0.12;
+  const auroraG = c.createLinearGradient(0, 0, AD_W, AD_H * 0.5);
+  auroraG.addColorStop(0, '#10b981');
+  auroraG.addColorStop(0.5, '#3b82f6');
+  auroraG.addColorStop(1, '#8b5cf6');
+  c.strokeStyle = auroraG; c.lineWidth = 18;
+  c.beginPath(); c.moveTo(0, 60); c.bezierCurveTo(150, 30, 350, 90, AD_W, 50); c.stroke();
+  c.restore();
+
+  // Stars
+  c.fillStyle = '#e2e8f0';
+  [[30, 20], [80, 35], [150, 15], [420, 25], [500, 40], [540, 12]].forEach(([sx, sy]) => {
+    c.beginPath(); c.arc(sx, sy, 1, 0, Math.PI * 2); c.fill();
+  });
+
+  // Polar bear
+  const bx = 200, by = 155;
+  c.save(); c.translate(bx, by);
+
+  // Body
+  c.beginPath(); c.ellipse(0, 0, 58, 38, 0, 0, Math.PI * 2);
+  c.fillStyle = '#e2e8f0'; c.fill();
+  c.strokeStyle = '#cbd5e1'; c.lineWidth = 1; c.stroke();
+
+  // Thick fur texture lines
+  c.strokeStyle = '#f8fafc'; c.lineWidth = 0.6; c.globalAlpha = 0.6;
+  for (let i = -40; i <= 40; i += 6) {
+    c.beginPath();
+    c.moveTo(i - 3, -Math.sqrt(Math.max(0, 38*38 - (i/58*58)*(i/58*58))) + 3);
+    c.lineTo(i + 3,  Math.sqrt(Math.max(0, 38*38 - ((i+3)/58*58)*((i+3)/58*58))) - 3);
+    c.stroke();
+  }
+  c.globalAlpha = 1;
+
+  // Head
+  c.beginPath(); c.arc(58, -8, 24, 0, Math.PI * 2);
+  c.fillStyle = '#e2e8f0'; c.fill();
+  c.strokeStyle = '#cbd5e1'; c.lineWidth = 1; c.stroke();
+
+  // Ears
+  c.beginPath(); c.arc(52, -28, 8, 0, Math.PI * 2);
+  c.fillStyle = '#e2e8f0'; c.fill(); c.stroke();
+  c.beginPath(); c.arc(70, -26, 8, 0, Math.PI * 2);
+  c.fillStyle = '#e2e8f0'; c.fill(); c.stroke();
+
+  // Nose
+  c.beginPath(); c.ellipse(82, -6, 6, 4, 0, 0, Math.PI * 2);
+  c.fillStyle = '#1e293b'; c.fill();
+
+  // Eyes
+  c.fillStyle = '#1e293b';
+  c.beginPath(); c.arc(70, -14, 3, 0, Math.PI * 2); c.fill();
+  c.beginPath(); c.arc(71, -15, 1, 0, Math.PI * 2); c.fillStyle = '#fff'; c.fill();
+
+  // Legs (large paws)
+  c.fillStyle = '#e2e8f0';
+  [[-30, 32], [-5, 38], [20, 36], [45, 30]].forEach(([lx, ly]) => {
+    c.beginPath(); c.ellipse(lx, ly, 16, 10, 0.15, 0, Math.PI * 2); c.fill(); c.stroke();
+    // Claws
+    c.strokeStyle = '#94a3b8'; c.lineWidth = 0.8;
+    for (let cl = -1; cl <= 1; cl++) {
+      c.beginPath(); c.moveTo(lx + cl * 5, ly + 8); c.lineTo(lx + cl * 6, ly + 16); c.stroke();
+    }
+    c.strokeStyle = '#cbd5e1'; c.lineWidth = 1;
+  });
+
+  // Fat layer indicator (subtle)
+  c.beginPath(); c.ellipse(0, 2, 52, 34, 0, 0, Math.PI * 2);
+  c.strokeStyle = '#38bdf822'; c.lineWidth = 4; c.stroke();
+
+  c.restore();
+
+  // Labels
+  drawLabel(bx + 24, by - 38, bx + 200, by - 70, 'White fur → camouflage in snow', '#93c5fd');
+  drawLabel(bx - 10, by + 5,  bx + 200, by + 20,  'Thick fur + fat → insulation', '#e2e8f0');
+  drawLabel(bx - 25, by + 38, bx + 200, by + 65,  'Large paws → distribute weight on ice', '#94a3b8');
+
+  // Title
+  c.fillStyle = '#e2e8f0'; c.font = 'bold 13px Inter, sans-serif'; c.textAlign = 'left';
+  c.fillText('Arctic — Polar Bear', 12, 22);
+  c.fillStyle = '#60a5fa'; c.font = '10px Inter, sans-serif';
+  c.fillText('Habitat: Arctic ice, extreme cold', 12, 38);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// SUB-TAB SWITCHING
+// ══════════════════════════════════════════════════════════════════════
+function showSubTab(tab) {
+  document.querySelectorAll('.sub-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('subpane-' + tab).classList.add('active');
+  document.getElementById('subtab-' + tab).classList.add('active');
+  if (tab === 'adapt') {
+    // Ensure the adaptation canvas is drawn when switching to that tab
+    setTimeout(() => drawAdaptationScene(currentHabitat), 30);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// INITIALISATION
+// ══════════════════════════════════════════════════════════════════════
+let sciMap;
+
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('ecosystems');
+  const pct = Progress.masteryPct('ecosystems');
+  document.getElementById('mastery-pct').textContent = pct + '%';
+
+  // Quiz
+  initAIQuizToggle(QUIZ_Q);
+
+  // Mind map
+  sciMap = new ScienceMindMap('mindmap-container', 'ecosystems', MM_TEMPLATE);
+
+  // Initial predator-prey draw (empty state)
+  drawPPChart();
+
+  // Adaptation gallery — draw default scene
+  drawAdaptationScene('Desert');
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>

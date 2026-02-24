@@ -70,6 +70,11 @@
 
     .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
     .summary-text strong { color: var(--accent); }
+
+    .sub-tabs { display:flex; gap:.35rem; margin-bottom:1rem; flex-wrap:wrap; }
+    .sub-tab { padding:.35rem .85rem; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:.8rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .sub-tab.active { background:var(--systems); color:#fff; border-color:var(--systems); }
+    .sub-pane { display:none; } .sub-pane.active { display:block; }
   </style>
 </head>
 <body>
@@ -155,6 +160,8 @@
           <div class="term-name">Filament</div>
           <div class="term-def">The thin wire inside a bulb that heats up and glows when current passes through it.</div>
         </div>
+        <div class="glossary-term"><div class="term-name">Resistance</div><div class="term-def">The opposition to the flow of electric current in a circuit. Measured in ohms (Ω). Higher resistance = less current for the same voltage. Caused by collisions between electrons and atoms.</div></div>
+        <div class="glossary-term"><div class="term-name">Ohm's Law</div><div class="term-def">The relationship between voltage, current, and resistance: I = V ÷ R (Current = Voltage ÷ Resistance). Doubling the voltage doubles the current; doubling the resistance halves the current.</div></div>
       </div>
 
       <!-- Main notes area -->
@@ -242,35 +249,68 @@
       </div>
 
       <div class="cornell-main" style="padding:1rem">
-        <!-- Controls -->
-        <div style="display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-bottom:1rem">
-          <div class="mode-toggle">
-            <button class="mode-btn active" id="btn-series" onclick="setMode('series')">Series</button>
-            <button class="mode-btn" id="btn-parallel" onclick="setMode('parallel')">Parallel</button>
-          </div>
-          <div class="bulb-counter">
-            <span style="font-size:.8rem;color:var(--muted);font-weight:600">Bulbs:</span>
-            <button class="count-btn" onclick="changeBulbs(-1)">−</button>
-            <span class="count-display" id="bulb-count">1</span>
-            <button class="count-btn" onclick="changeBulbs(1)">+</button>
-          </div>
-          <button class="btn btn-ghost" id="switch-btn" onclick="toggleSwitch()" style="font-size:.82rem">
-            🔴 Switch: OPEN
-          </button>
-          <div style="margin-left:auto;display:flex;gap:.5rem">
-            <button class="btn btn-ghost" style="font-size:.8rem" onclick="addCell()">＋ Cell</button>
-            <button class="btn btn-ghost" style="font-size:.8rem" onclick="removeCell()">－ Cell</button>
-            <span style="font-size:.78rem;color:var(--muted);align-self:center">Cells: <strong id="cell-count" style="color:var(--energy)">1</strong></span>
-          </div>
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="showCircuitSub('circuit-sim', this)">⚡ Circuit Builder</button>
+          <button class="sub-tab" onclick="showCircuitSub('ohms-law-sim', this)">🔬 Ohm's Law</button>
         </div>
 
-        <!-- Canvas -->
-        <div class="sim-canvas-wrap" style="height:320px">
-          <canvas id="circuit-canvas" width="640" height="310"></canvas>
+        <div class="sub-pane active" id="circuit-sim">
+          <!-- Controls -->
+          <div style="display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-bottom:1rem">
+            <div class="mode-toggle">
+              <button class="mode-btn active" id="btn-series" onclick="setMode('series')">Series</button>
+              <button class="mode-btn" id="btn-parallel" onclick="setMode('parallel')">Parallel</button>
+            </div>
+            <div class="bulb-counter">
+              <span style="font-size:.8rem;color:var(--muted);font-weight:600">Bulbs:</span>
+              <button class="count-btn" onclick="changeBulbs(-1)">−</button>
+              <span class="count-display" id="bulb-count">1</span>
+              <button class="count-btn" onclick="changeBulbs(1)">+</button>
+            </div>
+            <button class="btn btn-ghost" id="switch-btn" onclick="toggleSwitch()" style="font-size:.82rem">
+              🔴 Switch: OPEN
+            </button>
+            <div style="margin-left:auto;display:flex;gap:.5rem">
+              <button class="btn btn-ghost" style="font-size:.8rem" onclick="addCell()">＋ Cell</button>
+              <button class="btn btn-ghost" style="font-size:.8rem" onclick="removeCell()">－ Cell</button>
+              <span style="font-size:.78rem;color:var(--muted);align-self:center">Cells: <strong id="cell-count" style="color:var(--energy)">1</strong></span>
+            </div>
+          </div>
+
+          <!-- Canvas -->
+          <div class="sim-canvas-wrap" style="height:320px">
+            <canvas id="circuit-canvas" width="640" height="310"></canvas>
+          </div>
+
+          <!-- Feedback -->
+          <div id="sim-feedback" style="margin-top:.75rem;padding:.8rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5;min-height:48px"></div>
         </div>
 
-        <!-- Feedback -->
-        <div id="sim-feedback" style="margin-top:.75rem;padding:.8rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5;min-height:48px"></div>
+        <div class="sub-pane" id="ohms-law-sim">
+          <div class="sim-controls" style="margin-bottom:.75rem">
+            <div class="sim-control-group">
+              <label>Voltage (V): <strong id="ohm-v-val">6</strong> V</label>
+              <input type="range" id="ohm-v-slider" min="1" max="12" value="6" oninput="updateOhm()">
+            </div>
+            <div class="sim-control-group">
+              <label>Resistance (Ω): <strong id="ohm-r-val">10</strong> Ω</label>
+              <input type="range" id="ohm-r-slider" min="1" max="100" value="10" oninput="updateOhm()">
+            </div>
+          </div>
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:.75rem">
+            <div class="sim-stat"><strong id="ohm-ammeter">0.600 A</strong>Current (Ammeter)</div>
+            <div class="sim-stat"><strong id="ohm-voltmeter">6 V</strong>Voltage (Voltmeter)</div>
+            <div class="sim-stat"><strong id="ohm-power">3.60 W</strong>Power (V × I)</div>
+            <div class="sim-stat"><strong id="ohm-resistance-display">10 Ω</strong>Resistance</div>
+          </div>
+          <div id="ohm-danger" style="display:none;padding:.7rem 1rem;border-radius:9px;background:#3b0f0f;border:1px solid #ef4444;color:#fca5a5;font-size:.85rem;margin-bottom:.75rem">
+            ⚠️ High current! At this level a typical 1 A fuse would blow. Reduce voltage or increase resistance.
+          </div>
+          <div class="sim-canvas-wrap" style="height:280px">
+            <canvas id="ohm-canvas" width="580" height="270"></canvas>
+          </div>
+          <div id="ohm-feedback" style="margin-top:.75rem;padding:.8rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
+        </div>
       </div>
 
       <div class="cornell-summary">
@@ -733,6 +773,132 @@ document.addEventListener('DOMContentLoaded', () => {
 function addMindNode() {
   const lbl = prompt('Node label (e.g. "Series Circuit", "Conductor"):');
   if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+
+// ══ SUB-TAB SWITCHER FOR SIMULATE ══
+function showCircuitSub(id, btn) {
+  // Stop circuit animation when leaving circuit-sim
+  if (id !== 'circuit-sim' && typeof state !== 'undefined' && state.animId) {
+    cancelAnimationFrame(state.animId);
+    state.animId = null;
+  }
+  document.querySelectorAll('#tab-simulate .sub-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#tab-simulate .sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'circuit-sim') drawCircuit();
+  if (id === 'ohms-law-sim') updateOhm();
+}
+
+// ══ OHM'S LAW SIMULATOR ══
+function updateOhm() {
+  const V = +document.getElementById('ohm-v-slider').value;
+  const R = +document.getElementById('ohm-r-slider').value;
+  const I = V / R;
+  const P = V * I;
+
+  document.getElementById('ohm-v-val').textContent          = V;
+  document.getElementById('ohm-r-val').textContent          = R;
+  document.getElementById('ohm-ammeter').textContent        = I.toFixed(3) + ' A';
+  document.getElementById('ohm-voltmeter').textContent      = V + ' V';
+  document.getElementById('ohm-power').textContent          = P.toFixed(2) + ' W';
+  document.getElementById('ohm-resistance-display').textContent = R + ' Ω';
+  document.getElementById('ohm-danger').style.display       = I > 1 ? 'block' : 'none';
+
+  drawOhmCanvas(V, R, I);
+
+  const safetyMsg = I > 1
+    ? `⚠️ Current of <strong>${I.toFixed(3)} A</strong> exceeds 1 A — a standard fuse would blow. Increase resistance or lower voltage.`
+    : `✅ Safe current. `;
+  document.getElementById('ohm-feedback').innerHTML =
+    `<strong>Ohm's Law: I = V ÷ R</strong> → I = ${V} ÷ ${R} = <strong>${I.toFixed(3)} A</strong>. ` +
+    `Power: P = V × I = ${V} × ${I.toFixed(3)} = <strong>${P.toFixed(2)} W</strong>. ${safetyMsg}`;
+
+  Progress.recordSimUsed('circuits');
+}
+
+function drawOhmCanvas(V, R, I) {
+  const canvas = document.getElementById('ohm-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, W, H);
+
+  const glowFactor = Math.min(I / 2, 1);
+  const dangerColor = `rgba(239,68,68,${0.15 + glowFactor * 0.75})`;
+  const safeColor   = `rgba(250,204,21,${0.15 + glowFactor * 0.75})`;
+  const wireColor   = I > 1 ? dangerColor : safeColor;
+
+  const loopT = 55, loopB = H - 55, loopL = 90, loopR = W - 90;
+  const thick = 2 + glowFactor * 4;
+
+  // Wire glow
+  ctx.shadowColor = wireColor; ctx.shadowBlur = 4 + glowFactor * 14;
+  ctx.strokeStyle = wireColor; ctx.lineWidth = thick;
+  ctx.beginPath();
+  ctx.moveTo(loopL, loopT); ctx.lineTo(loopR, loopT);
+  ctx.moveTo(loopR, loopT); ctx.lineTo(loopR, loopB);
+  ctx.moveTo(loopR, loopB); ctx.lineTo(loopL, loopB);
+  ctx.moveTo(loopL, loopB); ctx.lineTo(loopL, loopT);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Battery on left side
+  const batY = (loopT + loopB) / 2;
+  ctx.fillStyle = '#1e293b'; ctx.fillRect(loopL - 10, batY - 28, 20, 56);
+  ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1.5; ctx.strokeRect(loopL - 10, batY - 28, 20, 56);
+  // Battery lines
+  [[batY - 14, 16, '#fcd34d'], [batY - 4, 10, '#94a3b8'], [batY + 8, 16, '#fcd34d'], [batY + 18, 10, '#94a3b8']].forEach(([y, w, c]) => {
+    ctx.beginPath(); ctx.moveTo(loopL - w/2, y); ctx.lineTo(loopL + w/2, y);
+    ctx.strokeStyle = c; ctx.lineWidth = 2.5; ctx.stroke();
+  });
+  ctx.fillStyle = '#fcd34d'; ctx.font = 'bold 10px Inter'; ctx.textAlign = 'center';
+  ctx.fillText(V + 'V', loopL, batY + 38);
+
+  // Resistor (zigzag) on top wire
+  const resX = (loopL + loopR) / 2, resW = 70, resH = 14;
+  ctx.beginPath();
+  ctx.moveTo(resX - resW/2, loopT);
+  for (let i = 0; i <= 6; i++) {
+    const x = resX - resW/2 + i * (resW/6);
+    const y = loopT + (i % 2 === 0 ? -resH : resH);
+    ctx.lineTo(x, y);
+  }
+  ctx.lineTo(resX + resW/2, loopT);
+  ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 2.5; ctx.shadowColor = '#a78bfa'; ctx.shadowBlur = 6; ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#a78bfa'; ctx.font = 'bold 10px Inter'; ctx.textAlign = 'center';
+  ctx.fillText(R + ' Ω', resX, loopT - resH - 6);
+
+  // Ammeter circle on right wire
+  const ampY = (loopT + loopB) / 2;
+  ctx.beginPath(); ctx.arc(loopR, ampY, 18, 0, Math.PI * 2);
+  ctx.fillStyle = '#0f172a'; ctx.fill();
+  ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 11px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('A', loopR, ampY + 4);
+  ctx.font = '9px Inter';
+  ctx.fillText(I.toFixed(2) + 'A', loopR, ampY + 28);
+
+  // Voltmeter (V) shown as dashed parallel line outside loop on left
+  const vmX = loopL - 55, vmT = loopT + 30, vmB = loopB - 30;
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(vmX, vmT); ctx.lineTo(vmX, vmB); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(vmX, vmT); ctx.lineTo(loopL, vmT); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(vmX, vmB); ctx.lineTo(loopL, vmB); ctx.stroke();
+  ctx.setLineDash([]);
+  const vmMid = (vmT + vmB) / 2;
+  ctx.beginPath(); ctx.arc(vmX, vmMid, 14, 0, Math.PI * 2);
+  ctx.fillStyle = '#0f172a'; ctx.fill();
+  ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = '#34d399'; ctx.font = 'bold 10px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('V', vmX, vmMid + 4);
+
+  // Equation at bottom
+  ctx.fillStyle = '#64748b'; ctx.font = '11px Inter'; ctx.textAlign = 'center';
+  ctx.fillText(`I = V / R = ${V} / ${R} = ${I.toFixed(3)} A`, W / 2, H - 8);
 }
 </script>
 </body>

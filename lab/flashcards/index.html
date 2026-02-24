@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcards | Science Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .header-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--accent); flex-shrink: 0; }
+
+    main { max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+
+    /* ── Filter bar ── */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: .85rem 1.1rem;
+      margin-bottom: 1.5rem;
+    }
+    .filter-label { font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-right: .25rem; }
+    .filter-chip {
+      padding: .3rem .75rem;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-chip.active { background: var(--accent); color: #0d1117; border-color: var(--accent); }
+    .filter-divider { width: 1px; height: 22px; background: var(--border); margin: 0 .25rem; }
+
+    /* ── Mode toggle ── */
+    .mode-row {
+      display: flex;
+      gap: .5rem;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+    .mode-btn {
+      padding: .4rem 1.1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .mode-btn.active { background: var(--accent); color: #0d1117; border-color: var(--accent); }
+
+    /* ── Deck info ── */
+    .deck-info {
+      text-align: center;
+      font-size: .8rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .deck-info strong { color: var(--text); }
+
+    /* ── Flashcard ── */
+    .card-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .flashcard-outer {
+      perspective: 1000px;
+      width: 560px;
+      max-width: 96vw;
+      height: 300px;
+      cursor: pointer;
+    }
+    .flashcard {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform .45s cubic-bezier(.4,0,.2,1);
+    }
+    .flashcard.flipped { transform: rotateY(180deg); }
+    .flashcard-face {
+      position: absolute;
+      inset: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 2.5rem;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      text-align: center;
+    }
+    .flashcard-front { border-top: 4px solid var(--accent); }
+    .flashcard-back  { transform: rotateY(180deg); border-top: 4px solid #34d399; }
+    .face-label {
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+      margin-bottom: .65rem;
+    }
+    .face-term {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .face-def {
+      font-size: .9rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .face-topic {
+      margin-top: .85rem;
+      font-size: .7rem;
+      color: var(--muted);
+    }
+    .face-correct-count {
+      position: absolute;
+      top: .85rem;
+      right: 1rem;
+      font-size: .68rem;
+      color: #34d399;
+      font-weight: 700;
+    }
+    .flip-hint {
+      font-size: .72rem;
+      color: var(--muted);
+      margin-top: -.25rem;
+    }
+    kbd {
+      display: inline-block;
+      padding: .1rem .35rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: .68rem;
+      background: var(--surface);
+    }
+
+    /* ── Controls row ── */
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn-got-it {
+      background: #14532d;
+      border: 1px solid #34d399;
+      color: #34d399;
+      padding: .55rem 1.4rem;
+      border-radius: 10px;
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .btn-got-it:hover { background: #166534; }
+    .btn-review {
+      background: #3b1a00;
+      border: 1px solid #f97316;
+      color: #fb923c;
+      padding: .55rem 1.4rem;
+      border-radius: 10px;
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .btn-review:hover { background: #431e00; }
+    .nav-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: .5rem 1rem;
+      border-radius: 9px;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Progress bar ── */
+    .session-progress {
+      width: 560px;
+      max-width: 96vw;
+    }
+    .session-bar-wrap {
+      background: var(--surface);
+      border-radius: 99px;
+      height: 6px;
+      overflow: hidden;
+      margin-top: .35rem;
+    }
+    .session-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #34d399, #38bdf8);
+      border-radius: 99px;
+      transition: width .4s ease;
+    }
+    .session-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: .7rem;
+      color: var(--muted);
+      margin-bottom: .2rem;
+    }
+
+    /* ── Completion screen ── */
+    .completion-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+    .completion-screen h2 { font-size: 1.8rem; font-weight: 800; }
+    .completion-screen p  { color: var(--muted); font-size: .95rem; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--muted);
+    }
+
+    /* ── Streak pill ── */
+    .streak-pill {
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+      background: #1a1200;
+      border: 1px solid #f59e0b55;
+      border-radius: 99px;
+      padding: .3rem .8rem;
+      font-size: .82rem;
+      color: #fcd34d;
+      font-weight: 700;
+      margin-left: auto;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="header-color-bar"></div>
+  <div style="flex:1">
+    <h1 style="font-size:1.15rem;font-weight:800;margin:0">🃏 Flashcards</h1>
+    <div style="font-size:.75rem;color:var(--muted)">Flip cards to study key terms across all topics</div>
+  </div>
+  <div class="streak-pill" id="streak-display">🔥 0 day streak</div>
+  <a href="../index.html" class="btn btn-ghost" style="font-size:.82rem">← All Topics</a>
+</div>
+
+<main>
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <span class="filter-label">Theme</span>
+    <button class="filter-chip active" data-filter="theme" data-value="all" onclick="setThemeFilter('all',this)">All</button>
+    <button class="filter-chip" data-filter="theme" data-value="diversity"    onclick="setThemeFilter('diversity',this)" style="border-color:#10b98133">Diversity</button>
+    <button class="filter-chip" data-filter="theme" data-value="cycles"       onclick="setThemeFilter('cycles',this)"    style="border-color:#3b82f633">Cycles</button>
+    <button class="filter-chip" data-filter="theme" data-value="systems"      onclick="setThemeFilter('systems',this)"   style="border-color:#8b5cf633">Systems</button>
+    <button class="filter-chip" data-filter="theme" data-value="interactions" onclick="setThemeFilter('interactions',this)" style="border-color:#f9731633">Interactions</button>
+    <button class="filter-chip" data-filter="theme" data-value="energy"       onclick="setThemeFilter('energy',this)"    style="border-color:#f59e0b33">Energy</button>
+    <div class="filter-divider"></div>
+    <span class="filter-label">Topic</span>
+    <select id="topic-select" onchange="setTopicFilter(this.value)"
+      style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:7px;padding:.3rem .6rem;font-size:.78rem">
+      <option value="all">All topics</option>
+    </select>
+  </div>
+
+  <!-- Mode toggle -->
+  <div class="mode-row">
+    <button class="mode-btn active" id="mode-term" onclick="setMode('term-to-def',this)">Term → Definition</button>
+    <button class="mode-btn"        id="mode-def"  onclick="setMode('def-to-term',this)">Definition → Term</button>
+  </div>
+
+  <!-- Session progress -->
+  <div class="session-progress" style="margin:0 auto .75rem">
+    <div class="session-bar-label">
+      <span id="progress-text">Card 0 of 0</span>
+      <span id="got-it-count" style="color:#34d399">✅ 0 mastered this session</span>
+    </div>
+    <div class="session-bar-wrap"><div class="session-bar-fill" id="session-bar" style="width:0%"></div></div>
+  </div>
+
+  <!-- Deck info -->
+  <div class="deck-info" id="deck-info">&nbsp;</div>
+
+  <!-- Empty state -->
+  <div class="empty-state" id="empty-state">
+    <div style="font-size:2.5rem;margin-bottom:.5rem">📭</div>
+    <p>No cards match this filter. Try selecting "All" or a different theme.</p>
+  </div>
+
+  <!-- Card area -->
+  <div class="card-area" id="card-area">
+    <div class="flashcard-outer" onclick="flipCard()">
+      <div class="flashcard" id="flashcard">
+        <div class="flashcard-face flashcard-front">
+          <div class="face-label" id="front-label">TERM</div>
+          <div class="face-term"  id="front-content">Loading…</div>
+          <div class="face-topic" id="front-topic"></div>
+        </div>
+        <div class="flashcard-face flashcard-back">
+          <div class="face-label">DEFINITION</div>
+          <div class="face-def"  id="back-content"></div>
+          <div class="face-correct-count" id="back-correct"></div>
+          <div class="face-topic" id="back-topic"></div>
+        </div>
+      </div>
+    </div>
+    <div class="flip-hint">Click card or press <kbd>Space</kbd> to flip &nbsp;|&nbsp; <kbd>←</kbd> <kbd>→</kbd> to navigate</div>
+
+    <div class="controls-row">
+      <button class="nav-btn" onclick="prevCard()">← Prev</button>
+      <button class="btn-got-it" onclick="markCard(true)">✅ Got it</button>
+      <button class="btn-review" onclick="markCard(false)">🔁 Review again</button>
+      <button class="nav-btn" onclick="nextCard()">Next →</button>
+    </div>
+  </div>
+
+  <!-- Completion screen -->
+  <div class="completion-screen" id="completion-screen">
+    <div style="font-size:3.5rem">🎉</div>
+    <h2>All cards mastered!</h2>
+    <p>You've worked through all the cards in this set for this session.</p>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center;margin-top:.5rem">
+      <button class="btn btn-primary" onclick="restartDeck()">🔄 Restart deck</button>
+      <a href="../index.html" class="btn btn-ghost">← Back to topics</a>
+    </div>
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script>
+// ── State ──────────────────────────────────────────────────
+let vocab   = [];   // full loaded array
+let deck    = [];   // current working deck (shuffled, may shrink as cards mastered)
+let allFiltered = []; // full filtered set (for restart)
+let idx     = 0;    // current position in deck
+let flipped = false;
+let mode    = 'term-to-def';
+let themeFilter = 'all';
+let topicFilter = 'all';
+let sessionMastered = 0;
+let sessionTotal    = 0;
+
+// ── Streak ────────────────────────────────────────────────
+const STREAK_KEY = 'sciLab_fcStreak';
+
+function loadStreak() {
+  try { return JSON.parse(localStorage.getItem(STREAK_KEY)) || { count: 0, lastDate: null }; }
+  catch { return { count: 0, lastDate: null }; }
+}
+
+function saveStreak(s) { localStorage.setItem(STREAK_KEY, JSON.stringify(s)); }
+
+function displayStreak() {
+  const s = loadStreak();
+  document.getElementById('streak-display').textContent = `🔥 ${s.count} day streak`;
+}
+
+function bumpStreak() {
+  const today = new Date().toISOString().slice(0, 10);
+  const s = loadStreak();
+  if (s.lastDate === today) return; // already bumped today
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  s.count = (s.lastDate === yesterday) ? s.count + 1 : 1;
+  s.lastDate = today;
+  saveStreak(s);
+  displayStreak();
+}
+
+// ── Load vocab ────────────────────────────────────────────
+async function loadVocab() {
+  try {
+    const res = await fetch('./vocab.json');
+    vocab = await res.json();
+    buildTopicSelect();
+    applyFilters();
+  } catch (e) {
+    document.getElementById('front-content').textContent = 'Could not load vocab.json';
+    console.error(e);
+  }
+}
+
+function buildTopicSelect() {
+  const seen = new Set();
+  const select = document.getElementById('topic-select');
+  vocab.forEach(v => {
+    if (!seen.has(v.topicId)) {
+      seen.add(v.topicId);
+      const opt = document.createElement('option');
+      opt.value = v.topicId;
+      opt.textContent = v.topicName;
+      select.appendChild(opt);
+    }
+  });
+}
+
+// ── Filters ────────────────────────────────────────────────
+function setThemeFilter(val, btn) {
+  themeFilter = val;
+  topicFilter = 'all';
+  document.getElementById('topic-select').value = 'all';
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function setTopicFilter(val) {
+  topicFilter = val;
+  themeFilter = 'all';
+  document.querySelectorAll('.filter-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.value === 'all');
+  });
+  applyFilters();
+}
+
+function applyFilters() {
+  let filtered = vocab;
+  if (topicFilter !== 'all') {
+    filtered = filtered.filter(v => v.topicId === topicFilter);
+  } else if (themeFilter !== 'all') {
+    filtered = filtered.filter(v => v.theme === themeFilter);
+  }
+
+  allFiltered = filtered;
+  deck = shuffle([...filtered]);
+  idx  = 0;
+  sessionMastered = 0;
+  sessionTotal    = deck.length;
+
+  if (deck.length === 0) {
+    document.getElementById('card-area').style.display    = 'none';
+    document.getElementById('empty-state').style.display = 'block';
+    document.getElementById('completion-screen').style.display = 'none';
+    return;
+  }
+  document.getElementById('card-area').style.display    = 'flex';
+  document.getElementById('empty-state').style.display  = 'none';
+  document.getElementById('completion-screen').style.display = 'none';
+  renderCard();
+}
+
+// ── Mode ───────────────────────────────────────────────────
+function setMode(m, btn) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  flipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  renderCard();
+}
+
+// ── Render ─────────────────────────────────────────────────
+function renderCard() {
+  if (deck.length === 0) return;
+  const card = deck[idx];
+  flipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+
+  const frontLabel   = mode === 'term-to-def' ? 'TERM' : 'DEFINITION';
+  const frontContent = mode === 'term-to-def' ? card.term : card.definition;
+  const backContent  = mode === 'term-to-def' ? card.definition : card.term;
+
+  document.getElementById('front-label').textContent   = frontLabel;
+  document.getElementById('front-content').textContent = frontContent;
+  document.getElementById('front-topic').textContent   = card.topicName;
+  document.getElementById('back-content').textContent  = backContent;
+  document.getElementById('back-topic').textContent    = card.topicName;
+
+  // Show per-term correct count on back
+  const allP = Progress.all();
+  const fc   = (allP[card.topicId] || {}).flashcardCounts || {};
+  const entry = fc[card.id] || { correct: 0, attempts: 0 };
+  document.getElementById('back-correct').textContent =
+    entry.attempts > 0 ? `✅ ${entry.correct}/${entry.attempts}` : '';
+
+  updateProgressUI();
+}
+
+function updateProgressUI() {
+  const remaining = deck.length;
+  const cardNum   = remaining > 0 ? idx + 1 : 0;
+  document.getElementById('progress-text').textContent =
+    `Card ${cardNum} of ${remaining} remaining`;
+  document.getElementById('got-it-count').textContent =
+    `✅ ${sessionMastered} mastered this session`;
+  const pct = sessionTotal > 0 ? Math.round((sessionMastered / sessionTotal) * 100) : 0;
+  document.getElementById('session-bar').style.width = pct + '%';
+
+  const card = deck[idx];
+  if (card) {
+    document.getElementById('deck-info').innerHTML =
+      `<strong>${card.topicName}</strong> · ${themeFilter !== 'all' ? themeFilter : topicFilter !== 'all' ? card.theme : 'All themes'}`;
+  }
+}
+
+// ── Flip ───────────────────────────────────────────────────
+function flipCard() {
+  flipped = !flipped;
+  document.getElementById('flashcard').classList.toggle('flipped', flipped);
+}
+
+// ── Navigation ─────────────────────────────────────────────
+function nextCard() {
+  if (deck.length === 0) return;
+  flipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  idx = (idx + 1) % deck.length;
+  renderCard();
+}
+
+function prevCard() {
+  if (deck.length === 0) return;
+  flipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  idx = (idx - 1 + deck.length) % deck.length;
+  renderCard();
+}
+
+// ── Mark card ──────────────────────────────────────────────
+function markCard(correct) {
+  if (deck.length === 0) return;
+  const card = deck[idx];
+  Progress.recordFlashcard(card.topicId, card.id, correct);
+
+  if (correct) {
+    bumpStreak();
+    sessionMastered++;
+    deck.splice(idx, 1); // remove from deck
+    if (deck.length === 0) {
+      showCompletion();
+      return;
+    }
+    idx = idx % deck.length;
+  } else {
+    // Move to end so user sees it again
+    const [removed] = deck.splice(idx, 1);
+    deck.push(removed);
+    idx = idx % deck.length;
+  }
+  renderCard();
+}
+
+function showCompletion() {
+  document.getElementById('card-area').style.display           = 'none';
+  document.getElementById('completion-screen').style.display   = 'flex';
+}
+
+function restartDeck() {
+  deck = shuffle([...allFiltered]);
+  idx  = 0;
+  sessionMastered = 0;
+  sessionTotal    = deck.length;
+  document.getElementById('card-area').style.display           = 'flex';
+  document.getElementById('completion-screen').style.display   = 'none';
+  renderCard();
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); flipCard(); }
+  if (e.key === 'ArrowRight') nextCard();
+  if (e.key === 'ArrowLeft')  prevCard();
+  if (e.key === 'g' || e.key === 'G') markCard(true);
+  if (e.key === 'r' || e.key === 'R') markCard(false);
+});
+
+// ── Util ───────────────────────────────────────────────────
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── Init ───────────────────────────────────────────────────
+displayStreak();
+loadVocab();
+</script>
+</body>
+</html>

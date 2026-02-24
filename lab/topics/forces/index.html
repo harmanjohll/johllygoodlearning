@@ -78,6 +78,8 @@
         <div class="glossary-term"><div class="term-name">Compression</div><div class="term-def">Squeezing or pushing a spring so it becomes shorter than its natural length.</div></div>
         <div class="glossary-term"><div class="term-name">Extension</div><div class="term-def">Stretching a spring so it becomes longer than its natural length.</div></div>
         <div class="glossary-term"><div class="term-name">Newton (N)</div><div class="term-def">The SI unit of force. 1 newton is approximately the weight of a 100 g apple on Earth.</div></div>
+        <div class="glossary-term"><div class="term-name">Moment of a Force</div><div class="term-def">The turning effect of a force about a pivot. Calculated as: Moment = Force × perpendicular distance from pivot. Measured in newton-metres (N·m).</div></div>
+        <div class="glossary-term"><div class="term-name">Principle of Moments</div><div class="term-def">When an object is balanced (in equilibrium), the total clockwise moment equals the total anticlockwise moment about the pivot.</div></div>
       </div>
 
       <div class="cornell-main">
@@ -169,6 +171,7 @@
           <button class="sub-tab active" onclick="showSub('friction-sim')">🏂 Friction</button>
           <button class="sub-tab" onclick="showSub('gravity-sim')">🌏 Gravity &amp; Weight</button>
           <button class="sub-tab" onclick="showSub('spring-sim')">🌀 Spring Force</button>
+          <button class="sub-tab" onclick="showSub('moments-sim')">⚖️ Moments</button>
         </div>
 
         <!-- FRICTION SIM -->
@@ -237,6 +240,36 @@
           </div>
           <div id="spring-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
         </div>
+
+        <div class="sub-pane" id="moments-sim">
+  <div class="sim-controls" style="margin-bottom:.75rem">
+    <div class="sim-control-group">
+      <label>Left mass: <strong id="lm-val">3</strong> kg</label>
+      <input type="range" id="lm-slider" min="1" max="10" value="3" oninput="updateMoments()">
+    </div>
+    <div class="sim-control-group">
+      <label>Left distance from pivot: <strong id="ld-val">4</strong> m</label>
+      <input type="range" id="ld-slider" min="1" max="8" value="4" oninput="updateMoments()">
+    </div>
+    <div class="sim-control-group">
+      <label>Right mass: <strong id="rm-val">4</strong> kg</label>
+      <input type="range" id="rm-slider" min="1" max="10" value="4" oninput="updateMoments()">
+    </div>
+    <div class="sim-control-group">
+      <label>Right distance from pivot: <strong id="rd-val">3</strong> m</label>
+      <input type="range" id="rd-slider" min="1" max="8" value="3" oninput="updateMoments()">
+    </div>
+  </div>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:.75rem">
+    <div class="sim-stat"><strong id="left-torque">—</strong>Left Moment (N·m)</div>
+    <div class="sim-stat"><strong id="right-torque">—</strong>Right Moment (N·m)</div>
+    <div class="sim-stat"><strong id="balance-status">—</strong>Balance</div>
+  </div>
+  <div class="sim-canvas-wrap" style="height:280px">
+    <canvas id="moments-canvas" width="580" height="270"></canvas>
+  </div>
+  <div id="moments-feedback" style="margin-top:.75rem;padding:.8rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
+</div>
       </div>
 
       <div class="cornell-summary">
@@ -572,6 +605,124 @@ function drawSpring(load, k, ext, overLimit) {
   }
 }
 
+// ══ MOMENTS / BALANCE BEAM SIMULATOR ══
+function updateMoments() {
+  const lm = +document.getElementById('lm-slider').value;
+  const ld = +document.getElementById('ld-slider').value;
+  const rm = +document.getElementById('rm-slider').value;
+  const rd = +document.getElementById('rd-slider').value;
+
+  const leftMoment  = lm * 10 * ld;
+  const rightMoment = rm * 10 * rd;
+  const diff = leftMoment - rightMoment;
+
+  document.getElementById('lm-val').textContent = lm;
+  document.getElementById('ld-val').textContent = ld;
+  document.getElementById('rm-val').textContent = rm;
+  document.getElementById('rd-val').textContent = rd;
+  document.getElementById('left-torque').textContent  = leftMoment + ' N·m';
+  document.getElementById('right-torque').textContent = rightMoment + ' N·m';
+  document.getElementById('balance-status').textContent =
+    diff === 0 ? '⚖️ Balanced!' : diff > 0 ? '⬅ Tilts left' : '➡ Tilts right';
+
+  drawBeam(lm, ld, rm, rd, leftMoment, rightMoment, diff);
+
+  document.getElementById('moments-feedback').innerHTML =
+    `<strong>Principle of Moments:</strong> Left moment = ${lm} kg × 10 N/kg × ${ld} m = <strong>${leftMoment} N·m</strong>. ` +
+    `Right moment = ${rm} kg × 10 N/kg × ${rd} m = <strong>${rightMoment} N·m</strong>. ` +
+    (diff === 0
+      ? `The beam is <strong>balanced</strong> — both moments are equal (Principle of Moments satisfied).`
+      : `The beam tilts <strong>${diff > 0 ? 'left' : 'right'}</strong> because the ${diff > 0 ? 'left' : 'right'} moment (${diff > 0 ? leftMoment : rightMoment} N·m) is greater than the ${diff > 0 ? 'right' : 'left'} moment (${diff > 0 ? rightMoment : leftMoment} N·m).`);
+
+  Progress.recordSimUsed('forces');
+}
+
+function drawBeam(lm, ld, rm, rd, leftMoment, rightMoment, diff) {
+  const canvas = document.getElementById('moments-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, W, H);
+
+  const pivotX = W / 2;
+  const pivotY = H * 0.56;
+  const beamHalfLen = 210;
+  const maxDiff = 10 * 10 * 8;
+  const tiltAngle = Math.max(-Math.PI / 6, Math.min(Math.PI / 6, (diff / maxDiff) * (Math.PI / 6)));
+
+  // Pivot triangle
+  ctx.beginPath();
+  ctx.moveTo(pivotX, pivotY + 8);
+  ctx.lineTo(pivotX - 22, pivotY + 44);
+  ctx.lineTo(pivotX + 22, pivotY + 44);
+  ctx.closePath();
+  ctx.fillStyle = '#475569'; ctx.fill();
+  ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1.5; ctx.stroke();
+
+  // Ground line
+  ctx.beginPath();
+  ctx.moveTo(pivotX - 40, pivotY + 44);
+  ctx.lineTo(pivotX + 40, pivotY + 44);
+  ctx.strokeStyle = '#64748b'; ctx.lineWidth = 2; ctx.stroke();
+
+  // Draw everything tilted
+  ctx.save();
+  ctx.translate(pivotX, pivotY);
+  ctx.rotate(tiltAngle);
+
+  // Beam bar
+  ctx.beginPath();
+  ctx.moveTo(-beamHalfLen, 0);
+  ctx.lineTo(beamHalfLen, 0);
+  ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 7; ctx.stroke();
+
+  // Pivot circle
+  ctx.beginPath();
+  ctx.arc(0, 0, 7, 0, Math.PI * 2);
+  ctx.fillStyle = '#f97316'; ctx.fill();
+
+  // Left mass
+  const leftPx = -(ld / 8) * beamHalfLen;
+  const lBoxH = Math.min(16 + lm * 5, 66);
+  ctx.fillStyle = '#1a3a5a';
+  ctx.fillRect(leftPx - 22, -lBoxH, 44, lBoxH);
+  ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(leftPx - 22, -lBoxH, 44, lBoxH);
+  ctx.fillStyle = '#e2e8f0'; ctx.font = 'bold 11px Inter'; ctx.textAlign = 'center';
+  ctx.fillText(lm + ' kg', leftPx, -lBoxH / 2 + 4);
+
+  // Right mass
+  const rightPx = (rd / 8) * beamHalfLen;
+  const rBoxH = Math.min(16 + rm * 5, 66);
+  ctx.fillStyle = '#2a1400';
+  ctx.fillRect(rightPx - 22, -rBoxH, 44, rBoxH);
+  ctx.strokeStyle = '#f97316'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(rightPx - 22, -rBoxH, 44, rBoxH);
+  ctx.fillStyle = '#e2e8f0'; ctx.font = 'bold 11px Inter'; ctx.textAlign = 'center';
+  ctx.fillText(rm + ' kg', rightPx, -rBoxH / 2 + 4);
+
+  // Distance markers (dashed lines from pivot to mass)
+  ctx.setLineDash([3, 3]);
+  ctx.strokeStyle = '#64748b'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, 14); ctx.lineTo(leftPx, 14); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, 14); ctx.lineTo(rightPx, 14); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = '#94a3b8'; ctx.font = '10px Inter'; ctx.textAlign = 'center';
+  ctx.fillText(ld + ' m', leftPx / 2, 28);
+  ctx.fillText(rd + ' m', rightPx / 2, 28);
+
+  ctx.restore();
+
+  // Equation overlay at bottom
+  ctx.fillStyle = '#64748b'; ctx.font = '11px Inter'; ctx.textAlign = 'center';
+  ctx.fillText(
+    `${lm}×10×${ld} = ${leftMoment} N·m  |  pivot  |  ${rm}×10×${rd} = ${rightMoment} N·m`,
+    W / 2, H - 8
+  );
+}
+
 // ══ QUIZ ══
 const QUIZ_Q = [
   { question:'A book is resting on a table. Which statement about the forces on the book is correct?',
@@ -629,6 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateFriction();
   updateGravity();
   updateSpring();
+  updateMoments();
 });
 
 function addMindNode() {
