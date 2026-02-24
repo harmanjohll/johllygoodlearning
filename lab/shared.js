@@ -54,7 +54,7 @@ const Progress = {
 };
 
 // ── AI Configuration ───────────────────────────────────────
-// Uses Google Gemini API (gemini-1.5-flash) — supports browser CORS.
+// Uses Google Gemini API (gemini-2.0-flash) — supports browser CORS.
 // Get a free API key at: https://aistudio.google.com/app/apikey
 const AIConfig = {
   GEMINI_KEY: 'sciLab_gemini_key',
@@ -177,7 +177,7 @@ function showAISetup() {
     statusEl.innerHTML = '<span class="ai-status-info">⏳ Testing your key with Google…</span>';
     try {
       const r = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(key)}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(key)}`,
         { method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contents: [{ parts: [{ text: 'Reply with the single word: OK' }] }] }) }
       );
@@ -406,7 +406,7 @@ Respond with ONLY a JSON array — no markdown, no code fences, no extra text:
 [{"question":"…","options":["A","B","C","D"],"correct":0,"explanation":"…"}]`;
 
     const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(key)}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(key)}`,
       { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
