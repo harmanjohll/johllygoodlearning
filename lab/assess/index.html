@@ -606,25 +606,64 @@ function updateAIPanel() {
 
 function buildTopicSelector() {
   const container = document.getElementById('topic-selector');
+
+  // Group topics by theme, preserving order from READY_TOPICS
+  const groups = [];
+  const seenTheme = {};
   READY_TOPICS.forEach(t => {
-    const item = document.createElement('label');
-    item.className = 'topic-check-item selected';
-    item.dataset.id = t.id;
-    item.innerHTML = `
-      <input type="checkbox" checked value="${t.id}">
-      <span style="color:${THEME_COLORS[t.theme]};font-size:.8rem">●</span>
-      <span>${t.name}</span>
+    if (!seenTheme[t.theme]) {
+      seenTheme[t.theme] = true;
+      groups.push({ theme: t.theme, topics: [] });
+    }
+    groups.find(g => g.theme === t.theme).topics.push(t);
+  });
+
+  const themeLabels = {
+    diversity: 'Diversity', cycles: 'Cycles', systems: 'Systems',
+    interactions: 'Interactions', energy: 'Energy'
+  };
+
+  groups.forEach(group => {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'topic-theme-group';
+
+    // Coloured theme header
+    const header = document.createElement('div');
+    header.className = 'topic-theme-label';
+    header.style.color = THEME_COLORS[group.theme];
+    header.innerHTML = `
+      <span class="topic-theme-dot" style="background:${THEME_COLORS[group.theme]}"></span>
+      ${themeLabels[group.theme]}
     `;
-    item.querySelector('input').addEventListener('change', e => {
-      if (e.target.checked) { selectedTopics.add(t.id); item.classList.add('selected'); }
-      else { selectedTopics.delete(t.id); item.classList.remove('selected'); }
+    groupEl.appendChild(header);
+
+    // Grid of topic checkboxes
+    const grid = document.createElement('div');
+    grid.className = 'topic-theme-grid';
+
+    group.topics.forEach(t => {
+      const item = document.createElement('label');
+      item.className = 'topic-check-item selected';
+      item.dataset.id = t.id;
+      item.innerHTML = `
+        <input type="checkbox" checked value="${t.id}">
+        <span class="topic-check-dot" style="background:${THEME_COLORS[t.theme]}"></span>
+        <span>${t.name}</span>
+      `;
+      item.querySelector('input').addEventListener('change', e => {
+        if (e.target.checked) { selectedTopics.add(t.id); item.classList.add('selected'); }
+        else { selectedTopics.delete(t.id); item.classList.remove('selected'); }
+      });
+      grid.appendChild(item);
     });
-    container.appendChild(item);
+
+    groupEl.appendChild(grid);
+    container.appendChild(groupEl);
   });
 }
 
 function selectAll(val) {
-  document.querySelectorAll('#topic-selector .topic-check-item').forEach(item => {
+  document.querySelectorAll('.topic-theme-grid .topic-check-item').forEach(item => {
     const cb = item.querySelector('input');
     cb.checked = val;
     if (val) { selectedTopics.add(item.dataset.id); item.classList.add('selected'); }
@@ -850,20 +889,22 @@ function renderQuestion() {
           <div class="topic-tags">${topicTags}</div>
         </div>
         <p style="font-size:.98rem;font-weight:600;color:var(--text);margin-bottom:.6rem">${q.question}</p>
-        <p style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem">
-          Select <strong>all the phrases</strong> that correctly answer this question. Be precise — some options sound similar but only the scientifically accurate ones are correct.
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:.75rem">
+          Tick <strong>all</strong> the phrases that are scientifically correct — some look similar but only accurate ones count.
         </p>
         <div class="phrase-bank" id="phrase-bank">
-          <span class="phrase-bank-label">Phrase Bank — click to select</span>
+          <span class="phrase-bank-label">Phrase Bank — tick all correct statements</span>
           ${shuffled.map((p,i) =>
             `<button class="phrase-chip" data-idx="${i}" data-correct="${p.correct}">${p.text}</button>`
           ).join('')}
         </div>
-        <div style="display:flex;gap:.75rem;align-items:center;margin-top:.75rem">
+        <div style="display:flex;gap:.75rem;align-items:center;margin-top:.85rem;flex-wrap:wrap">
           <button class="btn btn-primary" id="submit-open-btn" onclick="submitOpenEnded()">
             ✓ Submit Answer
           </button>
-          <span style="font-size:.78rem;color:var(--muted)" id="selected-count">0 phrases selected</span>
+          <span style="font-size:.8rem;color:var(--muted)" id="selected-count">
+            0 phrases selected
+          </span>
         </div>
         <div class="feedback-box" id="qfeedback"></div>
         <div id="model-answer-area"></div>
