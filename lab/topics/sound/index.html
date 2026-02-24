@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sound | Science Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header { background:var(--surface); border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .topic-color-bar { width:4px; height:36px; border-radius:3px; background:var(--energy); flex-shrink:0; }
+    .page-header h1 { font-size:1.2rem; }
+    main { max-width:1100px; margin:0 auto; padding:1.5rem 1.25rem 3rem; }
+
+    .sub-tabs { display:flex; gap:.35rem; margin-bottom:1rem; flex-wrap:wrap; }
+    .sub-tab { padding:.35rem .85rem; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:.8rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .sub-tab.active { background:var(--energy); color:#0d1117; border-color:var(--energy); }
+    .sub-pane { display:none; } .sub-pane.active { display:block; }
+
+    .cue-question { font-size:.78rem; color:var(--muted); margin-bottom:.75rem; border-left:2px solid var(--energy); padding-left:.6rem; }
+    .summary-text { font-size:.85rem; color:var(--muted); line-height:1.6; }
+    .sim-stat { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:.5rem .9rem; font-size:.82rem; text-align:center; margin-top:.5rem; }
+    .sim-stat strong { display:block; font-size:1.1rem; color:var(--energy); }
+
+    .highlight-energy { background:#2e1f00; border-left:3px solid var(--energy); padding:.6rem .9rem; border-radius:0 8px 8px 0; font-size:.88rem; color:#fde68a; margin:.75rem 0; }
+    .note-section h4 { color:var(--energy) !important; }
+
+    .media-speed-table { width:100%; font-size:.82rem; border-collapse:collapse; margin-top:.4rem; }
+    .media-speed-table th { padding:.4rem .6rem; text-align:left; color:var(--energy); background:var(--surface); }
+    .media-speed-table td { padding:.4rem .6rem; border-top:1px solid var(--border); color:var(--muted); }
+
+    .pulse-btn { padding:.3rem .8rem; border-radius:7px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:.78rem; font-weight:600; cursor:pointer; margin-top:.4rem; transition:all .15s; }
+    .pulse-btn:hover { background:var(--energy); color:#0d1117; border-color:var(--energy); }
+    .pulse-btn:disabled { opacity:.45; cursor:default; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar" style="background:var(--energy)"></div>
+  <div style="flex:1">
+    <h1>🔊 Sound</h1>
+    <div class="meta" style="font-size:.78rem;color:var(--muted)">
+      <span class="badge badge-energy">Energy</span>&nbsp;
+      <span class="badge badge-p4">P4</span>&nbsp;
+      <span class="badge badge-p5">P5</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--energy)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════ LEARN ══════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">How is sound produced?</div>
+        <div class="cue-question">What is vibration?</div>
+        <div class="cue-question">What determines the pitch of a sound?</div>
+        <div class="cue-question">What determines the loudness of a sound?</div>
+        <div class="cue-question">Can sound travel through a vacuum? Why?</div>
+        <div class="cue-question">What is an echo and how is it produced?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+        <div class="glossary-term"><div class="term-name">Sound</div><div class="term-def">A form of energy produced by vibrating objects. Travels as waves through a medium (solid, liquid, or gas). Cannot travel through a vacuum.</div></div>
+        <div class="glossary-term"><div class="term-name">Vibration</div><div class="term-def">A rapid back-and-forth movement of an object. All sound is caused by vibration. When vibrations stop, sound stops.</div></div>
+        <div class="glossary-term"><div class="term-name">Medium</div><div class="term-def">The substance through which sound waves travel (solid, liquid, or gas). Sound cannot travel through a vacuum (empty space).</div></div>
+        <div class="glossary-term"><div class="term-name">Pitch</div><div class="term-def">How high or low a sound is. Determined by the frequency (rate) of vibration. Fast vibration = high pitch; slow vibration = low pitch.</div></div>
+        <div class="glossary-term"><div class="term-name">Loudness</div><div class="term-def">How loud or soft a sound is. Determined by the amplitude (size) of the vibration. Large vibration = loud sound; small vibration = soft sound.</div></div>
+        <div class="glossary-term"><div class="term-name">Frequency</div><div class="term-def">The number of vibrations per second. Measured in hertz (Hz). High frequency = high pitch.</div></div>
+        <div class="glossary-term"><div class="term-name">Amplitude</div><div class="term-def">The size (height) of a sound wave. Large amplitude = loud sound. Small amplitude = soft sound.</div></div>
+        <div class="glossary-term"><div class="term-name">Echo</div><div class="term-def">A reflected sound heard after the original sound. Occurs when sound bounces off a hard, flat surface (e.g. a cliff or wall).</div></div>
+        <div class="glossary-term"><div class="term-name">Vacuum</div><div class="term-def">A space with no matter (no particles). Sound cannot travel through a vacuum because there are no particles to vibrate.</div></div>
+        <div class="glossary-term"><div class="term-name">Compression</div><div class="term-def">A region in a sound wave where particles are pushed close together (high pressure).</div></div>
+        <div class="glossary-term"><div class="term-name">Rarefaction</div><div class="term-def">A region in a sound wave where particles are spread apart (low pressure). Alternates with compressions.</div></div>
+      </div>
+
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🎵 How Sound is Produced</h4>
+          <p>Sound is produced when objects <strong>VIBRATE</strong> (move rapidly back and forth).</p>
+          <ul style="margin-top:.4rem">
+            <li>Guitar string vibrates → sound</li>
+            <li>Vocal cords vibrate → voice</li>
+            <li>Drum skin vibrates → drumbeat</li>
+          </ul>
+          <p style="margin-top:.6rem">When you pluck a guitar string, it vibrates rapidly → pushes and pulls the air around it → creates <strong>compressions</strong> (particles pushed together) and <strong>rarefactions</strong> (particles spread apart) → these travel outward as <strong>sound waves</strong>.</p>
+          <div class="highlight-energy">🔑 When vibrations stop → sound stops. No vibration = no sound.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>📡 How Sound Travels</h4>
+          <p>Sound needs a <strong>MEDIUM</strong> (material) to travel through — it is a <strong>mechanical wave</strong>.</p>
+          <ul style="margin-top:.4rem">
+            <li>Can travel through: <strong>solids</strong> (fastest), <strong>liquids</strong> (medium speed), <strong>gases</strong> (slowest)</li>
+            <li><strong>Cannot</strong> travel through a <strong>VACUUM</strong> (empty space with no particles)</li>
+            <li><strong>Why:</strong> Sound waves need particles to compress and rarefy. A vacuum has no particles.</li>
+            <li><strong>Example:</strong> On the Moon (vacuum), astronauts cannot hear explosions — they must use radio.</li>
+          </ul>
+          <table class="media-speed-table">
+            <tr>
+              <th>Medium</th>
+              <th>Speed of Sound</th>
+            </tr>
+            <tr>
+              <td>Solid (iron)</td>
+              <td>~5,000 m/s</td>
+            </tr>
+            <tr>
+              <td>Liquid (water)</td>
+              <td>~1,500 m/s</td>
+            </tr>
+            <tr>
+              <td>Gas (air)</td>
+              <td>~340 m/s</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="note-section">
+          <h4>🎶 Pitch and Loudness</h4>
+          <p><strong>Pitch</strong> — how high or low a sound is:</p>
+          <ul style="margin-top:.3rem">
+            <li>High pitch = <strong>high frequency</strong> = rapid vibration (thin, tight, or short strings)</li>
+            <li>Low pitch = <strong>low frequency</strong> = slow vibration (thick, loose, or long strings)</li>
+            <li>Examples: woman's voice (high pitch), man's voice (lower pitch), bass guitar (low pitch)</li>
+          </ul>
+          <p style="margin-top:.6rem"><strong>Loudness</strong> — how loud or soft a sound is:</p>
+          <ul style="margin-top:.3rem">
+            <li>Loud sound = <strong>large amplitude</strong> = large vibration (lots of energy)</li>
+            <li>Soft sound = <strong>small amplitude</strong> = small vibration (little energy)</li>
+            <li>Striking a drum harder → larger vibration → louder sound</li>
+          </ul>
+          <div class="highlight-energy">🎯 <strong>Pitch</strong> depends on FREQUENCY. <strong>Loudness</strong> depends on AMPLITUDE.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🏔 Echoes</h4>
+          <p>An <strong>echo</strong> is a <strong>reflected sound</strong> — sound that bounces off a hard flat surface and reaches your ears again after the original sound.</p>
+          <ul style="margin-top:.4rem">
+            <li>Requires: a hard flat surface (cliff, building wall) and enough distance for the echo to be heard separately</li>
+            <li>Echoes are used in <strong>sonar</strong> (ships measuring ocean depth), <strong>ultrasound</strong> (medical imaging), and by <strong>bats</strong> for echolocation</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--energy);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          Sound is produced by <strong>VIBRATION</strong>. It travels as waves through a medium (solid, liquid, gas) — <strong>FASTEST</strong> through solids. It <strong>CANNOT</strong> travel through a vacuum. <strong>PITCH</strong> depends on frequency (fast vibration = high pitch). <strong>LOUDNESS</strong> depends on amplitude (large vibration = loud). <strong>ECHOES</strong> are reflected sound waves that bounce off hard flat surfaces.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SIMULATE ══════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">What happens to the wave shape as tension increases?</div>
+        <div class="cue-question">Why does the vacuum panel show no propagation?</div>
+        <div class="cue-question">Which medium makes the dots move fastest?</div>
+        <div class="sim-stat"><strong id="stat-pitch">—</strong>Current Pitch</div>
+        <div class="sim-stat"><strong id="stat-loudness">—</strong>Current Loudness</div>
+        <div class="sim-stat"><strong id="stat-freq">—</strong>Simulated Freq (Hz)</div>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <div class="sub-tabs">
+          <button class="sub-tab active" id="sub-btn-vib" onclick="showSoundSub('vib-sim', this)">🎸 Vibration &amp; Pitch</button>
+          <button class="sub-tab" id="sub-btn-media" onclick="showSoundSub('media-sim', this)">📦 Sound Through Media</button>
+        </div>
+
+        <!-- VIBRATION & PITCH SIM -->
+        <div class="sub-pane active" id="vib-sim">
+          <div class="sim-controls" style="margin-bottom:.75rem">
+            <div class="sim-control-group">
+              <label>String tension: <strong id="tension-val">5</strong> N</label>
+              <input type="range" id="tension-slider" min="1" max="10" value="5" oninput="updateVibSim()">
+            </div>
+            <div class="sim-control-group">
+              <label>String length:</label>
+              <div style="display:flex;gap:.4rem;margin-top:.25rem">
+                <button class="sub-tab active" id="len-short" onclick="setLength('short', this)">Short</button>
+                <button class="sub-tab" id="len-medium" onclick="setLength('medium', this)">Medium</button>
+                <button class="sub-tab" id="len-long" onclick="setLength('long', this)">Long</button>
+              </div>
+            </div>
+            <div class="sim-control-group">
+              <label>Strike force (loudness): <strong id="loudness-val">3</strong></label>
+              <input type="range" id="loudness-slider" min="1" max="5" value="3" oninput="updateVibSim()">
+            </div>
+          </div>
+          <div class="sim-canvas-wrap" style="height:270px">
+            <canvas id="vib-canvas" width="580" height="260"></canvas>
+          </div>
+          <div id="vib-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
+        </div>
+
+        <!-- SOUND THROUGH MEDIA SIM -->
+        <div class="sub-pane" id="media-sim">
+          <p style="font-size:.85rem;color:var(--muted);margin-bottom:.75rem">
+            Click "Send pulse" under each panel to watch a sound wave travel through that medium.
+          </p>
+          <div class="sim-canvas-wrap" style="height:290px">
+            <canvas id="media-canvas" width="580" height="280"></canvas>
+          </div>
+          <div style="display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap">
+            <div style="flex:1;min-width:100px;text-align:center">
+              <div style="font-size:.78rem;color:var(--muted);margin-bottom:.3rem">Gas (air)</div>
+              <button class="pulse-btn" id="pulse-gas" onclick="sendPulse('gas')">Send pulse</button>
+            </div>
+            <div style="flex:1;min-width:100px;text-align:center">
+              <div style="font-size:.78rem;color:var(--muted);margin-bottom:.3rem">Liquid (water)</div>
+              <button class="pulse-btn" id="pulse-liquid" onclick="sendPulse('liquid')">Send pulse</button>
+            </div>
+            <div style="flex:1;min-width:100px;text-align:center">
+              <div style="font-size:.78rem;color:var(--muted);margin-bottom:.3rem">Solid (iron)</div>
+              <button class="pulse-btn" id="pulse-solid" onclick="sendPulse('solid')">Send pulse</button>
+            </div>
+            <div style="flex:1;min-width:100px;text-align:center">
+              <div style="font-size:.78rem;color:var(--muted);margin-bottom:.3rem">Vacuum</div>
+              <button class="pulse-btn" id="pulse-vacuum" onclick="sendPulse('vacuum')">Send pulse</button>
+            </div>
+          </div>
+          <div id="media-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5">
+            Click a "Send pulse" button to observe how sound travels through each medium.
+          </div>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <p class="summary-text">
+          <strong>Vibration &amp; Pitch:</strong> Higher tension or shorter string → higher frequency → higher pitch. More strike force → larger amplitude → louder sound. <strong>Sound through media:</strong> Sound travels fastest through solids (particles closest together), then liquids, then gases. In a vacuum, sound cannot travel at all — no particles to vibrate.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ QUIZ ══════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Common PSLE question types:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li>Explain how a sound is produced (always mention <strong>vibration</strong>)</li>
+            <li>Identify why sound cannot travel through a <strong>vacuum</strong></li>
+            <li>Distinguish between <strong>pitch</strong> (frequency) and <strong>loudness</strong> (amplitude)</li>
+            <li>Explain what an echo is and how it forms</li>
+          </ul>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--energy)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container" data-topic-id="sound" data-topic-name="Sound" data-topic-level="4"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Remember: <strong>vibration</strong> causes all sound. <strong>Pitch</strong> depends on frequency; <strong>loudness</strong> depends on amplitude. Sound travels fastest through <strong>solids</strong> and cannot travel through a <strong>vacuum</strong>. An <strong>echo</strong> is sound reflected off a hard flat surface.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MIND MAP ══════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">+ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ══════════════════════════════════════════
+// SUB-TAB SWITCHER (Simulate)
+// ══════════════════════════════════════════
+function showSoundSub(id, btn) {
+  // Cancel vibration animation when leaving vib-sim
+  if (id !== 'vib-sim' && vibAnimId !== null) {
+    cancelAnimationFrame(vibAnimId);
+    vibAnimId = null;
+  }
+  document.querySelectorAll('#tab-simulate .sub-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#tab-simulate .sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  // Restart vibration animation when returning to vib-sim
+  if (id === 'vib-sim') {
+    startVibAnimation();
+  }
+  // Draw media sim when switching to it
+  if (id === 'media-sim') {
+    drawMediaCanvas();
+  }
+}
+
+// ══════════════════════════════════════════
+// SUB-SIM 1: VIBRATION & PITCH
+// ══════════════════════════════════════════
+let vibAnimId = null;
+let vibPhase = 0;
+let vibTension = 5;
+let vibLengthFactor = 2; // Short=1, Medium=2, Long=3
+let vibLoudness = 3;
+let vibLengthKey = 'medium';
+
+function setLength(key, btn) {
+  vibLengthKey = key;
+  vibLengthFactor = key === 'short' ? 1 : key === 'medium' ? 2 : 3;
+  // Update length button styles
+  ['len-short','len-medium','len-long'].forEach(id => {
+    document.getElementById(id).classList.remove('active');
+  });
+  btn.classList.add('active');
+  updateVibSim();
+}
+
+function updateVibSim() {
+  vibTension = +document.getElementById('tension-slider').value;
+  vibLoudness = +document.getElementById('loudness-slider').value;
+  document.getElementById('tension-val').textContent = vibTension;
+  document.getElementById('loudness-val').textContent = vibLoudness;
+
+  const freq = Math.round((vibTension / vibLengthFactor) * 8);
+  const amplitude = vibLoudness * 12;
+
+  const pitchLabel = freq >= 56 ? 'High' : freq >= 24 ? 'Medium' : 'Low';
+  const loudLabel  = vibLoudness >= 4 ? 'Loud' : vibLoudness >= 3 ? 'Moderate' : 'Soft';
+
+  document.getElementById('stat-pitch').textContent = pitchLabel;
+  document.getElementById('stat-loudness').textContent = loudLabel;
+  document.getElementById('stat-freq').textContent = freq + ' Hz';
+
+  const tensionNote = vibTension >= 8 ? 'very high tension' : vibTension >= 5 ? 'medium tension' : 'low tension';
+  const lenNote = vibLengthKey === 'short' ? 'short string' : vibLengthKey === 'medium' ? 'medium-length string' : 'long string';
+  const fb = document.getElementById('vib-feedback');
+  fb.innerHTML = `The string has <strong>${tensionNote}</strong> and is <strong>${lenNote}</strong>. ` +
+    `This gives a simulated frequency of <strong>~${freq} Hz</strong> — a <strong>${pitchLabel.toLowerCase()} pitch</strong>. ` +
+    `The strike force is <strong>${vibLoudness}/5</strong>, producing a <strong>${loudLabel.toLowerCase()}</strong> sound (amplitude: ${amplitude} px). ` +
+    (pitchLabel === 'High'
+      ? 'A tighter or shorter string vibrates faster → more compressions per second → higher pitch.'
+      : pitchLabel === 'Low'
+        ? 'A looser or longer string vibrates slowly → fewer compressions per second → lower pitch.'
+        : 'A moderately tensioned string produces a medium pitch.');
+
+  Progress.recordSimUsed('sound');
+
+  if (!vibAnimId) {
+    startVibAnimation();
+  }
+}
+
+function startVibAnimation() {
+  if (vibAnimId !== null) cancelAnimationFrame(vibAnimId);
+  vibAnimId = requestAnimationFrame(animateVib);
+}
+
+function animateVib() {
+  const canvas = document.getElementById('vib-canvas');
+  if (!canvas) { vibAnimId = null; return; }
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const freq = (vibTension / vibLengthFactor) * 8;
+  const amplitude = vibLoudness * 12;
+
+  // Phase increment: higher freq = faster oscillation
+  vibPhase += 0.04 * Math.max(1, freq / 8);
+
+  drawVibCanvas(ctx, W, H, freq, amplitude);
+
+  vibAnimId = requestAnimationFrame(animateVib);
+}
+
+function drawVibCanvas(ctx, W, H, freq, amplitude) {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, W, H);
+
+  const centerY = H / 2;
+  const padX = 30;
+  const strLen = W - padX * 2;
+
+  // String colour based on tension (blue=low, yellow=high)
+  const t = (vibTension - 1) / 9; // 0..1
+  const r = Math.round(t * 251);
+  const g = Math.round(t * 191 + (1 - t) * 100);
+  const b = Math.round((1 - t) * 220 + t * 36);
+  const strColor = `rgb(${r},${g},${b})`;
+
+  // Draw fixed endpoints
+  ctx.fillStyle = '#475569';
+  ctx.beginPath(); ctx.arc(padX, centerY, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(W - padX, centerY, 6, 0, Math.PI * 2); ctx.fill();
+
+  // Draw vibrating string as sine wave
+  ctx.beginPath();
+  ctx.moveTo(padX, centerY);
+  for (let px = 0; px <= strLen; px++) {
+    const x = padX + px;
+    // Sine wave with both standing-wave envelope and travelling phase
+    const envelope = Math.sin(Math.PI * px / strLen); // 0 at endpoints, 1 at centre
+    const freqCycles = Math.max(1, Math.round(freq / 8));
+    const y = centerY + amplitude * envelope * Math.sin(2 * Math.PI * freqCycles * px / strLen + vibPhase);
+    if (px === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.strokeStyle = strColor;
+  ctx.lineWidth = 3;
+  ctx.shadowColor = strColor;
+  ctx.shadowBlur = 8;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Compression / rarefaction wave bands (illustrative, scrolling)
+  const numBands = Math.max(2, Math.round(freq / 8));
+  for (let i = 0; i < numBands * 2; i++) {
+    const bandX = padX + ((strLen * i / (numBands * 2) + vibPhase * 8) % strLen);
+    const alpha = 0.12;
+    ctx.fillStyle = `rgba(251,191,36,${alpha})`;
+    ctx.fillRect(bandX, 10, strLen / (numBands * 2) * 0.6, H - 20);
+  }
+
+  // Labels
+  const pitchLabel = freq >= 56 ? 'High' : freq >= 24 ? 'Medium' : 'Low';
+  const loudLabel  = vibLoudness >= 4 ? 'Loud' : vibLoudness >= 3 ? 'Moderate' : 'Soft';
+  const freqDisp   = Math.round(freq);
+
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = 'bold 12px Inter';
+  ctx.textAlign = 'left';
+  ctx.fillText('Pitch: ' + pitchLabel, padX, 22);
+  ctx.fillText('Loudness: ' + loudLabel, padX, 40);
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px Inter';
+  ctx.fillText('Frequency: ~' + freqDisp + ' Hz (simulated)', padX, H - 18);
+  ctx.fillText('Amplitude: ' + amplitude + ' px', padX, H - 5);
+
+  // Tension colour key
+  ctx.fillStyle = strColor;
+  ctx.font = 'bold 11px Inter';
+  ctx.textAlign = 'right';
+  ctx.fillText('Tension: ' + vibTension + ' N', W - padX, 22);
+
+  // Axis label
+  ctx.fillStyle = '#334155';
+  ctx.font = '10px Inter';
+  ctx.textAlign = 'center';
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(padX, centerY);
+  ctx.lineTo(W - padX, centerY);
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+// ══════════════════════════════════════════
+// SUB-SIM 2: SOUND THROUGH MEDIA
+// ══════════════════════════════════════════
+const MEDIA_PANELS = [
+  { key: 'gas',    label: 'Gas (air)',     color: '#38bdf8', particleDensity: 8,  speed: 1.0,  bg: '#0c1a2e' },
+  { key: 'liquid', label: 'Liquid (water)',color: '#818cf8', particleDensity: 16, speed: 2.2,  bg: '#0e1a3e' },
+  { key: 'solid',  label: 'Solid (iron)',  color: '#94a3b8', particleDensity: 28, speed: 4.0,  bg: '#0f172a' },
+  { key: 'vacuum', label: 'Vacuum',        color: '#475569', particleDensity: 0,  speed: 0,    bg: '#060a12' },
+];
+
+// Particle positions for each panel (generated once)
+let mediaParticles = {};
+
+// Pulse state: { panelKey: { active, progress } }
+let mediaPulses = {};
+let mediaAnimId = null;
+
+function initMediaParticles() {
+  const canvas = document.getElementById('media-canvas');
+  if (!canvas) return;
+  const W = canvas.width, H = canvas.height;
+  const panelW = Math.floor(W / 4);
+  const padY = 40;
+
+  MEDIA_PANELS.forEach((panel, pi) => {
+    const px0 = pi * panelW;
+    mediaParticles[panel.key] = [];
+    const count = panel.particleDensity;
+    for (let i = 0; i < count; i++) {
+      // Distribute particles: solid = grid, liquid = semi-grid, gas = random
+      let x, y;
+      if (panel.key === 'solid') {
+        const cols = 5, rows = Math.ceil(count / 5);
+        const col = i % cols, row = Math.floor(i / cols);
+        x = px0 + 12 + (col + 0.5) * ((panelW - 24) / cols);
+        y = padY + 12 + (row + 0.5) * ((H - padY - 24) / rows);
+      } else if (panel.key === 'liquid') {
+        const cols = 4, rows = Math.ceil(count / 4);
+        const col = i % cols, row = Math.floor(i / cols);
+        x = px0 + 10 + (col + 0.5) * ((panelW - 20) / cols);
+        y = padY + 10 + (row + 0.5) * ((H - padY - 24) / rows);
+        x += (Math.random() - 0.5) * 8;
+        y += (Math.random() - 0.5) * 8;
+      } else {
+        x = px0 + 14 + Math.random() * (panelW - 28);
+        y = padY + 10 + Math.random() * (H - padY - 20);
+      }
+      mediaParticles[panel.key].push({
+        baseX: x,
+        baseY: y,
+        x, y,
+        r: panel.key === 'solid' ? 6 : panel.key === 'liquid' ? 5 : 4
+      });
+    }
+    mediaPulses[panel.key] = { active: false, progress: 0 };
+  });
+}
+
+function sendPulse(panelKey) {
+  const panel = MEDIA_PANELS.find(p => p.key === panelKey);
+  if (!panel) return;
+
+  if (panelKey === 'vacuum') {
+    document.getElementById('media-feedback').innerHTML =
+      '❌ <strong>No propagation in vacuum.</strong> A vacuum has no particles — sound waves are mechanical waves that require particles to compress and rarefy. Without any medium, the energy cannot be transferred and no sound travels.';
+    Progress.recordSimUsed('sound');
+    drawMediaCanvas(); // redraw to show vacuum flash
+    return;
+  }
+
+  // Reset and start this pulse
+  mediaPulses[panelKey] = { active: true, progress: 0 };
+
+  const speedLabels = { gas: '~340 m/s (slow)', liquid: '~1,500 m/s (medium)', solid: '~5,000 m/s (fastest)' };
+  const descLabels = {
+    gas: 'Gas particles are spread far apart — the pulse travels <strong>slowly</strong>. Each particle has to travel further before colliding with the next.',
+    liquid: 'Liquid particles are closer together — the pulse travels at <strong>medium speed</strong>. Less distance between particles means energy is passed on more quickly.',
+    solid: 'Solid particles are packed tightly — the pulse travels <strong>very fast</strong>. Closely packed particles pass vibrations on almost instantly.'
+  };
+
+  document.getElementById('media-feedback').innerHTML =
+    `Sending pulse through <strong>${panel.label}</strong>. Speed: <strong>${speedLabels[panelKey]}</strong>. ` +
+    descLabels[panelKey];
+
+  Progress.recordSimUsed('sound');
+
+  if (!mediaAnimId) {
+    mediaAnimLoop();
+  }
+}
+
+function mediaAnimLoop() {
+  const anyActive = Object.values(mediaPulses).some(p => p.active);
+  if (!anyActive) {
+    mediaAnimId = null;
+    drawMediaCanvas();
+    return;
+  }
+
+  // Advance pulse progress
+  MEDIA_PANELS.forEach(panel => {
+    const pulse = mediaPulses[panel.key];
+    if (pulse.active) {
+      pulse.progress += panel.speed * 0.018;
+      if (pulse.progress >= 1) {
+        pulse.progress = 1;
+        pulse.active = false;
+      }
+    }
+  });
+
+  drawMediaCanvas();
+  mediaAnimId = requestAnimationFrame(mediaAnimLoop);
+}
+
+function drawMediaCanvas() {
+  const canvas = document.getElementById('media-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, W, H);
+
+  const panelW = Math.floor(W / 4);
+  const padY = 36;
+
+  MEDIA_PANELS.forEach((panel, pi) => {
+    const px0 = pi * panelW;
+    const pw  = pi === MEDIA_PANELS.length - 1 ? W - px0 : panelW;
+
+    // Panel background
+    ctx.fillStyle = panel.bg;
+    ctx.fillRect(px0 + 1, padY, pw - 2, H - padY - 1);
+
+    // Panel border
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(px0 + 1, padY, pw - 2, H - padY - 1);
+
+    // Panel label at top
+    ctx.fillStyle = panel.color;
+    ctx.font = 'bold 11px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText(panel.label, px0 + pw / 2, padY - 6);
+
+    if (panel.key === 'vacuum') {
+      // Empty panel — just label "No particles"
+      ctx.fillStyle = '#334155';
+      ctx.font = '10px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText('No particles', px0 + pw / 2, padY + (H - padY) / 2 - 6);
+      ctx.fillText('(empty space)', px0 + pw / 2, padY + (H - padY) / 2 + 10);
+
+      // If pulse was sent, flash an X
+      const pulse = mediaPulses[panel.key];
+      if (pulse && pulse.active) {
+        ctx.fillStyle = '#ef4444';
+        ctx.font = 'bold 22px Inter';
+        ctx.fillText('❌', px0 + pw / 2, padY + (H - padY) / 2 + 30);
+        ctx.font = '10px Inter';
+        ctx.fillStyle = '#ef4444';
+        ctx.fillText('No propagation', px0 + pw / 2, padY + (H - padY) / 2 + 48);
+      }
+      return;
+    }
+
+    const particles = mediaParticles[panel.key] || [];
+    const pulse = mediaPulses[panel.key];
+    const pulseProgress = pulse ? pulse.progress : 0;
+
+    // Draw compression wave visual: a vertical band sweeping across
+    if (pulseProgress > 0 && pulseProgress < 1) {
+      const waveX = px0 + pw * pulseProgress;
+      const waveGrad = ctx.createRadialGradient(waveX, padY + (H - padY) / 2, 0, waveX, padY + (H - padY) / 2, pw * 0.35);
+      waveGrad.addColorStop(0, panel.color + '55');
+      waveGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = waveGrad;
+      ctx.fillRect(px0 + 1, padY, pw - 2, H - padY - 1);
+
+      // Compression band
+      const bandW = pw * 0.18;
+      ctx.fillStyle = panel.color + '40';
+      ctx.fillRect(Math.max(px0 + 1, waveX - bandW / 2), padY, Math.min(bandW, pw - 2), H - padY - 1);
+    }
+
+    // Draw particles — displace near wave front
+    particles.forEach(p => {
+      let dispX = 0;
+      const relX = (p.baseX - px0) / pw; // 0..1 within panel
+      const dist = relX - pulseProgress;
+
+      if (pulseProgress > 0 && pulseProgress < 1) {
+        // Compression region: push forward; rarefaction region: pull back
+        if (Math.abs(dist) < 0.12) {
+          const compressionAmt = (1 - Math.abs(dist) / 0.12);
+          dispX = compressionAmt * (dist < 0 ? -6 : 6);
+        } else if (dist > 0.12 && dist < 0.28) {
+          // Rarefaction: spread apart after wave passes
+          dispX = (dist - 0.12) / 0.16 * (-4);
+        }
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.baseX + dispX, p.baseY, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = panel.color;
+      ctx.fill();
+
+      if (panel.key === 'solid') {
+        // Draw bonds between nearby solid particles (grid lines)
+        ctx.strokeStyle = panel.color + '44';
+        ctx.lineWidth = 1;
+      }
+    });
+
+    // Speed label at bottom
+    const speedStr = panel.key === 'gas' ? '~340 m/s' : panel.key === 'liquid' ? '~1,500 m/s' : '~5,000 m/s';
+    ctx.fillStyle = '#475569';
+    ctx.font = '9px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText(speedStr, px0 + pw / 2, H - 3);
+  });
+}
+
+// ══════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════
+const QUIZ_Q = [
+  {
+    question: 'A student plucks a guitar string. What causes the sound?',
+    options: [
+      'The string stretches',
+      'The string vibrates',
+      'The string heats up',
+      'The string absorbs light'
+    ],
+    correct: 1,
+    explanation: 'Sound is produced when objects vibrate. The guitar string moves rapidly back and forth, creating pressure waves (compressions and rarefactions) in the air.'
+  },
+  {
+    question: 'Sound travels fastest through which medium?',
+    options: [
+      'Air',
+      'Water',
+      'Iron',
+      'Vacuum'
+    ],
+    correct: 2,
+    explanation: 'Sound travels fastest through solids because the particles are closest together and can pass on vibrations more quickly. Iron is a solid and has a sound speed of ~5,000 m/s.'
+  },
+  {
+    question: 'An astronaut on the Moon cannot hear a nearby explosion. Why?',
+    options: [
+      'The explosion is too far away',
+      'Sound cannot travel through the vacuum of space',
+      'The astronaut\'s ears are blocked',
+      'The explosion produces no sound on the Moon'
+    ],
+    correct: 1,
+    explanation: 'The Moon has no atmosphere — it is a vacuum. Sound needs a medium (particles) to travel through. With no particles, sound cannot travel.'
+  },
+  {
+    question: 'A guitar player tightens a string. How does this change the sound?',
+    options: [
+      'Lower pitch, same loudness',
+      'Higher pitch, same loudness',
+      'Same pitch, louder',
+      'Same pitch, softer'
+    ],
+    correct: 1,
+    explanation: 'A tighter string vibrates at a higher frequency → higher pitch. Loudness (which depends on amplitude, not tension) is not affected by tightening the string alone.'
+  },
+  {
+    question: 'A student hits a drum harder. How does this change the sound?',
+    options: [
+      'Higher pitch',
+      'Lower pitch',
+      'Louder sound',
+      'Softer sound'
+    ],
+    correct: 2,
+    explanation: 'Hitting harder creates a larger amplitude vibration → louder sound. Pitch (which depends on frequency) is not changed by how hard you hit — only by the properties of the drum skin.'
+  },
+  {
+    question: 'Which of the following is an echo?',
+    options: [
+      'The sound of a bell ringing',
+      'A sound that is very loud',
+      'A sound reflected off a surface and heard again',
+      'A high-pitched sound'
+    ],
+    correct: 2,
+    explanation: 'An echo is a sound that has bounced off a hard flat surface (like a cliff or wall) and reaches your ears after the original sound. It is the reflection of a sound wave.'
+  },
+  {
+    question: 'If you double the frequency of vibration, what happens to the pitch?',
+    options: [
+      'Pitch halves',
+      'Pitch stays the same',
+      'Pitch doubles (goes up by about one octave)',
+      'Pitch becomes louder'
+    ],
+    correct: 2,
+    explanation: 'Frequency and pitch are directly related. Double the frequency → double the pitch (approximately one octave higher in musical terms). Loudness is a separate property (amplitude).'
+  }
+];
+
+// ══════════════════════════════════════════
+// MIND MAP TEMPLATE
+// ══════════════════════════════════════════
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1,  label:'Sound',      color:{ background:'#2e1f00', border:'#f59e0b' }, font:{ size:15, color:'#fde68a' } },
+    { id:2,  label:'Vibration' },
+    { id:3,  label:'Medium' },
+    { id:4,  label:'Pitch' },
+    { id:5,  label:'Loudness' },
+    { id:6,  label:'Frequency' },
+    { id:7,  label:'Amplitude' },
+    { id:8,  label:'Echo' },
+    { id:9,  label:'Solid' },
+    { id:10, label:'Liquid' },
+    { id:11, label:'Gas' },
+    { id:12, label:'Vacuum' },
+    { id:13, label:'Reflection' },
+  ],
+  edges: [
+    { from:1, to:2,  label:'caused by' },
+    { from:1, to:3,  label:'needs' },
+    { from:3, to:9  },
+    { from:3, to:10 },
+    { from:3, to:11 },
+    { from:3, to:12 },
+    { from:12, to:1, label:'cannot travel' },
+    { from:4, to:6,  label:'depends on' },
+    { from:5, to:7,  label:'depends on' },
+    { from:8, to:13, label:'caused by' },
+  ],
+  required: ['sound','vibration','medium','pitch','loudness','frequency','amplitude','echo','vacuum']
+};
+
+// ══════════════════════════════════════════
+// MIND MAP NODE ADDER
+// ══════════════════════════════════════════
+let sciMap;
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('sound');
+  document.getElementById('mastery-pct').textContent = Progress.masteryPct('sound') + '%';
+  initAIQuizToggle(QUIZ_Q);
+  sciMap = new ScienceMindMap('mindmap-container', 'sound', MM_TEMPLATE);
+
+  // Initialise media sim particles
+  initMediaParticles();
+  drawMediaCanvas();
+
+  // Start vibration animation on the default active sub-sim
+  updateVibSim();
+
+  // Tab switching — cancel/restart vibration animation
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetTab = btn.dataset.tab;
+      if (targetTab !== 'tab-simulate') {
+        // Leaving simulate tab — cancel animation
+        if (vibAnimId !== null) {
+          cancelAnimationFrame(vibAnimId);
+          vibAnimId = null;
+        }
+      } else {
+        // Returning to simulate tab — restart only if vib sub-pane is active
+        const vibPane = document.getElementById('vib-sim');
+        if (vibPane && vibPane.classList.contains('active')) {
+          startVibAnimation();
+        }
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

@@ -166,6 +166,7 @@
     </div>
     <div style="display:flex;gap:.75rem;justify-content:center;margin-top:1.25rem;flex-wrap:wrap">
       <a href="assess/index.html" class="btn btn-primary" style="font-size:.88rem">🧠 Synoptic Assessment</a>
+      <a href="flashcards/index.html" class="btn btn-ghost" style="font-size:.88rem">🃏 Flashcards</a>
       <button class="btn btn-ghost" onclick="showAISetup()" style="font-size:.88rem">🤖 Set Up AI Quizzes</button>
     </div>
   </div>
@@ -186,6 +187,12 @@
       <p style="font-size:.72rem;margin-top:.3rem;color:var(--muted)">Complete simulations, quizzes, and mind maps to level up</p>
     </div>
     <a href="topics/circuits/index.html" class="btn btn-primary" style="white-space:nowrap">🚀 Start Learning</a>
+  </div>
+
+  <!-- Review-due banner -->
+  <div id="review-banner" style="display:none;background:#1a1200;border:1px solid #f59e0b55;border-radius:12px;padding:.85rem 1.25rem;margin-bottom:1.5rem;align-items:center;gap:.75rem;font-size:.88rem">
+    <span style="font-size:1.2rem">📅</span>
+    <span id="review-banner-text" style="color:#fcd34d"></span>
   </div>
 
   <!-- ════════════════ DIVERSITY ════════════════ -->
@@ -264,7 +271,8 @@ const TOPICS = [
     blurb:'Classify living vs non-living things; vertebrates, invertebrates, and plant groups.',
     url:'topics/diversity/index.html', ready:true },
   { id:'diversity-materials', name:'Diversity of Materials', theme:'diversity', levels:['P4'],
-    blurb:'Compare properties of materials and match them to uses.', url:null },
+    blurb:'Compare properties of materials and match them to uses. Explore solubility and conductivity.',
+    url:'topics/materials/index.html', ready:true },
 
   // CYCLES
   { id:'life-cycles', name:'Life Cycles of Animals', theme:'cycles', levels:['P3'],
@@ -295,7 +303,8 @@ const TOPICS = [
     blurb:'How plants make food using light; leaf anatomy, transpiration, and transport.',
     url:'topics/plants/index.html', ready:true },
   { id:'cell-system', name:'Cells & Body Systems', theme:'systems', levels:['P6'],
-    blurb:'From cell to tissue to organ to system — the hierarchy of life.', url:null },
+    blurb:'From cell to tissue to organ to system — the hierarchy of life.',
+    url:'topics/cell-system/index.html', ready:true },
 
   // INTERACTIONS
   { id:'magnets', name:'Magnets', theme:'interactions', levels:['P3'],
@@ -308,9 +317,13 @@ const TOPICS = [
     blurb:'Investigate friction, gravitational force, and spring force with live simulations.',
     url:'topics/forces/index.html', ready:true },
   { id:'ecosystems', name:'Interactions Within Environment', theme:'interactions', levels:['P6'],
-    blurb:'Predator-prey relationships, adaptations, and ecosystem balance.', url:null },
+    blurb:'Predator-prey relationships, adaptations, and ecosystem balance.',
+    url:'topics/ecosystems/index.html', ready:true },
 
   // ENERGY
+  { id:'sound', name:'Sound', theme:'energy', levels:['P4','P5'],
+    blurb:'Vibration creates sound — explore pitch, loudness, and how sound travels through different media.',
+    url:'topics/sound/index.html', ready:true },
   { id:'light', name:'Light & Shadows', theme:'energy', levels:['P4'],
     blurb:'Ray tracing, reflection, refraction, colour mixing — interactive light sim.',
     url:'topics/light/index.html', ready:true },
@@ -343,7 +356,7 @@ function ringHTML(pct, color) {
 // ── Build cards ───────────────────────────────────────────
 function buildCards() {
   const allProgress = JSON.parse(localStorage.getItem('sciLab_progress') || '{}');
-  let overallSum = 0, overallCount = 0, mapsCount = 0;
+  let overallSum = 0, overallCount = 0, mapsCount = 0, dueTopics = [];
 
   THEME_IDS.forEach(theme => {
     const grid = document.getElementById(`grid-${theme}`);
@@ -359,6 +372,12 @@ function buildCards() {
       ).join('');
       const themeBadge = `<span class="badge badge-${theme}">${theme}</span>`;
 
+      const isNew  = topic.ready && (p.visitCount || 0) === 0;
+      const isDue  = topic.ready && Progress.isDue(topic.id) && pct > 0;
+      const newBadge  = isNew ? `<span style="background:#1a1a00;color:#fcd34d;border:1px solid #f59e0b66;font-size:.63rem;padding:.15rem .45rem;border-radius:5px;font-weight:700">🆕 New</span>` : '';
+      const dueBadge  = isDue ? `<span style="background:#2a1400;color:#fb923c;border:1px solid #f9731666;font-size:.63rem;padding:.15rem .45rem;border-radius:5px;font-weight:700">📅 Review</span>` : '';
+      if (isDue) dueTopics.push(topic.name);
+
       const card = document.createElement('div');
       card.className = `topic-card${topic.ready ? '' : ' coming-soon'}`;
       card.style.setProperty('--topic-color', color);
@@ -367,7 +386,7 @@ function buildCards() {
       card.setAttribute('style', `--topic-color:${color};`);
       card.innerHTML = `
         <style>.topic-card[data-id="${topic.id}"]::before{background:${color};}</style>
-        <div class="topic-meta">${themeBadge} ${levelBadges}</div>
+        <div class="topic-meta">${themeBadge} ${levelBadges} ${newBadge} ${dueBadge}</div>
         <div class="topic-name">${topic.name}</div>
         <div class="topic-blurb">${topic.blurb}</div>
         <div class="topic-footer">
@@ -394,6 +413,13 @@ function buildCards() {
   document.getElementById('stat-pct').textContent = overallPct + '%';
   document.getElementById('stat-maps').textContent = mapsCount;
   document.getElementById('overall-bar').style.width = overallPct + '%';
+
+  if (dueTopics.length > 0) {
+    const banner = document.getElementById('review-banner');
+    document.getElementById('review-banner-text').textContent =
+      `${dueTopics.length} topic${dueTopics.length > 1 ? 's' : ''} due for review: ${dueTopics.join(', ')}`;
+    banner.style.display = 'flex';
+  }
 }
 
 function computeMastery(p) {

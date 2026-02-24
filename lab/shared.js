@@ -13,7 +13,7 @@ const Progress = {
   },
 
   get(topicId) {
-    return this.all()[topicId] || { quizScore: 0, quizTotal: 0, simUsed: false, mindMapSaved: false, visitCount: 0 };
+    return this.all()[topicId] || { quizScore: 0, quizTotal: 0, simUsed: false, mindMapSaved: false, visitCount: 0, lastQuizDate: null, flashcardCounts: {} };
   },
 
   set(topicId, data) {
@@ -47,9 +47,29 @@ const Progress = {
 
   recordQuiz(topicId, score, total) {
     const p = this.get(topicId);
+    const update = { lastQuizDate: new Date().toISOString().slice(0, 10) };
     if (score >= (p.quizScore || 0)) {
-      this.set(topicId, { quizScore: score, quizTotal: total });
+      update.quizScore = score;
+      update.quizTotal = total;
     }
+    this.set(topicId, update);
+  },
+
+  isDue(topicId, daysThreshold = 3) {
+    const p = this.get(topicId);
+    if (!p.lastQuizDate) return false;
+    const daysDiff = (Date.now() - new Date(p.lastQuizDate)) / 86400000;
+    return daysDiff >= daysThreshold;
+  },
+
+  recordFlashcard(topicId, termId, correct) {
+    const p      = this.get(topicId);
+    const counts = p.flashcardCounts || {};
+    const entry  = counts[termId] || { correct: 0, attempts: 0 };
+    entry.attempts += 1;
+    if (correct) entry.correct += 1;
+    counts[termId] = entry;
+    this.set(topicId, { flashcardCounts: counts });
   }
 };
 

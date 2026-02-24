@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diversity of Materials | Science Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header { background:var(--surface); border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .topic-color-bar { width:4px; height:36px; border-radius:3px; background:var(--diversity); flex-shrink:0; }
+    main { max-width:1100px; margin:0 auto; padding:1.5rem 1.25rem 3rem; }
+    .cue-question { font-size:.78rem; color:var(--muted); margin-bottom:.75rem; border-left:2px solid var(--diversity); padding-left:.6rem; }
+    .summary-text { font-size:.85rem; color:var(--muted); line-height:1.6; }
+    .sim-stat { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:.5rem .9rem; font-size:.82rem; text-align:center; margin-top:.5rem; }
+    .sim-stat strong { display:block; font-size:1.1rem; color:var(--diversity); }
+
+    /* Material selector buttons */
+    .mat-btn-group { display:flex; gap:.35rem; flex-wrap:wrap; margin-bottom:.85rem; }
+    .mat-btn { padding:.4rem .9rem; border-radius:8px; border:1.5px solid var(--border); background:transparent; color:var(--muted); font-size:.82rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .mat-btn:hover { border-color:var(--diversity); color:var(--diversity); }
+    .mat-btn.active { background:var(--diversity); color:#0d1117; border-color:var(--diversity); }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🔬 Diversity of Materials</h1>
+    <div style="font-size:.78rem;color:var(--muted)">
+      <span class="badge badge-diversity">Diversity</span>&nbsp;
+      <span class="badge badge-p4">P4</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--diversity)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════ LEARN ══════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What are the five main properties used to compare materials?</div>
+        <div class="cue-question">What does "hardness" mean? How is it tested?</div>
+        <div class="cue-question">Why is copper used for electrical wires?</div>
+        <div class="cue-question">What is a soluble substance? Give two everyday examples.</div>
+        <div class="cue-question">What is the difference between transparent, translucent, and opaque materials?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+
+        <div class="glossary-term"><div class="term-name">Hardness</div><div class="term-def">How resistant a material is to being scratched or dented. Tested by trying to scratch one material with another. Metals and glass are hard; rubber is soft.</div></div>
+        <div class="glossary-term"><div class="term-name">Flexibility</div><div class="term-def">How easily a material bends without breaking. Rubber and fabric are flexible; glass and metal are generally not.</div></div>
+        <div class="glossary-term"><div class="term-name">Transparency</div><div class="term-def">How much light passes through a material. Transparent (clear glass) lets all light through; translucent (frosted glass) lets some through; opaque (wood) lets none through.</div></div>
+        <div class="glossary-term"><div class="term-name">Water Absorption</div><div class="term-def">How much water a material soaks up. Cloth and paper absorb water; plastic and glass do not.</div></div>
+        <div class="glossary-term"><div class="term-name">Electrical Conductivity</div><div class="term-def">How easily a material allows electricity to flow through it. Metals (copper, aluminium) are good conductors; rubber, plastic, and glass are insulators.</div></div>
+        <div class="glossary-term"><div class="term-name">Thermal Conductivity</div><div class="term-def">How easily a material allows heat to flow through it. Metals are good thermal conductors; wood and plastic are thermal insulators.</div></div>
+        <div class="glossary-term"><div class="term-name">Solubility</div><div class="term-def">Whether a substance dissolves in water. Sugar and salt are soluble; sand and oil are insoluble.</div></div>
+        <div class="glossary-term"><div class="term-name">Solute</div><div class="term-def">The substance that dissolves (e.g. sugar or salt).</div></div>
+        <div class="glossary-term"><div class="term-name">Solvent</div><div class="term-def">The liquid that does the dissolving (water is the most common solvent).</div></div>
+        <div class="glossary-term"><div class="term-name">Solution</div><div class="term-def">The mixture formed when a solute dissolves in a solvent. A solution is clear (not cloudy).</div></div>
+        <div class="glossary-term"><div class="term-name">Magnetic Property</div><div class="term-def">Whether a material is attracted to a magnet. Iron, steel, nickel, and cobalt are magnetic. Most other materials are non-magnetic.</div></div>
+        <div class="glossary-term"><div class="term-name">Strength</div><div class="term-def">How much force a material can withstand before breaking or deforming. Steel is very strong; cardboard is weak.</div></div>
+      </div>
+
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🔬 Properties of Materials</h4>
+          <table style="width:100%;font-size:.82rem;border-collapse:collapse;margin-top:.4rem">
+            <tr style="background:var(--surface)">
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--diversity)">Property</th>
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--diversity)">Description</th>
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--diversity)">Example material</th>
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--diversity)">Test</th>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Hardness</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Resistance to scratching</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Diamond, metal</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Scratch test</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Flexibility</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Bends without breaking</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Rubber, cloth</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Bend test</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Transparency</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Allows light through</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Glass, plastic film</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Shine light through</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Water absorption</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Soaks up water</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Cloth, paper</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Dip in water</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Electrical conductivity</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Allows electricity</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Copper, aluminium</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Circuit test (bulb lights)</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Thermal conductivity</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Allows heat to flow</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Metal</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Hot water test (spoon gets hot)</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="note-section">
+          <h4>💡 Matching Materials to Uses</h4>
+          <ul>
+            <li><strong>Copper wire</strong> → electrical conductor → lets electricity flow</li>
+            <li><strong>Rubber gloves</strong> → electrical insulator → protects against electric shock</li>
+            <li><strong>Glass window</strong> → transparent + hard → lets light in, doesn't break easily</li>
+            <li><strong>Plastic container</strong> → waterproof + light → holds liquids without absorbing them</li>
+            <li><strong>Wooden spoon</strong> → thermal insulator + strong → won't conduct heat to your hand</li>
+            <li><strong>Steel beam</strong> → strong + hard → supports weight of buildings</li>
+          </ul>
+          <div class="highlight">The right material for the right job. A good designer always matches material properties to the function required.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>💧 Solubility</h4>
+          <ul>
+            <li><strong>Soluble:</strong> dissolves in water → forms a solution (clear) → e.g. sugar, salt, copper sulphate</li>
+            <li><strong>Insoluble:</strong> does not dissolve → remains as particles → e.g. sand, chalk, oil</li>
+            <li><strong>Experiment:</strong> add sugar to water, stir → dissolves; add sand → does not dissolve</li>
+            <li>A solution has: <strong>Solute</strong> (dissolved substance) + <strong>Solvent</strong> (liquid) = <strong>Solution</strong></li>
+            <li>Solutions are always clear/transparent (no cloudiness)</li>
+          </ul>
+          <div class="equation">
+            Solute + Solvent = Solution<br>
+            <span style="font-size:.8rem;color:#64748b">(e.g. sugar) + (water) = (sugar solution — clear)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--diversity);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          Choose materials by matching properties to uses. <strong>Hardness</strong>, <strong>flexibility</strong>, <strong>transparency</strong>, <strong>water-absorption</strong>, <strong>conductivity</strong>, and <strong>solubility</strong> are key properties. Soluble substances (salt, sugar) dissolve in water to form a clear solution; insoluble ones (sand) do not.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SIMULATE ══════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">Which materials allow electricity to flow?</div>
+        <div class="cue-question">What happens when sugar is placed in water?</div>
+        <div class="cue-question">How does transparency relate to the material's structure?</div>
+        <div class="sim-stat"><strong id="stat-material">Wood</strong>Selected Material</div>
+        <div class="sim-stat"><strong id="stat-hardness">—</strong>Hardness (0–5)</div>
+        <div class="sim-stat"><strong id="stat-flex">—</strong>Flexibility (0–5)</div>
+        <div class="sim-stat"><strong id="stat-conduct">—</strong>Conductivity</div>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <div class="mat-btn-group" id="mat-btn-group">
+          <button class="mat-btn active" onclick="selectMaterial('Wood',this)">Wood</button>
+          <button class="mat-btn" onclick="selectMaterial('Aluminium',this)">Aluminium</button>
+          <button class="mat-btn" onclick="selectMaterial('Glass',this)">Glass</button>
+          <button class="mat-btn" onclick="selectMaterial('Rubber',this)">Rubber</button>
+          <button class="mat-btn" onclick="selectMaterial('Copper',this)">Copper</button>
+          <button class="mat-btn" onclick="selectMaterial('Sugar',this)">Sugar</button>
+          <button class="mat-btn" onclick="selectMaterial('Fabric',this)">Fabric</button>
+        </div>
+        <div class="sim-canvas-wrap" style="height:370px">
+          <canvas id="mat-canvas" width="580" height="360"></canvas>
+        </div>
+        <div id="mat-feedback" style="margin-top:.75rem;padding:.75rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
+      </div>
+
+      <div class="cornell-summary">
+        <p class="summary-text">
+          Materials are chosen for specific uses based on their properties. <strong>Conductors</strong> (copper, aluminium) allow electricity to flow; <strong>insulators</strong> (rubber, glass, plastic) do not. <strong>Soluble</strong> substances dissolve to form a clear solution; <strong>insoluble</strong> ones sink as sediment.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ QUIZ ══════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Common PSLE question types:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li>Identify the <strong>property</strong> being tested</li>
+            <li>Select the <strong>best material</strong> for a given use</li>
+            <li>Explain why a material is <strong>suitable or unsuitable</strong></li>
+            <li>State whether a substance is <strong>soluble or insoluble</strong></li>
+          </ul>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container" data-topic-id="diversity-materials" data-topic-name="Diversity of Materials" data-topic-level="4"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Always justify material choices using <strong>specific properties</strong>. e.g. "Copper is used for wires because it is a good electrical conductor and can be drawn into thin wires."</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MIND MAP ══════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ══ MATERIAL DATA ══
+const MATERIALS = {
+  Wood:      { hardness:3, flexibility:2, transparency:0, conductivity:false, absorb:true,  soluble:false },
+  Aluminium: { hardness:4, flexibility:3, transparency:0, conductivity:true,  absorb:false, soluble:false },
+  Glass:     { hardness:5, flexibility:0, transparency:5, conductivity:false, absorb:false, soluble:false },
+  Rubber:    { hardness:1, flexibility:5, transparency:0, conductivity:false, absorb:false, soluble:false },
+  Copper:    { hardness:4, flexibility:3, transparency:0, conductivity:true,  absorb:false, soluble:false },
+  Sugar:     { hardness:2, flexibility:0, transparency:0, conductivity:false, absorb:false, soluble:true  },
+  Fabric:    { hardness:1, flexibility:5, transparency:0, conductivity:false, absorb:true,  soluble:false },
+};
+
+let simUsedOnce = false;
+
+function selectMaterial(name, btn) {
+  document.querySelectorAll('.mat-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  drawMaterialSim(name);
+}
+
+function drawMaterialSim(name) {
+  const mat = MATERIALS[name];
+  const c = document.getElementById('mat-canvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, W, H);
+
+  // Panel dividers
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 1.5;
+  // Vertical centre line
+  ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
+  // Horizontal centre line
+  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+
+  // Panel labels
+  ctx.font = '700 10px Inter';
+  ctx.fillStyle = '#475569';
+  ctx.textAlign = 'left';
+  ctx.fillText('HARDNESS & FLEXIBILITY', 10, 14);
+  ctx.fillText('TRANSPARENCY', W/2 + 10, 14);
+  ctx.fillText('CONDUCTIVITY TEST', 10, H/2 + 14);
+  ctx.fillText('SOLUBILITY TEST', W/2 + 10, H/2 + 14);
+
+  const pW = W / 2, pH = H / 2;
+
+  // ── PANEL 1: Hardness & Flexibility (top-left) ──
+  const p1x = 0, p1y = 0;
+  const barData = [
+    { label: 'Hardness',    value: mat.hardness,    color: '#f59e0b' },
+    { label: 'Flexibility', value: mat.flexibility, color: '#10b981' },
+  ];
+  const barMaxW = pW - 90;
+  barData.forEach((b, i) => {
+    const by = p1y + 35 + i * 50;
+    const bx = p1x + 75;
+    // Background track
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.roundRect(bx, by, barMaxW, 22, 4);
+    ctx.fill();
+    // Fill
+    const fillW = (b.value / 5) * barMaxW;
+    if (fillW > 0) {
+      ctx.fillStyle = b.color;
+      ctx.beginPath();
+      ctx.roundRect(bx, by, fillW, 22, 4);
+      ctx.fill();
+    }
+    // Label
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '600 11px Inter';
+    ctx.textAlign = 'right';
+    ctx.fillText(b.label, bx - 6, by + 15);
+    // Value text
+    ctx.fillStyle = '#e2e8f0';
+    ctx.textAlign = 'left';
+    ctx.font = '700 11px Inter';
+    ctx.fillText(b.value + ' / 5', bx + fillW + 6, by + 15);
+    // Scale ticks
+    for (let t = 0; t <= 5; t++) {
+      const tx = bx + (t / 5) * barMaxW;
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(tx - 0.5, by + 22, 1, 5);
+    }
+  });
+  // Water absorption indicator
+  const absY = p1y + 130;
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '600 11px Inter';
+  ctx.textAlign = 'left';
+  ctx.fillText('Absorbs water:', p1x + 10, absY);
+  ctx.beginPath();
+  ctx.arc(p1x + 120, absY - 5, 8, 0, Math.PI * 2);
+  ctx.fillStyle = mat.absorb ? '#38bdf8' : '#334155';
+  ctx.fill();
+  ctx.fillStyle = mat.absorb ? '#38bdf8' : '#64748b';
+  ctx.font = '600 11px Inter';
+  ctx.fillText(mat.absorb ? 'Yes' : 'No', p1x + 134, absY);
+
+  // ── PANEL 2: Transparency (top-right) ──
+  const p2x = pW, p2y = 0;
+  // Sun on left of panel
+  const sunX = p2x + 28, sunY = pH / 2;
+  const sunR = 18;
+  // Sun glow
+  const sunGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR * 2.5);
+  sunGrad.addColorStop(0, 'rgba(251,191,36,0.5)');
+  sunGrad.addColorStop(1, 'transparent');
+  ctx.beginPath(); ctx.arc(sunX, sunY, sunR * 2.5, 0, Math.PI * 2);
+  ctx.fillStyle = sunGrad; ctx.fill();
+  // Sun disc
+  ctx.beginPath(); ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2);
+  ctx.fillStyle = '#fbbf24'; ctx.fill();
+  ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = '#fef3c7'; ctx.font = '700 9px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('SUN', sunX, sunY + 3);
+  // Sun rays going right
+  const rayCount = 5;
+  const rayStartX = sunX + sunR + 6;
+  const matBlockX = p2x + 100;
+  const matBlockW = 28;
+  const matBlockH = 70;
+  const matBlockY = sunY - matBlockH / 2;
+  for (let r = 0; r < rayCount; r++) {
+    const ry = sunY - 30 + r * 15;
+    ctx.beginPath();
+    ctx.moveTo(rayStartX, ry);
+    ctx.lineTo(matBlockX, ry);
+    ctx.strokeStyle = '#fcd34d';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+  // Material block in middle
+  const matCol = name === 'Glass' ? '#60a5fa44' :
+                 name === 'Rubber' ? '#374151' :
+                 name === 'Wood'   ? '#78350f55' :
+                 name === 'Copper' ? '#b4562055' :
+                 name === 'Aluminium' ? '#94a3b844' :
+                 name === 'Sugar'  ? '#fef9c344' :
+                 '#37415155';
+  ctx.fillStyle = matCol;
+  ctx.beginPath();
+  ctx.roundRect(matBlockX, matBlockY, matBlockW, matBlockH, 4);
+  ctx.fill();
+  ctx.strokeStyle = '#4b5563';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '700 9px Inter'; ctx.textAlign = 'center';
+  ctx.fillText(name, matBlockX + matBlockW / 2, matBlockY + matBlockH + 14);
+  // Emerging rays (right of material block)
+  const emRayStartX = matBlockX + matBlockW + 4;
+  const emRayEndX   = p2x + pW - 12;
+  const alpha = mat.transparency / 5;
+  for (let r = 0; r < rayCount; r++) {
+    const ry = sunY - 30 + r * 15;
+    ctx.beginPath();
+    ctx.moveTo(emRayStartX, ry);
+    ctx.lineTo(emRayEndX, ry);
+    ctx.strokeStyle = `rgba(252,211,77,${alpha})`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+  // Transparency label
+  const transLabel = mat.transparency === 5 ? 'Transparent' :
+                     mat.transparency >= 2  ? 'Translucent' : 'Opaque';
+  const transColor = mat.transparency === 5 ? '#34d399' :
+                     mat.transparency >= 2  ? '#fbbf24'  : '#94a3b8';
+  ctx.fillStyle = transColor;
+  ctx.font = '700 12px Inter'; ctx.textAlign = 'center';
+  ctx.fillText(transLabel, p2x + pW / 2, pH - 16);
+
+  // ── PANEL 3: Conductivity (bottom-left) ──
+  const p3x = 0, p3y = pH;
+  const circCx = pW / 2, circCy = p3y + pH / 2;
+  const circR = 52;
+  // Draw circuit path (rough rectangle loop)
+  const cLeft = p3x + 18, cRight = pW - 18, cTop = p3y + 26, cBottom = p3y + pH - 18;
+  ctx.strokeStyle = mat.conductivity ? '#10b981' : '#334155';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(cLeft + 22, cTop);
+  ctx.lineTo(cRight - 22, cTop);
+  ctx.lineTo(cRight, cTop + 10);
+  ctx.lineTo(cRight, cBottom - 10);
+  ctx.lineTo(cRight - 22, cBottom);
+  ctx.lineTo(cLeft + 22, cBottom);
+  ctx.lineTo(cLeft, cBottom - 10);
+  ctx.lineTo(cLeft, cTop + 10);
+  ctx.closePath();
+  ctx.stroke();
+
+  // Battery (left side, centre-left)
+  const batX = cLeft + 4, batY = circCy - 18;
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(batX, batY, 16, 36);
+  ctx.strokeStyle = '#475569'; ctx.lineWidth = 1.2;
+  ctx.strokeRect(batX, batY, 16, 36);
+  // Battery terminals
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(batX + 3, batY - 4, 10, 5); // + pole
+  ctx.fillStyle = '#1d4ed8';
+  ctx.fillRect(batX + 3, batY + 36, 10, 5); // - pole
+  ctx.fillStyle = '#e2e8f0'; ctx.font = '700 9px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('+', batX + 8, batY - 1);
+  ctx.fillText('−', batX + 8, batY + 45);
+  ctx.fillStyle = '#64748b'; ctx.font = '600 9px Inter';
+  ctx.fillText('BAT', batX + 8, circCy + 4);
+
+  // Material under test (bottom, centre)
+  const matTX = pW / 2 - 22, matTY = cBottom - 14;
+  ctx.fillStyle = '#1e293b';
+  ctx.beginPath(); ctx.roundRect(matTX, matTY, 44, 16, 3); ctx.fill();
+  ctx.strokeStyle = '#475569'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect(matTX, matTY, 44, 16, 3); ctx.stroke();
+  ctx.fillStyle = '#94a3b8'; ctx.font = '600 9px Inter'; ctx.textAlign = 'center';
+  ctx.fillText(name, pW / 2, matTY + 10);
+
+  // Bulb (right side, centre-right)
+  const bulbX = cRight - 8, bulbY = circCy;
+  const bulbR = 14;
+  // Bulb glow if conductor
+  if (mat.conductivity) {
+    const grd = ctx.createRadialGradient(bulbX, bulbY, 0, bulbX, bulbY, bulbR * 2.5);
+    grd.addColorStop(0, 'rgba(253,224,71,0.55)');
+    grd.addColorStop(1, 'transparent');
+    ctx.beginPath(); ctx.arc(bulbX, bulbY, bulbR * 2.5, 0, Math.PI * 2);
+    ctx.fillStyle = grd; ctx.fill();
+  }
+  ctx.beginPath(); ctx.arc(bulbX, bulbY, bulbR, 0, Math.PI * 2);
+  ctx.fillStyle = mat.conductivity ? '#fef08a' : '#1e293b'; ctx.fill();
+  ctx.strokeStyle = mat.conductivity ? '#f59e0b' : '#475569'; ctx.lineWidth = 1.5; ctx.stroke();
+  // Filament
+  ctx.beginPath();
+  ctx.moveTo(bulbX - 5, bulbY); ctx.lineTo(bulbX - 2, bulbY - 5);
+  ctx.lineTo(bulbX + 2, bulbY + 5); ctx.lineTo(bulbX + 5, bulbY);
+  ctx.strokeStyle = mat.conductivity ? '#f59e0b' : '#334155'; ctx.lineWidth = 1.5; ctx.stroke();
+  // Bulb base
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(bulbX - 6, bulbY + bulbR - 2, 12, 8);
+  ctx.fillStyle = '#64748b'; ctx.font = '600 9px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('BULB', bulbX, bulbY + bulbR + 16);
+
+  // Result label
+  ctx.fillStyle = mat.conductivity ? '#34d399' : '#f87171';
+  ctx.font = '700 12px Inter'; ctx.textAlign = 'center';
+  ctx.fillText(mat.conductivity ? 'CONDUCTOR — bulb lights!' : 'INSULATOR — bulb does not light', pW / 2, p3y + pH - 5);
+
+  // ── PANEL 4: Solubility (bottom-right) ──
+  const p4x = pW, p4y = pH;
+  // Beaker
+  const beakerX = p4x + pW / 2 - 35, beakerY = p4y + 22;
+  const beakerW = 70, beakerH = 90;
+  // Beaker outline
+  ctx.strokeStyle = '#4b5563'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(beakerX, beakerY);
+  ctx.lineTo(beakerX, beakerY + beakerH);
+  ctx.lineTo(beakerX + beakerW, beakerY + beakerH);
+  ctx.lineTo(beakerX + beakerW, beakerY);
+  ctx.stroke();
+  // Spout left
+  ctx.beginPath();
+  ctx.moveTo(beakerX - 6, beakerY + 8);
+  ctx.lineTo(beakerX, beakerY + 2);
+  ctx.lineTo(beakerX + beakerW, beakerY + 2);
+  ctx.lineTo(beakerX + beakerW + 6, beakerY + 8);
+  ctx.stroke();
+  // Water fill
+  const waterAlpha = mat.soluble ? 0.6 : 0.35;
+  ctx.fillStyle = `rgba(56,189,248,${waterAlpha})`;
+  ctx.fillRect(beakerX + 2, beakerY + 20, beakerW - 4, beakerH - 22);
+  // Water label
+  ctx.fillStyle = '#38bdf8'; ctx.font = '600 9px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('water', beakerX + beakerW / 2, beakerY + 50);
+
+  if (mat.soluble) {
+    // Dissolved particles — small faded dots distributed through water
+    const dotPositions = [
+      [10, 30], [20, 50], [30, 35], [50, 55], [40, 70],
+      [15, 65], [55, 42], [35, 80], [25, 80], [60, 68],
+    ];
+    dotPositions.forEach(([dx, dy]) => {
+      const opacity = 0.25 + Math.random() * 0.3;
+      ctx.beginPath();
+      ctx.arc(beakerX + dx, beakerY + 18 + dy * 0.7, 3, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(254,249,195,${opacity})`;
+      ctx.fill();
+    });
+    // Solution label
+    ctx.fillStyle = '#34d399';
+    ctx.font = '700 11px Inter'; ctx.textAlign = 'center';
+    ctx.fillText('SOLUBLE', p4x + pW / 2, p4y + 130);
+    ctx.fillStyle = '#94a3b8'; ctx.font = '600 10px Inter';
+    ctx.fillText('dissolves → clear solution', p4x + pW / 2, p4y + 144);
+  } else {
+    // Insoluble — particles settle as sediment at bottom
+    ctx.fillStyle = '#78350f';
+    ctx.fillRect(beakerX + 2, beakerY + beakerH - 16, beakerW - 4, 14);
+    // Sediment texture dots
+    for (let i = 0; i < 8; i++) {
+      ctx.beginPath();
+      ctx.arc(beakerX + 6 + i * 8, beakerY + beakerH - 8, 3, 0, Math.PI * 2);
+      ctx.fillStyle = '#92400e'; ctx.fill();
+    }
+    ctx.fillStyle = '#f87171';
+    ctx.font = '700 11px Inter'; ctx.textAlign = 'center';
+    ctx.fillText('INSOLUBLE', p4x + pW / 2, p4y + 130);
+    ctx.fillStyle = '#94a3b8'; ctx.font = '600 10px Inter';
+    ctx.fillText('does not dissolve → sediment', p4x + pW / 2, p4y + 144);
+  }
+
+  // Update sidebar stats
+  document.getElementById('stat-material').textContent   = name;
+  document.getElementById('stat-hardness').textContent   = mat.hardness + ' / 5';
+  document.getElementById('stat-flex').textContent       = mat.flexibility + ' / 5';
+  document.getElementById('stat-conduct').textContent    = mat.conductivity ? 'Conductor' : 'Insulator';
+
+  // Feedback text
+  const transpWord = mat.transparency === 5 ? 'transparent' : mat.transparency >= 2 ? 'translucent' : 'opaque';
+  const absWord    = mat.absorb ? 'absorbs water' : 'does not absorb water';
+  const solWord    = mat.soluble ? 'is soluble (dissolves in water)' : 'is insoluble (does not dissolve)';
+  const condWord   = mat.conductivity ? 'is an electrical conductor' : 'is an electrical insulator';
+  document.getElementById('mat-feedback').innerHTML =
+    `<strong>${name}</strong>: hardness ${mat.hardness}/5 — flexibility ${mat.flexibility}/5 — ${transpWord} — ${absWord} — ${solWord} — ${condWord}.`;
+
+  // Record simulation usage once
+  if (!simUsedOnce) {
+    simUsedOnce = true;
+    Progress.recordSimUsed('diversity-materials');
+  }
+}
+
+// ══ QUIZ ══
+const QUIZ_Q = [
+  {
+    question: 'Which property best describes a material that bends easily without breaking?',
+    options: ['Hardness', 'Flexibility', 'Conductivity', 'Transparency'],
+    correct: 1,
+    explanation: 'Flexibility is the ability to bend without breaking. Rubber and cloth are highly flexible.'
+  },
+  {
+    question: 'A student tests whether a material allows electricity to flow by connecting it in a circuit with a bulb. The bulb lights up. What can she conclude?',
+    options: ['The material is soluble', 'The material is an electrical conductor', 'The material is transparent', 'The material is hard'],
+    correct: 1,
+    explanation: 'If the bulb lights, electricity flows through the material — it is an electrical conductor.'
+  },
+  {
+    question: 'Sugar is described as a soluble substance. What does this mean?',
+    options: ['It melts when heated', 'It dissolves in water to form a clear solution', 'It conducts electricity', 'It is transparent'],
+    correct: 1,
+    explanation: 'Soluble means it dissolves in water. Sugar dissolves to form a clear sugar solution.'
+  },
+  {
+    question: 'Why is copper used to make electrical wires?',
+    options: ['It is transparent', 'It is flexible and light', 'It is a good electrical conductor', 'It is soluble in water'],
+    correct: 2,
+    explanation: 'Copper is one of the best electrical conductors and is also ductile (can be drawn into wires), making it ideal for wiring.'
+  },
+  {
+    question: 'Which material would be MOST suitable for making a window?',
+    options: ['Wood', 'Rubber', 'Glass', 'Cloth'],
+    correct: 2,
+    explanation: 'Glass is transparent (allows light through), hard (resists scratching), and waterproof — ideal for windows.'
+  },
+  {
+    question: 'A material does not dissolve in water, does not conduct electricity, and is flexible. Which material fits ALL three descriptions?',
+    options: ['Copper', 'Glass', 'Rubber', 'Aluminium'],
+    correct: 2,
+    explanation: 'Rubber is insoluble in water, a good electrical insulator, and highly flexible — all three conditions satisfied.'
+  },
+  {
+    question: 'What is the correct order of terms for making a solution?',
+    options: [
+      'Solution + Solvent = Solute',
+      'Solute + Solvent = Solution',
+      'Solvent + Solution = Solute',
+      'Solute + Solution = Solvent'
+    ],
+    correct: 1,
+    explanation: 'The solute (e.g. sugar) dissolves in the solvent (e.g. water) to form a solution. The solution is always clear.'
+  },
+];
+
+// ══ MIND MAP TEMPLATE ══
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1,  label:'Materials',     color:{ background:'#063b27', border:'#10b981' }, font:{ size:15, color:'#34d399' } },
+    { id:2,  label:'Properties' },
+    { id:3,  label:'Hardness' },
+    { id:4,  label:'Flexibility' },
+    { id:5,  label:'Transparency' },
+    { id:6,  label:'Conductivity' },
+    { id:7,  label:'Solubility' },
+    { id:8,  label:'Solute' },
+    { id:9,  label:'Solvent' },
+    { id:10, label:'Solution' },
+    { id:11, label:'Uses' },
+    { id:12, label:'Conductor' },
+    { id:13, label:'Insulator' },
+  ],
+  edges: [
+    { from:1,  to:2,  label:'has' },
+    { from:2,  to:3  },
+    { from:2,  to:4  },
+    { from:2,  to:5  },
+    { from:2,  to:6  },
+    { from:2,  to:7  },
+    { from:7,  to:8,  label:'has' },
+    { from:7,  to:9,  label:'has' },
+    { from:7,  to:10, label:'forms' },
+    { from:1,  to:11, label:'has' },
+    { from:11, to:12 },
+    { from:11, to:13 },
+  ],
+  required: ['materials','properties','hardness','flexibility','conductivity','solubility','solute','solvent','solution']
+};
+
+let sciMap;
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('diversity-materials');
+  document.getElementById('mastery-pct').textContent = Progress.masteryPct('diversity-materials') + '%';
+  initAIQuizToggle(QUIZ_Q);
+  sciMap = new ScienceMindMap('mindmap-container', 'diversity-materials', MM_TEMPLATE);
+  drawMaterialSim('Wood');
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>

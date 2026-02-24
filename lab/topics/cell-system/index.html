@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cells &amp; Body Systems | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--systems); flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    /* ── Cornell extras ── */
+    .cue-question {
+      font-size: .78rem; color: var(--muted);
+      margin-bottom: .75rem;
+      border-left: 2px solid var(--systems);
+      padding-left: .6rem;
+    }
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: var(--accent); }
+
+    /* ── Sub-tabs ── */
+    .sub-tabs { display: flex; gap: .35rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .sub-tab {
+      padding: .35rem .85rem; border-radius: 7px;
+      border: 1px solid var(--border);
+      background: transparent; color: var(--muted);
+      font-size: .8rem; font-weight: 600; cursor: pointer; transition: all .15s;
+    }
+    .sub-tab.active { background: var(--systems); color: #fff; border-color: var(--systems); }
+    .sub-pane { display: none; }
+    .sub-pane.active { display: block; }
+
+    /* ── Sim stat boxes ── */
+    .sim-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .5rem .9rem;
+      font-size: .82rem;
+      text-align: center;
+      margin-top: .5rem;
+    }
+    .sim-stat strong { display: block; font-size: 1.05rem; color: var(--systems); }
+
+    /* ── Sim canvas wrap ── */
+    .sim-canvas-wrap {
+      background: #0d1117;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    .sim-canvas-wrap canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* ── Sim feedback ── */
+    .sim-feedback {
+      margin-top: .75rem;
+      padding: .75rem 1rem;
+      border-radius: 9px;
+      font-size: .85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    /* ── Cell builder nav ── */
+    .builder-nav {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-top: .75rem;
+      flex-wrap: wrap;
+    }
+    .builder-stage-label {
+      flex: 1;
+      text-align: center;
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--systems);
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>&#x1F52C; Cells &amp; Body Systems</h1>
+    <div style="font-size:.78rem;color:var(--muted)">
+      <span class="badge badge-systems">Systems</span>&nbsp;
+      <span class="badge badge-p6">P6</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--systems)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <!-- TABS -->
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════════ LEARN TAB ══════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <!-- Cue column -->
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What is a cell and why is it called the basic unit of life?</div>
+        <div class="cue-question">What are the main parts of a cell and their functions?</div>
+        <div class="cue-question">What are the key differences between plant cells and animal cells?</div>
+        <div class="cue-question">What is the hierarchy from cell to organism?</div>
+        <div class="cue-question">Name three organ systems and their main functions.</div>
+        <div class="cue-question">What is a specialised cell? Give two examples.</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+
+        <div class="glossary-term">
+          <div class="term-name">Cell</div>
+          <div class="term-def">The basic structural and functional unit of all living organisms. Every living thing is made of one or more cells.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Cell Membrane</div>
+          <div class="term-def">A thin, flexible layer surrounding every cell. Controls what enters and exits the cell. Present in both plant and animal cells.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Cell Wall</div>
+          <div class="term-def">A rigid outer layer found ONLY in plant cells (and fungi). Made of cellulose. Provides shape and support. Not present in animal cells.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Nucleus</div>
+          <div class="term-def">The control centre of the cell. Contains DNA (genetic instructions). Controls cell activities and reproduction.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Cytoplasm</div>
+          <div class="term-def">A jelly-like fluid filling the cell. Where most chemical reactions take place. Contains the organelles.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Chloroplast</div>
+          <div class="term-def">Found ONLY in plant cells (in green parts). Contains chlorophyll. Site of photosynthesis. Gives plants their green colour.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Vacuole</div>
+          <div class="term-def">A fluid-filled sac. Plant cells have a large central vacuole (stores water, keeps cell firm/turgid). Animal cells have small, temporary vacuoles.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Tissue</div>
+          <div class="term-def">A group of similar cells working together to perform a specific function. e.g. muscle tissue, nerve tissue, leaf tissue.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Organ</div>
+          <div class="term-def">A structure made of different tissues working together for a specific function. e.g. heart, lung, stomach, leaf.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Organ System</div>
+          <div class="term-def">A group of organs working together to perform a major body function. e.g. digestive system, respiratory system.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Organism</div>
+          <div class="term-def">A complete, individual living thing. Made up of organ systems working together.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Specialised Cell</div>
+          <div class="term-def">A cell with a specific shape/structure that suits its particular function. e.g. red blood cell (flat, biconcave — carries oxygen), nerve cell (long — transmits signals), root hair cell (elongated — absorbs water).</div>
+        </div>
+      </div>
+
+      <!-- Main notes -->
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🔬 The Cell — Basic Unit of Life</h4>
+          <ul style="margin-top:.4rem">
+            <li>All living organisms are made of cells</li>
+            <li>Cells were first observed by <strong>Robert Hooke</strong> (1665) using a microscope</li>
+            <li>Most cells are too small to see without a microscope</li>
+            <li>Two main types: <strong>Plant cells</strong> and <strong>Animal cells</strong></li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🧫 Parts of a Cell and Their Functions</h4>
+          <table style="width:100%;font-size:.82rem;border-collapse:collapse;margin-top:.5rem">
+            <tr style="background:var(--surface)">
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--systems)">Part</th>
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--systems)">Found in</th>
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--systems)">Function</th>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Cell membrane</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Both</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Controls entry/exit of substances</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Cell wall</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Plant only</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Rigid support and shape; made of cellulose</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Nucleus</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Both</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Control centre; contains DNA</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Cytoplasm</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Both</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Site of chemical reactions; jelly-like fluid</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Chloroplast</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Plant only (green parts)</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Site of photosynthesis; contains chlorophyll</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Vacuole (large)</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Plant only</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Stores water; keeps cell turgid/firm</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Vacuole (small)</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Animal (temporary)</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Temporary storage</td>
+            </tr>
+          </table>
+          <div class="highlight" style="margin-top:.75rem">
+            Key differences: Plant cells have a <strong>CELL WALL</strong>, <strong>CHLOROPLASTS</strong>, and a <strong>LARGE CENTRAL VACUOLE</strong>. Animal cells have <strong>NONE</strong> of these.
+          </div>
+        </div>
+
+        <div class="note-section">
+          <h4>📈 The Hierarchy of Life</h4>
+          <div class="equation" style="letter-spacing:.05em">
+            Cell → Tissue → Organ → Organ System → Organism
+          </div>
+          <ul style="margin-top:.6rem">
+            <li><strong>Cell:</strong> red blood cell, nerve cell, muscle cell</li>
+            <li><strong>Tissue:</strong> muscle tissue (many muscle cells), nerve tissue</li>
+            <li><strong>Organ:</strong> heart (muscle tissue + connective tissue + nerve tissue)</li>
+            <li><strong>Organ System:</strong> circulatory system (heart + blood vessels + blood)</li>
+            <li><strong>Organism:</strong> human being</li>
+          </ul>
+          <div class="highlight" style="margin-top:.6rem">
+            Analogy: Like a school — student (cell) → class (tissue) → department (organ) → school (organ system) → education system (organism)
+          </div>
+        </div>
+
+        <div class="note-section">
+          <h4>🫀 The Major Organ Systems</h4>
+          <table style="width:100%;font-size:.82rem;border-collapse:collapse;margin-top:.5rem">
+            <tr style="background:var(--surface)">
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--systems)">System</th>
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--systems)">Main Organs</th>
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--systems)">Main Function</th>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Digestive</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Mouth, stomach, small intestine, large intestine</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Break down food; absorb nutrients</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Respiratory</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Lungs, trachea, diaphragm</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Take in oxygen; remove carbon dioxide</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Circulatory</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Heart, arteries, veins, capillaries</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Pump and transport blood around body</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Skeletal</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Bones, cartilage</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Support body; protect organs; allow movement</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Nervous</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Brain, spinal cord, nerves</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Receive, process, send signals; coordinate body</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="note-section">
+          <h4>🏃 Specialised Cells</h4>
+          <p style="margin-bottom:.5rem">Cells are <strong>specialised</strong> (adapted) for specific jobs:</p>
+          <ul>
+            <li><strong>Red blood cell:</strong> flat, biconcave disc shape → maximises surface area for oxygen absorption; no nucleus → more space for haemoglobin</li>
+            <li><strong>Nerve cell (neuron):</strong> very long → can transmit signals over long distances; has branching ends (dendrites) → connects to many other cells</li>
+            <li><strong>Root hair cell:</strong> long hair-like extension → huge surface area for absorbing water from soil (see Plants topic)</li>
+            <li><strong>Sperm cell:</strong> has a tail (flagellum) → can swim to egg; packed with mitochondria → lots of energy for swimming</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Summary row -->
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--systems);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          <strong>Cells</strong> are the basic unit of life. <strong>Plant cells</strong> have cell wall, chloroplasts, and large vacuole; animal cells do not. Hierarchy: <strong>Cell → Tissue → Organ → Organ System → Organism</strong>. Major systems: digestive, respiratory, circulatory, skeletal, nervous. <strong>Specialised cells</strong> have specific shapes for specific functions.
+        </p>
+      </div>
+    </div>
+  </div><!-- /tab-learn -->
+
+  <!-- ══════════════ SIMULATE TAB ══════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <!-- Cue column -->
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">Which structures are present in plant cells but absent in animal cells?</div>
+        <div class="cue-question">How does the large vacuole help keep a plant firm?</div>
+        <div class="cue-question">How does cell shape relate to function in specialised cells?</div>
+
+        <div class="sim-stat"><strong id="stat-stage">Cell</strong>Current Level</div>
+        <div class="sim-stat" style="margin-top:.5rem"><strong id="stat-desc">1 cell</strong>Description</div>
+      </div>
+
+      <!-- Main simulation area -->
+      <div class="cornell-main" style="padding:1rem">
+        <div class="sub-tabs">
+          <button class="sub-tab active" id="subtab-cell" onclick="showSub('cell-sim', this)">🔬 Plant vs Animal Cell</button>
+          <button class="sub-tab" id="subtab-builder" onclick="showSub('builder-sim', this)">📈 Cell to Organism Builder</button>
+        </div>
+
+        <!-- CELL COMPARISON SIM -->
+        <div class="sub-pane active" id="cell-sim">
+          <p style="font-size:.83rem;color:var(--muted);margin-bottom:.75rem">
+            Compare plant and animal cell structures. Click <strong>Highlight Differences</strong> to flash features unique to plant cells.
+          </p>
+          <div class="sim-canvas-wrap" style="height:310px">
+            <canvas id="cell-canvas" width="580" height="300"></canvas>
+          </div>
+          <div style="margin-top:.6rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-ghost" style="font-size:.82rem" id="highlight-btn" onclick="highlightDiffs()">Highlight Differences</button>
+            <span style="font-size:.78rem;color:var(--muted)">Click to flash structures only found in plant cells</span>
+          </div>
+          <div class="sim-feedback" id="cell-feedback">
+            Plant cells have three structures that animal cells do not: a <strong style="color:#8b5cf6">cell wall</strong> (rigid cellulose layer), <strong style="color:#22c55e">chloroplasts</strong> (for photosynthesis), and a <strong style="color:#38bdf8">large central vacuole</strong> (stores water, keeps cell firm). Animal cells have only a cell membrane as their outer boundary.
+          </div>
+        </div>
+
+        <!-- CELL TO ORGANISM BUILDER SIM -->
+        <div class="sub-pane" id="builder-sim">
+          <p style="font-size:.83rem;color:var(--muted);margin-bottom:.75rem">
+            Zoom out through the hierarchy of life — from a single cell to a complete organism.
+          </p>
+          <div class="sim-canvas-wrap" style="height:330px">
+            <canvas id="builder-canvas" width="580" height="320"></canvas>
+          </div>
+          <div class="builder-nav">
+            <button class="btn btn-ghost" style="font-size:.82rem" id="prev-btn" onclick="prevStage()" disabled>← Previous</button>
+            <div class="builder-stage-label" id="stage-label">Stage 1 of 5: Cell</div>
+            <button class="btn btn-ghost" style="font-size:.82rem" id="next-btn" onclick="nextStage()">Next →</button>
+          </div>
+          <div class="sim-feedback" id="builder-feedback">
+            A single cell is the smallest unit of life. All living organisms are made of one or more cells.
+          </div>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--systems);font-weight:700;margin-bottom:.4rem">What to notice</div>
+        <p class="summary-text">
+          The <strong>cell wall</strong> gives plant cells their fixed rectangular shape. <strong>Chloroplasts</strong> are only in green parts of the plant. The <strong>large vacuole</strong> pushes the cytoplasm to the edges, making the cell turgid. As you zoom out through the hierarchy, each level has a more complex and specialised function.
+        </p>
+      </div>
+    </div>
+  </div><!-- /tab-simulate -->
+
+  <!-- ══════════════ QUIZ TAB ══════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Common exam question types:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li>State which structures are found in plant cells <strong>but not</strong> animal cells</li>
+            <li>Explain how a cell's shape helps its <strong>function</strong></li>
+            <li>Arrange the <strong>hierarchy</strong> from smallest to largest</li>
+            <li>Name the organ system responsible for a given function</li>
+          </ul>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--systems)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container" data-topic-id="cell-system" data-topic-name="Cells and Body Systems" data-topic-level="6"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">
+          Use the <strong>C-E-R</strong> framework: <strong>Claim</strong> → <strong>Evidence</strong> → <strong>Reasoning</strong>. e.g. "The red blood cell is flat and biconcave (claim). It has no nucleus and a large surface area (evidence). This allows it to carry more haemoglobin and absorb oxygen efficiently (reasoning)."
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MIND MAP TAB ══════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">+ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved!')">Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">Check My Map</button>
+      <span style="font-size:.73rem;color:var(--muted);margin-left:.5rem">Double-click a node to rename it</span>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+    <p style="font-size:.75rem;color:var(--muted);margin-top:.6rem">Build your concept map by adding and connecting ideas. Include all key terms from the glossary!</p>
+  </div>
+
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// SUB-TAB SWITCHING
+// ══════════════════════════════════════════════════════════════
+function showSub(paneId, btn) {
+  document.querySelectorAll('.sub-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(paneId).classList.add('active');
+  btn.classList.add('active');
+  if (paneId === 'cell-sim') { setTimeout(drawCellDiagram, 30); }
+  if (paneId === 'builder-sim') { setTimeout(() => drawBuilderStage(currentStage), 30); }
+}
+
+// ══════════════════════════════════════════════════════════════
+// SIM 1: PLANT VS ANIMAL CELL DIAGRAM
+// ══════════════════════════════════════════════════════════════
+let highlightActive = false;
+let highlightTimer  = null;
+
+function drawCellDiagram(highlight) {
+  const canvas = document.getElementById('cell-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, W, H);
+
+  const pulse = highlight ? 1 : 0;
+
+  // ── ANIMAL CELL (left half) ──────────────────────────────
+  const acx = 145, acy = 152;
+
+  // Title
+  ctx.fillStyle = '#8b5cf6';
+  ctx.font = 'bold 12px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Animal Cell', acx, 22);
+
+  // Cell body (irregular blob via bezier)
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(acx - 5, acy - 90);
+  ctx.bezierCurveTo(acx + 72, acy - 95, acx + 98, acy - 10, acx + 88, acy + 52);
+  ctx.bezierCurveTo(acx + 75, acy + 100, acx - 20, acy + 95, acx - 68, acy + 70);
+  ctx.bezierCurveTo(acx - 108, acy + 38, acx - 100, acy - 35, acx - 5, acy - 90);
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fill();
+  ctx.strokeStyle = '#a78bfa';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+
+  // Cytoplasm label region (fill already done above)
+  ctx.fillStyle = '#4a5568';
+  ctx.font = '9px Inter';
+  ctx.textAlign = 'center';
+  ctx.fillText('Cytoplasm', acx + 35, acy + 72);
+
+  // Nucleus
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(acx - 10, acy - 10, 28, 22, -0.2, 0, Math.PI * 2);
+  ctx.fillStyle = '#312e81';
+  ctx.fill();
+  ctx.strokeStyle = '#6366f1';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+  // Nucleus label
+  drawLabelLine(ctx, acx - 10, acy - 10, acx - 62, acy - 55, '#6366f1', 'Nucleus');
+
+  // Small vacuoles (2 tiny circles)
+  [[acx + 42, acy + 18], [acx + 28, acy + 48]].forEach(([vx, vy]) => {
+    ctx.beginPath();
+    ctx.ellipse(vx, vy, 11, 9, 0.3, 0, Math.PI * 2);
+    ctx.fillStyle = '#1e3a4a';
+    ctx.fill();
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+  drawLabelLine(ctx, acx + 42, acy + 18, acx + 88, acy - 15, '#38bdf8', 'Small vacuoles');
+
+  // Cell membrane label
+  drawLabelLine(ctx, acx + 70, acy + 30, acx + 90, acy + 65, '#a78bfa', 'Cell Membrane');
+
+  // ── PLANT CELL (right half) ──────────────────────────────
+  const pcx = 435, pcy = 148;
+  const pw = 115, ph = 120;
+
+  // Title
+  ctx.fillStyle = '#8b5cf6';
+  ctx.font = 'bold 12px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Plant Cell', pcx, 22);
+
+  // Cell wall (thick outer border)
+  const wallFlash = highlight ? '#c4b5fd' : '#7c3aed';
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(pcx - pw - 5, pcy - ph - 5, (pw + 5) * 2, (ph + 5) * 2, 4);
+  ctx.fillStyle = highlight ? '#2d1b5e' : '#1e1040';
+  ctx.fill();
+  ctx.strokeStyle = wallFlash;
+  ctx.lineWidth = highlight ? 5 : 3.5;
+  ctx.stroke();
+  ctx.restore();
+
+  // Cell membrane (inner thin line)
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(pcx - pw + 2, pcy - ph + 2, (pw - 2) * 2, (ph - 2) * 2, 2);
+  ctx.strokeStyle = '#a78bfa';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+  ctx.restore();
+
+  // Cytoplasm fill
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(pcx - pw + 4, pcy - ph + 4, (pw - 4) * 2, (ph - 4) * 2, 2);
+  ctx.fillStyle = '#111827';
+  ctx.fill();
+  ctx.restore();
+
+  // Large central vacuole (~60% of interior)
+  const vacFlash = highlight ? '#7dd3fc' : '#1d4ed8';
+  ctx.save();
+  ctx.beginPath();
+  const vacW = Math.round((pw - 8) * 1.2), vacH = Math.round((ph - 8) * 1.1);
+  ctx.roundRect(pcx - 58, pcy - 55, vacW, vacH, 3);
+  ctx.fillStyle = highlight ? '#0e2d4a' : '#0a1929';
+  ctx.fill();
+  ctx.strokeStyle = highlight ? '#38bdf8' : '#1d4ed8';
+  ctx.lineWidth = highlight ? 2.5 : 1.5;
+  ctx.stroke();
+  ctx.restore();
+  drawLabelLine(ctx, pcx + 2, pcy + 5, pcx + 110, pcy + 45, '#38bdf8', 'Large Vacuole');
+
+  // Nucleus (offset to side)
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(pcx - 60, pcy - 30, 18, 15, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#312e81';
+  ctx.fill();
+  ctx.strokeStyle = '#6366f1';
+  ctx.lineWidth = 1.8;
+  ctx.stroke();
+  ctx.restore();
+  drawLabelLine(ctx, pcx - 60, pcy - 30, pcx - 115, pcy - 75, '#6366f1', 'Nucleus');
+
+  // Chloroplasts (3-4 small green ellipses)
+  const cpFlash = highlight ? '#86efac' : '#22c55e';
+  const cpFill  = highlight ? '#14532d' : '#0f2d1a';
+  [[pcx - 55, pcy + 45], [pcx - 30, pcy + 52], [pcx - 5, pcy + 47]].forEach(([cx2, cy2]) => {
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(cx2, cy2, 14, 8, 0.2, 0, Math.PI * 2);
+    ctx.fillStyle = cpFill;
+    ctx.fill();
+    ctx.strokeStyle = cpFlash;
+    ctx.lineWidth = highlight ? 2 : 1.2;
+    ctx.stroke();
+    ctx.restore();
+  });
+  drawLabelLine(ctx, pcx - 30, pcy + 50, pcx - 115, pcy + 75, '#22c55e', 'Chloroplast');
+
+  // Cell wall label
+  drawLabelLine(ctx, pcx + pw + 2, pcy - 15, pcx + 115, pcy - 55, '#7c3aed', 'Cell Wall');
+  // Cell membrane label
+  drawLabelLine(ctx, pcx + pw - 5, pcy + 20, pcx + 115, pcy + 10, '#a78bfa', 'Cell Membrane');
+  // Cytoplasm label
+  ctx.fillStyle = '#4a5568';
+  ctx.font = '9px Inter';
+  ctx.textAlign = 'left';
+  ctx.fillText('Cytoplasm', pcx - pw + 8, pcy - ph + 18);
+
+  // Divider line
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(290, 10);
+  ctx.lineTo(290, H - 10);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawLabelLine(ctx, x1, y1, x2, y2, color, text) {
+  ctx.save();
+  ctx.strokeStyle = color + '88';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = color;
+  ctx.font = '9px Inter, sans-serif';
+  const isLeft = x2 < x1;
+  ctx.textAlign = isLeft ? 'right' : 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x2 + (isLeft ? -3 : 3), y2);
+  ctx.restore();
+}
+
+function highlightDiffs() {
+  if (highlightTimer) clearInterval(highlightTimer);
+  let flashes = 0;
+  const maxFlashes = 6;
+  highlightActive = true;
+  drawCellDiagram(true);
+  Progress.recordSimUsed('cell-system');
+  highlightTimer = setInterval(() => {
+    flashes++;
+    highlightActive = (flashes % 2 === 0);
+    drawCellDiagram(highlightActive);
+    if (flashes >= maxFlashes) {
+      clearInterval(highlightTimer);
+      highlightTimer = null;
+      highlightActive = false;
+      drawCellDiagram(false);
+    }
+  }, 380);
+}
+
+// ══════════════════════════════════════════════════════════════
+// SIM 2: CELL TO ORGANISM BUILDER
+// ══════════════════════════════════════════════════════════════
+let currentStage = 0;
+
+const STAGES = [
+  {
+    name: 'Cell',
+    desc: 'A single animal cell — the smallest unit of life.',
+    statDesc: '1 cell',
+    draw: drawStageCell
+  },
+  {
+    name: 'Tissue',
+    desc: 'Many similar cells working together form a tissue (e.g. muscle tissue).',
+    statDesc: 'Group of cells',
+    draw: drawStageTissue
+  },
+  {
+    name: 'Organ',
+    desc: 'Different tissues combined form an organ (e.g. the heart).',
+    statDesc: 'Multiple tissues',
+    draw: drawStageOrgan
+  },
+  {
+    name: 'Organ System',
+    desc: 'Organs working together form an organ system (e.g. circulatory system).',
+    statDesc: 'Multiple organs',
+    draw: drawStageSystem
+  },
+  {
+    name: 'Organism',
+    desc: 'All organ systems together form a complete organism — a human being.',
+    statDesc: 'Complete living thing',
+    draw: drawStageOrganism
+  }
+];
+
+function drawBuilderStage(idx) {
+  const canvas = document.getElementById('builder-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, W, H);
+
+  // Stage name header
+  ctx.fillStyle = '#8b5cf6';
+  ctx.font = 'bold 14px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Stage ' + (idx + 1) + ': ' + STAGES[idx].name, W / 2, 26);
+
+  // Draw stage content
+  STAGES[idx].draw(ctx, W, H);
+
+  // Update side stats
+  document.getElementById('stat-stage').textContent = STAGES[idx].name;
+  document.getElementById('stat-desc').textContent  = STAGES[idx].statDesc;
+  document.getElementById('builder-feedback').innerHTML = STAGES[idx].desc;
+  document.getElementById('stage-label').textContent = 'Stage ' + (idx + 1) + ' of 5: ' + STAGES[idx].name;
+  document.getElementById('prev-btn').disabled = idx === 0;
+  document.getElementById('next-btn').disabled = idx === STAGES.length - 1;
+}
+
+// Draw a single animal cell centred, large
+function drawStageCell(ctx, W, H) {
+  const cx = W / 2, cy = H / 2 + 15;
+  // Outer blob (cell)
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, 85, 75, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fill();
+  ctx.strokeStyle = '#a78bfa';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  ctx.restore();
+
+  // Nucleus
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(cx - 15, cy - 10, 28, 22, -0.15, 0, Math.PI * 2);
+  ctx.fillStyle = '#312e81';
+  ctx.fill();
+  ctx.strokeStyle = '#6366f1';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+
+  // Labels
+  ctx.fillStyle = '#a78bfa'; ctx.font = '10px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Cell Membrane', cx, cy + 90);
+  ctx.fillStyle = '#6366f1';
+  ctx.fillText('Nucleus', cx - 15, cy - 10);
+  ctx.fillStyle = '#64748b';
+  ctx.fillText('Cytoplasm', cx + 38, cy + 30);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px Inter';
+  ctx.fillText('(one animal cell)', cx, cy + 108);
+}
+
+// Draw a 3x3 grid of cells forming tissue
+function drawStageTissue(ctx, W, H) {
+  const cols = 5, rows = 3;
+  const cw = 58, ch = 50, gap = 4;
+  const totalW = cols * (cw + gap) - gap;
+  const totalH = rows * (ch + gap) - gap;
+  const startX = (W - totalW) / 2;
+  const startY = (H - totalH) / 2 + 15;
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const x = startX + c * (cw + gap);
+      const y = startY + r * (ch + gap);
+      const cx2 = x + cw / 2, cy2 = y + ch / 2;
+      // Cell body
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(cx2, cy2, cw / 2 - 2, ch / 2 - 2, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#1a1a2e';
+      ctx.fill();
+      ctx.strokeStyle = '#a78bfa';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.restore();
+      // Nucleus dot
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(cx2 - 4, cy2 - 3, 8, 6, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#4338ca';
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  ctx.fillStyle = '#8b5cf6'; ctx.font = '11px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Muscle Tissue — ' + (cols * rows) + ' similar cells working together', W / 2, startY + totalH + 22);
+  ctx.fillStyle = '#64748b'; ctx.font = '9.5px Inter';
+  ctx.fillText('Similar cells → Tissue', W / 2, startY + totalH + 38);
+}
+
+// Draw a simplified heart shape
+function drawStageOrgan(ctx, W, H) {
+  const cx = W / 2, cy = H / 2 + 20;
+  const scale = 1.15;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(scale, scale);
+
+  // Heart shape path
+  ctx.beginPath();
+  ctx.moveTo(0, -45);
+  ctx.bezierCurveTo(5, -65, 50, -65, 50, -25);
+  ctx.bezierCurveTo(50, 10, 0, 50, 0, 55);
+  ctx.bezierCurveTo(0, 50, -50, 10, -50, -25);
+  ctx.bezierCurveTo(-50, -65, -5, -65, 0, -45);
+  ctx.closePath();
+
+  ctx.fillStyle = '#3b0f1a';
+  ctx.fill();
+  ctx.strokeStyle = '#f43f5e';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Septum
+  ctx.beginPath();
+  ctx.moveTo(0, -44);
+  ctx.lineTo(0, 52);
+  ctx.strokeStyle = '#0f172a';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Left side label (red)
+  ctx.fillStyle = '#fb7185';
+  ctx.font = 'bold 9px Inter';
+  ctx.textAlign = 'center';
+  ctx.fillText('L', -22, 5);
+
+  // Right side label (blue)
+  ctx.fillStyle = '#818cf8';
+  ctx.fillText('R', 22, 5);
+
+  ctx.restore();
+
+  // Labels outside
+  ctx.fillStyle = '#f43f5e'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Heart (Organ)', cx, cy - 75 * scale);
+  ctx.fillStyle = '#94a3b8'; ctx.font = '10px Inter';
+  ctx.fillText('Made of: muscle tissue + nerve tissue + connective tissue', cx, cy + 75 * scale + 10);
+  ctx.fillStyle = '#64748b'; ctx.font = '9.5px Inter';
+  ctx.fillText('Tissues → Organ', cx, cy + 75 * scale + 26);
+}
+
+// Draw heart + vessels suggesting circulatory system
+function drawStageSystem(ctx, W, H) {
+  const cx = W / 2, cy = H / 2 + 10;
+  const scale = 0.85;
+
+  // Arteries — red tubes going out from left side
+  ctx.save();
+  ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 8; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx - 35 * scale, cy - 30 * scale);
+  ctx.quadraticCurveTo(cx - 130, cy - 90, cx - 170, cy - 30);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx - 35 * scale, cy + 20 * scale);
+  ctx.quadraticCurveTo(cx - 130, cy + 80, cx - 160, cy + 60);
+  ctx.stroke();
+  ctx.restore();
+
+  // Veins — blue tubes coming into right side
+  ctx.save();
+  ctx.strokeStyle = '#3730a3'; ctx.lineWidth = 8; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx + 35 * scale, cy - 30 * scale);
+  ctx.quadraticCurveTo(cx + 130, cy - 90, cx + 170, cy - 30);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx + 35 * scale, cy + 20 * scale);
+  ctx.quadraticCurveTo(cx + 130, cy + 80, cx + 160, cy + 60);
+  ctx.stroke();
+  ctx.restore();
+
+  // Small body-region boxes at tube ends
+  [[-170, cy - 30], [-160, cy + 60], [170, cy - 30], [160, cy + 60]].forEach(([bx, by]) => {
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(bx - 22, by - 12, 44, 24, 5);
+    ctx.fillStyle = '#0d1929'; ctx.fill();
+    ctx.strokeStyle = '#1e3a5a'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.restore();
+  });
+
+  // Heart (smaller)
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(scale, scale);
+  ctx.beginPath();
+  ctx.moveTo(0, -40);
+  ctx.bezierCurveTo(5, -58, 45, -58, 45, -22);
+  ctx.bezierCurveTo(45, 10, 0, 48, 0, 52);
+  ctx.bezierCurveTo(0, 48, -45, 10, -45, -22);
+  ctx.bezierCurveTo(-45, -58, -5, -58, 0, -40);
+  ctx.closePath();
+  ctx.fillStyle = '#3b0f1a'; ctx.fill();
+  ctx.strokeStyle = '#f43f5e'; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.restore();
+
+  // System label
+  ctx.fillStyle = '#8b5cf6'; ctx.font = 'bold 13px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Circulatory System (Organ System)', cx, cy - 105);
+
+  // Legend
+  ctx.fillStyle = '#dc2626'; ctx.font = '9.5px Inter'; ctx.textAlign = 'left';
+  ctx.fillText('Arteries (carry blood away)', cx - 185, cy + 100);
+  ctx.fillStyle = '#6366f1';
+  ctx.fillText('Veins (return blood)', cx + 30, cy + 100);
+  ctx.fillStyle = '#64748b'; ctx.textAlign = 'center';
+  ctx.fillText('Organs → Organ System', cx, cy + 118);
+}
+
+// Draw a simple stick figure with heart highlighted inside
+function drawStageOrganism(ctx, W, H) {
+  const cx = W / 2, cy = H / 2 + 10;
+  const col = '#94a3b8';
+
+  ctx.save();
+  ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.lineCap = 'round';
+
+  // Head
+  ctx.beginPath();
+  ctx.arc(cx, cy - 110, 28, 0, Math.PI * 2);
+  ctx.fillStyle = '#1e293b'; ctx.fill();
+  ctx.strokeStyle = col; ctx.stroke();
+
+  // Torso
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 82);
+  ctx.lineTo(cx, cy + 10);
+  ctx.stroke();
+
+  // Arms
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 65);
+  ctx.lineTo(cx - 55, cy - 20);
+  ctx.moveTo(cx, cy - 65);
+  ctx.lineTo(cx + 55, cy - 20);
+  ctx.stroke();
+
+  // Legs
+  ctx.beginPath();
+  ctx.moveTo(cx, cy + 10);
+  ctx.lineTo(cx - 38, cy + 90);
+  ctx.moveTo(cx, cy + 10);
+  ctx.lineTo(cx + 38, cy + 90);
+  ctx.stroke();
+
+  ctx.restore();
+
+  // Highlighted heart inside torso
+  ctx.save();
+  ctx.translate(cx - 10, cy - 52);
+  ctx.scale(0.38, 0.38);
+  ctx.beginPath();
+  ctx.moveTo(0, -40);
+  ctx.bezierCurveTo(5, -58, 45, -58, 45, -22);
+  ctx.bezierCurveTo(45, 10, 0, 48, 0, 52);
+  ctx.bezierCurveTo(0, 48, -45, 10, -45, -22);
+  ctx.bezierCurveTo(-45, -58, -5, -58, 0, -40);
+  ctx.closePath();
+  ctx.fillStyle = '#7f1d1d'; ctx.fill();
+  ctx.strokeStyle = '#f43f5e'; ctx.lineWidth = 6; ctx.stroke();
+  ctx.restore();
+
+  // Label arrow to heart
+  ctx.save();
+  ctx.strokeStyle = '#f43f5e88'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(cx - 10, cy - 52); ctx.lineTo(cx + 75, cy - 80); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#f43f5e'; ctx.font = '9.5px Inter'; ctx.textAlign = 'left';
+  ctx.fillText('Heart', cx + 78, cy - 80);
+  ctx.restore();
+
+  // Title and footnote
+  ctx.fillStyle = '#8b5cf6'; ctx.font = 'bold 13px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Organism — Human Being', cx, cy - 150);
+  ctx.fillStyle = '#64748b'; ctx.font = '9.5px Inter';
+  ctx.fillText('All organ systems working together = Organism', cx, cy + 108);
+}
+
+function nextStage() {
+  if (currentStage < STAGES.length - 1) {
+    currentStage++;
+    drawBuilderStage(currentStage);
+    Progress.recordSimUsed('cell-system');
+  }
+}
+
+function prevStage() {
+  if (currentStage > 0) {
+    currentStage--;
+    drawBuilderStage(currentStage);
+    Progress.recordSimUsed('cell-system');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════════════════════════
+const QUIZ_Q = [
+  {
+    question: 'Which of the following structures is found in plant cells BUT NOT in animal cells?',
+    options: ['Cell membrane', 'Nucleus', 'Cell wall', 'Cytoplasm'],
+    correct: 2,
+    explanation: 'Plant cells have a cell wall (made of cellulose) for rigidity and support. Animal cells only have a cell membrane.'
+  },
+  {
+    question: 'What is the correct order in the hierarchy of life, from smallest to largest?',
+    options: [
+      'Organ → Cell → Tissue → Organ System',
+      'Cell → Tissue → Organ → Organ System → Organism',
+      'Tissue → Cell → Organ → Organism',
+      'Organism → Organ System → Organ → Tissue → Cell'
+    ],
+    correct: 1,
+    explanation: 'The hierarchy is: cell (smallest unit) → tissue (similar cells) → organ (different tissues) → organ system (organs working together) → organism (complete living thing).'
+  },
+  {
+    question: 'A red blood cell has no nucleus and is shaped like a flat, biconcave disc. How does this shape help it function?',
+    options: [
+      'It allows the cell to reproduce quickly',
+      'It increases surface area for absorbing oxygen',
+      'It makes the cell waterproof',
+      'It allows the cell to carry more glucose'
+    ],
+    correct: 1,
+    explanation: 'The biconcave disc shape maximises surface area for oxygen absorption, and having no nucleus leaves more space for haemoglobin, the oxygen-carrying protein.'
+  },
+  {
+    question: "Which organelle is the 'control centre' of the cell, containing the genetic instructions?",
+    options: ['Chloroplast', 'Vacuole', 'Nucleus', 'Cell membrane'],
+    correct: 2,
+    explanation: 'The nucleus contains DNA — the genetic instructions that control all cell activities and are passed on during reproduction.'
+  },
+  {
+    question: 'The stomach, small intestine, and large intestine all belong to which organ system?',
+    options: ['Respiratory system', 'Circulatory system', 'Digestive system', 'Nervous system'],
+    correct: 2,
+    explanation: 'These organs all work together to break down food and absorb nutrients — that is the function of the digestive system.'
+  },
+  {
+    question: 'Which structure controls what enters and exits ALL cells (both plant and animal)?',
+    options: ['Cell wall', 'Cell membrane', 'Vacuole', 'Nucleus'],
+    correct: 1,
+    explanation: 'The cell membrane is present in both plant and animal cells. It controls the movement of substances in and out of the cell.'
+  },
+  {
+    question: "A student notices a cell has a large central vacuole taking up most of the cell's volume. What type of cell is this most likely to be?",
+    options: ['A red blood cell', 'A nerve cell', 'A plant cell', 'A muscle cell'],
+    correct: 2,
+    explanation: 'A large central vacuole is a defining feature of plant cells. It stores water and helps keep the cell firm (turgid).'
+  }
+];
+
+// ══════════════════════════════════════════════════════════════
+// MIND MAP TEMPLATE
+// ══════════════════════════════════════════════════════════════
+const MM_TEMPLATE = {
+  nodes: [
+    { id: 1,  label: 'Cell',            color: { background: '#1e183a', border: '#8b5cf6' }, font: { size: 15, color: '#c4b5fd' } },
+    { id: 2,  label: 'Animal Cell' },
+    { id: 3,  label: 'Plant Cell' },
+    { id: 4,  label: 'Cell Membrane' },
+    { id: 5,  label: 'Cell Wall' },
+    { id: 6,  label: 'Nucleus' },
+    { id: 7,  label: 'Chloroplast' },
+    { id: 8,  label: 'Vacuole' },
+    { id: 9,  label: 'Tissue' },
+    { id: 10, label: 'Organ' },
+    { id: 11, label: 'Organ System' },
+    { id: 12, label: 'Organism' },
+    { id: 13, label: 'Specialised Cell' },
+  ],
+  edges: [
+    { from: 1,  to: 2,  label: 'type' },
+    { from: 1,  to: 3,  label: 'type' },
+    { from: 2,  to: 4 },
+    { from: 3,  to: 4 },
+    { from: 3,  to: 5,  label: 'has' },
+    { from: 3,  to: 7,  label: 'has' },
+    { from: 3,  to: 8,  label: 'large' },
+    { from: 1,  to: 6,  label: 'contains' },
+    { from: 1,  to: 9,  label: 'forms' },
+    { from: 9,  to: 10, label: 'forms' },
+    { from: 10, to: 11, label: 'forms' },
+    { from: 11, to: 12, label: 'forms' },
+    { from: 1,  to: 13, label: 'can be' },
+  ],
+  required: ['cell', 'nucleus', 'cell membrane', 'tissue', 'organ', 'organism', 'chloroplast', 'specialised']
+};
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+let sciMap;
+
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('cell-system');
+  const pct = Progress.masteryPct('cell-system');
+  document.getElementById('mastery-pct').textContent = pct + '%';
+
+  initAIQuizToggle(QUIZ_Q);
+
+  sciMap = new ScienceMindMap('mindmap-container', 'cell-system', MM_TEMPLATE);
+
+  // Draw initial cell diagram
+  drawCellDiagram(false);
+
+  // Draw initial builder stage
+  drawBuilderStage(currentStage);
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label (e.g. "Cytoplasm", "Organ System"):');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>
