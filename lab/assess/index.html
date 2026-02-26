@@ -95,6 +95,31 @@
       font-weight: 600;
     }
 
+    select.drill-select {
+      width: 100%;
+      padding: .55rem .75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: .88rem;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    select.drill-select:focus { outline: none; border-color: var(--accent); }
+    .timer-badge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: .35rem .75rem;
+      border-radius: 99px;
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .timer-badge.warning { border-color: var(--energy); color: var(--energy); }
+    .timer-badge.danger  { border-color: #ef4444; color: #ef4444; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{ opacity:1 } 50%{ opacity:.6 } }
+
     /* AI generation panel */
     .ai-panel {
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -133,6 +158,19 @@
   <!-- ═══ SETUP SCREEN ═══ -->
   <div id="screen-setup">
 
+    <!-- Mode selector -->
+    <div class="setup-card">
+      <h3>🎯 Choose Assessment Mode</h3>
+      <div class="option-row" id="opt-mode">
+        <button class="option-pill active" data-val="synoptic">🧠 Synoptic</button>
+        <button class="option-pill" data-val="psle-practice">📝 PSLE Practice</button>
+        <button class="option-pill" data-val="topic-drill">🎯 Topic Drill</button>
+      </div>
+      <p id="mode-desc" style="font-size:.82rem;color:var(--muted);margin-top:.25rem">
+        Cross-topic questions drawing on 2+ syllabus areas — best preparation for Paper 2.
+      </p>
+    </div>
+
     <!-- AI panel -->
     <div class="ai-panel" id="ai-panel-bar">
       <div class="ai-panel-icon">🤖</div>
@@ -144,7 +182,7 @@
     </div>
 
     <!-- Topic selector -->
-    <div class="setup-card">
+    <div class="setup-card" id="topic-selector-card">
       <h3>📚 Choose Topics to Include</h3>
       <p>Select at least 2 topics. Questions will draw on concepts across your chosen topics.</p>
       <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
@@ -155,7 +193,7 @@
     </div>
 
     <!-- Options -->
-    <div class="setup-card">
+    <div class="setup-card" id="options-card">
       <h3>⚙️ Assessment Options</h3>
 
       <p style="margin-bottom:.4rem">Number of questions</p>
@@ -180,6 +218,25 @@
       <p style="font-size:.75rem;color:var(--muted)">Tip: hold Ctrl/Cmd to toggle multiple selections above.</p>
     </div>
 
+    <!-- Topic Drill selector (hidden unless drill mode) -->
+    <div class="setup-card" id="drill-topic-card" style="display:none">
+      <h3>📚 Select a Topic to Drill</h3>
+      <p style="font-size:.82rem;margin-bottom:.75rem">All MCQs for this topic will be loaded from the question databank.</p>
+      <select id="drill-topic-select" class="drill-select">
+        <option value="">— Loading topics… —</option>
+      </select>
+    </div>
+
+    <!-- PSLE Practice info (hidden unless psle-practice mode) -->
+    <div class="setup-card" id="psle-info-card" style="display:none">
+      <h3>📝 PSLE Practice — Paper 1 Simulation</h3>
+      <p style="font-size:.82rem;margin-bottom:.5rem">
+        30 multiple-choice questions drawn randomly from the full databank across all topics.<br>
+        <strong style="color:var(--accent)">⏱ 45-minute countdown timer</strong> — mirrors the real PSLE Paper 1 time allowance.
+      </p>
+      <p style="font-size:.78rem;color:var(--muted)">Tip: attempt every question — there's no penalty for guessing.</p>
+    </div>
+
     <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
       <button class="btn btn-primary" id="generate-btn" onclick="startAssessment()" style="font-size:.95rem;padding:.65rem 1.5rem">
         🚀 Generate Assessment
@@ -195,6 +252,7 @@
         <span style="font-size:.82rem;color:var(--muted)" id="assess-progress-label">Question 1 of 10</span>
       </div>
       <div style="display:flex;gap:.75rem;align-items:center">
+        <span id="timer-badge" class="timer-badge" style="display:none">⏱ 45:00</span>
         <span style="font-size:.82rem;color:var(--muted)">Score: <strong id="running-score" style="color:var(--accent)">0</strong></span>
         <button class="btn btn-ghost" style="font-size:.78rem" onclick="abandonAssessment()">✕ Quit</button>
       </div>
@@ -573,6 +631,74 @@ let currentIdx     = 0;
 let answers        = [];   // { qId, correct: bool|null, pointsEarned, maxPoints }
 let runningScore   = 0;
 let maxScore       = 0;
+let optMode        = 'synoptic';
+let drillTopicId   = '';
+let timerInterval  = null;
+let timeRemaining  = 0;
+let cachedBank     = null;
+
+// ══════════════════════════════════════════════════════
+//  MODE HELPERS
+// ══════════════════════════════════════════════════════
+
+const MODE_DESC = {
+  'synoptic':      'Cross-topic questions drawing on 2+ syllabus areas — best preparation for Paper 2.',
+  'psle-practice': '30 timed multiple-choice questions across all topics — simulates PSLE Paper 1.',
+  'topic-drill':   'All MCQs for a single topic — ideal for targeted single-topic revision.'
+};
+
+async function loadQuestionsBank() {
+  if (cachedBank) return cachedBank;
+  try {
+    const resp = await fetch('../questions.json');
+    if (!resp.ok) throw new Error('fetch failed');
+    cachedBank = await resp.json();
+  } catch(e) { cachedBank = []; }
+  return cachedBank;
+}
+
+async function populateDrillTopics() {
+  const bank = await loadQuestionsBank();
+  const topicMap = new Map();
+  bank.forEach(q => { if (!topicMap.has(q.topicId)) topicMap.set(q.topicId, q.topicName); });
+  const sel = document.getElementById('drill-topic-select');
+  sel.innerHTML = '<option value="">— Pick a topic —</option>';
+  [...topicMap.entries()].sort((a,b) => a[1].localeCompare(b[1])).forEach(([id, name]) => {
+    const opt = document.createElement('option');
+    opt.value = id; opt.textContent = name;
+    sel.appendChild(opt);
+  });
+  sel.onchange = () => { drillTopicId = sel.value; };
+}
+
+function startTimer(seconds) {
+  timeRemaining = seconds;
+  const badge = document.getElementById('timer-badge');
+  badge.style.display = 'inline-block';
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeRemaining--;
+    updateTimerDisplay();
+    if (timeRemaining <= 0) { clearInterval(timerInterval); timerInterval = null; showResults(); }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  const badge = document.getElementById('timer-badge');
+  if (badge) badge.style.display = 'none';
+}
+
+function updateTimerDisplay() {
+  const badge = document.getElementById('timer-badge');
+  if (!badge) return;
+  const m = Math.floor(timeRemaining / 60);
+  const s = timeRemaining % 60;
+  badge.textContent = `⏱ ${m}:${String(s).padStart(2,'0')}`;
+  if (timeRemaining <= 120)      badge.className = 'timer-badge danger';
+  else if (timeRemaining <= 300) badge.className = 'timer-badge warning';
+  else                           badge.className = 'timer-badge';
+}
 
 // ══════════════════════════════════════════════════════
 //  INIT
@@ -587,6 +713,19 @@ document.addEventListener('DOMContentLoaded', () => {
   buildOptionPills('opt-count',       v => { optCount = parseInt(v); }, '10');
   buildOptionPills('opt-difficulty',  v => { optDifficulty = v; },     'mixed');
   buildOptionPillsMulti('opt-types',  v => { optTypes.has(v) ? optTypes.delete(v) : optTypes.add(v); });
+  buildOptionPills('opt-mode', v => {
+    optMode = v;
+    document.getElementById('mode-desc').textContent = MODE_DESC[v];
+    const isSynoptic = v === 'synoptic';
+    const isDrill    = v === 'topic-drill';
+    const isPSLE     = v === 'psle-practice';
+    document.getElementById('ai-panel-bar').style.display          = isSynoptic ? 'flex' : 'none';
+    document.getElementById('topic-selector-card').style.display   = isSynoptic ? 'block' : 'none';
+    document.getElementById('options-card').style.display          = isSynoptic ? 'block' : 'none';
+    document.getElementById('drill-topic-card').style.display      = isDrill    ? 'block' : 'none';
+    document.getElementById('psle-info-card').style.display        = isPSLE     ? 'block' : 'none';
+    if (isDrill) populateDrillTopics();
+  }, 'synoptic');
   updateAIPanel();
 });
 
@@ -704,42 +843,71 @@ async function startAssessment() {
   const errEl = document.getElementById('gen-error');
   errEl.textContent = '';
 
-  if (selectedTopics.size < 2) {
-    errEl.textContent = 'Please select at least 2 topics.';
-    return;
-  }
-  if (optTypes.size === 0) {
-    errEl.textContent = 'Please enable at least one question type.';
-    return;
-  }
-
   const btn = document.getElementById('generate-btn');
   btn.disabled = true;
   btn.textContent = '⏳ Building assessment…';
 
-  assessment = buildAssessment();
+  stopTimer();
 
-  // If AI key set, optionally fetch AI questions too
-  if (AIConfig.hasKey() && assessment.length < optCount) {
-    try {
-      const aiQs = await generateAIQuestions(optCount - assessment.length);
-      assessment = [...assessment, ...aiQs].slice(0, optCount);
-    } catch (e) { /* silently use static questions */ }
-  }
+  if (optMode === 'psle-practice') {
+    const bank = await loadQuestionsBank();
+    if (bank.length === 0) {
+      errEl.textContent = 'Could not load question databank. Please try again.';
+      btn.disabled = false; btn.textContent = '🚀 Generate Assessment';
+      return;
+    }
+    const pool = bank.filter(q => !q.type || q.type === 'mcq');
+    assessment = pool.sort(() => Math.random() - 0.5).slice(0, 30);
 
-  // Shuffle
-  assessment = assessment.sort(() => Math.random() - 0.5).slice(0, optCount);
+  } else if (optMode === 'topic-drill') {
+    if (!drillTopicId) {
+      errEl.textContent = 'Please select a topic to drill.';
+      btn.disabled = false; btn.textContent = '🚀 Generate Assessment';
+      return;
+    }
+    const bank = await loadQuestionsBank();
+    assessment = bank.filter(q => q.topicId === drillTopicId);
+    if (assessment.length === 0) {
+      errEl.textContent = 'No questions found for this topic.';
+      btn.disabled = false; btn.textContent = '🚀 Generate Assessment';
+      return;
+    }
+    assessment = assessment.sort(() => Math.random() - 0.5);
 
-  if (assessment.length === 0) {
-    errEl.textContent = 'No questions found for the selected topics. Please select more topics.';
-    btn.disabled = false;
-    btn.textContent = '🚀 Generate Assessment';
-    return;
+  } else {
+    // Synoptic mode (original)
+    if (selectedTopics.size < 2) {
+      errEl.textContent = 'Please select at least 2 topics.';
+      btn.disabled = false; btn.textContent = '🚀 Generate Assessment';
+      return;
+    }
+    if (optTypes.size === 0) {
+      errEl.textContent = 'Please enable at least one question type.';
+      btn.disabled = false; btn.textContent = '🚀 Generate Assessment';
+      return;
+    }
+
+    assessment = buildAssessment();
+
+    if (AIConfig.hasKey() && assessment.length < optCount) {
+      try {
+        const aiQs = await generateAIQuestions(optCount - assessment.length);
+        assessment = [...assessment, ...aiQs].slice(0, optCount);
+      } catch (e) { /* silently use static questions */ }
+    }
+
+    assessment = assessment.sort(() => Math.random() - 0.5).slice(0, optCount);
+
+    if (assessment.length === 0) {
+      errEl.textContent = 'No questions found for the selected topics. Please select more topics.';
+      btn.disabled = false; btn.textContent = '🚀 Generate Assessment';
+      return;
+    }
   }
 
   // Calculate max score
   maxScore = assessment.reduce((sum, q) => {
-    if (q.type === 'mcq') return sum + 1;
+    if (q.type === 'mcq' || !q.type) return sum + 1;
     const correctCount = q.phrases.filter(p => p.correct).length;
     return sum + correctCount;
   }, 0);
@@ -753,6 +921,8 @@ async function startAssessment() {
 
   showScreen('assess');
   renderQuestion();
+
+  if (optMode === 'psle-practice') startTimer(45 * 60);
 }
 
 function buildAssessment() {
@@ -861,7 +1031,7 @@ function renderQuestion() {
     return t ? `<span class="topic-tag" style="border-color:${THEME_COLORS[t.theme]};color:${THEME_COLORS[t.theme]}">${t.name}</span>` : '';
   }).join('');
 
-  if (q.type === 'mcq') {
+  if (q.type !== 'open') {
     area.innerHTML = `
       <div class="q-card">
         <div class="assess-q-header">
@@ -1016,12 +1186,14 @@ function nextQuestion() {
 
 function abandonAssessment() {
   if (confirm('Quit this assessment? Your progress will be lost.')) {
+    stopTimer();
     showScreen('setup');
     updateAIPanel();
   }
 }
 
 function resetToSetup() {
+  stopTimer();
   showScreen('setup');
   updateAIPanel();
 }
@@ -1086,8 +1258,12 @@ function showResults() {
     grid.appendChild(item);
   });
 
-  // Record to progress (synoptic)
-  Progress.recordQuiz('synoptic', Math.round(totalEarned), Math.round(totalMax));
+  // Record to progress
+  if (optMode === 'topic-drill' && drillTopicId) {
+    Progress.recordQuiz(drillTopicId, Math.round(totalEarned), Math.round(totalMax));
+  } else {
+    Progress.recordQuiz('synoptic', Math.round(totalEarned), Math.round(totalMax));
+  }
 }
 
 // ══════════════════════════════════════════════════════

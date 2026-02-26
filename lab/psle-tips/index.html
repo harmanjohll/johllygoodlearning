@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSLE Science Tips | Science Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+    .page-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .header-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--accent); flex-shrink: 0; }
+    main { max-width: 960px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+
+    /* ── Section tabs ── */
+    .tip-tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .tip-tab {
+      padding: .45rem 1.1rem; border-radius: 9px;
+      border: 1.5px solid var(--border);
+      background: transparent; color: var(--muted);
+      font-size: .85rem; font-weight: 700; cursor: pointer; transition: all .15s;
+    }
+    .tip-tab:hover { border-color: var(--accent); color: var(--accent); }
+    .tip-tab.active { background: var(--accent); color: #0d1117; border-color: var(--accent); }
+    .tip-pane { display: none; }
+    .tip-pane.active { display: block; }
+
+    /* ── Cards ── */
+    .tip-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.25rem 1.4rem;
+      margin-bottom: 1rem;
+    }
+    .tip-card h3 { font-size: .95rem; font-weight: 800; margin-bottom: .65rem; display: flex; align-items: center; gap: .45rem; }
+    .tip-card p, .tip-card li { font-size: .87rem; color: var(--muted); line-height: 1.65; }
+    .tip-card ul, .tip-card ol { padding-left: 1.2rem; margin-top: .35rem; }
+    .tip-card li { margin-bottom: .25rem; }
+
+    /* ── Phrase blocks ── */
+    .phrase-block {
+      background: var(--surface); border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0; padding: .65rem 1rem;
+      margin: .4rem 0; font-size: .88rem;
+    }
+    .phrase-block code { color: var(--accent); font-family: inherit; font-weight: 700; }
+    .phrase-block .use-when { font-size: .75rem; color: var(--muted); margin-top: .2rem; }
+
+    /* ── Frame blocks ── */
+    .frame-block {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: .85rem 1rem; margin: .5rem 0;
+    }
+    .frame-block .q-type { font-size: .72rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .07em; color: #f59e0b; margin-bottom: .35rem; }
+    .frame-block .frame-text { font-size: .85rem; color: var(--text); line-height: 1.65; }
+    .frame-block .frame-text em { color: var(--accent); font-style: normal; font-weight: 700; }
+    .frame-block .example { font-size: .8rem; color: var(--muted); margin-top: .5rem; border-top: 1px solid var(--border); padding-top: .4rem; }
+
+    /* ── Fact chips ── */
+    .fact-section-title {
+      font-size: .72rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .07em; color: var(--muted); margin: 1rem 0 .4rem;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .fact-chip {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: .55rem .85rem;
+      font-size: .82rem; color: var(--text); margin-bottom: .3rem;
+      display: flex; gap: .5rem; align-items: flex-start;
+    }
+    .fact-chip .fc-icon { flex-shrink: 0; font-size: 1rem; }
+    .fact-chip .fc-text strong { color: var(--accent); }
+
+    /* ── Fumble cards ── */
+    .fumble-card {
+      background: var(--card); border: 1px solid #ef444433;
+      border-left: 4px solid #ef4444;
+      border-radius: 0 12px 12px 0; padding: 1rem 1.1rem; margin-bottom: .85rem;
+    }
+    .fumble-card .wrong { color: #f87171; font-size: .85rem; font-weight: 700; margin-bottom: .3rem; }
+    .fumble-card .right { color: #34d399; font-size: .85rem; font-weight: 700; margin-bottom: .2rem; }
+    .fumble-card .explain { font-size: .82rem; color: var(--muted); line-height: 1.55; }
+
+    /* ── Search bar ── */
+    .search-row { margin-bottom: 1rem; }
+    .search-row input {
+      width: 100%; padding: .55rem .85rem;
+      border: 1.5px solid var(--border); border-radius: 9px;
+      background: var(--surface); color: var(--text); font-size: .85rem;
+      box-sizing: border-box;
+    }
+    .search-row input:focus { outline: none; border-color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="header-bar"></div>
+  <div style="flex:1">
+    <h1 style="font-size:1.15rem;font-weight:800;margin:0">📝 PSLE Science — Exam Tips</h1>
+    <div style="font-size:.75rem;color:var(--muted)">Phrases · Frames · Facts · Fumbles — everything you need for exam day</div>
+  </div>
+  <a href="../index.html" class="btn btn-ghost" style="font-size:.82rem">← All Topics</a>
+</div>
+
+<main>
+
+  <div class="tip-tabs">
+    <button class="tip-tab active" onclick="showTab('phrases',this)">💬 Phrases</button>
+    <button class="tip-tab" onclick="showTab('frames',this)">📐 Frames</button>
+    <button class="tip-tab" onclick="showTab('facts',this)">⚡ Fast Facts</button>
+    <button class="tip-tab" onclick="showTab('fumbles',this)">❌ Fumbles</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       PHRASES
+  ════════════════════════════════════════════════════ -->
+  <div class="tip-pane active" id="pane-phrases">
+
+    <div class="tip-card">
+      <h3>🔗 Connective Phrases — Cause & Effect</h3>
+      <p style="margin-bottom:.65rem">Use these to link your reason to your observation. Examiners look for a clear causal chain.</p>
+      <div class="phrase-block"><code>This is because …</code><div class="use-when">Starter for any explanation. "The shadow is larger. This is because the object is closer to the light source."</div></div>
+      <div class="phrase-block"><code>As a result, …</code><div class="use-when">Consequence of a change. "The resistance increased. As a result, less current flows."</div></div>
+      <div class="phrase-block"><code>Therefore, …</code><div class="use-when">Conclusion from evidence. "The bulb did not light up. Therefore, the circuit is incomplete."</div></div>
+      <div class="phrase-block"><code>This causes … to …</code><div class="use-when">One thing affecting another. "Heating the liquid causes the particles to move faster and further apart."</div></div>
+      <div class="phrase-block"><code>When … increases/decreases, … increases/decreases.</code><div class="use-when">Relationship between two variables. "When the voltage increases, the current increases."</div></div>
+      <div class="phrase-block"><code>… which means that …</code><div class="use-when">Extend your explanation. "The circuit is broken, which means that no current can flow."</div></div>
+    </div>
+
+    <div class="tip-card">
+      <h3>🔬 Science Process Phrases</h3>
+      <div class="phrase-block"><code>The dependent variable is … ; the independent variable is …</code><div class="use-when">For experiment questions. Always identify both variables clearly.</div></div>
+      <div class="phrase-block"><code>To make the test fair, … should be kept the same.</code><div class="use-when">When asked about fair tests. List controlled variables specifically.</div></div>
+      <div class="phrase-block"><code>The results show that … As the [independent variable] increases, the [dependent variable] …</code><div class="use-when">Describing a pattern in data.</div></div>
+      <div class="phrase-block"><code>This supports / does not support the hypothesis because …</code><div class="use-when">When evaluating an investigation conclusion.</div></div>
+    </div>
+
+    <div class="tip-card">
+      <h3>📊 Comparison Phrases</h3>
+      <div class="phrase-block"><code>… is greater than / less than / the same as …</code><div class="use-when">Comparing two quantities. Be specific — use numbers where possible.</div></div>
+      <div class="phrase-block"><code>Unlike [A], [B] …</code><div class="use-when">Highlighting a key difference. "Unlike arteries, veins carry deoxygenated blood."</div></div>
+      <div class="phrase-block"><code>Both [A] and [B] …, but …</code><div class="use-when">Showing similarity then difference. "Both the small and large intestine absorb substances, but the small intestine absorbs nutrients while the large intestine absorbs water."</div></div>
+    </div>
+
+    <div class="tip-card">
+      <h3>🌱 Topic-Specific Power Phrases</h3>
+      <p style="margin-bottom:.65rem">Memorise these phrases — they score marks in nearly every exam.</p>
+      <div class="phrase-block"><code>Light travels in straight lines.</code><div class="use-when">Always say this when explaining why shadows form or why you cannot see around corners.</div></div>
+      <div class="phrase-block"><code>… has a large surface area for … to take place.</code><div class="use-when">Villi in small intestine, alveoli in lungs, root hair cells.</div></div>
+      <div class="phrase-block"><code>The [material] is a good conductor / insulator of [heat/electricity].</code><div class="use-when">When comparing thermal or electrical properties of materials.</div></div>
+      <div class="phrase-block"><code>… moves from an area of high concentration to an area of low concentration.</code><div class="use-when">Diffusion — oxygen in alveoli, nutrients in small intestine.</div></div>
+      <div class="phrase-block"><code>Energy is transferred from … to … in the form of …</code><div class="use-when">Energy transfer questions. e.g. "Chemical energy in battery → electrical energy → light and heat in bulb."</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       FRAMES
+  ════════════════════════════════════════════════════ -->
+  <div class="tip-pane" id="pane-frames">
+
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem">These are answer templates for the most common PSLE Science question types. Fill in the <strong style="color:var(--accent)">highlighted slots</strong>.</p>
+
+    <div class="frame-block">
+      <div class="q-type">📌 "State one way…" / "Give one reason…"</div>
+      <div class="frame-text">Answer in <em>one complete sentence</em>. Do not write an essay — one clear point scores full marks.<br>
+      Frame: <em>[Observation/fact] because [reason].</em></div>
+      <div class="example">Example: "The shadow is larger because the object is placed closer to the light source."</div>
+    </div>
+
+    <div class="frame-block">
+      <div class="q-type">📌 "Explain why…"</div>
+      <div class="frame-text">Give TWO linked steps: <em>What happens → Why it happens → What the effect is.</em><br>
+      Frame: <em>[Event]. This is because [scientific reason]. As a result, [consequence].</em></div>
+      <div class="example">Example: "The bulb becomes dimmer. This is because adding more bulbs in series increases the resistance in the circuit. As a result, less current flows through each bulb."</div>
+    </div>
+
+    <div class="frame-block">
+      <div class="q-type">📌 "Predict and explain…"</div>
+      <div class="frame-text">First state your prediction clearly, then give the reason.<br>
+      Frame: <em>[Predicted outcome]. This is because [scientific principle/fact].</em></div>
+      <div class="example">Example: "The spring will stretch more. This is because a heavier load exerts a greater force on the spring, causing a greater extension (Hooke's Law)."</div>
+    </div>
+
+    <div class="frame-block">
+      <div class="q-type">📌 "Suggest how…" / "How could the student improve…"</div>
+      <div class="frame-text">Make a specific, actionable suggestion tied to the experiment.<br>
+      Frame: <em>The student could [specific action] so that [desired outcome].</em></div>
+      <div class="example">Example: "The student could repeat the experiment three times and calculate the average so that the results are more reliable."</div>
+    </div>
+
+    <div class="frame-block">
+      <div class="q-type">📌 "Compare A and B…"</div>
+      <div class="frame-text">State the similarity AND difference explicitly.<br>
+      Frame: <em>Both [A] and [B] [similarity]. However, [A] [difference] while [B] [difference].</em></div>
+      <div class="example">Example: "Both the small intestine and large intestine absorb substances into the blood. However, the small intestine absorbs digested nutrients while the large intestine absorbs water."</div>
+    </div>
+
+    <div class="frame-block">
+      <div class="q-type">📌 "What is the function of…?"</div>
+      <div class="frame-text">Name the organ/structure → state what it does → why it matters.<br>
+      Frame: <em>The [structure] [verb — produces/transports/absorbs/filters] [substance/material], which [purpose].</em></div>
+      <div class="example">Example: "The alveoli absorb oxygen from the inhaled air into the blood, which then transports it to cells throughout the body."</div>
+    </div>
+
+    <div class="frame-block">
+      <div class="q-type">📌 "Why is [adaptation] important for [organism]?"</div>
+      <div class="frame-text">Link the physical feature → its function → survival benefit.<br>
+      Frame: <em>The [feature] allows the organism to [function]. This helps it to [survive/obtain food/reproduce] in [habitat].</em></div>
+      <div class="example">Example: "The camel's hump stores fat, which can be broken down for energy and water. This helps it to survive for long periods without food or water in the desert."</div>
+    </div>
+
+    <div class="frame-block">
+      <div class="q-type">📌 "Design a fair test / identify variables"</div>
+      <div class="frame-text">Name all three types of variable.<br>
+      Frame: <em>Independent variable (what is changed): [X]. Dependent variable (what is measured): [Y]. Controlled variables (what is kept the same): [A, B, C].</em></div>
+      <div class="example">Example: "IV: length of wire. DV: brightness of bulb. Controlled: same battery, same type of wire, same bulb, same temperature."</div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       FAST FACTS
+  ════════════════════════════════════════════════════ -->
+  <div class="tip-pane" id="pane-facts">
+
+    <div class="search-row">
+      <input type="text" id="fact-search" placeholder="Search facts…" oninput="filterFacts(this.value)">
+    </div>
+
+    <div id="facts-container">
+
+    <div class="fact-section-title">🔴 Circulatory System</div>
+    <div class="fact-chip" data-text="left ventricle thickest wall pumps whole body"><div class="fc-icon">🫀</div><div class="fc-text">The <strong>left ventricle</strong> has the thickest wall — it pumps blood to the ENTIRE body.</div></div>
+    <div class="fact-chip" data-text="arteries away veins towards"><div class="fc-icon">🫀</div><div class="fc-text"><strong>Arteries</strong> carry blood <strong>A</strong>way from the heart. <strong>Veins</strong> carry blood towards the heart.</div></div>
+    <div class="fact-chip" data-text="pulmonary artery deoxygenated only exception"><div class="fc-icon">🫀</div><div class="fc-text">The <strong>pulmonary artery</strong> is the ONLY artery carrying deoxygenated blood. The <strong>pulmonary vein</strong> is the ONLY vein carrying oxygenated blood.</div></div>
+    <div class="fact-chip" data-text="capillaries one cell thick exchange oxygen nutrients"><div class="fc-icon">🫀</div><div class="fc-text"><strong>Capillaries</strong> are only one cell thick — this allows easy exchange of O₂, CO₂, and nutrients.</div></div>
+    <div class="fact-chip" data-text="haemoglobin red blood cells carries oxygen"><div class="fc-icon">🫀</div><div class="fc-text"><strong>Haemoglobin</strong> in red blood cells binds to oxygen. It gives blood its red colour.</div></div>
+
+    <div class="fact-section-title">🫁 Respiratory System</div>
+    <div class="fact-chip" data-text="respiration not breathing cells oxygen energy"><div class="fc-icon">🫁</div><div class="fc-text"><strong>Respiration ≠ Breathing.</strong> Respiration is a chemical process in CELLS. Breathing is the physical act of inhaling/exhaling.</div></div>
+    <div class="fact-chip" data-text="alveoli large surface area gas exchange oxygen carbon dioxide"><div class="fc-icon">🫁</div><div class="fc-text"><strong>Alveoli</strong> have a large surface area and thin walls — perfect for gas exchange (O₂ in, CO₂ out).</div></div>
+    <div class="fact-chip" data-text="diaphragm contracts flattens inhale air in"><div class="fc-icon">🫁</div><div class="fc-text"><strong>Diaphragm contracts (flattens)</strong> → chest volume increases → air rushes IN (inhale).</div></div>
+    <div class="fact-chip" data-text="diffusion high concentration low concentration oxygen alveoli blood"><div class="fc-icon">🫁</div><div class="fc-text">Gas exchange is by <strong>diffusion</strong>: O₂ moves from high (alveoli) to low (blood) concentration.</div></div>
+
+    <div class="fact-section-title">🍽 Digestive System</div>
+    <div class="fact-chip" data-text="small intestine absorbs nutrients large intestine absorbs water"><div class="fc-icon">🍽</div><div class="fc-text"><strong>Small intestine</strong> = absorbs <em>nutrients</em>. <strong>Large intestine</strong> = absorbs <em>water</em>. Don't mix these up!</div></div>
+    <div class="fact-chip" data-text="amylase mouth saliva starch sugar"><div class="fc-icon">🍽</div><div class="fc-text"><strong>Amylase</strong> in saliva starts digesting starch in the <strong>mouth</strong> — digestion begins BEFORE you swallow.</div></div>
+    <div class="fact-chip" data-text="stomach protein acid gastric juice"><div class="fc-icon">🍽</div><div class="fc-text">The <strong>stomach</strong> digests <strong>proteins</strong> using gastric acid and enzymes.</div></div>
+    <div class="fact-chip" data-text="liver bile fat digestion small intestine"><div class="fc-icon">🍽</div><div class="fc-text">The <strong>liver</strong> produces <strong>bile</strong>, which helps break down fats in the small intestine.</div></div>
+
+    <div class="fact-section-title">⚡ Circuits</div>
+    <div class="fact-chip" data-text="series one path bulb fails all go out"><div class="fc-icon">⚡</div><div class="fc-text"><strong>Series:</strong> one path; if ONE bulb fails, ALL go out. Current is the same throughout.</div></div>
+    <div class="fact-chip" data-text="parallel separate branches bulb fails others stay on same voltage"><div class="fc-icon">⚡</div><div class="fc-text"><strong>Parallel:</strong> separate branches; if one bulb fails, OTHERS stay on. Each branch has the same voltage.</div></div>
+    <div class="fact-chip" data-text="ammeter series voltmeter parallel"><div class="fc-icon">⚡</div><div class="fc-text"><strong>Ammeter</strong> is connected in <strong>series</strong>. Voltmeter is connected in <strong>parallel</strong>.</div></div>
+    <div class="fact-chip" data-text="more bulbs series dimmer less current resistance"><div class="fc-icon">⚡</div><div class="fc-text">More bulbs in <strong>series</strong> → higher resistance → less current → <strong>dimmer</strong> bulbs. More batteries → more voltage → <strong>brighter</strong>.</div></div>
+    <div class="fact-chip" data-text="magnetic materials iron steel nickel cobalt not copper aluminium gold"><div class="fc-icon">⚡</div><div class="fc-text">Magnetic materials: <strong>iron, steel, nickel, cobalt</strong>. Copper, aluminium, gold are NOT magnetic (but do conduct electricity).</div></div>
+
+    <div class="fact-section-title">🌿 Plants &amp; Photosynthesis</div>
+    <div class="fact-chip" data-text="photosynthesis light carbon dioxide water glucose oxygen chloroplast"><div class="fc-icon">🌿</div><div class="fc-text">Photosynthesis: CO₂ + H₂O + <strong>light</strong> → <strong>glucose</strong> + O₂. Happens in <strong>chloroplasts</strong>.</div></div>
+    <div class="fact-chip" data-text="stomata underside leaves carbon dioxide in oxygen water vapour out guard cells"><div class="fc-icon">🌿</div><div class="fc-text"><strong>Stomata</strong> on the underside of leaves: CO₂ enters, O₂ and water vapour exit. Opened/closed by <strong>guard cells</strong>.</div></div>
+    <div class="fact-chip" data-text="xylem water minerals roots leaves phloem glucose sugar"><div class="fc-icon">🌿</div><div class="fc-text"><strong>Xylem</strong> transports water and minerals (roots→leaves). <strong>Phloem</strong> transports food/glucose (leaves→all parts).</div></div>
+    <div class="fact-chip" data-text="root hair cells large surface area absorb water minerals soil"><div class="fc-icon">🌿</div><div class="fc-text"><strong>Root hair cells</strong> have a large surface area to absorb water and minerals from the soil.</div></div>
+
+    <div class="fact-section-title">🌀 Forces</div>
+    <div class="fact-chip" data-text="weight force gravity newtons mass kilograms never change"><div class="fc-icon">🌀</div><div class="fc-text"><strong>Weight</strong> is measured in <strong>newtons (N)</strong>. Mass is in kg. Weight changes on the Moon; mass does NOT.</div></div>
+    <div class="fact-chip" data-text="friction opposes motion heat slows down"><div class="fc-icon">🌀</div><div class="fc-text"><strong>Friction</strong> always acts <em>opposite</em> to the direction of motion. It produces heat.</div></div>
+    <div class="fact-chip" data-text="balanced forces stationary constant speed resultant zero"><div class="fc-icon">🌀</div><div class="fc-text">If resultant force = <strong>0 N</strong>, the object is stationary OR moving at <strong>constant speed</strong>.</div></div>
+    <div class="fact-chip" data-text="moment force distance pivot newton metre clockwise anticlockwise"><div class="fc-icon">🌀</div><div class="fc-text"><strong>Moment = Force × Distance from pivot</strong>. At equilibrium: total clockwise moment = total anticlockwise moment.</div></div>
+
+    <div class="fact-section-title">💡 Light &amp; Heat</div>
+    <div class="fact-chip" data-text="light straight lines shadow opaque blocks"><div class="fc-icon">💡</div><div class="fc-text">Light travels in <strong>straight lines</strong>. Only <strong>opaque</strong> objects form clear, dark shadows.</div></div>
+    <div class="fact-chip" data-text="closer light source bigger shadow further smaller"><div class="fc-icon">💡</div><div class="fc-text">Object <strong>closer to light source</strong> → <strong>bigger</strong> shadow. Object closer to screen → smaller shadow.</div></div>
+    <div class="fact-chip" data-text="conduction solid contact metals conductor heat"><div class="fc-icon">🔥</div><div class="fc-text"><strong>Conduction</strong>: through solids, by direct contact. Metals are good conductors.</div></div>
+    <div class="fact-chip" data-text="convection fluid liquid gas hot rises cool sinks current"><div class="fc-icon">🔥</div><div class="fc-text"><strong>Convection</strong>: in liquids and gases. Hot fluid rises, cool fluid sinks → convection current.</div></div>
+    <div class="fact-chip" data-text="radiation electromagnetic waves no medium vacuum sun infrared"><div class="fc-icon">🔥</div><div class="fc-text"><strong>Radiation</strong>: no medium needed — travels through vacuum. How the Sun heats Earth.</div></div>
+    <div class="fact-chip" data-text="melting point water 0 boiling point 100 celsius"><div class="fc-icon">🔥</div><div class="fc-text">Water: <strong>melting point = 0°C</strong>; <strong>boiling point = 100°C</strong>. These are fixed at standard pressure.</div></div>
+
+    <div class="fact-section-title">💧 Water Cycle</div>
+    <div class="fact-chip" data-text="evaporation liquid gas heat sun surface temperature wind"><div class="fc-icon">💧</div><div class="fc-text"><strong>Evaporation</strong> increases with: higher temperature, larger surface area, more wind.</div></div>
+    <div class="fact-chip" data-text="condensation gas liquid cool clouds dew point"><div class="fc-icon">💧</div><div class="fc-text"><strong>Condensation</strong>: water vapour cools and turns to liquid. This forms clouds and dew.</div></div>
+    <div class="fact-chip" data-text="transpiration plants stomata water vapour leaves water cycle"><div class="fc-icon">💧</div><div class="fc-text"><strong>Transpiration</strong> (plants losing water through leaves) contributes to the water cycle.</div></div>
+
+    <div class="fact-section-title">🦋 Life Cycles &amp; Diversity</div>
+    <div class="fact-chip" data-text="complete metamorphosis butterfly mosquito housefly beetle egg larva pupa adult"><div class="fc-icon">🦋</div><div class="fc-text"><strong>Complete metamorphosis</strong>: Egg → Larva → Pupa → Adult. (butterfly, mosquito, housefly, beetle)</div></div>
+    <div class="fact-chip" data-text="incomplete metamorphosis grasshopper cockroach dragonfly egg nymph adult"><div class="fc-icon">🦋</div><div class="fc-text"><strong>Incomplete metamorphosis</strong>: Egg → Nymph → Adult. (grasshopper, cockroach, dragonfly) — NO pupa stage.</div></div>
+    <div class="fact-chip" data-text="nymph looks like adult larva looks different"><div class="fc-icon">🦋</div><div class="fc-text"><strong>Nymph</strong> looks like a small adult. <strong>Larva</strong> looks completely different from the adult.</div></div>
+    <div class="fact-chip" data-text="vertebrates backbone mammals birds reptiles amphibians fish warm cold blooded"><div class="fc-icon">🦋</div><div class="fc-text">5 vertebrate groups: mammals, birds, reptiles, amphibians, fish. Mammals &amp; birds = warm-blooded; rest = cold-blooded.</div></div>
+
+    </div><!-- end facts-container -->
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       FUMBLES (Common Mistakes)
+  ════════════════════════════════════════════════════ -->
+  <div class="tip-pane" id="pane-fumbles">
+
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem">These are the <strong>most common exam mistakes</strong> that cost students marks. Read them, remember them, avoid them.</p>
+
+    <div class="fumble-card">
+      <div class="wrong">❌ "Breathing is the same as respiration."</div>
+      <div class="right">✅ They are different processes.</div>
+      <div class="explain"><strong>Breathing</strong> is the physical process of moving air in and out of the lungs. <strong>Respiration</strong> is a chemical reaction that happens inside CELLS to release energy from glucose. Plants and animals both respire, even when not breathing.</div>
+    </div>
+
+    <div class="fumble-card">
+      <div class="wrong">❌ "Weight is measured in kilograms."</div>
+      <div class="right">✅ Weight is measured in newtons (N). Mass is measured in kilograms (kg).</div>
+      <div class="explain">Weight = mass × gravitational field strength. Weight changes on the Moon (gravity is weaker). Mass never changes, wherever you are.</div>
+    </div>
+
+    <div class="fumble-card">
+      <div class="wrong">❌ "The large intestine absorbs nutrients."</div>
+      <div class="right">✅ The SMALL intestine absorbs nutrients. The large intestine absorbs WATER.</div>
+      <div class="explain">This is one of the most common mix-ups. Remember: "small intestine = the big job of absorbing food nutrients." Large intestine absorbs water and forms faeces.</div>
+    </div>
+
+    <div class="fumble-card">
+      <div class="wrong">❌ "Arteries always carry oxygenated blood."</div>
+      <div class="right">✅ Arteries carry blood AWAY from the heart — the pulmonary artery carries deoxygenated blood.</div>
+      <div class="explain">The pulmonary artery carries deoxygenated blood from the right ventricle to the lungs. It is the only artery that carries deoxygenated blood. Always check which artery/vein is being asked about.</div>
+    </div>
+
+    <div class="fumble-card">
+      <div class="wrong">❌ "Plants only photosynthesise, not respire."</div>
+      <div class="right">✅ Plants BOTH photosynthesise AND respire — all the time.</div>
+      <div class="explain">During the day, photosynthesis produces more oxygen than respiration consumes, giving a net gain of oxygen. At night, only respiration occurs, so plants consume oxygen and release CO₂.</div>
+    </div>
+
+    <div class="fumble-card">
+      <div class="wrong">❌ "The Moon is a light source."</div>
+      <div class="right">✅ The Moon is NOT a light source — it reflects sunlight.</div>
+      <div class="explain">A light source produces its own light (Sun, lamp, candle, firefly). The Moon, a mirror, and a white wall only reflect light. They are not light sources.</div>
+    </div>
+
+    <div class="fumble-card">
+      <div class="wrong">❌ "All metals are magnetic."</div>
+      <div class="right">✅ Only iron, steel, nickel, and cobalt are magnetic.</div>
+      <div class="explain">Copper, aluminium, gold, and silver are metals but NOT magnetic. They are, however, good conductors of electricity. Magnetic ≠ electrically conductive (though there is overlap).</div>
+    </div>
+
+    <div class="fumble-card">
+      <div class="wrong">❌ "Seeds need light to germinate."</div>
+      <div class="right">✅ Seeds need water, oxygen, and warmth — NOT light — to germinate.</div>
+      <div class="explain">Seeds germinate underground where there is no light. Light is needed AFTER germination for the seedling to photosynthesise and grow. Do not confuse germination with growth.</div>
+    </div>
+
+    <div class="fumble-card">
+      <div class="wrong">❌ "Friction always opposes movement so it is always bad."</div>
+      <div class="right">✅ Friction is sometimes useful, sometimes unhelpful.</div>
+      <div class="explain">Useful friction: car brakes, shoes gripping the floor, writing with a pen. Unhelpful friction: engine parts wearing out, slowing down moving objects. Always state whether it is helpful or unhelpful in context.</div>
+    </div>
+
+    <div class="fumble-card">
+      <div class="wrong">❌ "A nymph is the same as a pupa."</div>
+      <div class="right">✅ A nymph and a pupa are completely different stages.</div>
+      <div class="explain">A <strong>nymph</strong> (incomplete metamorphosis — e.g. grasshopper) looks like a tiny wingless adult. A <strong>pupa</strong> (complete metamorphosis — e.g. butterfly) is a resting stage inside a casing where the larva completely reorganises into the adult form.</div>
+    </div>
+
+    <div class="fumble-card">
+      <div class="wrong">❌ "Convection happens in solids."</div>
+      <div class="right">✅ Convection only happens in fluids (liquids and gases).</div>
+      <div class="explain">Convection requires the fluid to flow — particles must be able to move freely. In solids, particles can only vibrate in place, so heat transfers by conduction, not convection.</div>
+    </div>
+
+    <div class="fumble-card">
+      <div class="wrong">❌ "When bulbs are connected in series, one failing will dim the others."</div>
+      <div class="right">✅ In series, if one bulb fails (breaks the circuit), ALL bulbs go out.</div>
+      <div class="explain">In a series circuit there is only ONE path for current. If that path is broken anywhere, no current flows anywhere. In parallel, each branch is independent, so other branches stay lit.</div>
+    </div>
+
+    <div class="fumble-card">
+      <div class="wrong">❌ "Heat and temperature are the same thing."</div>
+      <div class="right">✅ Heat is energy (joules). Temperature is a measure of hotness (°C).</div>
+      <div class="explain">A large cup of warm water (low temperature) may contain MORE heat energy than a small cup of boiling water, because it has more water molecules. Temperature measures average kinetic energy per particle; heat is total thermal energy.</div>
+    </div>
+
+    <div class="fumble-card">
+      <div class="wrong">❌ Writing "the shadow gets bigger" without explaining why.</div>
+      <div class="right">✅ Always give the reason: "…because light travels in straight lines, and when the object is closer to the source, the light rays spread out more around it."</div>
+      <div class="explain">PSLE open-ended questions require explanation, not just observation. "The shadow gets bigger" is an observation. The mark comes from the explanation using scientific knowledge.</div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.tip-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tip-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('pane-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function filterFacts(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('#facts-container .fact-chip').forEach(chip => {
+    const text = (chip.dataset.text || '') + chip.textContent.toLowerCase();
+    chip.style.display = text.includes(q) ? '' : 'none';
+  });
+  document.querySelectorAll('#facts-container .fact-section-title').forEach(title => {
+    let next = title.nextElementSibling;
+    let anyVisible = false;
+    while (next && next.classList.contains('fact-chip')) {
+      if (next.style.display !== 'none') anyVisible = true;
+      next = next.nextElementSibling;
+    }
+    title.style.display = anyVisible ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>
