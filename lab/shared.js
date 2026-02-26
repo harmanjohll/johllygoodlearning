@@ -278,6 +278,7 @@ class QuizEngine {
     this.current   = 0;
     this.score     = 0;
     this.answered  = false;
+    this.wrong     = []; // { q, chosen } for each incorrect answer
     this.render();
   }
 
@@ -315,12 +316,33 @@ class QuizEngine {
       fb.className = 'feedback-box show feedback-correct';
       fb.innerHTML = `✅ <strong>Correct!</strong> ${q.explanation}`;
     } else {
+      this.wrong.push({ q, chosen: index });
       opts[index].classList.add('wrong');
       opts[q.correct].classList.add('correct');
       fb.className = 'feedback-box show feedback-wrong';
       fb.innerHTML = `❌ <strong>Not quite.</strong> ${q.explanation}`;
     }
-    setTimeout(() => { this.current++; this.render(); }, 3200);
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'btn btn-primary';
+    nextBtn.style.cssText = 'margin-top:.85rem;width:100%';
+    nextBtn.textContent = this.current + 1 < this.questions.length ? 'Next →' : 'See Results →';
+    nextBtn.addEventListener('click', () => { this.current++; this.render(); });
+    fb.after(nextBtn);
+  }
+
+  _buildReviewHtml() {
+    return `
+      <div style="margin-top:1.5rem;text-align:left">
+        <h4 style="margin-bottom:.75rem;font-size:.9rem;color:var(--text)">📋 Questions to review (${this.wrong.length})</h4>
+        ${this.wrong.map(({ q, chosen }) => `
+          <div style="margin-bottom:1.1rem;padding:.85rem;background:var(--surface2);border-radius:8px;border-left:3px solid var(--interactions)">
+            <p style="font-size:.875rem;font-weight:600;margin-bottom:.55rem">${q.question}</p>
+            <p style="font-size:.8rem;color:#f87171;margin-bottom:.25rem">✗ Your answer: ${q.options[chosen]}</p>
+            <p style="font-size:.8rem;color:#34d399;margin-bottom:.45rem">✓ Correct: ${q.options[q.correct]}</p>
+            <p style="font-size:.78rem;color:var(--muted);font-style:italic">${q.explanation}</p>
+          </div>`).join('')}
+      </div>`;
   }
 
   showResult() {
@@ -332,17 +354,32 @@ class QuizEngine {
     else if (pct >= 70) { msg = '🎉 Great work! Review the questions you missed.'; colour = 'var(--energy)'; }
     else { msg = '📚 Keep practising! Review the simulations and notes.'; colour = 'var(--interactions)'; }
 
+    const hasWrong = this.wrong.length > 0;
+
     this.container.innerHTML = `
-      <div style="text-align:center;padding:2rem 1rem">
+      <div style="text-align:center;padding:2rem 1rem 1rem">
         <div style="font-size:3rem;margin-bottom:.75rem">${pct === 100 ? '🏆' : pct >= 70 ? '⭐' : '📖'}</div>
         <h3 style="margin-bottom:.5rem">${this.score} / ${this.questions.length} correct</h3>
         <div class="progress-bar-wrap" style="max-width:260px;margin:.75rem auto 1rem">
           <div class="progress-bar-fill" style="width:${pct}%;background:${colour}"></div>
         </div>
         <p style="margin-bottom:1.5rem">${msg}</p>
-        <button class="btn btn-primary" onclick="location.reload()">Try Again</button>
+        <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-ghost" onclick="location.reload()">↺ Try Again</button>
+          ${hasWrong ? `<button class="btn btn-primary" id="retry-wrong-btn">🎯 Practise ${this.wrong.length} Missed</button>` : ''}
+        </div>
       </div>
+      ${hasWrong ? this._buildReviewHtml() : ''}
     `;
+
+    if (hasWrong) {
+      const wrongSnapshot = this.wrong.map(({ q }) => ({
+        question: q.question, options: q.options, correct: q.correct, explanation: q.explanation
+      }));
+      document.getElementById('retry-wrong-btn')?.addEventListener('click', () => {
+        new QuizEngine(wrongSnapshot, this.topicId, this.container);
+      });
+    }
   }
 }
 
@@ -365,12 +402,13 @@ class LLMQuizEngine {
     this.current       = 0;
     this.score         = 0;
     this.answered      = false;
+    this.wrong         = []; // { q, chosen } for each incorrect answer
   }
 
   get level() { return AIConfig.getLevel(this.topicId, this.defaultLevel); }
 
   async start(count = 6) {
-    this.score = 0; this.current = 0;
+    this.score = 0; this.current = 0; this.wrong = [];
     this.container.innerHTML = `
       <div style="text-align:center;padding:3rem 1rem">
         <div style="font-size:2.5rem;margin-bottom:.75rem;animation:spin 1.5s linear infinite;display:inline-block">⚙️</div>
@@ -482,12 +520,19 @@ Respond with ONLY a JSON array — no markdown, no code fences, no extra text:
       fb.className = 'feedback-box show feedback-correct';
       fb.innerHTML = `✅ <strong>Correct!</strong> ${q.explanation}`;
     } else {
+      this.wrong.push({ q, chosen: index });
       opts[index].classList.add('wrong');
       if (opts[q.correct]) opts[q.correct].classList.add('correct');
       fb.className = 'feedback-box show feedback-wrong';
       fb.innerHTML = `❌ <strong>Not quite.</strong> ${q.explanation}`;
     }
-    setTimeout(() => { this.current++; this._render(); }, 3200);
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'btn btn-primary';
+    nextBtn.style.cssText = 'margin-top:.85rem;width:100%';
+    nextBtn.textContent = this.current + 1 < this.questions.length ? 'Next →' : 'See Results →';
+    nextBtn.addEventListener('click', () => { this.current++; this._render(); });
+    fb.after(nextBtn);
   }
 
   _showResult() {
@@ -509,8 +554,21 @@ Respond with ONLY a JSON array — no markdown, no code fences, no extra text:
     else if (pct >= 70) { msg = '🎉 Great work! A few more to go.'; colour = 'var(--energy)'; }
     else { msg = '📚 Keep going — use the Learn and Simulate tabs for help.'; colour = 'var(--interactions)'; }
 
+    const hasWrong = this.wrong.length > 0;
+    const reviewHtml = hasWrong ? `
+      <div style="margin-top:1.5rem;text-align:left">
+        <h4 style="margin-bottom:.75rem;font-size:.9rem;color:var(--text)">📋 Questions to review (${this.wrong.length})</h4>
+        ${this.wrong.map(({ q, chosen }) => `
+          <div style="margin-bottom:1.1rem;padding:.85rem;background:var(--surface2);border-radius:8px;border-left:3px solid var(--interactions)">
+            <p style="font-size:.875rem;font-weight:600;margin-bottom:.55rem">${q.question}</p>
+            <p style="font-size:.8rem;color:#f87171;margin-bottom:.25rem">✗ Your answer: ${q.options[chosen]}</p>
+            <p style="font-size:.8rem;color:#34d399;margin-bottom:.45rem">✓ Correct: ${q.options[q.correct]}</p>
+            <p style="font-size:.78rem;color:var(--muted);font-style:italic">${q.explanation}</p>
+          </div>`).join('')}
+      </div>` : '';
+
     this.container.innerHTML = `
-      <div style="text-align:center;padding:2rem 1rem">
+      <div style="text-align:center;padding:2rem 1rem 1rem">
         <div style="font-size:3rem;margin-bottom:.75rem">${pct === 100 ? '🏆' : pct >= 70 ? '⭐' : '📖'}</div>
         <h3 style="margin-bottom:.5rem">${this.score} / ${this.questions.length} correct · ${pct}%</h3>
         <div class="progress-bar-wrap" style="max-width:260px;margin:.75rem auto 1rem">
@@ -519,12 +577,23 @@ Respond with ONLY a JSON array — no markdown, no code fences, no extra text:
         <p style="margin-bottom:1.5rem">${msg}</p>
         <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
           <button class="btn btn-primary" id="retry-ai-btn">🔄 New AI Questions</button>
+          ${hasWrong ? `<button class="btn btn-primary" id="retry-wrong-ai-btn">🎯 Practise ${this.wrong.length} Missed</button>` : ''}
           <button class="btn btn-ghost" onclick="location.reload()">↺ Reset</button>
         </div>
         <p style="font-size:.72rem;color:var(--muted);margin-top:1rem">Next quiz: P${this.level} difficulty</p>
       </div>
+      ${reviewHtml}
     `;
     document.getElementById('retry-ai-btn')?.addEventListener('click', () => this.start(this.questions.length));
+
+    if (hasWrong) {
+      const wrongSnapshot = this.wrong.map(({ q }) => ({
+        question: q.question, options: q.options, correct: q.correct, explanation: q.explanation
+      }));
+      document.getElementById('retry-wrong-ai-btn')?.addEventListener('click', () => {
+        new QuizEngine(wrongSnapshot, this.topicId, this.container);
+      });
+    }
   }
 }
 
