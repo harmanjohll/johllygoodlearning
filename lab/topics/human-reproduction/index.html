@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Human Reproduction | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--systems); flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    /* ── Cornell extras ── */
+    .cue-question {
+      font-size: .78rem; color: var(--muted);
+      margin-bottom: .75rem;
+      border-left: 2px solid var(--systems);
+      padding-left: .6rem;
+    }
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: var(--accent); }
+
+    /* ── Sub-tabs ── */
+    .sub-tabs { display: flex; gap: .35rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .sub-tab {
+      padding: .35rem .85rem; border-radius: 7px;
+      border: 1px solid var(--border);
+      background: transparent; color: var(--muted);
+      font-size: .8rem; font-weight: 600; cursor: pointer; transition: all .15s;
+    }
+    .sub-tab.active { background: var(--systems); color: #fff; border-color: var(--systems); }
+    .sub-pane { display: none; }
+    .sub-pane.active { display: block; }
+
+    /* ── Sim canvas wrap ── */
+    .sim-canvas-wrap {
+      background: #0d1117;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    .sim-canvas-wrap canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* ── Sim feedback ── */
+    .sim-feedback {
+      margin-top: .75rem;
+      padding: .75rem 1rem;
+      border-radius: 9px;
+      font-size: .85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    /* ── Stage nav ── */
+    .stage-nav {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-top: .75rem;
+      flex-wrap: wrap;
+    }
+    .stage-label {
+      flex: 1;
+      text-align: center;
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--systems);
+    }
+
+    /* ── Puberty comparison panels ── */
+    .puberty-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: .5rem;
+    }
+    @media (max-width: 600px) { .puberty-grid { grid-template-columns: 1fr; } }
+    .puberty-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+    }
+    .puberty-panel h4 {
+      font-size: .95rem;
+      margin-bottom: .6rem;
+    }
+    .puberty-panel.male h4 { color: #38bdf8; }
+    .puberty-panel.female h4 { color: #f472b6; }
+    .puberty-panel ul {
+      margin: 0; padding-left: 1.1rem;
+      font-size: .83rem; color: var(--muted); line-height: 1.8;
+    }
+    .puberty-panel .age-badge {
+      display: inline-block;
+      font-size: .72rem;
+      font-weight: 600;
+      padding: .15rem .5rem;
+      border-radius: 5px;
+      margin-bottom: .55rem;
+    }
+    .puberty-panel.male .age-badge { background: #0c2a3d; color: #38bdf8; }
+    .puberty-panel.female .age-badge { background: #2d0a22; color: #f472b6; }
+
+    /* ── Sim stat box ── */
+    .sim-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .5rem .9rem;
+      font-size: .82rem;
+      text-align: center;
+      margin-top: .5rem;
+    }
+    .sim-stat strong { display: block; font-size: 1.05rem; color: var(--systems); }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>&#x1F9EC; Human Reproduction</h1>
+    <div style="font-size:.78rem;color:var(--muted)">
+      <span class="badge badge-systems">Systems</span>&nbsp;
+      <span class="badge badge-p6">P6</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--systems)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <!-- TABS -->
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════════ LEARN TAB ══════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <!-- Cue column -->
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What is the function of the reproductive organs in males and females?</div>
+        <div class="cue-question">What is fertilisation?</div>
+        <div class="cue-question">How does a baby develop before birth?</div>
+        <div class="cue-question">What changes occur during puberty?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+
+        <div class="glossary-term">
+          <div class="term-name">Reproduction</div>
+          <div class="term-def">The process by which living things produce offspring to continue their species.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Ovary</div>
+          <div class="term-def">Female organ that produces eggs (ova). Females have two ovaries.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Uterus (Womb)</div>
+          <div class="term-def">The organ in which the fertilised egg develops into a baby.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Testes</div>
+          <div class="term-def">Male organs that produce sperm. Males have two testes.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Fertilisation</div>
+          <div class="term-def">The joining of a sperm cell with an egg cell (ovum) to form a fertilised egg (zygote).</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Embryo</div>
+          <div class="term-def">The early stage of development after fertilisation (first 8 weeks).</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Foetus</div>
+          <div class="term-def">The developing baby from 8 weeks until birth.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Puberty</div>
+          <div class="term-def">The period of physical changes during which children develop into adults capable of reproduction.</div>
+        </div>
+        <div class="glossary-term">
+          <div class="term-name">Menstruation</div>
+          <div class="term-def">The monthly shedding of the uterine lining when no fertilisation occurs.</div>
+        </div>
+      </div>
+
+      <!-- Main notes -->
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>♂ The Male Reproductive System</h4>
+          <ul style="margin-top:.4rem">
+            <li><strong>Testes:</strong> produce sperm (male sex cells); males have two testes</li>
+            <li>Sperm are tiny cells with a tail that helps them swim towards the egg</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>♀ The Female Reproductive System</h4>
+          <ul style="margin-top:.4rem">
+            <li><strong>Ovaries:</strong> produce eggs/ova (female sex cells); females have two ovaries; one egg is released per month — this is called <strong>ovulation</strong></li>
+            <li><strong>Uterus (Womb):</strong> the muscular organ where the fertilised egg develops into a baby</li>
+            <li><strong>Fallopian tube:</strong> the passage connecting the ovary to the uterus; fertilisation takes place here</li>
+            <li><strong>Cervix and vagina:</strong> the passage through which the baby is born</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🔗 Fertilisation</h4>
+          <div class="equation" style="letter-spacing:.05em">
+            Sperm + Egg (Ovum) → Fertilised Egg (Zygote)
+          </div>
+          <ul style="margin-top:.6rem">
+            <li>Sperm travel and meet the egg in the <strong>fallopian tube</strong></li>
+            <li>One sperm fuses with the egg — this is <strong>fertilisation</strong></li>
+            <li>The fertilised egg is called a <strong>zygote</strong></li>
+            <li>The zygote travels to the uterus and implants in the uterine wall</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>👶 Development Before Birth</h4>
+          <table style="width:100%;font-size:.82rem;border-collapse:collapse;margin-top:.5rem">
+            <tr style="background:var(--surface)">
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--systems)">Stage</th>
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--systems)">Time</th>
+              <th style="padding:.4rem .6rem;text-align:left;color:var(--systems)">What happens</th>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Zygote</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Fertilisation</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Single fertilised egg; begins dividing</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Embryo</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Weeks 1–8</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Cells divide rapidly; major organs begin to form</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Foetus</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Week 9 – birth</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Recognisable human form; continues growing</td>
+            </tr>
+            <tr>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Birth</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">~40 weeks</td>
+              <td style="padding:.4rem .6rem;border-top:1px solid var(--border);color:var(--muted)">Baby is born after ~9 months (gestation period)</td>
+            </tr>
+          </table>
+          <div class="highlight" style="margin-top:.75rem">
+            The baby receives <strong>nutrients and oxygen</strong> from the mother through the <strong>placenta</strong>. Waste products pass back from the baby to the mother via the same route.
+          </div>
+        </div>
+
+        <div class="note-section">
+          <h4>🌱 Puberty — Changes in Males</h4>
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.4rem">Usually begins between <strong>9 and 14 years</strong> of age.</p>
+          <ul>
+            <li>Voice becomes deeper (voice breaks)</li>
+            <li>Body and facial hair grows</li>
+            <li>Growth spurt (rapid increase in height)</li>
+            <li>Testes enlarge and begin producing sperm</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🌸 Puberty — Changes in Females</h4>
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.4rem">Usually begins between <strong>8 and 13 years</strong> of age.</p>
+          <ul>
+            <li>Breasts develop</li>
+            <li>Body hair grows</li>
+            <li>Growth spurt</li>
+            <li>Hips widen</li>
+            <li>Menstruation begins — each month an egg is released; if not fertilised, the uterine lining is shed</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Summary row -->
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--systems);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          <strong>Testes</strong> produce sperm; <strong>ovaries</strong> produce eggs. <strong>Fertilisation</strong> is the joining of sperm and egg to form a <strong>zygote</strong>. The zygote develops into an <strong>embryo</strong> (weeks 1–8) then a <strong>foetus</strong> (week 9 to birth) in the <strong>uterus</strong>, taking ~40 weeks. The baby gets nutrients via the <strong>placenta</strong>. <strong>Puberty</strong> is the period when children develop into adults capable of reproduction.
+        </p>
+      </div>
+    </div>
+  </div><!-- /tab-learn -->
+
+  <!-- ══════════════ SIMULATE TAB ══════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <!-- Cue column -->
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">What happens to the zygote after fertilisation?</div>
+        <div class="cue-question">At what stage does the developing baby take on a recognisable human form?</div>
+        <div class="cue-question">How does puberty differ between males and females?</div>
+        <div class="sim-stat"><strong id="stat-stage">Sperm + Egg</strong>Current Stage</div>
+        <div class="sim-stat" style="margin-top:.5rem"><strong id="stat-week">—</strong>Time</div>
+      </div>
+
+      <!-- Main simulation area -->
+      <div class="cornell-main" style="padding:1rem">
+        <div class="sub-tabs">
+          <button class="sub-tab active" id="subtab-dev" onclick="showSub('dev-sim', this)">🔬 Development Stages</button>
+          <button class="sub-tab" id="subtab-pub" onclick="showSub('pub-sim', this)">🌱 Puberty Changes</button>
+        </div>
+
+        <!-- DEVELOPMENT STAGES SIM -->
+        <div class="sub-pane active" id="dev-sim">
+          <p style="font-size:.83rem;color:var(--muted);margin-bottom:.75rem">
+            Step through the stages of development from fertilisation to birth. Use <strong>Previous</strong> and <strong>Next</strong> to navigate.
+          </p>
+          <div class="sim-canvas-wrap" style="height:310px">
+            <canvas id="repro-canvas" width="640" height="360"></canvas>
+          </div>
+          <div class="stage-nav">
+            <button class="btn btn-ghost" style="font-size:.82rem" id="prev-btn" onclick="prevDevStage()" disabled>← Previous</button>
+            <div class="stage-label" id="dev-stage-label">Stage 1 of 6</div>
+            <button class="btn btn-ghost" style="font-size:.82rem" id="next-btn" onclick="nextDevStage()">Next →</button>
+          </div>
+          <div class="sim-feedback" id="dev-feedback">
+            A sperm cell (produced in the testes) and an egg cell (produced in the ovary) are the two sex cells needed for reproduction.
+          </div>
+        </div>
+
+        <!-- PUBERTY CHANGES SIM -->
+        <div class="sub-pane" id="pub-sim">
+          <p style="font-size:.83rem;color:var(--muted);margin-bottom:.75rem">
+            Compare the physical changes that occur in males and females during puberty.
+          </p>
+          <div class="puberty-grid">
+            <div class="puberty-panel male">
+              <h4>♂ Male Puberty</h4>
+              <div class="age-badge">Usually ages 9–14</div>
+              <ul>
+                <li>Voice becomes deeper (voice breaks)</li>
+                <li>Body and facial hair grows</li>
+                <li>Growth spurt — rapid increase in height</li>
+                <li>Testes enlarge and begin producing sperm</li>
+                <li>Shoulders broaden</li>
+              </ul>
+            </div>
+            <div class="puberty-panel female">
+              <h4>♀ Female Puberty</h4>
+              <div class="age-badge">Usually ages 8–13</div>
+              <ul>
+                <li>Breasts develop</li>
+                <li>Body hair grows</li>
+                <li>Growth spurt — rapid increase in height</li>
+                <li>Hips widen</li>
+                <li>Menstruation begins (monthly cycle)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="sim-feedback" style="margin-top:1rem">
+            <strong style="color:var(--systems)">What puberty changes have in common:</strong> both males and females experience a <strong>growth spurt</strong> and <strong>body hair growth</strong>. The key difference is that males begin producing sperm while females begin menstruation — both mark the start of the ability to reproduce.
+          </div>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--systems);font-weight:700;margin-bottom:.4rem">What to notice</div>
+        <p class="summary-text">
+          After fertilisation, the <strong>zygote</strong> divides into many cells forming an <strong>embryo</strong>. By week 9 it is called a <strong>foetus</strong> with recognisable human features. At <strong>~40 weeks</strong> the baby is ready to be born. Puberty in both sexes involves a growth spurt; the reproductive-specific changes differ between males and females.
+        </p>
+      </div>
+    </div>
+  </div><!-- /tab-simulate -->
+
+  <!-- ══════════════ QUIZ TAB ══════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Common exam question types:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li>State where sperm / eggs are produced</li>
+            <li>Define <strong>fertilisation</strong> precisely</li>
+            <li>State the role of the <strong>placenta</strong></li>
+            <li>Distinguish <strong>embryo</strong> from <strong>foetus</strong></li>
+            <li>List changes in puberty for each sex</li>
+          </ul>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--systems)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container" data-topic-id="human-reproduction" data-topic-name="Human Reproduction" data-topic-level="6"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">
+          Use the <strong>C-E-R</strong> framework: <strong>Claim</strong> → <strong>Evidence</strong> → <strong>Reasoning</strong>. e.g. "Fertilisation occurs in the fallopian tube (claim). The sperm swims up and meets the egg there (evidence). One sperm fuses with the egg to form a zygote (reasoning)."
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MIND MAP TAB ══════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">+ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved!')">Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">Check My Map</button>
+      <span style="font-size:.73rem;color:var(--muted);margin-left:.5rem">Double-click a node to rename it</span>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+    <p style="font-size:.75rem;color:var(--muted);margin-top:.6rem">Build your concept map by adding and connecting ideas. Include all key terms from the glossary!</p>
+  </div>
+
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════
+// SUB-TAB SWITCHING
+// ══════════════════════════════════════════════════════════════
+function showSub(paneId, btn) {
+  document.querySelectorAll('.sub-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(paneId).classList.add('active');
+  btn.classList.add('active');
+  if (paneId === 'dev-sim') { setTimeout(() => drawDevStage(currentDevStage), 30); }
+  Progress.recordSimUsed('human-reproduction');
+}
+
+// ══════════════════════════════════════════════════════════════
+// SIM: DEVELOPMENT STAGES CANVAS
+// ══════════════════════════════════════════════════════════════
+let currentDevStage = 0;
+
+const DEV_STAGES = [
+  {
+    name: 'Sperm + Egg',
+    week: 'Before fertilisation',
+    desc: 'A <strong>sperm cell</strong> (produced in the testes) and an <strong>egg cell / ovum</strong> (released from the ovary) are the two sex cells needed for reproduction. The sperm has a tail that helps it swim.',
+    draw: drawStageSpermEgg
+  },
+  {
+    name: 'Fertilisation',
+    week: 'Fallopian tube',
+    desc: '<strong>Fertilisation</strong> occurs in the fallopian tube. One sperm cell fuses with the egg cell. The result is a single fertilised egg called a <strong>zygote</strong>.',
+    draw: drawStageFertilisation
+  },
+  {
+    name: 'Zygote',
+    week: 'Day 1–3',
+    desc: 'The <strong>zygote</strong> is the fertilised egg. It begins to divide — one cell becomes two, two become four, and so on. The dividing cell travels along the fallopian tube towards the uterus.',
+    draw: drawStageZygote
+  },
+  {
+    name: 'Embryo (4 weeks)',
+    week: 'Weeks 1–8',
+    desc: 'The ball of cells implants in the wall of the <strong>uterus</strong> and is now called an <strong>embryo</strong>. Over the first 8 weeks, cells divide rapidly and major organs begin to form.',
+    draw: drawStageEmbryo
+  },
+  {
+    name: 'Foetus (12 weeks)',
+    week: 'Week 9 – birth',
+    desc: 'From week 9, the developing baby is called a <strong>foetus</strong>. It has a recognisable human form — a head, limbs, and developing organs. The <strong>placenta</strong> supplies nutrients and oxygen from the mother.',
+    draw: drawStageFoetus
+  },
+  {
+    name: 'Baby (40 weeks)',
+    week: '~40 weeks (9 months)',
+    desc: 'After approximately <strong>40 weeks</strong> (the gestation period), the baby is fully developed and ready to be born. Throughout development, the baby received nutrients and oxygen from the mother through the <strong>placenta</strong>.',
+    draw: drawStageBaby
+  }
+];
+
+// ── Drawing helpers ──────────────────────────────────────────
+
+function drawDevStage(idx) {
+  const canvas = document.getElementById('repro-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, W, H);
+
+  // Stage header
+  ctx.fillStyle = '#8b5cf6';
+  ctx.font = 'bold 14px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Stage ' + (idx + 1) + ': ' + DEV_STAGES[idx].name, W / 2, 28);
+
+  DEV_STAGES[idx].draw(ctx, W, H);
+
+  // Update UI
+  document.getElementById('stat-stage').textContent = DEV_STAGES[idx].name;
+  document.getElementById('stat-week').textContent   = DEV_STAGES[idx].week;
+  document.getElementById('dev-feedback').innerHTML  = DEV_STAGES[idx].desc;
+  document.getElementById('dev-stage-label').textContent = 'Stage ' + (idx + 1) + ' of 6: ' + DEV_STAGES[idx].name;
+  document.getElementById('prev-btn').disabled = idx === 0;
+  document.getElementById('next-btn').disabled = idx === DEV_STAGES.length - 1;
+}
+
+// Stage 1: Sperm cell and egg cell side by side
+function drawStageSpermEgg(ctx, W, H) {
+  const cy = H / 2 + 20;
+
+  // ── Egg (left) ────────────────────────────────────────────
+  const ex = W / 4;
+  ctx.save();
+  // Zona pellucida outer ring
+  ctx.beginPath();
+  ctx.arc(ex, cy, 62, 0, Math.PI * 2);
+  ctx.strokeStyle = '#f472b699';
+  ctx.lineWidth = 3;
+  ctx.setLineDash([4, 3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // Cell body
+  ctx.beginPath();
+  ctx.arc(ex, cy, 52, 0, Math.PI * 2);
+  ctx.fillStyle = '#2d0a22';
+  ctx.fill();
+  ctx.strokeStyle = '#f472b6';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  // Nucleus
+  ctx.beginPath();
+  ctx.arc(ex, cy, 18, 0, Math.PI * 2);
+  ctx.fillStyle = '#7c1d4e';
+  ctx.fill();
+  ctx.strokeStyle = '#f9a8d4';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.restore();
+  // Labels
+  ctx.fillStyle = '#f472b6'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Egg Cell (Ovum)', ex, cy + 76);
+  ctx.fillStyle = '#94a3b8'; ctx.font = '10px Inter';
+  ctx.fillText('produced in ovary', ex, cy + 92);
+  ctx.fillStyle = '#f9a8d4'; ctx.font = '9.5px Inter';
+  ctx.fillText('Nucleus', ex + 28, cy - 4);
+  ctx.fillStyle = '#f472b699'; ctx.font = '9px Inter';
+  ctx.fillText('outer layer', ex + 72, cy);
+
+  // ── Plus sign (centre) ───────────────────────────────────
+  ctx.fillStyle = '#64748b'; ctx.font = 'bold 28px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('+', W / 2, cy + 8);
+
+  // ── Sperm cell (right) ───────────────────────────────────
+  const sx = (W * 3) / 4;
+  ctx.save();
+  // Head (oval)
+  ctx.beginPath();
+  ctx.ellipse(sx, cy - 18, 18, 26, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#0c2a3d';
+  ctx.fill();
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // Nucleus in head
+  ctx.beginPath();
+  ctx.ellipse(sx, cy - 20, 9, 14, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#1e3a5a';
+  ctx.fill();
+  ctx.strokeStyle = '#7dd3fc';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  // Midpiece
+  ctx.save();
+  ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(sx, cy + 8); ctx.lineTo(sx, cy + 28); ctx.stroke();
+  ctx.restore();
+  // Tail (wavy)
+  ctx.save();
+  ctx.strokeStyle = '#38bdf899'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(sx, cy + 28);
+  ctx.bezierCurveTo(sx + 14, cy + 48, sx - 14, cy + 68, sx + 10, cy + 88);
+  ctx.stroke();
+  ctx.restore();
+  ctx.restore();
+  // Labels
+  ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Sperm Cell', sx, cy + 110);
+  ctx.fillStyle = '#94a3b8'; ctx.font = '10px Inter';
+  ctx.fillText('produced in testes; tail helps it swim', sx, cy + 126);
+}
+
+// Stage 2: Fertilisation — sperm meeting egg in fallopian tube
+function drawStageFertilisation(ctx, W, H) {
+  const cx = W / 2, cy = H / 2 + 15;
+
+  // Fallopian tube shape (curved rectangle)
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(cx - 180, cy - 40);
+  ctx.quadraticCurveTo(cx - 60, cy - 110, cx, cy - 60);
+  ctx.quadraticCurveTo(cx + 60, cy - 10, cx + 180, cy - 40);
+  ctx.lineTo(cx + 180, cy + 40);
+  ctx.quadraticCurveTo(cx + 60, cy + 30, cx, cy + 60);
+  ctx.quadraticCurveTo(cx - 60, cy + 80, cx - 180, cy + 40);
+  ctx.closePath();
+  ctx.fillStyle = '#0d1929';
+  ctx.fill();
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+
+  // Tube label
+  ctx.fillStyle = '#475569'; ctx.font = '10px Inter'; ctx.textAlign = 'right';
+  ctx.fillText('Fallopian tube', cx - 110, cy - 55);
+
+  // Egg (large, right side of tube)
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx + 90, cy, 38, 0, Math.PI * 2);
+  ctx.fillStyle = '#2d0a22'; ctx.fill();
+  ctx.strokeStyle = '#f472b6'; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = '#f472b6'; ctx.font = '9.5px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Egg', cx + 90, cy + 52);
+
+  // Multiple sperm approaching from left
+  const spermPositions = [
+    { x: cx - 100, y: cy - 10, angle: 0.1 },
+    { x: cx - 60,  y: cy + 15, angle: -0.05 },
+    { x: cx - 80,  y: cy + 32, angle: 0.15 },
+  ];
+  spermPositions.forEach(sp => {
+    ctx.save();
+    ctx.translate(sp.x, sp.y);
+    ctx.rotate(sp.angle);
+    // Head
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 14, 9, 0, 0, Math.PI * 2);
+    ctx.fillStyle = '#0c2a3d'; ctx.fill();
+    ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 1.5; ctx.stroke();
+    // Tail
+    ctx.beginPath();
+    ctx.moveTo(-14, 0);
+    ctx.bezierCurveTo(-26, -12, -38, 12, -52, 0);
+    ctx.strokeStyle = '#38bdf888'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.restore();
+  });
+  ctx.fillStyle = '#38bdf8'; ctx.font = '9.5px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Sperm cells swimming', cx - 80, cy + 60);
+
+  // Arrow toward egg
+  ctx.save();
+  ctx.strokeStyle = '#facc15'; ctx.lineWidth = 2; ctx.setLineDash([5, 3]);
+  ctx.beginPath(); ctx.moveTo(cx - 30, cy); ctx.lineTo(cx + 50, cy); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#facc15'; ctx.font = 'bold 18px Inter'; ctx.textAlign = 'left';
+  ctx.fillText('→', cx + 46, cy + 6);
+  ctx.restore();
+
+  // Fusion flash
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx + 56, cy, 12, 0, Math.PI * 2);
+  ctx.fillStyle = '#facc1544'; ctx.fill();
+  ctx.restore();
+
+  // Title below
+  ctx.fillStyle = '#facc15'; ctx.font = 'bold 11px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('One sperm fuses with egg → ZYGOTE', cx, cy + 100);
+}
+
+// Stage 3: Zygote — dividing cells
+function drawStageZygote(ctx, W, H) {
+  const cx = W / 2, cy = H / 2 + 20;
+  const stages = [
+    { cells: 1, x: cx - 210, label: '1 cell\n(zygote)' },
+    { cells: 2, x: cx - 105, label: '2 cells' },
+    { cells: 4, x: cx,       label: '4 cells' },
+    { cells: 8, x: cx + 110, label: '8 cells' },
+  ];
+
+  stages.forEach((s, i) => {
+    const r = 32;
+    // Draw cell cluster
+    if (s.cells === 1) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(s.x, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = '#1a1a2e'; ctx.fill();
+      ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 2; ctx.stroke();
+      // Nucleus
+      ctx.beginPath();
+      ctx.arc(s.x, cy, 10, 0, Math.PI * 2);
+      ctx.fillStyle = '#4338ca'; ctx.fill();
+      ctx.restore();
+    } else if (s.cells === 2) {
+      [-16, 16].forEach(dx => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(s.x + dx, cy, 20, 0, Math.PI * 2);
+        ctx.fillStyle = '#1a1a2e'; ctx.fill();
+        ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(s.x + dx, cy, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#4338ca'; ctx.fill();
+        ctx.restore();
+      });
+    } else if (s.cells === 4) {
+      [[-14, -14], [14, -14], [-14, 14], [14, 14]].forEach(([dx, dy]) => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(s.x + dx, cy + dy, 15, 0, Math.PI * 2);
+        ctx.fillStyle = '#1a1a2e'; ctx.fill();
+        ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(s.x + dx, cy + dy, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#4338ca'; ctx.fill();
+        ctx.restore();
+      });
+    } else if (s.cells === 8) {
+      const positions = [
+        [-18,-18],[0,-24],[18,-18],[24,0],[18,18],[0,24],[-18,18],[-24,0]
+      ];
+      positions.forEach(([dx, dy]) => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(s.x + dx, cy + dy, 11, 0, Math.PI * 2);
+        ctx.fillStyle = '#1a1a2e'; ctx.fill();
+        ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(s.x + dx, cy + dy, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#4338ca'; ctx.fill();
+        ctx.restore();
+      });
+    }
+
+    // Label
+    ctx.fillStyle = '#94a3b8'; ctx.font = '9.5px Inter'; ctx.textAlign = 'center';
+    const lines = s.label.split('\n');
+    lines.forEach((line, li) => ctx.fillText(line, s.x, cy + 50 + li * 14));
+
+    // Arrow between stages
+    if (i < stages.length - 1) {
+      const ax = (s.x + stages[i + 1].x) / 2;
+      ctx.fillStyle = '#8b5cf6'; ctx.font = 'bold 18px Inter'; ctx.textAlign = 'center';
+      ctx.fillText('→', ax, cy + 6);
+    }
+  });
+
+  // Note at bottom
+  ctx.fillStyle = '#64748b'; ctx.font = '10px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Zygote divides repeatedly as it travels to the uterus', cx, cy + 98);
+}
+
+// Stage 4: Embryo in uterus
+function drawStageEmbryo(ctx, W, H) {
+  const cx = W / 2, cy = H / 2 + 15;
+
+  // Uterus outline (simplified pear shape)
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 110);
+  ctx.bezierCurveTo(cx + 95, cy - 110, cx + 115, cy - 30, cx + 100, cy + 50);
+  ctx.bezierCurveTo(cx + 85, cy + 110, cx + 30, cy + 118, cx, cy + 120);
+  ctx.bezierCurveTo(cx - 30, cy + 118, cx - 85, cy + 110, cx - 100, cy + 50);
+  ctx.bezierCurveTo(cx - 115, cy - 30, cx - 95, cy - 110, cx, cy - 110);
+  ctx.closePath();
+  ctx.fillStyle = '#1c0a14';
+  ctx.fill();
+  ctx.strokeStyle = '#be185d';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  ctx.restore();
+
+  // Uterine wall label
+  ctx.fillStyle = '#be185d'; ctx.font = '9.5px Inter'; ctx.textAlign = 'left';
+  ctx.fillText('Uterus wall', cx + 103, cy - 20);
+
+  // Embryo (small cluster of cells, implanted in wall)
+  const embX = cx + 25, embY = cy - 62;
+  ctx.save();
+  [[-6, -6], [6, -6], [-6, 6], [6, 6], [0, 0]].forEach(([dx, dy]) => {
+    ctx.beginPath();
+    ctx.arc(embX + dx, embY + dy, 7, 0, Math.PI * 2);
+    ctx.fillStyle = '#7c3aed';
+    ctx.fill();
+    ctx.strokeStyle = '#c4b5fd'; ctx.lineWidth = 1; ctx.stroke();
+  });
+  ctx.restore();
+  // Implantation lines
+  ctx.save();
+  ctx.strokeStyle = '#7c3aed55'; ctx.lineWidth = 1; ctx.setLineDash([2, 2]);
+  ctx.beginPath(); ctx.moveTo(embX, embY + 15); ctx.lineTo(embX, embY + 35); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+  ctx.fillStyle = '#a78bfa'; ctx.font = '9.5px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Embryo (implanted)', embX + 30, embY + 48);
+  ctx.fillStyle = '#6d28d9'; ctx.font = '9px Inter';
+  ctx.fillText('Weeks 1–8', embX + 30, embY + 62);
+
+  // Uterus label
+  ctx.fillStyle = '#f9a8d4'; ctx.font = 'bold 11px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Uterus (Womb)', cx, cy + 108);
+
+  // Fallopian tube stub
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(cx - 100, cy - 50);
+  ctx.quadraticCurveTo(cx - 150, cy - 80, cx - 185, cy - 60);
+  ctx.strokeStyle = '#475569'; ctx.lineWidth = 10; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = '#475569'; ctx.font = '9px Inter'; ctx.textAlign = 'right';
+  ctx.fillText('Fallopian tube', cx - 148, cy - 86);
+}
+
+// Stage 5: Foetus 12 weeks in uterus
+function drawStageFoetus(ctx, W, H) {
+  const cx = W / 2, cy = H / 2 + 15;
+
+  // Uterus outline (larger, rounder — foetus growing)
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 125);
+  ctx.bezierCurveTo(cx + 110, cy - 125, cx + 130, cy - 30, cx + 115, cy + 65);
+  ctx.bezierCurveTo(cx + 95, cy + 125, cx + 30, cy + 132, cx, cy + 135);
+  ctx.bezierCurveTo(cx - 30, cy + 132, cx - 95, cy + 125, cx - 115, cy + 65);
+  ctx.bezierCurveTo(cx - 130, cy - 30, cx - 110, cy - 125, cx, cy - 125);
+  ctx.closePath();
+  ctx.fillStyle = '#1c0a14'; ctx.fill();
+  ctx.strokeStyle = '#be185d'; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.restore();
+
+  // Placenta (disc on wall)
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(cx - 90, cy - 40, 28, 18, 0.4, 0, Math.PI * 2);
+  ctx.fillStyle = '#7f1d1d'; ctx.fill();
+  ctx.strokeStyle = '#fca5a5'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = '#fca5a5'; ctx.font = '9px Inter'; ctx.textAlign = 'right';
+  ctx.fillText('Placenta', cx - 120, cy - 60);
+
+  // Umbilical cord (curved line from placenta to foetus centre)
+  ctx.save();
+  ctx.strokeStyle = '#fca5a599'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx - 64, cy - 38);
+  ctx.bezierCurveTo(cx - 30, cy - 30, cx - 10, cy - 10, cx - 5, cy + 10);
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = '#fca5a599'; ctx.font = '9px Inter'; ctx.textAlign = 'left';
+  ctx.fillText('Umbilical cord', cx - 20, cy - 38);
+
+  // Foetus — simple curled shape
+  ctx.save();
+  // Head
+  ctx.beginPath();
+  ctx.arc(cx + 20, cy - 40, 28, 0, Math.PI * 2);
+  ctx.fillStyle = '#2d1b3d'; ctx.fill();
+  ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 2; ctx.stroke();
+  // Body
+  ctx.beginPath();
+  ctx.ellipse(cx + 18, cy + 8, 22, 32, 0.2, 0, Math.PI * 2);
+  ctx.fillStyle = '#2d1b3d'; ctx.fill();
+  ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 2; ctx.stroke();
+  // Arm nub
+  ctx.beginPath();
+  ctx.ellipse(cx + 44, cy + 5, 14, 8, 0.3, 0, Math.PI * 2);
+  ctx.fillStyle = '#3b2a52'; ctx.fill();
+  ctx.strokeStyle = '#a78bfa99'; ctx.lineWidth = 1.5; ctx.stroke();
+  // Leg nub
+  ctx.beginPath();
+  ctx.ellipse(cx + 22, cy + 46, 12, 8, 0.5, 0, Math.PI * 2);
+  ctx.fillStyle = '#3b2a52'; ctx.fill();
+  ctx.strokeStyle = '#a78bfa99'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.restore();
+
+  ctx.fillStyle = '#a78bfa'; ctx.font = 'bold 11px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Foetus (~12 weeks)', cx, cy + 122);
+  ctx.fillStyle = '#64748b'; ctx.font = '9.5px Inter';
+  ctx.fillText('Recognisable human form; placenta supplies nutrients + oxygen', cx, cy + 138);
+}
+
+// Stage 6: Baby ready for birth (40 weeks)
+function drawStageBaby(ctx, W, H) {
+  const cx = W / 2, cy = H / 2 + 10;
+
+  // Uterus (large — full term)
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 140);
+  ctx.bezierCurveTo(cx + 130, cy - 140, cx + 150, cy - 20, ctx.canvas.width / 2 + 130, cy + 80);
+  ctx.bezierCurveTo(cx + 110, cy + 150, cx + 40, cy + 160, cx, cy + 162);
+  ctx.bezierCurveTo(cx - 40, cy + 160, cx - 110, cy + 150, cx - 130, cy + 80);
+  ctx.bezierCurveTo(cx - 150, cy - 20, cx - 130, cy - 140, cx, cy - 140);
+  ctx.closePath();
+  ctx.fillStyle = '#1c0a14'; ctx.fill();
+  ctx.strokeStyle = '#be185d'; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.restore();
+
+  // Placenta
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(cx - 105, cy - 50, 32, 20, 0.4, 0, Math.PI * 2);
+  ctx.fillStyle = '#7f1d1d'; ctx.fill();
+  ctx.strokeStyle = '#fca5a5'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = '#fca5a5'; ctx.font = '9px Inter'; ctx.textAlign = 'right';
+  ctx.fillText('Placenta', cx - 140, cy - 68);
+
+  // Umbilical cord
+  ctx.save();
+  ctx.strokeStyle = '#fca5a599'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx - 75, cy - 45);
+  ctx.bezierCurveTo(cx - 40, cy - 20, cx - 10, cy + 10, cx + 5, cy + 35);
+  ctx.stroke();
+  ctx.restore();
+
+  // Baby — stick figure, head down (birth position)
+  ctx.save();
+  const bx = cx + 15, by = cy - 10;
+  // Head (lower — head-down birth position)
+  ctx.beginPath();
+  ctx.arc(bx, by + 70, 30, 0, Math.PI * 2);
+  ctx.fillStyle = '#2d1b3d'; ctx.fill();
+  ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 2; ctx.stroke();
+  // Body
+  ctx.beginPath();
+  ctx.ellipse(bx, by + 10, 25, 55, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#2d1b3d'; ctx.fill();
+  ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 2; ctx.stroke();
+  // Arms
+  ctx.beginPath();
+  ctx.ellipse(bx - 32, by + 5, 12, 22, -0.3, 0, Math.PI * 2);
+  ctx.fillStyle = '#3b2a52'; ctx.fill();
+  ctx.strokeStyle = '#a78bfa99'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(bx + 32, by + 5, 12, 22, 0.3, 0, Math.PI * 2);
+  ctx.fillStyle = '#3b2a52'; ctx.fill();
+  ctx.strokeStyle = '#a78bfa99'; ctx.lineWidth = 1.5; ctx.stroke();
+  // Legs (folded up — foetal position)
+  ctx.beginPath();
+  ctx.ellipse(bx - 16, by - 52, 14, 20, -0.5, 0, Math.PI * 2);
+  ctx.fillStyle = '#3b2a52'; ctx.fill();
+  ctx.strokeStyle = '#a78bfa99'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(bx + 16, by - 52, 14, 20, 0.5, 0, Math.PI * 2);
+  ctx.fillStyle = '#3b2a52'; ctx.fill();
+  ctx.strokeStyle = '#a78bfa99'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.restore();
+
+  ctx.fillStyle = '#a78bfa'; ctx.font = 'bold 12px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('Baby at ~40 weeks — ready to be born', cx, cy + 142);
+  ctx.fillStyle = '#64748b'; ctx.font = '9.5px Inter';
+  ctx.fillText('Gestation period complete (~9 months)', cx, cy + 157);
+}
+
+function nextDevStage() {
+  if (currentDevStage < DEV_STAGES.length - 1) {
+    currentDevStage++;
+    drawDevStage(currentDevStage);
+    Progress.recordSimUsed('human-reproduction');
+  }
+}
+
+function prevDevStage() {
+  if (currentDevStage > 0) {
+    currentDevStage--;
+    drawDevStage(currentDevStage);
+    Progress.recordSimUsed('human-reproduction');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════════════════════════
+const QUIZ_Q = [
+  {
+    question: 'Where are sperm produced?',
+    options: ['Testes', 'Ovaries', 'Uterus', 'Fallopian tubes'],
+    correct: 0,
+    explanation: 'Sperm are produced in the testes. Males have two testes. Sperm are the male sex cells and have a tail that helps them swim.'
+  },
+  {
+    question: 'What is fertilisation?',
+    options: [
+      'The release of an egg from the ovary',
+      'The joining of a sperm cell with an egg cell',
+      'The development of an embryo in the uterus',
+      'The monthly shedding of the uterine lining'
+    ],
+    correct: 1,
+    explanation: 'Fertilisation is the joining (fusion) of a sperm cell with an egg cell (ovum) to form a fertilised egg called a zygote. It takes place in the fallopian tube.'
+  },
+  {
+    question: 'Where does a fertilised egg develop into a baby?',
+    options: ['Ovary', 'Fallopian tube', 'Uterus', 'Cervix'],
+    correct: 2,
+    explanation: 'After fertilisation, the zygote travels to the uterus (womb) and implants in the uterine wall, where it develops first into an embryo, then a foetus, and finally a baby.'
+  },
+  {
+    question: 'Approximately how long does a baby take to develop before birth?',
+    options: ['4 weeks', '16 weeks', '6 months', '40 weeks'],
+    correct: 3,
+    explanation: 'The gestation period is approximately 40 weeks (about 9 months). During this time the baby develops from a single fertilised egg into a fully formed baby.'
+  },
+  {
+    question: 'Which of the following is a change that occurs in FEMALES during puberty?',
+    options: ['Menstruation begins', 'Voice becomes deeper', 'Facial hair grows', 'Testes enlarge'],
+    correct: 0,
+    explanation: 'Menstruation (the monthly release and shedding of the uterine lining if the egg is not fertilised) is a change that occurs in females during puberty. Voice breaking, facial hair, and testes enlarging are male changes.'
+  },
+  {
+    question: 'What is the role of the placenta?',
+    options: [
+      'To produce eggs',
+      'To store sperm',
+      'To provide the foetus with nutrients and oxygen from the mother',
+      'To produce sperm'
+    ],
+    correct: 2,
+    explanation: 'The placenta connects the developing baby to the mother\'s blood supply. It allows nutrients and oxygen to pass from the mother to the foetus, and waste products to pass back to the mother.'
+  },
+  {
+    question: 'A fertilised egg is called a:',
+    options: ['Embryo', 'Zygote', 'Foetus', 'Ovum'],
+    correct: 1,
+    explanation: 'The fertilised egg is called a zygote. It later becomes an embryo (weeks 1–8) and then a foetus (week 9 to birth). An ovum is an unfertilised egg.'
+  },
+  {
+    question: 'During which stage does the developing baby show recognisable human features and all major organs have formed?',
+    options: ['Zygote stage', 'Embryo (first 2 weeks)', 'Embryo (4–6 weeks)', 'Foetus stage'],
+    correct: 3,
+    explanation: 'From week 9, the developing baby is called a foetus. At this stage it has recognisable human features — a head, limbs, and all major organs have begun to form. The foetus continues to grow until birth at ~40 weeks.'
+  }
+];
+
+// ══════════════════════════════════════════════════════════════
+// MIND MAP TEMPLATE
+// ══════════════════════════════════════════════════════════════
+const MM_TEMPLATE = {
+  nodes: [
+    { id: 1,  label: 'Human\nReproduction', color: { background: '#1e183a', border: '#8b5cf6' }, font: { size: 15, color: '#c4b5fd' } },
+    { id: 2,  label: 'Male System' },
+    { id: 3,  label: 'Female System' },
+    { id: 4,  label: 'Testes' },
+    { id: 5,  label: 'Sperm' },
+    { id: 6,  label: 'Ovary' },
+    { id: 7,  label: 'Uterus' },
+    { id: 8,  label: 'Fertilisation' },
+    { id: 9,  label: 'Zygote' },
+    { id: 10, label: 'Embryo' },
+    { id: 11, label: 'Foetus' },
+    { id: 12, label: 'Placenta' },
+    { id: 13, label: 'Puberty' },
+    { id: 14, label: 'Male Changes' },
+    { id: 15, label: 'Female Changes' },
+  ],
+  edges: [
+    { from: 1,  to: 2,  label: 'includes' },
+    { from: 1,  to: 3,  label: 'includes' },
+    { from: 2,  to: 4,  label: 'has' },
+    { from: 4,  to: 5,  label: 'produces' },
+    { from: 3,  to: 6,  label: 'has' },
+    { from: 3,  to: 7,  label: 'has' },
+    { from: 5,  to: 8,  label: '+egg→' },
+    { from: 6,  to: 8,  label: 'releases egg for' },
+    { from: 8,  to: 9,  label: 'forms' },
+    { from: 9,  to: 10, label: 'becomes' },
+    { from: 10, to: 11, label: 'becomes' },
+    { from: 7,  to: 11, label: 'contains' },
+    { from: 11, to: 12, label: 'nourished by' },
+    { from: 1,  to: 13, label: 'involves' },
+    { from: 13, to: 14, label: 'male' },
+    { from: 13, to: 15, label: 'female' },
+  ],
+  required: ['testes', 'ovary', 'uterus', 'fertilisation', 'zygote', 'embryo', 'foetus', 'placenta', 'puberty']
+};
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+let sciMap;
+
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('human-reproduction');
+  const pct = Progress.masteryPct('human-reproduction');
+  document.getElementById('mastery-pct').textContent = pct + '%';
+
+  initAIQuizToggle(QUIZ_Q);
+
+  sciMap = new ScienceMindMap('mindmap-container', 'human-reproduction', MM_TEMPLATE);
+
+  // Draw initial development stage
+  drawDevStage(currentDevStage);
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label (e.g. "Fallopian tube", "Menstruation"):');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>

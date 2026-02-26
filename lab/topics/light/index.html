@@ -34,6 +34,11 @@
     .mat-card.opaque        { border-color: #94a3b8; background: #1e293b; color: #cbd5e1; }
     .sim-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: .5rem .9rem; font-size: .82rem; text-align: center; margin-bottom: .5rem; }
     .sim-stat strong { display: block; font-size: 1.1rem; color: var(--energy); }
+    .sub-tabs { display:flex; gap:.35rem; margin-bottom:.85rem; flex-wrap:wrap; }
+    .sub-tab  { padding:.35rem .85rem; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:.8rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .sub-tab.active { background:var(--energy); color:#0f172a; border-color:var(--energy); }
+    .sub-pane { display:none; } .sub-pane.active { display:block; }
+    #reflect-canvas { border-radius:10px; background:#0d1117; display:block; }
   </style>
 </head>
 <body>
@@ -158,23 +163,45 @@
       </div>
 
       <div class="cornell-main" style="padding:1rem">
-        <div class="slider-row">
-          <label>Object position</label>
-          <input type="range" id="obj-slider" min="15" max="85" value="50">
-          <span class="slider-val" id="obj-val">50%</span>
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="showLightSub('shadow-pane', this)">🌑 Shadow Simulator</button>
+          <button class="sub-tab" onclick="showLightSub('reflect-pane', this)">🪞 Reflection Angle</button>
         </div>
-        <div class="slider-row">
-          <label>Object type</label>
-          <select id="obj-type" style="flex:1;padding:.4rem .6rem;border-radius:7px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.85rem">
-            <option value="opaque">Opaque (solid block)</option>
-            <option value="translucent">Translucent (frosted)</option>
-            <option value="transparent">Transparent (clear)</option>
-          </select>
+
+        <!-- Shadow Simulator -->
+        <div class="sub-pane active" id="shadow-pane">
+          <div class="slider-row">
+            <label>Object position</label>
+            <input type="range" id="obj-slider" min="15" max="85" value="50">
+            <span class="slider-val" id="obj-val">50%</span>
+          </div>
+          <div class="slider-row">
+            <label>Object type</label>
+            <select id="obj-type" style="flex:1;padding:.4rem .6rem;border-radius:7px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.85rem">
+              <option value="opaque">Opaque (solid block)</option>
+              <option value="translucent">Translucent (frosted)</option>
+              <option value="transparent">Transparent (clear)</option>
+            </select>
+          </div>
+          <div class="sim-canvas-wrap" style="height:300px;margin-top:.75rem">
+            <canvas id="light-canvas" width="660" height="290"></canvas>
+          </div>
+          <div id="sim-feedback" style="margin-top:.75rem;padding:.8rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5;min-height:48px"></div>
         </div>
-        <div class="sim-canvas-wrap" style="height:300px;margin-top:.75rem">
-          <canvas id="light-canvas" width="660" height="290"></canvas>
+
+        <!-- Reflection Angle Simulator -->
+        <div class="sub-pane" id="reflect-pane">
+          <p style="font-size:.85rem;color:var(--muted);margin-bottom:.75rem">
+            Adjust the angle of the incident ray. The law of reflection states: <strong>angle of incidence = angle of reflection</strong>. Both angles are measured from the <em>normal</em> (a line perpendicular to the mirror surface).
+          </p>
+          <div class="slider-row">
+            <label>Angle of incidence</label>
+            <input type="range" id="reflect-slider" min="5" max="85" value="40" oninput="onReflectSlider()">
+            <span class="slider-val" id="reflect-val" style="color:var(--energy)">40°</span>
+          </div>
+          <canvas id="reflect-canvas" width="640" height="340" style="margin-top:.75rem;width:100%;max-width:640px"></canvas>
+          <div id="reflect-info" style="margin-top:.75rem;padding:.8rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
         </div>
-        <div id="sim-feedback" style="margin-top:.75rem;padding:.8rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5;min-height:48px"></div>
       </div>
 
       <div class="cornell-summary">
@@ -474,6 +501,122 @@ document.addEventListener('DOMContentLoaded', () => {
 function addMindNode() {
   const lbl = prompt('Node label:');
   if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+
+// ═══════════════════════════════════════════════
+// LIGHT SUB-TAB SWITCHER
+// ═══════════════════════════════════════════════
+function showLightSub(paneId, btn) {
+  document.querySelectorAll('#tab-simulate .sub-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#tab-simulate .sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(paneId).classList.add('active');
+  btn.classList.add('active');
+  if (paneId === 'reflect-pane') {
+    drawReflection(parseInt(document.getElementById('reflect-slider').value));
+    Progress.recordSimUsed('light');
+  }
+}
+
+// ═══════════════════════════════════════════════
+// REFLECTION ANGLE SIMULATOR
+// ═══════════════════════════════════════════════
+function onReflectSlider() {
+  const angle = parseInt(document.getElementById('reflect-slider').value);
+  document.getElementById('reflect-val').textContent = angle + '°';
+  drawReflection(angle);
+}
+
+function drawArrow(ctx2, x1, y1, x2, y2, color) {
+  const ang = Math.atan2(y2 - y1, x2 - x1);
+  const a = 10;
+  ctx2.fillStyle = color;
+  ctx2.beginPath();
+  ctx2.moveTo(x2, y2);
+  ctx2.lineTo(x2 - a * Math.cos(ang - Math.PI/6), y2 - a * Math.sin(ang - Math.PI/6));
+  ctx2.lineTo(x2 - a * Math.cos(ang + Math.PI/6), y2 - a * Math.sin(ang + Math.PI/6));
+  ctx2.closePath(); ctx2.fill();
+}
+
+function drawReflection(angle) {
+  const c = document.getElementById('reflect-canvas');
+  if (!c) return;
+  const ctx2 = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx2.fillStyle = '#0d1117'; ctx2.fillRect(0, 0, W, H);
+
+  const CX = W / 2, mirrorY = H - 90;
+  const rad = (angle * Math.PI) / 180;
+  const len = 200;
+
+  // Mirror surface
+  ctx2.strokeStyle = '#94a3b8'; ctx2.lineWidth = 3; ctx2.setLineDash([]);
+  ctx2.beginPath(); ctx2.moveTo(80, mirrorY); ctx2.lineTo(W - 80, mirrorY); ctx2.stroke();
+  // Mirror hatching (below)
+  ctx2.strokeStyle = '#475569'; ctx2.lineWidth = 1;
+  for (let x = 80; x < W - 80; x += 20) {
+    ctx2.beginPath(); ctx2.moveTo(x, mirrorY); ctx2.lineTo(x - 12, mirrorY + 12); ctx2.stroke();
+  }
+  ctx2.fillStyle = '#94a3b8'; ctx2.font = '600 12px Inter,sans-serif'; ctx2.textAlign = 'left';
+  ctx2.fillText('Mirror', 82, mirrorY + 26);
+
+  // Normal (vertical dashed line at CX)
+  ctx2.strokeStyle = '#475569'; ctx2.lineWidth = 1.5; ctx2.setLineDash([6, 4]);
+  ctx2.beginPath(); ctx2.moveTo(CX, mirrorY - 180); ctx2.lineTo(CX, mirrorY + 40); ctx2.stroke();
+  ctx2.setLineDash([]);
+  ctx2.fillStyle = '#64748b'; ctx2.font = '600 12px Inter,sans-serif'; ctx2.textAlign = 'center';
+  ctx2.fillText('Normal', CX, mirrorY - 185);
+
+  // Incident ray (from upper-left to CX, mirrorY)
+  const ix = CX - Math.sin(rad) * len;
+  const iy = mirrorY - Math.cos(rad) * len;
+  ctx2.strokeStyle = '#fde68a'; ctx2.lineWidth = 2.5;
+  ctx2.beginPath(); ctx2.moveTo(ix, iy); ctx2.lineTo(CX, mirrorY); ctx2.stroke();
+  drawArrow(ctx2, ix, iy, CX, mirrorY, '#fde68a');
+  ctx2.fillStyle = '#fde68a'; ctx2.font = '700 13px Inter,sans-serif'; ctx2.textAlign = 'center';
+  ctx2.fillText('Incident ray', (ix + CX) / 2 - 18, (iy + mirrorY) / 2 - 10);
+
+  // Reflected ray (same angle, other side)
+  const rx = CX + Math.sin(rad) * len;
+  const ry = mirrorY - Math.cos(rad) * len;
+  ctx2.strokeStyle = '#60a5fa'; ctx2.lineWidth = 2.5;
+  ctx2.beginPath(); ctx2.moveTo(CX, mirrorY); ctx2.lineTo(rx, ry); ctx2.stroke();
+  drawArrow(ctx2, CX, mirrorY, rx, ry, '#60a5fa');
+  ctx2.fillStyle = '#60a5fa'; ctx2.font = '700 13px Inter,sans-serif'; ctx2.textAlign = 'center';
+  ctx2.fillText('Reflected ray', (rx + CX) / 2 + 18, (ry + mirrorY) / 2 - 10);
+
+  // Angle arcs + labels
+  const arcR = 50;
+  ctx2.strokeStyle = '#a3e635'; ctx2.lineWidth = 1.5;
+  // Angle of incidence arc (from normal going left)
+  ctx2.beginPath();
+  ctx2.arc(CX, mirrorY, arcR, -Math.PI / 2 - rad, -Math.PI / 2, false);
+  ctx2.stroke();
+  // Angle of reflection arc (from normal going right)
+  ctx2.beginPath();
+  ctx2.arc(CX, mirrorY, arcR, -Math.PI / 2, -Math.PI / 2 + rad, false);
+  ctx2.stroke();
+  ctx2.fillStyle = '#a3e635'; ctx2.font = '700 13px Inter,sans-serif';
+  ctx2.textAlign = 'center';
+  ctx2.fillText(`${angle}°`, CX - arcR * 0.85, mirrorY - arcR * 0.6);
+  ctx2.fillText(`${angle}°`, CX + arcR * 0.85, mirrorY - arcR * 0.6);
+  ctx2.fillStyle = 'rgba(163,230,53,0.7)'; ctx2.font = '600 11px Inter,sans-serif';
+  ctx2.fillText('∠i', CX - arcR * 0.5, mirrorY - arcR * 1.05);
+  ctx2.fillText('∠r', CX + arcR * 0.5, mirrorY - arcR * 1.05);
+
+  // Law of reflection label
+  ctx2.fillStyle = 'rgba(255,255,255,0.5)'; ctx2.font = '400 12px Inter,sans-serif';
+  ctx2.textAlign = 'center';
+  ctx2.fillText(`Law of Reflection: angle of incidence (${angle}°) = angle of reflection (${angle}°)`, CX, H - 18);
+
+  // Update info box
+  const info = document.getElementById('reflect-info');
+  if (info) {
+    info.innerHTML = `<strong style="color:var(--energy)">∠i = ∠r = ${angle}°</strong>&ensp;
+      The incident ray hits the mirror at ${angle}° from the normal. The reflected ray bounces off at the same angle (${angle}°) on the other side of the normal.
+      ${angle < 30 ? ' &ensp;🔍 Small angle — rays stay close to the normal (near-perpendicular reflection).'
+      : angle > 60 ? ' &ensp;🔍 Large angle — rays travel nearly parallel to the mirror surface.'
+      : ''}`;
+  }
 }
 </script>
 </body>

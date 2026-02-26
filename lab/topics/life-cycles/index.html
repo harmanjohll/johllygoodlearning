@@ -55,6 +55,7 @@
     .sub-tab { padding:.35rem .85rem; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:.8rem; font-weight:600; cursor:pointer; transition:all .15s; }
     .sub-tab.active { background:var(--cycles); color:#fff; border-color:var(--cycles); }
     .sub-pane { display:none; } .sub-pane.active { display:block; }
+    #anim-canvas { border-radius: 10px; display: block; margin: 0 auto; }
   </style>
 </head>
 <body>
@@ -190,6 +191,7 @@
           <button class="sub-tab" onclick="showSub2('seq-sim','frog')">🐸 Frog</button>
           <button class="sub-tab" onclick="showSub2('seq-sim','mosquito')">🦟 Mosquito</button>
           <button class="sub-tab" onclick="showSub2('cycle-canvas-pane','')">🔄 Cycle View</button>
+          <button class="sub-tab" onclick="showSub2('anim-pane','');animRender()">🎬 Animator</button>
         </div>
 
         <div class="sub-pane active" id="seq-sim">
@@ -217,6 +219,25 @@
             <button class="btn btn-ghost" style="font-size:.82rem" onclick="drawCycle('frog')">🐸 Frog</button>
             <button class="btn btn-ghost" style="font-size:.82rem" onclick="drawCycle('grasshopper')">🦗 Grasshopper</button>
             <button class="btn btn-ghost" style="font-size:.82rem" onclick="drawCycle('mosquito')">🦟 Mosquito</button>
+          </div>
+        </div>
+
+        <div class="sub-pane" id="anim-pane">
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.75rem">Step through each stage of the life cycle. Use auto-play to watch the cycle unfold.</p>
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.75rem">
+            <button class="btn btn-ghost" style="font-size:.8rem" onclick="animSelectOrg('butterfly')">🦋 Butterfly</button>
+            <button class="btn btn-ghost" style="font-size:.8rem" onclick="animSelectOrg('frog')">🐸 Frog</button>
+            <button class="btn btn-ghost" style="font-size:.8rem" onclick="animSelectOrg('grasshopper')">🦗 Grasshopper</button>
+            <button class="btn btn-ghost" style="font-size:.8rem" onclick="animSelectOrg('mosquito')">🦟 Mosquito</button>
+          </div>
+          <canvas id="anim-canvas" width="560" height="260"></canvas>
+          <div style="display:flex;gap:.75rem;justify-content:center;align-items:center;margin-top:.85rem">
+            <button class="btn btn-ghost" id="anim-prev" onclick="animStep(-1)">← Prev</button>
+            <div id="anim-dots" style="display:flex;gap:.4rem;align-items:center"></div>
+            <button class="btn btn-primary" id="anim-next" onclick="animStep(1)">Next →</button>
+          </div>
+          <div style="text-align:center;margin-top:.5rem">
+            <button id="anim-play-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="animTogglePlay()">▶ Auto-play</button>
           </div>
         </div>
       </div>
@@ -573,6 +594,100 @@ document.addEventListener('DOMContentLoaded', () => {
 function addMindNode() {
   const lbl = prompt('Node label:');
   if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+
+// ═══════════════════════════════════════════════════
+// STAGE ANIMATOR
+// ═══════════════════════════════════════════════════
+const ANIM_DATA = {
+  butterfly: [
+    { name:'Egg', emoji:'🥚', desc:'Female lays tiny eggs on a leaf.\nEgg contains the developing embryo.', bg:'#0f2a1a' },
+    { name:'Larva (Caterpillar)', emoji:'🐛', desc:'Hatches from egg. Eats leaves to grow rapidly.\nMoults (sheds skin) several times.', bg:'#122a12' },
+    { name:'Pupa (Chrysalis)', emoji:'🟤', desc:'Forms a hard casing around itself.\nBody reorganises completely inside.', bg:'#0f1e2e' },
+    { name:'Adult Butterfly', emoji:'🦋', desc:'Emerges with wings. Can fly.\nFinds a mate and lays eggs — cycle repeats.', bg:'#1e0f2e' }
+  ],
+  frog: [
+    { name:'Egg (Frogspawn)', emoji:'🟤', desc:'Laid in water in jelly-like clusters.\nEach egg has a developing tadpole inside.', bg:'#0f2a1a' },
+    { name:'Tadpole', emoji:'🫀', desc:'Lives in water. Has a tail and gills.\nBreathes underwater. Eats algae.', bg:'#0f1e2e' },
+    { name:'Froglet', emoji:'🐸', desc:'Grows legs; tail shortens.\nStarts breathing air with developing lungs.', bg:'#122a12' },
+    { name:'Adult Frog', emoji:'🐸', desc:'Fully developed. Lives on land and in water.\nLays eggs in water — cycle repeats.', bg:'#1e0f2e' }
+  ],
+  grasshopper: [
+    { name:'Egg', emoji:'🥚', desc:'Laid in the soil in clusters.\nProtected by a foam-like casing.', bg:'#0f2a1a' },
+    { name:'Nymph', emoji:'🦗', desc:'Looks like a small adult but has no wings.\nMoults 4–5 times as it grows bigger.', bg:'#122a12' },
+    { name:'Adult Grasshopper', emoji:'🦗', desc:'Fully grown with wings. Can hop and fly.\nMates and lays eggs — cycle repeats.', bg:'#1e0f2e' }
+  ],
+  mosquito: [
+    { name:'Egg', emoji:'🥚', desc:'Laid in clusters on still water.\nHatches within 24–48 hours.', bg:'#0f2a1a' },
+    { name:'Larva (Wriggler)', emoji:'🐛', desc:'Lives in water. Feeds on microorganisms.\nBreathes through a siphon at the surface.', bg:'#0f1e2e' },
+    { name:'Pupa (Tumbler)', emoji:'🟤', desc:'Does not eat. Resting stage in water.\nAdult develops inside over 1–4 days.', bg:'#0f2a1a' },
+    { name:'Adult Mosquito', emoji:'🦟', desc:'Emerges from pupal case. Can fly.\nFemale bites to obtain blood for egg-laying.', bg:'#1e0f2e' }
+  ]
+};
+
+let animOrg   = 'butterfly';
+let animIdx   = 0;
+let animTimer = null;
+
+function animSelectOrg(org) { animOrg = org; animIdx = 0; animRender(); }
+function animStep(dir) {
+  const stages = ANIM_DATA[animOrg];
+  animIdx = Math.max(0, Math.min(stages.length - 1, animIdx + dir));
+  animRender();
+}
+function animTogglePlay() {
+  const btn = document.getElementById('anim-play-btn');
+  if (animTimer) {
+    clearInterval(animTimer); animTimer = null;
+    btn.textContent = '▶ Auto-play';
+  } else {
+    animTimer = setInterval(() => {
+      animIdx = (animIdx + 1) % ANIM_DATA[animOrg].length;
+      animRender();
+    }, 2500);
+    btn.textContent = '⏸ Pause';
+  }
+}
+function animRender() {
+  const stages = ANIM_DATA[animOrg];
+  const stage  = stages[animIdx];
+  const c      = document.getElementById('anim-canvas');
+  if (!c) return;
+  const ctx2 = c.getContext('2d');
+  const W = c.width, H = c.height;
+
+  // Background
+  ctx2.fillStyle = stage.bg; ctx2.fillRect(0, 0, W, H);
+
+  // Header band
+  ctx2.fillStyle = 'rgba(255,255,255,0.08)'; ctx2.fillRect(0, 0, W, 38);
+  ctx2.fillStyle = 'rgba(255,255,255,0.55)'; ctx2.font = '600 12px Inter,sans-serif';
+  ctx2.textAlign = 'left'; ctx2.fillText(`Stage ${animIdx + 1} of ${stages.length}`, 14, 24);
+  const typeLabel = { butterfly:'Complete Metamorphosis', frog:'Frog Life Cycle', grasshopper:'Incomplete Metamorphosis', mosquito:'Complete Metamorphosis' };
+  ctx2.textAlign = 'right'; ctx2.fillText(typeLabel[animOrg] || '', W - 14, 24);
+
+  // Emoji
+  ctx2.font = '64px sans-serif'; ctx2.textAlign = 'center';
+  ctx2.fillText(stage.emoji, W / 2, 120);
+
+  // Stage name
+  ctx2.fillStyle = '#ffffff'; ctx2.font = '700 18px Inter,sans-serif';
+  ctx2.fillText(stage.name, W / 2, 158);
+
+  // Description
+  ctx2.fillStyle = 'rgba(255,255,255,0.72)'; ctx2.font = '400 13px Inter,sans-serif';
+  stage.desc.split('\n').forEach((line, i) => ctx2.fillText(line, W / 2, 184 + i * 22));
+
+  // Dot indicators
+  const dotDiv = document.getElementById('anim-dots');
+  if (dotDiv) {
+    dotDiv.innerHTML = stages.map((_, i) =>
+      `<div style="width:${i===animIdx?12:8}px;height:${i===animIdx?12:8}px;border-radius:50%;background:${i===animIdx?'var(--cycles)':'var(--border)'};transition:all .2s"></div>`
+    ).join('');
+  }
+  document.getElementById('anim-prev').disabled = animIdx === 0;
+  document.getElementById('anim-next').disabled = animIdx === stages.length - 1;
+  Progress.recordSimUsed('life-cycles');
 }
 </script>
 </body>

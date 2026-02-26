@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reproduction in Plants | Science Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header { background:var(--surface); border-bottom:1px solid var(--border); padding:.9rem 1.5rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .topic-color-bar { width:4px; height:36px; border-radius:3px; background:var(--cycles); flex-shrink:0; }
+    main { max-width:1100px; margin:0 auto; padding:1.5rem 1.25rem 3rem; }
+    .cue-question { font-size:.78rem; color:var(--muted); margin-bottom:.75rem; border-left:2px solid var(--cycles); padding-left:.6rem; }
+    .summary-text { font-size:.85rem; color:var(--muted); line-height:1.6; }
+
+    /* Sub-tabs */
+    .sub-tabs { display:flex; gap:.35rem; margin-bottom:1rem; flex-wrap:wrap; }
+    .sub-tab { padding:.35rem .85rem; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:.8rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .sub-tab.active { background:var(--cycles); color:#fff; border-color:var(--cycles); }
+    .sub-pane { display:none; } .sub-pane.active { display:block; }
+
+    /* Comparison table */
+    .compare-table { width:100%; border-collapse:collapse; font-size:.82rem; margin-top:.75rem; }
+    .compare-table th { background:var(--surface); color:var(--cycles); padding:.5rem .75rem; text-align:left; font-size:.78rem; }
+    .compare-table td { padding:.45rem .75rem; border-top:1px solid var(--border); color:var(--muted); vertical-align:top; }
+    .compare-table tr:hover td { background:var(--surface); }
+
+    /* Flower canvas */
+    #plant-sim-canvas { border-radius:10px; background:#0d1117; display:block; margin:0 auto; cursor:pointer; max-width:100%; }
+
+    /* Info panel */
+    #part-info { margin-top:.75rem; padding:.75rem 1rem; border-radius:10px; background:var(--surface); border:1.5px solid var(--cycles); font-size:.85rem; line-height:1.5; min-height:56px; }
+    #part-info .part-name { font-weight:700; color:var(--cycles); font-size:.95rem; }
+    #part-info .part-fn   { color:var(--muted); margin-top:.25rem; }
+
+    /* Dispersal cards */
+    .dispersal-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:.75rem; margin-top:.5rem; }
+    .dispersal-card { border:1.5px solid var(--border); border-radius:10px; padding:.85rem 1rem; cursor:pointer; transition:all .2s; }
+    .dispersal-card:hover { border-color:var(--cycles); background:var(--surface); }
+    .dispersal-card.revealed { border-color:var(--cycles); }
+    .dispersal-card .disp-icon { font-size:2rem; margin-bottom:.35rem; }
+    .dispersal-card .disp-method { font-weight:700; color:var(--cycles); font-size:.88rem; }
+    .dispersal-card .disp-detail { display:none; font-size:.78rem; color:var(--muted); margin-top:.4rem; line-height:1.45; }
+    .dispersal-card.revealed .disp-detail { display:block; }
+    .disp-hint { font-size:.76rem; color:var(--muted); margin-top:.25rem; font-style:italic; }
+
+    /* Germination stepper */
+    .germ-stage { text-align:center; }
+    .germ-canvas-wrap { display:flex; justify-content:center; margin-bottom:.75rem; }
+    #germ-canvas { border-radius:10px; background:#0d1117; }
+    .germ-label { font-size:.9rem; font-weight:700; color:var(--cycles); margin-bottom:.25rem; }
+    .germ-desc  { font-size:.8rem; color:var(--muted); line-height:1.5; max-width:360px; margin:0 auto .75rem; }
+    .germ-controls { display:flex; gap:.5rem; justify-content:center; align-items:center; }
+    .germ-dot-row { display:flex; gap:.4rem; justify-content:center; margin-top:.5rem; }
+    .germ-dot { width:9px; height:9px; border-radius:50%; background:var(--border); transition:background .2s; }
+    .germ-dot.active { background:var(--cycles); }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🌸 Reproduction in Plants</h1>
+    <div style="font-size:.78rem;color:var(--muted)">
+      <span class="badge badge-cycles">Cycles</span>&nbsp;
+      <span class="badge badge-p5">P5</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--cycles)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════ LEARN ══════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What are the parts of a flower and their functions?</div>
+        <div class="cue-question">What is pollination? How does it happen?</div>
+        <div class="cue-question">What is the difference between wind and insect pollination?</div>
+        <div class="cue-question">What is fertilisation?</div>
+        <div class="cue-question">What are the methods of seed dispersal?</div>
+        <div class="cue-question">What conditions are needed for germination?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+        <div class="glossary-term"><div class="term-name">Pollination</div><div class="term-def">Transfer of pollen from anther to stigma. Can be by wind or insects.</div></div>
+        <div class="glossary-term"><div class="term-name">Fertilisation</div><div class="term-def">The joining of a pollen nucleus with an ovule inside the ovary to form a seed.</div></div>
+        <div class="glossary-term"><div class="term-name">Germination</div><div class="term-def">The sprouting of a seed into a new plant. Needs water, oxygen, and warmth (NOT light).</div></div>
+        <div class="glossary-term"><div class="term-name">Stamen</div><div class="term-def">Male part of the flower. Made up of anther (produces pollen) and filament.</div></div>
+        <div class="glossary-term"><div class="term-name">Pistil</div><div class="term-def">Female part of the flower. Made up of stigma (receives pollen), style, ovary (contains ovules), and ovule.</div></div>
+        <div class="glossary-term"><div class="term-name">Sepal</div><div class="term-def">Green leaf-like parts that protect the flower bud.</div></div>
+        <div class="glossary-term"><div class="term-name">Petal</div><div class="term-def">Brightly coloured parts that attract insects for pollination.</div></div>
+        <div class="glossary-term"><div class="term-name">Seed Dispersal</div><div class="term-def">Spreading of seeds away from the parent plant to reduce competition.</div></div>
+        <div class="glossary-term"><div class="term-name">Asexual Reproduction</div><div class="term-def">Producing new plants without seeds — e.g. runners (strawberry), bulbs (onion), cuttings.</div></div>
+      </div>
+
+      <div class="cornell-main">
+
+        <div class="note-section">
+          <h4>🌺 Parts of a Flower</h4>
+          <table class="compare-table">
+            <thead>
+              <tr><th>Part</th><th>Type</th><th>Function</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Sepal</strong></td><td>Neither</td><td>Green, leaf-like; protects the flower bud before it opens</td></tr>
+              <tr><td><strong>Petal</strong></td><td>Neither</td><td>Often brightly coloured and scented; attracts insects for pollination</td></tr>
+              <tr><td><strong>Anther</strong></td><td>Male (stamen)</td><td>Produces and releases pollen grains</td></tr>
+              <tr><td><strong>Filament</strong></td><td>Male (stamen)</td><td>Supports the anther; together with anther forms the stamen</td></tr>
+              <tr><td><strong>Stigma</strong></td><td>Female (pistil)</td><td>Receives pollen; often sticky in insect-pollinated flowers</td></tr>
+              <tr><td><strong>Style</strong></td><td>Female (pistil)</td><td>Connects stigma to ovary; pollen tube grows through it</td></tr>
+              <tr><td><strong>Ovary</strong></td><td>Female (pistil)</td><td>Contains ovules; develops into a fruit after fertilisation</td></tr>
+              <tr><td><strong>Ovule</strong></td><td>Female (pistil)</td><td>Develops into a seed after fertilisation</td></tr>
+            </tbody>
+          </table>
+          <div class="highlight" style="margin-top:.75rem">🔑 Stamen = anther + filament (male). Pistil = stigma + style + ovary + ovule (female).</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🔄 Sexual Reproduction — Sequence</h4>
+          <div class="equation">Pollination → Fertilisation → Seed Formation → Seed Dispersal → Germination</div>
+          <ul>
+            <li><strong>Pollination:</strong> Pollen is transferred from the anther to the stigma</li>
+            <li><strong>Fertilisation:</strong> A pollen tube grows down the style; the pollen nucleus joins the ovule</li>
+            <li><strong>Seed formation:</strong> The fertilised ovule develops into a seed; the ovary wall becomes the fruit</li>
+            <li><strong>Seed dispersal:</strong> Seeds are spread away from the parent plant</li>
+            <li><strong>Germination:</strong> The seed sprouts into a new seedling under the right conditions</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>💨 Wind vs Insect Pollination</h4>
+          <table class="compare-table">
+            <thead>
+              <tr><th>Feature</th><th>Wind Pollination</th><th>Insect Pollination</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Pollen</strong></td><td>Light, smooth, produced in large amounts</td><td>Sticky or spiky, produced in smaller amounts</td></tr>
+              <tr><td><strong>Petals</strong></td><td>Small, dull/absent — no need to attract insects</td><td>Large, brightly coloured — attracts insects</td></tr>
+              <tr><td><strong>Scent / Nectar</strong></td><td>None</td><td>Sweet scent and nectar to attract insects</td></tr>
+              <tr><td><strong>Stigma</strong></td><td>Large, feathery — hangs outside to catch pollen</td><td>Small, sticky — inside the flower</td></tr>
+              <tr><td><strong>Examples</strong></td><td>Grass, maize, rice</td><td>Hibiscus, rose, sunflower</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note-section">
+          <h4>🍂 Seed Dispersal</h4>
+          <p>Seeds must be dispersed <strong>away from the parent plant</strong> to reduce competition for water, sunlight, and minerals.</p>
+          <table class="compare-table">
+            <thead>
+              <tr><th>Method</th><th>Adaptations</th><th>Examples</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Wind</strong></td><td>Light; feathery tufts or wings to catch the wind</td><td>Dandelion (tufts), maple (wings)</td></tr>
+              <tr><td><strong>Water</strong></td><td>Air-filled to float; waterproof outer coat</td><td>Coconut, lotus</td></tr>
+              <tr><td><strong>Animal</strong></td><td>Hooks or burrs that stick to fur; or tasty fruit — seeds pass through the digestive system unharmed</td><td>Burdock (hooks), berries (eaten)</td></tr>
+              <tr><td><strong>Self-dispersal</strong></td><td>Dry pods split suddenly and flick seeds outward</td><td>Impatiens (touch-me-not), pea pod</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note-section">
+          <h4>🌱 Conditions for Germination</h4>
+          <ul>
+            <li><strong>Water:</strong> Softens the seed coat so the embryo can break through; provides a medium for chemical reactions</li>
+            <li><strong>Oxygen:</strong> Needed for cellular respiration to release energy for growth</li>
+            <li><strong>Warmth:</strong> Speeds up enzyme activity so the embryo can grow</li>
+          </ul>
+          <div class="highlight">⚠️ Light is <strong>NOT</strong> needed for germination. Seeds germinate underground where there is no light.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🌿 Asexual Reproduction</h4>
+          <p>Some plants can reproduce without seeds — using vegetative parts of the plant. No pollination or fertilisation is needed.</p>
+          <table class="compare-table">
+            <thead>
+              <tr><th>Method</th><th>Description</th><th>Example</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Runners</strong></td><td>Long horizontal stems grow out from the parent; roots form where they touch the ground</td><td>Strawberry</td></tr>
+              <tr><td><strong>Bulbs</strong></td><td>Underground modified leaves store food; small bulbs (bulblets) grow from the parent</td><td>Onion, garlic</td></tr>
+              <tr><td><strong>Tubers</strong></td><td>Swollen underground stems store food; buds (eyes) on tubers grow into new plants</td><td>Potato</td></tr>
+              <tr><td><strong>Cuttings</strong></td><td>A stem or leaf is cut and planted; roots develop and a new plant grows</td><td>Frangipani</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <div class="cornell-summary">
+        <p class="summary-text">
+          Flowers reproduce sexually through <strong>pollination → fertilisation → seed formation</strong>. Pollen from the <strong>anther</strong> reaches the <strong>stigma</strong>, then a pollen tube grows to the ovule. Seeds are dispersed by wind, water, animals, or self-dispersal. Germination needs <strong>water, oxygen, and warmth</strong> — but <strong>not light</strong>. Plants can also reproduce asexually via runners, bulbs, tubers, or cuttings.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ SIMULATE ══════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Try It</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p><strong>Flower Diagram:</strong> Click any part of the flower to learn its name and function.</p>
+          <p style="margin-top:.75rem"><strong>Seed Dispersal:</strong> Click each card to reveal its adaptations and examples.</p>
+          <p style="margin-top:.75rem"><strong>Germination:</strong> Click Next to step through how a seed becomes a seedling.</p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="showSub('sub-flower', this)">🌺 Flower Diagram</button>
+          <button class="sub-tab" onclick="showSub('sub-dispersal', this)">🍂 Seed Dispersal</button>
+          <button class="sub-tab" onclick="showSub('sub-germination', this)">🌱 Germination Steps</button>
+        </div>
+
+        <!-- Flower diagram pane -->
+        <div class="sub-pane active" id="sub-flower">
+          <canvas id="plant-sim-canvas" width="640" height="380"></canvas>
+          <div id="part-info">
+            <div class="part-name">Click a part of the flower</div>
+            <div class="part-fn">Select any labelled part above to see its name and function.</div>
+          </div>
+        </div>
+
+        <!-- Seed dispersal pane -->
+        <div class="sub-pane" id="sub-dispersal">
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.75rem">Click each card to reveal how the seeds are adapted for dispersal.</p>
+          <div class="dispersal-grid">
+            <div class="dispersal-card" onclick="revealDispersal(this)">
+              <div class="disp-icon">💨</div>
+              <div class="disp-method">Wind Dispersal</div>
+              <div class="disp-hint">Click to reveal →</div>
+              <div class="disp-detail">
+                <strong>Adaptations:</strong> Light seeds with feathery tufts or wing-like structures to catch the wind and travel far.<br><br>
+                <strong>Examples:</strong> Dandelion (feathery parachute), Maple (helicopter wings)
+              </div>
+            </div>
+            <div class="dispersal-card" onclick="revealDispersal(this)">
+              <div class="disp-icon">🌊</div>
+              <div class="disp-method">Water Dispersal</div>
+              <div class="disp-hint">Click to reveal →</div>
+              <div class="disp-detail">
+                <strong>Adaptations:</strong> Air-filled spaces inside so the seed floats; tough waterproof outer coat prevents waterlogging.<br><br>
+                <strong>Examples:</strong> Coconut, Lotus
+              </div>
+            </div>
+            <div class="dispersal-card" onclick="revealDispersal(this)">
+              <div class="disp-icon">🐾</div>
+              <div class="disp-method">Animal Dispersal</div>
+              <div class="disp-hint">Click to reveal →</div>
+              <div class="disp-detail">
+                <strong>Adaptations:</strong><br>• Hooks or burrs that cling to animal fur<br>• Tasty fruit — seeds pass through digestive system unharmed and are deposited elsewhere<br><br>
+                <strong>Examples:</strong> Burdock (hooks), Berries (eaten by birds)
+              </div>
+            </div>
+            <div class="dispersal-card" onclick="revealDispersal(this)">
+              <div class="disp-icon">💥</div>
+              <div class="disp-method">Self-Dispersal</div>
+              <div class="disp-hint">Click to reveal →</div>
+              <div class="disp-detail">
+                <strong>Adaptations:</strong> Dry pods or fruit walls that split open suddenly when ripe, flicking seeds outward with force.<br><br>
+                <strong>Examples:</strong> Impatiens / Touch-me-not, Pea pod
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Germination stepper pane -->
+        <div class="sub-pane" id="sub-germination">
+          <div class="germ-stage">
+            <div class="germ-canvas-wrap">
+              <canvas id="germ-canvas" width="400" height="260"></canvas>
+            </div>
+            <div class="germ-label" id="germ-stage-label">Stage 1 of 5: Dry Seed</div>
+            <div class="germ-desc" id="germ-stage-desc">The seed sits in soil, containing a tiny embryo and stored food. It is dormant and waiting for the right conditions.</div>
+            <div class="germ-controls">
+              <button class="btn btn-ghost" style="font-size:.82rem" onclick="germPrev()">← Prev</button>
+              <button class="btn btn-primary" style="font-size:.82rem" onclick="germNext()">Next →</button>
+            </div>
+            <div class="germ-dot-row" id="germ-dots"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">
+          The flower's male parts (stamen: anther + filament) produce pollen; the female parts (pistil: stigma, style, ovary, ovule) receive pollen and form seeds. Seeds are adapted for dispersal in four main ways: wind, water, animal, and self-dispersal.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ QUIZ ══════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Common question types:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li>Identify a flower part from a diagram</li>
+            <li>State the <strong>conditions</strong> for germination (and why NOT light)</li>
+            <li>Compare wind vs insect pollination</li>
+            <li>Match a seed to its dispersal method</li>
+            <li>Name an asexual reproduction method</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container" data-topic-id="plant-reproduction" data-topic-name="Reproduction in Plants" data-topic-level="5"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Key words to use: <strong>pollination, fertilisation, germination, dispersal, anther, stigma, ovule, stamen, pistil</strong>. Always explain the function, not just the name.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MIND MAP ══════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script>
+// ═══════════════════════════════════
+// FLOWER DIAGRAM — CANVAS
+// ═══════════════════════════════════
+
+// Each clickable part: { name, fn, x, y, rx, ry, shape }
+const FLOWER_PARTS = [
+  { name:'Petal',    fn:'Brightly coloured to attract insects for pollination. Produces scent and guides insects toward the nectar.',
+    x:320, y:110, rx:28, ry:18, color:'#f472b6' },
+  { name:'Anther',   fn:'Male part. Produces and releases pollen grains. Part of the stamen.',
+    x:300, y:165, rx:12, ry:9,  color:'#f97316' },
+  { name:'Filament', fn:'Thin stalk that supports the anther. Together with the anther it forms the stamen (male reproductive part).',
+    x:300, y:190, rx:5,  ry:14, color:'#fbbf24' },
+  { name:'Stigma',   fn:'Top of the pistil. Receives pollen. Usually sticky in insect-pollinated flowers to trap pollen.',
+    x:320, y:150, rx:13, ry:8,  color:'#34d399' },
+  { name:'Style',    fn:'Connects the stigma to the ovary. The pollen tube grows through the style to reach the ovule.',
+    x:320, y:193, rx:5,  ry:22, color:'#6ee7b7' },
+  { name:'Ovary',    fn:'The chamber at the base of the pistil. Contains the ovules. After fertilisation, the ovary wall develops into a fruit.',
+    x:320, y:228, rx:22, ry:16, color:'#10b981' },
+  { name:'Ovule',    fn:'Found inside the ovary. After fertilisation by a pollen nucleus, the ovule develops into a seed.',
+    x:320, y:228, rx:7,  ry:5,  color:'#d1fae5' },
+  { name:'Sepal',    fn:'Green, leaf-like structure at the base of the flower. Protects the flower bud before it opens.',
+    x:320, y:268, rx:20, ry:12, color:'#4ade80' },
+];
+
+// Extra petal positions for drawing (decorative, all map to Petal part)
+const PETAL_POSITIONS = [
+  { x:320, y:110 }, // top
+  { x:370, y:133 }, // top-right
+  { x:370, y:188 }, // bottom-right
+  { x:320, y:212 }, // bottom — skip (overlaps ovary in diagram)
+  { x:268, y:188 }, // bottom-left
+  { x:268, y:133 }, // top-left
+];
+
+// Extra anther positions
+const ANTHER_POSITIONS = [
+  { x:300, y:165 }, { x:312, y:158 }, { x:332, y:158 }, { x:344, y:165 }
+];
+
+function drawFlower() {
+  const c = document.getElementById('plant-sim-canvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, W, H);
+
+  const cx = 320, cy = 195; // flower centre
+
+  // Draw stem
+  ctx.beginPath(); ctx.moveTo(cx, 250); ctx.lineTo(cx, 350);
+  ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 5; ctx.stroke();
+
+  // Draw leaf
+  ctx.beginPath();
+  ctx.ellipse(cx + 30, 320, 28, 10, -0.5, 0, Math.PI * 2);
+  ctx.fillStyle = '#15803d'; ctx.fill();
+
+  // Draw sepals
+  const sepAngles = [-0.6, 0, 0.6];
+  sepAngles.forEach(a => {
+    ctx.save();
+    ctx.translate(cx, 258);
+    ctx.rotate(a);
+    ctx.beginPath();
+    ctx.ellipse(0, 14, 9, 18, 0, 0, Math.PI * 2);
+    ctx.fillStyle = '#4ade80'; ctx.fill();
+    ctx.restore();
+  });
+
+  // Draw petals (6 around centre)
+  PETAL_POSITIONS.forEach((pos, i) => {
+    const angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.ellipse(0, -48, 18, 30, 0, 0, Math.PI * 2);
+    const g = ctx.createRadialGradient(0, -48, 0, 0, -48, 30);
+    g.addColorStop(0, '#fda4af'); g.addColorStop(1, '#f43f5e');
+    ctx.fillStyle = g; ctx.fill();
+    ctx.restore();
+  });
+
+  // Draw ovary (large green oval at bottom of pistil)
+  ctx.beginPath();
+  ctx.ellipse(cx, 235, 20, 14, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#065f46'; ctx.fill();
+  ctx.strokeStyle = '#10b981'; ctx.lineWidth = 1.5; ctx.stroke();
+
+  // Draw ovule dot inside ovary
+  ctx.beginPath(); ctx.arc(cx, 235, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#d1fae5'; ctx.fill();
+
+  // Draw style (green line from stigma down to ovary)
+  ctx.beginPath(); ctx.moveTo(cx, 168); ctx.lineTo(cx, 221);
+  ctx.strokeStyle = '#34d399'; ctx.lineWidth = 4; ctx.stroke();
+
+  // Draw stigma (green oval at top of style)
+  ctx.beginPath();
+  ctx.ellipse(cx, 162, 12, 8, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#059669'; ctx.fill();
+  ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1.5; ctx.stroke();
+
+  // Draw filaments (thin lines)
+  ANTHER_POSITIONS.forEach(p => {
+    ctx.beginPath(); ctx.moveTo(p.x, p.y + 10); ctx.lineTo(p.x, p.y + 35);
+    ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 1.5; ctx.stroke();
+  });
+
+  // Draw anthers (orange circles)
+  ANTHER_POSITIONS.forEach(p => {
+    ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+    const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 7);
+    g.addColorStop(0, '#fdba74'); g.addColorStop(1, '#ea580c');
+    ctx.fillStyle = g; ctx.fill();
+    ctx.strokeStyle = '#f97316'; ctx.lineWidth = 1; ctx.stroke();
+  });
+
+  // Labels with leader lines
+  const LABELS = [
+    { text:'Petal',    x:178, y: 95,  tx:236, ty:143 },
+    { text:'Sepal',    x:178, y:275,  tx:298, ty:262 },
+    { text:'Anther',  x:178, y:155,  tx:292, ty:165 },
+    { text:'Filament',x:178, y:205,  tx:294, ty:200 },
+    { text:'Stigma',  x:462, y:155,  tx:332, ty:162 },
+    { text:'Style',   x:462, y:190,  tx:326, ty:193 },
+    { text:'Ovary',   x:462, y:235,  tx:340, ty:235 },
+    { text:'Ovule',   x:462, y:255,  tx:325, ty:237 },
+  ];
+
+  ctx.font = '600 11px Inter';
+  LABELS.forEach(lb => {
+    // Leader line
+    ctx.beginPath(); ctx.moveTo(lb.x + (lb.x < 320 ? 55 : -5), lb.y); ctx.lineTo(lb.tx, lb.ty);
+    ctx.strokeStyle = '#475569'; ctx.lineWidth = 1; ctx.setLineDash([3,3]); ctx.stroke();
+    ctx.setLineDash([]);
+    // Label box
+    const tw = ctx.measureText(lb.text).width;
+    const bx = lb.x < 320 ? lb.x : lb.x - tw - 10;
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(bx - 4, lb.y - 11, tw + 8, 16);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillText(lb.text, bx, lb.y);
+  });
+
+  // Title
+  ctx.font = 'bold 12px Inter'; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'center';
+  ctx.fillText('Cross-section of a flower — click a part to learn more', W / 2, 22);
+  ctx.textAlign = 'left';
+}
+
+// Hit-test — find which part was clicked
+function getClickedPart(mouseX, mouseY) {
+  // Order matters: test smaller/top parts first
+  const priority = ['Ovule','Stigma','Anther','Filament','Style','Ovary','Sepal','Petal'];
+  for (const name of priority) {
+    const p = FLOWER_PARTS.find(f => f.name === name);
+    if (!p) continue;
+    // Special cases for parts with multiple positions
+    let positions = [{ x: p.x, y: p.y }];
+    if (name === 'Anther')   positions = ANTHER_POSITIONS;
+    if (name === 'Petal') {
+      positions = PETAL_POSITIONS.map((pos, i) => {
+        const angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
+        return {
+          x: 320 + Math.cos(angle) * 48,
+          y: 195 + Math.sin(angle) * 48
+        };
+      });
+    }
+    for (const pos of positions) {
+      const dx = (mouseX - pos.x) / (p.rx + 8);
+      const dy = (mouseY - pos.y) / (p.ry + 8);
+      if (dx * dx + dy * dy <= 1) return p;
+    }
+  }
+  return null;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.getElementById('plant-sim-canvas');
+  if (canvas) {
+    drawFlower();
+    canvas.addEventListener('click', e => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width  / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const mx = (e.clientX - rect.left) * scaleX;
+      const my = (e.clientY - rect.top)  * scaleY;
+      const part = getClickedPart(mx, my);
+      const info = document.getElementById('part-info');
+      if (part) {
+        info.innerHTML = `<div class="part-name">${part.name}</div><div class="part-fn">${part.fn}</div>`;
+        Progress.recordSimUsed('plant-reproduction');
+      } else {
+        info.innerHTML = `<div class="part-name">Click a labelled part</div><div class="part-fn">Try clicking on a petal, anther, stigma, ovary, or sepal.</div>`;
+      }
+    });
+  }
+
+  // ── Germination stepper setup
+  buildGermDots();
+  drawGermStage(0);
+
+  // ── Progress / Quiz / Mind map
+  Progress.recordVisit('plant-reproduction');
+  document.getElementById('mastery-pct').textContent = Progress.masteryPct('plant-reproduction') + '%';
+  initAIQuizToggle(QUIZ_Q);
+  sciMap = new ScienceMindMap('mindmap-container', 'plant-reproduction', MM_TEMPLATE);
+});
+
+// ═══════════════════════════════════
+// SUB-TAB SWITCHER (Simulate tab)
+// ═══════════════════════════════════
+function showSub(subId, btn) {
+  document.querySelectorAll('.sub-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(subId).classList.add('active');
+  btn.classList.add('active');
+  if (subId === 'sub-flower') { drawFlower(); }
+  if (subId === 'sub-germination') { drawGermStage(germStep); }
+  Progress.recordSimUsed('plant-reproduction');
+}
+
+// ═══════════════════════════════════
+// SEED DISPERSAL CARDS
+// ═══════════════════════════════════
+function revealDispersal(card) {
+  card.classList.toggle('revealed');
+  const hint = card.querySelector('.disp-hint');
+  if (hint) hint.style.display = card.classList.contains('revealed') ? 'none' : '';
+  Progress.recordSimUsed('plant-reproduction');
+}
+
+// ═══════════════════════════════════
+// GERMINATION STEPPER
+// ═══════════════════════════════════
+const GERM_STAGES = [
+  {
+    label: 'Stage 1 of 5: Dry Seed',
+    desc:  'The seed lies in soil, containing a tiny embryo and stored food. It is dormant — waiting for water, oxygen, and warmth.',
+    draw: (ctx, W, H) => {
+      drawSoil(ctx, W, H);
+      // Seed oval
+      ctx.beginPath(); ctx.ellipse(W/2, H*0.52, 22, 15, 0, 0, Math.PI*2);
+      const g = ctx.createRadialGradient(W/2, H*0.52, 0, W/2, H*0.52, 22);
+      g.addColorStop(0, '#a16207'); g.addColorStop(1, '#713f12');
+      ctx.fillStyle = g; ctx.fill();
+      ctx.strokeStyle = '#854d0e'; ctx.lineWidth = 1.5; ctx.stroke();
+      // Embryo dot
+      ctx.beginPath(); ctx.arc(W/2, H*0.52, 5, 0, Math.PI*2);
+      ctx.fillStyle = '#fde68a'; ctx.fill();
+      label(ctx, W/2, H*0.52 - 28, 'Dormant seed', '#d97706');
+    }
+  },
+  {
+    label: 'Stage 2 of 5: Water Absorbed',
+    desc:  'Water softens the seed coat and activates enzymes. The seed swells as the embryo begins to use stored food for energy.',
+    draw: (ctx, W, H) => {
+      drawSoil(ctx, W, H);
+      // Water droplets
+      for (let i = 0; i < 8; i++) {
+        ctx.beginPath(); ctx.arc(W/2 - 50 + i*14, H*0.44, 3, 0, Math.PI*2);
+        ctx.fillStyle = '#38bdf8'; ctx.globalAlpha = 0.6; ctx.fill(); ctx.globalAlpha = 1;
+      }
+      // Swollen seed
+      ctx.beginPath(); ctx.ellipse(W/2, H*0.53, 28, 19, 0, 0, Math.PI*2);
+      const g = ctx.createRadialGradient(W/2, H*0.53, 0, W/2, H*0.53, 28);
+      g.addColorStop(0, '#b45309'); g.addColorStop(1, '#713f12');
+      ctx.fillStyle = g; ctx.fill();
+      ctx.strokeStyle = '#92400e'; ctx.lineWidth = 1.5; ctx.stroke();
+      label(ctx, W/2, H*0.53 - 32, 'Seed swells with water', '#38bdf8');
+    }
+  },
+  {
+    label: 'Stage 3 of 5: Root (Radicle) Emerges',
+    desc:  'The radicle (embryonic root) is the first part to emerge. It grows downward into the soil to anchor the plant and absorb water and minerals.',
+    draw: (ctx, W, H) => {
+      drawSoil(ctx, W, H);
+      // Seed
+      ctx.beginPath(); ctx.ellipse(W/2, H*0.5, 26, 17, 0, 0, Math.PI*2);
+      ctx.fillStyle = '#92400e'; ctx.fill();
+      // Root growing down
+      ctx.beginPath(); ctx.moveTo(W/2, H*0.5 + 17); ctx.lineTo(W/2, H*0.72);
+      ctx.strokeStyle = '#f0fdf4'; ctx.lineWidth = 3; ctx.lineCap='round'; ctx.stroke();
+      // Root hairs
+      for (let i = 0; i < 4; i++) {
+        const ry = H*0.55 + i * 14;
+        ctx.beginPath(); ctx.moveTo(W/2, ry);
+        ctx.lineTo(W/2 + (i%2===0 ? 14 : -14), ry + 5);
+        ctx.strokeStyle = '#bbf7d0'; ctx.lineWidth = 1.5; ctx.stroke();
+      }
+      label(ctx, W/2, H*0.42, 'Root (radicle) grows downward', '#4ade80');
+    }
+  },
+  {
+    label: 'Stage 4 of 5: Shoot (Plumule) Emerges',
+    desc:  'The plumule (embryonic shoot) pushes upward through the soil, bending to protect the delicate tip. It uses stored food for energy — still no light needed.',
+    draw: (ctx, W, H) => {
+      drawSoil(ctx, W, H);
+      // Seed underground
+      ctx.beginPath(); ctx.ellipse(W/2, H*0.55, 22, 14, 0, 0, Math.PI*2);
+      ctx.fillStyle = '#92400e'; ctx.fill();
+      // Root
+      ctx.beginPath(); ctx.moveTo(W/2, H*0.55 + 14); ctx.lineTo(W/2, H*0.75);
+      ctx.strokeStyle = '#d4d4d4'; ctx.lineWidth = 2.5; ctx.stroke();
+      // Shoot (curved upward)
+      ctx.beginPath();
+      ctx.moveTo(W/2, H*0.55 - 14);
+      ctx.bezierCurveTo(W/2, H*0.3, W/2 + 18, H*0.2, W/2 + 10, H*0.1);
+      ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 3; ctx.stroke();
+      // Tip bud
+      ctx.beginPath(); ctx.arc(W/2 + 10, H*0.1, 6, 0, Math.PI*2);
+      ctx.fillStyle = '#86efac'; ctx.fill();
+      label(ctx, W/2 + 40, H*0.15, 'Shoot (plumule)', '#4ade80');
+      label(ctx, W/2, H*0.78, 'Root system', '#a3e635');
+    }
+  },
+  {
+    label: 'Stage 5 of 5: Seedling',
+    desc:  'The seedling is now above ground. Its first true leaves open and begin photosynthesis. The plant now needs light to continue growing — but light was NOT needed for germination itself.',
+    draw: (ctx, W, H) => {
+      drawSoil(ctx, W, H);
+      const sx = W/2, sy = H*0.6;
+      // Root system
+      ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, H*0.82);
+      ctx.strokeStyle = '#d4d4d4'; ctx.lineWidth = 2.5; ctx.stroke();
+      for (let i = 0; i < 3; i++) {
+        const ry = H*0.67 + i * 10;
+        ctx.beginPath(); ctx.moveTo(sx, ry);
+        ctx.lineTo(sx + (i%2===0 ? 18 : -18), ry + 6);
+        ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 1.5; ctx.stroke();
+      }
+      // Stem
+      ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, H*0.2);
+      ctx.strokeStyle = '#4ade80'; ctx.lineWidth = 4; ctx.stroke();
+      // Two leaves
+      [[sx, H*0.28, 30, 10, -0.7], [sx, H*0.32, 30, 10, 0.7]].forEach(([lx, ly, rx2, ry2, rot]) => {
+        ctx.save(); ctx.translate(lx, ly); ctx.rotate(rot);
+        ctx.beginPath(); ctx.ellipse(rx2/2, 0, rx2, ry2, 0, 0, Math.PI*2);
+        ctx.fillStyle = '#16a34a'; ctx.fill();
+        ctx.restore();
+      });
+      // Sun icon hint
+      ctx.font = '22px serif'; ctx.textAlign = 'center';
+      ctx.fillText('☀️', W*0.8, H*0.15);
+      ctx.textAlign = 'left';
+      label(ctx, sx + 12, H*0.22, 'Leaves — now needs light!', '#fbbf24');
+    }
+  }
+];
+
+function drawSoil(ctx, W, H) {
+  // Sky
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, W, H);
+  // Ground
+  ctx.fillStyle = '#1c1008';
+  ctx.fillRect(0, H*0.58, W, H);
+  ctx.fillStyle = '#292524';
+  ctx.fillRect(0, H*0.58, W, 3);
+}
+
+function label(ctx, x, y, text, color) {
+  ctx.font = '600 10px Inter'; ctx.fillStyle = color; ctx.textAlign = 'center';
+  ctx.fillText(text, x, y);
+  ctx.textAlign = 'left';
+}
+
+let germStep = 0;
+
+function buildGermDots() {
+  const row = document.getElementById('germ-dots');
+  if (!row) return;
+  row.innerHTML = '';
+  GERM_STAGES.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'germ-dot' + (i === 0 ? ' active' : '');
+    row.appendChild(d);
+  });
+}
+
+function drawGermStage(idx) {
+  const stage = GERM_STAGES[idx];
+  const canvas = document.getElementById('germ-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  stage.draw(ctx, canvas.width, canvas.height);
+  document.getElementById('germ-stage-label').textContent = stage.label;
+  document.getElementById('germ-stage-desc').textContent  = stage.desc;
+  // Update dots
+  document.querySelectorAll('.germ-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === idx);
+  });
+}
+
+function germNext() {
+  if (germStep < GERM_STAGES.length - 1) { germStep++; drawGermStage(germStep); Progress.recordSimUsed('plant-reproduction'); }
+}
+function germPrev() {
+  if (germStep > 0) { germStep--; drawGermStage(germStep); }
+}
+
+// ═══════════════════════════════════
+// QUIZ QUESTIONS
+// ═══════════════════════════════════
+const QUIZ_Q = [
+  {
+    question: 'Which part of the flower produces pollen?',
+    options: ['Anther', 'Stigma', 'Ovary', 'Petal'],
+    correct: 0,
+    explanation: 'The anther is the male part of the flower. It produces and releases pollen grains. The anther is held up by the filament; together they form the stamen.'
+  },
+  {
+    question: 'What is pollination?',
+    options: [
+      'The joining of a pollen nucleus with an ovule',
+      'The transfer of pollen from the anther to the stigma',
+      'The growth of a seed into a new plant',
+      'The production of pollen by the flower'
+    ],
+    correct: 1,
+    explanation: 'Pollination is the transfer of pollen from the anther (male part) to the stigma (female part). This must happen before fertilisation can take place. Fertilisation is the actual joining of pollen and ovule.'
+  },
+  {
+    question: 'A flower has large feathery stigmas and light, smooth pollen. How is it most likely pollinated?',
+    options: ['By insects', 'By water', 'By wind', 'By self-dispersal'],
+    correct: 2,
+    explanation: 'Wind-pollinated flowers have large, feathery stigmas that hang outside the flower to catch pollen drifting in the air. Their pollen is light and smooth so it can be carried by the wind. Examples include grass, maize, and rice.'
+  },
+  {
+    question: 'Which of the following is NOT a condition needed for germination?',
+    options: ['Water', 'Oxygen', 'Warmth', 'Light'],
+    correct: 3,
+    explanation: 'Light is NOT needed for germination. Seeds germinate underground where there is no light. The three conditions needed are: water (softens the seed coat and activates enzymes), oxygen (for respiration to release energy), and warmth (speeds up enzyme activity).'
+  },
+  {
+    question: 'A coconut can float on water and travel long distances to distant shores. Which type of seed dispersal is this?',
+    options: ['Wind dispersal', 'Water dispersal', 'Animal dispersal', 'Self-dispersal'],
+    correct: 1,
+    explanation: 'The coconut is dispersed by water. It has air-filled spaces inside that allow it to float, and a tough, waterproof outer coat that prevents waterlogging. This lets it survive long journeys across the sea.'
+  },
+  {
+    question: 'Fertilisation in plants results in:',
+    options: [
+      'The production of pollen',
+      'The attraction of insects to the flower',
+      'The formation of a seed',
+      'The dispersal of seeds away from the parent plant'
+    ],
+    correct: 2,
+    explanation: 'Fertilisation is the joining of the pollen nucleus with the ovule inside the ovary. This forms a fertilised ovule, which then develops into a seed. The ovary wall develops into the fruit surrounding the seed.'
+  },
+  {
+    question: 'Which plant uses runners for asexual reproduction?',
+    options: ['Strawberry', 'Onion', 'Potato', 'Frangipani'],
+    correct: 0,
+    explanation: 'Strawberries reproduce asexually using runners — long horizontal stems that grow out from the parent plant. When the runner touches the ground, it takes root and forms a new plant. Onion uses bulbs, potato uses tubers, and frangipani uses cuttings.'
+  },
+  {
+    question: 'Why do seeds need to be dispersed away from the parent plant?',
+    options: [
+      'So animals can eat them more easily',
+      'To produce more pollen for pollination',
+      'To reduce competition for water, sunlight and minerals',
+      'To attract more insects to the parent plant'
+    ],
+    correct: 2,
+    explanation: 'If seeds landed directly below the parent plant, they would compete with it and with each other for the same resources: water, sunlight, and minerals. Dispersal spreads seeds to new locations where there is less competition, giving the new plants a better chance of survival.'
+  }
+];
+
+// ═══════════════════════════════════
+// MIND MAP TEMPLATE
+// ═══════════════════════════════════
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1,  label:'Reproduction\nin Plants',        color:{ background:'#0a1f3a', border:'#3b82f6' }, font:{ size:15, color:'#93c5fd' } },
+    { id:2,  label:'Sexual\nReproduction' },
+    { id:3,  label:'Asexual\nReproduction' },
+    { id:4,  label:'Pollination' },
+    { id:5,  label:'Fertilisation' },
+    { id:6,  label:'Seed Dispersal' },
+    { id:7,  label:'Germination' },
+    { id:8,  label:'Wind\nPollination' },
+    { id:9,  label:'Insect\nPollination' },
+    { id:10, label:'Wind Dispersal\n(dandelion, maple)' },
+    { id:11, label:'Water Dispersal\n(coconut, lotus)' },
+    { id:12, label:'Animal Dispersal\n(burdock, berries)' },
+    { id:13, label:'Self-dispersal\n(Impatiens, pea)' },
+    { id:14, label:'Runners\n(strawberry)' },
+    { id:15, label:'Bulbs\n(onion, garlic)' },
+    { id:16, label:'Tubers\n(potato)' },
+    { id:17, label:'Cuttings\n(frangipani)' },
+    { id:18, label:'Needs: Water\nO₂ + Warmth\n(NOT light)' },
+  ],
+  edges: [
+    { from:1,  to:2 }, { from:1, to:3 },
+    { from:2,  to:4, label:'step 1' },
+    { from:4,  to:5, label:'then' },
+    { from:5,  to:6, label:'leads to' },
+    { from:6,  to:7, label:'enables' },
+    { from:4,  to:8 }, { from:4, to:9 },
+    { from:6,  to:10 }, { from:6, to:11 }, { from:6, to:12 }, { from:6, to:13 },
+    { from:3,  to:14 }, { from:3, to:15 }, { from:3, to:16 }, { from:3, to:17 },
+    { from:7,  to:18 },
+  ],
+  required: [
+    'pollination','fertilisation','germination','dispersal','anther','stigma',
+    'ovule','stamen','pistil','runner','bulb','wind','insect','water','seed'
+  ]
+};
+
+// ═══════════════════════════════════
+// MIND MAP HELPER
+// ═══════════════════════════════════
+let sciMap;
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>
