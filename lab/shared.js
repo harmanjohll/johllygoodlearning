@@ -73,6 +73,51 @@ const Progress = {
   }
 };
 
+// ── Streak & Activity Tracking ─────────────────────────────
+const Streak = {
+  META_KEY: 'sciLab_meta',
+
+  _getMeta() {
+    try { return JSON.parse(localStorage.getItem(this.META_KEY)) || {}; }
+    catch { return {}; }
+  },
+
+  _setMeta(m) { localStorage.setItem(this.META_KEY, JSON.stringify(m)); },
+
+  record() {
+    const today     = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const m = this._getMeta();
+    if (m.lastActivity === today) return; // already counted today
+
+    m.streak = (m.lastActivity === yesterday) ? (m.streak || 0) + 1 : 1;
+    m.longestStreak = Math.max(m.longestStreak || 0, m.streak);
+    m.lastActivity  = today;
+    const days = m.activeDays || [];
+    if (!days.includes(today)) days.push(today);
+    m.activeDays = days.slice(-14); // keep last 14 days
+    this._setMeta(m);
+
+    const milestones = [3, 7, 14, 21, 30, 50, 100];
+    if (milestones.includes(m.streak)) {
+      setTimeout(() => showToast(`🔥 ${m.streak}-day streak! Outstanding dedication!`), 400);
+    }
+  },
+
+  get() {
+    const m = this._getMeta();
+    const today     = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const active = m.lastActivity === today || m.lastActivity === yesterday;
+    return {
+      current:      active ? (m.streak || 0) : 0,
+      longest:      m.longestStreak || 0,
+      lastActivity: m.lastActivity || null,
+      activeDays:   m.activeDays || []
+    };
+  }
+};
+
 // ── AI Configuration ───────────────────────────────────────
 // Uses Google Gemini API (gemini-2.5-flash) — supports browser CORS.
 // Get a free API key at: https://aistudio.google.com/app/apikey
@@ -346,8 +391,12 @@ class QuizEngine {
   }
 
   showResult() {
-    const pct = Math.round((this.score / this.questions.length) * 100);
+    const pct     = Math.round((this.score / this.questions.length) * 100);
+    const prev    = Progress.get(this.topicId);
+    const prevBest = prev.quizTotal > 0 ? Math.round((prev.quizScore / prev.quizTotal) * 100) : null;
     Progress.recordQuiz(this.topicId, this.score, this.questions.length);
+    Streak.record();
+    const isNewPB = prevBest !== null && pct > prevBest;
 
     let msg, colour;
     if (pct === 100) { msg = '🏆 Perfect! You have mastered this topic!'; colour = 'var(--diversity)'; }
@@ -355,14 +404,20 @@ class QuizEngine {
     else { msg = '📚 Keep practising! Review the simulations and notes.'; colour = 'var(--interactions)'; }
 
     const hasWrong = this.wrong.length > 0;
+    const pbHtml = isNewPB
+      ? `<div style="color:#fcd34d;font-weight:700;font-size:.88rem;margin-bottom:.75rem">🌟 New Personal Best! (was ${prevBest}%)</div>`
+      : prevBest !== null
+        ? `<div style="color:var(--muted);font-size:.8rem;margin-bottom:.75rem">Previous best: ${prevBest}%</div>`
+        : '';
 
     this.container.innerHTML = `
       <div style="text-align:center;padding:2rem 1rem 1rem">
         <div style="font-size:3rem;margin-bottom:.75rem">${pct === 100 ? '🏆' : pct >= 70 ? '⭐' : '📖'}</div>
-        <h3 style="margin-bottom:.5rem">${this.score} / ${this.questions.length} correct</h3>
+        <h3 style="margin-bottom:.5rem">${this.score} / ${this.questions.length} correct · ${pct}%</h3>
         <div class="progress-bar-wrap" style="max-width:260px;margin:.75rem auto 1rem">
           <div class="progress-bar-fill" style="width:${pct}%;background:${colour}"></div>
         </div>
+        ${pbHtml}
         <p style="margin-bottom:1.5rem">${msg}</p>
         <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
           <button class="btn btn-ghost" onclick="location.reload()">↺ Try Again</button>
@@ -536,8 +591,12 @@ Respond with ONLY a JSON array — no markdown, no code fences, no extra text:
   }
 
   _showResult() {
-    const pct = Math.round((this.score / this.questions.length) * 100);
+    const pct      = Math.round((this.score / this.questions.length) * 100);
+    const prev     = Progress.get(this.topicId);
+    const prevBest = prev.quizTotal > 0 ? Math.round((prev.quizScore / prev.quizTotal) * 100) : null;
     Progress.recordQuiz(this.topicId, this.score, this.questions.length);
+    Streak.record();
+    const isNewPB = prevBest !== null && pct > prevBest;
 
     // Adaptive level adjustment
     const lv = this.level;
@@ -553,6 +612,12 @@ Respond with ONLY a JSON array — no markdown, no code fences, no extra text:
     if (pct === 100) { msg = '🏆 Perfect score! Outstanding work!'; colour = 'var(--diversity)'; }
     else if (pct >= 70) { msg = '🎉 Great work! A few more to go.'; colour = 'var(--energy)'; }
     else { msg = '📚 Keep going — use the Learn and Simulate tabs for help.'; colour = 'var(--interactions)'; }
+
+    const pbHtml = isNewPB
+      ? `<div style="color:#fcd34d;font-weight:700;font-size:.88rem;margin-bottom:.75rem">🌟 New Personal Best! (was ${prevBest}%)</div>`
+      : prevBest !== null
+        ? `<div style="color:var(--muted);font-size:.8rem;margin-bottom:.75rem">Previous best: ${prevBest}%</div>`
+        : '';
 
     const hasWrong = this.wrong.length > 0;
     const reviewHtml = hasWrong ? `
@@ -574,6 +639,7 @@ Respond with ONLY a JSON array — no markdown, no code fences, no extra text:
         <div class="progress-bar-wrap" style="max-width:260px;margin:.75rem auto 1rem">
           <div class="progress-bar-fill" style="width:${pct}%;background:${colour}"></div>
         </div>
+        ${pbHtml}
         <p style="margin-bottom:1.5rem">${msg}</p>
         <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
           <button class="btn btn-primary" id="retry-ai-btn">🔄 New AI Questions</button>
