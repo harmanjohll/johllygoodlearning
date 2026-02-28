@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Structured Answer Builder | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.25rem;
+    }
+    .page-header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .82rem;
+      font-weight: 600;
+      transition: color .15s;
+    }
+    .back-link:hover { color: var(--accent); }
+    .header-title-block { flex: 1; min-width: 0; }
+    .header-title-block h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+    .header-title-block p {
+      font-size: .75rem;
+      color: var(--muted);
+      margin: .1rem 0 0;
+    }
+    .header-ai-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      background: #1a2a3a;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: .25rem .65rem;
+      border-radius: 99px;
+      font-size: .72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ── Main layout ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+    main { padding: 1.75rem 0 4rem; }
+
+    /* ── Progress bar at top ── */
+    .progress-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .progress-label {
+      font-size: .8rem;
+      color: var(--muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .progress-bar-wrap { flex: 1; }
+    .progress-bar-fill { background: linear-gradient(90deg, var(--accent), #818cf8); }
+    .progress-marks-label {
+      font-size: .8rem;
+      color: var(--muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* ── Question card ── */
+    .question-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .question-card-meta {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .command-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: .2rem .65rem;
+      border-radius: 99px;
+      font-size: .7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .command-explain  { background: #1a2a4a; color: #60a5fa; border: 1px solid #3b82f6; }
+    .command-describe { background: #1e183a; color: #c084fc; border: 1px solid #8b5cf6; }
+    .command-predict  { background: #3a1e0d; color: #fb923c; border: 1px solid #f97316; }
+    .command-compare  { background: #063b27; color: #34d399; border: 1px solid #10b981; }
+    .command-state    { background: #1e293b; color: #94a3b8; border: 1px solid #475569; }
+    .command-suggest  { background: #0d2a2a; color: #2dd4bf; border: 1px solid #14b8a6; }
+
+    .marks-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: .2rem .6rem;
+      border-radius: 99px;
+      font-size: .7rem;
+      font-weight: 700;
+      background: #1a2a1a;
+      color: #6ee7b7;
+      border: 1px solid #10b981;
+    }
+    .topic-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: .2rem .6rem;
+      border-radius: 99px;
+      font-size: .7rem;
+      font-weight: 600;
+      background: var(--surface);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .stimulus-box {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: .75rem 1rem;
+      margin-bottom: 1rem;
+      font-size: .88rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .stimulus-label {
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--accent);
+      margin-bottom: .3rem;
+    }
+
+    .question-text {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.55;
+      margin-bottom: 1rem;
+    }
+
+    /* ── CER scaffold collapsible ── */
+    .cer-toggle {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      width: 100%;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: .55rem .9rem;
+      color: var(--muted);
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      text-align: left;
+    }
+    .cer-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .cer-toggle-arrow {
+      margin-left: auto;
+      font-size: .7rem;
+      transition: transform .2s;
+    }
+    .cer-toggle.open .cer-toggle-arrow { transform: rotate(90deg); }
+    .cer-panel {
+      display: none;
+      margin-top: .65rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .cer-panel.open { display: block; }
+    .cer-row {
+      display: flex;
+      align-items: flex-start;
+      gap: .85rem;
+      padding: .85rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .cer-row:last-child { border-bottom: none; }
+    .cer-letter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: .9rem;
+      flex-shrink: 0;
+    }
+    .cer-c { background: #1a2a4a; color: #60a5fa; }
+    .cer-e { background: #063b27; color: #34d399; }
+    .cer-r { background: #3a1e0d; color: #fb923c; }
+    .cer-word {
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: .15rem;
+    }
+    .cer-desc {
+      font-size: .78rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    /* ── Answer area ── */
+    .answer-section { margin-bottom: 1.25rem; }
+    .answer-label {
+      display: block;
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: .5rem;
+    }
+    .answer-textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: .9rem 1rem;
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: .92rem;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 120px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .answer-textarea:focus { border-color: var(--accent); }
+    .answer-textarea::placeholder { color: var(--border); }
+    .answer-textarea:disabled { opacity: .6; cursor: not-allowed; }
+    .char-count {
+      font-size: .72rem;
+      color: var(--muted);
+      text-align: right;
+      margin-top: .3rem;
+    }
+
+    /* ── Submit button area ── */
+    .submit-row {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      flex-wrap: wrap;
+    }
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,.25);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    .spinner.show { display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .submit-hint {
+      font-size: .75rem;
+      color: var(--muted);
+    }
+
+    /* ── Results panel ── */
+    .results-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.25rem;
+      display: none;
+    }
+    .results-panel.show { display: block; }
+
+    .marks-display {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .marks-big {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1;
+    }
+    .marks-big .marks-awarded { color: var(--accent); }
+    .marks-total-label {
+      font-size: .75rem;
+      color: var(--muted);
+      font-weight: 600;
+      margin-top: .25rem;
+    }
+    .marks-bar-wrap {
+      flex: 1;
+      min-width: 140px;
+    }
+    .marks-bar-bg {
+      background: var(--border);
+      border-radius: 99px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .marks-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width .6s ease;
+    }
+    .marks-bar-label {
+      font-size: .72rem;
+      color: var(--muted);
+      margin-top: .3rem;
+    }
+
+    /* ── Mark scheme breakdown ── */
+    .mark-scheme-section {
+      margin-bottom: 1.5rem;
+    }
+    .section-heading {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: .75rem;
+      padding-bottom: .4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .mark-point-row {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: .75rem;
+      border-radius: 9px;
+      margin-bottom: .5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .mark-point-row.awarded-row {
+      background: #063b27;
+      border-color: #10b981;
+    }
+    .mark-point-row.missed-row {
+      background: #3b0f0f;
+      border-color: #ef4444;
+    }
+    .mark-icon {
+      font-size: 1rem;
+      flex-shrink: 0;
+      margin-top: .1rem;
+      width: 18px;
+      text-align: center;
+    }
+    .mark-point-content { flex: 1; min-width: 0; }
+    .mark-point-text {
+      font-size: .85rem;
+      color: var(--text);
+      line-height: 1.45;
+      font-weight: 500;
+    }
+    .mark-point-extract {
+      font-size: .78rem;
+      color: #6ee7b7;
+      font-style: italic;
+      margin-top: .3rem;
+      opacity: .9;
+    }
+    .mark-point-missing {
+      font-size: .78rem;
+      color: #fca5a5;
+      font-style: italic;
+      margin-top: .3rem;
+      opacity: .85;
+    }
+
+    /* ── Feedback box ── */
+    .feedback-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .feedback-text {
+      font-size: .88rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── Improved answer (toggle) ── */
+    .improved-toggle {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      width: 100%;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: .6rem .9rem;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      text-align: left;
+      margin-bottom: .65rem;
+    }
+    .improved-toggle:hover { border-color: #10b981; color: #10b981; }
+    .improved-toggle-arrow {
+      margin-left: auto;
+      font-size: .7rem;
+      transition: transform .2s;
+    }
+    .improved-toggle.open .improved-toggle-arrow { transform: rotate(90deg); }
+    .improved-answer-box {
+      display: none;
+      background: #063b27;
+      border: 1px solid #10b981;
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1.25rem;
+    }
+    .improved-answer-box.open { display: block; }
+    .improved-answer-text {
+      font-size: .88rem;
+      color: #a7f3d0;
+      line-height: 1.65;
+    }
+
+    /* ── Nav buttons ── */
+    .results-nav {
+      display: flex;
+      gap: .75rem;
+      flex-wrap: wrap;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Final summary ── */
+    .summary-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem 1.75rem;
+      text-align: center;
+      display: none;
+    }
+    .summary-panel.show { display: block; }
+    .summary-icon { font-size: 3.5rem; margin-bottom: .75rem; }
+    .summary-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: .35rem;
+    }
+    .summary-pct {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .summary-marks-bar {
+      max-width: 320px;
+      margin: 0 auto 1.75rem;
+    }
+    .summary-marks-bar .marks-bar-bg { height: 14px; }
+    .weak-topics-section {
+      text-align: left;
+      max-width: 480px;
+      margin: 0 auto 1.75rem;
+    }
+    .weak-topics-heading {
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      margin-bottom: .75rem;
+      padding-bottom: .4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .weak-topic-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      padding: .55rem .75rem;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      margin-bottom: .4rem;
+    }
+    .weak-topic-name {
+      font-size: .85rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .weak-topic-score {
+      font-size: .78rem;
+      color: #f87171;
+      font-weight: 700;
+    }
+    .summary-actions {
+      display: flex;
+      gap: .75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── Skeleton / loading state ── */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.6);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: .75rem;
+    }
+    .loading-overlay.show {
+      display: flex;
+    }
+    .loading-spinner {
+      width: 44px;
+      height: 44px;
+      border: 3px solid rgba(56,189,248,.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    .loading-text {
+      font-size: .88rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .question-card, .results-panel { padding: 1.25rem; }
+      .marks-big { font-size: 1.8rem; }
+      .progress-header { flex-wrap: wrap; gap: .5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ PAGE HEADER ═══════════════════════════ -->
+<header class="page-header">
+  <div class="page-header-inner">
+    <a href="../index.html" class="back-link">
+      &#8592; Science Lab
+    </a>
+    <div class="header-title-block">
+      <h1>Structured Answer Builder</h1>
+      <p>PSLE open-ended practice · C-E-R method · AI marking by Google Gemini</p>
+    </div>
+    <span class="header-ai-badge">&#129302; Gemini 2.5 Flash</span>
+  </div>
+</header>
+
+<!-- ═══════════════════════ MAIN CONTENT ══════════════════════════ -->
+<main>
+  <div class="container">
+
+    <!-- Progress line -->
+    <div class="progress-header">
+      <span class="progress-label" id="progress-label">Question 1 of 12</span>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-bg" style="background:var(--border);border-radius:99px;height:6px;overflow:hidden">
+          <div class="progress-bar-fill" id="progress-fill" style="height:100%;border-radius:99px;background:linear-gradient(90deg,#38bdf8,#818cf8);transition:width .5s ease;width:0%"></div>
+        </div>
+      </div>
+      <span class="progress-marks-label" id="marks-running">0 marks so far</span>
+    </div>
+
+    <!-- Question card -->
+    <div class="question-card" id="question-card">
+      <div class="question-card-meta" id="question-meta"></div>
+      <div class="stimulus-box" id="stimulus-box" style="display:none">
+        <div class="stimulus-label">Stimulus</div>
+        <div id="stimulus-text"></div>
+      </div>
+      <div class="question-text" id="question-text"></div>
+
+      <!-- CER scaffold collapsible -->
+      <button class="cer-toggle" id="cer-toggle" aria-expanded="false">
+        <span>&#128220;</span>
+        <span>C-E-R Answer Scaffold — how to structure your answer</span>
+        <span class="cer-toggle-arrow">&#9658;</span>
+      </button>
+      <div class="cer-panel" id="cer-panel">
+        <div class="cer-row">
+          <div class="cer-letter cer-c">C</div>
+          <div>
+            <div class="cer-word">Claim</div>
+            <div class="cer-desc">State your direct answer to the question. What happened? What do you predict?</div>
+          </div>
+        </div>
+        <div class="cer-row">
+          <div class="cer-letter cer-e">E</div>
+          <div>
+            <div class="cer-word">Evidence</div>
+            <div class="cer-desc">Give observed facts, data, or information from the stimulus that support your claim.</div>
+          </div>
+        </div>
+        <div class="cer-row">
+          <div class="cer-letter cer-r">R</div>
+          <div>
+            <div class="cer-word">Reasoning</div>
+            <div class="cer-desc">Explain the science — use "because", "therefore", or "so" to link cause to effect. Use correct scientific vocabulary.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Answer text area -->
+    <div class="answer-section">
+      <label class="answer-label" for="answer-input">Your answer</label>
+      <textarea
+        id="answer-input"
+        class="answer-textarea"
+        rows="5"
+        placeholder="Write your answer here… Start with your claim, then give evidence, then explain the science."
+        maxlength="1500"
+      ></textarea>
+      <div class="char-count"><span id="char-count">0</span> / 1500 characters</div>
+    </div>
+
+    <!-- Submit row -->
+    <div class="submit-row">
+      <button class="btn btn-primary" id="submit-btn" style="min-width:150px">
+        &#10003; Submit for Marking
+      </button>
+      <div class="spinner" id="submit-spinner"></div>
+      <span class="submit-hint" id="submit-hint">Gemini will mark your answer like a real PSLE examiner.</span>
+    </div>
+
+    <!-- Results panel -->
+    <div class="results-panel" id="results-panel" style="margin-top:1.5rem">
+
+      <!-- Marks display -->
+      <div class="marks-display">
+        <div>
+          <div class="marks-big">
+            <span class="marks-awarded" id="result-marks-awarded">0</span>
+            <span style="color:var(--muted);font-size:1.5rem"> / </span>
+            <span id="result-marks-total">0</span>
+          </div>
+          <div class="marks-total-label">marks awarded</div>
+        </div>
+        <div class="marks-bar-wrap">
+          <div class="marks-bar-bg">
+            <div class="marks-bar-fill" id="marks-bar-fill" style="width:0%"></div>
+          </div>
+          <div class="marks-bar-label" id="marks-bar-label"></div>
+        </div>
+      </div>
+
+      <!-- Mark scheme breakdown -->
+      <div class="mark-scheme-section">
+        <div class="section-heading">Mark Scheme</div>
+        <div id="mark-points-list"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="feedback-section">
+        <div class="section-heading">Examiner Feedback</div>
+        <div class="feedback-text" id="feedback-text"></div>
+      </div>
+
+      <!-- Improved answer toggle -->
+      <button class="improved-toggle" id="improved-toggle" aria-expanded="false">
+        <span>&#10024;</span>
+        <span>Show a top-mark model answer</span>
+        <span class="improved-toggle-arrow">&#9658;</span>
+      </button>
+      <div class="improved-answer-box" id="improved-answer-box">
+        <div class="improved-answer-text" id="improved-answer-text"></div>
+      </div>
+
+      <!-- Navigation buttons -->
+      <div class="results-nav">
+        <button class="btn btn-primary" id="next-btn">Next question &#8594;</button>
+        <button class="btn btn-ghost" id="retry-btn">Retry this question</button>
+      </div>
+    </div>
+
+    <!-- Final summary panel -->
+    <div class="summary-panel" id="summary-panel">
+      <div class="summary-icon" id="summary-icon">&#127942;</div>
+      <h2 class="summary-title" id="summary-title">Well done!</h2>
+      <p class="summary-pct" id="summary-pct"></p>
+      <div class="summary-marks-bar">
+        <div class="marks-bar-bg">
+          <div class="marks-bar-fill" id="summary-bar-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="weak-topics-section" id="weak-topics-section" style="display:none">
+        <div class="weak-topics-heading">Topics to review</div>
+        <div id="weak-topics-list"></div>
+      </div>
+
+      <div class="summary-actions">
+        <button class="btn btn-primary" id="restart-btn">&#8635; Practise again</button>
+        <a href="../index.html" class="btn btn-ghost">&#8592; Back to Science Lab</a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Loading overlay (shown while Gemini marks) -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Gemini is marking your answer…</div>
+</div>
+
+<script src="../shared.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════════
+//  QUESTIONS DATA
+// ══════════════════════════════════════════════════════════════════
+const QUESTIONS = [
+  {
+    id: 'q1', topic: 'Photosynthesis', command: 'EXPLAIN', marks: 2,
+    stimulus: 'Plant A was placed in sunlight. Plant B was placed in a dark room for 3 days.',
+    question: 'Explain why Plant A grew taller than Plant B after 3 days.',
+    modelAnswer: 'Plant A was able to carry out photosynthesis using sunlight to make food (glucose) for growth. Plant B could not photosynthesise in the dark and had no food supply, so it could not grow.',
+    markPoints: [
+      'Plant A photosynthesised / made food using sunlight',
+      'Plant B could not photosynthesise / lacked food / energy for growth'
+    ]
+  },
+  {
+    id: 'q2', topic: 'Water cycle', command: 'DESCRIBE', marks: 2,
+    stimulus: null,
+    question: 'Describe what happens to water in a puddle on a hot sunny day.',
+    modelAnswer: 'Water in the puddle absorbs heat energy from the sun. The water evaporates — water molecules gain enough energy to change from liquid to water vapour and rise into the air.',
+    markPoints: [
+      'Water gains heat energy from the sun',
+      'Water evaporates / changes from liquid to water vapour / rises into the air'
+    ]
+  },
+  {
+    id: 'q3', topic: 'Circuits', command: 'PREDICT', marks: 2,
+    stimulus: 'A series circuit has a battery and two identical bulbs (A and B). Bulb A is removed.',
+    question: 'Predict what happens to bulb B and explain why.',
+    modelAnswer: 'Bulb B goes out. In a series circuit there is only one path for current to flow. When bulb A is removed, the circuit is broken and no current can flow through bulb B.',
+    markPoints: [
+      'Bulb B goes out / does not light up',
+      'The circuit is broken / incomplete, so no current flows'
+    ]
+  },
+  {
+    id: 'q4', topic: 'Digestive system', command: 'EXPLAIN', marks: 2,
+    stimulus: null,
+    question: 'Explain why food needs to be digested before it can be used by the body.',
+    modelAnswer: 'Food molecules such as starch and protein are too large to pass through the wall of the small intestine into the bloodstream. Digestion breaks them down into smaller, soluble molecules that can be absorbed.',
+    markPoints: [
+      'Food molecules are too large to be absorbed / to pass into the blood',
+      'Digestion breaks food into smaller / soluble molecules that can be absorbed'
+    ]
+  },
+  {
+    id: 'q5', topic: 'Habitats', command: 'EXPLAIN', marks: 3,
+    stimulus: 'In an ecosystem, the population of rabbits suddenly increases.',
+    question: 'Explain the effect this increase would have on the grass and on the foxes.',
+    modelAnswer: 'The grass population would decrease because more rabbits eat more grass. The fox population would initially increase because there is more food (rabbits) available. Over time, the fox population may then decrease if the rabbit population falls due to overpredation.',
+    markPoints: [
+      'Grass decreases because more rabbits eat more grass',
+      'Fox population increases because there is more food / prey available',
+      'Over time fox / rabbit populations return to balance OR rabbit population falls as more foxes eat them'
+    ]
+  },
+  {
+    id: 'q6', topic: 'Forces', command: 'EXPLAIN', marks: 2,
+    stimulus: null,
+    question: 'Explain why a parachutist falls more slowly with a parachute open than without it.',
+    modelAnswer: 'The open parachute increases the surface area. This increases the air resistance acting upward on the parachutist. The greater air resistance balances or reduces the net downward force, so the parachutist falls more slowly.',
+    markPoints: [
+      'Open parachute increases surface area, increasing air resistance',
+      'Greater air resistance reduces net downward force / balances gravity, causing slower fall'
+    ]
+  },
+  {
+    id: 'q7', topic: 'Respiratory system', command: 'DESCRIBE', marks: 2,
+    stimulus: null,
+    question: 'Describe how the diaphragm and rib muscles work together during inhalation.',
+    modelAnswer: 'During inhalation, the diaphragm contracts and moves downward, while the rib muscles contract to move the ribcage upward and outward. This increases the volume of the chest cavity, causing air pressure inside to decrease, and air rushes into the lungs.',
+    markPoints: [
+      'Diaphragm contracts / moves downward; ribcage moves up and outward',
+      'Volume of chest increases, pressure decreases, air rushes in'
+    ]
+  },
+  {
+    id: 'q8', topic: 'Heat', command: 'EXPLAIN', marks: 2,
+    stimulus: 'Metal spoon A and wooden spoon B are left in a bowl of hot soup for 2 minutes.',
+    question: 'Explain why spoon A feels hotter than spoon B when touched at the handle.',
+    modelAnswer: 'Metal is a good conductor of heat. Heat energy is conducted quickly from the hot soup through the metal spoon to the handle. Wood is a poor conductor (insulator), so heat is not transferred to the handle of spoon B.',
+    markPoints: [
+      'Metal conducts heat well / is a good conductor; heat travels from soup to handle quickly',
+      'Wood is a poor conductor / insulator; little heat reaches the handle of spoon B'
+    ]
+  },
+  {
+    id: 'q9', topic: 'Circulatory system', command: 'EXPLAIN', marks: 2,
+    stimulus: null,
+    question: 'Explain why the heart has two separate sides.',
+    modelAnswer: 'The right side of the heart pumps deoxygenated blood to the lungs to pick up oxygen. The left side pumps oxygenated blood to the rest of the body. Keeping the two sides separate prevents oxygenated and deoxygenated blood from mixing, ensuring efficient oxygen delivery.',
+    markPoints: [
+      'Right side sends deoxygenated blood to lungs; left side sends oxygenated blood to body',
+      'Separation prevents mixing of oxygenated and deoxygenated blood / ensures efficient delivery of oxygen'
+    ]
+  },
+  {
+    id: 'q10', topic: 'Light', command: 'PREDICT', marks: 2,
+    stimulus: 'A torch shines at a flat mirror at 40\u00b0 to the normal.',
+    question: 'Predict the angle of the reflected ray and explain your answer.',
+    modelAnswer: 'The reflected ray is also at 40\u00b0 to the normal. This is because the angle of incidence equals the angle of reflection (law of reflection).',
+    markPoints: [
+      'Reflected ray is at 40\u00b0 to the normal',
+      'Angle of incidence = angle of reflection (law of reflection)'
+    ]
+  },
+  {
+    id: 'q11', topic: 'Plant reproduction', command: 'EXPLAIN', marks: 2,
+    stimulus: null,
+    question: 'Explain why it is important for seeds to be dispersed away from the parent plant.',
+    modelAnswer: 'If seeds fall directly below the parent plant, the seedlings would have to compete with the parent and with each other for sunlight, water, and minerals. Dispersal reduces competition and allows seedlings to grow in new areas with more resources.',
+    markPoints: [
+      'Reduces competition for resources (sunlight, water, minerals) with parent plant',
+      'Allows seeds to grow in new areas with more space / resources'
+    ]
+  },
+  {
+    id: 'q12', topic: 'Magnets', command: 'DESCRIBE', marks: 2,
+    stimulus: null,
+    question: 'Describe two differences between the north pole and south pole of a magnet.',
+    modelAnswer: 'Unlike poles (N and S) attract each other, while like poles (N-N or S-S) repel. A compass needle\'s red end always points toward the north pole of a magnet and the south pole always points in the opposite direction.',
+    markPoints: [
+      'Like poles repel; unlike poles attract (N repels N, S repels S, N and S attract)',
+      'A compass north points to the south pole of a magnet / opposite poles always face different directions'
+    ]
+  },
+];
+
+// ══════════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════════
+let shuffledQuestions = [];
+let currentIndex = 0;
+let totalMarksEarned = 0;
+let totalMarksPossible = 0;
+
+// Per-question tracking for summary: { topic, earned, possible }
+const questionResults = [];
+
+// ══════════════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════════════
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function commandClass(cmd) {
+  const map = {
+    EXPLAIN:  'command-explain',
+    DESCRIBE: 'command-describe',
+    PREDICT:  'command-predict',
+    COMPARE:  'command-compare',
+    STATE:    'command-state',
+    SUGGEST:  'command-suggest',
+  };
+  return map[cmd] || 'command-state';
+}
+
+function marksBarColor(pct) {
+  if (pct >= 80) return 'var(--diversity)';
+  if (pct >= 50) return 'var(--energy)';
+  return '#ef4444';
+}
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  RENDER QUESTION
+// ══════════════════════════════════════════════════════════════════
+function renderQuestion() {
+  const q = shuffledQuestions[currentIndex];
+
+  // Progress line
+  const qNum = currentIndex + 1;
+  const total = shuffledQuestions.length;
+  document.getElementById('progress-label').textContent = `Question ${qNum} of ${total}`;
+  const progressPct = ((qNum - 1) / total) * 100;
+  document.getElementById('progress-fill').style.width = progressPct + '%';
+  document.getElementById('marks-running').textContent =
+    totalMarksPossible > 0
+      ? `${totalMarksEarned} / ${totalMarksPossible} marks so far`
+      : '0 marks so far';
+
+  // Meta chips
+  const metaEl = document.getElementById('question-meta');
+  metaEl.innerHTML = `
+    <span class="command-chip ${commandClass(q.command)}">${escapeHtml(q.command)}</span>
+    <span class="marks-chip">${q.marks} mark${q.marks !== 1 ? 's' : ''}</span>
+    <span class="topic-chip">${escapeHtml(q.topic)}</span>
+  `;
+
+  // Stimulus
+  const stimBox = document.getElementById('stimulus-box');
+  if (q.stimulus) {
+    document.getElementById('stimulus-text').textContent = q.stimulus;
+    stimBox.style.display = 'block';
+  } else {
+    stimBox.style.display = 'none';
+  }
+
+  // Question text
+  document.getElementById('question-text').textContent = q.question;
+
+  // Reset CER panel
+  const cerToggle = document.getElementById('cer-toggle');
+  const cerPanel = document.getElementById('cer-panel');
+  cerToggle.classList.remove('open');
+  cerPanel.classList.remove('open');
+  cerToggle.setAttribute('aria-expanded', 'false');
+
+  // Reset answer area
+  const textarea = document.getElementById('answer-input');
+  textarea.value = '';
+  textarea.disabled = false;
+  document.getElementById('char-count').textContent = '0';
+
+  // Reset submit button
+  const submitBtn = document.getElementById('submit-btn');
+  submitBtn.disabled = false;
+  submitBtn.innerHTML = '&#10003; Submit for Marking';
+  document.getElementById('submit-spinner').classList.remove('show');
+  document.getElementById('submit-hint').textContent = 'Gemini will mark your answer like a real PSLE examiner.';
+
+  // Hide results panel
+  document.getElementById('results-panel').classList.remove('show');
+
+  // Show question card
+  document.getElementById('question-card').style.display = 'block';
+  document.querySelector('.answer-section').style.display = 'block';
+  document.querySelector('.submit-row').style.display = 'flex';
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  GEMINI API CALL
+// ══════════════════════════════════════════════════════════════════
+async function callGemini(q, studentAnswer) {
+  const key = AIConfig.getKey();
+  if (!key) throw new Error('NO_KEY');
+
+  const markPointsList = q.markPoints
+    .map((pt, i) => `${i + 1}. ${pt}`)
+    .join('\n');
+
+  const prompt = `You are a strict Singapore PSLE Science examiner marking an open-ended answer.
+
+Topic: ${q.topic}
+Question (${q.marks} marks): ${q.question}
+Model answer: "${q.modelAnswer}"
+Mark points (one mark each):
+${markPointsList}
+
+Student's answer: "${studentAnswer}"
+
+Mark strictly. Award marks only for scientifically correct statements that address each mark point.
+PSLE marking requires: correct scientific vocabulary, specific evidence, causal reasoning (because/so/therefore).
+Vague answers like "the plant grows" without explaining WHY do NOT earn marks.
+
+Respond with ONLY a JSON object — no markdown, no code fences:
+{
+  "marks_awarded": 1,
+  "mark_scheme": [
+    { "point": "...", "awarded": true,  "student_extract": "exact phrase from student answer" },
+    { "point": "...", "awarded": false, "student_extract": "" }
+  ],
+  "feedback": "One or two sentences of specific, constructive feedback.",
+  "improved_answer": "A model-quality answer based on the student's attempt, improved to full marks."
+}`;
+
+  const resp = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 1024 }
+      })
+    }
+  );
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API error ${resp.status}`);
+  }
+
+  const data = await resp.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+  // Strip markdown code fences if present
+  const cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+  const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('Unexpected response format from Gemini.');
+  return JSON.parse(jsonMatch[0]);
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  RENDER RESULTS
+// ══════════════════════════════════════════════════════════════════
+function renderResults(q, result) {
+  const panel = document.getElementById('results-panel');
+  panel.classList.add('show');
+
+  // Marks display
+  const awarded = result.marks_awarded;
+  const possible = q.marks;
+  const pct = Math.round((awarded / possible) * 100);
+
+  document.getElementById('result-marks-awarded').textContent = awarded;
+  document.getElementById('result-marks-total').textContent = possible;
+
+  const barColor = marksBarColor(pct);
+  const barFill = document.getElementById('marks-bar-fill');
+  barFill.style.background = barColor;
+  // Trigger reflow for animation
+  barFill.style.width = '0%';
+  requestAnimationFrame(() => {
+    barFill.style.width = pct + '%';
+  });
+
+  const label = pct === 100
+    ? 'Full marks!'
+    : pct >= 50
+      ? 'Partial credit — see feedback below'
+      : 'Keep practising — read the examiner feedback';
+  document.getElementById('marks-bar-label').textContent = label;
+
+  // Mark scheme breakdown
+  const listEl = document.getElementById('mark-points-list');
+  listEl.innerHTML = '';
+  (result.mark_scheme || []).forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'mark-point-row ' + (item.awarded ? 'awarded-row' : 'missed-row');
+
+    const icon = item.awarded ? '&#10003;' : '&#10007;';
+    const iconColor = item.awarded ? '#34d399' : '#f87171';
+
+    let extractHtml = '';
+    if (item.awarded && item.student_extract) {
+      extractHtml = `<div class="mark-point-extract">"${escapeHtml(item.student_extract)}"</div>`;
+    } else if (!item.awarded) {
+      extractHtml = `<div class="mark-point-missing">Not addressed in your answer.</div>`;
+    }
+
+    row.innerHTML = `
+      <div class="mark-icon" style="color:${iconColor}">${icon}</div>
+      <div class="mark-point-content">
+        <div class="mark-point-text">${escapeHtml(item.point)}</div>
+        ${extractHtml}
+      </div>
+    `;
+    listEl.appendChild(row);
+  });
+
+  // Feedback
+  document.getElementById('feedback-text').textContent = result.feedback || '';
+
+  // Improved answer (hidden by default)
+  const improvedToggle = document.getElementById('improved-toggle');
+  const improvedBox = document.getElementById('improved-answer-box');
+  improvedToggle.classList.remove('open');
+  improvedBox.classList.remove('open');
+  improvedToggle.setAttribute('aria-expanded', 'false');
+  document.getElementById('improved-answer-text').textContent = result.improved_answer || q.modelAnswer;
+
+  // Show/hide next vs finish button
+  const isLast = currentIndex >= shuffledQuestions.length - 1;
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.textContent = isLast ? 'See final results' : 'Next question \u2192';
+
+  // Scroll results into view
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  SUBMIT HANDLER
+// ══════════════════════════════════════════════════════════════════
+async function handleSubmit() {
+  const answer = document.getElementById('answer-input').value.trim();
+  if (!answer) {
+    showToast('Please write your answer before submitting.');
+    return;
+  }
+
+  if (!AIConfig.hasKey()) {
+    showAISetup();
+    return;
+  }
+
+  const q = shuffledQuestions[currentIndex];
+  const submitBtn = document.getElementById('submit-btn');
+  const spinner = document.getElementById('submit-spinner');
+  const loadingOverlay = document.getElementById('loading-overlay');
+  const hint = document.getElementById('submit-hint');
+
+  // Lock UI
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = 'Marking\u2026';
+  spinner.classList.add('show');
+  loadingOverlay.classList.add('show');
+  document.getElementById('answer-input').disabled = true;
+  hint.textContent = 'Sending to Gemini\u2026';
+
+  try {
+    const result = await callGemini(q, answer);
+
+    // Tally marks
+    const awarded = Math.max(0, Math.min(result.marks_awarded, q.marks));
+    result.marks_awarded = awarded;
+    totalMarksEarned += awarded;
+    totalMarksPossible += q.marks;
+
+    // Record for summary
+    questionResults.push({
+      topic: q.topic,
+      earned: awarded,
+      possible: q.marks,
+      id: q.id
+    });
+
+    // Update running marks label
+    document.getElementById('marks-running').textContent =
+      `${totalMarksEarned} / ${totalMarksPossible} marks so far`;
+
+    // Record streak
+    Streak.record();
+
+    renderResults(q, result);
+
+  } catch (err) {
+    if (err.message === 'NO_KEY') {
+      showAISetup();
+    } else {
+      showToast('Marking failed: ' + err.message);
+    }
+    // Re-enable
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '&#10003; Submit for Marking';
+    document.getElementById('answer-input').disabled = false;
+    hint.textContent = 'Gemini will mark your answer like a real PSLE examiner.';
+  } finally {
+    spinner.classList.remove('show');
+    loadingOverlay.classList.remove('show');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  NEXT / RETRY / FINAL SUMMARY
+// ══════════════════════════════════════════════════════════════════
+function handleNext() {
+  const isLast = currentIndex >= shuffledQuestions.length - 1;
+  if (isLast) {
+    showSummary();
+    return;
+  }
+  currentIndex++;
+  renderQuestion();
+}
+
+function handleRetry() {
+  const resultsPanel = document.getElementById('results-panel');
+  resultsPanel.classList.remove('show');
+  const textarea = document.getElementById('answer-input');
+  textarea.value = '';
+  textarea.disabled = false;
+  document.getElementById('char-count').textContent = '0';
+  const submitBtn = document.getElementById('submit-btn');
+  submitBtn.disabled = false;
+  submitBtn.innerHTML = '&#10003; Submit for Marking';
+  document.getElementById('submit-hint').textContent = 'Gemini will mark your answer like a real PSLE examiner.';
+  textarea.focus();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Remove the last questionResults entry so marks are not double-counted
+  if (questionResults.length > 0 && questionResults[questionResults.length - 1].id === shuffledQuestions[currentIndex].id) {
+    const last = questionResults.pop();
+    totalMarksEarned -= last.earned;
+    totalMarksPossible -= last.possible;
+    document.getElementById('marks-running').textContent =
+      totalMarksPossible > 0
+        ? `${totalMarksEarned} / ${totalMarksPossible} marks so far`
+        : '0 marks so far';
+  }
+}
+
+function showSummary() {
+  // Hide question & answer sections
+  document.getElementById('question-card').style.display = 'none';
+  document.querySelector('.answer-section').style.display = 'none';
+  document.querySelector('.submit-row').style.display = 'none';
+  document.getElementById('results-panel').classList.remove('show');
+  document.querySelector('.progress-header').style.display = 'none';
+
+  const pct = totalMarksPossible > 0
+    ? Math.round((totalMarksEarned / totalMarksPossible) * 100)
+    : 0;
+
+  // Summary icon & title
+  let icon, title;
+  if (pct === 100) { icon = '&#127942;'; title = 'Perfect score! Outstanding!'; }
+  else if (pct >= 75) { icon = '&#11088;'; title = 'Excellent work!'; }
+  else if (pct >= 50) { icon = '&#128218;'; title = 'Good effort — keep practising!'; }
+  else { icon = '&#128170;'; title = 'Keep going — review these topics!'; }
+
+  document.getElementById('summary-icon').innerHTML = icon;
+  document.getElementById('summary-title').textContent = title;
+  document.getElementById('summary-pct').textContent =
+    `${totalMarksEarned} / ${totalMarksPossible} marks \u00b7 ${pct}%`;
+
+  // Bar
+  const summaryBar = document.getElementById('summary-bar-fill');
+  summaryBar.style.background = marksBarColor(pct);
+  summaryBar.style.width = '0%';
+  requestAnimationFrame(() => { summaryBar.style.width = pct + '%'; });
+
+  // Weak topics — compute per-topic accuracy
+  const topicMap = {};
+  questionResults.forEach(r => {
+    if (!topicMap[r.topic]) topicMap[r.topic] = { earned: 0, possible: 0 };
+    topicMap[r.topic].earned += r.earned;
+    topicMap[r.topic].possible += r.possible;
+  });
+
+  const topicsSorted = Object.entries(topicMap)
+    .map(([topic, { earned, possible }]) => ({
+      topic,
+      pct: possible > 0 ? Math.round((earned / possible) * 100) : 0,
+      earned,
+      possible
+    }))
+    .filter(t => t.pct < 75)
+    .sort((a, b) => a.pct - b.pct);
+
+  const weakSection = document.getElementById('weak-topics-section');
+  const weakList = document.getElementById('weak-topics-list');
+  if (topicsSorted.length > 0) {
+    weakList.innerHTML = topicsSorted.map(t => `
+      <div class="weak-topic-row">
+        <span class="weak-topic-name">${escapeHtml(t.topic)}</span>
+        <span class="weak-topic-score">${t.earned} / ${t.possible} (${t.pct}%)</span>
+      </div>
+    `).join('');
+    weakSection.style.display = 'block';
+  } else {
+    weakSection.style.display = 'none';
+  }
+
+  // Show summary
+  document.getElementById('summary-panel').classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function handleRestart() {
+  // Reset state
+  currentIndex = 0;
+  totalMarksEarned = 0;
+  totalMarksPossible = 0;
+  questionResults.length = 0;
+
+  // Re-shuffle
+  shuffledQuestions = shuffle(QUESTIONS);
+
+  // Show all sections
+  document.getElementById('question-card').style.display = 'block';
+  document.querySelector('.answer-section').style.display = 'block';
+  document.querySelector('.submit-row').style.display = 'flex';
+  document.querySelector('.progress-header').style.display = 'flex';
+  document.getElementById('summary-panel').classList.remove('show');
+
+  renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  EVENT LISTENERS
+// ══════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  // Shuffle questions on load
+  shuffledQuestions = shuffle(QUESTIONS);
+
+  // Render first question
+  renderQuestion();
+
+  // CER scaffold toggle
+  document.getElementById('cer-toggle').addEventListener('click', function () {
+    const panel = document.getElementById('cer-panel');
+    const isOpen = panel.classList.contains('open');
+    panel.classList.toggle('open');
+    this.classList.toggle('open');
+    this.setAttribute('aria-expanded', String(!isOpen));
+  });
+
+  // Improved answer toggle
+  document.getElementById('improved-toggle').addEventListener('click', function () {
+    const box = document.getElementById('improved-answer-box');
+    const isOpen = box.classList.contains('open');
+    box.classList.toggle('open');
+    this.classList.toggle('open');
+    this.setAttribute('aria-expanded', String(!isOpen));
+  });
+
+  // Character count
+  document.getElementById('answer-input').addEventListener('input', function () {
+    document.getElementById('char-count').textContent = this.value.length;
+  });
+
+  // Submit
+  document.getElementById('submit-btn').addEventListener('click', handleSubmit);
+
+  // Allow Ctrl+Enter to submit
+  document.getElementById('answer-input').addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      handleSubmit();
+    }
+  });
+
+  // Next question
+  document.getElementById('next-btn').addEventListener('click', handleNext);
+
+  // Retry
+  document.getElementById('retry-btn').addEventListener('click', handleRetry);
+
+  // Restart from summary
+  document.getElementById('restart-btn').addEventListener('click', handleRestart);
+});
+</script>
+</body>
+</html>

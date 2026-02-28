@@ -110,6 +110,31 @@
     .btn-available:hover { background: #7dd3fc; }
     .btn-soon { background: var(--border); color: var(--muted); cursor: default; }
 
+    /* Streak widget */
+    .streak-widget {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: .9rem 1.4rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .streak-fire { font-size: 2.2rem; line-height: 1; }
+    .streak-info { flex: 1; min-width: 140px; }
+    .streak-count { font-size: 1.35rem; font-weight: 800; color: var(--text); }
+    .streak-count span { color: #f97316; }
+    .streak-sub { font-size: .75rem; color: var(--muted); margin-top: .1rem; }
+    .streak-dots { display: flex; gap: 5px; align-items: center; }
+    .streak-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--border);
+    }
+    .streak-dot.active { background: #f97316; }
+    .streak-dot.today  { background: #fcd34d; box-shadow: 0 0 6px #f97316; }
+
     /* Overall progress banner */
     .overall-progress {
       background: var(--surface);
@@ -165,15 +190,28 @@
       <div class="stat-pill">🗺 <span id="stat-maps">0</span> Mind Maps Saved</div>
     </div>
     <div style="display:flex;gap:.75rem;justify-content:center;margin-top:1.25rem;flex-wrap:wrap">
-      <a href="assess/index.html" class="btn btn-primary" style="font-size:.88rem">🧠 Synoptic Assessment</a>
-      <a href="flashcards/index.html" class="btn btn-ghost" style="font-size:.88rem">🃏 Flashcards</a>
-      <a href="psle-tips/index.html" class="btn btn-ghost" style="font-size:.88rem">📝 PSLE Tips</a>
-      <button class="btn btn-ghost" onclick="showAISetup()" style="font-size:.88rem">🤖 Set Up AI Quizzes</button>
+      <a href="assess/index.html"     class="btn btn-primary" style="font-size:.88rem">🧠 Synoptic Assessment</a>
+      <a href="explain/index.html"    class="btn btn-primary" style="font-size:.88rem">✍️ Explain-It-Back</a>
+      <a href="structured/index.html" class="btn btn-primary" style="font-size:.88rem">📋 Structured Answers</a>
+      <a href="commands/index.html"   class="btn btn-ghost"   style="font-size:.88rem">🔑 Command Words</a>
+      <a href="flashcards/index.html" class="btn btn-ghost"   style="font-size:.88rem">🃏 Flashcards</a>
+      <a href="psle-tips/index.html"  class="btn btn-ghost"   style="font-size:.88rem">📝 PSLE Tips</a>
+      <button class="btn btn-ghost" onclick="showAISetup()"   style="font-size:.88rem">🤖 Set Up AI Quizzes</button>
     </div>
   </div>
 </div>
 
 <div class="container">
+
+  <!-- Streak widget -->
+  <div class="streak-widget" id="streak-widget">
+    <div class="streak-fire" id="streak-fire">🔥</div>
+    <div class="streak-info">
+      <div class="streak-count"><span id="streak-count">0</span>-day study streak</div>
+      <div class="streak-sub">Longest: <span id="streak-longest">0</span> days &nbsp;·&nbsp; <span id="streak-status">Start studying to begin your streak!</span></div>
+    </div>
+    <div class="streak-dots" id="streak-dots" title="Last 7 days"></div>
+  </div>
 
   <!-- Overall progress -->
   <div class="overall-progress">
@@ -437,6 +475,39 @@ function computeMastery(p) {
 }
 
 buildCards();
+
+// ── Streak widget ────────────────────────────────────────
+function renderStreak() {
+  const s = Streak.get();
+  document.getElementById('streak-count').textContent   = s.current;
+  document.getElementById('streak-longest').textContent = s.longest;
+
+  const fire = document.getElementById('streak-fire');
+  fire.textContent = s.current >= 7 ? '🔥' : s.current >= 3 ? '🔥' : s.current > 0 ? '⚡' : '💤';
+
+  const today = new Date().toISOString().slice(0, 10);
+  const statusEl = document.getElementById('streak-status');
+  if (s.current === 0) {
+    statusEl.textContent = 'Study anything today to start your streak!';
+  } else if (s.lastActivity === today) {
+    statusEl.textContent = `Studied today ✓`;
+  } else {
+    statusEl.textContent = `Study today to keep it going!`;
+    statusEl.style.color = '#f97316';
+  }
+
+  // Last 7 day dots
+  const dotsEl = document.getElementById('streak-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 6; i >= 0; i--) {
+    const d   = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+    const dot = document.createElement('div');
+    dot.className = 'streak-dot' + (d === today && s.activeDays.includes(d) ? ' today' : s.activeDays.includes(d) ? ' active' : '');
+    dot.title = d;
+    dotsEl.appendChild(dot);
+  }
+}
+renderStreak();
 </script>
 </body>
 </html>

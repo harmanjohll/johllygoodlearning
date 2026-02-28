@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explain-It-Back | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.25rem;
+    }
+    .page-header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-size: .82rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      padding: .35rem .7rem;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      transition: all .15s;
+    }
+    .back-link:hover { color: var(--text); border-color: var(--accent); background: var(--card); }
+    .page-header-title { flex: 1; }
+    .page-header-title h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: .1rem;
+    }
+    .page-header-title p { font-size: .78rem; color: var(--muted); margin: 0; }
+
+    /* ── Main layout ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+    main { padding: 2rem 1.25rem 4rem; max-width: 1100px; margin: 0 auto; }
+
+    /* ── Selection card ── */
+    .selection-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .selection-card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: .25rem;
+      color: var(--text);
+    }
+    .selection-card > p {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+    .selects-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .select-group { display: flex; flex-direction: column; gap: .4rem; }
+    .select-group label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+    .sci-select {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: .65rem .9rem;
+      font-size: .9rem;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 500;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .15s;
+      width: 100%;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right .9rem center;
+      padding-right: 2.25rem;
+    }
+    .sci-select:focus { border-color: var(--accent); }
+    .sci-select:disabled { opacity: .45; cursor: default; }
+
+    /* ── No-key notice ── */
+    .no-key-notice {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .8rem;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .5rem .85rem;
+      margin-top: 1rem;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .no-key-notice:hover { border-color: var(--accent); color: var(--accent); }
+    .no-key-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #fb923c;
+      flex-shrink: 0;
+    }
+
+    /* ── Prompt card ── */
+    .prompt-card {
+      background: linear-gradient(135deg, #1a2a3a 0%, #1e1835 100%);
+      border: 1.5px solid var(--accent);
+      border-radius: 16px;
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .prompt-card::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: rgba(56,189,248,.08);
+    }
+    .prompt-card-label {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--accent);
+      margin-bottom: .6rem;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .prompt-card h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.45;
+      margin-bottom: .6rem;
+    }
+    .prompt-card h2 strong { color: var(--accent); }
+    .prompt-hint {
+      font-size: .82rem;
+      color: var(--muted);
+      background: rgba(255,255,255,.04);
+      border-left: 3px solid var(--accent);
+      padding: .55rem .9rem;
+      border-radius: 0 8px 8px 0;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* ── Text area card ── */
+    .input-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .input-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .85rem;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .input-card-header label {
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .char-count {
+      font-size: .72rem;
+      color: var(--muted);
+    }
+    .explanation-textarea {
+      width: 100%;
+      min-height: 130px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: .85rem 1rem;
+      font-size: .92rem;
+      font-family: 'Inter', system-ui, sans-serif;
+      line-height: 1.65;
+      resize: vertical;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .explanation-textarea:focus { border-color: var(--accent); }
+    .explanation-textarea::placeholder { color: var(--muted); opacity: .7; }
+    .input-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: .85rem;
+      flex-wrap: wrap;
+      gap: .75rem;
+    }
+    .min-length-warn {
+      font-size: .78rem;
+      color: #fb923c;
+      display: none;
+    }
+    .min-length-warn.show { display: block; }
+
+    /* Submit button with spinner */
+    .btn-submit {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .65rem 1.5rem;
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      border-radius: 10px;
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .18s;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    .btn-submit:hover:not(:disabled) { background: #7dd3fc; }
+    .btn-submit:disabled { opacity: .45; cursor: not-allowed; }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(15,23,42,.3);
+      border-top-color: #0f172a;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    .btn-submit.loading .spinner { display: block; }
+    .btn-submit.loading .btn-submit-icon { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Results panel ── */
+    .results-panel {
+      display: none;
+      animation: fadeSlideUp .35s ease;
+    }
+    .results-panel.show { display: block; }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Score card */
+    .score-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .stars-block { display: flex; flex-direction: column; align-items: center; gap: .35rem; }
+    .stars-row { display: flex; gap: .2rem; font-size: 1.6rem; line-height: 1; }
+    .star-filled { color: #f59e0b; }
+    .star-empty  { color: var(--border); filter: grayscale(1); }
+    .score-label {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+    .score-desc { flex: 1; min-width: 180px; }
+    .score-desc h3 { font-size: 1.1rem; margin-bottom: .25rem; }
+    .score-desc p  { font-size: .83rem; color: var(--muted); margin: 0; }
+
+    /* Feedback grid */
+    .feedback-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .feedback-col {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+    }
+    .feedback-col-header {
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: .85rem;
+      padding-bottom: .6rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .feedback-col-header.strengths-header { color: #34d399; }
+    .feedback-col-header.gaps-header      { color: #fb923c; }
+    .feedback-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .6rem; }
+    .feedback-item {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      font-size: .87rem;
+      line-height: 1.5;
+    }
+    .feedback-icon {
+      flex-shrink: 0;
+      margin-top: .05rem;
+      font-size: .9rem;
+    }
+    .feedback-item.strength .feedback-icon { color: #34d399; }
+    .feedback-item.gap      .feedback-icon { color: #fb923c; }
+    .feedback-item .feedback-text { color: var(--text); }
+    .no-items { font-size: .82rem; color: var(--muted); font-style: italic; }
+
+    /* Keywords missed */
+    .keywords-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .keywords-card-header {
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #f87171;
+      margin-bottom: .75rem;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .keywords-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem;
+    }
+    .keyword-chip {
+      font-size: .75rem;
+      font-weight: 600;
+      padding: .25rem .65rem;
+      border-radius: 6px;
+      background: #3b0f0f;
+      color: #fca5a5;
+      border: 1px solid #ef444466;
+      font-family: 'Courier New', monospace;
+    }
+    .no-keywords { font-size: .82rem; color: #34d399; font-style: italic; }
+
+    /* Model explanation collapsible */
+    .model-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .model-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: .88rem;
+      font-weight: 700;
+      color: var(--accent);
+      transition: background .15s;
+      text-align: left;
+    }
+    .model-toggle:hover { background: rgba(56,189,248,.06); }
+    .model-toggle-icon {
+      font-size: .75rem;
+      color: var(--muted);
+      transition: transform .25s;
+    }
+    .model-card.open .model-toggle-icon { transform: rotate(180deg); }
+    .model-body {
+      display: none;
+      padding: 0 1.25rem 1.25rem;
+      border-top: 1px solid var(--border);
+      animation: fadeIn .2s ease;
+    }
+    .model-card.open .model-body { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .model-text {
+      font-size: .88rem;
+      color: var(--text);
+      line-height: 1.7;
+      padding-top: .85rem;
+    }
+
+    /* Try another button row */
+    .try-another-row {
+      display: flex;
+      justify-content: center;
+      padding-bottom: 1rem;
+    }
+
+    /* ── AI key notice in submit row ── */
+    .ai-key-notice {
+      font-size: .78rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .ai-key-notice a {
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .ai-key-notice a:hover { text-decoration: underline; }
+
+    /* ── Score description strings ── */
+    .score-1 { color: #f87171; }
+    .score-2 { color: #fb923c; }
+    .score-3 { color: #fbbf24; }
+    .score-4 { color: #34d399; }
+    .score-5 { color: #38bdf8; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .selects-row { grid-template-columns: 1fr; }
+      .feedback-grid { grid-template-columns: 1fr; }
+      .score-card { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ PAGE HEADER ═══════════════════════ -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <a href="../index.html" class="back-link">&#8592; Lab Hub</a>
+    <div class="page-header-title">
+      <h1>Explain-It-Back</h1>
+      <p>Feynman Technique — teach a concept in plain language and get AI feedback</p>
+    </div>
+    <span class="ai-badge">Gemini AI</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════ MAIN ═══════════════════════════════ -->
+<main>
+
+  <!-- ── Step 1 & 2: Select topic + concept ── -->
+  <div id="selection-section">
+    <div class="selection-card">
+      <h2>Choose what to explain</h2>
+      <p>Select a science topic and a specific concept, then write your explanation.</p>
+      <div class="selects-row">
+        <div class="select-group">
+          <label for="topic-select">Topic</label>
+          <select id="topic-select" class="sci-select">
+            <option value="">— Pick a topic —</option>
+          </select>
+        </div>
+        <div class="select-group">
+          <label for="concept-select">Concept</label>
+          <select id="concept-select" class="sci-select" disabled>
+            <option value="">— Pick a concept —</option>
+          </select>
+        </div>
+      </div>
+      <div id="no-key-notice" class="no-key-notice" style="display:none" onclick="showAISetup()">
+        <div class="no-key-dot"></div>
+        Requires AI key — click here to set up Google Gemini (free)
+      </div>
+    </div>
+
+    <!-- ── Step 3: Prompt card (hidden until concept chosen) ── -->
+    <div id="prompt-card" class="prompt-card" style="display:none">
+      <div class="prompt-card-label">&#9998; Your challenge</div>
+      <h2>Explain <strong id="concept-label-display"></strong> in your own words, as if teaching a classmate.</h2>
+      <p class="prompt-hint" id="prompt-hint-text"></p>
+    </div>
+
+    <!-- ── Step 4: Text area (hidden until concept chosen) ── -->
+    <div id="input-card" class="input-card" style="display:none">
+      <div class="input-card-header">
+        <label for="explanation-textarea">Your explanation</label>
+        <span class="char-count" id="char-count">0 characters</span>
+      </div>
+      <textarea
+        id="explanation-textarea"
+        class="explanation-textarea"
+        rows="5"
+        placeholder="Write your explanation here…"
+      ></textarea>
+      <div class="input-footer">
+        <div>
+          <span class="min-length-warn" id="min-length-warn">Please write at least 20 characters before submitting.</span>
+          <div class="ai-key-notice" id="ai-key-inline-notice" style="display:none">
+            <span>&#128274;</span>
+            No AI key set — <a onclick="showAISetup()">set up Gemini key</a> to enable grading.
+          </div>
+        </div>
+        <button id="submit-btn" class="btn-submit" onclick="submitExplanation()">
+          <span class="btn-submit-icon">&#10003; Submit for grading</span>
+          <div class="spinner"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Step 6: Results panel ── -->
+  <div id="results-panel" class="results-panel">
+
+    <!-- Score -->
+    <div class="score-card" id="score-card">
+      <div class="stars-block">
+        <div class="stars-row" id="stars-row"></div>
+        <div class="score-label">Score</div>
+      </div>
+      <div class="score-desc">
+        <h3 id="score-heading"></h3>
+        <p id="score-subtext"></p>
+      </div>
+    </div>
+
+    <!-- Strengths + Gaps -->
+    <div class="feedback-grid">
+      <div class="feedback-col">
+        <div class="feedback-col-header strengths-header">
+          <span>&#10003;</span> Strengths
+        </div>
+        <ul class="feedback-list" id="strengths-list"></ul>
+      </div>
+      <div class="feedback-col">
+        <div class="feedback-col-header gaps-header">
+          <span>&#10007;</span> Gaps
+        </div>
+        <ul class="feedback-list" id="gaps-list"></ul>
+      </div>
+    </div>
+
+    <!-- Keywords missed -->
+    <div class="keywords-card" id="keywords-card">
+      <div class="keywords-card-header">
+        <span>&#128278;</span> Keywords to use
+      </div>
+      <div class="keywords-chips" id="keywords-chips"></div>
+    </div>
+
+    <!-- Model explanation collapsible -->
+    <div class="model-card" id="model-card">
+      <button class="model-toggle" onclick="toggleModelAnswer()">
+        <span>Show model answer</span>
+        <span class="model-toggle-icon">&#9660;</span>
+      </button>
+      <div class="model-body">
+        <p class="model-text" id="model-text"></p>
+      </div>
+    </div>
+
+    <!-- Try another -->
+    <div class="try-another-row">
+      <button class="btn btn-ghost" onclick="resetToSelection()" style="padding:.65rem 1.5rem;font-size:.9rem">
+        &#8635; Try another concept
+      </button>
+    </div>
+
+  </div>
+
+</main>
+
+<script src="../shared.js"></script>
+<script>
+// ─────────────────────────────────────────────────────────────
+// CONCEPTS DATA
+// ─────────────────────────────────────────────────────────────
+const CONCEPTS = {
+  'circuits':          [
+    { id:'series',      label:'Series circuit',        hint:'How components connect and what happens when one bulb is removed' },
+    { id:'parallel',    label:'Parallel circuit',      hint:'How it differs from series and what happens to remaining bulbs' },
+    { id:'conductors',  label:'Conductors & insulators',hint:'What they are, why metals conduct, and two examples of each' },
+    { id:'current',     label:'Electric current',      hint:'What current is, what it needs to flow, and how a switch controls it' },
+  ],
+  'digestive':         [
+    { id:'digestion',   label:'Digestion',             hint:'What digestion is and why the body needs to break food down' },
+    { id:'absorption',  label:'Absorption of nutrients',hint:'Where absorption happens and how nutrients enter the bloodstream' },
+    { id:'organs',      label:'Digestive organs',      hint:'The role of the mouth, stomach, small and large intestine' },
+  ],
+  'respiratory':       [
+    { id:'breathing',   label:'Breathing mechanism',   hint:'How the diaphragm and ribs work together to move air in and out' },
+    { id:'gas-exchange',label:'Gas exchange',          hint:'What gases are exchanged, where, and why' },
+  ],
+  'circulatory':       [
+    { id:'heart',       label:'The heart',             hint:'Structure of the heart, two sides, and what each does' },
+    { id:'blood-vessels',label:'Blood vessels',        hint:'Arteries, veins, capillaries — differences and functions' },
+    { id:'blood',       label:'Role of blood',         hint:'What blood carries and why circulation matters' },
+  ],
+  'plants':            [
+    { id:'photosynthesis',label:'Photosynthesis',      hint:'Reactants, products, where it happens, and why light is needed' },
+    { id:'transpiration', label:'Transpiration',       hint:'What it is, where water is lost, and its role in the plant' },
+    { id:'transport',     label:'Water & food transport',hint:'Xylem vs phloem — what each carries and in which direction' },
+  ],
+  'cell-system':       [
+    { id:'cell',        label:'The cell',              hint:'Key parts of an animal/plant cell and their functions' },
+    { id:'hierarchy',   label:'Cell\u2192tissue\u2192organ', hint:'How cells organise into tissues, organs, and systems' },
+  ],
+  'forces':            [
+    { id:'friction',    label:'Friction',              hint:'What causes it, when it helps, when it hinders' },
+    { id:'gravity',     label:'Gravitational force',  hint:'What gravity is, what affects it, and its effects' },
+    { id:'spring-force',label:'Spring force',         hint:'Compression vs extension, and Hooke\'s law idea' },
+  ],
+  'water-cycle':       [
+    { id:'evaporation', label:'Evaporation',          hint:'What happens to water molecules and what speeds it up' },
+    { id:'condensation',label:'Condensation',         hint:'Conditions needed and everyday examples' },
+    { id:'full-cycle',  label:'The water cycle',      hint:'All four stages linked together in sequence' },
+  ],
+  'habitats':          [
+    { id:'food-chain',  label:'Food chain',           hint:'Producer, primary consumer, secondary consumer — with an example' },
+    { id:'food-web',    label:'Food web',             hint:'How multiple food chains connect and what happens if one organism is removed' },
+    { id:'adaptation',  label:'Adaptation',           hint:'What adaptation means and two examples of an animal adapted to its habitat' },
+  ],
+  'ecosystems':        [
+    { id:'predator-prey',label:'Predator-prey balance',hint:'How populations of predators and prey keep each other in check' },
+    { id:'competition', label:'Competition',          hint:'What organisms compete for and how it affects populations' },
+  ],
+  'magnets':           [
+    { id:'poles',       label:'Magnetic poles',       hint:'Like and unlike poles, what happens when poles interact' },
+    { id:'magnetic-field',label:'Magnetic field',     hint:'What a magnetic field is and how to show it' },
+  ],
+  'sound':             [
+    { id:'vibration',   label:'Sound and vibration',  hint:'How vibration creates sound and how to show that sound needs a medium' },
+    { id:'pitch-loudness',label:'Pitch and loudness', hint:'What controls pitch vs loudness and how to change each' },
+  ],
+  'light':             [
+    { id:'reflection',  label:'Reflection of light',  hint:'Law of reflection and how a mirror forms an image' },
+    { id:'shadows',     label:'Shadow formation',     hint:'Conditions needed for a shadow and what affects its size' },
+    { id:'transparency',label:'Transparent/translucent/opaque',hint:'Definitions and one everyday example of each' },
+  ],
+  'heat':              [
+    { id:'conduction',  label:'Conduction',           hint:'How heat travels through solids and why metals conduct well' },
+    { id:'convection',  label:'Convection',           hint:'How convection currents form in liquids and gases' },
+    { id:'radiation',   label:'Radiation',            hint:'How radiation differs from conduction and convection' },
+  ],
+  'diversity':         [
+    { id:'classification',label:'Classification of living things',hint:'Vertebrates vs invertebrates; plant groups' },
+    { id:'vertebrates', label:'Vertebrates',          hint:'Five vertebrate groups and one key feature of each' },
+  ],
+  'diversity-materials':[
+    { id:'properties',  label:'Properties of materials',hint:'Key properties: hardness, flexibility, conductivity, solubility' },
+    { id:'solubility',  label:'Solubility',           hint:'What soluble means, solute, solvent, solution' },
+  ],
+  'life-cycles':       [
+    { id:'metamorphosis',label:'Complete metamorphosis',hint:'Four stages with an example animal' },
+    { id:'incomplete',  label:'Incomplete metamorphosis',hint:'Three stages and how it differs from complete metamorphosis' },
+  ],
+  'plant-reproduction':[
+    { id:'pollination', label:'Pollination',          hint:'Self vs cross-pollination, agents, and what happens next' },
+    { id:'seed-dispersal',label:'Seed dispersal',     hint:'Four methods with one example each and the benefit of dispersal' },
+  ],
+  'human-reproduction':[
+    { id:'fertilisation',label:'Fertilisation',       hint:'Where it occurs, what fuses, and what forms' },
+    { id:'puberty',     label:'Puberty',              hint:'Purpose of puberty and two changes for each sex' },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────
+// TOPIC LABELS  (maps CONCEPTS key → display name)
+// ─────────────────────────────────────────────────────────────
+const TOPIC_LABELS = {
+  'circuits':           'Electrical System & Circuits',
+  'digestive':          'Human Digestive System',
+  'respiratory':        'Respiratory System',
+  'circulatory':        'Circulatory System',
+  'plants':             'Photosynthesis & Plants',
+  'cell-system':        'Cells & Body Systems',
+  'forces':             'Forces',
+  'water-cycle':        'Water Cycle',
+  'habitats':           'Habitats & Food Chains',
+  'ecosystems':         'Interactions Within Environment',
+  'magnets':            'Magnets',
+  'sound':              'Sound',
+  'light':              'Light & Shadows',
+  'heat':               'Heat & Temperature',
+  'diversity':          'Diversity of Living Things',
+  'diversity-materials':'Diversity of Materials',
+  'life-cycles':        'Life Cycles of Animals',
+  'plant-reproduction': 'Reproduction in Plants',
+  'human-reproduction': 'Human Reproduction',
+};
+
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+let selectedTopicId   = '';
+let selectedConceptId = '';
+let selectedConcept   = null; // full concept object
+
+// ─────────────────────────────────────────────────────────────
+// INIT — populate topic dropdown
+// ─────────────────────────────────────────────────────────────
+(function init() {
+  const topicSelect = document.getElementById('topic-select');
+  Object.keys(CONCEPTS).forEach(key => {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = TOPIC_LABELS[key] || key;
+    topicSelect.appendChild(opt);
+  });
+
+  topicSelect.addEventListener('change', onTopicChange);
+  document.getElementById('concept-select').addEventListener('change', onConceptChange);
+  document.getElementById('explanation-textarea').addEventListener('input', onTextInput);
+
+  updateKeyNotices();
+})();
+
+function updateKeyNotices() {
+  const hasKey = AIConfig.hasKey();
+  document.getElementById('no-key-notice').style.display = hasKey ? 'none' : 'inline-flex';
+  document.getElementById('ai-key-inline-notice').style.display = hasKey ? 'none' : 'flex';
+  document.getElementById('submit-btn').disabled = !hasKey;
+}
+
+// ─────────────────────────────────────────────────────────────
+// DROPDOWN HANDLERS
+// ─────────────────────────────────────────────────────────────
+function onTopicChange() {
+  const topicSelect   = document.getElementById('topic-select');
+  const conceptSelect = document.getElementById('concept-select');
+
+  selectedTopicId   = topicSelect.value;
+  selectedConceptId = '';
+  selectedConcept   = null;
+
+  // Reset concept dropdown
+  conceptSelect.innerHTML = '<option value="">— Pick a concept —</option>';
+  conceptSelect.disabled  = !selectedTopicId;
+
+  if (selectedTopicId && CONCEPTS[selectedTopicId]) {
+    CONCEPTS[selectedTopicId].forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.label;
+      conceptSelect.appendChild(opt);
+    });
+  }
+
+  hidePromptAndInput();
+}
+
+function onConceptChange() {
+  const conceptSelect = document.getElementById('concept-select');
+  selectedConceptId = conceptSelect.value;
+
+  if (!selectedConceptId) {
+    hidePromptAndInput();
+    return;
+  }
+
+  selectedConcept = CONCEPTS[selectedTopicId].find(c => c.id === selectedConceptId) || null;
+  if (selectedConcept) showPromptAndInput();
+}
+
+function hidePromptAndInput() {
+  document.getElementById('prompt-card').style.display = 'none';
+  document.getElementById('input-card').style.display  = 'none';
+}
+
+function showPromptAndInput() {
+  document.getElementById('concept-label-display').textContent = selectedConcept.label;
+  document.getElementById('prompt-hint-text').textContent = 'Hint: ' + selectedConcept.hint;
+  document.getElementById('prompt-card').style.display = '';
+  document.getElementById('input-card').style.display  = '';
+  document.getElementById('explanation-textarea').value = '';
+  document.getElementById('char-count').textContent = '0 characters';
+  document.getElementById('min-length-warn').classList.remove('show');
+}
+
+// ─────────────────────────────────────────────────────────────
+// TEXTAREA
+// ─────────────────────────────────────────────────────────────
+function onTextInput() {
+  const ta  = document.getElementById('explanation-textarea');
+  const len = ta.value.length;
+  document.getElementById('char-count').textContent = len + ' character' + (len === 1 ? '' : 's');
+  if (len >= 20) {
+    document.getElementById('min-length-warn').classList.remove('show');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// SUBMIT
+// ─────────────────────────────────────────────────────────────
+async function submitExplanation() {
+  if (!AIConfig.hasKey()) {
+    showAISetup();
+    return;
+  }
+
+  const text = document.getElementById('explanation-textarea').value.trim();
+
+  if (text.length < 20) {
+    document.getElementById('min-length-warn').classList.add('show');
+    return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  const topicName    = TOPIC_LABELS[selectedTopicId] || selectedTopicId;
+  const conceptLabel = selectedConcept.label;
+  const hint         = selectedConcept.hint;
+
+  const prompt = `You are an experienced Singapore MOE Primary Science teacher.
+A student is practising the Feynman technique — explaining a concept in plain language.
+
+Topic: ${topicName}
+Concept: ${conceptLabel}
+Hint given: ${hint}
+Student's explanation:
+"${text}"
+
+Grade this explanation. Respond with ONLY a JSON object — no markdown, no code fences:
+{
+  "score": 4,
+  "strengths": ["Point done well 1", "Point done well 2"],
+  "gaps": ["Key point missing or wrong 1", "Key point missing 2"],
+  "keywords_missed": ["photosynthesis", "chlorophyll"],
+  "model_explanation": "A clear, complete 2-3 sentence explanation a P5 student could understand."
+}
+score: 1=very incomplete, 2=basic, 3=acceptable, 4=good, 5=excellent
+strengths: 1-3 items (can be empty array if score <= 2)
+gaps: 1-4 items (can be empty if score = 5)
+keywords_missed: scientific terms the student should have used`;
+
+  try {
+    const key  = AIConfig.getKey();
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`,
+      {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          contents:         [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.4, maxOutputTokens: 1024 }
+        })
+      }
+    );
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error?.message || `API error ${resp.status}`);
+    }
+
+    const data   = await resp.json();
+    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    // Strip markdown fences if present
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Unexpected response format from Gemini.');
+    const result = JSON.parse(jsonMatch[0]);
+
+    Streak.record();
+    showResults(result);
+
+  } catch (err) {
+    showToast('Grading failed: ' + err.message);
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER RESULTS
+// ─────────────────────────────────────────────────────────────
+function showResults(result) {
+  const score = Math.max(1, Math.min(5, Math.round(result.score || 1)));
+
+  // Hide selection section
+  document.getElementById('selection-section').style.display = 'none';
+
+  // Stars
+  const starsRow = document.getElementById('stars-row');
+  starsRow.innerHTML = '';
+  for (let i = 1; i <= 5; i++) {
+    const star = document.createElement('span');
+    star.textContent = i <= score ? '\u2B50' : '\u2606';
+    star.className   = i <= score ? 'star-filled' : 'star-empty';
+    starsRow.appendChild(star);
+  }
+
+  // Score heading
+  const scoreDescriptions = {
+    1: { heading: 'Very incomplete',  sub: 'The explanation is missing most key ideas. Have another go!',          cls: 'score-1' },
+    2: { heading: 'Basic attempt',    sub: 'You have a starting point — try adding more scientific detail.',        cls: 'score-2' },
+    3: { heading: 'Acceptable',       sub: 'Good effort! A few more key ideas would make it much stronger.',        cls: 'score-3' },
+    4: { heading: 'Good explanation', sub: 'Solid work — you have covered the main ideas well.',                    cls: 'score-4' },
+    5: { heading: 'Excellent!',       sub: 'Outstanding explanation — you clearly understand this concept.',        cls: 'score-5' },
+  };
+  const desc = scoreDescriptions[score];
+  const headingEl = document.getElementById('score-heading');
+  headingEl.textContent  = desc.heading;
+  headingEl.className    = desc.cls;
+  document.getElementById('score-subtext').textContent = desc.sub;
+
+  // Strengths
+  const strengthsList = document.getElementById('strengths-list');
+  strengthsList.innerHTML = '';
+  const strengths = Array.isArray(result.strengths) ? result.strengths : [];
+  if (strengths.length === 0) {
+    const li = document.createElement('li');
+    li.className = 'no-items';
+    li.textContent = 'No particular strengths noted at this level.';
+    strengthsList.appendChild(li);
+  } else {
+    strengths.forEach(s => {
+      const li   = document.createElement('li');
+      li.className = 'feedback-item strength';
+      li.innerHTML = `<span class="feedback-icon">&#10003;</span><span class="feedback-text">${escapeHtml(s)}</span>`;
+      strengthsList.appendChild(li);
+    });
+  }
+
+  // Gaps
+  const gapsList = document.getElementById('gaps-list');
+  gapsList.innerHTML = '';
+  const gaps = Array.isArray(result.gaps) ? result.gaps : [];
+  if (gaps.length === 0) {
+    const li = document.createElement('li');
+    li.className = 'no-items';
+    li.textContent = 'No gaps found — great work!';
+    gapsList.appendChild(li);
+  } else {
+    gaps.forEach(g => {
+      const li   = document.createElement('li');
+      li.className = 'feedback-item gap';
+      li.innerHTML = `<span class="feedback-icon">&#10007;</span><span class="feedback-text">${escapeHtml(g)}</span>`;
+      gapsList.appendChild(li);
+    });
+  }
+
+  // Keywords missed
+  const chipsEl   = document.getElementById('keywords-chips');
+  chipsEl.innerHTML = '';
+  const keywords = Array.isArray(result.keywords_missed) ? result.keywords_missed : [];
+  if (keywords.length === 0) {
+    const span = document.createElement('span');
+    span.className   = 'no-keywords';
+    span.textContent = 'Great — you used all the key scientific terms!';
+    chipsEl.appendChild(span);
+  } else {
+    keywords.forEach(kw => {
+      const chip = document.createElement('span');
+      chip.className   = 'keyword-chip';
+      chip.textContent = kw;
+      chipsEl.appendChild(chip);
+    });
+  }
+
+  // Model explanation
+  document.getElementById('model-text').textContent = result.model_explanation || '';
+
+  // Show results panel
+  const panel = document.getElementById('results-panel');
+  panel.classList.add('show');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ─────────────────────────────────────────────────────────────
+// COLLAPSIBLE MODEL ANSWER
+// ─────────────────────────────────────────────────────────────
+function toggleModelAnswer() {
+  document.getElementById('model-card').classList.toggle('open');
+}
+
+// ─────────────────────────────────────────────────────────────
+// RESET
+// ─────────────────────────────────────────────────────────────
+function resetToSelection() {
+  // Hide results
+  const panel = document.getElementById('results-panel');
+  panel.classList.remove('show');
+
+  // Close model answer if open
+  document.getElementById('model-card').classList.remove('open');
+
+  // Reset dropdowns
+  document.getElementById('topic-select').value   = '';
+  document.getElementById('concept-select').value  = '';
+  document.getElementById('concept-select').disabled = true;
+  selectedTopicId   = '';
+  selectedConceptId = '';
+  selectedConcept   = null;
+
+  // Hide prompt and input
+  hidePromptAndInput();
+
+  // Re-enable submit button state
+  const btn = document.getElementById('submit-btn');
+  btn.classList.remove('loading');
+  btn.disabled = !AIConfig.hasKey();
+
+  // Show selection section
+  document.getElementById('selection-section').style.display = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>

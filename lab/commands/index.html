@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Command Word Trainer | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .header-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--accent); flex-shrink: 0; }
+    .header-title { font-size: 1.05rem; font-weight: 800; }
+    .header-sub   { font-size: .75rem; color: var(--muted); margin-top: .1rem; }
+    .back-link {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-size: .8rem; font-weight: 600; color: var(--muted);
+      text-decoration: none; padding: .35rem .75rem;
+      border: 1px solid var(--border); border-radius: 7px;
+      transition: all .15s; white-space: nowrap;
+    }
+    .back-link:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ── Main container ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+    main { padding: 1.5rem 0 4rem; }
+
+    /* ── Tabs ── */
+    .cmd-tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .cmd-tab {
+      padding: .45rem 1.1rem; border-radius: 9px;
+      border: 1.5px solid var(--border);
+      background: transparent; color: var(--muted);
+      font-size: .88rem; font-weight: 700; cursor: pointer; transition: all .15s;
+    }
+    .cmd-tab:hover { border-color: var(--accent); color: var(--accent); }
+    .cmd-tab.active { background: var(--accent); color: #0d1117; border-color: var(--accent); }
+    .cmd-pane { display: none; }
+    .cmd-pane.active { display: block; }
+
+    /* ── Reference grid ── */
+    .ref-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+    @media (max-width: 700px) {
+      .ref-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Command word card ── */
+    .cmd-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0;
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .cmd-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+
+    .cmd-card-header {
+      padding: 1rem 1.25rem .75rem;
+      border-left: 5px solid transparent; /* set per card via inline style */
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      gap: .65rem;
+    }
+    .cmd-word {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+    .cmd-tag {
+      font-size: .68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: .15rem .5rem;
+      border-radius: 5px;
+      opacity: .85;
+    }
+
+    .cmd-card-body { padding: 1rem 1.25rem; }
+
+    .cmd-section { margin-bottom: .85rem; }
+    .cmd-section:last-child { margin-bottom: 0; }
+
+    .cmd-section-label {
+      font-size: .67rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+      margin-bottom: .4rem;
+    }
+    .cmd-section p {
+      font-size: .85rem;
+      color: var(--text);
+      line-height: 1.55;
+      margin: 0;
+    }
+    .cmd-section ul {
+      padding-left: 1.15rem;
+      margin: 0;
+    }
+    .cmd-section li {
+      font-size: .84rem;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-bottom: .2rem;
+    }
+    .cmd-section li:last-child { margin-bottom: 0; }
+
+    .cmd-example-q {
+      background: var(--surface);
+      border-left: 3px solid var(--border);
+      border-radius: 0 8px 8px 0;
+      padding: .6rem .9rem;
+      font-size: .84rem;
+      color: var(--text);
+      font-style: italic;
+      margin: 0;
+    }
+
+    .cmd-answer-good {
+      background: #063b27;
+      border: 1px solid #10b98155;
+      border-radius: 8px;
+      padding: .6rem .9rem;
+      margin: 0 0 .45rem 0;
+    }
+    .cmd-answer-good .ans-label {
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: #34d399;
+      margin-bottom: .25rem;
+    }
+    .cmd-answer-good p {
+      font-size: .83rem;
+      color: #a7f3d0;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .cmd-answer-weak {
+      background: #3b0f0f;
+      border: 1px solid #ef444455;
+      border-radius: 8px;
+      padding: .6rem .9rem;
+      margin: 0;
+    }
+    .cmd-answer-weak .ans-label {
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: #f87171;
+      margin-bottom: .25rem;
+    }
+    .cmd-answer-weak p {
+      font-size: .83rem;
+      color: #fca5a5;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .cmd-answer-weak .weak-note {
+      font-size: .75rem;
+      color: #fca5a580;
+      margin-top: .3rem;
+      font-style: italic;
+    }
+
+    /* ── Cheat-sheet chip row ── */
+    .cheatsheet-row {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: .85rem 1.1rem;
+      margin-bottom: 1.5rem;
+    }
+    .cheatsheet-label {
+      font-size: .7rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-right: .25rem;
+      white-space: nowrap;
+    }
+    .cw-chip {
+      padding: .3rem .85rem;
+      border-radius: 99px;
+      font-size: .78rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: filter .15s, transform .12s;
+      letter-spacing: .03em;
+    }
+    .cw-chip:hover { filter: brightness(1.2); transform: translateY(-1px); }
+
+    /* ── Drill ── */
+    .drill-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .drill-progress-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .85rem;
+      gap: .75rem;
+    }
+    .drill-counter {
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .drill-score-live {
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .drill-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.35rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .drill-q-text {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.55;
+      margin: 0 0 1.1rem 0;
+    }
+
+    .drill-options {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    .drill-opt {
+      padding: .75rem 1rem;
+      border-radius: 9px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .15s;
+      text-align: left;
+      letter-spacing: .04em;
+    }
+    .drill-opt:hover:not(:disabled) { border-color: var(--accent); background: #1a2a3a; }
+    .drill-opt:disabled { cursor: default; }
+    .drill-opt.correct { border-color: #10b981; background: #063b27; color: #6ee7b7; }
+    .drill-opt.wrong   { border-color: #ef4444; background: #3b0f0f; color: #fca5a5; }
+
+    .drill-feedback {
+      margin-top: .85rem;
+      padding: .8rem 1rem;
+      border-radius: 9px;
+      font-size: .87rem;
+      line-height: 1.5;
+      display: none;
+    }
+    .drill-feedback.show { display: block; }
+    .drill-feedback.fb-correct { background: #063b27; border: 1px solid #10b981; color: #a7f3d0; }
+    .drill-feedback.fb-wrong   { background: #3b0f0f; border: 1px solid #ef4444; color: #fca5a5; }
+
+    .drill-next-btn {
+      margin-top: .85rem;
+      width: 100%;
+      padding: .65rem;
+      border-radius: 9px;
+      background: var(--accent);
+      color: #0d1117;
+      font-size: .9rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: background .15s;
+      display: none;
+    }
+    .drill-next-btn.show { display: block; }
+    .drill-next-btn:hover { background: #7dd3fc; }
+
+    /* ── End screen ── */
+    .drill-end {
+      text-align: center;
+      padding: 2.5rem 1.5rem 2rem;
+    }
+    .drill-end-icon { font-size: 3.5rem; margin-bottom: .75rem; line-height: 1; }
+    .drill-end h2 { font-size: 1.5rem; margin-bottom: .4rem; }
+    .drill-end .end-msg {
+      font-size: .95rem;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+    .drill-end .retry-btn {
+      padding: .6rem 1.5rem;
+      border-radius: 9px;
+      background: var(--accent);
+      color: #0d1117;
+      font-size: .92rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .drill-end .retry-btn:hover { background: #7dd3fc; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .cmd-card-header { padding: .85rem 1rem .65rem; }
+      .cmd-card-body   { padding: .85rem 1rem; }
+      .drill-card      { padding: 1rem 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ PAGE HEADER ══════════════ -->
+<header class="page-header">
+  <a href="../index.html" class="back-link">← Back</a>
+  <div class="header-bar"></div>
+  <div>
+    <div class="header-title">Command Word Trainer</div>
+    <div class="header-sub">PSLE Science · Understand what examiners want · Practice identification</div>
+  </div>
+</header>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<div class="container">
+<main>
+
+  <!-- ── Tabs ── -->
+  <div class="cmd-tabs" role="tablist">
+    <button class="cmd-tab active" data-pane="ref"   role="tab" aria-selected="true">📖 Reference</button>
+    <button class="cmd-tab"        data-pane="drill" role="tab" aria-selected="false">🎯 Drill</button>
+  </div>
+
+  <!-- ════════════ TAB: REFERENCE ════════════ -->
+  <section class="cmd-pane active" id="pane-ref">
+
+    <div class="ref-grid">
+
+      <!-- STATE -->
+      <div class="cmd-card" id="card-STATE">
+        <div class="cmd-card-header" style="border-left-color:#94a3b8">
+          <span class="cmd-word" style="color:#94a3b8">STATE</span>
+          <span class="cmd-tag" style="background:#94a3b820;color:#94a3b8">Recall</span>
+        </div>
+        <div class="cmd-card-body">
+          <div class="cmd-section">
+            <div class="cmd-section-label">What it means</div>
+            <p>Give a fact or value with no explanation needed.</p>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">What examiners want</div>
+            <ul>
+              <li>A single correct factual sentence</li>
+              <li>Scientific vocabulary (not everyday language)</li>
+              <li>No need to explain why</li>
+            </ul>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">Example question</div>
+            <p class="cmd-example-q">"State the role of the small intestine in digestion."</p>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">Answers</div>
+            <div class="cmd-answer-good">
+              <div class="ans-label">✓ Good answer</div>
+              <p>The small intestine absorbs digested food (nutrients) into the bloodstream.</p>
+            </div>
+            <div class="cmd-answer-weak">
+              <div class="ans-label">✗ Weak answer</div>
+              <p>The small intestine helps the body.</p>
+              <div class="weak-note">Too vague; no scientific detail.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DESCRIBE -->
+      <div class="cmd-card" id="card-DESCRIBE">
+        <div class="cmd-card-header" style="border-left-color:#818cf8">
+          <span class="cmd-word" style="color:#818cf8">DESCRIBE</span>
+          <span class="cmd-tag" style="background:#818cf820;color:#818cf8">Observations</span>
+        </div>
+        <div class="cmd-card-body">
+          <div class="cmd-section">
+            <div class="cmd-section-label">What it means</div>
+            <p>Give a detailed account of what something looks like, happens, or changes — without explaining why.</p>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">What examiners want</div>
+            <ul>
+              <li>Specific observations or steps in sequence</li>
+              <li>Use of measurements or comparisons where possible</li>
+              <li>No need to explain causes</li>
+            </ul>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">Example question</div>
+            <p class="cmd-example-q">"Describe the changes in the water level in the beaker over 30 minutes when heated."</p>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">Answers</div>
+            <div class="cmd-answer-good">
+              <div class="ans-label">✓ Good answer</div>
+              <p>The water level decreased gradually as the water was heated. Bubbles of water vapour formed and escaped into the air. After 30 minutes, less water remained in the beaker.</p>
+            </div>
+            <div class="cmd-answer-weak">
+              <div class="ans-label">✗ Weak answer</div>
+              <p>The water evaporated.</p>
+              <div class="weak-note">Correct but too brief; doesn't describe what was observed in detail.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXPLAIN -->
+      <div class="cmd-card" id="card-EXPLAIN">
+        <div class="cmd-card-header" style="border-left-color:#38bdf8">
+          <span class="cmd-word" style="color:#38bdf8">EXPLAIN</span>
+          <span class="cmd-tag" style="background:#38bdf820;color:#38bdf8">Reasoning</span>
+        </div>
+        <div class="cmd-card-body">
+          <div class="cmd-section">
+            <div class="cmd-section-label">What it means</div>
+            <p>Give reasons or causes — say WHY or HOW something happens.</p>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">What examiners want</div>
+            <ul>
+              <li>A clear cause-and-effect link</li>
+              <li>Use of linking words: because, therefore, so, since, as a result</li>
+              <li>Scientific vocabulary for the cause</li>
+            </ul>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">Example question</div>
+            <p class="cmd-example-q">"Explain why a metal spoon feels hotter than a wooden spoon when left in hot soup."</p>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">Answers</div>
+            <div class="cmd-answer-good">
+              <div class="ans-label">✓ Good answer</div>
+              <p>Metal is a good conductor of heat. Heat energy is conducted quickly from the hot soup through the metal spoon to the handle. Wood is a poor conductor, so little heat reaches the handle of the wooden spoon.</p>
+            </div>
+            <div class="cmd-answer-weak">
+              <div class="ans-label">✗ Weak answer</div>
+              <p>Metal gets hot faster than wood.</p>
+              <div class="weak-note">States what happens but does not explain WHY using scientific reasoning.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREDICT -->
+      <div class="cmd-card" id="card-PREDICT">
+        <div class="cmd-card-header" style="border-left-color:#fb923c">
+          <span class="cmd-word" style="color:#fb923c">PREDICT</span>
+          <span class="cmd-tag" style="background:#fb923c20;color:#fb923c">Forecast</span>
+        </div>
+        <div class="cmd-card-body">
+          <div class="cmd-section">
+            <div class="cmd-section-label">What it means</div>
+            <p>Use scientific knowledge to say what you think will happen in a new situation — and explain your reasoning.</p>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">What examiners want</div>
+            <ul>
+              <li>A clear, specific prediction (what will happen)</li>
+              <li>A scientific reason (why it will happen)</li>
+              <li>Treat it as EXPLAIN + outcome</li>
+            </ul>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">Example question</div>
+            <p class="cmd-example-q">"Predict what happens to the brightness of the remaining bulb if one bulb is removed from a parallel circuit."</p>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">Answers</div>
+            <div class="cmd-answer-good">
+              <div class="ans-label">✓ Good answer</div>
+              <p>The remaining bulb stays the same brightness. In a parallel circuit, each bulb has its own separate path for current. Removing one bulb does not affect the current in the other branch.</p>
+            </div>
+            <div class="cmd-answer-weak">
+              <div class="ans-label">✗ Weak answer</div>
+              <p>The bulb stays bright.</p>
+              <div class="weak-note">Correct prediction but no reasoning; will lose the explanation mark.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPARE -->
+      <div class="cmd-card" id="card-COMPARE">
+        <div class="cmd-card-header" style="border-left-color:#34d399">
+          <span class="cmd-word" style="color:#34d399">COMPARE</span>
+          <span class="cmd-tag" style="background:#34d39920;color:#34d399">Similarities &amp; Differences</span>
+        </div>
+        <div class="cmd-card-body">
+          <div class="cmd-section">
+            <div class="cmd-section-label">What it means</div>
+            <p>Describe the similarities AND differences between two or more things.</p>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">What examiners want</div>
+            <ul>
+              <li>Both similarities and differences (unless question says 'compare the differences')</li>
+              <li>Use of comparative language: whereas, however, both, unlike, similarly</li>
+              <li>Paired statements (A is X, whereas B is Y)</li>
+            </ul>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">Example question</div>
+            <p class="cmd-example-q">"Compare the breathing in a fish with breathing in a human."</p>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">Answers</div>
+            <div class="cmd-answer-good">
+              <div class="ans-label">✓ Good answer</div>
+              <p>Both fish and humans need to take in oxygen for respiration. However, humans breathe in air through lungs, whereas fish absorb dissolved oxygen from water through their gills.</p>
+            </div>
+            <div class="cmd-answer-weak">
+              <div class="ans-label">✗ Weak answer</div>
+              <p>Humans use lungs and fish use gills.</p>
+              <div class="weak-note">Only describes differences; misses the similarity; not in comparative sentence structure.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUGGEST -->
+      <div class="cmd-card" id="card-SUGGEST">
+        <div class="cmd-card-header" style="border-left-color:#2dd4bf">
+          <span class="cmd-word" style="color:#2dd4bf">SUGGEST</span>
+          <span class="cmd-tag" style="background:#2dd4bf20;color:#2dd4bf">Application</span>
+        </div>
+        <div class="cmd-card-body">
+          <div class="cmd-section">
+            <div class="cmd-section-label">What it means</div>
+            <p>Use your scientific knowledge to propose a possible explanation or solution for something unfamiliar.</p>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">What examiners want</div>
+            <ul>
+              <li>A plausible scientific reason (there may be more than one acceptable answer)</li>
+              <li>Applying principles from the syllabus to a new context</li>
+              <li>Hedging language is fine: 'possibly', 'may', 'could'</li>
+            </ul>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">Example question</div>
+            <p class="cmd-example-q">"Suggest a reason why a cactus has thick, fleshy stems."</p>
+          </div>
+          <div class="cmd-section">
+            <div class="cmd-section-label">Answers</div>
+            <div class="cmd-answer-good">
+              <div class="ans-label">✓ Good answer</div>
+              <p>The thick, fleshy stem may store water, allowing the cactus to survive in dry desert conditions where water is scarce.</p>
+            </div>
+            <div class="cmd-answer-weak">
+              <div class="ans-label">✗ Weak answer</div>
+              <p>It stores water.</p>
+              <div class="weak-note">Correct but incomplete; doesn't link to the desert habitat or why this is an advantage.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /ref-grid -->
+  </section>
+
+  <!-- ════════════ TAB: DRILL ════════════ -->
+  <section class="cmd-pane" id="pane-drill">
+
+    <!-- Cheat-sheet chip row -->
+    <div class="cheatsheet-row">
+      <span class="cheatsheet-label">Quick reference:</span>
+      <button class="cw-chip" style="background:#94a3b825;color:#94a3b8;border:1.5px solid #94a3b860" data-card="STATE">STATE</button>
+      <button class="cw-chip" style="background:#818cf825;color:#818cf8;border:1.5px solid #818cf860" data-card="DESCRIBE">DESCRIBE</button>
+      <button class="cw-chip" style="background:#38bdf825;color:#38bdf8;border:1.5px solid #38bdf860" data-card="EXPLAIN">EXPLAIN</button>
+      <button class="cw-chip" style="background:#fb923c25;color:#fb923c;border:1.5px solid #fb923c60" data-card="PREDICT">PREDICT</button>
+      <button class="cw-chip" style="background:#34d39925;color:#34d399;border:1.5px solid #34d39960" data-card="COMPARE">COMPARE</button>
+      <button class="cw-chip" style="background:#2dd4bf25;color:#2dd4bf;border:1.5px solid #2dd4bf60" data-card="SUGGEST">SUGGEST</button>
+    </div>
+
+    <!-- Drill arena -->
+    <div class="drill-wrap">
+      <div id="drill-arena"></div>
+    </div>
+
+  </section>
+
+</main>
+</div><!-- /container -->
+
+<script src="../shared.js"></script>
+<script>
+// ── Command word colour map ────────────────────────────────
+const CW_COLORS = {
+  STATE:    '#94a3b8',
+  DESCRIBE: '#818cf8',
+  EXPLAIN:  '#38bdf8',
+  PREDICT:  '#fb923c',
+  COMPARE:  '#34d399',
+  SUGGEST:  '#2dd4bf',
+};
+
+// ── Drill questions ────────────────────────────────────────
+const DRILL = [
+  {
+    q: 'State the two reactants needed for photosynthesis.',
+    answer: 'STATE',
+    options: ['STATE', 'EXPLAIN', 'DESCRIBE'],
+    reason: '"State" asks for facts only — no explanation needed.'
+  },
+  {
+    q: 'Explain why ice melts faster on a metal tray than on a wooden board.',
+    answer: 'EXPLAIN',
+    options: ['DESCRIBE', 'EXPLAIN', 'STATE'],
+    reason: 'Asks for the cause/reason (WHY) — that\'s EXPLAIN.'
+  },
+  {
+    q: 'Describe what you observe when a candle burns inside a closed jar.',
+    answer: 'DESCRIBE',
+    options: ['DESCRIBE', 'PREDICT', 'COMPARE'],
+    reason: '"Describe" asks for observations — what you see, step by step.'
+  },
+  {
+    q: 'Predict what will happen to the rate of photosynthesis if the light is switched off.',
+    answer: 'PREDICT',
+    options: ['PREDICT', 'EXPLAIN', 'SUGGEST'],
+    reason: '"Predict" asks what WILL happen, using scientific knowledge.'
+  },
+  {
+    q: 'Compare the structure of arteries and veins.',
+    answer: 'COMPARE',
+    options: ['COMPARE', 'DESCRIBE', 'EXPLAIN'],
+    reason: '"Compare" means both similarities AND differences.'
+  },
+  {
+    q: 'Suggest why some fish are brightly coloured.',
+    answer: 'SUGGEST',
+    options: ['SUGGEST', 'EXPLAIN', 'STATE'],
+    reason: '"Suggest" asks for a plausible idea in an unfamiliar context.'
+  },
+  {
+    q: 'Explain why astronauts weigh less on the Moon than on Earth.',
+    answer: 'EXPLAIN',
+    options: ['DESCRIBE', 'EXPLAIN', 'PREDICT'],
+    reason: 'Asks for the scientific reason WHY — that\'s EXPLAIN.'
+  },
+  {
+    q: 'Describe the life cycle of a butterfly.',
+    answer: 'DESCRIBE',
+    options: ['DESCRIBE', 'EXPLAIN', 'STATE'],
+    reason: '"Describe" asks for a detailed account of the stages — no why needed.'
+  },
+  {
+    q: 'State one property of a conductor.',
+    answer: 'STATE',
+    options: ['STATE', 'DESCRIBE', 'EXPLAIN'],
+    reason: 'A single fact with no explanation — that\'s STATE.'
+  },
+  {
+    q: 'Predict the effect on the food web if all the grass in an ecosystem died.',
+    answer: 'PREDICT',
+    options: ['PREDICT', 'COMPARE', 'SUGGEST'],
+    reason: 'Asks what will happen — applying knowledge to a new scenario.'
+  },
+  {
+    q: 'Compare evaporation and boiling as methods of changing liquid water to water vapour.',
+    answer: 'COMPARE',
+    options: ['COMPARE', 'DESCRIBE', 'EXPLAIN'],
+    reason: 'Two processes to compare — similarities and differences both needed.'
+  },
+  {
+    q: 'Suggest a reason why leaves have a large, flat surface area.',
+    answer: 'SUGGEST',
+    options: ['SUGGEST', 'STATE', 'EXPLAIN'],
+    reason: '"Suggest" — applying knowledge to explain an unfamiliar feature.'
+  },
+];
+
+// ── Drill state ────────────────────────────────────────────
+let drillIndex   = 0;
+let drillScore   = 0;
+let drillAnswered = false;
+
+function renderDrill() {
+  const arena = document.getElementById('drill-arena');
+  if (!arena) return;
+
+  if (drillIndex >= DRILL.length) {
+    renderDrillEnd(arena);
+    return;
+  }
+
+  const item = DRILL[drillIndex];
+  drillAnswered = false;
+
+  // Shuffle option order for display
+  const shuffled = [...item.options].sort(() => Math.random() - 0.5);
+
+  arena.innerHTML = `
+    <div class="drill-progress-row">
+      <span class="drill-counter">Question ${drillIndex + 1} of ${DRILL.length}</span>
+      <span class="drill-score-live">Score: ${drillScore} / ${drillIndex}</span>
+    </div>
+    <div class="progress-bar-wrap" style="margin-bottom:1.1rem">
+      <div class="progress-bar-fill" style="width:${(drillIndex / DRILL.length) * 100}%;background:var(--accent)"></div>
+    </div>
+    <div class="drill-card">
+      <p class="drill-q-text">${item.q}</p>
+      <div class="drill-options">
+        ${shuffled.map(opt => `
+          <button class="drill-opt" data-word="${opt}" style="border-left:4px solid ${CW_COLORS[opt] || 'var(--border)'}">
+            ${opt}
+          </button>
+        `).join('')}
+      </div>
+      <div class="drill-feedback" id="dfeedback"></div>
+      <button class="drill-next-btn" id="dnext">
+        ${drillIndex + 1 < DRILL.length ? 'Next →' : 'See Results →'}
+      </button>
+    </div>
+  `;
+
+  // Attach option listeners
+  arena.querySelectorAll('.drill-opt').forEach(btn => {
+    btn.addEventListener('click', () => handleDrillAnswer(btn.dataset.word, item));
+  });
+
+  // Next button
+  document.getElementById('dnext').addEventListener('click', () => {
+    drillIndex++;
+    renderDrill();
+  });
+}
+
+function handleDrillAnswer(chosen, item) {
+  if (drillAnswered) return;
+  drillAnswered = true;
+
+  const isCorrect = chosen === item.answer;
+  if (isCorrect) drillScore++;
+
+  const opts = document.querySelectorAll('.drill-opt');
+  opts.forEach(btn => {
+    btn.disabled = true;
+    if (btn.dataset.word === item.answer) {
+      btn.classList.add('correct');
+      btn.textContent = '✓ ' + btn.dataset.word;
+    } else if (btn.dataset.word === chosen && !isCorrect) {
+      btn.classList.add('wrong');
+      btn.textContent = '✗ ' + btn.dataset.word;
+    }
+  });
+
+  const fb = document.getElementById('dfeedback');
+  if (isCorrect) {
+    fb.className = 'drill-feedback show fb-correct';
+    fb.innerHTML = `<strong>Correct!</strong> ${item.reason}`;
+  } else {
+    fb.className = 'drill-feedback show fb-wrong';
+    fb.innerHTML = `<strong>Not quite.</strong> The command word here is <strong style="color:${CW_COLORS[item.answer]}">${item.answer}</strong>. ${item.reason}`;
+  }
+
+  const nextBtn = document.getElementById('dnext');
+  nextBtn.classList.add('show');
+}
+
+function renderDrillEnd(arena) {
+  const total = DRILL.length;
+  const pct   = Math.round((drillScore / total) * 100);
+
+  let icon, msg;
+  if (drillScore >= 10) {
+    icon = '🏆';
+    msg  = 'Command Word Master!';
+  } else if (drillScore >= 7) {
+    icon = '⭐';
+    msg  = 'Good — review the ones you missed';
+  } else {
+    icon = '📚';
+    msg  = 'Study the Reference tab first, then try again';
+  }
+
+  Streak.record();
+  showToast('Drill complete! ' + icon + ' ' + drillScore + '/' + total);
+
+  arena.innerHTML = `
+    <div class="drill-card">
+      <div class="drill-end">
+        <div class="drill-end-icon">${icon}</div>
+        <h2>${drillScore} / ${total}</h2>
+        <div class="end-msg">${msg}</div>
+        <div class="progress-bar-wrap" style="max-width:280px;margin:.75rem auto 1.5rem">
+          <div class="progress-bar-fill" style="width:${pct}%;background:${drillScore >= 10 ? '#10b981' : drillScore >= 7 ? '#f59e0b' : '#ef4444'}"></div>
+        </div>
+        <button class="retry-btn" id="drill-retry">↺ Try again</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('drill-retry').addEventListener('click', () => {
+    drillIndex   = 0;
+    drillScore   = 0;
+    drillAnswered = false;
+    renderDrill();
+  });
+}
+
+// ── Tabs ──────────────────────────────────────────────────
+document.querySelectorAll('.cmd-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.cmd-tab').forEach(t => {
+      t.classList.remove('active');
+      t.setAttribute('aria-selected', 'false');
+    });
+    document.querySelectorAll('.cmd-pane').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected', 'true');
+    const pane = document.getElementById('pane-' + tab.dataset.pane);
+    if (pane) pane.classList.add('active');
+  });
+});
+
+// ── Cheat-sheet chips: scroll to reference card ───────────
+document.querySelectorAll('.cw-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    // Switch to reference tab
+    document.querySelectorAll('.cmd-tab').forEach(t => {
+      t.classList.remove('active');
+      t.setAttribute('aria-selected', 'false');
+    });
+    document.querySelectorAll('.cmd-pane').forEach(p => p.classList.remove('active'));
+
+    const refTab  = document.querySelector('[data-pane="ref"]');
+    const refPane = document.getElementById('pane-ref');
+    if (refTab)  { refTab.classList.add('active');  refTab.setAttribute('aria-selected', 'true'); }
+    if (refPane) refPane.classList.add('active');
+
+    // Scroll to card
+    const cardEl = document.getElementById('card-' + chip.dataset.card);
+    if (cardEl) {
+      setTimeout(() => {
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        cardEl.style.outline = '2px solid ' + (CW_COLORS[chip.dataset.card] || 'var(--accent)');
+        setTimeout(() => { cardEl.style.outline = ''; }, 1800);
+      }, 60);
+    }
+  });
+});
+
+// ── Init drill on first render ─────────────────────────────
+renderDrill();
+</script>
+
+</body>
+</html>
