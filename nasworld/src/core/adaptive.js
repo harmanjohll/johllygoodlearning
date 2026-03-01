@@ -33,11 +33,15 @@ function updateSkillState(skillId, correct, confidence) {
     }
   }
 
-  // Mastery calculation (weighted: recent performance + total + level progress)
-  const totalAcc = skill.totalAttempts > 0 ? skill.totalCorrect / skill.totalAttempts : 0;
-  skill.mastery = Math.min(100, Math.round(
-    accuracy * 50 + totalAcc * 30 + Math.min(skill.level / 4, 1) * 20
-  ));
+  // Multi-factor mastery if spaced-review is loaded, else simple
+  if (typeof computeMultiFactorMastery === 'function') {
+    skill.mastery = computeMultiFactorMastery(skillId);
+  } else {
+    const totalAcc = skill.totalAttempts > 0 ? skill.totalCorrect / skill.totalAttempts : 0;
+    skill.mastery = Math.min(100, Math.round(
+      accuracy * 50 + totalAcc * 30 + Math.min(skill.level / 4, 1) * 20
+    ));
+  }
 
   return skill;
 }
@@ -139,11 +143,24 @@ function renderActivityCards(tree, containerId, worldType) {
       const lockText = unlocked ? '' :
         `<div class="activity-card-lock">Master ${skill.deps.join(' & ')} first</div>`;
 
+      // Review-due badge
+      let reviewBadge = '';
+      if (unlocked && typeof isSkillDueForReview === 'function' && isSkillDueForReview(skill.id)) {
+        reviewBadge = '<div class="review-due-badge">Review due</div>';
+      }
+
+      // Lesson-viewed indicator
+      let learnBadge = '';
+      if (unlocked && s.lessonViewed && s.lessonViewed[skill.id]) {
+        learnBadge = '<span class="learn-done-dot" title="Lesson completed">📖</span>';
+      }
+
       html += `<div class="activity-card ${unlocked ? '' : 'locked'}"
-        onclick="${unlocked ? `startGame('${skill.id}','${worldType}')` : ''}"
+        onclick="${unlocked ? `openSkillView('${skill.id}','${worldType}')` : ''}"
         ${unlocked ? '' : 'title="Locked"'}>
+        ${reviewBadge}
         <span class="activity-card-icon">${skill.icon}</span>
-        <div class="activity-card-name">${skill.name}</div>
+        <div class="activity-card-name">${skill.name} ${learnBadge}</div>
         <div class="activity-card-level">${unlocked ? `Level ${s.level + 1} \u00B7 ${CPA_LEVELS[s.level] || 'Concrete'}` : '\uD83D\uDD12 Locked'}</div>
         ${lockText}
         <div class="mastery-stars">${stars}</div>
