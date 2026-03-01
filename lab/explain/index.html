@@ -880,7 +880,7 @@ keywords_missed: scientific terms the student should have used`;
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({
           contents:         [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.4, maxOutputTokens: 1024 }
+          generationConfig: { temperature: 0.4, maxOutputTokens: 2048, responseMimeType: 'application/json' }
         })
       }
     );
@@ -890,13 +890,17 @@ keywords_missed: scientific terms the student should have used`;
       throw new Error(err.error?.message || `API error ${resp.status}`);
     }
 
-    const data   = await resp.json();
-    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-    // Strip markdown fences if present
-    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('Unexpected response format from Gemini.');
-    const result = JSON.parse(jsonMatch[0]);
+    const data = await resp.json();
+    // gemini-2.5-flash returns thought parts first; filter them out to get the actual response
+    const parts = data.candidates?.[0]?.content?.parts || [];
+    const rawText = parts.filter(p => !p.thought).map(p => p.text || '').join('');
+    let result;
+    try { result = JSON.parse(rawText); }
+    catch {
+      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('Unexpected response format from Gemini.');
+      result = JSON.parse(jsonMatch[0]);
+    }
 
     Streak.record();
     showResults(result);

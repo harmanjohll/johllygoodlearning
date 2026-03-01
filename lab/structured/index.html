@@ -1044,7 +1044,7 @@ Respond with ONLY a JSON object — no markdown, no code fences:
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 1024 }
+        generationConfig: { temperature: 0.2, maxOutputTokens: 2048, responseMimeType: 'application/json' }
       })
     }
   );
@@ -1055,13 +1055,15 @@ Respond with ONLY a JSON object — no markdown, no code fences:
   }
 
   const data = await resp.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-  // Strip markdown code fences if present
-  const cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-  const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('Unexpected response format from Gemini.');
-  return JSON.parse(jsonMatch[0]);
+  // gemini-2.5-flash returns thought parts first; filter them out to get the actual response
+  const responseParts = data.candidates?.[0]?.content?.parts || [];
+  const text = responseParts.filter(p => !p.thought).map(p => p.text || '').join('');
+  try { return JSON.parse(text); }
+  catch {
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Unexpected response format from Gemini.');
+    return JSON.parse(jsonMatch[0]);
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════
