@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vocabulary Drill | Science Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .header-color-bar {
+      width: 4px;
+      height: 36px;
+      border-radius: 3px;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    main { max-width: 780px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+
+    /* ── Topic filter bar ── */
+    .topic-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: .85rem 1.1rem;
+      margin-bottom: 1.25rem;
+    }
+    .topic-pill {
+      padding: .3rem .8rem;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .topic-pill:hover { border-color: var(--accent); color: var(--accent); }
+    .topic-pill.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+
+    /* ── Config row ── */
+    .config-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: .9rem 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+    .config-note {
+      font-size: .85rem;
+      color: var(--muted);
+    }
+    .config-note strong { color: var(--text); }
+
+    /* ── Quiz panel ── */
+    #quiz-panel { display: none; }
+    #results-panel { display: none; }
+
+    /* ── Quiz header row ── */
+    .quiz-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .85rem;
+      gap: .75rem;
+    }
+    .q-label {
+      font-size: .8rem;
+      color: var(--muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .quiz-progress-wrap {
+      flex: 1;
+      background: var(--border);
+      border-radius: 99px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .quiz-progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--accent);
+      transition: width .4s ease;
+    }
+
+    /* ── Definition card ── */
+    .definition-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem 1.5rem 1.4rem;
+      margin-bottom: 1.25rem;
+    }
+    .definition-label {
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--accent);
+      margin-bottom: .65rem;
+    }
+    .definition-text {
+      font-size: 1.05rem;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .topic-tag {
+      display: inline-block;
+      margin-top: .75rem;
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      padding: .15rem .55rem;
+      border-radius: 99px;
+      background: rgba(56,189,248,.1);
+      border: 1px solid rgba(56,189,248,.2);
+      color: var(--accent);
+    }
+
+    /* ── Options grid ── */
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+      margin-bottom: .85rem;
+    }
+
+    /* ── Feedback box ── */
+    .drill-feedback {
+      margin-top: .1rem;
+      padding: .85rem 1rem;
+      border-radius: 9px;
+      font-size: .88rem;
+      line-height: 1.5;
+      display: none;
+    }
+    .drill-feedback.show { display: block; }
+    .drill-feedback.feedback-correct { background: #063b27; border: 1px solid #34d399; color: #6ee7b7; }
+    .drill-feedback.feedback-wrong   { background: #3b0f0f; border: 1px solid #ef4444; color: #fca5a5; }
+
+    /* ── Next button ── */
+    .next-btn-wrap { margin-top: .85rem; }
+
+    /* ── Results panel ── */
+    .results-center {
+      text-align: center;
+      padding: 2rem 1rem 1.5rem;
+    }
+    .results-emoji {
+      font-size: 3rem;
+      line-height: 1;
+      margin-bottom: .75rem;
+    }
+    .results-score {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: .3rem;
+    }
+    .results-pct {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: .9rem;
+    }
+    .results-bar-wrap {
+      max-width: 260px;
+      margin: 0 auto .9rem;
+      background: var(--border);
+      border-radius: 99px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .results-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width .6s ease;
+    }
+    .results-msg {
+      font-size: .9rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .results-actions {
+      display: flex;
+      gap: .75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── Missed terms ── */
+    .missed-section {
+      margin-top: 2rem;
+    }
+    .missed-heading {
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: .85rem;
+    }
+    .missed-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 3px solid #ef4444;
+      border-radius: 9px;
+      padding: .85rem 1rem;
+      margin-bottom: .65rem;
+    }
+    .missed-term {
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: .3rem;
+    }
+    .missed-def {
+      font-size: .83rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .missed-topic-tag {
+      display: inline-block;
+      margin-top: .4rem;
+      font-size: .68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: .1rem .45rem;
+      border-radius: 99px;
+      background: rgba(239,68,68,.1);
+      border: 1px solid rgba(239,68,68,.25);
+      color: #f87171;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ Page Header ═══ -->
+<div class="page-header">
+  <div class="header-color-bar"></div>
+  <div style="flex:1">
+    <h1 style="font-size:1.15rem;font-weight:800;margin:0">Vocabulary Drill</h1>
+    <div style="font-size:.75rem;color:var(--muted)">Master the scientific terms you need for PSLE</div>
+  </div>
+  <a href="../index.html" class="btn btn-ghost" style="font-size:.82rem">← Science Lab</a>
+</div>
+
+<main>
+
+  <!-- ═══ Topic Filter Bar ═══ -->
+  <div class="topic-filter-bar" id="topic-filter-bar">
+    <!-- Pills injected by JS -->
+  </div>
+
+  <!-- ═══ Session Config Row ═══ -->
+  <div class="config-row" id="config-row">
+    <div class="config-note" id="config-note">
+      <strong id="terms-count">0</strong> terms available &nbsp;·&nbsp; <strong id="q-count">10</strong> questions per session
+    </div>
+    <button class="btn btn-primary" id="start-btn">Start Drill →</button>
+  </div>
+
+  <!-- ═══ Quiz Panel ═══ -->
+  <div id="quiz-panel">
+    <!-- Progress row -->
+    <div class="quiz-header">
+      <div class="quiz-progress-wrap">
+        <div class="quiz-progress-fill" id="quiz-progress-fill" style="width:0%"></div>
+      </div>
+      <div class="q-label" id="q-label">Q 1 of 10</div>
+    </div>
+
+    <!-- Definition card -->
+    <div class="definition-card" id="definition-card">
+      <div class="definition-label">Define the term</div>
+      <div class="definition-text" id="definition-text"></div>
+      <div class="topic-tag" id="topic-tag"></div>
+    </div>
+
+    <!-- Options -->
+    <div class="options-grid" id="options-grid">
+      <!-- Buttons injected by JS -->
+    </div>
+
+    <!-- Feedback -->
+    <div class="drill-feedback" id="drill-feedback"></div>
+
+    <!-- Next button -->
+    <div class="next-btn-wrap" id="next-btn-wrap" style="display:none">
+      <button class="btn btn-primary" style="width:100%" id="next-btn">Next →</button>
+    </div>
+  </div>
+
+  <!-- ═══ Results Panel ═══ -->
+  <div id="results-panel">
+    <div class="results-center">
+      <div class="results-emoji" id="results-emoji"></div>
+      <div class="results-score" id="results-score"></div>
+      <div class="results-pct" id="results-pct"></div>
+      <div class="results-bar-wrap">
+        <div class="results-bar-fill" id="results-bar-fill" style="width:0%"></div>
+      </div>
+      <div class="results-msg" id="results-msg"></div>
+      <div class="results-actions">
+        <button class="btn btn-ghost" id="new-session-btn">New Session</button>
+        <button class="btn btn-primary" id="drill-missed-btn" style="display:none">Drill Missed Terms</button>
+      </div>
+    </div>
+    <div class="missed-section" id="missed-section" style="display:none">
+      <div class="missed-heading" id="missed-heading"></div>
+      <div id="missed-list"></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  Shared utilities (inline subset — no external dependency)
+// ═══════════════════════════════════════════════════════════
+
+const Streak = {
+  META_KEY: 'sciLab_meta',
+  _getMeta() {
+    try { return JSON.parse(localStorage.getItem(this.META_KEY)) || {}; }
+    catch { return {}; }
+  },
+  _setMeta(m) { localStorage.setItem(this.META_KEY, JSON.stringify(m)); },
+  record() {
+    const today     = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const m = this._getMeta();
+    if (m.lastActivity === today) return;
+    m.streak = (m.lastActivity === yesterday) ? (m.streak || 0) + 1 : 1;
+    m.longestStreak = Math.max(m.longestStreak || 0, m.streak);
+    m.lastActivity  = today;
+    const days = m.activeDays || [];
+    if (!days.includes(today)) days.push(today);
+    m.activeDays = days.slice(-14);
+    this._setMeta(m);
+    const milestones = [3, 7, 14, 21, 30, 50, 100];
+    if (milestones.includes(m.streak)) {
+      setTimeout(() => showToast(`\uD83D\uDD25 ${m.streak}-day streak! Outstanding dedication!`), 400);
+    }
+  }
+};
+
+function showToast(msg, durationMs = 3000) {
+  let toast = document.getElementById('global-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'global-toast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), durationMs);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Vocabulary Data
+// ═══════════════════════════════════════════════════════════
+
+const TOPICS = [
+  {
+    id: 'circuits', label: 'Circuits',
+    terms: [
+      { term: 'conductor',        def: 'A material that allows electric current to flow through it easily (e.g. copper, iron)' },
+      { term: 'insulator',        def: 'A material that does not allow electric current to flow through it (e.g. rubber, plastic)' },
+      { term: 'series circuit',   def: 'A circuit where all components are connected in a single loop; if one component fails, all stop working' },
+      { term: 'parallel circuit', def: 'A circuit where components are connected in separate branches; if one fails, others keep working' },
+      { term: 'current',          def: 'The flow of electric charge around a circuit' },
+      { term: 'switch',           def: 'A device that opens or closes a circuit to control the flow of current' }
+    ]
+  },
+  {
+    id: 'digestive', label: 'Digestive System',
+    terms: [
+      { term: 'digestion',    def: 'The process of breaking down food into smaller, soluble molecules the body can absorb' },
+      { term: 'absorption',   def: 'The movement of digested food molecules from the small intestine into the bloodstream' },
+      { term: 'enzyme',       def: 'A substance that speeds up the breakdown of food molecules during digestion' },
+      { term: 'peristalsis',  def: 'The wave-like muscle contractions that push food along the digestive tract' },
+      { term: 'villi',        def: 'Tiny finger-like projections in the small intestine that increase the surface area for absorption' }
+    ]
+  },
+  {
+    id: 'respiratory', label: 'Respiratory System',
+    terms: [
+      { term: 'diaphragm',    def: 'A dome-shaped muscle below the lungs that contracts and flattens during inhalation' },
+      { term: 'alveoli',      def: 'Tiny air sacs in the lungs where gas exchange between air and blood takes place' },
+      { term: 'gas exchange', def: 'The process by which oxygen moves into the blood and carbon dioxide moves out at the alveoli' },
+      { term: 'inhalation',   def: 'The process of breathing air into the lungs; caused by the diaphragm contracting and ribcage moving up and out' },
+      { term: 'exhalation',   def: 'The process of pushing air out of the lungs; caused by the diaphragm relaxing and ribcage moving down and in' }
+    ]
+  },
+  {
+    id: 'circulatory', label: 'Circulatory System',
+    terms: [
+      { term: 'artery',             def: 'A blood vessel that carries blood away from the heart; has thick, muscular walls' },
+      { term: 'vein',               def: 'A blood vessel that carries blood back to the heart; has valves to prevent backflow' },
+      { term: 'capillary',          def: 'The smallest blood vessel; one cell thick, allowing exchange of gases and nutrients with body cells' },
+      { term: 'oxygenated blood',   def: 'Blood carrying oxygen, pumped from the left side of the heart to the body' },
+      { term: 'deoxygenated blood', def: 'Blood with low oxygen levels, returning to the right side of the heart from the body' }
+    ]
+  },
+  {
+    id: 'plants', label: 'Plants',
+    terms: [
+      { term: 'photosynthesis', def: 'The process by which green plants use sunlight, water and carbon dioxide to make glucose and oxygen' },
+      { term: 'chlorophyll',    def: 'The green pigment in plant leaves that absorbs light energy for photosynthesis' },
+      { term: 'transpiration',  def: 'The loss of water vapour from the leaves of a plant through tiny pores called stomata' },
+      { term: 'xylem',          def: 'Plant tissue that transports water and minerals from roots to the rest of the plant (upward)' },
+      { term: 'phloem',         def: 'Plant tissue that transports dissolved food (glucose) from leaves to other parts of the plant' },
+      { term: 'stomata',        def: 'Tiny pores on the underside of leaves that allow gas exchange and water vapour to escape' }
+    ]
+  },
+  {
+    id: 'forces', label: 'Forces',
+    terms: [
+      { term: 'friction',      def: 'A force that opposes the motion of objects sliding against each other' },
+      { term: 'gravity',       def: 'A force of attraction between objects; on Earth it pulls objects toward the centre of the Earth' },
+      { term: 'air resistance',def: 'A type of friction that acts on objects moving through air, opposing their motion' },
+      { term: 'compression',   def: 'A force that squeezes or pushes an object together (e.g. pressing a spring)' },
+      { term: 'extension',     def: 'A force that stretches or pulls an object apart (e.g. stretching a spring)' }
+    ]
+  },
+  {
+    id: 'water-cycle', label: 'Water Cycle',
+    terms: [
+      { term: 'evaporation',   def: 'The change of state from liquid water to water vapour, caused by heat energy' },
+      { term: 'condensation',  def: 'The change of state from water vapour to liquid water, occurring when warm air cools' },
+      { term: 'precipitation', def: 'Water falling from clouds to Earth\'s surface in the form of rain, hail, sleet or snow' },
+      { term: 'water vapour',  def: 'Water in its gaseous state; invisible, present in the air' }
+    ]
+  },
+  {
+    id: 'habitats', label: 'Habitats',
+    terms: [
+      { term: 'producer',    def: 'An organism (usually a plant) that makes its own food through photosynthesis; the start of a food chain' },
+      { term: 'consumer',    def: 'An organism that obtains energy by eating other organisms' },
+      { term: 'predator',    def: 'An animal that hunts and eats other animals for food' },
+      { term: 'prey',        def: 'An animal that is hunted and eaten by a predator' },
+      { term: 'adaptation',  def: 'A feature of an organism that helps it survive in its particular habitat' }
+    ]
+  },
+  {
+    id: 'heat', label: 'Heat',
+    terms: [
+      { term: 'conduction',  def: 'The transfer of heat energy through a solid material without the material itself moving' },
+      { term: 'convection',  def: 'The transfer of heat energy through a liquid or gas by the movement of the fluid itself (convection currents)' },
+      { term: 'radiation',   def: 'The transfer of heat energy in the form of waves (infra-red radiation) without needing a medium' }
+    ]
+  },
+  {
+    id: 'sound', label: 'Sound',
+    terms: [
+      { term: 'vibration', def: 'The rapid back-and-forth movement of an object that produces sound waves' },
+      { term: 'pitch',     def: 'How high or low a sound is; determined by the frequency of vibration (higher frequency = higher pitch)' },
+      { term: 'loudness',  def: 'How loud or soft a sound is; determined by the amplitude (size) of the vibrations' },
+      { term: 'medium',    def: 'The material (solid, liquid or gas) through which sound waves travel' }
+    ]
+  },
+  {
+    id: 'light', label: 'Light',
+    terms: [
+      { term: 'reflection',           def: 'The bouncing of light off a surface' },
+      { term: 'transparent',          def: 'A material that allows almost all light to pass through it clearly (e.g. clear glass)' },
+      { term: 'translucent',          def: 'A material that allows some light to pass through but scatters it (e.g. frosted glass)' },
+      { term: 'opaque',               def: 'A material that does not allow light to pass through it (e.g. wood, metal)' },
+      { term: 'angle of incidence',   def: 'The angle between an incoming light ray and the normal (perpendicular) to a surface' },
+      { term: 'angle of reflection',  def: 'The angle between a reflected light ray and the normal; always equals the angle of incidence' }
+    ]
+  },
+  {
+    id: 'classification', label: 'Classification',
+    terms: [
+      { term: 'vertebrate',   def: 'An animal with a backbone (e.g. fish, amphibian, reptile, bird, mammal)' },
+      { term: 'invertebrate', def: 'An animal without a backbone (e.g. insect, worm, jellyfish)' },
+      { term: 'mammal',       def: 'A warm-blooded vertebrate that has hair/fur and feeds its young with milk' },
+      { term: 'amphibian',    def: 'A cold-blooded vertebrate that lives on land and in water; has moist skin and lays eggs in water' }
+    ]
+  },
+  {
+    id: 'life-cycles', label: 'Life Cycles',
+    terms: [
+      { term: 'metamorphosis', def: 'The series of changes in body form an animal undergoes as it develops from young to adult' },
+      { term: 'larva',         def: 'The worm-like young stage in complete metamorphosis (e.g. caterpillar)' },
+      { term: 'pupa',          def: 'The inactive stage in complete metamorphosis during which the larva transforms (e.g. chrysalis)' },
+      { term: 'nymph',         def: 'The young stage in incomplete metamorphosis; resembles the adult but lacks wings' }
+    ]
+  },
+  {
+    id: 'materials', label: 'Materials',
+    terms: [
+      { term: 'soluble',   def: 'Able to dissolve in a liquid (e.g. sugar is soluble in water)' },
+      { term: 'insoluble', def: 'Not able to dissolve in a liquid (e.g. sand is insoluble in water)' },
+      { term: 'solute',    def: 'The substance that dissolves in a solvent to form a solution (e.g. sugar)' },
+      { term: 'solvent',   def: 'The liquid in which a solute dissolves (e.g. water)' },
+      { term: 'solution',  def: 'The mixture formed when a solute dissolves completely in a solvent' }
+    ]
+  },
+  {
+    id: 'reproduction', label: 'Reproduction',
+    terms: [
+      { term: 'pollination',    def: 'The transfer of pollen from the anther of one flower to the stigma of another' },
+      { term: 'fertilisation',  def: 'The fusing of a male sex cell (sperm/pollen nucleus) with a female sex cell (egg/ovule)' },
+      { term: 'seed dispersal', def: 'The spreading of seeds away from the parent plant to reduce competition' },
+      { term: 'germination',    def: 'The process by which a seed begins to grow into a seedling' }
+    ]
+  }
+];
+
+// Build a flat pool with topic references
+const ALL_TERMS = [];
+TOPICS.forEach(topic => {
+  topic.terms.forEach(t => {
+    ALL_TERMS.push({ term: t.term, def: t.def, topicId: topic.id, topicLabel: topic.label });
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
+//  State
+// ═══════════════════════════════════════════════════════════
+
+const SESSION_SIZE = 10;
+
+let activeTopicId   = 'all';  // 'all' or a topic id
+let sessionPool     = [];     // full filtered pool
+let sessionQuestions = [];    // the drawn questions for this session
+let currentIndex    = 0;
+let score           = 0;
+let missedTerms     = [];     // { term, def, topicLabel } for wrong answers
+let answered        = false;
+
+// ═══════════════════════════════════════════════════════════
+//  Helpers
+// ═══════════════════════════════════════════════════════════
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getFilteredPool() {
+  if (activeTopicId === 'all') return [...ALL_TERMS];
+  return ALL_TERMS.filter(t => t.topicId === activeTopicId);
+}
+
+function buildDistractors(correctTerm, pool) {
+  // Prefer terms from the same topic, then the rest
+  const sameTopicOthers = pool.filter(t => t.term !== correctTerm.term && t.topicId === correctTerm.topicId);
+  const otherTopicTerms = ALL_TERMS.filter(t => t.term !== correctTerm.term && t.topicId !== correctTerm.topicId);
+
+  const candidates = shuffle([...sameTopicOthers, ...otherTopicTerms]);
+  // Remove duplicates by term name
+  const seen = new Set([correctTerm.term]);
+  const distractors = [];
+  for (const c of candidates) {
+    if (!seen.has(c.term)) {
+      seen.add(c.term);
+      distractors.push(c);
+      if (distractors.length === 3) break;
+    }
+  }
+  return distractors.map(d => d.term);
+}
+
+function buildQuestion(termObj, pool) {
+  const distractors = buildDistractors(termObj, pool);
+  const options = shuffle([termObj.term, ...distractors]);
+  const correctIndex = options.indexOf(termObj.term);
+  return {
+    term: termObj.term,
+    def: termObj.def,
+    topicLabel: termObj.topicLabel,
+    options,
+    correct: correctIndex
+  };
+}
+
+// ═══════════════════════════════════════════════════════════
+//  UI: Topic filter pills
+// ═══════════════════════════════════════════════════════════
+
+function renderFilterPills() {
+  const bar = document.getElementById('topic-filter-bar');
+  bar.innerHTML = '';
+
+  const allPill = document.createElement('button');
+  allPill.className = 'topic-pill' + (activeTopicId === 'all' ? ' active' : '');
+  allPill.textContent = 'All Topics';
+  allPill.addEventListener('click', () => setTopic('all', allPill));
+  bar.appendChild(allPill);
+
+  TOPICS.forEach(topic => {
+    const pill = document.createElement('button');
+    pill.className = 'topic-pill' + (activeTopicId === topic.id ? ' active' : '');
+    pill.textContent = topic.label;
+    pill.addEventListener('click', () => setTopic(topic.id, pill));
+    bar.appendChild(pill);
+  });
+}
+
+function setTopic(id, clickedPill) {
+  activeTopicId = id;
+  document.querySelectorAll('.topic-pill').forEach(p => p.classList.remove('active'));
+  clickedPill.classList.add('active');
+  updateConfigNote();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  UI: Config note
+// ═══════════════════════════════════════════════════════════
+
+function updateConfigNote() {
+  const pool = getFilteredPool();
+  const qCount = Math.min(SESSION_SIZE, pool.length);
+  document.getElementById('terms-count').textContent = pool.length;
+  document.getElementById('q-count').textContent = qCount;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Session start
+// ═══════════════════════════════════════════════════════════
+
+function startSession(customPool) {
+  const pool = customPool || getFilteredPool();
+  if (pool.length === 0) {
+    showToast('No terms in this topic. Please select another.');
+    return;
+  }
+
+  sessionPool = pool;
+  const drawn = shuffle(pool).slice(0, SESSION_SIZE);
+  sessionQuestions = drawn.map(t => buildQuestion(t, pool));
+
+  currentIndex = 0;
+  score = 0;
+  missedTerms = [];
+  answered = false;
+
+  // Show quiz panel, hide others
+  document.getElementById('config-row').style.display = 'none';
+  document.getElementById('topic-filter-bar').style.display = 'none';
+  document.getElementById('results-panel').style.display = 'none';
+  document.getElementById('quiz-panel').style.display = 'block';
+
+  renderQuestion();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Question rendering
+// ═══════════════════════════════════════════════════════════
+
+function renderQuestion() {
+  answered = false;
+  const q = sessionQuestions[currentIndex];
+  const total = sessionQuestions.length;
+
+  // Progress
+  const pct = Math.round((currentIndex / total) * 100);
+  document.getElementById('quiz-progress-fill').style.width = pct + '%';
+  document.getElementById('q-label').textContent = `Q ${currentIndex + 1} of ${total}`;
+
+  // Definition card
+  document.getElementById('definition-text').textContent = q.def;
+  document.getElementById('topic-tag').textContent = q.topicLabel;
+
+  // Options
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => handleAnswer(i));
+    grid.appendChild(btn);
+  });
+
+  // Reset feedback + next
+  const fb = document.getElementById('drill-feedback');
+  fb.className = 'drill-feedback';
+  fb.innerHTML = '';
+
+  const nextWrap = document.getElementById('next-btn-wrap');
+  nextWrap.style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Answer handling
+// ═══════════════════════════════════════════════════════════
+
+function handleAnswer(index) {
+  if (answered) return;
+  answered = true;
+
+  const q = sessionQuestions[currentIndex];
+  const opts = document.querySelectorAll('.options-grid .quiz-option');
+  opts.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('drill-feedback');
+
+  if (index === q.correct) {
+    score++;
+    opts[index].classList.add('correct');
+    fb.className = 'drill-feedback show feedback-correct';
+    fb.innerHTML = '<strong>Correct!</strong> The term is <strong>' + escapeHtml(q.term) + '</strong>.';
+  } else {
+    missedTerms.push({ term: q.term, def: q.def, topicLabel: q.topicLabel });
+    opts[index].classList.add('wrong');
+    opts[q.correct].classList.add('correct');
+    fb.className = 'drill-feedback show feedback-wrong';
+    fb.innerHTML = '<strong>Not quite.</strong> The correct term is <strong>' + escapeHtml(q.term) + '</strong>.';
+  }
+
+  const nextWrap = document.getElementById('next-btn-wrap');
+  nextWrap.style.display = 'block';
+  const isLast = currentIndex + 1 >= sessionQuestions.length;
+  document.getElementById('next-btn').textContent = isLast ? 'See Results \u2192' : 'Next \u2192';
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Next question / session end
+// ═══════════════════════════════════════════════════════════
+
+function advanceQuestion() {
+  currentIndex++;
+  if (currentIndex >= sessionQuestions.length) {
+    endSession();
+  } else {
+    renderQuestion();
+  }
+}
+
+function endSession() {
+  Streak.record();
+
+  const total = sessionQuestions.length;
+  const pct   = Math.round((score / total) * 100);
+
+  // Determine emoji & message
+  let emoji, msg, barColor;
+  if (pct === 100) {
+    emoji = '\uD83C\uDFC6'; msg = 'Perfect score! You know all these terms cold.'; barColor = '#10b981';
+  } else if (pct >= 70) {
+    emoji = '\u2B50'; msg = 'Great work! Review the terms you missed below.'; barColor = '#f59e0b';
+  } else {
+    emoji = '\uD83D\uDCD6'; msg = 'Keep practising! Study the missed terms, then try again.'; barColor = '#ef4444';
+  }
+
+  document.getElementById('results-emoji').textContent = emoji;
+  document.getElementById('results-score').textContent = score + ' / ' + total + ' correct';
+  document.getElementById('results-pct').textContent = pct + '%';
+  document.getElementById('results-msg').textContent = msg;
+
+  const bar = document.getElementById('results-bar-fill');
+  bar.style.background = barColor;
+  // Trigger CSS transition
+  bar.style.width = '0%';
+  requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = pct + '%'; }));
+
+  // Drill missed button
+  const drillMissedBtn = document.getElementById('drill-missed-btn');
+  if (missedTerms.length > 0) {
+    drillMissedBtn.style.display = '';
+    drillMissedBtn.textContent = 'Drill Missed Terms (' + missedTerms.length + ')';
+  } else {
+    drillMissedBtn.style.display = 'none';
+  }
+
+  // Missed terms list
+  if (missedTerms.length > 0) {
+    const missedSection = document.getElementById('missed-section');
+    missedSection.style.display = 'block';
+    document.getElementById('missed-heading').textContent =
+      'Missed Terms (' + missedTerms.length + ') — study these before your next drill';
+
+    const list = document.getElementById('missed-list');
+    list.innerHTML = missedTerms.map(mt => `
+      <div class="missed-card">
+        <div class="missed-term">${escapeHtml(mt.term)}</div>
+        <div class="missed-def">${escapeHtml(mt.def)}</div>
+        <span class="missed-topic-tag">${escapeHtml(mt.topicLabel)}</span>
+      </div>
+    `).join('');
+  } else {
+    document.getElementById('missed-section').style.display = 'none';
+  }
+
+  // Hide quiz, show results
+  document.getElementById('quiz-panel').style.display = 'none';
+  document.getElementById('results-panel').style.display = 'block';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Results actions
+// ═══════════════════════════════════════════════════════════
+
+function resetToStart() {
+  document.getElementById('results-panel').style.display = 'none';
+  document.getElementById('config-row').style.display = '';
+  document.getElementById('topic-filter-bar').style.display = '';
+  updateConfigNote();
+}
+
+function drillMissed() {
+  if (missedTerms.length === 0) return;
+
+  // Build a pool from missed terms, merging back topicId
+  const missedPool = missedTerms.map(mt => {
+    const full = ALL_TERMS.find(t => t.term === mt.term);
+    return full || { term: mt.term, def: mt.def, topicId: 'all', topicLabel: mt.topicLabel };
+  });
+
+  // Hide results panel
+  document.getElementById('results-panel').style.display = 'none';
+  startSession(missedPool);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  Bootstrap
+// ═══════════════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderFilterPills();
+  updateConfigNote();
+
+  document.getElementById('start-btn').addEventListener('click', () => startSession());
+  document.getElementById('next-btn').addEventListener('click', advanceQuestion);
+  document.getElementById('new-session-btn').addEventListener('click', resetToStart);
+  document.getElementById('drill-missed-btn').addEventListener('click', drillMissed);
+});
+</script>
+
+</body>
+</html>
