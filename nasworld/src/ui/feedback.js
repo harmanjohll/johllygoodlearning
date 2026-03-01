@@ -79,16 +79,29 @@ function handleCorrect(isStory) {
 
   updateSkillState(currentGame.skillId, true, currentGame.currentConfidence);
 
-  // Daily quest
+  // Daily quest (legacy counter)
   const today = new Date().toDateString();
   if (state.dailyQuest.date === today) {
     state.dailyQuest.completed++;
+  }
+
+  // Dynamic quest tracking
+  if (typeof questRecordQuiz === 'function') {
+    questRecordQuiz(currentGame.worldType);
+  }
+  if (typeof questRecordSkillPlayed === 'function') {
+    questRecordSkillPlayed(currentGame.skillId);
   }
 
   spawnParticles(window.innerWidth / 2, window.innerHeight / 3, 8, '\u2B50');
 
   const showMeta = Math.random() < 0.3;
   showFeedback(true, tokens, isStory, showMeta);
+
+  // Achievement checks
+  if (typeof checkAchievementsAfterAnswer === 'function') checkAchievementsAfterAnswer();
+  if (typeof checkAchievementsAfterMastery === 'function') checkAchievementsAfterMastery();
+  if (typeof checkAchievementsAfterGarden === 'function') checkAchievementsAfterGarden();
 
   updateUI();
   saveState();

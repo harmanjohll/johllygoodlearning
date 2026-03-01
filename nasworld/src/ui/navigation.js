@@ -22,6 +22,9 @@ function showScreen(screenId) {
   if (screen) screen.classList.add('active');
 
   if (screenId === 'home') updateHomeUI();
+  if (screenId === 'achievements' && typeof renderAchievementsScreen === 'function') {
+    renderAchievementsScreen();
+  }
   if (screenId === 'math-world' && typeof MATH_TREE !== 'undefined') {
     renderActivityCards(MATH_TREE, 'math-activities', 'math');
   }
@@ -193,7 +196,8 @@ function startGame(skillId, worldType) {
     results: [],
     currentConfidence: -1,
     hintShown: false,
-    attempts: 0
+    attempts: 0,
+    _startTime: Date.now()
   };
 
   // Generate questions
@@ -292,6 +296,17 @@ function endGame() {
   const pct = Math.round(correct / total * 100);
   state.sessionsCompleted++;
 
+  // Achievement & quest hooks
+  if (typeof checkAchievementsAfterQuiz === 'function') {
+    checkAchievementsAfterQuiz(currentGame.results, currentGame.skillId, currentGame.worldType);
+  }
+  if (correct === total && total >= 8 && typeof questRecordPerfect === 'function') {
+    questRecordPerfect();
+  }
+  if (typeof lumiReactTo === 'function') {
+    lumiReactTo('quizComplete', { pct: pct });
+  }
+
   const overlay = document.getElementById('feedback-overlay');
   const card = document.getElementById('feedback-card');
 
@@ -373,27 +388,42 @@ async function init() {
   await loadState();
   updateUI();
 
-  // Time-based greeting
-  const hour = new Date().getHours();
-  let greeting;
-  if (hour < 12) greeting = 'Good morning, Anastasia! Ready to learn?';
-  else if (hour < 17) greeting = 'Good afternoon, Anastasia! Let\'s have some fun!';
-  else greeting = 'Good evening, Anastasia! Time for a brain workout!';
-
-  const today = new Date().toDateString();
-  if (state.lastVisit === today) {
-    greeting = pick([
-      'Welcome back, Anastasia! Your garden missed you!',
-      'Hey Anastasia! Let\'s pick up where you left off!',
-      'You\'re back! Lumi is so happy to see you!'
-    ]);
-  } else if (state.lastVisit) {
-    greeting = 'Welcome back, Anastasia! I\'ve been waiting for you!';
+  // Visit streak tracking for achievements
+  if (typeof checkVisitStreakAchievements === 'function') {
+    checkVisitStreakAchievements();
   }
-  state.lastVisit = today;
+
+  // Initialize dynamic quests for today
+  if (typeof getDailyQuest === 'function') getDailyQuest();
+  if (typeof getWeeklyQuest === 'function') getWeeklyQuest();
+
+  // Initialize Lumi with personality
+  if (typeof initLumi === 'function') {
+    initLumi();
+  } else {
+    // Fallback: basic greeting
+    const hour = new Date().getHours();
+    let greeting;
+    if (hour < 12) greeting = 'Good morning, Anastasia! Ready to learn?';
+    else if (hour < 17) greeting = 'Good afternoon, Anastasia! Let\'s have some fun!';
+    else greeting = 'Good evening, Anastasia! Time for a brain workout!';
+
+    const today = new Date().toDateString();
+    if (state.lastVisit === today) {
+      greeting = pick([
+        'Welcome back, Anastasia! Your garden missed you!',
+        'Hey Anastasia! Let\'s pick up where you left off!',
+        'You\'re back! Lumi is so happy to see you!'
+      ]);
+    } else if (state.lastVisit) {
+      greeting = 'Welcome back, Anastasia! I\'ve been waiting for you!';
+    }
+    lumiSay(greeting);
+  }
+
+  state.lastVisit = new Date().toDateString();
   saveState();
 
-  lumiSay(greeting);
   showScreen('home');
 }
 
