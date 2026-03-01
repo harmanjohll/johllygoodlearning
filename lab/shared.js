@@ -523,7 +523,7 @@ Respond with ONLY a JSON array — no markdown, no code fences, no extra text:
       { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.75, maxOutputTokens: 2048 }
+          generationConfig: { temperature: 0.75, maxOutputTokens: 2048, responseMimeType: 'application/json' }
         }) }
     );
 
@@ -533,10 +533,16 @@ Respond with ONLY a JSON array — no markdown, no code fences, no extra text:
     }
 
     const data = await resp.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const match = text.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('Unexpected response format from AI.');
-    const qs = JSON.parse(match[0]);
+    // gemini-2.5-flash returns thought parts first; filter them out to get the actual response
+    const parts = data.candidates?.[0]?.content?.parts || [];
+    const text = parts.filter(p => !p.thought).map(p => p.text || '').join('');
+    let qs;
+    try { qs = JSON.parse(text); }
+    catch {
+      const match = text.match(/\[[\s\S]*\]/);
+      if (!match) throw new Error('Unexpected response format from AI.');
+      qs = JSON.parse(match[0]);
+    }
     if (!Array.isArray(qs) || !qs.length) throw new Error('No questions in AI response.');
     return qs;
   }
