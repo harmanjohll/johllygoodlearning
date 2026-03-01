@@ -57,6 +57,22 @@ function updateHomeUI() {
   const gardenPct = Math.min(100, (state.garden.length / 50) * 100);
   document.getElementById('garden-progress').style.width = gardenPct + '%';
 
+  // Daily lucky spin
+  var spinArea = document.getElementById('daily-spin-area');
+  if (spinArea && typeof checkDailyLuckySpin === 'function') {
+    if (checkDailyLuckySpin()) {
+      spinArea.innerHTML = '<div class="daily-spin-banner" onclick="triggerDailyLuckySpin()">' +
+        '<div class="daily-spin-icon">\uD83C\uDFA1</div>' +
+        '<div class="daily-spin-text">' +
+          '<div class="daily-spin-title">Daily Lucky Spin!</div>' +
+          '<div class="daily-spin-desc">Tap to see today\'s bonus!</div>' +
+        '</div>' +
+        '</div>';
+    } else {
+      spinArea.innerHTML = '';
+    }
+  }
+
   // Dynamic quest banners
   var questArea = document.getElementById('dynamic-quest-area');
   if (questArea && typeof renderDynamicQuestBanner === 'function') {

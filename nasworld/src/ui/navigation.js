@@ -34,7 +34,10 @@ function showScreen(screenId) {
   if (screenId === 'stem-world' && typeof STEM_TREE !== 'undefined') {
     renderActivityCards(STEM_TREE, 'stem-activities', 'stem');
   }
-  if (screenId === 'garden') renderGarden();
+  if (screenId === 'garden') {
+    if (typeof renderGardenIsland === 'function') renderGardenIsland();
+    renderGarden();
+  }
 }
 
 // === SKILL VIEW — Tabbed Learn / Explore / Quiz ===
