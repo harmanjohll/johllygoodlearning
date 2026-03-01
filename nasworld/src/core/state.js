@@ -137,10 +137,18 @@ function getSkillState(skillId) {
       totalAttempts: 0,
       streak: 0,
       bestStreak: 0,
-      mastery: 0
+      mastery: 0,
+      lessonViewed: {},
+      flashcardProgress: {},
+      activity: {}
     };
   }
-  return state.skills[skillId];
+  // Ensure new fields on existing skills
+  var s = state.skills[skillId];
+  if (!s.lessonViewed) s.lessonViewed = {};
+  if (!s.flashcardProgress) s.flashcardProgress = {};
+  if (!s.activity) s.activity = {};
+  return s;
 }
 
 // === PERSISTENCE ===

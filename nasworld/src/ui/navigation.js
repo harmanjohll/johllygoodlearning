@@ -34,6 +34,153 @@ function showScreen(screenId) {
   if (screenId === 'garden') renderGarden();
 }
 
+// === SKILL VIEW — Tabbed Learn / Explore / Quiz ===
+function openSkillView(skillId, worldType) {
+  playSound('click');
+
+  // Record activity
+  if (typeof recordSkillActivity === 'function') {
+    recordSkillActivity(skillId, 'visit');
+  }
+
+  // Look up skill name/icon
+  var allTrees = Object.assign({},
+    typeof MATH_TREE !== 'undefined' ? MATH_TREE : {},
+    typeof WORD_TREE !== 'undefined' ? WORD_TREE : {},
+    typeof STEM_TREE !== 'undefined' ? STEM_TREE : {}
+  );
+  var skill = allTrees[skillId];
+  var skillName = skill ? skill.icon + ' ' + skill.name : skillId;
+
+  // Get lesson, flashcards
+  var lesson = null;
+  var flashcards = null;
+
+  if (worldType === 'math') {
+    if (typeof getMathLesson === 'function') lesson = getMathLesson(skillId);
+    if (typeof getMathFlashcards === 'function') flashcards = getMathFlashcards(skillId);
+  } else if (worldType === 'word') {
+    if (typeof getWordLesson === 'function') lesson = getWordLesson(skillId);
+    if (typeof getWordFlashcards === 'function') flashcards = getWordFlashcards(skillId);
+  } else if (worldType === 'stem') {
+    if (typeof getStemLesson === 'function') lesson = getStemLesson(skillId);
+    if (typeof getStemFlashcards === 'function') flashcards = getStemFlashcards(skillId);
+  }
+
+  var hasLesson = !!lesson;
+  var hasFlashcards = flashcards && flashcards.length > 0;
+  var s = getSkillState(skillId);
+  var lessonDone = s.lessonViewed && s.lessonViewed[skillId];
+
+  // If no lesson and no flashcards, go straight to quiz
+  if (!hasLesson && !hasFlashcards) {
+    startGame(skillId, worldType);
+    return;
+  }
+
+  // Build the skill view screen
+  showScreen('skill-view');
+
+  var container = document.getElementById('skill-view-content');
+  if (!container) return;
+
+  // Render tab header
+  var html = '';
+  html += '<div class="skill-view-header">';
+  html += '<button class="back-btn" id="skill-view-back">&#8592; Back</button>';
+  html += '<div class="skill-view-title">' + skillName + '</div>';
+  html += '</div>';
+
+  // Tabs
+  html += '<div class="skill-tabs">';
+  if (hasLesson) {
+    html += '<button class="skill-tab active" data-tab="learn">';
+    html += '<span class="skill-tab-icon">📖</span>';
+    html += '<span>Learn</span>';
+    if (lessonDone) html += '<span class="skill-tab-check">✓</span>';
+    html += '</button>';
+  }
+  if (hasFlashcards) {
+    html += '<button class="skill-tab' + (!hasLesson ? ' active' : '') + '" data-tab="flashcards">';
+    html += '<span class="skill-tab-icon">🃏</span>';
+    html += '<span>Cards</span>';
+    html += '</button>';
+  }
+  html += '<button class="skill-tab' + (!hasLesson && !hasFlashcards ? ' active' : '') + '" data-tab="quiz">';
+  html += '<span class="skill-tab-icon">⚡</span>';
+  html += '<span>Quiz</span>';
+  html += '</button>';
+  html += '</div>';
+
+  // Tab content area
+  html += '<div class="skill-tab-content" id="skill-tab-content"></div>';
+
+  container.innerHTML = html;
+
+  // Back button
+  document.getElementById('skill-view-back').onclick = function() {
+    var worldMap = { math: 'math-world', word: 'word-world', stem: 'stem-world' };
+    showScreen(worldMap[worldType] || 'home');
+  };
+
+  // Tab switching
+  var tabs = container.querySelectorAll('.skill-tab');
+  tabs.forEach(function(tab) {
+    tab.onclick = function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      showTabContent(tab.dataset.tab);
+    };
+  });
+
+  function showTabContent(tabName) {
+    var content = document.getElementById('skill-tab-content');
+    content.innerHTML = '';
+
+    if (tabName === 'learn' && hasLesson) {
+      renderLesson(content, lesson, skillId, function() {
+        // After lesson, switch to explore or quiz
+        var nextTab = hasFlashcards ? 'flashcards' : 'quiz';
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        container.querySelector('[data-tab="' + nextTab + '"]').classList.add('active');
+        // Update learn tab checkmark
+        var learnTab = container.querySelector('[data-tab="learn"]');
+        if (learnTab && !learnTab.querySelector('.skill-tab-check')) {
+          learnTab.insertAdjacentHTML('beforeend', '<span class="skill-tab-check">✓</span>');
+        }
+        showTabContent(nextTab);
+      });
+      if (typeof recordSkillActivity === 'function') {
+        recordSkillActivity(skillId, 'learn');
+      }
+    } else if (tabName === 'flashcards' && hasFlashcards) {
+      renderFlashcards(content, flashcards, skillId, function() {
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        container.querySelector('[data-tab="quiz"]').classList.add('active');
+        showTabContent('quiz');
+      });
+      if (typeof recordSkillActivity === 'function') {
+        recordSkillActivity(skillId, 'explore');
+      }
+    } else if (tabName === 'quiz') {
+      // Show quiz in the tab content area
+      content.innerHTML = '<div class="skill-quiz-start">' +
+        '<div class="skill-quiz-icon">⚡</div>' +
+        '<div class="skill-quiz-title">Ready for the quiz?</div>' +
+        '<div class="skill-quiz-desc">8 questions to test your understanding</div>' +
+        '<button class="lesson-btn lesson-btn-done" id="start-quiz-btn">Start Quiz →</button>' +
+        '</div>';
+      document.getElementById('start-quiz-btn').onclick = function() {
+        startGame(skillId, worldType);
+      };
+    }
+  }
+
+  // Show initial tab
+  var initialTab = hasLesson ? 'learn' : (hasFlashcards ? 'flashcards' : 'quiz');
+  showTabContent(initialTab);
+}
+
 // === GAME ENGINE ===
 function startGame(skillId, worldType) {
   playSound('click');

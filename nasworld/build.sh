@@ -13,7 +13,7 @@ OUTFILE="$OUTDIR/bundle.html"
 
 mkdir -p "$OUTDIR"
 
-echo "Building Anastasia's Learning Universe..."
+echo "Building Nasworld (Anastasia's Learning Universe)..."
 
 # Read index.html
 INPUT="$SRCDIR/index.html"
@@ -28,12 +28,18 @@ SCRIPTS=(
   "src/data/encouragements.js"
   "src/data/wotd.js"
   "src/core/state.js"
+  "src/core/spaced-review.js"
   "src/core/adaptive.js"
   "src/core/audio.js"
+  "src/core/learn-engine.js"
+  "src/core/flashcard-engine.js"
   "src/math/math-tree.js"
+  "src/math/math-lessons.js"
   "src/word/word-data.js"
   "src/word/word-tree.js"
+  "src/word/word-lessons.js"
   "src/stem/stem-tree.js"
+  "src/stem/stem-lessons.js"
   "src/math/math-gen.js"
   "src/math/math-render.js"
   "src/word/word-gen.js"

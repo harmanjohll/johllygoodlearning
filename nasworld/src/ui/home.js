@@ -52,6 +52,27 @@ function updateHomeUI() {
   const gardenPct = Math.min(100, (state.garden.length / 50) * 100);
   document.getElementById('garden-progress').style.width = gardenPct + '%';
 
+  // Streak calendar
+  var streakEl = document.getElementById('streak-calendar-area');
+  if (streakEl && typeof renderStreakCalendar === 'function') {
+    streakEl.innerHTML = renderStreakCalendar();
+  }
+
+  // Review-due count
+  if (typeof getSkillsDueForReview === 'function') {
+    var due = getSkillsDueForReview();
+    var reviewEl = document.getElementById('review-due-banner');
+    if (reviewEl) {
+      if (due.length > 0) {
+        reviewEl.innerHTML = '<span class="review-banner-icon">🔔</span> ' +
+          due.length + ' skill' + (due.length > 1 ? 's' : '') + ' due for review!';
+        reviewEl.classList.remove('hidden');
+      } else {
+        reviewEl.classList.add('hidden');
+      }
+    }
+  }
+
   updateDailyQuest();
   updateWotd();
   updateChallengesSection();

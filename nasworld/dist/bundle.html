@@ -1419,6 +1419,346 @@ body {
   .code-playground { grid-template-columns: 1fr; }
 }
 
+/* === SKILL VIEW — Tabbed Learn / Explore / Quiz === */
+.skill-view-header {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+}
+.skill-view-title {
+  font-family: var(--font-display); font-size: 24px; font-weight: 600;
+}
+.skill-tabs {
+  display: flex; gap: 8px; margin-bottom: 24px;
+  background: rgba(255,255,255,0.05); border-radius: var(--radius-lg); padding: 6px;
+}
+.skill-tab {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 16px; border-radius: var(--radius-md);
+  background: transparent; border: none; color: var(--text-dim);
+  font-family: var(--font-display); font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all 0.3s;
+}
+.skill-tab:hover { color: var(--text-secondary); background: rgba(255,255,255,0.05); }
+.skill-tab.active {
+  background: var(--bg-card); color: var(--text-primary);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.skill-tab-icon { font-size: 20px; }
+.skill-tab-check { color: var(--success); font-size: 14px; }
+.skill-tab-content { min-height: 400px; }
+
+/* Skill quiz start */
+.skill-quiz-start { text-align: center; padding: 60px 20px; }
+.skill-quiz-icon { font-size: 60px; margin-bottom: 16px; }
+.skill-quiz-title { font-family: var(--font-display); font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+.skill-quiz-desc { color: var(--text-secondary); margin-bottom: 24px; }
+
+/* === LESSON RENDERER === */
+.lesson-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
+.lesson-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); transition: all 0.3s; }
+.lesson-dot.done { background: var(--success); }
+.lesson-dot.current { background: var(--gold); box-shadow: 0 0 8px var(--gold); transform: scale(1.3); }
+
+.lesson-visual {
+  font-size: 40px; text-align: center; padding: 24px;
+  background: rgba(255,255,255,0.05); border-radius: var(--radius-lg);
+  margin-bottom: 20px; line-height: 1.6;
+}
+.lesson-visual.try { border: 2px solid var(--gold); background: rgba(255,215,0,0.05); }
+
+.lesson-image { font-size: 80px; text-align: center; margin-bottom: 16px; }
+
+.lesson-text {
+  font-size: 18px; line-height: 1.7; text-align: center;
+  color: var(--text-primary); margin-bottom: 20px;
+}
+.lesson-text b { color: var(--gold); }
+
+.lesson-lumi-tip {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.2);
+  border-radius: var(--radius-md); padding: 12px 16px;
+  font-size: 14px; color: var(--gold-soft); margin-bottom: 20px;
+}
+.lesson-lumi-icon { font-size: 20px; flex-shrink: 0; }
+
+.lesson-nav { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
+.lesson-btn {
+  padding: 12px 28px; border-radius: var(--radius-md);
+  font-family: var(--font-display); font-size: 16px; font-weight: 600;
+  cursor: pointer; border: none; transition: all 0.3s;
+}
+.lesson-btn-back { background: rgba(255,255,255,0.1); color: var(--text-secondary); }
+.lesson-btn-back:hover { background: rgba(255,255,255,0.2); }
+.lesson-btn-next { background: linear-gradient(135deg, var(--sky), var(--lavender)); color: white; }
+.lesson-btn-next:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(123,179,255,0.4); }
+.lesson-btn-done { background: linear-gradient(135deg, var(--mint), var(--teal)); color: var(--bg-deep); }
+.lesson-btn-done:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(123,255,181,0.4); }
+
+.lesson-try-badge {
+  display: inline-block; background: var(--gold); color: var(--bg-deep);
+  font-family: var(--font-display); font-weight: 600; font-size: 14px;
+  padding: 4px 16px; border-radius: 50px; margin-bottom: 16px;
+}
+
+.lesson-try-options { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.lesson-try-btn {
+  padding: 14px 28px; border-radius: var(--radius-md);
+  background: var(--bg-card); border: 2px solid rgba(255,255,255,0.15);
+  color: var(--text-primary); font-family: var(--font-display);
+  font-size: 20px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  min-width: 80px;
+}
+.lesson-try-btn:hover:not(:disabled) { border-color: var(--lavender); transform: translateY(-2px); }
+.lesson-try-btn.correct { border-color: var(--success); background: rgba(74,222,128,0.15); }
+.lesson-try-btn.wrong { border-color: var(--error); background: rgba(248,113,113,0.15); }
+
+.lesson-try-input-wrap { display: flex; gap: 12px; justify-content: center; align-items: center; }
+.lesson-try-input {
+  width: 80px; padding: 12px; text-align: center; font-size: 28px;
+  font-family: var(--font-display); font-weight: 700;
+  background: var(--bg-card); border: 2px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-md); color: var(--text-primary); outline: none;
+}
+.lesson-try-input:focus { border-color: var(--lavender); }
+
+.lesson-try-feedback {
+  text-align: center; padding: 12px; margin-top: 16px;
+  border-radius: var(--radius-md); font-size: 16px; font-weight: 600;
+  display: none;
+}
+.lesson-try-feedback.show { display: block; }
+.lesson-try-feedback.correct { background: rgba(74,222,128,0.15); color: var(--success); }
+.lesson-try-feedback.wrong { background: rgba(248,113,113,0.15); color: var(--coral-soft); }
+
+.lesson-complete { text-align: center; padding: 40px 20px; }
+.lesson-complete-icon { font-size: 60px; margin-bottom: 12px; }
+.lesson-complete-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--gold); margin-bottom: 8px; }
+.lesson-complete-msg { color: var(--text-secondary); font-size: 16px; margin-bottom: 24px; }
+
+.lesson-empty { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+
+/* Lesson demo elements */
+.ten-frame-demo {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+  max-width: 280px; margin: 0 auto;
+}
+.tf-dot {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.15);
+}
+.tf-dot.filled { background: var(--sky); border-color: var(--sky); }
+
+.bond-demo { text-align: center; }
+.bond-whole { font-family: var(--font-display); font-size: 36px; font-weight: 700; color: var(--gold); }
+.bond-line { width: 60px; height: 2px; background: var(--text-dim); margin: 8px auto; position: relative; }
+.bond-line::before, .bond-line::after {
+  content: ''; position: absolute; width: 40px; height: 2px; background: var(--text-dim); top: 0;
+}
+.bond-line::before { left: -30px; transform: rotate(30deg); transform-origin: right; }
+.bond-line::after { right: -30px; transform: rotate(-30deg); transform-origin: left; }
+.bond-parts { display: flex; gap: 40px; justify-content: center; margin-top: 8px; }
+.bond-part { font-family: var(--font-display); font-size: 28px; font-weight: 600; color: var(--sky); }
+
+.bar-demo { display: flex; height: 40px; border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+.bar-part { display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+.bar-total { font-family: var(--font-display); font-size: 18px; font-weight: 600; text-align: center; }
+
+.crossed { text-decoration: line-through; opacity: 0.4; }
+
+.cmp-demo { display: flex; align-items: center; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.cmp-group { text-align: center; }
+.cmp-count { font-family: var(--font-display); font-size: 32px; font-weight: 700; margin-bottom: 4px; }
+.cmp-sign { font-size: 36px; font-weight: 700; color: var(--gold); }
+
+.phon-demo { display: flex; align-items: center; gap: 8px; justify-content: center; font-size: 32px; }
+.phon-letter { color: var(--coral); font-weight: 700; }
+.phon-blend { color: var(--text-dim); }
+.phon-family { color: var(--sky); font-weight: 700; }
+.phon-word { color: var(--gold); font-weight: 700; }
+.phon-family-list { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; font-size: 24px; }
+.phon-family-list b { color: var(--sky); }
+
+.sight-demo { text-align: center; }
+.sight-big { font-family: var(--font-display); font-size: 72px; font-weight: 700; color: var(--gold); }
+.sight-word-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.sight-word-grid span {
+  padding: 8px 16px; background: var(--bg-card); border-radius: 8px;
+  font-family: var(--font-display); font-size: 20px; font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.spell-demo { font-size: 32px; display: flex; align-items: center; gap: 8px; justify-content: center; }
+.spell-letter {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px; background: var(--bg-card); border: 2px solid var(--lavender);
+  border-radius: 8px; font-family: var(--font-display); font-weight: 700; font-size: 28px;
+}
+
+.vocab-compare { display: flex; align-items: center; gap: 16px; justify-content: center; font-size: 24px; }
+.vocab-plain { color: var(--text-dim); }
+.vocab-arrow { color: var(--text-dim); font-size: 20px; }
+.vocab-fancy { color: var(--gold); font-family: var(--font-display); font-weight: 700; }
+
+.sent-demo { font-size: 22px; text-align: center; }
+.sent-cap { color: var(--sky); font-weight: 700; }
+.sent-verb { color: var(--coral); font-weight: 700; }
+.sent-end { color: var(--gold); font-weight: 700; }
+
+.poem-demo { text-align: left; display: inline-block; }
+.poem-line { font-family: var(--font-hand); font-size: 22px; margin-bottom: 4px; }
+
+.array-demo { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.array-row { display: flex; gap: 4px; }
+
+.place-val-demo { display: flex; gap: 24px; justify-content: center; }
+.pv-col { text-align: center; font-family: var(--font-display); font-weight: 600; }
+.pv-label { font-size: 14px; color: var(--text-dim); margin-bottom: 4px; }
+.pv-blocks { font-size: 24px; margin-bottom: 4px; }
+
+.code-demo { display: flex; flex-direction: column; gap: 8px; text-align: left; max-width: 300px; margin: 0 auto; }
+.code-block {
+  padding: 10px 16px; border-radius: 8px; font-family: var(--font-display); font-size: 15px;
+  background: rgba(123,179,255,0.1); border-left: 3px solid var(--sky);
+}
+.code-block.loop { background: rgba(181,123,255,0.1); border-color: var(--lavender); }
+.code-block.cond { background: rgba(255,215,0,0.1); border-color: var(--gold); }
+.code-block.nested { margin-left: 16px; margin-top: 6px; font-size: 14px; }
+.code-block.bug { border-color: var(--error); background: rgba(248,113,113,0.1); }
+
+.var-demo { display: flex; justify-content: center; }
+.var-box {
+  padding: 16px 24px; border: 2px solid var(--lavender); border-radius: 12px;
+  background: rgba(181,123,255,0.1); text-align: center;
+}
+.var-label { font-size: 12px; color: var(--lavender-soft); text-transform: uppercase; letter-spacing: 0.08em; }
+.var-value { font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--gold); }
+
+/* Sort interaction */
+.lesson-sort-items { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
+.lesson-sort-chip {
+  padding: 10px 16px; border-radius: 50px; font-size: 16px; font-weight: 600;
+  background: var(--bg-card); border: 2px solid rgba(255,255,255,0.15);
+  cursor: pointer; transition: all 0.2s; user-select: none;
+}
+.lesson-sort-chip.selected { border-color: var(--gold); background: rgba(255,215,0,0.1); transform: scale(1.05); }
+.lesson-sort-chip.placed { opacity: 0.4; cursor: default; }
+.lesson-sort-chip.shake { animation: shake-wrong 0.4s; }
+
+.lesson-sort-zones { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.lesson-sort-zone {
+  flex: 1; min-width: 140px; max-width: 200px; padding: 16px;
+  border: 2px dashed rgba(255,255,255,0.2); border-radius: var(--radius-lg);
+  text-align: center; cursor: pointer; transition: all 0.2s; min-height: 120px;
+}
+.lesson-sort-zone:hover { border-color: var(--lavender); background: rgba(181,123,255,0.05); }
+.lesson-sort-zone-label {
+  font-family: var(--font-display); font-size: 16px; font-weight: 600;
+  color: var(--text-secondary); margin-bottom: 10px;
+}
+.lesson-sort-zone-items { display: flex; flex-direction: column; gap: 6px; }
+
+/* Match interaction */
+.lesson-match-grid { display: flex; gap: 32px; justify-content: center; }
+.lesson-match-col { display: flex; flex-direction: column; gap: 10px; }
+.lesson-match-item {
+  padding: 12px 20px; border-radius: var(--radius-md);
+  background: var(--bg-card); border: 2px solid rgba(255,255,255,0.15);
+  cursor: pointer; transition: all 0.2s; font-size: 16px; font-weight: 600;
+  text-align: center; min-width: 100px;
+}
+.lesson-match-item:hover:not(.matched) { border-color: var(--lavender); }
+.lesson-match-item.selected { border-color: var(--gold); background: rgba(255,215,0,0.1); }
+.lesson-match-item.matched { border-color: var(--success); background: rgba(74,222,128,0.15); opacity: 0.6; cursor: default; }
+.lesson-match-item.shake { animation: shake-wrong 0.4s; }
+
+/* === FLASHCARD STYLES === */
+.fc-progress { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.fc-count { font-size: 14px; color: var(--text-dim); white-space: nowrap; }
+.fc-bar { flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; }
+.fc-bar-fill { height: 100%; background: var(--gold); border-radius: 3px; transition: width 0.3s; }
+
+.fc-card {
+  perspective: 600px; cursor: pointer; margin: 0 auto 24px; max-width: 400px;
+  min-height: 220px;
+}
+.fc-front, .fc-back {
+  padding: 40px 24px; border-radius: var(--radius-xl); text-align: center;
+  backface-visibility: hidden; transition: transform 0.5s;
+  position: absolute; width: 100%; top: 0;
+}
+.fc-card { position: relative; }
+.fc-front {
+  background: var(--bg-card); border: 2px solid rgba(181,123,255,0.3);
+  z-index: 2; transform: rotateY(0);
+}
+.fc-back {
+  background: linear-gradient(135deg, var(--bg-card), rgba(181,123,255,0.15));
+  border: 2px solid rgba(123,255,181,0.3);
+  transform: rotateY(180deg);
+}
+.fc-card.flipped .fc-front { transform: rotateY(-180deg); }
+.fc-card.flipped .fc-back { transform: rotateY(0); }
+
+.fc-image { font-size: 40px; margin-bottom: 8px; }
+.fc-front-text { font-family: var(--font-display); font-size: 36px; font-weight: 700; color: var(--text-primary); }
+.fc-tap-hint { font-size: 13px; color: var(--text-dim); margin-top: 12px; }
+.fc-back-text { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--mint); }
+.fc-example { font-size: 15px; color: var(--text-secondary); margin-top: 8px; font-style: italic; }
+
+.fc-rating { text-align: center; margin-top: 16px; }
+.fc-rating-label { font-size: 14px; color: var(--text-dim); margin-bottom: 10px; }
+.fc-rating-btns { display: flex; gap: 16px; justify-content: center; }
+.fc-rate-btn {
+  padding: 12px 24px; border-radius: var(--radius-md); border: none;
+  font-family: var(--font-display); font-size: 16px; font-weight: 600; cursor: pointer;
+  transition: all 0.2s;
+}
+.fc-rate-no { background: rgba(248,113,113,0.15); color: var(--coral); border: 1px solid var(--coral); }
+.fc-rate-no:hover { background: rgba(248,113,113,0.3); }
+.fc-rate-yes { background: rgba(74,222,128,0.15); color: var(--success); border: 1px solid var(--success); }
+.fc-rate-yes:hover { background: rgba(74,222,128,0.3); }
+
+.fc-results { text-align: center; padding: 40px 20px; }
+.fc-results-icon { font-size: 60px; margin-bottom: 12px; }
+.fc-results-title { font-family: var(--font-display); font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+.fc-results-pct { font-size: 48px; font-family: var(--font-display); font-weight: 700; color: var(--gold); margin-bottom: 8px; }
+.fc-results-msg { color: var(--text-secondary); margin-bottom: 24px; }
+.fc-results-btns { display: flex; gap: 12px; justify-content: center; }
+
+/* === STREAK CALENDAR === */
+.streak-calendar {
+  background: rgba(255,255,255,0.05); border-radius: var(--radius-lg);
+  padding: 16px; text-align: center;
+}
+.streak-cal-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+.streak-cal-dots { display: flex; gap: 10px; justify-content: center; margin-bottom: 8px; }
+.streak-cal-dot { text-align: center; }
+.streak-cal-day { font-size: 11px; color: var(--text-dim); margin-bottom: 4px; }
+.streak-cal-circle {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.15);
+  transition: all 0.3s;
+}
+.streak-cal-dot.active .streak-cal-circle { background: var(--success); border-color: var(--success); }
+.streak-cal-dot.today .streak-cal-circle { border-color: var(--gold); box-shadow: 0 0 8px rgba(255,215,0,0.4); }
+.streak-cal-count { font-size: 13px; color: var(--text-secondary); }
+
+/* === REVIEW DUE BADGE === */
+.review-due-badge {
+  position: absolute; top: -8px; right: -8px;
+  background: var(--coral); color: white; font-size: 11px; font-weight: 700;
+  padding: 3px 8px; border-radius: 50px; z-index: 2;
+  animation: pulse-glow 2s infinite;
+}
+.review-banner-icon { margin-right: 4px; }
+#review-due-banner {
+  background: rgba(255,123,123,0.1); border: 1px solid rgba(255,123,123,0.3);
+  border-radius: var(--radius-md); padding: 10px 16px;
+  color: var(--coral-soft); font-size: 14px; font-weight: 600;
+  text-align: center; margin-bottom: 16px; cursor: pointer;
+}
+.learn-done-dot { font-size: 14px; margin-left: 4px; }
+
 /* === UTILITY === */
 .hidden { display: none !important; }
 .text-center { text-align: center; }
@@ -1663,6 +2003,12 @@ body {
         </div>
       </div>
 
+      <!-- Streak Calendar -->
+      <div id="streak-calendar-area"></div>
+
+      <!-- Review Due Banner -->
+      <div class="hidden" id="review-due-banner"></div>
+
       <!-- Challenges Section -->
       <div class="challenges-section" id="challenges-section">
         <h3>&#127942; Challenges</h3>
@@ -1698,6 +2044,11 @@ body {
         <p>Explore science and coding!</p>
       </div>
       <div id="stem-activities"></div>
+    </div>
+
+    <!-- SKILL VIEW SCREEN (Learn / Explore / Quiz tabs) -->
+    <div class="screen" id="screen-skill-view">
+      <div class="game-area" id="skill-view-content"></div>
     </div>
 
     <!-- GAME SCREEN -->
@@ -2102,10 +2453,18 @@ function getSkillState(skillId) {
       totalAttempts: 0,
       streak: 0,
       bestStreak: 0,
-      mastery: 0
+      mastery: 0,
+      lessonViewed: {},
+      flashcardProgress: {},
+      activity: {}
     };
   }
-  return state.skills[skillId];
+  // Ensure new fields on existing skills
+  var s = state.skills[skillId];
+  if (!s.lessonViewed) s.lessonViewed = {};
+  if (!s.flashcardProgress) s.flashcardProgress = {};
+  if (!s.activity) s.activity = {};
+  return s;
 }
 
 // === PERSISTENCE ===
@@ -2133,6 +2492,168 @@ async function loadState() {
     if (!state.settings) state.settings = { language: 'en' };
     state.version = 2;
   }
+}
+
+// --- src/core/spaced-review.js ---
+// ============================================================
+//  SPACED REVIEW — Tracks when skills are due for review
+//  Multi-factor mastery computation
+// ============================================================
+
+// Review intervals in days: 1, 3, 7, 14, 30
+var REVIEW_INTERVALS = [1, 3, 7, 14, 30];
+
+// Mark that a skill was actively practised (lesson, explore, or quiz)
+function recordSkillActivity(skillId, activityType) {
+  var skill = getSkillState(skillId);
+  if (!skill.activity) skill.activity = {};
+  skill.activity[activityType] = Date.now();
+  skill.activity.lastAny = Date.now();
+
+  // Track visit count
+  if (!skill.activity.visits) skill.activity.visits = 0;
+  skill.activity.visits++;
+
+  saveState();
+}
+
+// Check if a skill is due for review
+function isSkillDueForReview(skillId) {
+  var skill = getSkillState(skillId);
+  if (!skill.activity || !skill.activity.lastAny) return false;
+  if (skill.totalAttempts === 0) return false; // Never quizzed
+
+  var daysSince = (Date.now() - skill.activity.lastAny) / (1000 * 60 * 60 * 24);
+
+  // Determine review interval based on mastery
+  var intervalIdx;
+  if (skill.mastery >= 80) intervalIdx = 4;      // 30 days
+  else if (skill.mastery >= 60) intervalIdx = 3;  // 14 days
+  else if (skill.mastery >= 40) intervalIdx = 2;  // 7 days
+  else if (skill.mastery >= 20) intervalIdx = 1;  // 3 days
+  else intervalIdx = 0;                            // 1 day
+
+  return daysSince >= REVIEW_INTERVALS[intervalIdx];
+}
+
+// Get all skills due for review across all trees
+function getSkillsDueForReview() {
+  var due = [];
+  var allTrees = {};
+  if (typeof MATH_TREE !== 'undefined') Object.assign(allTrees, MATH_TREE);
+  if (typeof WORD_TREE !== 'undefined') Object.assign(allTrees, WORD_TREE);
+  if (typeof STEM_TREE !== 'undefined') Object.assign(allTrees, STEM_TREE);
+
+  for (var id in allTrees) {
+    if (isSkillDueForReview(id)) {
+      due.push({ id: id, skill: allTrees[id] });
+    }
+  }
+  return due;
+}
+
+// Compute multi-factor mastery (replaces the simple accuracy-based mastery)
+// Factors: lesson viewed (20%), exploration done (30%), quiz accuracy (50%)
+function computeMultiFactorMastery(skillId) {
+  var skill = getSkillState(skillId);
+  var activity = skill.activity || {};
+
+  // Factor 1: Lesson viewed (0 or 1) — 20%
+  var lessonScore = 0;
+  if (skill.lessonViewed && skill.lessonViewed[skillId]) {
+    lessonScore = 1;
+  }
+
+  // Factor 2: Exploration done (0 or 1) — 30%
+  var exploreScore = 0;
+  if (activity.explore) {
+    exploreScore = 1;
+  }
+
+  // Factor 3: Quiz accuracy — 50%
+  var quizScore = 0;
+  if (skill.totalAttempts > 0) {
+    var recent = skill.recentResults || [];
+    var recentAcc = recent.length > 0
+      ? recent.filter(function(r) { return r.correct; }).length / recent.length
+      : 0;
+    var totalAcc = skill.totalCorrect / skill.totalAttempts;
+    // Blend recent and total, weighting recent more
+    quizScore = recentAcc * 0.7 + totalAcc * 0.3;
+  }
+
+  // Weighted sum
+  var mastery = Math.min(100, Math.round(
+    lessonScore * 20 + exploreScore * 30 + quizScore * 50
+  ));
+
+  return mastery;
+}
+
+// Get a 7-day streak calendar (like Lab's streak dots)
+function getStreakCalendar() {
+  var calendar = [];
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  for (var i = 6; i >= 0; i--) {
+    var d = new Date(today);
+    d.setDate(d.getDate() - i);
+    var dateStr = d.toDateString();
+
+    // Check if any activity happened on this day
+    var active = false;
+    if (state.skills) {
+      for (var sid in state.skills) {
+        var s = state.skills[sid];
+        if (s.activity && s.activity.lastAny) {
+          var actDate = new Date(s.activity.lastAny);
+          actDate.setHours(0, 0, 0, 0);
+          if (actDate.getTime() === d.getTime()) {
+            active = true;
+            break;
+          }
+        }
+      }
+    }
+
+    // Also check if lastVisit matches
+    if (state.lastVisit === dateStr) active = true;
+
+    var dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    calendar.push({
+      date: dateStr,
+      dayLabel: dayNames[d.getDay()],
+      active: active,
+      isToday: i === 0
+    });
+  }
+
+  return calendar;
+}
+
+// Render streak calendar as HTML
+function renderStreakCalendar() {
+  var cal = getStreakCalendar();
+  var activeDays = cal.filter(function(d) { return d.active; }).length;
+
+  var html = '<div class="streak-calendar">';
+  html += '<div class="streak-cal-label">This Week</div>';
+  html += '<div class="streak-cal-dots">';
+  cal.forEach(function(day) {
+    var cls = 'streak-cal-dot';
+    if (day.active) cls += ' active';
+    if (day.isToday) cls += ' today';
+    html += '<div class="' + cls + '">';
+    html += '<div class="streak-cal-day">' + day.dayLabel + '</div>';
+    html += '<div class="streak-cal-circle"></div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  html += '<div class="streak-cal-count">' + activeDays + '/7 days active</div>';
+  html += '</div>';
+
+  return html;
 }
 
 // --- src/core/adaptive.js ---
@@ -2171,11 +2692,15 @@ function updateSkillState(skillId, correct, confidence) {
     }
   }
 
-  // Mastery calculation (weighted: recent performance + total + level progress)
-  const totalAcc = skill.totalAttempts > 0 ? skill.totalCorrect / skill.totalAttempts : 0;
-  skill.mastery = Math.min(100, Math.round(
-    accuracy * 50 + totalAcc * 30 + Math.min(skill.level / 4, 1) * 20
-  ));
+  // Multi-factor mastery if spaced-review is loaded, else simple
+  if (typeof computeMultiFactorMastery === 'function') {
+    skill.mastery = computeMultiFactorMastery(skillId);
+  } else {
+    const totalAcc = skill.totalAttempts > 0 ? skill.totalCorrect / skill.totalAttempts : 0;
+    skill.mastery = Math.min(100, Math.round(
+      accuracy * 50 + totalAcc * 30 + Math.min(skill.level / 4, 1) * 20
+    ));
+  }
 
   return skill;
 }
@@ -2277,11 +2802,24 @@ function renderActivityCards(tree, containerId, worldType) {
       const lockText = unlocked ? '' :
         `<div class="activity-card-lock">Master ${skill.deps.join(' & ')} first</div>`;
 
+      // Review-due badge
+      let reviewBadge = '';
+      if (unlocked && typeof isSkillDueForReview === 'function' && isSkillDueForReview(skill.id)) {
+        reviewBadge = '<div class="review-due-badge">Review due</div>';
+      }
+
+      // Lesson-viewed indicator
+      let learnBadge = '';
+      if (unlocked && s.lessonViewed && s.lessonViewed[skill.id]) {
+        learnBadge = '<span class="learn-done-dot" title="Lesson completed">📖</span>';
+      }
+
       html += `<div class="activity-card ${unlocked ? '' : 'locked'}"
-        onclick="${unlocked ? `startGame('${skill.id}','${worldType}')` : ''}"
+        onclick="${unlocked ? `openSkillView('${skill.id}','${worldType}')` : ''}"
         ${unlocked ? '' : 'title="Locked"'}>
+        ${reviewBadge}
         <span class="activity-card-icon">${skill.icon}</span>
-        <div class="activity-card-name">${skill.name}</div>
+        <div class="activity-card-name">${skill.name} ${learnBadge}</div>
         <div class="activity-card-level">${unlocked ? `Level ${s.level + 1} \u00B7 ${CPA_LEVELS[s.level] || 'Concrete'}` : '\uD83D\uDD12 Locked'}</div>
         ${lockText}
         <div class="mastery-stars">${stars}</div>
@@ -2389,6 +2927,545 @@ function playSound(type) {
   } catch(e) {}
 }
 
+// --- src/core/learn-engine.js ---
+// ============================================================
+//  LEARN ENGINE — Visual step-by-step lesson renderer for P1
+//  Renders structured lesson data into interactive visual pages
+// ============================================================
+
+// Lesson data format:
+// {
+//   title: 'Adding Numbers',
+//   icon: '➕',
+//   lumiSays: 'Let me show you how to add!',
+//   steps: [
+//     { visual: '🍎🍎🍎', text: 'We have 3 apples.', highlight: 'count' },
+//     { visual: '🍎🍎',   text: 'And 2 more apples!', highlight: 'add' },
+//     { visual: '🍎🍎🍎🍎🍎', text: '3 + 2 = 5 altogether!', highlight: 'result' },
+//     { type: 'try', prompt: 'How many altogether?', visual: '⭐⭐ + ⭐⭐⭐', answer: '5' }
+//   ]
+// }
+
+function renderLesson(container, lessonData, skillId, onComplete) {
+  if (!lessonData || !lessonData.steps || lessonData.steps.length === 0) {
+    container.innerHTML = '<div class="lesson-empty">No lesson available yet!</div>';
+    return;
+  }
+
+  let currentStep = 0;
+  const totalSteps = lessonData.steps.length;
+
+  function renderStep() {
+    const step = lessonData.steps[currentStep];
+    container.innerHTML = '';
+    container.style.animation = 'none';
+    container.offsetHeight;
+    container.style.animation = 'slide-up 0.4s ease-out';
+
+    // Progress dots
+    let dotsHtml = '<div class="lesson-dots">';
+    for (let i = 0; i < totalSteps; i++) {
+      const cls = i < currentStep ? 'done' : i === currentStep ? 'current' : '';
+      dotsHtml += '<div class="lesson-dot ' + cls + '"></div>';
+    }
+    dotsHtml += '</div>';
+
+    // Check if this is a "try it" interactive step
+    if (step.type === 'try') {
+      renderTryStep(container, step, dotsHtml);
+      return;
+    }
+
+    // Check if this is a "sort" interactive step
+    if (step.type === 'sort') {
+      renderSortStep(container, step, dotsHtml);
+      return;
+    }
+
+    // Check if this is a "match" interactive step
+    if (step.type === 'match') {
+      renderMatchStep(container, step, dotsHtml);
+      return;
+    }
+
+    // Regular visual step
+    let html = dotsHtml;
+
+    // Visual area
+    if (step.visual) {
+      html += '<div class="lesson-visual ' + (step.highlight || '') + '">';
+      html += step.visual;
+      html += '</div>';
+    }
+
+    // Image (emoji-based illustration)
+    if (step.image) {
+      html += '<div class="lesson-image">' + step.image + '</div>';
+    }
+
+    // Text explanation
+    if (step.text) {
+      html += '<div class="lesson-text">' + step.text + '</div>';
+    }
+
+    // Lumi tip
+    if (step.lumiTip) {
+      html += '<div class="lesson-lumi-tip">';
+      html += '<span class="lesson-lumi-icon">⭐</span>';
+      html += '<span>' + step.lumiTip + '</span>';
+      html += '</div>';
+    }
+
+    // Navigation
+    html += '<div class="lesson-nav">';
+    if (currentStep > 0) {
+      html += '<button class="lesson-btn lesson-btn-back" id="lesson-prev">← Back</button>';
+    }
+    if (currentStep < totalSteps - 1) {
+      html += '<button class="lesson-btn lesson-btn-next" id="lesson-next">Next →</button>';
+    } else {
+      html += '<button class="lesson-btn lesson-btn-done" id="lesson-done">Got it! ✓</button>';
+    }
+    html += '</div>';
+
+    container.innerHTML = html;
+
+    // Bind events
+    const prevBtn = document.getElementById('lesson-prev');
+    const nextBtn = document.getElementById('lesson-next');
+    const doneBtn = document.getElementById('lesson-done');
+
+    if (prevBtn) prevBtn.onclick = function() { currentStep--; renderStep(); };
+    if (nextBtn) nextBtn.onclick = function() { currentStep++; renderStep(); };
+    if (doneBtn) doneBtn.onclick = function() { completeLesson(); };
+  }
+
+  function renderTryStep(cont, step, dotsHtml) {
+    let html = dotsHtml;
+    html += '<div class="lesson-try-badge">Your Turn!</div>';
+
+    if (step.visual) {
+      html += '<div class="lesson-visual try">' + step.visual + '</div>';
+    }
+
+    if (step.prompt) {
+      html += '<div class="lesson-text">' + step.prompt + '</div>';
+    }
+
+    if (step.options) {
+      // MCQ try
+      html += '<div class="lesson-try-options">';
+      step.options.forEach(function(opt) {
+        html += '<button class="lesson-try-btn" data-val="' + opt + '">' + opt + '</button>';
+      });
+      html += '</div>';
+    } else {
+      // Type-in try
+      html += '<div class="lesson-try-input-wrap">';
+      html += '<input type="text" class="lesson-try-input" id="lesson-try-answer" inputmode="numeric" autocomplete="off" placeholder="?">';
+      html += '<button class="lesson-btn lesson-btn-next" id="lesson-try-check">Check ✓</button>';
+      html += '</div>';
+    }
+
+    html += '<div class="lesson-try-feedback" id="lesson-try-fb"></div>';
+
+    html += '<div class="lesson-nav">';
+    if (currentStep > 0) {
+      html += '<button class="lesson-btn lesson-btn-back" id="lesson-prev">← Back</button>';
+    }
+    html += '</div>';
+
+    cont.innerHTML = html;
+
+    // Bind option buttons
+    cont.querySelectorAll('.lesson-try-btn').forEach(function(btn) {
+      btn.onclick = function() {
+        const val = btn.dataset.val;
+        const correct = String(val).trim() === String(step.answer).trim();
+        const fb = document.getElementById('lesson-try-fb');
+        cont.querySelectorAll('.lesson-try-btn').forEach(function(b) { b.disabled = true; });
+
+        if (correct) {
+          btn.classList.add('correct');
+          fb.innerHTML = '🎉 ' + (step.successMsg || 'That\'s right!');
+          fb.className = 'lesson-try-feedback correct show';
+          if (typeof playSound === 'function') playSound('correct');
+        } else {
+          btn.classList.add('wrong');
+          fb.innerHTML = '💡 The answer is ' + step.answer + '. ' + (step.explanation || '');
+          fb.className = 'lesson-try-feedback wrong show';
+        }
+
+        setTimeout(function() {
+          if (currentStep < totalSteps - 1) {
+            currentStep++;
+            renderStep();
+          } else {
+            completeLesson();
+          }
+        }, correct ? 1200 : 2200);
+      };
+    });
+
+    // Bind type-in check
+    var checkBtn = document.getElementById('lesson-try-check');
+    var ansInput = document.getElementById('lesson-try-answer');
+    if (checkBtn && ansInput) {
+      checkBtn.onclick = function() {
+        var val = ansInput.value.trim();
+        if (!val) return;
+        var correct = val === String(step.answer).trim();
+        var fb = document.getElementById('lesson-try-fb');
+        ansInput.disabled = true;
+        checkBtn.disabled = true;
+
+        if (correct) {
+          fb.innerHTML = '🎉 ' + (step.successMsg || 'That\'s right!');
+          fb.className = 'lesson-try-feedback correct show';
+          if (typeof playSound === 'function') playSound('correct');
+        } else {
+          fb.innerHTML = '💡 The answer is ' + step.answer + '. ' + (step.explanation || '');
+          fb.className = 'lesson-try-feedback wrong show';
+        }
+
+        setTimeout(function() {
+          if (currentStep < totalSteps - 1) {
+            currentStep++;
+            renderStep();
+          } else {
+            completeLesson();
+          }
+        }, correct ? 1200 : 2200);
+      };
+      ansInput.onkeydown = function(e) { if (e.key === 'Enter') checkBtn.click(); };
+    }
+
+    var prevBtn = document.getElementById('lesson-prev');
+    if (prevBtn) prevBtn.onclick = function() { currentStep--; renderStep(); };
+  }
+
+  function renderSortStep(cont, step, dotsHtml) {
+    // Sort items into categories by tapping
+    var html = dotsHtml;
+    html += '<div class="lesson-try-badge">Sort These!</div>';
+    if (step.text) html += '<div class="lesson-text">' + step.text + '</div>';
+
+    var categories = step.categories; // [{name, items, color}]
+    var allItems = [];
+    categories.forEach(function(cat) {
+      cat.items.forEach(function(item) {
+        allItems.push({ item: item, category: cat.name });
+      });
+    });
+    allItems = shuffle(allItems);
+
+    html += '<div class="lesson-sort-items" id="sort-items">';
+    allItems.forEach(function(entry, i) {
+      html += '<span class="lesson-sort-chip" data-idx="' + i + '" data-cat="' + entry.category + '">' + entry.item + '</span>';
+    });
+    html += '</div>';
+
+    html += '<div class="lesson-sort-zones">';
+    categories.forEach(function(cat) {
+      html += '<div class="lesson-sort-zone" data-zone="' + cat.name + '">';
+      html += '<div class="lesson-sort-zone-label">' + cat.name + '</div>';
+      html += '<div class="lesson-sort-zone-items" id="zone-' + cat.name.replace(/\s/g, '') + '"></div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    html += '<div class="lesson-try-feedback" id="lesson-try-fb"></div>';
+    html += '<div class="lesson-nav">';
+    if (currentStep > 0) html += '<button class="lesson-btn lesson-btn-back" id="lesson-prev">← Back</button>';
+    html += '</div>';
+
+    cont.innerHTML = html;
+
+    var selected = null;
+    var sorted = 0;
+    var total = allItems.length;
+
+    cont.querySelectorAll('.lesson-sort-chip').forEach(function(chip) {
+      chip.onclick = function() {
+        cont.querySelectorAll('.lesson-sort-chip').forEach(function(c) { c.classList.remove('selected'); });
+        chip.classList.add('selected');
+        selected = chip;
+      };
+    });
+
+    cont.querySelectorAll('.lesson-sort-zone').forEach(function(zone) {
+      zone.onclick = function() {
+        if (!selected) return;
+        var correctCat = selected.dataset.cat;
+        var zoneCat = zone.dataset.zone;
+        if (correctCat === zoneCat) {
+          zone.querySelector('.lesson-sort-zone-items').appendChild(selected);
+          selected.classList.remove('selected');
+          selected.classList.add('placed');
+          selected.onclick = null;
+          selected = null;
+          sorted++;
+          if (sorted >= total) {
+            var fb = document.getElementById('lesson-try-fb');
+            fb.innerHTML = '🎉 Great sorting!';
+            fb.className = 'lesson-try-feedback correct show';
+            if (typeof playSound === 'function') playSound('correct');
+            setTimeout(function() {
+              if (currentStep < totalSteps - 1) { currentStep++; renderStep(); }
+              else completeLesson();
+            }, 1500);
+          }
+        } else {
+          selected.classList.add('shake');
+          setTimeout(function() { selected.classList.remove('shake'); }, 500);
+        }
+      };
+    });
+
+    var prevBtn = document.getElementById('lesson-prev');
+    if (prevBtn) prevBtn.onclick = function() { currentStep--; renderStep(); };
+  }
+
+  function renderMatchStep(cont, step, dotsHtml) {
+    // Match pairs by tapping two items
+    var html = dotsHtml;
+    html += '<div class="lesson-try-badge">Match the Pairs!</div>';
+    if (step.text) html += '<div class="lesson-text">' + step.text + '</div>';
+
+    var pairs = step.pairs; // [{left, right}]
+    var leftItems = shuffle(pairs.map(function(p) { return p.left; }));
+    var rightItems = shuffle(pairs.map(function(p) { return p.right; }));
+
+    html += '<div class="lesson-match-grid">';
+    html += '<div class="lesson-match-col">';
+    leftItems.forEach(function(item, i) {
+      html += '<div class="lesson-match-item left" data-val="' + item + '">' + item + '</div>';
+    });
+    html += '</div>';
+    html += '<div class="lesson-match-col">';
+    rightItems.forEach(function(item, i) {
+      html += '<div class="lesson-match-item right" data-val="' + item + '">' + item + '</div>';
+    });
+    html += '</div>';
+    html += '</div>';
+
+    html += '<div class="lesson-try-feedback" id="lesson-try-fb"></div>';
+    html += '<div class="lesson-nav">';
+    if (currentStep > 0) html += '<button class="lesson-btn lesson-btn-back" id="lesson-prev">← Back</button>';
+    html += '</div>';
+
+    cont.innerHTML = html;
+
+    var pairMap = {};
+    pairs.forEach(function(p) { pairMap[p.left] = p.right; });
+
+    var selectedLeft = null;
+    var matched = 0;
+
+    cont.querySelectorAll('.lesson-match-item.left').forEach(function(item) {
+      item.onclick = function() {
+        cont.querySelectorAll('.lesson-match-item.left').forEach(function(i) { i.classList.remove('selected'); });
+        item.classList.add('selected');
+        selectedLeft = item.dataset.val;
+      };
+    });
+
+    cont.querySelectorAll('.lesson-match-item.right').forEach(function(item) {
+      item.onclick = function() {
+        if (!selectedLeft) return;
+        if (pairMap[selectedLeft] === item.dataset.val) {
+          // Correct match
+          item.classList.add('matched');
+          cont.querySelector('.lesson-match-item.left[data-val="' + selectedLeft + '"]').classList.add('matched');
+          cont.querySelector('.lesson-match-item.left[data-val="' + selectedLeft + '"]').classList.remove('selected');
+          cont.querySelector('.lesson-match-item.left[data-val="' + selectedLeft + '"]').onclick = null;
+          item.onclick = null;
+          selectedLeft = null;
+          matched++;
+          if (matched >= pairs.length) {
+            var fb = document.getElementById('lesson-try-fb');
+            fb.innerHTML = '🎉 All matched!';
+            fb.className = 'lesson-try-feedback correct show';
+            if (typeof playSound === 'function') playSound('correct');
+            setTimeout(function() {
+              if (currentStep < totalSteps - 1) { currentStep++; renderStep(); }
+              else completeLesson();
+            }, 1500);
+          }
+        } else {
+          item.classList.add('shake');
+          setTimeout(function() { item.classList.remove('shake'); }, 500);
+        }
+      };
+    });
+
+    var prevBtn = document.getElementById('lesson-prev');
+    if (prevBtn) prevBtn.onclick = function() { currentStep--; renderStep(); };
+  }
+
+  function completeLesson() {
+    // Mark lesson as viewed in skill state
+    var skill = getSkillState(skillId);
+    if (!skill.lessonViewed) skill.lessonViewed = {};
+    skill.lessonViewed[skillId] = Date.now();
+    saveState();
+
+    container.innerHTML = '<div class="lesson-complete">' +
+      '<div class="lesson-complete-icon">🌟</div>' +
+      '<div class="lesson-complete-title">Lesson Complete!</div>' +
+      '<div class="lesson-complete-msg">Great learning, ' + (state.name || 'Anastasia') + '!</div>' +
+      '<button class="lesson-btn lesson-btn-done" id="lesson-finish">Continue →</button>' +
+      '</div>';
+
+    if (typeof playSound === 'function') playSound('levelup');
+
+    document.getElementById('lesson-finish').onclick = function() {
+      if (typeof onComplete === 'function') onComplete();
+    };
+  }
+
+  // Start
+  renderStep();
+}
+
+// --- src/core/flashcard-engine.js ---
+// ============================================================
+//  FLASHCARD ENGINE — Flip-card system with tracking
+//  Supports sight words, math facts, vocab, science terms
+// ============================================================
+
+// Flashcard data format:
+// [{ front: 'the', back: 'a common sight word', category: 'sight-l1', image: '📖' }]
+
+function renderFlashcards(container, cards, skillId, onComplete) {
+  if (!cards || cards.length === 0) {
+    container.innerHTML = '<div class="lesson-empty">No flashcards available yet!</div>';
+    return;
+  }
+
+  var deck = shuffle([...cards]);
+  var idx = 0;
+  var correct = 0;
+  var total = deck.length;
+  var isFlipped = false;
+
+  function renderCard() {
+    if (idx >= total) {
+      showResults();
+      return;
+    }
+
+    isFlipped = false;
+    var card = deck[idx];
+    container.innerHTML = '';
+    container.style.animation = 'none';
+    container.offsetHeight;
+    container.style.animation = 'slide-up 0.3s ease-out';
+
+    var html = '';
+
+    // Progress
+    html += '<div class="fc-progress">';
+    html += '<span class="fc-count">' + (idx + 1) + ' / ' + total + '</span>';
+    html += '<div class="fc-bar"><div class="fc-bar-fill" style="width:' + Math.round((idx / total) * 100) + '%"></div></div>';
+    html += '</div>';
+
+    // The card
+    html += '<div class="fc-card" id="fc-card">';
+    html += '<div class="fc-front">';
+    if (card.image) html += '<div class="fc-image">' + card.image + '</div>';
+    html += '<div class="fc-front-text">' + card.front + '</div>';
+    html += '<div class="fc-tap-hint">Tap to reveal</div>';
+    html += '</div>';
+    html += '<div class="fc-back">';
+    html += '<div class="fc-back-text">' + card.back + '</div>';
+    if (card.example) html += '<div class="fc-example">' + card.example + '</div>';
+    html += '</div>';
+    html += '</div>';
+
+    // Rating buttons (shown after flip)
+    html += '<div class="fc-rating hidden" id="fc-rating">';
+    html += '<div class="fc-rating-label">Did you know it?</div>';
+    html += '<div class="fc-rating-btns">';
+    html += '<button class="fc-rate-btn fc-rate-no" id="fc-no">Not yet 🤔</button>';
+    html += '<button class="fc-rate-btn fc-rate-yes" id="fc-yes">Got it! ⭐</button>';
+    html += '</div>';
+    html += '</div>';
+
+    container.innerHTML = html;
+
+    // Bind flip
+    document.getElementById('fc-card').onclick = function() {
+      if (isFlipped) return;
+      isFlipped = true;
+      this.classList.add('flipped');
+      document.getElementById('fc-rating').classList.remove('hidden');
+    };
+
+    // Bind rating
+    document.getElementById('fc-yes').onclick = function() {
+      correct++;
+      recordFlashcard(skillId, deck[idx], true);
+      idx++;
+      renderCard();
+    };
+    document.getElementById('fc-no').onclick = function() {
+      recordFlashcard(skillId, deck[idx], false);
+      // Put it back near the end for another try
+      if (total - idx > 2) {
+        var missed = deck[idx];
+        deck.splice(idx, 1);
+        var insertAt = Math.min(idx + 3 + Math.floor(Math.random() * 3), deck.length);
+        deck.splice(insertAt, 0, missed);
+        total = deck.length;
+      } else {
+        idx++;
+      }
+      renderCard();
+    };
+  }
+
+  function recordFlashcard(sid, card, wasCorrect) {
+    var skill = getSkillState(sid);
+    if (!skill.flashcardProgress) skill.flashcardProgress = {};
+    var key = card.front;
+    if (!skill.flashcardProgress[key]) {
+      skill.flashcardProgress[key] = { correct: 0, attempts: 0, lastSeen: 0 };
+    }
+    skill.flashcardProgress[key].attempts++;
+    if (wasCorrect) skill.flashcardProgress[key].correct++;
+    skill.flashcardProgress[key].lastSeen = Date.now();
+    saveState();
+  }
+
+  function showResults() {
+    var pct = Math.round((correct / cards.length) * 100);
+    var icon = pct >= 80 ? '🏆' : pct >= 50 ? '⭐' : '📚';
+    var msg = pct >= 80 ? 'Amazing recall!' : pct >= 50 ? 'Good progress!' : 'Keep practising!';
+
+    container.innerHTML = '<div class="fc-results">' +
+      '<div class="fc-results-icon">' + icon + '</div>' +
+      '<div class="fc-results-title">' + correct + ' / ' + cards.length + ' cards mastered</div>' +
+      '<div class="fc-results-pct">' + pct + '%</div>' +
+      '<div class="fc-results-msg">' + msg + '</div>' +
+      '<div class="fc-results-btns">' +
+        '<button class="lesson-btn lesson-btn-next" id="fc-retry">Try Again</button>' +
+        '<button class="lesson-btn lesson-btn-done" id="fc-done">Continue →</button>' +
+      '</div>' +
+    '</div>';
+
+    document.getElementById('fc-retry').onclick = function() {
+      idx = 0; correct = 0; deck = shuffle([...cards]); total = deck.length;
+      renderCard();
+    };
+    document.getElementById('fc-done').onclick = function() {
+      if (typeof onComplete === 'function') onComplete();
+    };
+  }
+
+  renderCard();
+}
+
 // --- src/math/math-tree.js ---
 // ============================================================
 //  MATH TREE — 28-skill tree with dependencies (P1-P4)
@@ -2436,6 +3513,255 @@ const MATH_TREE = {
   dataan: { id:'dataan', name:'Data Analysis',          icon:'\uD83D\uDCC8', grade:'P4 Mastery', deps:['bargraph'], desc:'Tables, line graphs, averages' },
   multiwp:{ id:'multiwp',name:'Multi-step Problems',    icon:'\uD83E\uDDE9', grade:'P4 Mastery', deps:['wp1','mul'], desc:'Complex word problems' }
 };
+
+// --- src/math/math-lessons.js ---
+// ============================================================
+//  MATH LESSONS — Visual step-by-step lessons for every math skill
+//  Each lesson teaches the concept BEFORE quizzing
+// ============================================================
+
+var MATH_LESSONS = {
+  // ── P1 FOUNDATION ──
+  count: {
+    title: 'Counting & Ten Frames',
+    icon: '🔢',
+    lumiSays: 'Let\'s count together! Counting is the start of all maths!',
+    steps: [
+      { visual: '🍎🍎🍎', text: 'Count the apples. Point and count: 1... 2... 3!', lumiTip: 'Always point at each thing as you count!' },
+      { visual: '<div class="ten-frame-demo"><div class="tf-dot filled"></div><div class="tf-dot filled"></div><div class="tf-dot filled"></div><div class="tf-dot filled"></div><div class="tf-dot"></div><div class="tf-dot"></div><div class="tf-dot"></div><div class="tf-dot"></div><div class="tf-dot"></div><div class="tf-dot"></div></div>', text: 'This is a <b>ten frame</b>. It has 10 boxes. We filled 4!', lumiTip: 'A ten frame helps us see numbers up to 10.' },
+      { visual: '<div class="ten-frame-demo"><div class="tf-dot filled"></div><div class="tf-dot filled"></div><div class="tf-dot filled"></div><div class="tf-dot filled"></div><div class="tf-dot filled"></div><div class="tf-dot filled"></div><div class="tf-dot filled"></div><div class="tf-dot"></div><div class="tf-dot"></div><div class="tf-dot"></div></div>', text: 'How many empty boxes? 3 empty means 7 are filled!', lumiTip: 'We can count what\'s missing too!' },
+      { type: 'try', visual: '🌟🌟🌟🌟🌟', prompt: 'How many stars are there?', options: ['4', '5', '6'], answer: '5', successMsg: 'You counted perfectly!' }
+    ]
+  },
+
+  nbond: {
+    title: 'Number Bonds',
+    icon: '🔗',
+    lumiSays: 'Number bonds show how numbers fit together!',
+    steps: [
+      { visual: '<div class="bond-demo"><div class="bond-whole">5</div><div class="bond-line"></div><div class="bond-parts"><span class="bond-part">3</span><span class="bond-part">2</span></div></div>', text: '<b>5</b> can be split into <b>3</b> and <b>2</b>.', lumiTip: 'The parts always add up to the whole!' },
+      { visual: '<div class="bond-demo"><div class="bond-whole">7</div><div class="bond-line"></div><div class="bond-parts"><span class="bond-part">4</span><span class="bond-part">3</span></div></div>', text: '<b>7</b> = <b>4</b> + <b>3</b>. The whole is on top!', lumiTip: 'If you know one part, you can find the other.' },
+      { visual: '🍎🍎🍎 + 🍎🍎 = 🍎🍎🍎🍎🍎', text: 'See? 3 apples and 2 apples make 5 apples!', lumiTip: 'Number bonds help with adding and subtracting.' },
+      { type: 'try', visual: '<div class="bond-demo"><div class="bond-whole">6</div><div class="bond-line"></div><div class="bond-parts"><span class="bond-part">4</span><span class="bond-part">?</span></div></div>', prompt: 'What is the missing part?', options: ['1', '2', '3'], answer: '2', successMsg: '4 + 2 = 6. You found it!' }
+    ]
+  },
+
+  add: {
+    title: 'Addition',
+    icon: '➕',
+    lumiSays: 'Adding means putting things together!',
+    steps: [
+      { visual: '🐱🐱 + 🐱🐱🐱', text: 'We have 2 cats and 3 more cats join them.', lumiTip: 'Addition puts groups together.' },
+      { visual: '🐱🐱🐱🐱🐱', text: '2 + 3 = <b>5</b> cats altogether!', lumiTip: 'Count them all to find the answer.' },
+      { visual: '<div class="bar-demo"><div class="bar-part" style="flex:3;background:var(--sky)">3</div><div class="bar-part" style="flex:4;background:var(--coral)">4</div></div><div class="bar-total">3 + 4 = 7</div>', text: 'A <b>bar model</b> shows how parts make a whole.', lumiTip: 'Bar models are super useful for word problems!' },
+      { type: 'try', visual: '🌸🌸🌸🌸 + 🌸🌸', prompt: 'How many flowers altogether?', options: ['5', '6', '7'], answer: '6', successMsg: '4 + 2 = 6. Wonderful!' }
+    ]
+  },
+
+  sub: {
+    title: 'Subtraction',
+    icon: '➖',
+    lumiSays: 'Subtracting means taking away!',
+    steps: [
+      { visual: '🍪🍪🍪🍪🍪', text: 'We have 5 cookies.', lumiTip: 'We start with the bigger number.' },
+      { visual: '🍪🍪🍪<span class="crossed">🍪🍪</span>', text: 'We eat 2 cookies. Cross them out!', lumiTip: 'Crossing out helps us see what\'s left.' },
+      { visual: '🍪🍪🍪', text: '5 − 2 = <b>3</b> cookies left!', lumiTip: 'Subtraction finds how many are left.' },
+      { type: 'try', visual: '⭐⭐⭐⭐⭐⭐ take away ⭐⭐', prompt: '6 − 2 = ?', options: ['3', '4', '5'], answer: '4', successMsg: '6 − 2 = 4. Brilliant!' }
+    ]
+  },
+
+  cmp: {
+    title: 'Comparing Numbers',
+    icon: '⚖️',
+    lumiSays: 'Let\'s learn which numbers are bigger or smaller!',
+    steps: [
+      { visual: '<div class="cmp-demo"><div class="cmp-group"><div class="cmp-count">3</div>🐸🐸🐸</div><div class="cmp-sign">&lt;</div><div class="cmp-group"><div class="cmp-count">5</div>🐸🐸🐸🐸🐸</div></div>', text: '3 is <b>less than</b> 5. We write 3 &lt; 5.', lumiTip: 'The pointy side faces the smaller number!' },
+      { visual: '<div class="cmp-demo"><div class="cmp-group"><div class="cmp-count">7</div>🌺🌺🌺🌺🌺🌺🌺</div><div class="cmp-sign">&gt;</div><div class="cmp-group"><div class="cmp-count">4</div>🌺🌺🌺🌺</div></div>', text: '7 is <b>greater than</b> 4. We write 7 &gt; 4.', lumiTip: 'The open side faces the bigger number — like a hungry crocodile!' },
+      { visual: '<div class="cmp-demo"><div class="cmp-group"><div class="cmp-count">5</div>🎈🎈🎈🎈🎈</div><div class="cmp-sign">=</div><div class="cmp-group"><div class="cmp-count">5</div>🎈🎈🎈🎈🎈</div></div>', text: '5 is <b>equal to</b> 5. Same amount!', lumiTip: 'Equal means exactly the same!' },
+      { type: 'try', prompt: 'Which is correct? 8 __ 3', options: ['8 < 3', '8 > 3', '8 = 3'], answer: '8 > 3', successMsg: '8 is greater than 3!' }
+    ]
+  },
+
+  pat: {
+    title: 'Patterns',
+    icon: '🔄',
+    lumiSays: 'Patterns repeat! Let\'s find the rule!',
+    steps: [
+      { visual: '🔴🔵🔴🔵🔴🔵', text: 'Red, blue, red, blue... the pattern repeats!', lumiTip: 'Look for what comes over and over.' },
+      { visual: '🔺🔺⬜🔺🔺⬜🔺🔺❓', text: 'Triangle, triangle, square... what comes next?', lumiTip: 'Find the repeating group first.' },
+      { visual: '2, 4, 6, 8, __', text: 'Number patterns! We add 2 each time. Next is <b>10</b>!', lumiTip: 'Ask: what is the rule? +1? +2? +3?' },
+      { type: 'try', prompt: 'What comes next? 🌟🌙🌟🌙🌟 __', options: ['🌟', '🌙', '☀️'], answer: '🌙', successMsg: 'The pattern is star, moon, star, moon!' }
+    ]
+  },
+
+  wp1: {
+    title: 'Word Problems',
+    icon: '📝',
+    lumiSays: 'Word problems are stories with numbers!',
+    steps: [
+      { visual: '🧸🧸🧸 ➕ 🧸🧸', text: 'Anastasia has 3 toys. She gets 2 more. How many now?', lumiTip: '"Gets more" means we ADD!' },
+      { visual: '<div class="bar-demo"><div class="bar-part" style="flex:3;background:var(--sky)">3</div><div class="bar-part" style="flex:2;background:var(--mint)">2</div></div><div class="bar-total">3 + 2 = 5 toys!</div>', text: 'Draw a bar model to help! The parts make the whole.', lumiTip: 'Bar models make word problems easier!' },
+      { text: '<b>Key words to look for:</b><br>"altogether" → add<br>"left" or "remaining" → subtract<br>"more than" → add or compare<br>"fewer" → subtract or compare', lumiTip: 'Circle the key words in the question!' },
+      { type: 'try', prompt: 'Lumi has 7 stars. She gives 3 away. How many are left?', options: ['3', '4', '10'], answer: '4', successMsg: '7 − 3 = 4. You used the key word "left"!' }
+    ]
+  },
+
+  shp: {
+    title: 'Shapes',
+    icon: '🔷',
+    lumiSays: 'Shapes are everywhere! Let\'s learn their names!',
+    steps: [
+      { visual: '<div style="font-size:60px">⬜ ⬟ 🔺 ⭕</div>', text: 'Square, pentagon, triangle, circle!', lumiTip: 'Count the sides and corners!' },
+      { text: '<b>Sides and Corners:</b><br>🔺 Triangle = 3 sides, 3 corners<br>⬜ Square = 4 equal sides, 4 corners<br>⬟ Rectangle = 4 sides, 4 corners<br>⭕ Circle = 0 sides, 0 corners', lumiTip: 'A square is a special rectangle!' },
+      { type: 'match', text: 'Match the shape to its number of sides!', pairs: [
+        { left: '🔺 Triangle', right: '3 sides' },
+        { left: '⬜ Square', right: '4 sides' },
+        { left: '⭕ Circle', right: '0 sides' },
+        { left: '⬟ Pentagon', right: '5 sides' }
+      ]},
+      { type: 'try', prompt: 'How many corners does a triangle have?', options: ['2', '3', '4'], answer: '3', successMsg: 'A triangle has 3 corners and 3 sides!' }
+    ]
+  },
+
+  // ── P2 EXPANSION ──
+  add100: {
+    title: 'Addition to 100',
+    icon: '🧮',
+    lumiSays: 'Let\'s add bigger numbers!',
+    steps: [
+      { visual: '<div class="place-val-demo"><div class="pv-col"><div class="pv-label">Tens</div><div class="pv-blocks">🟦🟦🟦</div><div>30</div></div><div class="pv-col"><div class="pv-label">Ones</div><div class="pv-blocks">🟩🟩🟩🟩</div><div>4</div></div></div>', text: '34 = 3 tens and 4 ones!', lumiTip: 'Break numbers into tens and ones.' },
+      { text: '<b>Adding with regrouping:</b><br>27 + 15<br>= 20 + 7 + 10 + 5<br>= 30 + 12<br>= 30 + 10 + 2<br>= <b>42</b>', lumiTip: 'When ones add up to more than 10, we regroup!' },
+      { type: 'try', prompt: '36 + 22 = ?', options: ['56', '58', '54'], answer: '58', successMsg: '36 + 22 = 58. Great adding!' }
+    ]
+  },
+
+  sub100: {
+    title: 'Subtraction to 100',
+    icon: '📐',
+    lumiSays: 'Subtracting bigger numbers is the same idea!',
+    steps: [
+      { text: '<b>Subtracting step by step:</b><br>53 − 21<br>= 50 − 20 and 3 − 1<br>= 30 + 2<br>= <b>32</b>', lumiTip: 'Subtract tens from tens, ones from ones.' },
+      { text: '<b>With regrouping:</b><br>42 − 17<br>Ones: 2 − 7? Not enough!<br>Borrow 1 ten: 12 − 7 = 5<br>Tens: 3 − 1 = 2<br>= <b>25</b>', lumiTip: 'Borrow from the tens when ones aren\'t enough.' },
+      { type: 'try', prompt: '65 − 23 = ?', options: ['42', '43', '44'], answer: '42', successMsg: '65 − 23 = 42. Well done!' }
+    ]
+  },
+
+  mul: {
+    title: 'Multiplication',
+    icon: '✖️',
+    lumiSays: 'Multiplication is fast adding!',
+    steps: [
+      { visual: '<div class="array-demo"><div class="array-row">🍎🍎🍎</div><div class="array-row">🍎🍎🍎</div><div class="array-row">🍎🍎🍎</div><div class="array-row">🍎🍎🍎</div></div>', text: '4 rows of 3 apples = 4 × 3 = <b>12</b>!', lumiTip: 'An array shows multiplication as rows and columns.' },
+      { text: '<b>Times tables trick:</b><br>2× = doubles (2,4,6,8,10...)<br>5× = ends in 0 or 5<br>10× = add a zero!', lumiTip: 'Learn 2s, 5s, and 10s first — they\'re the easiest!' },
+      { type: 'try', prompt: '3 × 5 = ?', options: ['12', '15', '18'], answer: '15', successMsg: '3 groups of 5 = 15!' }
+    ]
+  },
+
+  div: {
+    title: 'Division',
+    icon: '➗',
+    lumiSays: 'Division is sharing equally!',
+    steps: [
+      { visual: '🍬🍬🍬🍬🍬🍬 → 👧👧👧', text: '6 sweets shared among 3 friends. Each gets <b>2</b>!', lumiTip: 'Division is the opposite of multiplication.' },
+      { text: '<b>Two ways to think about division:</b><br>12 ÷ 3 = 4<br>• Sharing: 12 sweets in 3 groups = 4 each<br>• Grouping: How many 3s in 12? → 4 groups', lumiTip: 'If you know your times tables, division is easy!' },
+      { type: 'try', prompt: '10 ÷ 2 = ?', options: ['4', '5', '6'], answer: '5', successMsg: '10 shared between 2 = 5 each!' }
+    ]
+  },
+
+  frac1: {
+    title: 'Fractions',
+    icon: '🥧',
+    lumiSays: 'Fractions are parts of a whole!',
+    steps: [
+      { visual: '<div style="display:flex;gap:4px"><div style="width:50px;height:50px;background:var(--sky);border-radius:4px"></div><div style="width:50px;height:50px;background:var(--bg-mid);border:2px dashed var(--text-dim);border-radius:4px"></div></div>', text: 'This shape is cut into 2 equal parts. 1 is shaded = <b>½</b> (one half)', lumiTip: 'The bottom number tells how many equal parts. The top tells how many are shaded.' },
+      { visual: '<div style="display:flex;gap:4px"><div style="width:40px;height:40px;background:var(--coral);border-radius:4px"></div><div style="width:40px;height:40px;background:var(--bg-mid);border:2px dashed var(--text-dim);border-radius:4px"></div><div style="width:40px;height:40px;background:var(--bg-mid);border:2px dashed var(--text-dim);border-radius:4px"></div><div style="width:40px;height:40px;background:var(--bg-mid);border:2px dashed var(--text-dim);border-radius:4px"></div></div>', text: '1 out of 4 parts = <b>¼</b> (one quarter)', lumiTip: 'Equal parts means each piece is the same size!' },
+      { type: 'try', prompt: 'A pizza is cut into 4 slices. You eat 2. What fraction did you eat?', options: ['¼', '½', '¾'], answer: '½', successMsg: '2 out of 4 = ½. Half the pizza!' }
+    ]
+  },
+
+  money: {
+    title: 'Money',
+    icon: '💰',
+    lumiSays: 'Let\'s learn about Singapore money!',
+    steps: [
+      { text: '<b>Singapore Coins:</b><br>🪙 5¢, 10¢, 20¢, 50¢<br><b>Singapore Notes:</b><br>💵 $2, $5, $10, $50', lumiTip: '100 cents = 1 dollar!' },
+      { text: '<b>Adding money:</b><br>A pencil costs $2.<br>An eraser costs $1.<br>Total = $2 + $1 = <b>$3</b>', lumiTip: 'Adding prices is just like regular addition!' },
+      { type: 'try', prompt: 'A book costs $5. You pay with $10. What is your change?', options: ['$3', '$5', '$15'], answer: '$5', successMsg: '$10 − $5 = $5 change!' }
+    ]
+  },
+
+  time1: {
+    title: 'Telling Time',
+    icon: '🕐',
+    lumiSays: 'Let\'s read the clock!',
+    steps: [
+      { text: '<b>The clock has 2 hands:</b><br>🔵 Short hand = <b>hour</b><br>🔴 Long hand = <b>minutes</b><br>When the long hand points to 12, it\'s "o\'clock"!', lumiTip: 'The short hand moves slowly, the long hand moves fast!' },
+      { text: '<b>Half past:</b><br>When the long hand points to 6, it\'s "half past".<br>🕧 = half past 12<br>🕐 = 1 o\'clock', lumiTip: 'Half past means 30 minutes past the hour.' },
+      { type: 'try', prompt: 'The short hand is on 3, the long hand is on 12. What time is it?', options: ['12 o\'clock', '3 o\'clock', 'Half past 3'], answer: '3 o\'clock', successMsg: 'Long hand on 12 = o\'clock!' }
+    ]
+  },
+
+  pgraph: {
+    title: 'Picture Graphs',
+    icon: '📊',
+    lumiSays: 'Graphs help us compare information!',
+    steps: [
+      { text: '<b>Favourite Fruit:</b><br>🍎🍎🍎🍎 = 4 children<br>🍌🍌🍌 = 3 children<br>🍇🍇🍇🍇🍇 = 5 children', lumiTip: 'Count the pictures to find the number!' },
+      { text: '<b>What can we learn?</b><br>Most popular = Grapes (5)<br>Least popular = Banana (3)<br>Difference = 5 − 3 = 2', lumiTip: 'Graphs help us answer questions about data.' },
+      { type: 'try', prompt: 'In the graph above, how many more children like grapes than bananas?', options: ['1', '2', '3'], answer: '2', successMsg: '5 − 3 = 2 more children!' }
+    ]
+  },
+
+  lenmass: {
+    title: 'Length & Mass',
+    icon: '📏',
+    lumiSays: 'Let\'s measure things!',
+    steps: [
+      { text: '<b>Length</b> tells how long something is.<br>We use <b>cm</b> (centimetres) and <b>m</b> (metres).<br>100 cm = 1 m', lumiTip: 'A ruler measures centimetres. Your arm is about 1 metre!' },
+      { text: '<b>Mass</b> tells how heavy something is.<br>We use <b>g</b> (grams) and <b>kg</b> (kilograms).<br>1000 g = 1 kg', lumiTip: 'A bag of rice is about 1 kg!' },
+      { type: 'try', prompt: 'Which is longer: 50 cm or 1 m?', options: ['50 cm', '1 m', 'Same'], answer: '1 m', successMsg: '1 m = 100 cm, so 1 m is longer!' }
+    ]
+  }
+};
+
+// Get lesson data for a skill, returns null if not available
+function getMathLesson(skillId) {
+  return MATH_LESSONS[skillId] || null;
+}
+
+// Get flashcard data for math facts
+function getMathFlashcards(skillId) {
+  var cards = [];
+
+  if (skillId === 'nbond') {
+    for (var whole = 3; whole <= 10; whole++) {
+      var part1 = Math.floor(Math.random() * (whole - 1)) + 1;
+      cards.push({ front: whole + ' = ' + part1 + ' + ?', back: String(whole - part1), image: '🔗' });
+    }
+  }
+
+  if (skillId === 'add') {
+    [[2,3],[4,5],[3,6],[7,2],[5,5],[8,1],[6,4],[3,7],[9,1],[4,4]].forEach(function(pair) {
+      cards.push({ front: pair[0] + ' + ' + pair[1], back: String(pair[0] + pair[1]), image: '➕' });
+    });
+  }
+
+  if (skillId === 'sub') {
+    [[5,2],[7,3],[9,4],[8,5],[6,1],[10,3],[7,4],[9,6],[8,3],[10,7]].forEach(function(pair) {
+      cards.push({ front: pair[0] + ' − ' + pair[1], back: String(pair[0] - pair[1]), image: '➖' });
+    });
+  }
+
+  if (skillId === 'mul') {
+    [2,3,4,5,10].forEach(function(times) {
+      for (var i = 1; i <= 5; i++) {
+        cards.push({ front: i + ' × ' + times, back: String(i * times), image: '✖️' });
+      }
+    });
+  }
+
+  return cards.length > 0 ? cards : null;
+}
 
 // --- src/word/word-data.js ---
 // ============================================================
@@ -2765,6 +4091,199 @@ const WORD_TREE = {
   paragraph: { id:'paragraph', name:'Paragraph Power',    icon:'\uD83D\uDCDD', grade:'P4 Mastery', deps:['comprehension'],            desc:'Write structured paragraphs' }
 };
 
+// --- src/word/word-lessons.js ---
+// ============================================================
+//  WORD LESSONS — Visual step-by-step lessons for English skills
+//  Adapted for P1 learner (age 6-7)
+// ============================================================
+
+var WORD_LESSONS = {
+  phon: {
+    title: 'Phonics — Word Families',
+    icon: '🔤',
+    lumiSays: 'Let\'s learn how letters make sounds!',
+    steps: [
+      { visual: '<div class="phon-demo"><span class="phon-letter">c</span><span class="phon-blend">+</span><span class="phon-family">at</span><span class="phon-blend">=</span><span class="phon-word">cat</span> 🐱</div>', text: 'The <b>-at</b> family! Change the first letter to make new words.', lumiTip: 'Word families share the same ending sound!' },
+      { visual: '<div class="phon-family-list"><span>c<b>at</b> 🐱</span><span>b<b>at</b> 🏏</span><span>h<b>at</b> 🎩</span><span>m<b>at</b> 🧹</span><span>r<b>at</b> 🐀</span><span>s<b>at</b> 💺</span></div>', text: 'All these words rhyme! They end in <b>-at</b>.', lumiTip: 'Rhyming words sound the same at the end.' },
+      { visual: '<div class="phon-family-list"><span>p<b>ig</b> 🐷</span><span>b<b>ig</b> 📏</span><span>d<b>ig</b> ⛏️</span><span>w<b>ig</b> 💇</span></div>', text: 'The <b>-ig</b> family! Same idea, different ending.', lumiTip: 'Learning one family helps you read many words!' },
+      { type: 'try', prompt: 'Which word is in the -at family?', options: ['cat', 'cup', 'dog', 'pig'], answer: 'cat', successMsg: 'Cat ends in -at!' },
+      { type: 'try', prompt: 'What word do these letters make? h + o + t', options: ['hat', 'hot', 'hit'], answer: 'hot', successMsg: 'h-o-t = hot! 🔥' }
+    ]
+  },
+
+  sight: {
+    title: 'Sight Words',
+    icon: '👀',
+    lumiSays: 'Sight words are words you see everywhere! Let\'s learn to recognise them fast!',
+    steps: [
+      { visual: '<div class="sight-demo"><span class="sight-big">the</span></div>', text: '<b>"the"</b> is the most common word in English!<br>Example: <i>the cat sat on the mat</i>', lumiTip: 'You\'ll see "the" in almost every sentence!' },
+      { visual: '<div class="sight-demo"><span class="sight-big">is</span></div>', text: '<b>"is"</b> tells us about something.<br>Example: <i>She is happy.</i>', lumiTip: 'Sight words don\'t always follow phonics rules.' },
+      { visual: '<div class="sight-word-grid"><span>the</span><span>is</span><span>and</span><span>a</span><span>to</span><span>in</span><span>it</span><span>he</span><span>she</span><span>we</span></div>', text: 'These are <b>Level 1</b> sight words. Learn them by heart!', lumiTip: 'The more you read, the faster you\'ll spot them!' },
+      { type: 'try', prompt: 'Which is a sight word?', options: ['the', 'xyz', 'bloop'], answer: 'the', successMsg: '"the" is the most common sight word!' }
+    ]
+  },
+
+  spell: {
+    title: 'Spelling',
+    icon: '✏️',
+    lumiSays: 'Spelling helps us write words correctly!',
+    steps: [
+      { visual: '<div class="spell-demo">🐱 = <span class="spell-letter">c</span><span class="spell-letter">a</span><span class="spell-letter">t</span></div>', text: 'Listen to each sound: /k/ /a/ /t/ → <b>cat</b>', lumiTip: 'Say the word slowly. Listen to each sound.' },
+      { text: '<b>Spelling tips:</b><br>1. Say the word slowly<br>2. Listen to each sound<br>3. Write the letter for each sound<br>4. Check: does it look right?', lumiTip: 'Practise makes perfect!' },
+      { type: 'try', visual: '🐕 = d-o-?', prompt: 'What is the last letter?', options: ['f', 'g', 'p'], answer: 'g', successMsg: 'd-o-g spells dog! 🐕' }
+    ]
+  },
+
+  gram: {
+    title: 'Grammar',
+    icon: '📖',
+    lumiSays: 'Grammar helps us put words in the right order!',
+    steps: [
+      { text: '<b>Nouns</b> are naming words.<br>They name people, animals, places, or things.<br><span style="color:var(--sky)">girl</span>, <span style="color:var(--sky)">cat</span>, <span style="color:var(--sky)">school</span>, <span style="color:var(--sky)">ball</span>', lumiTip: 'If you can touch it or see it, it\'s probably a noun!' },
+      { text: '<b>Verbs</b> are doing words.<br>They tell us what someone does.<br><span style="color:var(--coral)">run</span>, <span style="color:var(--coral)">eat</span>, <span style="color:var(--coral)">sleep</span>, <span style="color:var(--coral)">play</span>', lumiTip: 'Can you act it out? Then it\'s a verb!' },
+      { text: '<b>Adjectives</b> are describing words.<br>They tell us more about nouns.<br><span style="color:var(--mint)">big</span>, <span style="color:var(--mint)">happy</span>, <span style="color:var(--mint)">red</span>, <span style="color:var(--mint)">tall</span>', lumiTip: 'Adjectives answer: what kind? how many? which one?' },
+      { type: 'sort', text: 'Sort these words into the right group!', categories: [
+        { name: 'Nouns', items: ['cat', 'ball', 'tree'] },
+        { name: 'Verbs', items: ['run', 'jump', 'eat'] }
+      ]},
+      { type: 'try', prompt: 'What type of word is "happy"?', options: ['Noun', 'Verb', 'Adjective'], answer: 'Adjective', successMsg: '"Happy" describes how someone feels!' }
+    ]
+  },
+
+  vocab: {
+    title: 'Vocabulary',
+    icon: '📚',
+    lumiSays: 'Big words make your writing sparkle!',
+    steps: [
+      { visual: '<div class="vocab-compare"><div class="vocab-plain">big</div><div class="vocab-arrow">→</div><div class="vocab-fancy">enormous</div></div>', text: 'Instead of <b>big</b>, try <b>enormous</b>! It means very, very big!', lumiTip: 'Strong words make your stories more interesting!' },
+      { visual: '<div class="vocab-compare"><div class="vocab-plain">happy</div><div class="vocab-arrow">→</div><div class="vocab-fancy">delighted</div></div>', text: 'Instead of <b>happy</b>, try <b>delighted</b>!', lumiTip: 'Collect big words like treasure!' },
+      { visual: '<div class="vocab-compare"><div class="vocab-plain">said</div><div class="vocab-arrow">→</div><div class="vocab-fancy">exclaimed</div></div>', text: 'Instead of <b>said</b>, try <b>exclaimed</b>! It means said with excitement!', lumiTip: 'Using different "said" words makes dialogue better.' },
+      { type: 'try', prompt: '"The elephant is very big." Which word could replace "very big"?', options: ['tiny', 'enormous', 'quiet'], answer: 'enormous', successMsg: 'Enormous means really, really big!' }
+    ]
+  },
+
+  sent: {
+    title: 'Sentence Building',
+    icon: '🏗️',
+    lumiSays: 'Let\'s build sentences step by step!',
+    steps: [
+      { text: '<b>A sentence needs:</b><br>1. A <span style="color:var(--sky)">capital letter</span> at the start<br>2. A <span style="color:var(--coral)">verb</span> (doing word)<br>3. A <span style="color:var(--gold)">full stop</span> at the end', lumiTip: 'Every sentence is a complete thought!' },
+      { visual: '<div class="sent-demo"><span class="sent-cap">T</span>he cat <span class="sent-verb">sat</span> on the mat<span class="sent-end">.</span></div>', text: 'Capital T, doing word "sat", full stop at the end!', lumiTip: 'Read it aloud. Does it sound complete?' },
+      { text: '<b>Make it better!</b><br>❌ the cat sat → missing capital and full stop<br>✅ The fluffy cat sat on the soft mat. → much better!', lumiTip: 'Add adjectives to make sentences sparkle!' },
+      { type: 'try', prompt: 'Which is a correct sentence?', options: ['the dog runs', 'The dog runs.', 'dog runs.'], answer: 'The dog runs.', successMsg: 'Capital letter + full stop = correct sentence!' }
+    ]
+  },
+
+  comp: {
+    title: 'Reading Comprehension',
+    icon: '📰',
+    lumiSays: 'Let\'s read and understand stories!',
+    steps: [
+      { text: '<b>How to read carefully:</b><br>1. Read the story <b>once</b> for fun<br>2. Read it <b>again</b> slowly<br>3. Look for <b>key words</b> in the question<br>4. Find the answer <b>in the text</b>', lumiTip: 'Always read the story at least twice!' },
+      { text: '<div style="background:var(--bg-mid);padding:12px;border-radius:12px;margin-bottom:8px;font-style:italic">"Sam has a red ball. He plays with it in the park every day."</div><b>Question:</b> What colour is Sam\'s ball?<br><b>Answer:</b> Red! (It says "red ball" in the story.)', lumiTip: 'The answer is always in the text!' },
+      { type: 'try', prompt: '"Lumi is a golden star. She lives in the sky." Where does Lumi live?', options: ['Under the sea', 'In the sky', 'On a mountain'], answer: 'In the sky', successMsg: 'You found it in the text!' }
+    ]
+  },
+
+  poetry: {
+    title: 'Poetry Corner',
+    icon: '🎭',
+    lumiSays: 'Poems are like songs made of words!',
+    steps: [
+      { text: '<b>Rhyming words</b> sound the same at the end:<br>cat / hat / mat<br>star / far / car<br>moon / spoon / June', lumiTip: 'Most poems use rhyming words!' },
+      { visual: '<div class="poem-demo"><div class="poem-line">Twinkle twinkle little <b>star</b>,</div><div class="poem-line">How I wonder what you <b>are</b>.</div></div>', text: '<b>star</b> and <b>are</b> rhyme! They have the same ending sound.', lumiTip: 'Listen for the rhyme at the end of each line.' },
+      { type: 'try', prompt: 'Which word rhymes with "cat"?', options: ['cup', 'hat', 'dog'], answer: 'hat', successMsg: 'Cat and hat both end in -at!' }
+    ]
+  },
+
+  story: {
+    title: 'Story Garden',
+    icon: '🌱',
+    lumiSays: 'Let\'s grow stories from tiny seeds!',
+    steps: [
+      { text: '<b>Every story needs:</b><br>📍 <b>Beginning:</b> Who? Where?<br>⚡ <b>Middle:</b> What happened?<br>🌟 <b>End:</b> How was it solved?', lumiTip: 'Think: beginning → middle → end!' },
+      { text: '<b>Story starter words:</b><br>"Once upon a time..."<br>"One sunny morning..."<br>"Long ago, in a land far away..."', lumiTip: 'Good beginnings make readers want to read more!' },
+      { text: '<b>Start small:</b><br>First, try completing a sentence:<br>"The cat went to the ___."<br>Then try writing 2 sentences.<br>Then a whole paragraph!', lumiTip: 'Writing is like a muscle — it gets stronger with practice!' },
+      { type: 'try', prompt: 'What goes at the END of a story?', options: ['Who the characters are', 'How the problem is solved', 'Where it takes place'], answer: 'How the problem is solved', successMsg: 'The ending wraps up the story!' }
+    ]
+  },
+
+  para: {
+    title: 'Paragraph Writing',
+    icon: '📝',
+    lumiSays: 'A paragraph is a group of sentences about one thing!',
+    steps: [
+      { text: '<b>A paragraph has:</b><br>1. <span style="color:var(--gold)">Topic sentence</span> — what it\'s about<br>2. <span style="color:var(--sky)">Detail sentences</span> — more information<br>3. <span style="color:var(--mint)">Closing sentence</span> — wraps it up', lumiTip: 'Think of a paragraph like a sandwich!' },
+      { text: '<b>Example:</b><br><span style="color:var(--gold)">I love going to the beach.</span> <span style="color:var(--sky)">The sand is warm and soft. I like to build sandcastles. The waves are fun to splash in.</span> <span style="color:var(--mint)">The beach is my favourite place!</span>', lumiTip: 'The first and last sentences are special!' },
+      { type: 'try', prompt: 'Which is a good topic sentence about pets?', options: ['Dogs bark.', 'I love my pet hamster.', 'The end.'], answer: 'I love my pet hamster.', successMsg: 'It tells us what the paragraph will be about!' }
+    ]
+  }
+};
+
+function getWordLesson(skillId) {
+  return WORD_LESSONS[skillId] || null;
+}
+
+// Flashcards for sight words (P1 high-frequency words)
+function getWordFlashcards(skillId) {
+  if (skillId === 'sight') {
+    return [
+      { front: 'the', back: 'Used before a noun', example: 'The cat is sleeping.', image: '👀' },
+      { front: 'is', back: 'Tells about something', example: 'She is happy.', image: '👀' },
+      { front: 'and', back: 'Joins two things', example: 'Mum and Dad', image: '👀' },
+      { front: 'a', back: 'Means one of something', example: 'I see a bird.', image: '👀' },
+      { front: 'to', back: 'Shows direction', example: 'Go to school.', image: '👀' },
+      { front: 'in', back: 'Means inside', example: 'The toy is in the box.', image: '👀' },
+      { front: 'it', back: 'Replaces a thing', example: 'I like it.', image: '👀' },
+      { front: 'he', back: 'A boy or man', example: 'He is tall.', image: '👀' },
+      { front: 'she', back: 'A girl or woman', example: 'She can sing.', image: '👀' },
+      { front: 'we', back: 'Me and you', example: 'We are friends.', image: '👀' },
+      { front: 'can', back: 'Means able to', example: 'I can swim.', image: '👀' },
+      { front: 'said', back: 'Past of say', example: '"Hello!" said Tom.', image: '👀' },
+      { front: 'you', back: 'The person I\'m talking to', example: 'How are you?', image: '👀' },
+      { front: 'was', back: 'Past of is', example: 'It was raining.', image: '👀' },
+      { front: 'they', back: 'More than one person', example: 'They are playing.', image: '👀' },
+      { front: 'my', back: 'Belongs to me', example: 'This is my book.', image: '👀' },
+      { front: 'are', back: 'For more than one', example: 'We are here.', image: '👀' },
+      { front: 'has', back: 'Means owns or holds', example: 'He has a toy.', image: '👀' },
+      { front: 'his', back: 'Belongs to him', example: 'That is his bag.', image: '👀' },
+      { front: 'her', back: 'Belongs to her', example: 'I like her dress.', image: '👀' }
+    ];
+  }
+
+  if (skillId === 'vocab') {
+    return [
+      { front: 'enormous', back: 'Very, very big', example: 'The elephant is enormous!', image: '📚' },
+      { front: 'delighted', back: 'Very happy', example: 'She was delighted to see her friend.', image: '📚' },
+      { front: 'peculiar', back: 'Strange or unusual', example: 'The bird had a peculiar cry.', image: '📚' },
+      { front: 'exclaimed', back: 'Said with excitement', example: '"Wow!" exclaimed Lumi.', image: '📚' },
+      { front: 'magnificent', back: 'Wonderful and impressive', example: 'The palace was magnificent.', image: '📚' },
+      { front: 'furious', back: 'Very angry', example: 'The dragon was furious.', image: '📚' },
+      { front: 'exhausted', back: 'Very tired', example: 'After running, she was exhausted.', image: '📚' },
+      { front: 'glistened', back: 'Sparkled in the light', example: 'The snow glistened in the sun.', image: '📚' },
+      { front: 'whispered', back: 'Said very quietly', example: '"Shh," whispered the girl.', image: '📚' },
+      { front: 'trembled', back: 'Shook with fear', example: 'The mouse trembled with fear.', image: '📚' }
+    ];
+  }
+
+  if (skillId === 'phon') {
+    return [
+      { front: 'c + at = ?', back: 'cat 🐱', image: '🔤' },
+      { front: 'b + at = ?', back: 'bat 🏏', image: '🔤' },
+      { front: 'h + at = ?', back: 'hat 🎩', image: '🔤' },
+      { front: 'p + ig = ?', back: 'pig 🐷', image: '🔤' },
+      { front: 'd + og = ?', back: 'dog 🐕', image: '🔤' },
+      { front: 'h + ot = ?', back: 'hot 🔥', image: '🔤' },
+      { front: 'b + us = ?', back: 'bus 🚌', image: '🔤' },
+      { front: 'c + up = ?', back: 'cup ☕', image: '🔤' },
+      { front: 's + un = ?', back: 'sun ☀️', image: '🔤' },
+      { front: 'r + ed = ?', back: 'red 🔴', image: '🔤' }
+    ];
+  }
+
+  return null;
+}
+
 // --- src/stem/stem-tree.js ---
 // ============================================================
 //  STEM TREE — 10-skill tree: Science (5) + Coding (5)
@@ -2789,6 +4308,186 @@ const STEM_TREE = {
   cvar:     { id:'cvar',     name:'Code: Variables',       icon:'\uD83D\uDCE6', grade:'P2 Coding',   deps:['ccond'],    desc:'Store and change values' },
   cdebug:   { id:'cdebug',   name:'Code: Debugging',       icon:'\uD83D\uDC1B', grade:'P2 Coding',   deps:['cvar'],     desc:'Find and fix bugs' }
 };
+
+// --- src/stem/stem-lessons.js ---
+// ============================================================
+//  STEM LESSONS — Visual step-by-step lessons for science + coding
+//  Adapted for P1 learner (simple, visual, discovery-based)
+// ============================================================
+
+var STEM_LESSONS = {
+  // ── SCIENCE ──
+  living: {
+    title: 'Living & Non-Living Things',
+    icon: '🌱',
+    lumiSays: 'Let\'s discover what is alive and what is not!',
+    steps: [
+      { visual: '<div style="font-size:48px">🐕 🌷 🪨 🧸</div>', text: 'Some things are <b>alive</b> and some are <b>not alive</b>.', lumiTip: 'Living things do special things!' },
+      { text: '<b>Living things can:</b><br>🌱 Grow bigger<br>🍽️ Need food and water<br>🏃 Move on their own<br>👶 Have babies (reproduce)<br>💨 Breathe', lumiTip: 'Remember: grow, eat, move, reproduce, breathe!' },
+      { text: '<b>Non-living things:</b><br>🪨 Rock — does not grow<br>🧸 Teddy bear — does not eat<br>📱 Phone — does not breathe<br>They were never alive!', lumiTip: 'Non-living things don\'t do any of those things.' },
+      { type: 'sort', text: 'Sort these into Living and Non-Living!', categories: [
+        { name: 'Living', items: ['🐱 Cat', '🌻 Flower', '🐛 Worm'] },
+        { name: 'Non-Living', items: ['🪨 Rock', '✏️ Pencil', '🧱 Brick'] }
+      ]},
+      { type: 'try', prompt: 'Which is a living thing?', options: ['A car', 'A fish', 'A table'], answer: 'A fish', successMsg: 'A fish grows, eats, moves, and breathes!' }
+    ]
+  },
+
+  material: {
+    title: 'Materials & Properties',
+    icon: '🧱',
+    lumiSays: 'Everything is made of different materials!',
+    steps: [
+      { text: '<b>Materials</b> are what things are made of:<br>🪵 Wood — tables, doors, pencils<br>🪨 Metal — spoons, scissors, coins<br>🧶 Fabric — clothes, curtains<br>🧊 Plastic — bottles, toys', lumiTip: 'Look around you — what materials can you see?' },
+      { text: '<b>Properties</b> describe what materials are like:<br>Hard or soft? 🪨 vs 🧸<br>Rough or smooth? 🪵 vs 🧊<br>Waterproof or absorbent? ☔ vs 🧽<br>See-through or opaque? 🪟 vs 🧱', lumiTip: 'Touch things and think about how they feel!' },
+      { type: 'sort', text: 'Sort by property: Hard or Soft?', categories: [
+        { name: 'Hard', items: ['🪨 Rock', '🪙 Coin', '🧊 Ice'] },
+        { name: 'Soft', items: ['🧸 Teddy', '🧽 Sponge', '🧶 Wool'] }
+      ]},
+      { type: 'try', prompt: 'Which material is waterproof?', options: ['Paper', 'Plastic', 'Fabric'], answer: 'Plastic', successMsg: 'Plastic keeps water out!' }
+    ]
+  },
+
+  forces: {
+    title: 'Forces — Push & Pull',
+    icon: '💪',
+    lumiSays: 'Forces make things move!',
+    steps: [
+      { visual: '<div style="font-size:48px">👋 ➡️ 📦</div>', text: 'A <b>push</b> moves something away from you.', lumiTip: 'Pushing a door, kicking a ball — those are pushes!' },
+      { visual: '<div style="font-size:48px">📦 ⬅️ 🤲</div>', text: 'A <b>pull</b> moves something towards you.', lumiTip: 'Opening a drawer, pulling a wagon — those are pulls!' },
+      { text: '<b>Forces can:</b><br>🚀 Make things <b>start moving</b><br>🛑 Make things <b>stop</b><br>↗️ Change <b>direction</b><br>🏎️ Make things go <b>faster</b> or <b>slower</b>', lumiTip: 'Everything that moves uses forces!' },
+      { type: 'sort', text: 'Is it a push or a pull?', categories: [
+        { name: 'Push', items: ['Kick a ball', 'Press a button', 'Close a door'] },
+        { name: 'Pull', items: ['Tug of war', 'Open a drawer', 'Fish with a rod'] }
+      ]},
+      { type: 'try', prompt: 'What happens when you push a toy car?', options: ['It stays still', 'It moves away', 'It disappears'], answer: 'It moves away', successMsg: 'A push makes things move away from you!' }
+    ]
+  },
+
+  earth: {
+    title: 'Earth & Weather',
+    icon: '🌍',
+    lumiSays: 'Let\'s learn about our amazing planet!',
+    steps: [
+      { visual: '<div style="font-size:60px">☀️ 🌧️ ⛈️ 🌈</div>', text: 'Weather changes every day! Sun, rain, storms, rainbows!', lumiTip: 'Look outside — what\'s the weather today?' },
+      { text: '<b>The Water Cycle:</b><br>☀️ Sun heats water → it goes UP as vapour<br>☁️ Vapour cools → becomes clouds<br>🌧️ Clouds get heavy → rain falls<br>💧 Water collects → rivers, lakes, sea<br>🔄 Then it starts again!', lumiTip: 'Water goes round and round forever!' },
+      { text: '<b>Singapore\'s weather:</b><br>🌡️ Hot and warm all year<br>🌧️ Rainy season (Nov–Jan)<br>☀️ Dry season (Feb–Apr)<br>🌤️ About 25–31°C', lumiTip: 'Singapore is near the equator — it\'s always warm!' },
+      { type: 'try', prompt: 'What makes clouds?', options: ['Wind blowing dust', 'Water vapour cooling', 'Stars falling'], answer: 'Water vapour cooling', successMsg: 'When water vapour cools, it makes tiny droplets = clouds!' }
+    ]
+  },
+
+  body: {
+    title: 'My Body',
+    icon: '🫀',
+    lumiSays: 'Your body is amazing! Let\'s explore it!',
+    steps: [
+      { text: '<b>Your 5 senses:</b><br>👀 Eyes — see<br>👂 Ears — hear<br>👃 Nose — smell<br>👅 Tongue — taste<br>✋ Skin — touch', lumiTip: 'We use our senses to learn about the world!' },
+      { text: '<b>Important body parts:</b><br>🧠 Brain — thinks and controls everything<br>🫀 Heart — pumps blood around your body<br>🫁 Lungs — help you breathe<br>🦴 Bones — hold your body up<br>💪 Muscles — help you move', lumiTip: 'Your heart beats about 100,000 times a day!' },
+      { type: 'match', text: 'Match the sense to its body part!', pairs: [
+        { left: '👀 See', right: 'Eyes' },
+        { left: '👂 Hear', right: 'Ears' },
+        { left: '👃 Smell', right: 'Nose' },
+        { left: '👅 Taste', right: 'Tongue' }
+      ]},
+      { type: 'try', prompt: 'What does the heart do?', options: ['Helps you think', 'Pumps blood', 'Helps you breathe'], answer: 'Pumps blood', successMsg: 'Your heart pumps blood to every part of your body!' }
+    ]
+  },
+
+  // ── CODING ──
+  cseq: {
+    title: 'Coding — Sequences',
+    icon: '📋',
+    lumiSays: 'A sequence is a list of steps in order!',
+    steps: [
+      { text: '<b>A sequence is steps done in order:</b><br>1️⃣ Wake up<br>2️⃣ Brush teeth<br>3️⃣ Eat breakfast<br>4️⃣ Go to school', lumiTip: 'Order matters! You brush teeth BEFORE eating!' },
+      { visual: '<div class="code-demo"><span class="code-block">→ Move right</span><span class="code-block">→ Move right</span><span class="code-block">↓ Move down</span></div>', text: 'In coding, we give the computer a sequence of <b>commands</b>.', lumiTip: 'The computer does exactly what you tell it — in order!' },
+      { text: '<b>Commands for the robot:</b><br>→ Move right<br>← Move left<br>↑ Move up<br>↓ Move down<br>The robot follows each step one by one!', lumiTip: 'Plan your path before writing commands!' },
+      { type: 'try', prompt: 'To go right 2 spaces, how many "→" commands do you need?', options: ['1', '2', '3'], answer: '2', successMsg: 'One → for each space!' }
+    ]
+  },
+
+  cloop: {
+    title: 'Coding — Loops',
+    icon: '🔁',
+    lumiSays: 'Loops repeat things without writing them again!',
+    steps: [
+      { text: '<b>Without a loop:</b><br>→ Move right<br>→ Move right<br>→ Move right<br>→ Move right<br>That\'s 4 commands!', lumiTip: 'Writing the same thing over and over is boring!' },
+      { visual: '<div class="code-demo"><span class="code-block loop">🔁 Repeat 4 times:<span class="code-block nested">→ Move right</span></span></div>', text: '<b>With a loop:</b> Repeat 4 times → move right. Same result, less writing!', lumiTip: 'Loops save time and make code shorter!' },
+      { text: '<b>When to use loops:</b><br>• Moving in a straight line<br>• Doing the same thing many times<br>• Any repeating pattern!', lumiTip: 'If you see a pattern, you can probably use a loop!' },
+      { type: 'try', prompt: '"Repeat 3 times: jump" — How many jumps?', options: ['1', '3', '6'], answer: '3', successMsg: 'The robot jumps 3 times!' }
+    ]
+  },
+
+  ccond: {
+    title: 'Coding — Conditionals',
+    icon: '🔀',
+    lumiSays: 'Conditionals let the computer make decisions!',
+    steps: [
+      { text: '<b>IF it is raining ☔</b><br>→ Take an umbrella<br><b>ELSE</b><br>→ Wear sunglasses 😎', lumiTip: 'We make "if" decisions every day!' },
+      { visual: '<div class="code-demo"><span class="code-block cond">IF on red tile:<span class="code-block nested">↰ Turn left</span></span><span class="code-block cond">IF on blue tile:<span class="code-block nested">↱ Turn right</span></span></div>', text: 'The robot checks the colour and decides what to do!', lumiTip: 'The robot looks before it acts!' },
+      { type: 'try', prompt: '"IF hungry → eat. ELSE → play." You are hungry. What do you do?', options: ['Play', 'Eat', 'Sleep'], answer: 'Eat', successMsg: 'The condition is true, so you eat!' }
+    ]
+  },
+
+  cvar: {
+    title: 'Coding — Variables',
+    icon: '📦',
+    lumiSays: 'Variables are like labelled boxes that hold values!',
+    steps: [
+      { visual: '<div class="var-demo"><div class="var-box"><div class="var-label">score</div><div class="var-value">0</div></div></div>', text: 'A <b>variable</b> is a box with a name. This one is called "score" and holds 0.', lumiTip: 'Think of it as a container with a label!' },
+      { visual: '<div class="var-demo"><div class="var-box"><div class="var-label">score</div><div class="var-value">0 → 5</div></div></div>', text: 'When you collect a gem: <b>score = score + 5</b>. Now it holds 5!', lumiTip: 'Variables can change — that\'s why they\'re called variables!' },
+      { type: 'try', prompt: 'score = 3. You collect 2 gems worth 1 each. What is score now?', options: ['3', '5', '6'], answer: '5', successMsg: '3 + 1 + 1 = 5!' }
+    ]
+  },
+
+  cdebug: {
+    title: 'Coding — Debugging',
+    icon: '🐛',
+    lumiSays: 'Debugging means finding and fixing mistakes in code!',
+    steps: [
+      { text: '<b>A bug</b> is a mistake in code.<br><b>Debugging</b> is finding and fixing it!<br><br>Even the best coders make bugs. The skill is <b>finding</b> them!', lumiTip: 'The word "bug" comes from a real moth found in a computer in 1947!' },
+      { visual: '<div class="code-demo"><span class="code-block">Goal: Go right 3 steps</span><span class="code-block bug">→ Move right</span><span class="code-block bug">→ Move right</span><span class="code-block bug">↓ Move down ← BUG!</span></div>', text: 'Spot the bug! The third command should be → not ↓.', lumiTip: 'Compare what the code DOES vs what it SHOULD do.' },
+      { type: 'try', prompt: '"→ → ↓ →" should go right 4 times. Which step is the bug?', options: ['Step 1', 'Step 2', 'Step 3'], answer: 'Step 3', successMsg: 'Step 3 goes down instead of right — that\'s the bug!' }
+    ]
+  }
+};
+
+function getStemLesson(skillId) {
+  return STEM_LESSONS[skillId] || null;
+}
+
+function getStemFlashcards(skillId) {
+  if (skillId === 'living') {
+    return [
+      { front: 'Living things can...', back: 'Grow, eat, move, breathe, reproduce', image: '🌱' },
+      { front: 'Is a flower living?', back: 'Yes! It grows and needs water.', image: '🌷' },
+      { front: 'Is a rock living?', back: 'No! It cannot grow or move.', image: '🪨' },
+      { front: 'Is a fish living?', back: 'Yes! It breathes, eats, and grows.', image: '🐟' },
+      { front: 'Is a toy car living?', back: 'No! It was never alive.', image: '🚗' }
+    ];
+  }
+
+  if (skillId === 'body') {
+    return [
+      { front: '🧠 Brain', back: 'Thinks and controls your body', image: '🫀' },
+      { front: '🫀 Heart', back: 'Pumps blood around your body', image: '🫀' },
+      { front: '🫁 Lungs', back: 'Help you breathe', image: '🫀' },
+      { front: '👀 Eyes', back: 'Let you see', image: '🫀' },
+      { front: '👂 Ears', back: 'Let you hear', image: '🫀' }
+    ];
+  }
+
+  if (skillId === 'forces') {
+    return [
+      { front: 'Push', back: 'A force that moves things AWAY from you', image: '💪' },
+      { front: 'Pull', back: 'A force that moves things TOWARDS you', image: '💪' },
+      { front: 'Gravity', back: 'A pull that keeps us on the ground', image: '💪' },
+      { front: 'Friction', back: 'A force that slows things down', image: '💪' }
+    ];
+  }
+
+  return null;
+}
 
 // --- src/math/math-gen.js ---
 // ============================================================
@@ -7394,6 +9093,27 @@ function updateHomeUI() {
   const gardenPct = Math.min(100, (state.garden.length / 50) * 100);
   document.getElementById('garden-progress').style.width = gardenPct + '%';
 
+  // Streak calendar
+  var streakEl = document.getElementById('streak-calendar-area');
+  if (streakEl && typeof renderStreakCalendar === 'function') {
+    streakEl.innerHTML = renderStreakCalendar();
+  }
+
+  // Review-due count
+  if (typeof getSkillsDueForReview === 'function') {
+    var due = getSkillsDueForReview();
+    var reviewEl = document.getElementById('review-due-banner');
+    if (reviewEl) {
+      if (due.length > 0) {
+        reviewEl.innerHTML = '<span class="review-banner-icon">🔔</span> ' +
+          due.length + ' skill' + (due.length > 1 ? 's' : '') + ' due for review!';
+        reviewEl.classList.remove('hidden');
+      } else {
+        reviewEl.classList.add('hidden');
+      }
+    }
+  }
+
   updateDailyQuest();
   updateWotd();
   updateChallengesSection();
@@ -7534,6 +9254,153 @@ function showScreen(screenId) {
     renderActivityCards(STEM_TREE, 'stem-activities', 'stem');
   }
   if (screenId === 'garden') renderGarden();
+}
+
+// === SKILL VIEW — Tabbed Learn / Explore / Quiz ===
+function openSkillView(skillId, worldType) {
+  playSound('click');
+
+  // Record activity
+  if (typeof recordSkillActivity === 'function') {
+    recordSkillActivity(skillId, 'visit');
+  }
+
+  // Look up skill name/icon
+  var allTrees = Object.assign({},
+    typeof MATH_TREE !== 'undefined' ? MATH_TREE : {},
+    typeof WORD_TREE !== 'undefined' ? WORD_TREE : {},
+    typeof STEM_TREE !== 'undefined' ? STEM_TREE : {}
+  );
+  var skill = allTrees[skillId];
+  var skillName = skill ? skill.icon + ' ' + skill.name : skillId;
+
+  // Get lesson, flashcards
+  var lesson = null;
+  var flashcards = null;
+
+  if (worldType === 'math') {
+    if (typeof getMathLesson === 'function') lesson = getMathLesson(skillId);
+    if (typeof getMathFlashcards === 'function') flashcards = getMathFlashcards(skillId);
+  } else if (worldType === 'word') {
+    if (typeof getWordLesson === 'function') lesson = getWordLesson(skillId);
+    if (typeof getWordFlashcards === 'function') flashcards = getWordFlashcards(skillId);
+  } else if (worldType === 'stem') {
+    if (typeof getStemLesson === 'function') lesson = getStemLesson(skillId);
+    if (typeof getStemFlashcards === 'function') flashcards = getStemFlashcards(skillId);
+  }
+
+  var hasLesson = !!lesson;
+  var hasFlashcards = flashcards && flashcards.length > 0;
+  var s = getSkillState(skillId);
+  var lessonDone = s.lessonViewed && s.lessonViewed[skillId];
+
+  // If no lesson and no flashcards, go straight to quiz
+  if (!hasLesson && !hasFlashcards) {
+    startGame(skillId, worldType);
+    return;
+  }
+
+  // Build the skill view screen
+  showScreen('skill-view');
+
+  var container = document.getElementById('skill-view-content');
+  if (!container) return;
+
+  // Render tab header
+  var html = '';
+  html += '<div class="skill-view-header">';
+  html += '<button class="back-btn" id="skill-view-back">&#8592; Back</button>';
+  html += '<div class="skill-view-title">' + skillName + '</div>';
+  html += '</div>';
+
+  // Tabs
+  html += '<div class="skill-tabs">';
+  if (hasLesson) {
+    html += '<button class="skill-tab active" data-tab="learn">';
+    html += '<span class="skill-tab-icon">📖</span>';
+    html += '<span>Learn</span>';
+    if (lessonDone) html += '<span class="skill-tab-check">✓</span>';
+    html += '</button>';
+  }
+  if (hasFlashcards) {
+    html += '<button class="skill-tab' + (!hasLesson ? ' active' : '') + '" data-tab="flashcards">';
+    html += '<span class="skill-tab-icon">🃏</span>';
+    html += '<span>Cards</span>';
+    html += '</button>';
+  }
+  html += '<button class="skill-tab' + (!hasLesson && !hasFlashcards ? ' active' : '') + '" data-tab="quiz">';
+  html += '<span class="skill-tab-icon">⚡</span>';
+  html += '<span>Quiz</span>';
+  html += '</button>';
+  html += '</div>';
+
+  // Tab content area
+  html += '<div class="skill-tab-content" id="skill-tab-content"></div>';
+
+  container.innerHTML = html;
+
+  // Back button
+  document.getElementById('skill-view-back').onclick = function() {
+    var worldMap = { math: 'math-world', word: 'word-world', stem: 'stem-world' };
+    showScreen(worldMap[worldType] || 'home');
+  };
+
+  // Tab switching
+  var tabs = container.querySelectorAll('.skill-tab');
+  tabs.forEach(function(tab) {
+    tab.onclick = function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      showTabContent(tab.dataset.tab);
+    };
+  });
+
+  function showTabContent(tabName) {
+    var content = document.getElementById('skill-tab-content');
+    content.innerHTML = '';
+
+    if (tabName === 'learn' && hasLesson) {
+      renderLesson(content, lesson, skillId, function() {
+        // After lesson, switch to explore or quiz
+        var nextTab = hasFlashcards ? 'flashcards' : 'quiz';
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        container.querySelector('[data-tab="' + nextTab + '"]').classList.add('active');
+        // Update learn tab checkmark
+        var learnTab = container.querySelector('[data-tab="learn"]');
+        if (learnTab && !learnTab.querySelector('.skill-tab-check')) {
+          learnTab.insertAdjacentHTML('beforeend', '<span class="skill-tab-check">✓</span>');
+        }
+        showTabContent(nextTab);
+      });
+      if (typeof recordSkillActivity === 'function') {
+        recordSkillActivity(skillId, 'learn');
+      }
+    } else if (tabName === 'flashcards' && hasFlashcards) {
+      renderFlashcards(content, flashcards, skillId, function() {
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        container.querySelector('[data-tab="quiz"]').classList.add('active');
+        showTabContent('quiz');
+      });
+      if (typeof recordSkillActivity === 'function') {
+        recordSkillActivity(skillId, 'explore');
+      }
+    } else if (tabName === 'quiz') {
+      // Show quiz in the tab content area
+      content.innerHTML = '<div class="skill-quiz-start">' +
+        '<div class="skill-quiz-icon">⚡</div>' +
+        '<div class="skill-quiz-title">Ready for the quiz?</div>' +
+        '<div class="skill-quiz-desc">8 questions to test your understanding</div>' +
+        '<button class="lesson-btn lesson-btn-done" id="start-quiz-btn">Start Quiz →</button>' +
+        '</div>';
+      document.getElementById('start-quiz-btn').onclick = function() {
+        startGame(skillId, worldType);
+      };
+    }
+  }
+
+  // Show initial tab
+  var initialTab = hasLesson ? 'learn' : (hasFlashcards ? 'flashcards' : 'quiz');
+  showTabContent(initialTab);
 }
 
 // === GAME ENGINE ===
