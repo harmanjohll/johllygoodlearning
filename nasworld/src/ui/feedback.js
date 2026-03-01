@@ -103,13 +103,33 @@ function handleCorrect(isStory) {
   if (typeof checkAchievementsAfterMastery === 'function') checkAchievementsAfterMastery();
   if (typeof checkAchievementsAfterGarden === 'function') checkAchievementsAfterGarden();
 
+  // Surprise event modifiers (lucky streak, golden question)
+  if (typeof applySurpriseModifiers === 'function') applySurpriseModifiers();
+
+  // Roll for surprise event
+  if (typeof rollForSurprise === 'function') rollForSurprise();
+
+  // Milestone celebrations (50, 100, 250... correct)
+  if (typeof checkMilestoneCelebration === 'function') checkMilestoneCelebration();
+
+  // Lumi reacts
+  if (typeof lumiReactTo === 'function') lumiReactTo('correct');
+
   updateUI();
   saveState();
 }
 
 function handleWrong(correct) {
   playSound('wrong');
-  state.streak = 0;
+
+  // Streak shield from mystery box
+  if (typeof applyStreakShield === 'function' && applyStreakShield()) {
+    // Shield used — streak preserved!
+    if (typeof lumiSay === 'function') lumiSay('Streak shield activated! Your streak is safe!');
+    if (typeof spawnParticles === 'function') spawnParticles(window.innerWidth / 2, window.innerHeight / 3, 5, '\uD83D\uDEE1\uFE0F');
+  } else {
+    state.streak = 0;
+  }
   state.totalAttempts++;
   currentGame.results[currentGame.currentIndex] = false;
   currentGame.attempts++;

@@ -53,9 +53,12 @@ SCRIPTS=(
   "src/stem/code-levels.js"
   "src/challenges/star-trials.js"
   "src/challenges/escape-rooms.js"
+  "src/core/interactive-sims.js"
+  "src/core/surprise-events.js"
   "src/ui/topbar.js"
   "src/ui/feedback.js"
   "src/ui/garden.js"
+  "src/ui/garden-island.js"
   "src/ui/home.js"
   "src/ui/navigation.js"
 )

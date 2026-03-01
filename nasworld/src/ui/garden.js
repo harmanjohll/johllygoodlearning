@@ -9,6 +9,18 @@ function addGardenFlower(skillId, golden) {
     emoji: golden ? GOLDEN_FLOWER : pick(FLOWER_EMOJIS),
     date: new Date().toISOString()
   });
+
+  // Check if island evolved
+  if (typeof checkIslandEvolution === 'function') {
+    checkIslandEvolution();
+  }
+  // Check story progress
+  if (typeof checkStoryProgress === 'function') {
+    var newChapter = checkStoryProgress();
+    if (newChapter > 0 && typeof showStoryChapter === 'function') {
+      setTimeout(function() { showStoryChapter(newChapter); }, 2000);
+    }
+  }
 }
 
 function renderGarden() {
