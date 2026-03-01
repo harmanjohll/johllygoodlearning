@@ -162,7 +162,7 @@ function genAdd100(diff) {
   } else if (diff.isPictorial) {
     a = rand(20, 60); b = rand(20, 40);
   } else {
-    a = rand(10, 99); b = rand(10, 99 - a);
+    a = rand(10, 89); b = rand(10, 99 - a);
   }
   return { type: 'addition-100', a, b, answer: a + b, isConcrete: diff.isConcrete, isPictorial: diff.isPictorial,
     hint: 'Try adding the tens first, then the ones.' };
@@ -237,12 +237,13 @@ function genTime1(diff) {
   } else {
     minutes = pick([0, 15, 30, 45]);
   }
+  var timeStr = hour + ':' + (minutes < 10 ? '0' : '') + minutes;
   if (Math.random() < 0.5) {
-    return { type: 'time-read', hour, minutes, answer: hour + ':' + (minutes < 10 ? '0' : '') + minutes,
+    return { type: 'time-read', hour, minutes, answer: timeStr,
       hint: 'The short hand shows the hour, the long hand shows the minutes.' };
   } else {
-    return { type: 'time-set', hour, minutes, answer: hour * 60 + minutes,
-      hint: 'Set the clock to show ' + hour + ':' + (minutes < 10 ? '0' : '') + minutes + '.' };
+    return { type: 'time-set', hour, minutes, answer: timeStr,
+      hint: 'Set the clock to show ' + timeStr + '.' };
   }
 }
 
@@ -321,7 +322,11 @@ function genFracAdd(diff) {
   var a = rand(1, denom - 1);
   var b = rand(1, denom - a);
   var isAdd = Math.random() < 0.6;
-  if (!isAdd && a < b) { var tmp = a; a = b; b = tmp; }
+  if (!isAdd) {
+    // Ensure a > b so answer is at least 1/denom (never zero)
+    if (a <= b) { var tmp = a; a = b; b = tmp; }
+    if (a === b) { isAdd = true; } // fallback to addition if equal
+  }
   var answer = isAdd ? a + b : a - b;
   return { type: 'fraction-operation', a, b, denom, op: isAdd ? '+' : '-', answer: answer + '/' + denom,
     answerNum: answer, hint: 'The denominators are the same, so just ' + (isAdd ? 'add' : 'subtract') + ' the numerators.' };
@@ -355,16 +360,14 @@ function genBarGraph(diff) {
   var categories = shuffle(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']).slice(0, 4);
   var values = categories.map(function() { return rand(2, 15); });
   var maxVal = Math.max(...values);
+  var minVal = Math.min(...values);
   var maxDay = categories[values.indexOf(maxVal)];
   var total = values.reduce(function(a,b) { return a + b; }, 0);
-  var qType = pick(['highest', 'total', 'difference']);
+  var qType = pick(['most', 'total', 'howmany']);
   var answer;
-  if (qType === 'highest') answer = maxDay;
+  if (qType === 'most') answer = maxDay;
   else if (qType === 'total') answer = total;
-  else {
-    var sorted = [...values].sort(function(a,b) { return b - a; });
-    answer = sorted[0] - sorted[sorted.length - 1];
-  }
+  else { var idx = rand(0, categories.length - 1); answer = values[idx]; qType = 'howmany_' + idx; }
   return { type: 'bar-graph', categories, values, qType, answer,
     hint: 'Read the graph carefully. Compare the heights of the bars.' };
 }
@@ -465,8 +468,11 @@ function genSymm(diff) {
     { name: 'regular hexagon', lines: 6 }
   ];
   var shape = pick(shapes);
+  var opts = shape.lines === 'infinite'
+    ? shuffle([0, 1, 2, 4, 6, 'infinite'])
+    : shuffle([0, 1, 2, 3, 4, 6]);
   return { type: 'symmetry', shape, answer: shape.lines,
-    options: shuffle([0, 1, 2, 3, 4, 6]),
+    options: opts,
     hint: 'A line of symmetry divides a shape into two matching halves.' };
 }
 
@@ -504,9 +510,10 @@ function genMultiWP(diff) {
     function() {
       var people = rand(3, 8);
       var each = rand(4, 12);
-      var extra = rand(5, 20);
+      var extraPerPerson = rand(1, 4);
+      var extra = extraPerPerson * people;
       return { text: people + ' children each have ' + each + ' stickers. They are given ' + extra + ' more to share equally. How many stickers does each child have now?',
-        answer: each + Math.floor(extra / people), hint: 'First find the total, then add the shared extra.' };
+        answer: each + extraPerPerson, hint: 'First find the total, then add the shared extra.' };
     }
   ];
   var gen = pick(templates)();
