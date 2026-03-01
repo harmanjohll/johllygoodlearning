@@ -139,7 +139,7 @@ function startStarTrial(trialId) {
   renderCurrentQuestion();
 }
 
-// Override endGame to handle Star Trial completion (called from navigation.js)
+// Override endGame to handle Star Trial completion
 var _originalEndGame = typeof endGame === 'function' ? endGame : null;
 
 function endGameWithTrialCheck() {
@@ -149,6 +149,9 @@ function endGameWithTrialCheck() {
     _originalEndGame();
   }
 }
+
+// Actually replace endGame so Star Trials end properly
+window.endGame = endGameWithTrialCheck;
 
 function endStarTrial() {
   var correct = currentGame.results.filter(function(r) { return r; }).length;

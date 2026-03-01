@@ -402,11 +402,13 @@ function renderMoneyChange(card, q) {
 function renderTimeRead(card, q) {
   var html = '<div class="question-text">What time does the clock show?</div>';
   html += renderClockSVG(q.hour, q.minutes, 180);
+  // Generate level-appropriate distractors
+  var minuteChoices = (q.minutes === 0 || q.minutes === 30) ? [0, 30] : [0, 15, 30, 45];
   var options = [];
   options.push(q.answer);
   while (options.length < 4) {
     var h = rand(1, 12);
-    var m = pick([0, 15, 30, 45]);
+    var m = pick(minuteChoices);
     var opt = h + ':' + (m < 10 ? '0' : '') + m;
     if (!options.includes(opt)) options.push(opt);
   }

@@ -91,7 +91,7 @@ function renderNumberLine(container, min, max, targetValue, label) {
 // === PLACE VALUE BLOCKS ===
 // Visual hundreds/tens/ones blocks
 
-function renderPlaceValueBlocks(container, number) {
+function renderSimPlaceValueBlocks(container, number) {
   var hundreds = Math.floor(number / 100);
   var tens = Math.floor((number % 100) / 10);
   var ones = number % 10;

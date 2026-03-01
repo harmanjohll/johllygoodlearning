@@ -293,9 +293,9 @@ var GRID_DIR_DELTA = [
 var GRID_DIR_ARROWS = ['\u27A1\uFE0F', '\u2B07\uFE0F', '\u2B05\uFE0F', '\u2B06\uFE0F'];
 var GRID_DIR_NAMES = ['right', 'down', 'left', 'up'];
 
-function genCodeGrid(diff) {
+function genCodeGrid(diff, forSkillId) {
   // Pick a level from the CODE_GRID_LEVELS bank based on skill and difficulty
-  var skillId = ['cseq', 'cloop', 'ccond', 'cvar', 'cdebug'][diff.level] || 'cseq';
+  var skillId = forSkillId || currentGame.skillId || 'cseq';
   var levels = CODE_GRID_LEVELS.filter(function(l) { return l.skill === skillId; });
   if (levels.length === 0) levels = CODE_GRID_LEVELS.filter(function(l) { return l.skill === 'cseq'; });
   var level = pick(levels);
@@ -533,7 +533,7 @@ var _origGenCodeSeq = genCodeSeq;
 genCodeSeq = function(diff) {
   if (diff.level >= 3 && typeof CODE_GRID_LEVELS !== 'undefined') {
     var levels = CODE_GRID_LEVELS.filter(function(l) { return l.skill === 'cseq'; });
-    if (levels.length > 0) return genCodeGrid(diff);
+    if (levels.length > 0) return genCodeGrid(diff, 'cseq');
   }
   return _origGenCodeSeq(diff);
 };
@@ -542,7 +542,7 @@ var _origGenCodeLoop = genCodeLoop;
 genCodeLoop = function(diff) {
   if (diff.level >= 3 && typeof CODE_GRID_LEVELS !== 'undefined') {
     var levels = CODE_GRID_LEVELS.filter(function(l) { return l.skill === 'cloop'; });
-    if (levels.length > 0) return genCodeGrid(diff);
+    if (levels.length > 0) return genCodeGrid(diff, 'cloop');
   }
   return _origGenCodeLoop(diff);
 };
