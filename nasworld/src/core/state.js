@@ -51,6 +51,11 @@ let state = {
   wotdHistory: [],  // dates of claimed WotDs
   escapeRooms: {},  // { roomId: { completed, bestTime, attempts } }
   starTrials: {},   // { worldType: { completed, bestScore } }
+  visitHistory: [], // date strings for visit streak tracking
+  questHistory: [], // date strings for quest completion streak
+  dynamicQuest: null,  // current daily quest state
+  weeklyQuest: null,   // current weekly quest state
+  lumiStory: { chapter: 0, shownChapters: [] },
   settings: { language: 'en' }
 };
 
@@ -173,6 +178,11 @@ async function loadState() {
     if (!state.wotdHistory) state.wotdHistory = [];
     if (!state.escapeRooms) state.escapeRooms = {};
     if (!state.starTrials) state.starTrials = {};
+    if (!state.visitHistory) state.visitHistory = [];
+    if (!state.questHistory) state.questHistory = [];
+    if (!state.dynamicQuest) state.dynamicQuest = null;
+    if (!state.weeklyQuest) state.weeklyQuest = null;
+    if (!state.lumiStory) state.lumiStory = { chapter: 0, shownChapters: [] };
     if (!state.settings) state.settings = { language: 'en' };
     state.version = 2;
   }

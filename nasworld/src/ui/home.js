@@ -16,6 +16,11 @@ const LUMI_GREETINGS = [
 ];
 
 function lumiSpeak() {
+  // Use upgraded Lumi tap system if available
+  if (typeof lumiTapped === 'function') {
+    lumiTapped();
+    return;
+  }
   lumiSay(pick(LUMI_GREETINGS));
   playSound('click');
 }
@@ -52,6 +57,46 @@ function updateHomeUI() {
   const gardenPct = Math.min(100, (state.garden.length / 50) * 100);
   document.getElementById('garden-progress').style.width = gardenPct + '%';
 
+  // Dynamic quest banners
+  var questArea = document.getElementById('dynamic-quest-area');
+  if (questArea && typeof renderDynamicQuestBanner === 'function') {
+    questArea.innerHTML = renderDynamicQuestBanner();
+  }
+
+  // Story progress
+  var storyArea = document.getElementById('story-progress-area');
+  if (storyArea && typeof renderStoryProgress === 'function') {
+    storyArea.innerHTML = renderStoryProgress();
+  }
+
+  // Achievement showcase (latest 3)
+  var achArea = document.getElementById('achievement-showcase');
+  if (achArea && typeof ACHIEVEMENTS !== 'undefined') {
+    var earned = state.achievements || [];
+    if (earned.length > 0) {
+      var recent = earned.slice(-3).reverse();
+      var html = '<div class="achievement-showcase-row">';
+      recent.forEach(function(id) {
+        var def = ACHIEVEMENTS.find(function(a) { return a.id === id; });
+        if (def) {
+          html += '<div class="achievement-mini">' +
+            '<span class="achievement-mini-icon">' + def.icon + '</span>' +
+            '<span class="achievement-mini-name">' + def.name + '</span>' +
+            '</div>';
+        }
+      });
+      html += '<div class="achievement-mini see-all" onclick="showScreen(\'achievements\')">' +
+        '<span class="achievement-mini-icon">\u2192</span>' +
+        '<span class="achievement-mini-name">See all (' + earned.length + ')</span>' +
+        '</div>';
+      html += '</div>';
+      achArea.innerHTML = html;
+      achArea.classList.remove('hidden');
+    } else {
+      achArea.classList.add('hidden');
+    }
+  }
+
   // Streak calendar
   var streakEl = document.getElementById('streak-calendar-area');
   if (streakEl && typeof renderStreakCalendar === 'function') {
@@ -64,7 +109,7 @@ function updateHomeUI() {
     var reviewEl = document.getElementById('review-due-banner');
     if (reviewEl) {
       if (due.length > 0) {
-        reviewEl.innerHTML = '<span class="review-banner-icon">🔔</span> ' +
+        reviewEl.innerHTML = '<span class="review-banner-icon">\uD83D\uDD14</span> ' +
           due.length + ' skill' + (due.length > 1 ? 's' : '') + ' due for review!';
         reviewEl.classList.remove('hidden');
       } else {
@@ -73,39 +118,8 @@ function updateHomeUI() {
     }
   }
 
-  updateDailyQuest();
   updateWotd();
   updateChallengesSection();
-}
-
-// === DAILY QUEST ===
-function updateDailyQuest() {
-  const today = new Date().toDateString();
-  if (state.dailyQuest.date !== today) {
-    state.dailyQuest = { date: today, completed: 0, target: 5, claimed: false };
-  }
-  const el = document.getElementById('quest-progress');
-  if (el) el.textContent = state.dailyQuest.completed + '/' + state.dailyQuest.target;
-
-  if (state.dailyQuest.completed >= state.dailyQuest.target && !state.dailyQuest.claimed) {
-    const titleEl = document.getElementById('quest-title');
-    const descEl = document.getElementById('quest-desc');
-    if (titleEl) titleEl.textContent = '\uD83C\uDF89 Quest Complete!';
-    if (descEl) descEl.textContent = 'Tap to claim 20 bonus stars!';
-  }
-}
-
-function startDailyQuest() {
-  if (state.dailyQuest.completed >= state.dailyQuest.target && !state.dailyQuest.claimed) {
-    state.dailyQuest.claimed = true;
-    state.tokens += 20;
-    playSound('levelup');
-    spawnParticles(window.innerWidth / 2, window.innerHeight / 2, 15, '\u2B50');
-    updateUI();
-    saveState();
-    lumiSay('Wow! 20 bonus stars! You completed today\'s quest!');
-    updateDailyQuest();
-  }
 }
 
 // === WORD OF THE DAY ===
@@ -145,6 +159,8 @@ function claimWotd() {
 
   const wotd = getWordOfTheDay();
   lumiSay('New word: "' + wotd.word + '" means ' + wotd.def + '! +3 stars!');
+
+  if (typeof checkAchievementsAfterWotd === 'function') checkAchievementsAfterWotd();
 
   updateUI();
   updateWotd();

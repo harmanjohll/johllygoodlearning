@@ -1931,6 +1931,157 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
 }
+
+/* === ACHIEVEMENT TOAST === */
+.achievement-toast {
+  position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+  z-index: 10000; background: linear-gradient(135deg, #251b5e, #3d2d8f);
+  border: 2px solid var(--gold); border-radius: var(--radius-lg);
+  padding: 14px 20px; display: flex; align-items: center; gap: 14px;
+  box-shadow: 0 8px 32px rgba(255,215,0,0.3); transition: top 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-width: 380px; width: 90%;
+}
+.achievement-toast.show { top: 20px; }
+.achievement-toast.hide { top: -100px; }
+.achievement-toast-icon { font-size: 2.2rem; }
+.achievement-toast-body { flex: 1; }
+.achievement-toast-label { font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+.achievement-toast-name { font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 2px 0; }
+.achievement-toast-desc { font-size: 12px; color: var(--text-secondary); }
+
+/* === ACHIEVEMENTS SCREEN === */
+.achievements-summary { text-align: center; margin-bottom: 24px; }
+.achievements-count { font-size: 2rem; font-weight: 700; color: var(--gold); font-family: var(--font-display); }
+.achievements-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; width: 200px; margin: 8px auto; }
+.achievements-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--coral)); border-radius: 4px; transition: width 0.5s; }
+.achievement-category { margin-bottom: 24px; }
+.achievement-category-header {
+  font-size: 14px; font-weight: 700; color: var(--text-primary); padding: 8px 12px;
+  margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
+}
+.achievement-category-count { color: var(--text-dim); font-size: 12px; font-weight: 400; }
+.achievement-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
+}
+.achievement-badge {
+  background: rgba(255,255,255,0.05); border-radius: var(--radius-md); padding: 14px 10px;
+  text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.08);
+  transition: transform 0.2s;
+}
+.achievement-badge.earned { background: rgba(255,215,0,0.08); border-color: rgba(255,215,0,0.2); }
+.achievement-badge.earned:hover { transform: scale(1.05); }
+.achievement-badge.locked { opacity: 0.5; }
+.achievement-badge-icon { font-size: 1.8rem; margin-bottom: 6px; display: block; }
+.achievement-badge-name { font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+.achievement-badge-desc { font-size: 10px; color: var(--text-dim); line-height: 1.3; }
+.achievement-badge-check {
+  position: absolute; top: 6px; right: 6px; font-size: 12px; color: var(--success);
+  background: rgba(74,222,128,0.2); width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* === ACHIEVEMENT SHOWCASE (home) === */
+.achievement-showcase-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.achievement-mini {
+  background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.15);
+  border-radius: 20px; padding: 6px 12px; display: flex; align-items: center; gap: 6px;
+  font-size: 12px; cursor: pointer; transition: background 0.2s;
+}
+.achievement-mini:hover { background: rgba(255,215,0,0.15); }
+.achievement-mini-icon { font-size: 16px; }
+.achievement-mini-name { color: var(--text-secondary); font-weight: 500; }
+.achievement-mini.see-all { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+
+/* === TROPHY BUTTON (topbar) === */
+.trophy-btn {
+  display: flex; align-items: center; gap: 3px; cursor: pointer;
+  font-size: 14px; padding: 4px 8px; border-radius: 12px;
+  background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.2);
+  transition: background 0.2s;
+}
+.trophy-btn:hover { background: rgba(255,215,0,0.2); }
+.trophy-count { font-size: 11px; color: var(--gold); font-weight: 700; }
+
+/* === DYNAMIC QUEST BANNERS === */
+.dynamic-quest { cursor: default; }
+.dynamic-quest .quest-progress-ring {
+  min-width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); border: 2px solid var(--mint);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: var(--mint);
+}
+.weekly-quest { border-left: 3px solid var(--gold); }
+.weekly-quest .quest-progress-ring { border-color: var(--gold); color: var(--gold); }
+.weekly-quest .quest-progress-ring.weekly { border-color: var(--gold); }
+.quest-done-check { font-size: 16px; color: var(--success); display: block; margin-top: -2px; }
+
+/* === LUMI MOOD EXPRESSIONS === */
+.lumi-mood-excited .lumi-mouth { border-radius: 0 0 50% 50%; height: 10px; background: #333; }
+.lumi-mood-proud .lumi-eye { animation: lumi-happy-eyes 2s ease infinite; }
+@keyframes lumi-happy-eyes {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.3); }
+}
+.lumi-mood-concerned .lumi-mouth {
+  width: 8px; height: 8px; border-radius: 50%; border: none;
+  background: #555; transform: translateX(-50%);
+}
+.lumi-mood-sleepy .lumi-eye { animation: none; height: 2px; border-radius: 1px; }
+.lumi-mouth-grin { border-radius: 0 0 60% 60% !important; height: 10px !important; }
+.lumi-mouth-worry { width: 10px !important; height: 6px !important; border-radius: 50% !important; }
+.lumi-mouth-sleep { width: 12px !important; height: 2px !important; border-radius: 1px !important; }
+.lumi-eye-wide { width: 10px !important; height: 10px !important; }
+.lumi-eye-happy { height: 3px !important; border-radius: 3px 3px 0 0 !important; }
+.lumi-eye-sleepy { height: 2px !important; }
+
+/* === STORY OVERLAY === */
+.story-overlay {
+  position: fixed; inset: 0; z-index: 9000; background: rgba(15,11,46,0.92);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  opacity: 0; pointer-events: none; transition: opacity 0.4s;
+}
+.story-overlay.show { opacity: 1; pointer-events: auto; }
+.story-card {
+  background: linear-gradient(135deg, #1a1147, #2f2370);
+  border: 2px solid var(--gold); border-radius: var(--radius-xl);
+  padding: 32px 28px; text-align: center; max-width: 420px; width: 100%;
+  box-shadow: 0 0 60px rgba(255,215,0,0.2);
+  animation: pop-in 0.5s ease-out;
+}
+.story-chapter-badge {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em;
+  color: var(--gold); font-weight: 700; margin-bottom: 8px;
+}
+.story-icon { font-size: 3rem; margin-bottom: 12px; }
+.story-title { font-size: 20px; font-weight: 700; color: var(--text-primary); font-family: var(--font-display); margin-bottom: 12px; }
+.story-text { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
+.story-bridge { margin-bottom: 20px; }
+.story-bridge-row { display: flex; align-items: center; justify-content: center; gap: 0; }
+.story-bridge-star {
+  font-size: 24px; opacity: 0.3; transition: opacity 0.3s, transform 0.3s;
+}
+.story-bridge-star.lit { opacity: 1; transform: scale(1.1); }
+.story-bridge-link {
+  width: 24px; height: 3px; background: rgba(255,255,255,0.1);
+  border-radius: 2px; transition: background 0.3s;
+}
+.story-bridge-link.lit { background: var(--gold); box-shadow: 0 0 8px rgba(255,215,0,0.4); }
+
+/* === STORY PROGRESS CARD (home) === */
+.story-progress-card {
+  background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(181,123,255,0.08));
+  border: 1px solid rgba(255,215,0,0.15); border-radius: var(--radius-lg);
+  padding: 14px 16px; margin-bottom: 16px; cursor: pointer;
+  transition: background 0.2s;
+}
+.story-progress-card:hover { background: linear-gradient(135deg, rgba(255,215,0,0.12), rgba(181,123,255,0.12)); }
+.story-progress-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.story-progress-icon { font-size: 20px; }
+.story-progress-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.story-progress-bridge { margin-bottom: 6px; }
+.story-progress-bridge .story-bridge-star { font-size: 16px; }
+.story-progress-bridge .story-bridge-link { width: 16px; height: 2px; }
+.story-progress-next { font-size: 11px; color: var(--text-dim); text-align: center; }
 </style>
 </head>
 <body>
@@ -1947,6 +2098,7 @@ body {
       <div class="level-display"><span>&#127793;</span> <span id="level-text">Sprout</span></div>
       <div class="streak-display"><span>&#128293;</span> <span id="streak-count">0</span></div>
       <div class="token-display"><span class="token-icon">&#11088;</span> <span id="token-count">0</span></div>
+      <div class="trophy-btn" onclick="showScreen('achievements')"><span>&#127942;</span><span class="trophy-count" id="achievement-badge-count">0</span></div>
     </div>
   </div>
 
@@ -1989,15 +2141,14 @@ body {
         <div class="quest-progress" id="wotd-status">+3 &#11088;</div>
       </div>
 
-      <!-- Daily Quest -->
-      <div class="quest-banner" id="daily-quest" onclick="startDailyQuest()">
-        <div class="quest-icon">&#128506;</div>
-        <div class="quest-text">
-          <div class="quest-title" id="quest-title">Daily Quest</div>
-          <div class="quest-desc" id="quest-desc">Complete 5 challenges to earn bonus stars!</div>
-        </div>
-        <div class="quest-progress" id="quest-progress">0/5</div>
-      </div>
+      <!-- Dynamic Quests (Daily + Weekly) -->
+      <div id="dynamic-quest-area"></div>
+
+      <!-- Lumi's Star Bridge Story -->
+      <div id="story-progress-area"></div>
+
+      <!-- Achievement Showcase -->
+      <div class="hidden" id="achievement-showcase"></div>
 
       <!-- World Cards -->
       <div class="worlds-grid">
@@ -2076,6 +2227,16 @@ body {
     </div>
 
     <!-- GAME SCREEN -->
+    <!-- ACHIEVEMENTS SCREEN -->
+    <div class="screen" id="screen-achievements">
+      <button class="back-btn" onclick="showScreen('home')">&#8592; Back to Home</button>
+      <div class="activity-header">
+        <h2>&#127942; Achievements</h2>
+        <p>Collect them all!</p>
+      </div>
+      <div id="achievements-content"></div>
+    </div>
+
     <div class="screen" id="screen-game">
       <button class="back-btn" id="game-back-btn" onclick="exitGame()">&#8592; Back</button>
       <div class="game-area">
@@ -2391,6 +2552,11 @@ let state = {
   wotdHistory: [],  // dates of claimed WotDs
   escapeRooms: {},  // { roomId: { completed, bestTime, attempts } }
   starTrials: {},   // { worldType: { completed, bestScore } }
+  visitHistory: [], // date strings for visit streak tracking
+  questHistory: [], // date strings for quest completion streak
+  dynamicQuest: null,  // current daily quest state
+  weeklyQuest: null,   // current weekly quest state
+  lumiStory: { chapter: 0, shownChapters: [] },
   settings: { language: 'en' }
 };
 
@@ -2513,6 +2679,11 @@ async function loadState() {
     if (!state.wotdHistory) state.wotdHistory = [];
     if (!state.escapeRooms) state.escapeRooms = {};
     if (!state.starTrials) state.starTrials = {};
+    if (!state.visitHistory) state.visitHistory = [];
+    if (!state.questHistory) state.questHistory = [];
+    if (!state.dynamicQuest) state.dynamicQuest = null;
+    if (!state.weeklyQuest) state.weeklyQuest = null;
+    if (!state.lumiStory) state.lumiStory = { chapter: 0, shownChapters: [] };
     if (!state.settings) state.settings = { language: 'en' };
     state.version = 2;
   }
@@ -2678,6 +2849,1204 @@ function renderStreakCalendar() {
   html += '</div>';
 
   return html;
+}
+
+// --- src/core/achievements.js ---
+// ============================================================
+//  ACHIEVEMENTS — Badge system with unlock logic & toast UI
+// ============================================================
+
+// Achievement definitions grouped by category
+var ACHIEVEMENTS = [
+  // === CONSISTENCY ===
+  { id: 'streak3',    cat: 'consistency', icon: '\uD83D\uDD25', name: 'Warming Up',       desc: 'Get 3 correct in a row',         secret: false },
+  { id: 'streak10',   cat: 'consistency', icon: '\uD83D\uDD25', name: 'On Fire',           desc: 'Get 10 correct in a row',        secret: false },
+  { id: 'streak25',   cat: 'consistency', icon: '\u2604\uFE0F', name: 'Unstoppable',       desc: 'Get 25 correct in a row',        secret: false },
+  { id: 'day3',       cat: 'consistency', icon: '\uD83D\uDCC5', name: '3-Day Learner',     desc: 'Visit 3 days in a row',          secret: false },
+  { id: 'day7',       cat: 'consistency', icon: '\uD83D\uDCC5', name: 'Week Warrior',      desc: 'Visit 7 days in a row',          secret: false },
+  { id: 'day14',      cat: 'consistency', icon: '\uD83C\uDFC6', name: 'Fortnight Champion', desc: 'Visit 14 days in a row',        secret: false },
+  { id: 'day30',      cat: 'consistency', icon: '\uD83D\uDC8E', name: 'Monthly Legend',    desc: 'Visit 30 days in a row',         secret: false },
+  { id: 'sessions5',  cat: 'consistency', icon: '\uD83C\uDFAF', name: 'Getting Started',   desc: 'Complete 5 quiz sessions',       secret: false },
+  { id: 'sessions25', cat: 'consistency', icon: '\uD83C\uDFAF', name: 'Quiz Regular',      desc: 'Complete 25 quiz sessions',      secret: false },
+  { id: 'sessions100',cat: 'consistency', icon: '\uD83C\uDFAF', name: 'Quiz Master',       desc: 'Complete 100 quiz sessions',     secret: false },
+
+  // === MASTERY ===
+  { id: 'first80',    cat: 'mastery', icon: '\u2B50',           name: 'First Star',        desc: 'Get any skill to 80% mastery',   secret: false },
+  { id: 'first100',   cat: 'mastery', icon: '\uD83C\uDF1F',    name: 'Perfection',        desc: 'Get any skill to 100% mastery',  secret: false },
+  { id: 'master5',    cat: 'mastery', icon: '\uD83C\uDF1F',    name: 'Five Stars',        desc: 'Master 5 skills (80%+)',         secret: false },
+  { id: 'master10',   cat: 'mastery', icon: '\uD83D\uDCAB',    name: 'Ten Star Galaxy',   desc: 'Master 10 skills (80%+)',        secret: false },
+  { id: 'levelUp',    cat: 'mastery', icon: '\uD83C\uDF31',    name: 'Level Up!',         desc: 'Reach the Pictorial CPA level',  secret: false },
+  { id: 'abstract',   cat: 'mastery', icon: '\uD83E\uDDE0',    name: 'Abstract Thinker',  desc: 'Reach Abstract level in any skill', secret: false },
+  { id: 'challenge',  cat: 'mastery', icon: '\uD83D\uDE80',    name: 'Challenge Accepted', desc: 'Reach Challenge level in any skill', secret: false },
+  { id: 'perfect8',   cat: 'mastery', icon: '\uD83D\uDCAF',    name: 'Perfect Quiz',      desc: 'Score 8/8 on any quiz',          secret: false },
+
+  // === EXPLORER ===
+  { id: 'tryMath',    cat: 'explorer', icon: '\uD83D\uDD22',   name: 'Number Explorer',   desc: 'Try a skill in Number World',    secret: false },
+  { id: 'tryWord',    cat: 'explorer', icon: '\uD83D\uDCD6',   name: 'Word Explorer',     desc: 'Try a skill in Word World',      secret: false },
+  { id: 'tryStem',    cat: 'explorer', icon: '\uD83D\uDD2C',   name: 'STEM Explorer',     desc: 'Try a skill in STEM World',      secret: false },
+  { id: 'allWorlds',  cat: 'explorer', icon: '\uD83C\uDF0D',   name: 'World Traveller',   desc: 'Try skills in all 3 worlds',     secret: false },
+  { id: 'try10',      cat: 'explorer', icon: '\uD83D\uDDFA\uFE0F', name: 'Curious Mind',  desc: 'Try 10 different skills',        secret: false },
+  { id: 'lesson5',    cat: 'explorer', icon: '\uD83D\uDCDA',   name: 'Lesson Lover',      desc: 'Complete 5 lessons',             secret: false },
+  { id: 'lesson15',   cat: 'explorer', icon: '\uD83D\uDCDA',   name: 'Knowledge Seeker',  desc: 'Complete 15 lessons',            secret: false },
+  { id: 'flash5',     cat: 'explorer', icon: '\uD83C\uDCCF',   name: 'Card Flipper',      desc: 'Complete 5 flashcard sessions',  secret: false },
+
+  // === COLLECTOR ===
+  { id: 'flower5',    cat: 'collector', icon: '\uD83C\uDF38',   name: 'Budding Garden',    desc: 'Grow 5 flowers in your garden',  secret: false },
+  { id: 'flower15',   cat: 'collector', icon: '\uD83C\uDF3A',   name: 'Blooming Garden',   desc: 'Grow 15 flowers in your garden', secret: false },
+  { id: 'flower30',   cat: 'collector', icon: '\uD83C\uDF3B',   name: 'Flower Paradise',   desc: 'Grow 30 flowers in your garden', secret: false },
+  { id: 'tokens100',  cat: 'collector', icon: '\u2B50',         name: 'Star Saver',        desc: 'Earn 100 stars',                 secret: false },
+  { id: 'tokens500',  cat: 'collector', icon: '\u2B50',         name: 'Star Hoarder',      desc: 'Earn 500 stars',                 secret: false },
+  { id: 'tokens2500', cat: 'collector', icon: '\uD83C\uDF0C',   name: 'Galaxy of Stars',   desc: 'Earn 2500 stars',                secret: false },
+  { id: 'wotd7',      cat: 'collector', icon: '\uD83D\uDCD6',   name: 'Word Collector',    desc: 'Claim 7 Words of the Day',       secret: false },
+  { id: 'wotd30',     cat: 'collector', icon: '\uD83D\uDCD6',   name: 'Dictionary Builder', desc: 'Claim 30 Words of the Day',     secret: false },
+
+  // === CHALLENGE ===
+  { id: 'escape1',    cat: 'challenge', icon: '\uD83D\uDD13',   name: 'First Escape',      desc: 'Complete an escape room',        secret: false },
+  { id: 'escape3',    cat: 'challenge', icon: '\uD83D\uDD13',   name: 'Escape Artist',     desc: 'Complete 3 escape rooms',        secret: false },
+  { id: 'escapeAll',  cat: 'challenge', icon: '\uD83D\uDD13',   name: 'Escape Legend',     desc: 'Complete all escape rooms',      secret: false },
+  { id: 'trial1',     cat: 'challenge', icon: '\u2B50',         name: 'Trial Taker',       desc: 'Complete a Star Trial',          secret: false },
+  { id: 'trialAce',   cat: 'challenge', icon: '\uD83C\uDFC6',   name: 'Trial Ace',         desc: 'Score 100% on any Star Trial',   secret: false },
+  { id: 'quest7',     cat: 'challenge', icon: '\uD83D\uDCDC',   name: 'Quest Streak',      desc: 'Complete daily quests 7 days running', secret: false },
+
+  // === SECRET ===
+  { id: 'lumiTap',    cat: 'secret', icon: '\u2728',            name: 'Lumi\'s Best Friend', desc: 'Tap Lumi 10 times',           secret: true },
+  { id: 'midnight',   cat: 'secret', icon: '\uD83C\uDF19',     name: 'Night Owl',          desc: 'Study after 9 PM',              secret: true },
+  { id: 'earlybird',  cat: 'secret', icon: '\uD83C\uDF05',     name: 'Early Bird',         desc: 'Study before 7 AM',             secret: true },
+  { id: 'speedrun',   cat: 'secret', icon: '\u26A1',            name: 'Speed Demon',        desc: 'Finish a quiz in under 30 seconds', secret: true },
+  { id: 'comeback',   cat: 'secret', icon: '\uD83D\uDCAA',     name: 'Comeback Kid',       desc: 'Get the last 5 right after getting the first 3 wrong', secret: true }
+];
+
+var ACHIEVEMENT_CATEGORIES = {
+  consistency: { label: 'Consistency', icon: '\uD83D\uDD25', color: '#ff7b7b' },
+  mastery:     { label: 'Mastery',     icon: '\u2B50',       color: '#ffd700' },
+  explorer:    { label: 'Explorer',    icon: '\uD83C\uDF0D', color: '#7bb3ff' },
+  collector:   { label: 'Collector',   icon: '\uD83C\uDF38', color: '#ff7bdb' },
+  challenge:   { label: 'Challenge',   icon: '\uD83C\uDFC6', color: '#7bffb5' },
+  secret:      { label: 'Secret',      icon: '\u2728',       color: '#b57bff' }
+};
+
+// Toast queue
+var _achievementToastQueue = [];
+var _achievementToastShowing = false;
+
+// Check & unlock an achievement (idempotent)
+function unlockAchievement(achievementId) {
+  if (!state.achievements) state.achievements = [];
+  if (state.achievements.indexOf(achievementId) !== -1) return false; // Already earned
+
+  var def = ACHIEVEMENTS.find(function(a) { return a.id === achievementId; });
+  if (!def) return false;
+
+  state.achievements.push(achievementId);
+  state.tokens += 10; // Bonus for every achievement
+  saveState();
+
+  // Queue toast
+  _achievementToastQueue.push(def);
+  if (!_achievementToastShowing) showNextAchievementToast();
+
+  if (typeof playSound === 'function') playSound('unlock');
+  return true;
+}
+
+function showNextAchievementToast() {
+  if (_achievementToastQueue.length === 0) {
+    _achievementToastShowing = false;
+    return;
+  }
+  _achievementToastShowing = true;
+  var def = _achievementToastQueue.shift();
+
+  var toast = document.getElementById('achievement-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'achievement-toast';
+    toast.className = 'achievement-toast';
+    document.body.appendChild(toast);
+  }
+
+  toast.innerHTML =
+    '<div class="achievement-toast-icon">' + def.icon + '</div>' +
+    '<div class="achievement-toast-body">' +
+      '<div class="achievement-toast-label">Achievement Unlocked!</div>' +
+      '<div class="achievement-toast-name">' + def.name + '</div>' +
+      '<div class="achievement-toast-desc">' + def.desc + ' (+10 \u2B50)</div>' +
+    '</div>';
+
+  toast.classList.remove('hide');
+  toast.classList.add('show');
+
+  if (typeof spawnParticles === 'function') {
+    spawnParticles(window.innerWidth / 2, 70, 8, def.icon);
+  }
+
+  setTimeout(function() {
+    toast.classList.remove('show');
+    toast.classList.add('hide');
+    setTimeout(function() { showNextAchievementToast(); }, 400);
+  }, 3000);
+}
+
+// === ACHIEVEMENT CHECKERS ===
+// Called after various events; each checks relevant conditions
+
+function checkAchievementsAfterAnswer() {
+  var s = state;
+
+  // Streak achievements
+  if (s.streak >= 3)  unlockAchievement('streak3');
+  if (s.streak >= 10) unlockAchievement('streak10');
+  if (s.streak >= 25) unlockAchievement('streak25');
+
+  // Token milestones
+  if (s.tokens >= 100)  unlockAchievement('tokens100');
+  if (s.tokens >= 500)  unlockAchievement('tokens500');
+  if (s.tokens >= 2500) unlockAchievement('tokens2500');
+
+  // Time-based secrets
+  var hour = new Date().getHours();
+  if (hour >= 21 || hour < 5) unlockAchievement('midnight');
+  if (hour >= 5 && hour < 7) unlockAchievement('earlybird');
+}
+
+function checkAchievementsAfterQuiz(results, skillId, worldType) {
+  var correct = results.filter(function(r) { return r; }).length;
+  var total = results.length;
+  var pct = total > 0 ? Math.round(correct / total * 100) : 0;
+
+  // Perfect quiz
+  if (correct === total && total >= 8) unlockAchievement('perfect8');
+
+  // Session count
+  if (state.sessionsCompleted >= 5)   unlockAchievement('sessions5');
+  if (state.sessionsCompleted >= 25)  unlockAchievement('sessions25');
+  if (state.sessionsCompleted >= 100) unlockAchievement('sessions100');
+
+  // World exploration
+  if (worldType === 'math') unlockAchievement('tryMath');
+  if (worldType === 'word') unlockAchievement('tryWord');
+  if (worldType === 'stem') unlockAchievement('tryStem');
+
+  // All worlds
+  var a = state.achievements || [];
+  if (a.indexOf('tryMath') !== -1 && a.indexOf('tryWord') !== -1 && a.indexOf('tryStem') !== -1) {
+    unlockAchievement('allWorlds');
+  }
+
+  // Tried N different skills
+  var triedSkills = {};
+  if (state.skills) {
+    for (var sid in state.skills) {
+      if (state.skills[sid].totalAttempts > 0) triedSkills[sid] = true;
+    }
+  }
+  if (Object.keys(triedSkills).length >= 10) unlockAchievement('try10');
+
+  // Speedrun (quiz under 30 seconds) — checked via currentGame.startTime if available
+  if (typeof currentGame !== 'undefined' && currentGame._startTime) {
+    var elapsed = (Date.now() - currentGame._startTime) / 1000;
+    if (elapsed < 30 && correct >= 6) unlockAchievement('speedrun');
+  }
+
+  // Comeback kid: first 3 wrong, last 5 right
+  if (results.length >= 8) {
+    var first3 = results.slice(0, 3).every(function(r) { return !r; });
+    var last5 = results.slice(-5).every(function(r) { return r; });
+    if (first3 && last5) unlockAchievement('comeback');
+  }
+}
+
+function checkAchievementsAfterMastery() {
+  if (!state.skills) return;
+  var masteredCount = 0;
+  var hasAbstract = false;
+  var hasChallenge = false;
+  var has80 = false;
+  var has100 = false;
+  var hasPictorial = false;
+
+  for (var sid in state.skills) {
+    var sk = state.skills[sid];
+    if (sk.mastery >= 80) { masteredCount++; has80 = true; }
+    if (sk.mastery >= 100) has100 = true;
+    if (sk.level >= 1) hasPictorial = true;
+    if (sk.level >= 2) hasAbstract = true;
+    if (sk.level >= 4) hasChallenge = true;
+  }
+
+  if (has80)            unlockAchievement('first80');
+  if (has100)           unlockAchievement('first100');
+  if (masteredCount >= 5)  unlockAchievement('master5');
+  if (masteredCount >= 10) unlockAchievement('master10');
+  if (hasPictorial)     unlockAchievement('levelUp');
+  if (hasAbstract)      unlockAchievement('abstract');
+  if (hasChallenge)     unlockAchievement('challenge');
+}
+
+function checkAchievementsAfterGarden() {
+  var count = state.garden ? state.garden.length : 0;
+  if (count >= 5)  unlockAchievement('flower5');
+  if (count >= 15) unlockAchievement('flower15');
+  if (count >= 30) unlockAchievement('flower30');
+}
+
+function checkAchievementsAfterLesson() {
+  if (!state.skills) return;
+  var lessonCount = 0;
+  for (var sid in state.skills) {
+    var sk = state.skills[sid];
+    if (sk.lessonViewed) {
+      for (var lid in sk.lessonViewed) { if (sk.lessonViewed[lid]) lessonCount++; }
+    }
+  }
+  if (lessonCount >= 5)  unlockAchievement('lesson5');
+  if (lessonCount >= 15) unlockAchievement('lesson15');
+}
+
+function checkAchievementsAfterFlashcards() {
+  if (!state.skills) return;
+  var fcSessions = 0;
+  for (var sid in state.skills) {
+    var sk = state.skills[sid];
+    if (sk.flashcardProgress) {
+      for (var cid in sk.flashcardProgress) {
+        if (sk.flashcardProgress[cid] && sk.flashcardProgress[cid].correct > 0) fcSessions++;
+      }
+    }
+  }
+  if (fcSessions >= 5) unlockAchievement('flash5');
+}
+
+function checkAchievementsAfterEscape() {
+  if (!state.escapeRooms) return;
+  var completed = Object.keys(state.escapeRooms).length;
+  if (completed >= 1) unlockAchievement('escape1');
+  if (completed >= 3) unlockAchievement('escape3');
+  if (completed >= 6) unlockAchievement('escapeAll');
+}
+
+function checkAchievementsAfterTrial(pct) {
+  unlockAchievement('trial1');
+  if (pct >= 100) unlockAchievement('trialAce');
+}
+
+function checkAchievementsAfterWotd() {
+  var count = state.wotdHistory ? state.wotdHistory.length : 0;
+  if (count >= 7)  unlockAchievement('wotd7');
+  if (count >= 30) unlockAchievement('wotd30');
+}
+
+function checkAchievementsAfterDailyQuest() {
+  // Quest streak — check consecutive days of quest completion
+  if (!state.questHistory) state.questHistory = [];
+  var consecutive = 0;
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  for (var i = 0; i < 30; i++) {
+    var d = new Date(today);
+    d.setDate(d.getDate() - i);
+    var ds = d.toDateString();
+    if (state.questHistory.indexOf(ds) !== -1) {
+      consecutive++;
+    } else {
+      break;
+    }
+  }
+  if (consecutive >= 7) unlockAchievement('quest7');
+}
+
+// Lumi tap counter for secret achievement
+var _lumiTapCount = 0;
+function checkLumiTapAchievement() {
+  _lumiTapCount++;
+  if (_lumiTapCount >= 10) unlockAchievement('lumiTap');
+}
+
+// Visit streak checker (called on init)
+function checkVisitStreakAchievements() {
+  if (!state.visitHistory) state.visitHistory = [];
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  var todayStr = today.toDateString();
+
+  // Add today if not present
+  if (state.visitHistory.indexOf(todayStr) === -1) {
+    state.visitHistory.push(todayStr);
+    // Keep last 60 entries
+    if (state.visitHistory.length > 60) state.visitHistory = state.visitHistory.slice(-60);
+    saveState();
+  }
+
+  // Count consecutive days ending today
+  var consecutive = 0;
+  for (var i = 0; i < 60; i++) {
+    var d = new Date(today);
+    d.setDate(d.getDate() - i);
+    if (state.visitHistory.indexOf(d.toDateString()) !== -1) {
+      consecutive++;
+    } else {
+      break;
+    }
+  }
+
+  if (consecutive >= 3)  unlockAchievement('day3');
+  if (consecutive >= 7)  unlockAchievement('day7');
+  if (consecutive >= 14) unlockAchievement('day14');
+  if (consecutive >= 30) unlockAchievement('day30');
+}
+
+// Get count of earned achievements
+function getAchievementCount() {
+  return state.achievements ? state.achievements.length : 0;
+}
+
+// Render achievements screen
+function renderAchievementsScreen() {
+  var container = document.getElementById('achievements-content');
+  if (!container) return;
+
+  var earned = state.achievements || [];
+  var total = ACHIEVEMENTS.length;
+  var earnedCount = earned.length;
+
+  var html = '<div class="achievements-summary">';
+  html += '<div class="achievements-count">' + earnedCount + ' / ' + total + '</div>';
+  html += '<div class="achievements-bar"><div class="achievements-bar-fill" style="width:' + Math.round(earnedCount / total * 100) + '%"></div></div>';
+  html += '</div>';
+
+  // By category
+  for (var catId in ACHIEVEMENT_CATEGORIES) {
+    var cat = ACHIEVEMENT_CATEGORIES[catId];
+    var catAchievements = ACHIEVEMENTS.filter(function(a) { return a.cat === catId; });
+
+    html += '<div class="achievement-category">';
+    html += '<div class="achievement-category-header" style="border-left:3px solid ' + cat.color + '">';
+    html += cat.icon + ' ' + cat.label;
+    html += '<span class="achievement-category-count">' +
+      catAchievements.filter(function(a) { return earned.indexOf(a.id) !== -1; }).length +
+      '/' + catAchievements.length + '</span>';
+    html += '</div>';
+    html += '<div class="achievement-grid">';
+
+    catAchievements.forEach(function(ach) {
+      var isEarned = earned.indexOf(ach.id) !== -1;
+      var isSecret = ach.secret && !isEarned;
+
+      html += '<div class="achievement-badge ' + (isEarned ? 'earned' : 'locked') + '">';
+      html += '<div class="achievement-badge-icon">' + (isSecret ? '\uD83D\uDD12' : ach.icon) + '</div>';
+      html += '<div class="achievement-badge-name">' + (isSecret ? '???' : ach.name) + '</div>';
+      html += '<div class="achievement-badge-desc">' + (isSecret ? 'Keep exploring to discover!' : ach.desc) + '</div>';
+      if (isEarned) html += '<div class="achievement-badge-check">\u2713</div>';
+      html += '</div>';
+    });
+
+    html += '</div></div>';
+  }
+
+  container.innerHTML = html;
+}
+
+// --- src/core/dynamic-quests.js ---
+// ============================================================
+//  DYNAMIC QUESTS — Varied daily + weekly challenges
+// ============================================================
+
+// Quest templates — each defines a type and how to check completion
+var QUEST_TEMPLATES = [
+  { id: 'do5',       type: 'daily', label: 'Complete 5 challenges',           icon: '\u26A1', target: 5,  check: 'quizzes' },
+  { id: 'streak5',   type: 'daily', label: 'Get a 5-answer streak',           icon: '\uD83D\uDD25', target: 5,  check: 'streak' },
+  { id: 'learn2',    type: 'daily', label: 'Complete 2 lessons',              icon: '\uD83D\uDCD6', target: 2,  check: 'lessons' },
+  { id: 'flash3',    type: 'daily', label: 'Flip through 3 flashcard sets',   icon: '\uD83C\uDCCF', target: 3,  check: 'flashcards' },
+  { id: 'review2',   type: 'daily', label: 'Review 2 skills due for review',  icon: '\uD83D\uDD14', target: 2,  check: 'reviews' },
+  { id: 'math3',     type: 'daily', label: 'Answer 3 Number World questions', icon: '\uD83D\uDD22', target: 3,  check: 'mathQs' },
+  { id: 'word3',     type: 'daily', label: 'Answer 3 Word World questions',   icon: '\uD83D\uDCDA', target: 3,  check: 'wordQs' },
+  { id: 'stem3',     type: 'daily', label: 'Answer 3 STEM World questions',   icon: '\uD83D\uDD2C', target: 3,  check: 'stemQs' },
+  { id: 'perfect1',  type: 'daily', label: 'Get a perfect score on any quiz', icon: '\uD83D\uDCAF', target: 1,  check: 'perfectQuiz' },
+  { id: 'explore2',  type: 'daily', label: 'Try 2 different skills',          icon: '\uD83D\uDDFA\uFE0F', target: 2,  check: 'uniqueSkills' }
+];
+
+var WEEKLY_TEMPLATES = [
+  { id: 'wk_master',  type: 'weekly', label: 'Master a new skill to 80%',           icon: '\uD83C\uDF1F', target: 1, check: 'newMastery',  reward: 50 },
+  { id: 'wk_all3',    type: 'weekly', label: 'Play in all 3 worlds',                icon: '\uD83C\uDF0D', target: 3, check: 'worldsPlayed', reward: 40 },
+  { id: 'wk_escape',  type: 'weekly', label: 'Complete an escape room',             icon: '\uD83D\uDD13', target: 1, check: 'escapesDone',  reward: 50 },
+  { id: 'wk_streak7', type: 'weekly', label: 'Get a 7-answer streak',               icon: '\uD83D\uDD25', target: 7, check: 'bestStreak',   reward: 40 },
+  { id: 'wk_15q',     type: 'weekly', label: 'Answer 15 questions correctly',        icon: '\u2705',       target: 15, check: 'weekCorrect', reward: 40 },
+  { id: 'wk_learn5',  type: 'weekly', label: 'Complete 5 lessons',                   icon: '\uD83D\uDCDA', target: 5, check: 'weekLessons',  reward: 50 }
+];
+
+// Daily quest tracking counters (reset each day)
+var questCounters = {
+  quizzes: 0,
+  lessons: 0,
+  flashcards: 0,
+  reviews: 0,
+  mathQs: 0,
+  wordQs: 0,
+  stemQs: 0,
+  perfectQuiz: 0,
+  uniqueSkills: [],
+  streak: 0
+};
+
+// Weekly quest tracking
+var weeklyCounters = {
+  newMastery: 0,
+  worldsPlayed: [],
+  escapesDone: 0,
+  bestStreak: 0,
+  weekCorrect: 0,
+  weekLessons: 0
+};
+
+// Pick today's quest (seeded by date for consistency)
+function getDailyQuest() {
+  var today = new Date().toDateString();
+
+  // If already generated today, return it
+  if (state.dynamicQuest && state.dynamicQuest.date === today) {
+    return state.dynamicQuest;
+  }
+
+  // Seed from date string for deterministic pick
+  var seed = 0;
+  for (var i = 0; i < today.length; i++) seed += today.charCodeAt(i);
+  var idx = seed % QUEST_TEMPLATES.length;
+  var template = QUEST_TEMPLATES[idx];
+
+  state.dynamicQuest = {
+    date: today,
+    templateId: template.id,
+    label: template.label,
+    icon: template.icon,
+    target: template.target,
+    check: template.check,
+    progress: 0,
+    completed: false,
+    claimed: false,
+    reward: 20
+  };
+
+  saveState();
+  return state.dynamicQuest;
+}
+
+// Pick this week's quest
+function getWeeklyQuest() {
+  var now = new Date();
+  var weekStart = new Date(now);
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+  weekStart.setHours(0, 0, 0, 0);
+  var weekKey = weekStart.toDateString();
+
+  if (state.weeklyQuest && state.weeklyQuest.weekKey === weekKey) {
+    return state.weeklyQuest;
+  }
+
+  var seed = 0;
+  for (var i = 0; i < weekKey.length; i++) seed += weekKey.charCodeAt(i);
+  var idx = seed % WEEKLY_TEMPLATES.length;
+  var template = WEEKLY_TEMPLATES[idx];
+
+  state.weeklyQuest = {
+    weekKey: weekKey,
+    templateId: template.id,
+    label: template.label,
+    icon: template.icon,
+    target: template.target,
+    check: template.check,
+    progress: 0,
+    completed: false,
+    claimed: false,
+    reward: template.reward
+  };
+
+  saveState();
+  return state.weeklyQuest;
+}
+
+// Increment quest counters (called from various hooks)
+function questRecordQuiz(worldType) {
+  questCounters.quizzes++;
+  if (worldType === 'math') questCounters.mathQs++;
+  if (worldType === 'word') questCounters.wordQs++;
+  if (worldType === 'stem') questCounters.stemQs++;
+  weeklyCounters.weekCorrect++;
+  if (worldType && weeklyCounters.worldsPlayed.indexOf(worldType) === -1) {
+    weeklyCounters.worldsPlayed.push(worldType);
+  }
+  updateQuestProgress();
+}
+
+function questRecordPerfect() {
+  questCounters.perfectQuiz++;
+  updateQuestProgress();
+}
+
+function questRecordLesson() {
+  questCounters.lessons++;
+  weeklyCounters.weekLessons++;
+  updateQuestProgress();
+}
+
+function questRecordFlashcards() {
+  questCounters.flashcards++;
+  updateQuestProgress();
+}
+
+function questRecordReview() {
+  questCounters.reviews++;
+  updateQuestProgress();
+}
+
+function questRecordSkillPlayed(skillId) {
+  if (questCounters.uniqueSkills.indexOf(skillId) === -1) {
+    questCounters.uniqueSkills.push(skillId);
+  }
+  updateQuestProgress();
+}
+
+function questRecordStreak(streakVal) {
+  questCounters.streak = Math.max(questCounters.streak, streakVal);
+  weeklyCounters.bestStreak = Math.max(weeklyCounters.bestStreak, streakVal);
+  updateQuestProgress();
+}
+
+function questRecordEscape() {
+  weeklyCounters.escapesDone++;
+  updateQuestProgress();
+}
+
+function questRecordNewMastery() {
+  weeklyCounters.newMastery++;
+  updateQuestProgress();
+}
+
+// Update quest progress from counters
+function updateQuestProgress() {
+  var dq = getDailyQuest();
+  if (dq && !dq.completed) {
+    var val = 0;
+    switch (dq.check) {
+      case 'quizzes':      val = questCounters.quizzes; break;
+      case 'streak':       val = questCounters.streak; break;
+      case 'lessons':      val = questCounters.lessons; break;
+      case 'flashcards':   val = questCounters.flashcards; break;
+      case 'reviews':      val = questCounters.reviews; break;
+      case 'mathQs':       val = questCounters.mathQs; break;
+      case 'wordQs':       val = questCounters.wordQs; break;
+      case 'stemQs':       val = questCounters.stemQs; break;
+      case 'perfectQuiz':  val = questCounters.perfectQuiz; break;
+      case 'uniqueSkills': val = questCounters.uniqueSkills.length; break;
+    }
+    dq.progress = Math.min(val, dq.target);
+    if (dq.progress >= dq.target) dq.completed = true;
+    saveState();
+  }
+
+  var wq = getWeeklyQuest();
+  if (wq && !wq.completed) {
+    var wval = 0;
+    switch (wq.check) {
+      case 'newMastery':   wval = weeklyCounters.newMastery; break;
+      case 'worldsPlayed': wval = weeklyCounters.worldsPlayed.length; break;
+      case 'escapesDone':  wval = weeklyCounters.escapesDone; break;
+      case 'bestStreak':   wval = weeklyCounters.bestStreak; break;
+      case 'weekCorrect':  wval = weeklyCounters.weekCorrect; break;
+      case 'weekLessons':  wval = weeklyCounters.weekLessons; break;
+    }
+    wq.progress = Math.min(wval, wq.target);
+    if (wq.progress >= wq.target) wq.completed = true;
+    saveState();
+  }
+}
+
+// Claim daily quest reward
+function claimDailyQuest() {
+  var dq = getDailyQuest();
+  if (!dq || !dq.completed || dq.claimed) return;
+  dq.claimed = true;
+  state.tokens += dq.reward;
+
+  // Track quest completion history for achievements
+  if (!state.questHistory) state.questHistory = [];
+  var today = new Date().toDateString();
+  if (state.questHistory.indexOf(today) === -1) {
+    state.questHistory.push(today);
+    if (state.questHistory.length > 60) state.questHistory = state.questHistory.slice(-60);
+  }
+
+  if (typeof playSound === 'function') playSound('levelup');
+  if (typeof spawnParticles === 'function') {
+    spawnParticles(window.innerWidth / 2, window.innerHeight / 2, 12, '\u2B50');
+  }
+  if (typeof lumiSay === 'function') {
+    lumiSay('Quest complete! +' + dq.reward + ' stars! You\'re incredible!');
+  }
+  if (typeof checkAchievementsAfterDailyQuest === 'function') {
+    checkAchievementsAfterDailyQuest();
+  }
+  saveState();
+  if (typeof updateHomeUI === 'function') updateHomeUI();
+}
+
+// Claim weekly quest reward
+function claimWeeklyQuest() {
+  var wq = getWeeklyQuest();
+  if (!wq || !wq.completed || wq.claimed) return;
+  wq.claimed = true;
+  state.tokens += wq.reward;
+
+  if (typeof playSound === 'function') playSound('escape');
+  if (typeof spawnParticles === 'function') {
+    spawnParticles(window.innerWidth / 2, window.innerHeight / 2, 20, '\uD83C\uDF1F');
+  }
+  if (typeof lumiSay === 'function') {
+    lumiSay('WEEKLY QUEST DONE! +' + wq.reward + ' stars! You\'re a superstar!');
+  }
+  saveState();
+  if (typeof updateHomeUI === 'function') updateHomeUI();
+}
+
+// Render quest banners (called from home.js)
+function renderDynamicQuestBanner() {
+  var dq = getDailyQuest();
+  var html = '';
+
+  // Daily Quest
+  html += '<div class="quest-banner dynamic-quest" onclick="' +
+    (dq.completed && !dq.claimed ? 'claimDailyQuest()' : '') + '">';
+  html += '<div class="quest-icon">' + dq.icon + '</div>';
+  html += '<div class="quest-text">';
+  html += '<div class="quest-title">' + (dq.completed && !dq.claimed ? '\uD83C\uDF89 Quest Complete!' : 'Daily Quest') + '</div>';
+  html += '<div class="quest-desc">' + (dq.completed && !dq.claimed ? 'Tap to claim +' + dq.reward + ' stars!' : dq.label) + '</div>';
+  html += '</div>';
+  html += '<div class="quest-progress-ring">';
+  html += '<span>' + dq.progress + '/' + dq.target + '</span>';
+  if (dq.completed && dq.claimed) html += '<span class="quest-done-check">\u2713</span>';
+  html += '</div>';
+  html += '</div>';
+
+  // Weekly Quest
+  var wq = getWeeklyQuest();
+  html += '<div class="quest-banner weekly-quest" onclick="' +
+    (wq.completed && !wq.claimed ? 'claimWeeklyQuest()' : '') + '">';
+  html += '<div class="quest-icon">\uD83C\uDFC6</div>';
+  html += '<div class="quest-text">';
+  html += '<div class="quest-title">' + (wq.completed && !wq.claimed ? '\uD83C\uDF89 Weekly Boss Done!' : 'Weekly Challenge') + '</div>';
+  html += '<div class="quest-desc">' + (wq.completed && !wq.claimed ? 'Tap to claim +' + wq.reward + ' stars!' : wq.label) + '</div>';
+  html += '</div>';
+  html += '<div class="quest-progress-ring weekly">';
+  html += '<span>' + wq.progress + '/' + wq.target + '</span>';
+  if (wq.completed && wq.claimed) html += '<span class="quest-done-check">\u2713</span>';
+  html += '</div>';
+  html += '</div>';
+
+  return html;
+}
+
+// --- src/core/lumi.js ---
+// ============================================================
+//  LUMI — Personality engine, story arcs, emotional responses
+// ============================================================
+
+// Lumi's mood affects expressions and dialogue
+var lumiState = {
+  mood: 'happy',       // happy, excited, proud, concerned, sleepy
+  tapCount: 0,
+  lastMoodChange: 0,
+  storyChapter: 0,     // 0 = not started, 1-5 = chapters
+  storyShownToday: false
+};
+
+// === MOOD SYSTEM ===
+var LUMI_MOODS = {
+  happy:     { mouth: 'smile',  eyes: 'normal',  sparkle: true,  color: '' },
+  excited:   { mouth: 'grin',   eyes: 'wide',    sparkle: true,  color: 'excited' },
+  proud:     { mouth: 'smile',  eyes: 'happy',   sparkle: true,  color: 'proud' },
+  concerned: { mouth: 'worry',  eyes: 'normal',  sparkle: false, color: 'concerned' },
+  sleepy:    { mouth: 'sleep',  eyes: 'sleepy',  sparkle: false, color: 'sleepy' }
+};
+
+function setLumiMood(mood) {
+  if (!LUMI_MOODS[mood]) return;
+  lumiState.mood = mood;
+  lumiState.lastMoodChange = Date.now();
+  applyLumiMood();
+}
+
+function applyLumiMood() {
+  var body = document.querySelector('.lumi-body');
+  if (!body) return;
+  var mood = LUMI_MOODS[lumiState.mood] || LUMI_MOODS.happy;
+
+  // Remove old mood classes
+  body.className = 'lumi-body';
+  if (mood.color) body.classList.add('lumi-mood-' + mood.color);
+
+  // Mouth expression
+  var mouth = body.querySelector('.lumi-mouth');
+  if (mouth) {
+    mouth.className = 'lumi-mouth';
+    mouth.classList.add('lumi-mouth-' + mood.mouth);
+  }
+
+  // Eyes
+  var eyes = body.querySelectorAll('.lumi-eye');
+  eyes.forEach(function(eye) {
+    eye.className = eye.className.replace(/lumi-eye-\w+/g, '').trim();
+    if (mood.eyes !== 'normal') eye.classList.add('lumi-eye-' + mood.eyes);
+  });
+
+  // Sparkles
+  var sparkles = document.querySelectorAll('.lumi-sparkle');
+  sparkles.forEach(function(s) {
+    s.style.display = mood.sparkle ? '' : 'none';
+  });
+}
+
+// === CONTEXT-AWARE DIALOGUE ===
+
+// Lumi responds to what just happened
+function lumiReactTo(event, data) {
+  var msg = '';
+  var mood = 'happy';
+
+  switch (event) {
+    case 'correct':
+      mood = 'excited';
+      if (state.streak >= 10) {
+        msg = pick(LUMI_REACTIONS.bigStreak);
+      } else if (state.streak >= 5) {
+        msg = pick(LUMI_REACTIONS.streak);
+      } else {
+        msg = pick(LUMI_REACTIONS.correct);
+      }
+      break;
+
+    case 'wrong':
+      mood = 'concerned';
+      msg = pick(LUMI_REACTIONS.wrong);
+      break;
+
+    case 'levelUp':
+      mood = 'excited';
+      msg = pick(LUMI_REACTIONS.levelUp).replace('{level}', LEVEL_NAMES[state.level] || 'a new level');
+      break;
+
+    case 'quizComplete':
+      var pct = data && data.pct || 0;
+      if (pct >= 90) {
+        mood = 'proud';
+        msg = pick(LUMI_REACTIONS.quizAmazing);
+      } else if (pct >= 70) {
+        mood = 'happy';
+        msg = pick(LUMI_REACTIONS.quizGood);
+      } else {
+        mood = 'concerned';
+        msg = pick(LUMI_REACTIONS.quizTryAgain);
+      }
+      break;
+
+    case 'lessonComplete':
+      mood = 'proud';
+      msg = pick(LUMI_REACTIONS.lessonDone);
+      break;
+
+    case 'achievementUnlocked':
+      mood = 'excited';
+      msg = pick(LUMI_REACTIONS.achievement).replace('{name}', data && data.name || 'something special');
+      break;
+
+    case 'returnVisit':
+      mood = 'happy';
+      var hour = new Date().getHours();
+      if (hour < 7) {
+        mood = 'sleepy';
+        msg = pick(LUMI_REACTIONS.earlyMorning);
+      } else if (hour < 12) {
+        msg = pick(LUMI_REACTIONS.morning);
+      } else if (hour < 17) {
+        msg = pick(LUMI_REACTIONS.afternoon);
+      } else if (hour < 21) {
+        msg = pick(LUMI_REACTIONS.evening);
+      } else {
+        mood = 'sleepy';
+        msg = pick(LUMI_REACTIONS.lateNight);
+      }
+      break;
+
+    case 'comeBack':
+      mood = 'excited';
+      msg = pick(LUMI_REACTIONS.comeBack);
+      break;
+
+    case 'firstVisitToday':
+      mood = 'happy';
+      msg = pick(LUMI_REACTIONS.firstToday);
+      break;
+
+    case 'questComplete':
+      mood = 'excited';
+      msg = pick(LUMI_REACTIONS.questDone);
+      break;
+
+    case 'gardenGrow':
+      mood = 'proud';
+      msg = pick(LUMI_REACTIONS.gardenGrow);
+      break;
+  }
+
+  if (msg) {
+    setLumiMood(mood);
+    lumiSay(msg);
+    // Mood fades back to happy after 8 seconds
+    setTimeout(function() { setLumiMood('happy'); }, 8000);
+  }
+}
+
+var LUMI_REACTIONS = {
+  correct: [
+    "That's right! You're so clever!",
+    "YES! Your brain is amazing!",
+    "Nailed it! Keep going!",
+    "Woohoo! I knew you could do it!",
+    "Brilliant thinking, Anastasia!"
+  ],
+  streak: [
+    "You're on a ROLL! " + state.streak + " in a row!",
+    "Wow, nothing can stop you!",
+    "Your brain is ON FIRE today!",
+    "Look at that streak! Incredible!"
+  ],
+  bigStreak: [
+    "TEN IN A ROW?! You're a LEGEND!",
+    "I can barely keep up with you!",
+    "Stop — you're making me dizzy with excitement!",
+    "This is the best streak I've EVER seen!"
+  ],
+  wrong: [
+    "Hmm, not quite — but that's how brains grow!",
+    "Mistakes are brain food! Let's try another!",
+    "Oops! But I love that you tried!",
+    "Your brain just got a tiny bit stronger!",
+    "That's okay! Even stars wobble sometimes!"
+  ],
+  levelUp: [
+    "OH WOW! You reached {level}! I'm so proud!",
+    "LEVEL UP! {level}! You're shining brighter!",
+    "{level}! This calls for a celebration!"
+  ],
+  quizAmazing: [
+    "INCREDIBLE! That was almost perfect!",
+    "I am SO proud of you right now!",
+    "You absolutely CRUSHED that quiz!",
+    "Is there anything you CAN'T do?!"
+  ],
+  quizGood: [
+    "Great job! You really know your stuff!",
+    "Solid work! Your brain is getting stronger!",
+    "Nice! You're improving every time!"
+  ],
+  quizTryAgain: [
+    "That was tough! But every try makes you better!",
+    "Don't worry — even I get tricky ones wrong!",
+    "Practice makes progress! Want to try again?"
+  ],
+  lessonDone: [
+    "You just learned something new! How cool is that?",
+    "Another lesson done! Your brain is growing!",
+    "Look at you, learning like a superstar!",
+    "Knowledge unlocked! I love watching you learn!"
+  ],
+  achievement: [
+    "ACHIEVEMENT UNLOCKED: {name}! You're amazing!",
+    "Wow! You earned {name}! I'm so impressed!",
+    "Look what you did! {name}! Incredible!"
+  ],
+  earlyMorning: [
+    "*yawn* You're up early, Anastasia! Let's learn while the world sleeps!",
+    "Wow, you're an early bird! I'm still waking up...",
+    "Good moooorning! *stretches* Ready for some brain warmups?"
+  ],
+  morning: [
+    "Good morning, Anastasia! Your brain is fresh and ready!",
+    "Rise and shine! What shall we learn today?",
+    "Morning! I've been waiting for you! Let's go!",
+    "Hello sunshine! Ready for an adventure?"
+  ],
+  afternoon: [
+    "Good afternoon! Perfect time for some learning!",
+    "Hey Anastasia! How about a brain workout?",
+    "Afternoon brain boost! Let's do this!",
+    "Welcome back! Your garden missed you!"
+  ],
+  evening: [
+    "Good evening! Time for some relaxed learning!",
+    "Evening study session! My favourite time!",
+    "Hi Anastasia! Let's end the day with some fun learning!",
+    "The stars are coming out — just like YOUR star potential!"
+  ],
+  lateNight: [
+    "*yawn* Isn't it past your bedtime? Just a quick session then!",
+    "A night owl! Just like me! Let's do something fun!",
+    "Shh... quiet learning time! Our little secret!"
+  ],
+  comeBack: [
+    "You're BACK! I missed you so much!",
+    "Anastasia! It's been a while — I saved your place!",
+    "Welcome back! Your garden has been waiting!",
+    "I'm so happy to see you again! Let's pick up where we left off!"
+  ],
+  firstToday: [
+    "Welcome back today! Ready for an awesome session?",
+    "Hey! Great to see you again today!",
+    "Back for more? I love your dedication!"
+  ],
+  questDone: [
+    "QUEST COMPLETE! You're on a mission today!",
+    "Done already?! You're AMAZING!",
+    "Quest conquered! What's next, champion?"
+  ],
+  gardenGrow: [
+    "A new flower! Your garden is getting so beautiful!",
+    "Look! Your garden is growing! Just like your brain!",
+    "Another bloom! Keep it up — paradise incoming!"
+  ]
+};
+
+// === LUMI TAP INTERACTIONS ===
+var LUMI_TAP_RESPONSES = [
+  { maxTaps: 1, responses: ["Hi! Tap me again!", "Hey there! What's up?", "Let's learn something cool!"] },
+  { maxTaps: 3, responses: ["Hehe, that tickles!", "Again! Again!", "You're funny!"] },
+  { maxTaps: 5, responses: ["Okay okay, I'm awake!", "So many taps! My sparkles are going crazy!", "You really like tapping me, huh?"] },
+  { maxTaps: 8, responses: ["I'm getting dizzy!", "Please... my sparkles need a break!", "Are you trying to break my tap record?!"] },
+  { maxTaps: 15, responses: ["OKAY that's a LOT of taps!", "My sparkle meter is OVERLOADING!", "You've discovered my secret tickle spot!"] }
+];
+
+function lumiTapped() {
+  lumiState.tapCount++;
+
+  if (typeof checkLumiTapAchievement === 'function') {
+    checkLumiTapAchievement();
+  }
+
+  // Find response tier
+  var tier = LUMI_TAP_RESPONSES[0];
+  for (var i = LUMI_TAP_RESPONSES.length - 1; i >= 0; i--) {
+    if (lumiState.tapCount >= LUMI_TAP_RESPONSES[i].maxTaps) {
+      tier = LUMI_TAP_RESPONSES[i];
+      break;
+    }
+  }
+
+  var msg = pick(tier.responses);
+  setLumiMood(lumiState.tapCount > 8 ? 'excited' : 'happy');
+  lumiSay(msg);
+  if (typeof playSound === 'function') playSound('click');
+
+  // Reset tap counter after 5 seconds of no taps
+  clearTimeout(lumiState._tapTimer);
+  lumiState._tapTimer = setTimeout(function() {
+    lumiState.tapCount = 0;
+    setLumiMood('happy');
+  }, 5000);
+}
+
+// === STORY ARC: "Help Lumi Build the Star Bridge" ===
+var LUMI_STORY = [
+  {
+    chapter: 1,
+    title: "The Broken Star Bridge",
+    unlockFlowers: 0,
+    intro: "Anastasia, I need your help! The Star Bridge that connects all the learning worlds is broken! " +
+           "Long ago, it shimmered with the light of knowledge... but its stars scattered across the worlds. " +
+           "Every time you learn something new, you help me find a star to rebuild it!",
+    milestone: "You found the first star! The bridge glimmers faintly...",
+    icon: "\uD83C\uDF09"
+  },
+  {
+    chapter: 2,
+    title: "The Number Stars",
+    unlockFlowers: 5,
+    intro: "Look! The Number World stars are beginning to glow! " +
+           "The bridge needs stars from all three worlds to be complete. " +
+           "Keep learning in Number World and the math stars will light the way!",
+    milestone: "The Number World section of the bridge is shining!",
+    icon: "\uD83D\uDD22"
+  },
+  {
+    chapter: 3,
+    title: "The Word Stars",
+    unlockFlowers: 12,
+    intro: "The Word Stars are calling! Every word you learn, every story you read, " +
+           "sends a new light up to the bridge. I can almost see the words dancing across it!",
+    milestone: "Beautiful! The Word Stars illuminate the bridge with stories!",
+    icon: "\uD83D\uDCDA"
+  },
+  {
+    chapter: 4,
+    title: "The STEM Stars",
+    unlockFlowers: 20,
+    intro: "We're getting close! The STEM Stars are the trickiest — they need experiments " +
+           "and discoveries to shine. But I believe in you, Anastasia. You're the brightest " +
+           "learner I've ever met!",
+    milestone: "The STEM Stars flash like lightning! The bridge is almost complete!",
+    icon: "\uD83D\uDD2C"
+  },
+  {
+    chapter: 5,
+    title: "The Complete Star Bridge",
+    unlockFlowers: 30,
+    intro: "ANASTASIA! LOOK! The Star Bridge is COMPLETE! All three worlds are connected " +
+           "by YOUR knowledge and YOUR hard work! Every lesson, every quiz, every discovery " +
+           "— they all led to this moment. I am SO proud of you!",
+    milestone: "The Star Bridge shines forever, powered by everything you've learned!",
+    icon: "\uD83C\uDF1F"
+  }
+];
+
+function checkStoryProgress() {
+  var flowers = state.garden ? state.garden.length : 0;
+
+  // Find current chapter
+  var currentChapter = 0;
+  for (var i = LUMI_STORY.length - 1; i >= 0; i--) {
+    if (flowers >= LUMI_STORY[i].unlockFlowers) {
+      currentChapter = i + 1;
+      break;
+    }
+  }
+
+  // Check if new chapter unlocked
+  if (!state.lumiStory) state.lumiStory = { chapter: 0, shownChapters: [] };
+
+  if (currentChapter > state.lumiStory.chapter) {
+    state.lumiStory.chapter = currentChapter;
+    saveState();
+    return currentChapter; // New chapter!
+  }
+  return 0; // No new chapter
+}
+
+function showStoryChapter(chapterNum) {
+  if (chapterNum < 1 || chapterNum > LUMI_STORY.length) return;
+
+  var ch = LUMI_STORY[chapterNum - 1];
+  if (!state.lumiStory) state.lumiStory = { chapter: 0, shownChapters: [] };
+
+  // Mark as shown
+  if (state.lumiStory.shownChapters.indexOf(chapterNum) === -1) {
+    state.lumiStory.shownChapters.push(chapterNum);
+    saveState();
+  }
+
+  // Show story overlay
+  var overlay = document.getElementById('story-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'story-overlay';
+    overlay.className = 'story-overlay';
+    document.body.appendChild(overlay);
+  }
+
+  overlay.innerHTML =
+    '<div class="story-card">' +
+      '<div class="story-chapter-badge">Chapter ' + chapterNum + '</div>' +
+      '<div class="story-icon">' + ch.icon + '</div>' +
+      '<div class="story-title">' + ch.title + '</div>' +
+      '<div class="story-text">' + ch.intro + '</div>' +
+      '<div class="story-bridge">' + renderStoryBridge(chapterNum) + '</div>' +
+      '<button class="lesson-btn lesson-btn-done" onclick="closeStoryOverlay()">Continue \u2192</button>' +
+    '</div>';
+
+  overlay.classList.add('show');
+  setLumiMood('excited');
+
+  if (typeof playSound === 'function') playSound('escape');
+}
+
+function closeStoryOverlay() {
+  var overlay = document.getElementById('story-overlay');
+  if (overlay) overlay.classList.remove('show');
+}
+
+// Render a mini star bridge progress visual
+function renderStoryBridge(currentChapter) {
+  var html = '<div class="story-bridge-row">';
+  for (var i = 1; i <= 5; i++) {
+    var lit = i <= currentChapter;
+    html += '<div class="story-bridge-star ' + (lit ? 'lit' : '') + '">' +
+      (lit ? '\u2B50' : '\u2606') + '</div>';
+    if (i < 5) html += '<div class="story-bridge-link ' + (lit ? 'lit' : '') + '"></div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+// Render story progress bar for home screen
+function renderStoryProgress() {
+  if (!state.lumiStory) state.lumiStory = { chapter: 0, shownChapters: [] };
+  var ch = state.lumiStory.chapter || 0;
+  if (ch === 0) ch = 1; // Show chapter 1 by default
+
+  var story = LUMI_STORY[Math.min(ch, LUMI_STORY.length) - 1];
+  var nextStory = ch < LUMI_STORY.length ? LUMI_STORY[ch] : null;
+  var flowers = state.garden ? state.garden.length : 0;
+
+  var html = '<div class="story-progress-card" onclick="showStoryChapter(' + ch + ')">';
+  html += '<div class="story-progress-header">';
+  html += '<span class="story-progress-icon">' + story.icon + '</span>';
+  html += '<span class="story-progress-title">Star Bridge: ' + story.title + '</span>';
+  html += '</div>';
+  html += '<div class="story-progress-bridge">' + renderStoryBridge(ch) + '</div>';
+  if (nextStory) {
+    var needed = nextStory.unlockFlowers - flowers;
+    if (needed > 0) {
+      html += '<div class="story-progress-next">' + needed + ' more flower' + (needed > 1 ? 's' : '') + ' to unlock Chapter ' + (ch + 1) + '</div>';
+    }
+  } else if (ch >= LUMI_STORY.length) {
+    html += '<div class="story-progress-next" style="color:var(--gold)">Star Bridge Complete!</div>';
+  }
+  html += '</div>';
+
+  return html;
+}
+
+// Called on app init to set Lumi's initial mood and trigger story
+function initLumi() {
+  var hour = new Date().getHours();
+  if (hour < 7 || hour >= 22) {
+    setLumiMood('sleepy');
+  } else {
+    setLumiMood('happy');
+  }
+
+  // Check for new story chapter
+  var newChapter = checkStoryProgress();
+  if (newChapter > 0) {
+    // Show new chapter after a short delay
+    if (!state.lumiStory.shownChapters || state.lumiStory.shownChapters.indexOf(newChapter) === -1) {
+      setTimeout(function() { showStoryChapter(newChapter); }, 1500);
+    }
+  }
+
+  // React based on visit context
+  var today = new Date().toDateString();
+  if (state.lastVisit === today) {
+    lumiReactTo('firstVisitToday');
+  } else if (state.lastVisit) {
+    // Calculate days since last visit
+    var last = new Date(state.lastVisit);
+    var now = new Date();
+    var daysDiff = Math.floor((now - last) / (1000 * 60 * 60 * 24));
+    if (daysDiff > 3) {
+      lumiReactTo('comeBack');
+    } else {
+      lumiReactTo('returnVisit');
+    }
+  } else {
+    lumiReactTo('returnVisit');
+  }
 }
 
 // --- src/core/adaptive.js ---
@@ -8834,6 +10203,12 @@ function updateUI() {
   const lvl = clamp(state.level, 1, LEVEL_NAMES.length - 1);
   document.getElementById('level-text').textContent = LEVEL_NAMES[lvl] || 'Sprout \uD83C\uDF31';
 
+  // Achievement count badge
+  var achBadge = document.getElementById('achievement-badge-count');
+  if (achBadge && typeof getAchievementCount === 'function') {
+    achBadge.textContent = getAchievementCount();
+  }
+
   // Check level up
   for (let i = LEVEL_THRESHOLDS.length - 1; i > 0; i--) {
     if (state.tokens >= LEVEL_THRESHOLDS[i] && state.level < i) {
@@ -8841,7 +10216,11 @@ function updateUI() {
       playSound('levelup');
       document.getElementById('level-text').textContent = LEVEL_NAMES[i];
       spawnParticles(window.innerWidth / 2, 50, 12, '\u2728');
-      lumiSay('Amazing! You reached ' + LEVEL_NAMES[i] + '!');
+      if (typeof lumiReactTo === 'function') {
+        lumiReactTo('levelUp');
+      } else {
+        lumiSay('Amazing! You reached ' + LEVEL_NAMES[i] + '!');
+      }
       break;
     }
   }
@@ -8850,6 +10229,11 @@ function updateUI() {
   if (state.streak === 5 || state.streak === 10 || state.streak === 20) {
     playSound('streak');
     spawnParticles(window.innerWidth / 2, window.innerHeight / 3, 10, '\uD83D\uDD25');
+  }
+
+  // Streak for quest tracking
+  if (typeof questRecordStreak === 'function') {
+    questRecordStreak(state.streak);
   }
 }
 
@@ -8935,16 +10319,29 @@ function handleCorrect(isStory) {
 
   updateSkillState(currentGame.skillId, true, currentGame.currentConfidence);
 
-  // Daily quest
+  // Daily quest (legacy counter)
   const today = new Date().toDateString();
   if (state.dailyQuest.date === today) {
     state.dailyQuest.completed++;
+  }
+
+  // Dynamic quest tracking
+  if (typeof questRecordQuiz === 'function') {
+    questRecordQuiz(currentGame.worldType);
+  }
+  if (typeof questRecordSkillPlayed === 'function') {
+    questRecordSkillPlayed(currentGame.skillId);
   }
 
   spawnParticles(window.innerWidth / 2, window.innerHeight / 3, 8, '\u2B50');
 
   const showMeta = Math.random() < 0.3;
   showFeedback(true, tokens, isStory, showMeta);
+
+  // Achievement checks
+  if (typeof checkAchievementsAfterAnswer === 'function') checkAchievementsAfterAnswer();
+  if (typeof checkAchievementsAfterMastery === 'function') checkAchievementsAfterMastery();
+  if (typeof checkAchievementsAfterGarden === 'function') checkAchievementsAfterGarden();
 
   updateUI();
   saveState();
@@ -9081,6 +10478,11 @@ const LUMI_GREETINGS = [
 ];
 
 function lumiSpeak() {
+  // Use upgraded Lumi tap system if available
+  if (typeof lumiTapped === 'function') {
+    lumiTapped();
+    return;
+  }
   lumiSay(pick(LUMI_GREETINGS));
   playSound('click');
 }
@@ -9117,6 +10519,46 @@ function updateHomeUI() {
   const gardenPct = Math.min(100, (state.garden.length / 50) * 100);
   document.getElementById('garden-progress').style.width = gardenPct + '%';
 
+  // Dynamic quest banners
+  var questArea = document.getElementById('dynamic-quest-area');
+  if (questArea && typeof renderDynamicQuestBanner === 'function') {
+    questArea.innerHTML = renderDynamicQuestBanner();
+  }
+
+  // Story progress
+  var storyArea = document.getElementById('story-progress-area');
+  if (storyArea && typeof renderStoryProgress === 'function') {
+    storyArea.innerHTML = renderStoryProgress();
+  }
+
+  // Achievement showcase (latest 3)
+  var achArea = document.getElementById('achievement-showcase');
+  if (achArea && typeof ACHIEVEMENTS !== 'undefined') {
+    var earned = state.achievements || [];
+    if (earned.length > 0) {
+      var recent = earned.slice(-3).reverse();
+      var html = '<div class="achievement-showcase-row">';
+      recent.forEach(function(id) {
+        var def = ACHIEVEMENTS.find(function(a) { return a.id === id; });
+        if (def) {
+          html += '<div class="achievement-mini">' +
+            '<span class="achievement-mini-icon">' + def.icon + '</span>' +
+            '<span class="achievement-mini-name">' + def.name + '</span>' +
+            '</div>';
+        }
+      });
+      html += '<div class="achievement-mini see-all" onclick="showScreen(\'achievements\')">' +
+        '<span class="achievement-mini-icon">\u2192</span>' +
+        '<span class="achievement-mini-name">See all (' + earned.length + ')</span>' +
+        '</div>';
+      html += '</div>';
+      achArea.innerHTML = html;
+      achArea.classList.remove('hidden');
+    } else {
+      achArea.classList.add('hidden');
+    }
+  }
+
   // Streak calendar
   var streakEl = document.getElementById('streak-calendar-area');
   if (streakEl && typeof renderStreakCalendar === 'function') {
@@ -9129,7 +10571,7 @@ function updateHomeUI() {
     var reviewEl = document.getElementById('review-due-banner');
     if (reviewEl) {
       if (due.length > 0) {
-        reviewEl.innerHTML = '<span class="review-banner-icon">🔔</span> ' +
+        reviewEl.innerHTML = '<span class="review-banner-icon">\uD83D\uDD14</span> ' +
           due.length + ' skill' + (due.length > 1 ? 's' : '') + ' due for review!';
         reviewEl.classList.remove('hidden');
       } else {
@@ -9138,39 +10580,8 @@ function updateHomeUI() {
     }
   }
 
-  updateDailyQuest();
   updateWotd();
   updateChallengesSection();
-}
-
-// === DAILY QUEST ===
-function updateDailyQuest() {
-  const today = new Date().toDateString();
-  if (state.dailyQuest.date !== today) {
-    state.dailyQuest = { date: today, completed: 0, target: 5, claimed: false };
-  }
-  const el = document.getElementById('quest-progress');
-  if (el) el.textContent = state.dailyQuest.completed + '/' + state.dailyQuest.target;
-
-  if (state.dailyQuest.completed >= state.dailyQuest.target && !state.dailyQuest.claimed) {
-    const titleEl = document.getElementById('quest-title');
-    const descEl = document.getElementById('quest-desc');
-    if (titleEl) titleEl.textContent = '\uD83C\uDF89 Quest Complete!';
-    if (descEl) descEl.textContent = 'Tap to claim 20 bonus stars!';
-  }
-}
-
-function startDailyQuest() {
-  if (state.dailyQuest.completed >= state.dailyQuest.target && !state.dailyQuest.claimed) {
-    state.dailyQuest.claimed = true;
-    state.tokens += 20;
-    playSound('levelup');
-    spawnParticles(window.innerWidth / 2, window.innerHeight / 2, 15, '\u2B50');
-    updateUI();
-    saveState();
-    lumiSay('Wow! 20 bonus stars! You completed today\'s quest!');
-    updateDailyQuest();
-  }
 }
 
 // === WORD OF THE DAY ===
@@ -9210,6 +10621,8 @@ function claimWotd() {
 
   const wotd = getWordOfTheDay();
   lumiSay('New word: "' + wotd.word + '" means ' + wotd.def + '! +3 stars!');
+
+  if (typeof checkAchievementsAfterWotd === 'function') checkAchievementsAfterWotd();
 
   updateUI();
   updateWotd();
@@ -9268,6 +10681,9 @@ function showScreen(screenId) {
   if (screen) screen.classList.add('active');
 
   if (screenId === 'home') updateHomeUI();
+  if (screenId === 'achievements' && typeof renderAchievementsScreen === 'function') {
+    renderAchievementsScreen();
+  }
   if (screenId === 'math-world' && typeof MATH_TREE !== 'undefined') {
     renderActivityCards(MATH_TREE, 'math-activities', 'math');
   }
@@ -9439,7 +10855,8 @@ function startGame(skillId, worldType) {
     results: [],
     currentConfidence: -1,
     hintShown: false,
-    attempts: 0
+    attempts: 0,
+    _startTime: Date.now()
   };
 
   // Generate questions
@@ -9538,6 +10955,17 @@ function endGame() {
   const pct = Math.round(correct / total * 100);
   state.sessionsCompleted++;
 
+  // Achievement & quest hooks
+  if (typeof checkAchievementsAfterQuiz === 'function') {
+    checkAchievementsAfterQuiz(currentGame.results, currentGame.skillId, currentGame.worldType);
+  }
+  if (correct === total && total >= 8 && typeof questRecordPerfect === 'function') {
+    questRecordPerfect();
+  }
+  if (typeof lumiReactTo === 'function') {
+    lumiReactTo('quizComplete', { pct: pct });
+  }
+
   const overlay = document.getElementById('feedback-overlay');
   const card = document.getElementById('feedback-card');
 
@@ -9619,27 +11047,42 @@ async function init() {
   await loadState();
   updateUI();
 
-  // Time-based greeting
-  const hour = new Date().getHours();
-  let greeting;
-  if (hour < 12) greeting = 'Good morning, Anastasia! Ready to learn?';
-  else if (hour < 17) greeting = 'Good afternoon, Anastasia! Let\'s have some fun!';
-  else greeting = 'Good evening, Anastasia! Time for a brain workout!';
-
-  const today = new Date().toDateString();
-  if (state.lastVisit === today) {
-    greeting = pick([
-      'Welcome back, Anastasia! Your garden missed you!',
-      'Hey Anastasia! Let\'s pick up where you left off!',
-      'You\'re back! Lumi is so happy to see you!'
-    ]);
-  } else if (state.lastVisit) {
-    greeting = 'Welcome back, Anastasia! I\'ve been waiting for you!';
+  // Visit streak tracking for achievements
+  if (typeof checkVisitStreakAchievements === 'function') {
+    checkVisitStreakAchievements();
   }
-  state.lastVisit = today;
+
+  // Initialize dynamic quests for today
+  if (typeof getDailyQuest === 'function') getDailyQuest();
+  if (typeof getWeeklyQuest === 'function') getWeeklyQuest();
+
+  // Initialize Lumi with personality
+  if (typeof initLumi === 'function') {
+    initLumi();
+  } else {
+    // Fallback: basic greeting
+    const hour = new Date().getHours();
+    let greeting;
+    if (hour < 12) greeting = 'Good morning, Anastasia! Ready to learn?';
+    else if (hour < 17) greeting = 'Good afternoon, Anastasia! Let\'s have some fun!';
+    else greeting = 'Good evening, Anastasia! Time for a brain workout!';
+
+    const today = new Date().toDateString();
+    if (state.lastVisit === today) {
+      greeting = pick([
+        'Welcome back, Anastasia! Your garden missed you!',
+        'Hey Anastasia! Let\'s pick up where you left off!',
+        'You\'re back! Lumi is so happy to see you!'
+      ]);
+    } else if (state.lastVisit) {
+      greeting = 'Welcome back, Anastasia! I\'ve been waiting for you!';
+    }
+    lumiSay(greeting);
+  }
+
+  state.lastVisit = new Date().toDateString();
   saveState();
 
-  lumiSay(greeting);
   showScreen('home');
 }
 
