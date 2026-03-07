@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Model — Singapore Model Method</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { padding: 0; }
+    .hero {
+      text-align: center;
+      padding: 3.5rem 1rem 2.5rem;
+    }
+    .hero-title {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #f97316 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: .5rem;
+    }
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 2rem;
+    }
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+    .stat-pill {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: .6rem 1.2rem;
+      border-radius: 99px;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+    .stat-pill span { color: var(--accent); }
+
+    .chapter-section { margin: 2rem 0; }
+    .chapter-header {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: 1rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .chapter-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .chapter-title { font-size: 1rem; font-weight: 700; }
+    .chapter-desc { font-size: .78rem; color: var(--muted); }
+
+    .topics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .topic-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .topic-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .topic-card:hover:not(.coming-soon) { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,.4); }
+    .topic-card.coming-soon { opacity: .55; }
+    .topic-name { font-size: .95rem; font-weight: 700; margin-bottom: .3rem; }
+    .topic-blurb { font-size: .77rem; color: var(--muted); line-height: 1.45; margin-bottom: .9rem; }
+    .topic-footer { display: flex; align-items: center; justify-content: space-between; }
+    .mastery-ring {
+      display: flex; align-items: center; gap: .35rem;
+      font-size: .72rem; color: var(--muted);
+    }
+    .ring-svg { width: 32px; height: 32px; }
+
+    .btn-topic {
+      font-size: .78rem;
+      padding: .35rem .85rem;
+      border-radius: 7px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all .15s;
+      text-decoration: none;
+    }
+    .btn-available { background: var(--accent); color: #0f172a; }
+    .btn-available:hover { background: #7dd3fc; }
+    .btn-soon { background: var(--border); color: var(--muted); cursor: default; }
+
+    .streak-widget {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: .9rem 1.4rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .streak-fire { font-size: 2.2rem; line-height: 1; }
+    .streak-info { flex: 1; min-width: 140px; }
+    .streak-count { font-size: 1.35rem; font-weight: 800; }
+    .streak-count span { color: #f97316; }
+    .streak-sub { font-size: .75rem; color: var(--muted); margin-top: .1rem; }
+    .streak-dots { display: flex; gap: 5px; align-items: center; }
+    .streak-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--border);
+    }
+    .streak-dot.active { background: #f97316; }
+    .streak-dot.today { background: #fcd34d; box-shadow: 0 0 6px #f97316; }
+
+    .overall-progress {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .overall-progress h3 { font-size: 1rem; margin-bottom: .3rem; }
+
+    .review-banner {
+      background: rgba(245,158,11,.08);
+      border: 1px solid rgba(245,158,11,.25);
+      border-radius: 10px;
+      padding: .8rem 1.2rem;
+      margin-bottom: 1rem;
+      font-size: .84rem;
+      color: #fcd34d;
+    }
+
+    .nav-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: .6rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .nav-bar a { color: var(--muted); font-size: .82rem; text-decoration: none; font-weight: 600; }
+    .nav-bar a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<div class="nav-bar">
+  <a href="../index.html">Home</a>
+  <span style="color:var(--border)">/</span>
+  <span style="font-size:.82rem;font-weight:700;color:var(--text)">Math Model</span>
+  <button class="btn btn-ghost btn-sm" style="margin-left:auto" id="ai-setup-btn">API Key</button>
+</div>
+
+<div class="hero">
+  <div class="hero-title">Math Model</div>
+  <div class="hero-sub">Master the Singapore Model Method — draw bars, see relationships, solve problems.</div>
+  <div class="stats-row">
+    <div class="stat-pill">Topics: <span id="stat-topics">0</span></div>
+    <div class="stat-pill">Mastery: <span id="stat-mastery">0%</span></div>
+    <div class="stat-pill">Streak: <span id="stat-streak">0</span></div>
+  </div>
+</div>
+
+<main style="max-width:1000px;margin:0 auto;padding:0 1.25rem 3rem">
+
+  <div id="streak-widget"></div>
+  <div id="review-banner"></div>
+  <div id="overall-progress"></div>
+  <div id="chapters"></div>
+
+</main>
+
+<script src="shared.js"></script>
+<script>
+// ── Topic Registry ──────────────────────────────────
+const CHAPTERS = [
+  {
+    id: 'whole-numbers',
+    title: 'Whole Numbers',
+    desc: 'Bar models with whole number quantities',
+    color: '#38bdf8',
+    topics: [
+      { id: 'wn-comparison', title: 'Comparison of Items', blurb: 'Compare two quantities and find the difference.', path: 'topics/whole-numbers/comparison/' },
+      { id: 'wn-repeated', title: 'Repeated Quantities', blurb: 'One quantity is a multiple of another.', path: 'topics/whole-numbers/repeated-quantities/' },
+      { id: 'wn-same-before', title: 'Same Amount (Before)', blurb: 'Two items start equal, then change.', path: 'topics/whole-numbers/same-before/' },
+      { id: 'wn-same-after', title: 'Same Amount (After)', blurb: 'Two items become equal after a change.', path: 'topics/whole-numbers/same-after/' },
+      { id: 'wn-ba-transfer', title: 'Same Total: Internal Transfer', blurb: 'Total unchanged — amount moves between parties.', path: 'topics/whole-numbers/ba-same-total-transfer/' },
+      { id: 'wn-ba-fixed', title: 'Same Total: Fixed Quantities', blurb: 'Total unchanged — some quantities stay fixed.', path: 'topics/whole-numbers/ba-same-total-fixed/' },
+      { id: 'wn-ba-equal-add-remove', title: 'Same Total: Equal Add & Remove', blurb: 'Same amount removed from one, added to another.', path: 'topics/whole-numbers/ba-same-total-equal/' },
+      { id: 'wn-ba-age', title: 'Same Difference: Age', blurb: 'Age difference stays constant over time.', path: 'topics/whole-numbers/ba-same-diff-age/' },
+      { id: 'wn-ba-same-added', title: 'Same Difference: Same Added', blurb: 'Same amount added to both — difference unchanged.', path: 'topics/whole-numbers/ba-same-diff-added/' },
+      { id: 'wn-ba-same-removed', title: 'Same Difference: Same Removed', blurb: 'Same amount removed from both — difference unchanged.', path: 'topics/whole-numbers/ba-same-diff-removed/' },
+      { id: 'wn-ba-overlap', title: 'Same Difference: Overlap', blurb: 'Overlapping quantities with constant difference.', path: 'topics/whole-numbers/ba-same-diff-overlap/' },
+      { id: 'wn-ba-same-one', title: 'Same One Item', blurb: 'One item stays the same, the other changes.', path: 'topics/whole-numbers/ba-same-one-item/' },
+      { id: 'wn-ba-both', title: 'Both Changed', blurb: 'Both items change with a known relationship.', path: 'topics/whole-numbers/ba-both-changed/' },
+      { id: 'wn-grouping', title: 'Grouping / Number & Value', blurb: 'Different items with different values — find counts.', path: 'topics/whole-numbers/grouping/' },
+      { id: 'wn-two-cases', title: 'Change Involving Two Cases', blurb: 'Two scenarios with shared constraints.', path: 'topics/whole-numbers/change-two-cases/' }
+    ]
+  },
+  {
+    id: 'fractions',
+    title: 'Fractions',
+    desc: 'Bar models with fractional quantities',
+    color: '#8b5cf6',
+    topics: [],
+    comingSoon: true
+  },
+  {
+    id: 'decimals',
+    title: 'Decimals',
+    desc: 'Bar models with decimal quantities',
+    color: '#f97316',
+    topics: [],
+    comingSoon: true
+  },
+  {
+    id: 'ratio',
+    title: 'Ratio',
+    desc: 'Bar models with ratio relationships',
+    color: '#10b981',
+    topics: [],
+    comingSoon: true
+  },
+  {
+    id: 'percentage',
+    title: 'Percentage',
+    desc: 'Bar models with percentage quantities',
+    color: '#f59e0b',
+    topics: [],
+    comingSoon: true
+  }
+];
+
+// ── Render ──────────────────────────────────────────
+function renderHub() {
+  const allTopicIds = CHAPTERS.flatMap(ch => ch.topics.map(t => t.id));
+  const totalTopics = allTopicIds.length;
+  const totalMastery = totalTopics > 0
+    ? Math.round(allTopicIds.reduce((s, id) => s + Progress.masteryPct(id), 0) / totalTopics)
+    : 0;
+  const streakData = Streak.get();
+
+  // Stats
+  document.getElementById('stat-topics').textContent = totalTopics;
+  document.getElementById('stat-mastery').textContent = totalMastery + '%';
+  document.getElementById('stat-streak').textContent = streakData.streak;
+
+  // Streak widget
+  const today = new Date().toISOString().slice(0, 10);
+  const last7 = Array.from({ length: 7 }, (_, i) =>
+    new Date(Date.now() - (6 - i) * 86400000).toISOString().slice(0, 10)
+  );
+  const icon = streakData.streak >= 7 ? '&#128293;' : streakData.streak >= 3 ? '&#9889;' : '&#128564;';
+
+  document.getElementById('streak-widget').innerHTML = `
+    <div class="streak-widget">
+      <div class="streak-fire">${icon}</div>
+      <div class="streak-info">
+        <div class="streak-count"><span>${streakData.streak}</span> day${streakData.streak !== 1 ? 's' : ''}</div>
+        <div class="streak-sub">Longest: ${streakData.longestStreak} days</div>
+      </div>
+      <div class="streak-dots">
+        ${last7.map(d => {
+          const isActive = (streakData.activeDays || []).includes(d);
+          const isToday = d === today;
+          return `<div class="streak-dot${isActive ? ' active' : ''}${isToday ? ' today' : ''}" title="${d}"></div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  // Overall progress
+  document.getElementById('overall-progress').innerHTML = `
+    <div class="overall-progress">
+      <div style="flex:1">
+        <h3>Overall Mastery</h3>
+        <div class="progress-bar" style="margin-top:.4rem">
+          <div class="progress-fill" style="width:${totalMastery}%"></div>
+        </div>
+      </div>
+      <div style="font-size:1.5rem;font-weight:800;color:var(--accent)">${totalMastery}%</div>
+    </div>`;
+
+  // Review banner
+  const dueTopics = allTopicIds.filter(id => Progress.isDue(id));
+  if (dueTopics.length > 0) {
+    const names = dueTopics.map(id => {
+      for (const ch of CHAPTERS) {
+        const t = ch.topics.find(t => t.id === id);
+        if (t) return t.title;
+      }
+      return id;
+    });
+    document.getElementById('review-banner').innerHTML = `
+      <div class="review-banner">
+        Time to review: ${names.join(', ')}
+      </div>`;
+  }
+
+  // Chapters
+  const chaptersEl = document.getElementById('chapters');
+  chaptersEl.innerHTML = CHAPTERS.map(ch => {
+    const topicsHtml = ch.topics.length > 0
+      ? ch.topics.map(t => {
+          const m = Progress.masteryPct(t.id);
+          const r = 14;
+          const circ = 2 * Math.PI * r;
+          const offset = circ - (m / 100) * circ;
+          return `
+            <div class="topic-card" style="border-top:3px solid ${ch.color}20">
+              <div class="topic-name">${t.title}</div>
+              <div class="topic-blurb">${t.blurb}</div>
+              <div class="topic-footer">
+                <div class="mastery-ring">
+                  <svg class="ring-svg" viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="${r}" fill="none" stroke="var(--border)" stroke-width="3"/>
+                    <circle cx="18" cy="18" r="${r}" fill="none" stroke="${ch.color}" stroke-width="3"
+                      stroke-dasharray="${circ}" stroke-dashoffset="${offset}"
+                      transform="rotate(-90 18 18)" style="transition:stroke-dashoffset .5s"/>
+                  </svg>
+                  ${m}%
+                </div>
+                <a href="${t.path}" class="btn-topic btn-available">Start</a>
+              </div>
+            </div>`;
+        }).join('')
+      : '<div class="topic-card coming-soon"><div class="topic-name">Coming Soon</div><div class="topic-blurb">This chapter is under development.</div></div>';
+
+    return `
+      <div class="chapter-section">
+        <div class="chapter-header">
+          <div class="chapter-dot" style="background:${ch.color}"></div>
+          <div>
+            <div class="chapter-title">${ch.title}</div>
+            <div class="chapter-desc">${ch.desc}</div>
+          </div>
+          ${ch.comingSoon ? '<span class="badge badge-coming">Coming Soon</span>' : ''}
+        </div>
+        <div class="topics-grid">${topicsHtml}</div>
+      </div>`;
+  }).join('');
+}
+
+// ── Init ────────────────────────────────────────────
+renderHub();
+document.getElementById('ai-setup-btn').addEventListener('click', showAISetup);
+</script>
+</body>
+</html>

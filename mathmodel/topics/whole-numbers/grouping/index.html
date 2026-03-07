@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grouping / Number and Value | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-grouping',
+  _depth: 3,
+  title: 'Grouping / Number and Value',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'What happens when we assume all items are one type?',
+    'How do we calculate the excess or shortage from our assumption?',
+    'How does the difference per item help us find the number of each type?',
+    'Can this method work when items have more than two types?',
+    'How do we set up a bar model for assumption problems?'
+  ],
+
+  glossary: [
+    { term: 'Assumption Method', def: 'A strategy where you assume all items are one type, then calculate the excess or shortage and adjust to find how many of each type there actually are.' },
+    { term: 'Excess', def: 'The amount that is too much when your assumption overshoots the actual total value.' },
+    { term: 'Shortage', def: 'The amount that is too little when your assumption undershoots the actual total value.' },
+    { term: 'Difference per Item', def: 'The difference in value (e.g., legs, points, cents) between the two types of items. Used to find how many items need to be swapped from the assumed type.' },
+    { term: 'Grouping Problem', def: 'A problem where you know the total number of items AND the total value, and must find how many of each type there are.' },
+    { term: 'Total Count', def: 'The total number of items of all types combined.' },
+    { term: 'Total Value', def: 'The combined value contributed by all items (e.g., total legs, total score, total money).' }
+  ],
+
+  notes: [
+    {
+      heading: 'What is a Grouping / Number-and-Value Problem?',
+      content: `<p>In a grouping problem, you are given <strong>two pieces of information</strong>:</p>
+      <ol>
+        <li>The <strong>total number</strong> of items (e.g., 20 animals)</li>
+        <li>The <strong>total value</strong> produced by those items (e.g., 56 legs)</li>
+      </ol>
+      <p>There are <strong>two types</strong> of items, each contributing a different value. Your job is to find how many of each type there are.</p>
+      <p>Common contexts include:</p>
+      <ul>
+        <li><strong>Animals:</strong> Chickens (2 legs) and rabbits (4 legs)</li>
+        <li><strong>Coins:</strong> 20-cent coins and 50-cent coins</li>
+        <li><strong>Quiz scoring:</strong> +4 for correct, −1 for wrong</li>
+        <li><strong>Vehicles:</strong> Bicycles (2 wheels) and cars (4 wheels)</li>
+      </ul>`,
+      highlights: [
+        'Two knowns: total count + total value. Two unknowns: how many of each type.',
+        'Each type contributes a different value per item — this difference is the key to solving.'
+      ]
+    },
+    {
+      heading: 'The Assumption Method — Step by Step',
+      content: `<p>The Assumption Method is a powerful strategy for solving grouping problems without algebra:</p>
+      <ol>
+        <li><strong>Assume</strong> all items are <em>one type</em> (usually the type with the smaller value).</li>
+        <li><strong>Calculate</strong> the total value under this assumption.</li>
+        <li><strong>Find the excess or shortage</strong> — compare the assumed total with the actual total.</li>
+        <li><strong>Find the difference per item</strong> — how much extra (or less) does each swap contribute?</li>
+        <li><strong>Divide</strong> the excess/shortage by the difference per item to find how many of the other type there are.</li>
+        <li><strong>Subtract</strong> from the total count to find the remaining type.</li>
+      </ol>`,
+      highlights: [
+        'Step formula: Number of Type B = Excess ÷ Difference per item',
+        'Always check: Count of Type A + Count of Type B = Total Count, and values add up to Total Value.'
+      ],
+      equations: [
+        'Assumed total = Total count × Value of assumed type',
+        'Excess (or Shortage) = |Assumed total − Actual total|',
+        'Number of other type = Excess ÷ (Difference in value per item)',
+        'Number of assumed type = Total count − Number of other type'
+      ]
+    },
+    {
+      heading: 'Using Bar Models for Grouping Problems',
+      content: `<p>The bar model for a grouping problem shows the <strong>assumed total</strong> and the <strong>actual total</strong>, making the excess visible.</p>
+      <ul>
+        <li>Draw one bar for the <strong>assumed total</strong> (e.g., all chickens → 20 × 2 = 40 legs).</li>
+        <li>Draw another bar (or mark) for the <strong>actual total</strong> (e.g., 56 legs).</li>
+        <li>The <strong>difference between these bars</strong> is the excess/shortage.</li>
+        <li>Each "swap" from the assumed type to the other type changes the value by a fixed amount — this is shown as equal parts in the difference.</li>
+      </ul>
+      <p>The number of equal parts that fit into the excess tells you how many items are of the other type.</p>`,
+      highlights: [
+        'The gap between the assumed bar and the actual bar = the total excess.',
+        'Divide the gap into equal parts (each = difference per item) to find the count.'
+      ]
+    },
+    {
+      heading: 'Variations: Scoring, Coins, and Vehicles',
+      content: `<p>The assumption method works identically across different contexts:</p>
+      <ul>
+        <li><strong>Quiz scoring:</strong> Correct answers earn points, wrong answers lose points. The "difference per item" is the sum of points gained and lost (e.g., +4 and −1 gives a difference of 5 per question).</li>
+        <li><strong>Coins:</strong> Two denominations (e.g., 50¢ and $1). The total count of coins and total amount of money are given. Difference per coin = difference in denomination values.</li>
+        <li><strong>Vehicles:</strong> Bicycles (2 wheels) and cars (4 wheels). Given total vehicles and total wheels.</li>
+      </ul>`,
+      highlights: [
+        'For scoring problems with penalties, the difference per item = points for correct + penalty for wrong (since swapping changes both).'
+      ]
+    }
+  ],
+
+  summary: 'Grouping problems give you a total count and total value for two types of items with different per-item values. Use the Assumption Method: assume all items are one type, calculate the excess or shortage versus the actual total, then divide by the difference per item to find how many of the other type exist. This works for animals and legs, coins, quiz scores, vehicles, and many other contexts.',
+
+  workedExamples: [
+    {
+      problem: 'A farm has 20 chickens and rabbits altogether. They have a total of 56 legs. How many rabbits are there?',
+      model: {
+        bars: [
+          { label: 'Assume all chickens', units: 8, color: '#38bdf8' },
+          { label: 'Actual total', units: 11, color: '#f97316' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 7, label: '40 legs', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 10, label: '56 legs', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 1, bar2: 0, label: '16 legs extra' }
+        ],
+        height: 200
+      },
+      steps: [
+        'Assume all 20 animals are chickens: 20 × 2 = 40 legs',
+        'Actual total is 56 legs. Shortage = 56 − 40 = 16 legs',
+        'Each rabbit has 2 more legs than a chicken: 4 − 2 = 2 extra legs',
+        'Number of rabbits = 16 ÷ 2 = <strong>8</strong>',
+        'Check: 12 chickens × 2 = 24 legs, 8 rabbits × 4 = 32 legs, total = 56 ✓'
+      ],
+      answer: '8 rabbits (and 12 chickens)'
+    },
+    {
+      problem: 'Mei has 15 coins made up of 50-cent coins and $1 coins. The total value is $11.50. How many 50-cent coins does she have?',
+      model: {
+        bars: [
+          { label: 'Assume all $1', units: 15, color: '#34d399' },
+          { label: 'Actual total', units: 11, color: '#f59e0b' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 14, label: '$15.00', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 10, label: '$11.50', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '$3.50 excess' }
+        ],
+        height: 200
+      },
+      steps: [
+        'Assume all 15 coins are $1 coins: 15 × $1 = $15.00',
+        'Actual total is $11.50. Excess = $15.00 − $11.50 = $3.50',
+        'Each 50-cent coin is worth $0.50 less than a $1 coin: $1.00 − $0.50 = $0.50 difference',
+        'Number of 50-cent coins = $3.50 ÷ $0.50 = <strong>7</strong>',
+        'Check: 7 × $0.50 = $3.50, 8 × $1.00 = $8.00, total = $11.50 ✓'
+      ],
+      answer: '7 fifty-cent coins (and 8 one-dollar coins)'
+    },
+    {
+      problem: 'A quiz has 25 questions. For each correct answer, a student gets 4 marks. For each wrong answer, 1 mark is deducted. Wei Ling answered all 25 questions and scored 60 marks. How many questions did she get correct?',
+      model: {
+        bars: [
+          { label: 'Assume all correct', units: 10, color: '#8b5cf6' },
+          { label: 'Actual score', units: 6, color: '#ec4899' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 9, label: '100 marks', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 5, label: '60 marks', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '40 marks excess' }
+        ],
+        height: 200
+      },
+      steps: [
+        'Assume all 25 are correct: 25 × 4 = 100 marks',
+        'Actual score is 60. Excess = 100 − 60 = 40 marks',
+        'Each wrong answer instead of correct: lose 4 marks AND lose 1 mark = 4 + 1 = 5 marks difference',
+        'Number of wrong answers = 40 ÷ 5 = 8',
+        'Number of correct answers = 25 − 8 = <strong>17</strong>',
+        'Check: 17 × 4 = 68, 8 × (−1) = −8, total = 68 − 8 = 60 ✓'
+      ],
+      answer: '17 correct answers (and 8 wrong answers)'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'A parking lot has 30 bicycles and cars. There are 86 wheels altogether. How many cars are there?',
+    height: 260,
+    steps: [
+      { instruction: 'Draw a bar for the assumed total — assume all 30 vehicles are bicycles (2 wheels each = 60 wheels)', hint: '30 × 2 = 60', action: 'addBar', label: 'Assume all bicycles', units: 6, options: { color: '#38bdf8' } },
+      { instruction: 'Draw a bar for the actual total of 86 wheels', hint: 'The actual count of wheels', action: 'addBar', label: 'Actual total', units: 9, options: { color: '#f97316' } },
+      { instruction: 'Label the assumed bar with 60 wheels', action: 'addBracket', config: { barIdx: 0, startUnit: 0, endUnit: 5, label: '60 wheels', side: 'top' } },
+      { instruction: 'Label the actual bar with 86 wheels', action: 'addBracket', config: { barIdx: 1, startUnit: 0, endUnit: 8, label: '86 wheels', side: 'bottom' } },
+      { instruction: 'Mark the difference between actual and assumed — this is the shortage of 26 wheels', hint: '86 − 60 = 26', action: 'addDifference', bar1: 1, bar2: 0, label: '26 wheels' }
+    ]
+  },
+
+  staticQuestions: [
+    {
+      question: 'A farm has 15 chickens and rabbits. They have 42 legs altogether. How many rabbits are there?',
+      options: ['5', '6', '8', '9'],
+      correct: 1,
+      explanation: 'Assume all chickens: 15 × 2 = 30 legs. Shortage = 42 − 30 = 12 legs. Difference per animal = 4 − 2 = 2. Rabbits = 12 ÷ 2 = 6. Check: 9 chickens × 2 = 18, 6 rabbits × 4 = 24, total = 42 ✓'
+    },
+    {
+      question: 'Ali has 12 coins. Some are 20-cent coins and the rest are 50-cent coins. The total value is $4.50. How many 50-cent coins does he have?',
+      options: ['5', '6', '7', '8'],
+      correct: 2,
+      explanation: 'Assume all 20-cent: 12 × $0.20 = $2.40. Shortage = $4.50 − $2.40 = $2.10. Difference = $0.50 − $0.20 = $0.30. Number of 50-cent coins = $2.10 ÷ $0.30 = 7. Check: 5 × $0.20 = $1.00, 7 × $0.50 = $3.50, total = $4.50 ✓'
+    },
+    {
+      question: 'A quiz has 20 questions. Each correct answer scores 5 marks. Each wrong answer deducts 2 marks. Ravi answered all questions and scored 58 marks. How many did he get correct?',
+      options: ['12', '14', '16', '18'],
+      correct: 1,
+      explanation: 'Assume all correct: 20 × 5 = 100. Excess = 100 − 58 = 42. Difference per question = 5 + 2 = 7. Wrong = 42 ÷ 7 = 6. Correct = 20 − 6 = 14. Check: 14 × 5 = 70, 6 × (−2) = −12, total = 58 ✓'
+    },
+    {
+      question: 'A parking lot has 24 bicycles and motorcars. There are 68 wheels altogether. How many motorcars are there?',
+      options: ['8', '10', '12', '14'],
+      correct: 1,
+      explanation: 'Assume all bicycles: 24 × 2 = 48 wheels. Shortage = 68 − 48 = 20. Difference = 4 − 2 = 2. Cars = 20 ÷ 2 = 10. Check: 14 bicycles × 2 = 28, 10 cars × 4 = 40, total = 68 ✓'
+    },
+    {
+      question: 'There are 18 spiders and beetles in a box. They have 130 legs altogether. How many spiders are there? (Spiders have 8 legs, beetles have 6 legs.)',
+      options: ['5', '7', '11', '13'],
+      correct: 2,
+      explanation: 'Assume all beetles: 18 × 6 = 108 legs. Shortage = 130 − 108 = 22 legs. Difference = 8 − 6 = 2. Spiders = 22 ÷ 2 = 11. Check: 11 spiders × 8 = 88, 7 beetles × 6 = 42, total = 130 ✓'
+    },
+    {
+      question: 'Siti has 10 coins consisting of $1 coins and $5 notes. The total amount is $26. How many $5 notes does she have?',
+      options: ['3', '4', '5', '6'],
+      correct: 1,
+      explanation: 'Assume all $1 coins: 10 × $1 = $10. Shortage = $26 − $10 = $16. Difference = $5 − $1 = $4. Number of $5 notes = $16 ÷ $4 = 4. Check: 6 × $1 = $6, 4 × $5 = $20, total = $26 ✓'
+    },
+    {
+      question: 'A farmer has 25 chickens and ducks. Chickens have 2 legs and ducks also have 2 legs, but each chicken lays 1 egg per day and each duck lays 0 eggs. The farm collects 14 eggs a day. How many chickens are there?',
+      options: ['11', '12', '14', '16'],
+      correct: 2,
+      explanation: 'This is a simpler grouping problem. Each chicken contributes 1 egg, each duck contributes 0. So the number of chickens = number of eggs = 14. Check: 14 chickens and 11 ducks = 25 total ✓, eggs = 14 ✓'
+    },
+    {
+      question: 'A test has 30 questions. A student earns 3 marks for each correct answer and loses 1 mark for each wrong answer. She answered all 30 questions and scored 50 marks. How many questions did she answer wrongly?',
+      options: ['8', '10', '12', '14'],
+      correct: 1,
+      explanation: 'Assume all correct: 30 × 3 = 90. Excess = 90 − 50 = 40. Difference per question = 3 + 1 = 4. Wrong = 40 ÷ 4 = 10. Correct = 30 − 10 = 20. Check: 20 × 3 = 60, 10 × (−1) = −10, total = 50 ✓'
+    },
+    {
+      question: 'At a carnival, adult tickets cost $8 and child tickets cost $3. 40 tickets were sold for a total of $210. How many child tickets were sold?',
+      options: ['14', '18', '22', '26'],
+      correct: 2,
+      explanation: 'Assume all adult: 40 × $8 = $320. Excess = $320 − $210 = $110. Difference = $8 − $3 = $5. Child tickets = $110 ÷ $5 = 22. Check: 18 × $8 = $144, 22 × $3 = $66, total = $210 ✓'
+    }
+  ],
+
+  aiPromptContext: 'Generate grouping / number-and-value problems (also known as "chickens and rabbits" problems). The student is given a total count and a total value for two types of items with different per-item values, and must use the Assumption Method to find how many of each type. Use contexts like animals and legs, coins of different denominations, quiz scores with correct/wrong marking, bicycles and cars with wheels, or tickets at different prices. Keep all numbers as whole numbers and ensure the answer divides evenly.'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>

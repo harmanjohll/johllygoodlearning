@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Same Amount (Before) | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-same-before',
+  _depth: 3,
+  title: 'Same Amount (Before)',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'How do we show that two people start with the same amount?',
+    'What happens to the bars when one person gains or loses items?',
+    'How do we use the equal starting point to find the answer?',
+    'If both start the same and then change differently, how do we find the new amounts?'
+  ],
+
+  glossary: [
+    { term: 'Equal Start', def: 'When two quantities begin with the same value. The bars are drawn the same length at the start.' },
+    { term: 'Change', def: 'An increase or decrease applied to one or both quantities after the equal starting point.' },
+    { term: 'Anchor', def: 'The fixed reference point in the problem. In "Same Before" problems, the equal starting amount is the anchor.' },
+    { term: 'Gain / Increase', def: 'When a quantity grows. The bar becomes longer by the amount gained.' },
+    { term: 'Loss / Decrease', def: 'When a quantity shrinks. The bar becomes shorter by the amount lost.' }
+  ],
+
+  notes: [
+    {
+      heading: 'What Is a "Same Amount (Before)" Problem?',
+      content: `<p>In these problems, two people or items <strong>start with the same amount</strong>. Then one or both quantities change (someone gains items, spends money, gives things away, etc.).</p>
+      <p>The equal starting point is the <strong>anchor</strong> of the model. Since both bars begin at the same length, any difference in the final amounts is caused entirely by the changes that happen afterwards.</p>
+      <ul>
+        <li>Both bars start the <strong>same length</strong>.</li>
+        <li>Changes (add or remove) are applied to one or both bars.</li>
+        <li>The question asks about the final amounts or the difference between them.</li>
+      </ul>`,
+      highlights: [
+        'Key insight: Since both start equal, the difference after changes = the total of the changes applied.'
+      ]
+    },
+    {
+      heading: 'How to Draw the Model',
+      content: `<ol>
+        <li><strong>Draw two equal bars</strong> side by side (stacked vertically), representing the same starting amount.</li>
+        <li><strong>Apply the changes</strong> — extend a bar if someone gains, or mark a removed portion if someone loses.</li>
+        <li><strong>Label known values:</strong> the starting amount (if given), the changes, and the final amounts.</li>
+        <li><strong>Mark the unknown</strong> with "?".</li>
+        <li><strong>Use the equal start</strong> to set up your equation and solve.</li>
+      </ol>`,
+      highlights: [
+        'The equal bars at the start are the anchor. All calculations stem from this equal reference point.'
+      ]
+    },
+    {
+      heading: 'Solving Strategies',
+      content: `<p>Common approaches for Same Amount (Before) problems:</p>
+      <ul>
+        <li><strong>One person changes:</strong> If only one person gains or loses, the difference at the end equals that change. Use it to find unknowns.</li>
+        <li><strong>Both change differently:</strong> If Ali gains 20 and Ben loses 10, the difference between them is now 20 + 10 = 30.</li>
+        <li><strong>Find the starting amount:</strong> If you know the final amounts and the changes, work backwards: Starting amount = Final amount &minus; Gain (or + Loss).</li>
+      </ul>`,
+      equations: [
+        'Starting amount (same for both) = Final amount − Gain',
+        'Starting amount (same for both) = Final amount + Loss',
+        'Final difference = Sum of all changes applied'
+      ]
+    }
+  ],
+
+  summary: 'In "Same Amount (Before)" problems, two quantities start equal. Draw two bars of the same length, then apply the changes described in the problem. Since the starting point is equal, the difference after changes is determined entirely by those changes. Work from the equal anchor to find unknowns.',
+
+  workedExamples: [
+    {
+      problem: 'Ali and Ben had the same number of stickers. Ali bought 25 more stickers. Ben gave away 15 stickers. Ali now has 80 stickers. How many stickers does Ben have now?',
+      model: {
+        bars: [
+          { label: 'Ali (now)', units: 8, color: '#38bdf8' },
+          { label: 'Ben (now)', units: 4, color: '#34d399' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 7, label: '80', side: 'top' },
+          { barIdx: 0, startUnit: 5, endUnit: 7, label: '+25', side: 'bottom' },
+          { barIdx: 1, startUnit: 0, endUnit: 3, label: '?', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '25 + 15 = 40' }
+        ],
+        height: 220
+      },
+      steps: [
+        'Both started with the same number of stickers.',
+        'Ali bought 25 more, so Ali\'s bar is extended by 25.',
+        'Ben gave away 15, so Ben\'s bar is shortened by 15.',
+        'Ali now has 80 stickers. Starting amount = 80 − 25 = 55.',
+        'Ben now has 55 − 15 = <strong>40</strong> stickers.'
+      ],
+      answer: '40 stickers'
+    },
+    {
+      problem: 'Mei and Sara had the same amount of money. Mei spent $35 on a book. Sara received $20 from her mother. Sara now has $85. How much money does Mei have now?',
+      model: {
+        bars: [
+          { label: 'Sara (now)', units: 7, color: '#f97316' },
+          { label: 'Mei (now)', units: 3, color: '#ec4899' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 6, label: '$85', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 2, label: '?', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '$20 + $35 = $55' }
+        ],
+        height: 220
+      },
+      steps: [
+        'Both started with the same amount of money.',
+        'Sara received $20, so Sara\'s bar is extended by $20.',
+        'Sara now has $85. Starting amount = $85 − $20 = $65.',
+        'Mei spent $35. Mei now has $65 − $35 = <strong>$30</strong>.'
+      ],
+      answer: '$30'
+    },
+    {
+      problem: 'Ravi and Kumar had the same number of stamps. Ravi gave away 28 stamps. Kumar collected 12 more stamps. Kumar now has 76 stamps. How many stamps does Ravi have now?',
+      model: {
+        bars: [
+          { label: 'Kumar (now)', units: 7, color: '#8b5cf6' },
+          { label: 'Ravi (now)', units: 3, color: '#f59e0b' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 6, label: '76', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 2, label: '?', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '12 + 28 = 40' }
+        ],
+        height: 220
+      },
+      steps: [
+        'Both started with the same number of stamps.',
+        'Kumar collected 12 more. Kumar now has 76. Starting amount = 76 − 12 = 64.',
+        'Ravi gave away 28. Ravi now has 64 − 28 = <strong>36</strong>.',
+        'Check: Difference = 76 − 36 = 40 = 12 + 28. Correct!'
+      ],
+      answer: '36 stamps'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'Tom and Jerry had the same number of marbles. Tom won 18 more marbles in a game. Jerry lost 12 marbles. Tom now has 68 marbles. How many marbles does Jerry have now?',
+    height: 250,
+    steps: [
+      { instruction: 'Draw a bar for Tom (he gained marbles, so his bar is longer)', hint: 'Tom now has 68 marbles after gaining 18.', action: 'addBar', label: 'Tom (now)', units: 7, options: { color: '#38bdf8' } },
+      { instruction: 'Draw a bar for Jerry (he lost marbles, so his bar is shorter)', hint: 'Jerry lost 12 marbles from the same starting amount.', action: 'addBar', label: 'Jerry (now)', units: 4, options: { color: '#34d399' } },
+      { instruction: 'Label Tom\'s bar with 68', action: 'addBracket', config: { barIdx: 0, startUnit: 0, endUnit: 6, label: '68', side: 'top' } },
+      { instruction: 'Label Jerry\'s bar with "?" since that is what we need to find', action: 'addBracket', config: { barIdx: 1, startUnit: 0, endUnit: 3, label: '?', side: 'bottom' } },
+      { instruction: 'Mark the difference between the bars. Since Tom gained 18 and Jerry lost 12, the difference is 18 + 12 = 30.', hint: 'The difference equals the sum of both changes.', action: 'addDifference', bar1: 0, bar2: 1, label: '18 + 12 = 30' }
+    ]
+  },
+
+  staticQuestions: [
+    { question: 'Ali and Ben had the same number of marbles. Ali won 30 more marbles. Ali now has 78 marbles. How many marbles does Ben have?', options: ['48', '58', '108', '38'], correct: 0, explanation: 'Starting amount = 78 − 30 = 48. Ben had no change, so Ben still has 48 marbles.' },
+    { question: 'Mei and Sara started with the same amount of money. Mei spent $24. Sara received $16. Sara now has $61. How much does Mei have now?', options: ['$21', '$31', '$37', '$45'], correct: 0, explanation: 'Starting amount = $61 − $16 = $45. Mei spent $24. Mei now has $45 − $24 = $21.' },
+    { question: 'Ravi and Kumar had the same number of stickers. Ravi gave away 35 stickers. Kumar bought 25 more stickers. Kumar now has 90 stickers. How many stickers does Ravi have?', options: ['30', '40', '55', '65'], correct: 0, explanation: 'Starting amount = 90 − 25 = 65. Ravi gave away 35. Ravi now has 65 − 35 = 30.' },
+    { question: 'Both shops started the day with the same number of cakes. Shop A sold 45 cakes. Shop B baked 20 more cakes. Shop B now has 120 cakes. How many cakes does Shop A have?', options: ['55', '65', '75', '100'], correct: 0, explanation: 'Starting amount = 120 − 20 = 100. Shop A sold 45. Shop A now has 100 − 45 = 55.' },
+    { question: 'Tom and Jerry had the same number of cards. Tom collected 15 more cards. Jerry gave away 10 cards. Tom now has 63 cards. How many cards does Jerry have now?', options: ['28', '38', '48', '53'], correct: 1, explanation: 'Starting amount = 63 − 15 = 48. Jerry gave away 10. Jerry now has 48 − 10 = 38.' },
+    { question: 'Aisha and Lina had the same number of beads. Aisha used 42 beads for a necklace. Lina bought 18 more beads. Lina now has 78 beads. How many beads does Aisha have?', options: ['18', '28', '36', '60'], correct: 0, explanation: 'Starting amount = 78 − 18 = 60. Aisha used 42. Aisha now has 60 − 42 = 18.' },
+    { question: 'Peter and Mary had the same amount of money. Peter earned $50 doing chores. Mary spent $30 on a toy. They now have $230 altogether. How much did each person start with?', options: ['$95', '$100', '$105', '$115'], correct: 2, explanation: 'Let starting amount = S. Peter now has S + 50. Mary now has S − 30. Total: (S + 50) + (S − 30) = 230. 2S + 20 = 230. 2S = 210. S = 105.' },
+    { question: 'Mr Tan and Mr Lee had the same number of stamps. Mr Tan sold 55 stamps. Mr Lee bought 45 more stamps. What is the difference in their stamps now?', options: ['10', '45', '55', '100'], correct: 3, explanation: 'Since they started equal, the difference after changes = 55 + 45 = 100. Mr Lee has 100 more stamps than Mr Tan.' }
+  ],
+
+  aiPromptContext: 'Generate "Same Amount Before" word problems where two people start with the same quantity, then one or both quantities change (gain or lose). The student must use the equal starting point as an anchor to find final amounts or differences. Use Singapore primary school contexts: marbles, stickers, money, stamps, food items. Keep numbers as whole numbers.'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>

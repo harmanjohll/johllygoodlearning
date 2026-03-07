@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Before-and-After: Same One Item | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-ba-same-one',
+  _depth: 3,
+  title: 'Before-and-After: Same One Item',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'What does it mean when one quantity stays the same while the other changes?',
+    'How do we identify which quantity is the "anchor" (unchanged)?',
+    'How do we draw a before-and-after model where only one bar changes?',
+    'How can we use the unchanged quantity to find unknowns in the other?'
+  ],
+
+  glossary: [
+    { term: 'Anchor Quantity', def: 'The quantity that stays the SAME in both the before and after states. It acts as a fixed reference point.' },
+    { term: 'Changed Quantity', def: 'The quantity that increases or decreases between the before and after states.' },
+    { term: 'Before-and-After Model', def: 'A bar model that shows two states: the original quantities (before) and the changed quantities (after) side by side.' },
+    { term: 'Same One Item', def: 'A type of before-and-after problem where exactly one quantity remains unchanged while the other changes.' }
+  ],
+
+  notes: [
+    {
+      heading: 'What Is a "Same One Item" Problem?',
+      content: `<p>In a "Same One Item" problem, there are two quantities. <strong>One stays exactly the same</strong> (the anchor) while the <strong>other changes</strong> (increases or decreases).</p>
+      <p>For example: Ali has $90 and Ben has $60. Ben spends $25, but Ali does not spend anything. After the change:</p>
+      <ul>
+        <li>Ali still has <strong>$90</strong> (unchanged &mdash; the anchor)</li>
+        <li>Ben now has $60 &minus; $25 = <strong>$35</strong></li>
+      </ul>
+      <p>Because Ali&rsquo;s amount stays fixed, we can use it as a reference to figure out the new relationship between the two quantities.</p>`,
+      highlights: [
+        'Key idea: One quantity is the anchor — it does NOT change. The other quantity changes.',
+        'The anchor gives you a fixed reference point to solve for unknowns.'
+      ],
+      equations: [
+        'If A stays the same: A(before) = A(after)',
+        'New difference = A − B(after)  or  B(after) − A'
+      ]
+    },
+    {
+      heading: 'Drawing the Before-and-After Model',
+      content: `<ol>
+        <li><strong>Draw the "Before" bars</strong> — two bars showing the original quantities.</li>
+        <li><strong>Draw the "After" bars</strong> — the anchor bar is <em>exactly the same length</em> as before. The changed bar is longer (if increased) or shorter (if decreased).</li>
+        <li><strong>Mark the change</strong> — label the portion added to or removed from the changed bar.</li>
+        <li><strong>Show the anchor is unchanged</strong> — the anchor bar should be identical in both before and after.</li>
+        <li><strong>Label known and unknown values</strong> with numbers and "?".</li>
+      </ol>`,
+      highlights: [
+        'The anchor bar is the same length in both the before and after sections.',
+        'Only the changed bar differs between the two states.'
+      ]
+    },
+    {
+      heading: 'How to Solve Same One Item Problems',
+      content: `<p>These problems usually tell you:</p>
+      <ul>
+        <li>The original amounts (or their relationship)</li>
+        <li>Which quantity stays the same</li>
+        <li>How much the other quantity changes</li>
+      </ul>
+      <p>Strategy:</p>
+      <ol>
+        <li><strong>Identify the anchor</strong> — which quantity does NOT change?</li>
+        <li><strong>Calculate the changed quantity</strong> — add or subtract the change from the original.</li>
+        <li><strong>Answer the question</strong> — find the new difference, the new total, or whichever value is asked for.</li>
+      </ol>`,
+      equations: [
+        'Anchor: A(before) = A(after)',
+        'Changed: B(after) = B(before) ± change',
+        'New difference = |A − B(after)|'
+      ]
+    }
+  ],
+
+  summary: 'In "Same One Item" problems, one quantity stays unchanged (the anchor) while the other changes. Draw before-and-after bars where the anchor bar is identical in both states. Use the anchor as a fixed reference point to find the new difference, total, or the unknown quantity after the change.',
+
+  workedExamples: [
+    {
+      problem: 'Ali has 90 marbles and Ben has 60 marbles. Ben gives away 25 marbles. Ali does not give away any. How many more marbles does Ali have than Ben now?',
+      model: {
+        bars: [
+          { label: 'Ali (Before)', units: 9, color: '#38bdf8', section: 0 },
+          { label: 'Ben (Before)', units: 6, color: '#34d399', section: 0 },
+          { label: 'Ali (After)', units: 9, color: '#38bdf8', section: 1 },
+          { label: 'Ben (After)', units: 3, color: '#34d399', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 8, label: '90', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 5, label: '60', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 8, label: '90 (same)', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 2, label: '35', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 2, bar2: 3, label: '?' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Before: Ali has 90, Ben has 60.',
+        'Ali does not change — Ali is the anchor. Ali still has 90.',
+        'Ben gives away 25: Ben now has 60 − 25 = 35.',
+        'New difference = 90 − 35 = <strong>55</strong>.'
+      ],
+      answer: 'Ali has 55 more marbles than Ben.'
+    },
+    {
+      problem: 'Mei has $45 and Sara has $70. Mei receives $30 as a birthday gift. Sara\'s amount does not change. Who has more money now and by how much?',
+      model: {
+        bars: [
+          { label: 'Mei (Before)', units: 4, color: '#f97316', section: 0 },
+          { label: 'Sara (Before)', units: 7, color: '#8b5cf6', section: 0 },
+          { label: 'Mei (After)', units: 7, color: '#f97316', section: 1 },
+          { label: 'Sara (After)', units: 7, color: '#8b5cf6', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 3, label: '$45', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 6, label: '$70', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 6, label: '$75', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 6, label: '$70 (same)', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 2, bar2: 3, label: '?' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Before: Mei has $45, Sara has $70. Sara has $25 more.',
+        'Sara does not change — Sara is the anchor. Sara still has $70.',
+        'Mei receives $30: Mei now has $45 + $30 = $75.',
+        'New comparison: Mei has $75, Sara has $70.',
+        'Mei now has more! Difference = $75 − $70 = <strong>$5</strong>.'
+      ],
+      answer: 'Mei has $5 more than Sara now.'
+    },
+    {
+      problem: 'Ravi has 120 stickers and Kumar has 85 stickers. Ravi buys 40 more stickers. Kumar\'s number stays the same. How many stickers do they have altogether now?',
+      model: {
+        bars: [
+          { label: 'Ravi (Before)', units: 6, color: '#38bdf8', section: 0 },
+          { label: 'Kumar (Before)', units: 4, color: '#f59e0b', section: 0 },
+          { label: 'Ravi (After)', units: 8, color: '#38bdf8', section: 1 },
+          { label: 'Kumar (After)', units: 4, color: '#f59e0b', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 5, label: '120', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 3, label: '85', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 7, label: '160', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 3, label: '85 (same)', side: 'bottom' }
+        ],
+        differences: [],
+        arrows: [],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Before: Ravi has 120, Kumar has 85.',
+        'Kumar does not change — Kumar is the anchor. Kumar still has 85.',
+        'Ravi buys 40 more: Ravi now has 120 + 40 = 160.',
+        'Total now = 160 + 85 = <strong>245</strong>.'
+      ],
+      answer: '245 stickers'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'Siti has 80 stamps and Lina has 55 stamps. Lina uses 20 stamps for her collection book. Siti does not use any. How many more stamps does Siti have than Lina now?',
+    height: 280,
+    beforeAfter: true,
+    steps: [
+      { instruction: 'Draw a bar for Siti\'s stamps before (80 stamps)', hint: 'Siti has more stamps, so her bar is longer.', action: 'addBar', label: 'Siti (Before)', units: 8, options: { color: '#ec4899', section: 0 } },
+      { instruction: 'Draw a bar for Lina\'s stamps before (55 stamps)', hint: 'Lina has fewer stamps.', action: 'addBar', label: 'Lina (Before)', units: 5, options: { color: '#34d399', section: 0 } },
+      { instruction: 'Draw a bar for Siti after — she stays the same (80 stamps)', hint: 'Siti is the anchor; her bar is exactly the same length.', action: 'addBar', label: 'Siti (After)', units: 8, options: { color: '#ec4899', section: 1 } },
+      { instruction: 'Draw a bar for Lina after she uses 20 stamps (55 − 20 = 35)', hint: 'Lina now has fewer stamps, so her bar is shorter.', action: 'addBar', label: 'Lina (After)', units: 3, options: { color: '#34d399', section: 1 } },
+      { instruction: 'Label Siti\'s "after" bar with 80 (same)', action: 'addBracket', config: { barIdx: 2, startUnit: 0, endUnit: 7, label: '80 (same)', side: 'top' } },
+      { instruction: 'Label Lina\'s "after" bar with 35', action: 'addBracket', config: { barIdx: 3, startUnit: 0, endUnit: 2, label: '35', side: 'bottom' } },
+      { instruction: 'Mark the difference between Siti and Lina after. Siti has 80 − 35 = 45 more stamps.', hint: 'Only Lina changed, so the difference increased!', action: 'addDifference', bar1: 2, bar2: 3, label: '45' }
+    ]
+  },
+
+  staticQuestions: [
+    { question: 'Ali has 75 marbles and Ben has 50 marbles. Ben gives away 15 marbles. Ali keeps all his marbles. How many more marbles does Ali have than Ben now?', options: ['25', '35', '40', '10'], correct: 2, explanation: 'Ali stays at 75 (anchor). Ben now has 50 − 15 = 35. Difference = 75 − 35 = 40.' },
+    { question: 'Mei has $60 and Sara has $95. Mei receives $50 from her grandmother. Sara\'s amount stays the same. How much do they have altogether now?', options: ['$195', '$205', '$155', '$175'], correct: 1, explanation: 'Sara stays at $95 (anchor). Mei now has $60 + $50 = $110. Total = $110 + $95 = $205.' },
+    { question: 'Ravi has 130 stamps and Kumar has 80 stamps. Ravi gives away 45 stamps. Kumar does not change. How many more stamps does Ravi have than Kumar now?', options: ['5', '50', '45', '35'], correct: 0, explanation: 'Kumar stays at 80 (anchor). Ravi now has 130 − 45 = 85. Difference = 85 − 80 = 5.' },
+    { question: 'A bakery has 200 muffins and 150 cupcakes. The bakery sells 60 muffins. No cupcakes are sold. How many muffins and cupcakes are there now in total?', options: ['280', '290', '300', '350'], correct: 1, explanation: 'Cupcakes stay at 150 (anchor). Muffins now = 200 − 60 = 140. Total = 140 + 150 = 290.' },
+    { question: 'Tom has 55 cards and Jerry has 85 cards. Tom buys 40 more cards. Jerry does not buy any. Who has more cards now and by how much?', options: ['Tom, by 10', 'Jerry, by 10', 'Tom, by 30', 'They have the same'], correct: 0, explanation: 'Jerry stays at 85 (anchor). Tom now has 55 + 40 = 95. Tom has 95 − 85 = 10 more than Jerry.' },
+    { question: 'Siti has 110 beads and Aisha has 75 beads. Aisha buys 35 more beads. Siti does not change. How many beads does Aisha have now?', options: ['100', '105', '110', '115'], correct: 2, explanation: 'Aisha now has 75 + 35 = 110 beads. (Siti also has 110 — they are now equal!)' },
+    { question: 'A shop has 340 apples and 280 oranges. The shop receives a delivery of 90 more oranges. The number of apples stays the same. How many more apples than oranges are there now?', options: ['30', '60', '70', 'Oranges are more by 30'], correct: 3, explanation: 'Apples stay at 340 (anchor). Oranges now = 280 + 90 = 370. Oranges exceed apples by 370 − 340 = 30.' },
+    { question: 'Peter has $250 and Mary has $180. Peter spends $90 on a toy. Mary does not spend anything. How much money does Peter have now?', options: ['$150', '$160', '$170', '$140'], correct: 1, explanation: 'Peter now has $250 − $90 = $160. Mary stays at $180 (anchor).' }
+  ],
+
+  aiPromptContext: 'Generate before-and-after word problems where exactly ONE quantity stays the SAME (the anchor) while the other quantity changes (increases or decreases). The student must identify which quantity is unchanged and use it as a reference point. Use Singapore primary school contexts like marbles, stickers, stamps, money, food items. Keep all numbers as whole numbers.'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>

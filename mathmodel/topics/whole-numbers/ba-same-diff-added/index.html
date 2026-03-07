@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Before-and-After: Same Difference (Same Amount Added) | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-ba-same-added',
+  _depth: 3,
+  title: 'Before-and-After: Same Difference (Same Amount Added)',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'What happens to the difference when the same amount is added to both quantities?',
+    'Why does the difference stay unchanged even though both quantities increase?',
+    'How do we draw a before-and-after model showing equal amounts added?',
+    'How can we use the unchanged difference to find an unknown quantity?'
+  ],
+
+  glossary: [
+    { term: 'Same Difference', def: 'When the same amount is added to both quantities, the difference between them remains unchanged.' },
+    { term: 'Before-and-After Model', def: 'A bar model that shows two states: the original quantities (before) and the changed quantities (after) side by side.' },
+    { term: 'Constant Difference', def: 'A difference that does not change even when both quantities are increased by the same amount.' },
+    { term: 'Added Equally', def: 'When both quantities gain the exact same amount. For example, both people receive 20 extra marbles.' }
+  ],
+
+  notes: [
+    {
+      heading: 'What Is the Same Difference Concept (Adding)?',
+      content: `<p>When two people each have different amounts and they both <strong>gain the same quantity</strong>, the <strong>difference between them stays the same</strong>.</p>
+      <p>Think of it this way: if Ali has 50 marbles and Ben has 30 marbles, Ali has 20 more than Ben. If both receive 25 extra marbles, Ali now has 75 and Ben has 55. Ali still has 20 more than Ben!</p>
+      <ul>
+        <li>Before: 50 &minus; 30 = <strong>20</strong></li>
+        <li>After: 75 &minus; 55 = <strong>20</strong></li>
+      </ul>
+      <p>The difference is <strong>unchanged</strong> because both bars grew by exactly the same amount.</p>`,
+      highlights: [
+        'Key principle: When the same amount is added to both quantities, the difference stays constant.',
+        'This works because adding the same value to both sides of a subtraction does not change the result.'
+      ],
+      equations: [
+        'If A − B = D, then (A + k) − (B + k) = D'
+      ]
+    },
+    {
+      heading: 'Drawing the Before-and-After Model',
+      content: `<ol>
+        <li><strong>Draw the "Before" bars</strong> — two bars showing the original quantities, with the longer bar on top.</li>
+        <li><strong>Draw the "After" bars</strong> — two longer bars showing the quantities after the addition. Both bars are longer by the same amount.</li>
+        <li><strong>Mark the added part</strong> — label the portion added to each bar. Both added portions are equal.</li>
+        <li><strong>Show the difference</strong> — mark the gap between the bars. It should be the same in both the before and after states.</li>
+        <li><strong>Label known and unknown values</strong> with numbers and "?".</li>
+      </ol>`,
+      highlights: [
+        'Both bars grow by the same length, so the gap between them does not change.'
+      ]
+    },
+    {
+      heading: 'How to Solve Same-Difference (Added) Problems',
+      content: `<p>These problems typically give you:</p>
+      <ul>
+        <li>The original amounts (or their difference)</li>
+        <li>The fact that both quantities increase by the same amount</li>
+        <li>One piece of "after" information</li>
+      </ul>
+      <p>Strategy: Since the difference is constant, use it to connect the before and after states. If you know the difference and one "after" value, you can find the other "after" value. Then work backwards to find the "before" values if needed.</p>`,
+      equations: [
+        'Difference (before) = Difference (after)',
+        'After value = Before value + Amount added'
+      ]
+    }
+  ],
+
+  summary: 'When the same amount is added to two quantities, the difference between them stays the same. Draw before-and-after bars showing both growing by equal amounts. The gap (difference) remains constant across both states. Use this constant difference to solve for unknowns.',
+
+  workedExamples: [
+    {
+      problem: 'Ali has 50 marbles and Ben has 30 marbles. They each receive 20 more marbles. How many more marbles does Ali have than Ben now?',
+      model: {
+        bars: [
+          { label: 'Ali (Before)', units: 5, color: '#38bdf8', section: 0 },
+          { label: 'Ben (Before)', units: 3, color: '#34d399', section: 0 },
+          { label: 'Ali (After)', units: 7, color: '#38bdf8', section: 1 },
+          { label: 'Ben (After)', units: 5, color: '#34d399', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 4, label: '50', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 2, label: '30', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 6, label: '70', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 4, label: '50', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 2, bar2: 3, label: '?' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Before: Ali has 50, Ben has 30. Difference = 50 &minus; 30 = 20.',
+        'Both receive 20 more: Ali now has 50 + 20 = 70. Ben now has 30 + 20 = 50.',
+        'Since the same amount (20) was added to both, the difference stays the same.',
+        'Difference after = 70 &minus; 50 = <strong>20</strong>.'
+      ],
+      answer: 'Ali has 20 more marbles than Ben.'
+    },
+    {
+      problem: 'Mei has $85 and Sara has $55. They each earn $40 from doing chores. How much money do they have altogether now?',
+      model: {
+        bars: [
+          { label: 'Mei (Before)', units: 6, color: '#ec4899', section: 0 },
+          { label: 'Sara (Before)', units: 4, color: '#8b5cf6', section: 0 },
+          { label: 'Mei (After)', units: 8, color: '#ec4899', section: 1 },
+          { label: 'Sara (After)', units: 6, color: '#8b5cf6', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 5, label: '$85', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 3, label: '$55', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 7, label: '$125', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 5, label: '$95', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '$30' },
+          { bar1: 2, bar2: 3, label: '$30' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Before: Mei has $85, Sara has $55. Difference = $85 &minus; $55 = $30.',
+        'Both earn $40: Mei now has $85 + $40 = $125. Sara now has $55 + $40 = $95.',
+        'The difference is still $30 (same amount added to both).',
+        'Total now = $125 + $95 = <strong>$220</strong>.',
+        'Alternative: Total before = $85 + $55 = $140. Both gained $40, so total gained = $40 &times; 2 = $80. Total after = $140 + $80 = $220.'
+      ],
+      answer: '$220'
+    },
+    {
+      problem: 'Ravi has 78 stamps and Kumar has 54 stamps. They each receive the same number of stamps from their teacher. After that, Ravi has 108 stamps. How many stamps does Kumar have now?',
+      model: {
+        bars: [
+          { label: 'Ravi (Before)', units: 6, color: '#38bdf8', section: 0 },
+          { label: 'Kumar (Before)', units: 4, color: '#f59e0b', section: 0 },
+          { label: 'Ravi (After)', units: 8, color: '#38bdf8', section: 1 },
+          { label: 'Kumar (After)', units: 6, color: '#f59e0b', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 5, label: '78', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 3, label: '54', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 7, label: '108', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 5, label: '?', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '24' },
+          { bar1: 2, bar2: 3, label: '24' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Before: Ravi has 78, Kumar has 54. Difference = 78 &minus; 54 = 24.',
+        'Both receive the same number of stamps, so the difference stays at 24.',
+        'After: Ravi has 108. Kumar = 108 &minus; 24 = <strong>84</strong>.',
+        'Check: Ravi received 108 &minus; 78 = 30 stamps. Kumar received 84 &minus; 54 = 30 stamps. Both got 30. Correct!'
+      ],
+      answer: '84 stamps'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'Tom has 65 marbles and Jerry has 45 marbles. They each win 25 marbles in a game. How many more marbles does Tom have than Jerry now?',
+    height: 280,
+    beforeAfter: true,
+    steps: [
+      { instruction: 'Draw a bar for Tom\'s marbles before (65)', hint: 'Tom starts with more marbles, so his bar is longer.', action: 'addBar', label: 'Tom (Before)', units: 6, options: { color: '#38bdf8', section: 0 } },
+      { instruction: 'Draw a bar for Jerry\'s marbles before (45)', hint: 'Jerry has fewer, so his bar is shorter.', action: 'addBar', label: 'Jerry (Before)', units: 4, options: { color: '#34d399', section: 0 } },
+      { instruction: 'Draw a bar for Tom\'s marbles after gaining 25 (65 + 25 = 90)', hint: 'Tom now has 90 marbles.', action: 'addBar', label: 'Tom (After)', units: 8, options: { color: '#38bdf8', section: 1 } },
+      { instruction: 'Draw a bar for Jerry\'s marbles after gaining 25 (45 + 25 = 70)', hint: 'Jerry now has 70 marbles.', action: 'addBar', label: 'Jerry (After)', units: 6, options: { color: '#34d399', section: 1 } },
+      { instruction: 'Label Tom\'s "after" bar with 90', action: 'addBracket', config: { barIdx: 2, startUnit: 0, endUnit: 7, label: '90', side: 'top' } },
+      { instruction: 'Label Jerry\'s "after" bar with 70', action: 'addBracket', config: { barIdx: 3, startUnit: 0, endUnit: 5, label: '70', side: 'bottom' } },
+      { instruction: 'Mark the difference between Tom and Jerry after. It should be the same as before: 65 &minus; 45 = 20.', hint: 'The difference stays at 20 because both gained the same amount!', action: 'addDifference', bar1: 2, bar2: 3, label: '20' }
+    ]
+  },
+
+  staticQuestions: [
+    { question: 'Ali has 60 marbles and Ben has 35 marbles. Both receive 15 marbles each. How many more marbles does Ali have than Ben now?', options: ['15', '20', '25', '30'], correct: 2, explanation: 'Before: difference = 60 &minus; 35 = 25. Both gain 15, so the difference stays at 25. After: Ali has 75, Ben has 50. 75 &minus; 50 = 25.' },
+    { question: 'Mei has $90 and Sara has $60. They each receive $25. How much money does Mei have now?', options: ['$105', '$110', '$115', '$120'], correct: 2, explanation: 'Mei now has $90 + $25 = $115.' },
+    { question: 'Ravi has 72 stamps and Kumar has 48 stamps. They each collect 18 more stamps. What is the difference in their stamps now?', options: ['18', '24', '30', '36'], correct: 1, explanation: 'Before: difference = 72 &minus; 48 = 24. Same amount added to both, so difference stays at 24. After: Ravi has 90, Kumar has 66. 90 &minus; 66 = 24.' },
+    { question: 'Shop A has 180 cakes and Shop B has 120 cakes. Both shops bake 50 more cakes. How many cakes does Shop B have now?', options: ['150', '160', '170', '180'], correct: 2, explanation: 'Shop B now has 120 + 50 = 170 cakes.' },
+    { question: 'Tom has 95 cards and Jerry has 65 cards. Both receive the same number of cards from their father. Tom now has 130 cards. How many cards does Jerry have now?', options: ['90', '95', '100', '105'], correct: 2, explanation: 'Difference before = 95 &minus; 65 = 30. Tom received 130 &minus; 95 = 35 cards. Jerry also received 35. Jerry now has 65 + 35 = 100. Check: 130 &minus; 100 = 30. Difference unchanged.' },
+    { question: 'Aisha has 84 beads and Lina has 56 beads. They each receive 36 beads for their birthday. How many beads do they have altogether now?', options: ['192', '200', '212', '232'], correct: 2, explanation: 'Aisha now has 84 + 36 = 120. Lina now has 56 + 36 = 92. Total = 120 + 92 = 212.' },
+    { question: 'Peter has 145 stickers and Mary has 105 stickers. They each earn 30 stickers. How many more stickers does Peter have than Mary?', options: ['30', '35', '40', '45'], correct: 2, explanation: 'Difference = 145 &minus; 105 = 40. Same amount (30) added to both, so the difference stays at 40.' },
+    { question: 'Raj has $250 and Siti has $180. Both earn $65 from a job. How much does Siti have now?', options: ['$235', '$240', '$245', '$250'], correct: 2, explanation: 'Siti now has $180 + $65 = $245.' }
+  ],
+
+  aiPromptContext: 'Generate before-and-after word problems where the SAME amount is ADDED to both quantities. The difference between the two quantities must remain unchanged. Use Singapore primary school contexts like marbles, stickers, stamps, money, food items. Keep numbers as whole numbers. The student should recognise that the difference is constant when both quantities increase by the same amount.'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>

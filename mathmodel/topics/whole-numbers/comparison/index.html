@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparison of Items | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-comparison',
+  _depth: 3,
+  title: 'Comparison of Items',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'How do we show that one person has more than another using bars?',
+    'What does the gap between two bars represent?',
+    'If we know the difference and one quantity, how do we find the other?',
+    'How do we find the total of two quantities from a comparison model?'
+  ],
+
+  glossary: [
+    { term: 'Comparison Model', def: 'A bar model showing two or more quantities aligned side by side (stacked vertically) to highlight their difference or relationship.' },
+    { term: 'Difference', def: 'The amount by which one quantity is greater or less than another. Found by subtracting the smaller from the larger.' },
+    { term: 'Total', def: 'The combined amount of all quantities. Found by adding all bars together.' },
+    { term: 'Unit', def: 'A single equal part of a bar. All units in a model have the same value.' },
+    { term: '"More than"', def: 'Signals that one bar is longer. The extra part equals the stated difference.' },
+    { term: '"Fewer than" / "Less than"', def: 'Signals that one bar is shorter. The missing part equals the stated difference.' }
+  ],
+
+  notes: [
+    {
+      heading: 'What is a Comparison Model?',
+      content: `<p>A comparison model uses <strong>two bars</strong> drawn one above the other, both starting from the same left edge. The bars represent two quantities, and the <strong>difference</strong> between them is clearly visible as the gap between the end of the shorter bar and the end of the longer bar.</p>
+      <p>This model helps you see three key relationships at a glance:</p>
+      <ul>
+        <li>The <strong>larger</strong> quantity (longer bar)</li>
+        <li>The <strong>smaller</strong> quantity (shorter bar)</li>
+        <li>The <strong>difference</strong> between them (the gap)</li>
+      </ul>`,
+      highlights: [
+        'Key relationship: Larger = Smaller + Difference. Rearranging: Smaller = Larger - Difference. Difference = Larger - Smaller.'
+      ]
+    },
+    {
+      heading: 'How to Draw a Comparison Model',
+      content: `<ol>
+        <li><strong>Identify the two items</strong> being compared (e.g., Ali and Ben).</li>
+        <li><strong>Draw the longer bar</strong> for the item with more. Label it.</li>
+        <li><strong>Draw the shorter bar</strong> directly below, aligned on the left. Label it.</li>
+        <li><strong>Mark the difference</strong> — the gap between the end of the shorter bar and the end of the longer bar.</li>
+        <li><strong>Label known values</strong> with numbers and unknowns with <strong>?</strong></li>
+        <li><strong>Add a bracket</strong> for the total if needed.</li>
+      </ol>`,
+      highlights: [
+        'Always align bars on the left edge. This makes the difference visually clear on the right side.'
+      ]
+    },
+    {
+      heading: 'Three Types of Comparison Questions',
+      content: `<p>Comparison problems always involve three quantities: <em>larger</em>, <em>smaller</em>, and <em>difference</em>. The question gives you two and asks for the third.</p>
+      <ul>
+        <li><strong>Find the difference:</strong> Both quantities given. Subtract to find the gap.</li>
+        <li><strong>Find the smaller:</strong> Larger and difference given. Subtract difference from larger.</li>
+        <li><strong>Find the larger:</strong> Smaller and difference given. Add difference to smaller.</li>
+      </ul>
+      <p>Some questions also ask for the <strong>total</strong> — simply add both quantities together.</p>`,
+      equations: [
+        'Difference = Larger − Smaller',
+        'Total = Larger + Smaller'
+      ]
+    }
+  ],
+
+  summary: 'In comparison problems, draw two bars aligned on the left — one longer for the greater quantity, one shorter. The visible gap is the difference. You can find any one of the three values (larger, smaller, difference) if you know the other two. Always label bars clearly and mark the unknown with "?".',
+
+  workedExamples: [
+    {
+      problem: 'Ali has 45 marbles. Ben has 27 marbles. How many more marbles does Ali have than Ben?',
+      model: {
+        bars: [
+          { label: 'Ali', units: 5, color: '#38bdf8' },
+          { label: 'Ben', units: 3, color: '#34d399' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 4, label: '45', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 2, label: '27', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '?' }
+        ],
+        height: 200
+      },
+      steps: [
+        'Draw a bar for Ali (longer, since 45 > 27)',
+        'Draw a bar for Ben below Ali (shorter)',
+        'Label Ali\'s bar as 45 and Ben\'s bar as 27',
+        'Mark the difference (gap) with "?"',
+        'Difference = 45 − 27 = <strong>18</strong>'
+      ],
+      answer: '18 marbles'
+    },
+    {
+      problem: 'Sara has 125 stickers. She has 48 more stickers than Mei. How many stickers does Mei have?',
+      model: {
+        bars: [
+          { label: 'Sara', units: 5, color: '#38bdf8' },
+          { label: 'Mei', units: 3, color: '#f97316' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 4, label: '125', side: 'top' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '48' }
+        ],
+        height: 200
+      },
+      steps: [
+        'Sara has more, so draw her bar longer',
+        'Draw Mei\'s bar shorter below Sara\'s',
+        'Label Sara\'s bar as 125',
+        'The difference (gap) is 48',
+        'Mei = 125 − 48 = <strong>77</strong>'
+      ],
+      answer: '77 stickers'
+    },
+    {
+      problem: 'Tom has 85 cards. He has 36 fewer cards than Jerry. How many cards do they have altogether?',
+      model: {
+        bars: [
+          { label: 'Jerry', units: 5, color: '#8b5cf6' },
+          { label: 'Tom', units: 3, color: '#f59e0b' }
+        ],
+        brackets: [
+          { barIdx: 1, startUnit: 0, endUnit: 2, label: '85', side: 'bottom' },
+          { barIdxStart: 0, barIdxEnd: 1, label: '?', side: 'right' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '36' }
+        ],
+        height: 220
+      },
+      steps: [
+        '"Tom has fewer" means Jerry has more — draw Jerry\'s bar longer',
+        'Draw Tom\'s bar shorter, label it 85',
+        'The difference is 36',
+        'Jerry = 85 + 36 = 121',
+        'Total = 85 + 121 = <strong>206</strong>'
+      ],
+      answer: '206 cards'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'Ravi has 68 stamps. Kumar has 45 stamps. How many more stamps does Ravi have than Kumar?',
+    height: 250,
+    steps: [
+      { instruction: 'Draw a bar for Ravi (he has more stamps, so his bar is longer)', hint: 'Ravi has 68 stamps', action: 'addBar', label: 'Ravi', units: 5, options: { color: '#38bdf8' } },
+      { instruction: 'Draw a bar for Kumar below Ravi (shorter, since he has fewer)', hint: 'Kumar has 45 stamps', action: 'addBar', label: 'Kumar', units: 3, options: { color: '#34d399' } },
+      { instruction: 'Label Ravi\'s bar with 68', action: 'addBracket', config: { barIdx: 0, startUnit: 0, endUnit: 4, label: '68', side: 'top' } },
+      { instruction: 'Label Kumar\'s bar with 45', action: 'addBracket', config: { barIdx: 1, startUnit: 0, endUnit: 2, label: '45', side: 'bottom' } },
+      { instruction: 'Mark the difference between the bars with "?"', hint: 'This is what we need to find!', action: 'addDifference', bar1: 0, bar2: 1, label: '?' }
+    ]
+  },
+
+  staticQuestions: [
+    { question: 'Ali has 84 marbles. Ben has 57 marbles. How many more marbles does Ali have than Ben?', options: ['17', '27', '37', '141'], correct: 1, explanation: 'Difference = 84 - 57 = 27. Draw Ali\'s bar longer than Ben\'s. The gap between them is 27.' },
+    { question: 'Sara has 125 stickers. She has 48 more stickers than Mei. How many stickers does Mei have?', options: ['77', '83', '173', '67'], correct: 0, explanation: 'Mei = Sara - difference = 125 - 48 = 77. Sara\'s bar is longer; the extra part is 48.' },
+    { question: 'Shop A sold 256 cakes. Shop B sold 189 cakes. How many more cakes did Shop A sell?', options: ['57', '67', '77', '445'], correct: 1, explanation: 'Difference = 256 - 189 = 67.' },
+    { question: 'Tom has 230 stamps. Jerry has 85 fewer stamps than Tom. How many stamps does Jerry have?', options: ['145', '155', '315', '175'], correct: 0, explanation: 'Jerry = Tom - 85 = 230 - 85 = 145. Jerry\'s bar is shorter by 85.' },
+    { question: 'A book costs $36. A bag costs $59 more than the book. What is the cost of the bag?', options: ['$95', '$23', '$85', '$105'], correct: 0, explanation: 'Bag = Book + difference = $36 + $59 = $95.' },
+    { question: 'Ravi collected 348 cards. Kumar collected 275 cards. How many cards did they collect altogether?', options: ['73', '613', '623', '583'], correct: 2, explanation: 'Total = 348 + 275 = 623. Both bars together give the total.' },
+    { question: 'Mei saved $450. She saved $128 more than Sara. How much did they save altogether?', options: ['$772', '$578', '$322', '$706'], correct: 0, explanation: 'Sara = 450 - 128 = 322. Total = 450 + 322 = 772.' },
+    { question: 'There are 512 boys and 487 girls in a school. How many more boys than girls are there?', options: ['15', '25', '35', '999'], correct: 1, explanation: 'Difference = 512 - 487 = 25.' }
+  ],
+
+  aiPromptContext: 'Generate comparison word problems involving two items/people. The student must find the difference between two quantities, find one quantity given the other and the difference, or find the total. Use contexts like marbles, stickers, money, stamps, books, or food items. Keep all numbers as whole numbers.'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>

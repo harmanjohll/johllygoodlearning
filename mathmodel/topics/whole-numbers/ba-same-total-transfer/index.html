@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Before-and-After: Same Total (Internal Transfer) | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-ba-transfer',
+  _depth: 3,
+  title: 'Before-and-After: Same Total (Internal Transfer)',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'Why does the total stay the same when an amount is transferred between two people?',
+    'How do we draw a before-and-after model for a transfer problem?',
+    'How do we find the total first, then redistribute to find individual amounts?',
+    'What happens to each person\'s bar when items are transferred from one to the other?'
+  ],
+
+  glossary: [
+    { term: 'Internal Transfer', def: 'When an amount moves from one person to another. Nothing is added or removed from the system, so the total stays the same.' },
+    { term: 'Same Total (Conservation)', def: 'The principle that when items are transferred between two people (not gained or lost), the combined total remains unchanged.' },
+    { term: 'Before-and-After Model', def: 'A bar model showing two states: the original quantities (Before) and the changed quantities (After).' },
+    { term: 'Redistribution', def: 'The process of moving items from one person to another, changing individual amounts but keeping the total constant.' },
+    { term: 'Transfer Amount', def: 'The number of items moved from one person to another. The giver loses this amount and the receiver gains it.' }
+  ],
+
+  notes: [
+    {
+      heading: 'What Is an Internal Transfer Problem?',
+      content: `<p>In an internal transfer problem, one person <strong>gives</strong> items to another person. No items enter or leave the system — they simply move from one person to the other.</p>
+      <p>Because nothing is added or removed overall, the <strong>total stays the same</strong> before and after the transfer.</p>
+      <ul>
+        <li>The giver's bar gets <strong>shorter</strong> by the transfer amount.</li>
+        <li>The receiver's bar gets <strong>longer</strong> by the same amount.</li>
+        <li>The combined length of both bars <strong>does not change</strong>.</li>
+      </ul>
+      <p>Example: Ali has 80 marbles and Ben has 40 marbles. Ali gives Ben 15 marbles. Total before = 80 + 40 = 120. Total after = 65 + 55 = 120. Same!</p>`,
+      highlights: [
+        'Key principle: When items are transferred (not added or removed), the total is conserved.',
+        'Strategy: Find the total first, then use the "after" clues to find individual amounts.'
+      ]
+    },
+    {
+      heading: 'Drawing the Before-and-After Model',
+      content: `<ol>
+        <li><strong>Draw the "Before" bars</strong> — two bars showing the original amounts. The person with more gets the longer bar.</li>
+        <li><strong>Draw the "After" bars</strong> — two bars showing the new amounts after the transfer. The giver's bar is shorter; the receiver's bar is longer.</li>
+        <li><strong>Mark the transfer</strong> — show what moved from one bar to the other (use arrows or labels).</li>
+        <li><strong>Label the total</strong> — it should be the same in both the Before and After states.</li>
+        <li><strong>Label known and unknown values</strong> with numbers and "?".</li>
+      </ol>`,
+      highlights: [
+        'Both the Before pair and After pair of bars should have the same combined length, reflecting the unchanged total.'
+      ]
+    },
+    {
+      heading: 'Solving Strategy',
+      content: `<p>Follow these steps to solve internal transfer problems:</p>
+      <ul>
+        <li><strong>Step 1: Find the total.</strong> Add the two starting amounts (or the two ending amounts — they are the same).</li>
+        <li><strong>Step 2: Apply the transfer.</strong> Giver loses the transfer amount; Receiver gains it.</li>
+        <li><strong>Step 3: Answer the question.</strong> Use the new individual amounts to answer what is asked.</li>
+      </ul>
+      <p>If you are given the "after" amounts and need to find "before" amounts, simply reverse the transfer: add the transfer amount back to the giver and subtract it from the receiver.</p>`,
+      equations: [
+        'Total (before) = Total (after)',
+        'Giver (after) = Giver (before) − Transfer',
+        'Receiver (after) = Receiver (before) + Transfer'
+      ]
+    }
+  ],
+
+  summary: 'In internal transfer problems, one person gives items to another. The total stays the same because nothing enters or leaves the system. Draw Before-and-After bars: the giver\'s bar shrinks and the receiver\'s bar grows by the transfer amount. Find the total first (it is constant), then redistribute to find individual amounts.',
+
+  workedExamples: [
+    {
+      problem: 'Ali had 85 marbles and Ben had 35 marbles. Ali gave Ben 15 marbles. How many marbles does each boy have now?',
+      model: {
+        bars: [
+          { label: 'Ali (Before)', units: 8, color: '#38bdf8', section: 0 },
+          { label: 'Ben (Before)', units: 3, color: '#34d399', section: 0 },
+          { label: 'Ali (After)', units: 7, color: '#38bdf8', section: 1 },
+          { label: 'Ben (After)', units: 5, color: '#34d399', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 7, label: '85', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 2, label: '35', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 6, label: '?', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 4, label: '?', side: 'bottom' }
+        ],
+        arrows: [
+          { fromBar: 0, toBar: 1, label: '15' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Before: Ali has 85, Ben has 35. Total = 85 + 35 = 120.',
+        'Ali gives Ben 15 marbles.',
+        'Ali (after) = 85 − 15 = 70.',
+        'Ben (after) = 35 + 15 = 50.',
+        'Check: Total after = 70 + 50 = 120. Same total! Correct.',
+        'Ali has <strong>70</strong> marbles and Ben has <strong>50</strong> marbles.'
+      ],
+      answer: 'Ali has 70 marbles. Ben has 50 marbles.'
+    },
+    {
+      problem: 'Mei had 64 stickers and Sara had 96 stickers. Sara gave Mei 25 stickers. How many more stickers does Sara have than Mei now?',
+      model: {
+        bars: [
+          { label: 'Sara (Before)', units: 8, color: '#ec4899', section: 0 },
+          { label: 'Mei (Before)', units: 5, color: '#f59e0b', section: 0 },
+          { label: 'Sara (After)', units: 6, color: '#ec4899', section: 1 },
+          { label: 'Mei (After)', units: 7, color: '#f59e0b', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 7, label: '96', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 4, label: '64', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 5, label: '71', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 6, label: '89', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 2, bar2: 3, label: '?' }
+        ],
+        arrows: [
+          { fromBar: 0, toBar: 1, label: '25' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Before: Sara has 96, Mei has 64. Total = 96 + 64 = 160.',
+        'Sara gives Mei 25 stickers.',
+        'Sara (after) = 96 − 25 = 71.',
+        'Mei (after) = 64 + 25 = 89.',
+        'Wait — Mei now has MORE than Sara!',
+        'Difference = 89 − 71 = <strong>18</strong>. Mei has 18 more than Sara now.'
+      ],
+      answer: 'Sara has 18 fewer stickers than Mei now. (Mei has 18 more.)'
+    },
+    {
+      problem: 'Ravi had some stamps and Kumar had 48 stamps. After Ravi gave Kumar 20 stamps, they had the same number. How many stamps did Ravi have at first?',
+      model: {
+        bars: [
+          { label: 'Ravi (Before)', units: 7, color: '#8b5cf6', section: 0 },
+          { label: 'Kumar (Before)', units: 4, color: '#f97316', section: 0 },
+          { label: 'Ravi (After)', units: 5, color: '#8b5cf6', section: 1 },
+          { label: 'Kumar (After)', units: 5, color: '#f97316', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 6, label: '?', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 3, label: '48', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 4, label: 'equal', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 4, label: 'equal', side: 'bottom' }
+        ],
+        arrows: [
+          { fromBar: 0, toBar: 1, label: '20' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'After the transfer, both have the same number of stamps.',
+        'Kumar (after) = 48 + 20 = 68. So Ravi (after) = 68 too.',
+        'Total = 68 + 68 = 136.',
+        'Ravi (before) = Ravi (after) + 20 = 68 + 20 = <strong>88</strong>.',
+        'Check: Total before = 88 + 48 = 136. Total after = 68 + 68 = 136. Correct!'
+      ],
+      answer: '88 stamps'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'Tom had 95 marbles and Jerry had 45 marbles. Tom gave Jerry 20 marbles. How many marbles does each boy have now?',
+    height: 280,
+    beforeAfter: true,
+    steps: [
+      { instruction: 'Draw a bar for Tom\'s marbles before (95 marbles)', hint: 'Tom starts with more marbles.', action: 'addBar', label: 'Tom (Before)', units: 8, options: { color: '#38bdf8', section: 0 } },
+      { instruction: 'Draw a bar for Jerry\'s marbles before (45 marbles)', hint: 'Jerry starts with fewer marbles.', action: 'addBar', label: 'Jerry (Before)', units: 4, options: { color: '#34d399', section: 0 } },
+      { instruction: 'Label Tom\'s before bar with 95', action: 'addBracket', config: { barIdx: 0, startUnit: 0, endUnit: 7, label: '95', side: 'top' } },
+      { instruction: 'Label Jerry\'s before bar with 45', action: 'addBracket', config: { barIdx: 1, startUnit: 0, endUnit: 3, label: '45', side: 'bottom' } },
+      { instruction: 'Draw a bar for Tom after giving away 20 marbles (95 − 20 = 75)', hint: 'Tom\'s bar gets shorter.', action: 'addBar', label: 'Tom (After)', units: 6, options: { color: '#38bdf8', section: 1 } },
+      { instruction: 'Draw a bar for Jerry after receiving 20 marbles (45 + 20 = 65)', hint: 'Jerry\'s bar gets longer.', action: 'addBar', label: 'Jerry (After)', units: 5, options: { color: '#34d399', section: 1 } },
+      { instruction: 'Label Tom\'s after bar with 75', action: 'addBracket', config: { barIdx: 2, startUnit: 0, endUnit: 5, label: '75', side: 'top' } },
+      { instruction: 'Label Jerry\'s after bar with 65. Check: Total before = 95 + 45 = 140. Total after = 75 + 65 = 140. Same total!', hint: 'The total is conserved because items were only transferred, not added or removed.', action: 'addBracket', config: { barIdx: 3, startUnit: 0, endUnit: 4, label: '65', side: 'bottom' } }
+    ]
+  },
+
+  staticQuestions: [
+    { question: 'Ali had 90 marbles and Ben had 50 marbles. Ali gave Ben 20 marbles. How many marbles does Ali have now?', options: ['60', '70', '80', '110'], correct: 1, explanation: 'Ali (after) = 90 − 20 = 70. Total stays at 140. Ben (after) = 50 + 20 = 70.' },
+    { question: 'Mei had 78 stickers and Sara had 42 stickers. Mei gave Sara 18 stickers. How many stickers does Sara have now?', options: ['50', '56', '60', '66'], correct: 2, explanation: 'Sara (after) = 42 + 18 = 60. Total = 78 + 42 = 120. Mei (after) = 78 − 18 = 60.' },
+    { question: 'Ravi had $110 and Kumar had $70. Ravi gave Kumar $25. How much money do they have altogether?', options: ['$155', '$170', '$180', '$205'], correct: 2, explanation: 'Total = $110 + $70 = $180. Transfer does not change total. After: Ravi $85, Kumar $95. Total still $180.' },
+    { question: 'Tom had 84 cards and Jerry had 56 cards. Tom gave Jerry some cards. They now have the same number. How many cards did Tom give Jerry?', options: ['10', '14', '18', '28'], correct: 1, explanation: 'Total = 84 + 56 = 140. Each gets 140 ÷ 2 = 70. Tom gave 84 − 70 = 14 cards.' },
+    { question: 'Mrs Tan had 150 muffins and Mrs Lee had 90 muffins. Mrs Tan gave Mrs Lee 35 muffins. How many more muffins does Mrs Tan have than Mrs Lee now?', options: ['5', '10', '15', '25'], correct: 1, explanation: 'Mrs Tan (after) = 150 − 35 = 115. Mrs Lee (after) = 90 + 35 = 125. Difference = 125 − 115 = 10. Mrs Lee now has 10 more.' },
+    { question: 'Aisha had some beads and Lina had 55 beads. After Aisha gave Lina 30 beads, they had the same number. How many beads did Aisha have at first?', options: ['85', '105', '115', '125'], correct: 2, explanation: 'After transfer: Lina has 55 + 30 = 85. Aisha also has 85. Aisha (before) = 85 + 30 = 115.' },
+    { question: 'Peter had $130 and Mary had $80. Peter gave Mary some money. Peter now has $95. How much did Peter give Mary?', options: ['$25', '$30', '$35', '$45'], correct: 2, explanation: 'Peter gave $130 − $95 = $35. Mary now has $80 + $35 = $115. Total: $95 + $115 = $210 = $130 + $80. Correct.' },
+    { question: 'Siti had 72 stamps and Raj had 48 stamps. Siti gave Raj some stamps. Raj now has 60 stamps. How many stamps does Siti have now?', options: ['48', '54', '60', '66'], correct: 2, explanation: 'Raj received 60 − 48 = 12 stamps. Siti now has 72 − 12 = 60. Total: 60 + 60 = 120 = 72 + 48. Correct.' }
+  ],
+
+  aiPromptContext: 'Generate before-and-after word problems involving INTERNAL TRANSFER — one person gives items to another, so the total stays the same. The student must recognise the total is conserved, then find individual amounts after redistribution. Use Singapore primary school contexts: marbles, stickers, money, stamps, food items. Keep numbers as whole numbers.'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>
