@@ -162,8 +162,23 @@
 
       <div class="sub-pane" id="build-free">
         <p style="font-size:.85rem;color:var(--muted);margin-bottom:.75rem">
-          Build your own bar model. Use the toolbar to add bars, brackets, and labels.
+          Read the problem below, then build a bar model to solve it. When you're done, reveal the answer to check your work.
         </p>
+        <div id="free-question-area">
+          <div class="worked-example" style="margin-bottom:.75rem">
+            <div class="problem" id="free-question-text" style="font-size:.95rem;line-height:1.6"></div>
+          </div>
+          <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+            <button class="btn btn-ghost btn-sm" id="free-show-answer">Show Answer</button>
+            <button class="btn btn-ghost btn-sm" id="free-new-question">New Question</button>
+          </div>
+          <div id="free-answer-area" style="display:none;margin-bottom:1rem">
+            <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:.75rem 1rem">
+              <div style="font-weight:700;color:var(--correct);font-size:.82rem;margin-bottom:.35rem">Answer</div>
+              <div id="free-answer-text" style="font-size:.88rem;line-height:1.6;color:var(--text)"></div>
+            </div>
+          </div>
+        </div>
         <div id="free-builder"></div>
       </div>
     `;
@@ -217,8 +232,57 @@
       }
     });
 
+    // Free Build question system
+    initFreeBuildQuestions();
+
     // Init sub-tabs
     initSubTabs(document.getElementById('tab-build'));
+  }
+
+  function initFreeBuildQuestions() {
+    const questions = T.staticQuestions || [];
+    if (questions.length === 0) return;
+
+    const questionEl = document.getElementById('free-question-text');
+    const answerArea = document.getElementById('free-answer-area');
+    const answerText = document.getElementById('free-answer-text');
+    const showBtn = document.getElementById('free-show-answer');
+    const newBtn = document.getElementById('free-new-question');
+
+    if (!questionEl || !showBtn || !newBtn) return;
+
+    let usedIndices = [];
+    let currentIdx = -1;
+
+    function pickQuestion() {
+      if (usedIndices.length >= questions.length) usedIndices = [];
+      let idx;
+      do {
+        idx = Math.floor(Math.random() * questions.length);
+      } while (usedIndices.includes(idx) && usedIndices.length < questions.length);
+      usedIndices.push(idx);
+      currentIdx = idx;
+
+      const q = questions[idx];
+      questionEl.textContent = q.question;
+      answerArea.style.display = 'none';
+      showBtn.textContent = 'Show Answer';
+      showBtn.disabled = false;
+    }
+
+    showBtn.addEventListener('click', () => {
+      if (currentIdx < 0) return;
+      const q = questions[currentIdx];
+      const correctAnswer = q.options[q.correct];
+      answerText.innerHTML = `<strong>${correctAnswer}</strong><br><span style="color:var(--muted);font-size:.84rem">${q.explanation}</span>`;
+      answerArea.style.display = 'block';
+      showBtn.textContent = 'Answer shown';
+      showBtn.disabled = true;
+    });
+
+    newBtn.addEventListener('click', () => pickQuestion());
+
+    pickQuestion();
   }
 
   // ── Practice Tab Init ──────────────────────────────
