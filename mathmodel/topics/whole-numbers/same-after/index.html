@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Same Amount (After) | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-same-after',
+  _depth: 3,
+  title: 'Same Amount (After)',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'How do we draw a model when two quantities end up the same?',
+    'If two people end with the same amount, what can we say about their starting amounts and changes?',
+    'How do we work backwards from the equal end state to find starting amounts?',
+    'What is the relationship between the starting difference and the changes applied?'
+  ],
+
+  glossary: [
+    { term: 'Equal End State', def: 'When two quantities become the same value after changes are applied. The bars are the same length at the end.' },
+    { term: 'Work Backwards', def: 'A strategy where you start from the known end result and reverse the operations to find the starting values.' },
+    { term: 'Anchor (After)', def: 'In "Same After" problems, the equal final amount is the anchor from which we reason backwards.' },
+    { term: 'Compensating Changes', def: 'Changes that bring two different starting values to the same final value. One may gain while the other loses, or they change by different amounts.' }
+  ],
+
+  notes: [
+    {
+      heading: 'What Is a "Same Amount (After)" Problem?',
+      content: `<p>In these problems, two quantities <strong>start differently</strong> but after some changes, they <strong>end up with the same amount</strong>. The equal end state is the anchor.</p>
+      <p>For example: "Ali has 80 marbles and Ben has 50 marbles. Ali gives away some marbles and Ben receives some marbles. They now have the same number." We work backwards from the equal end to find unknowns.</p>
+      <ul>
+        <li>The two quantities start at <strong>different</strong> values.</li>
+        <li>Changes are applied (gain, lose, give, receive).</li>
+        <li>After the changes, both end up <strong>equal</strong>.</li>
+      </ul>`,
+      highlights: [
+        'Key insight: Work backwards from the equal end state. The changes must exactly compensate for the starting difference.'
+      ]
+    },
+    {
+      heading: 'How to Draw the Model',
+      content: `<ol>
+        <li><strong>Draw two bars at the end state</strong> — both the same length, since they end up equal.</li>
+        <li><strong>Think about what happened to each bar</strong> — if someone gained, the starting bar was shorter; if someone lost, the starting bar was longer.</li>
+        <li><strong>Label the equal final amount</strong> (if known) or mark it as "?".</li>
+        <li><strong>Label the changes</strong> on each bar.</li>
+        <li><strong>Work backwards</strong> to find starting amounts: Starting = Final &minus; Gain, or Starting = Final + Loss.</li>
+      </ol>`,
+      highlights: [
+        'Draw the equal end bars first, then reason backwards to find what each person started with.'
+      ]
+    },
+    {
+      heading: 'Solving Strategies',
+      content: `<p>Common approaches for Same Amount (After) problems:</p>
+      <ul>
+        <li><strong>Given total and changes:</strong> Use the total to find the equal end amount, then work backwards.</li>
+        <li><strong>Given starting amounts and one change:</strong> The changes must bridge the starting difference to reach equality.</li>
+        <li><strong>Given starting difference:</strong> The sum of changes must equal the starting difference for both to become equal.</li>
+      </ul>
+      <p>The core equation: if A starts higher and loses some, while B starts lower and gains some, the changes must close the gap completely.</p>`,
+      equations: [
+        'Starting amount = Final amount − Gain',
+        'Starting amount = Final amount + Loss',
+        'Starting difference = Total of changes needed to equalise'
+      ]
+    }
+  ],
+
+  summary: 'In "Same Amount (After)" problems, two quantities start differently but end up equal after changes. The equal end state is the anchor. Draw two equal-length bars for the final state, then work backwards using the changes to find starting amounts. The changes must exactly compensate for the original difference between the two quantities.',
+
+  workedExamples: [
+    {
+      problem: 'Ali had 92 marbles and Ben had 52 marbles. Ali gave Ben some marbles. They now have the same number. How many marbles did Ali give Ben?',
+      model: {
+        bars: [
+          { label: 'Ali (start)', units: 9, color: '#38bdf8' },
+          { label: 'Ben (start)', units: 5, color: '#34d399' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 8, label: '92', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 4, label: '52', side: 'bottom' },
+          { barIdxStart: 0, barIdxEnd: 1, label: '92 + 52 = 144', side: 'right' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '92 − 52 = 40' }
+        ],
+        height: 220
+      },
+      steps: [
+        'Total marbles = 92 + 52 = 144. The total does not change (Ali gives to Ben).',
+        'They end up equal, so each has 144 ÷ 2 = 72 marbles.',
+        'Ali started with 92 and ends with 72.',
+        'Ali gave away 92 − 72 = <strong>20</strong> marbles.',
+        'Check: Ben started with 52, received 20, now has 52 + 20 = 72. Both have 72. Correct!'
+      ],
+      answer: '20 marbles'
+    },
+    {
+      problem: 'Mei had 120 stickers and Sara had 60 stickers. Mei gave Sara some stickers so that they each had the same number. How many stickers did each girl have in the end?',
+      model: {
+        bars: [
+          { label: 'Mei (start)', units: 6, color: '#ec4899' },
+          { label: 'Sara (start)', units: 3, color: '#f59e0b' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 5, label: '120', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 2, label: '60', side: 'bottom' },
+          { barIdxStart: 0, barIdxEnd: 1, label: '180', side: 'right' }
+        ],
+        height: 220
+      },
+      steps: [
+        'Total stickers = 120 + 60 = 180.',
+        'They end up equal, so each has 180 ÷ 2 = <strong>90</strong> stickers.',
+        'Mei gave away 120 − 90 = 30 stickers to Sara.',
+        'Check: Sara started with 60, received 30, now has 90. Both have 90. Correct!'
+      ],
+      answer: '90 stickers each'
+    },
+    {
+      problem: 'Ravi had $45 and Kumar had $75. After Kumar gave Ravi some money, they had the same amount. How much money did Kumar give Ravi?',
+      model: {
+        bars: [
+          { label: 'Kumar (start)', units: 5, color: '#8b5cf6' },
+          { label: 'Ravi (start)', units: 3, color: '#f97316' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 4, label: '$75', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 2, label: '$45', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '$75 − $45 = $30' }
+        ],
+        height: 220
+      },
+      steps: [
+        'Total = $75 + $45 = $120.',
+        'They end up equal, so each has $120 ÷ 2 = $60.',
+        'Kumar started with $75 and ends with $60.',
+        'Kumar gave away $75 − $60 = <strong>$15</strong>.',
+        'Check: Ravi started with $45, received $15, now has $60. Both have $60. Correct!'
+      ],
+      answer: '$15'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'Tom had 84 stamps and Jerry had 36 stamps. Tom gave Jerry some stamps. Now they have the same number. How many stamps did Tom give Jerry?',
+    height: 250,
+    steps: [
+      { instruction: 'Draw a bar for Tom (he starts with more stamps, so his bar is longer)', hint: 'Tom starts with 84 stamps.', action: 'addBar', label: 'Tom (start)', units: 7, options: { color: '#38bdf8' } },
+      { instruction: 'Draw a bar for Jerry (he starts with fewer stamps)', hint: 'Jerry starts with 36 stamps.', action: 'addBar', label: 'Jerry (start)', units: 3, options: { color: '#34d399' } },
+      { instruction: 'Label Tom\'s bar with 84', action: 'addBracket', config: { barIdx: 0, startUnit: 0, endUnit: 6, label: '84', side: 'top' } },
+      { instruction: 'Label Jerry\'s bar with 36', action: 'addBracket', config: { barIdx: 1, startUnit: 0, endUnit: 2, label: '36', side: 'bottom' } },
+      { instruction: 'Label the total on the right: 84 + 36 = 120. Since they end up equal, each gets 120 ÷ 2 = 60.', hint: 'The total stays the same because Tom gives to Jerry.', action: 'addBracket', config: { barIdxStart: 0, barIdxEnd: 1, label: '120', side: 'right' } },
+      { instruction: 'Mark the difference: 84 − 36 = 48. Tom must give half the difference = 48 ÷ 2 = 24 stamps.', hint: 'Tom gives away 84 − 60 = 24 stamps.', action: 'addDifference', bar1: 0, bar2: 1, label: '48' }
+    ]
+  },
+
+  staticQuestions: [
+    { question: 'Ali had 78 marbles and Ben had 42 marbles. Ali gave Ben some marbles so they had the same number. How many marbles did Ali give Ben?', options: ['12', '18', '24', '36'], correct: 1, explanation: 'Total = 78 + 42 = 120. Each gets 120 ÷ 2 = 60. Ali gave 78 − 60 = 18 marbles.' },
+    { question: 'Mei had 110 stickers and Sara had 50 stickers. Mei gave Sara some stickers. They now have the same number. How many stickers does each girl have?', options: ['70', '75', '80', '85'], correct: 2, explanation: 'Total = 110 + 50 = 160. Each has 160 ÷ 2 = 80 stickers.' },
+    { question: 'Ravi had $96 and Kumar had $54. Ravi gave Kumar some money so they had the same amount. How much did Ravi give Kumar?', options: ['$15', '$21', '$27', '$42'], correct: 1, explanation: 'Total = $96 + $54 = $150. Each gets $150 ÷ 2 = $75. Ravi gave $96 − $75 = $21.' },
+    { question: 'Shop A had 150 cakes and Shop B had 90 cakes. Shop A transferred some cakes to Shop B so both had equal stock. How many cakes were transferred?', options: ['20', '25', '30', '60'], correct: 2, explanation: 'Total = 150 + 90 = 240. Each shop gets 240 ÷ 2 = 120. Shop A transferred 150 − 120 = 30 cakes.' },
+    { question: 'Tom had 65 cards and Jerry had 35 cards. Tom gave Jerry some cards so they had equal amounts. How many cards does each boy have now?', options: ['45', '50', '55', '60'], correct: 1, explanation: 'Total = 65 + 35 = 100. Each has 100 ÷ 2 = 50 cards.' },
+    { question: 'Aisha had 130 beads and Lina had 70 beads. Aisha gave Lina some beads until they were equal. How many beads did Aisha give?', options: ['20', '25', '30', '60'], correct: 2, explanation: 'Total = 130 + 70 = 200. Each gets 200 ÷ 2 = 100. Aisha gave 130 − 100 = 30 beads.' },
+    { question: 'Mr Tan had 240 stamps and Mr Lee had 160 stamps. Mr Tan gave some stamps to Mr Lee until they had equal amounts. How many stamps did Mr Tan give Mr Lee?', options: ['30', '40', '50', '80'], correct: 1, explanation: 'Total = 240 + 160 = 400. Each gets 400 ÷ 2 = 200. Mr Tan gave 240 − 200 = 40 stamps.' },
+    { question: 'Peter had $55 and Mary had $85. Mary gave Peter some money so they had the same amount. How much does each have now?', options: ['$60', '$65', '$70', '$75'], correct: 2, explanation: 'Total = $55 + $85 = $140. Each has $140 ÷ 2 = $70.' }
+  ],
+
+  aiPromptContext: 'Generate "Same Amount After" word problems where two people start with different amounts and end up with the same amount after a transfer or change. The student must find how much was transferred or the final equal amount. Use Singapore primary school contexts: marbles, stickers, money, stamps, food items. Keep numbers as whole numbers and ensure even division when splitting totals.'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>

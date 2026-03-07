@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Before-and-After: Same Total (Equal Amount Removed and Added) | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-ba-equal-add-remove',
+  _depth: 3,
+  title: 'Before-and-After: Same Total (Equal Amount Removed and Added)',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'Why does the total stay the same when one person gives to another?',
+    'What happens to the difference between two quantities after a two-way transfer?',
+    'How do we track multiple transfers between two people?',
+    'How do we find the final amounts after items are given back and forth?'
+  ],
+
+  glossary: [
+    { term: 'Two-Way Transfer', def: 'When two people exchange items in both directions — one gives some to the other, then the other gives some back.' },
+    { term: 'Net Transfer', def: 'The overall effect after all transfers. If Ali gives 12 to Ben and Ben gives 8 back, the net transfer is 12 &minus; 8 = 4 from Ali to Ben.' },
+    { term: 'Same Total', def: 'The combined amount does not change because items are only moved between people, not added or removed from the group.' },
+    { term: 'Before-and-After Model', def: 'A bar model that shows quantities in their original state (before) and final state (after).' }
+  ],
+
+  notes: [
+    {
+      heading: 'What Is This Problem Type?',
+      content: `<p>In these problems, two people exchange items back and forth. For example, Ali gives Ben 12 stickers, then Ben gives Ali 8 stickers back. Since items only move between the two people, the <strong>total stays the same</strong>.</p>
+      <p>The key is to figure out the <strong>net transfer</strong> — the overall effect of all the exchanges.</p>
+      <ul>
+        <li>Ali gives 12 to Ben: Ali loses 12, Ben gains 12</li>
+        <li>Ben gives 8 back to Ali: Ben loses 8, Ali gains 8</li>
+        <li>Net effect: Ali loses 12 &minus; 8 = 4. Ben gains 12 &minus; 8 = 4.</li>
+      </ul>`,
+      highlights: [
+        'Key insight: When items move back and forth between two people, find the NET transfer first.',
+        'The total never changes because nothing enters or leaves the system.'
+      ],
+      equations: [
+        'Net transfer = Amount given − Amount received back',
+        'Total (before) = Total (after)'
+      ]
+    },
+    {
+      heading: 'How to Draw the Model',
+      content: `<ol>
+        <li><strong>Draw "Before" bars</strong> showing each person's starting amount.</li>
+        <li><strong>Calculate the net transfer</strong> — subtract the smaller transfer from the larger one.</li>
+        <li><strong>Draw "After" bars</strong> — one bar is shorter (net giver) and the other is longer (net receiver) by the net amount.</li>
+        <li><strong>Use arrows</strong> to show the direction of the net transfer.</li>
+        <li><strong>Label all values</strong> and mark unknowns with "?".</li>
+      </ol>`,
+      highlights: [
+        'You do not need to draw an intermediate state. Just show before and after using the net transfer.',
+        'An arrow from the giver to the receiver helps show the direction of the net flow.'
+      ]
+    },
+    {
+      heading: 'Step-by-Step Strategy',
+      content: `<p>To solve these problems:</p>
+      <ol>
+        <li><strong>List all transfers</strong> in order. Note the direction and amount of each.</li>
+        <li><strong>Find the net transfer</strong>: subtract the amounts going in opposite directions.</li>
+        <li><strong>Apply the net transfer</strong> to the starting amounts to get the final amounts.</li>
+        <li><strong>Answer the question</strong> — it might ask for a final amount, the difference, or the total.</li>
+      </ol>`,
+      equations: [
+        'Person A (after) = Person A (before) − gave + received',
+        'Person B (after) = Person B (before) − gave + received'
+      ]
+    }
+  ],
+
+  summary: 'When two people exchange items back and forth, the total stays the same. Find the net transfer by subtracting the smaller exchange from the larger one. Apply this net change to the starting amounts. The person who gave more overall loses the net amount; the person who received more overall gains it.',
+
+  workedExamples: [
+    {
+      problem: 'Ali has 76 stickers and Ben has 44 stickers. Ali gives Ben 12 stickers. Then Ben gives Ali 8 stickers. How many stickers does each person have in the end?',
+      model: {
+        bars: [
+          { label: 'Ali (Before)', units: 8, color: '#38bdf8', section: 0 },
+          { label: 'Ben (Before)', units: 4, color: '#34d399', section: 0 },
+          { label: 'Ali (After)', units: 7, color: '#38bdf8', section: 1 },
+          { label: 'Ben (After)', units: 5, color: '#34d399', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 7, label: '76', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 3, label: '44', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 6, label: '72', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 4, label: '48', side: 'bottom' }
+        ],
+        arrows: [
+          { fromBar: 0, toBar: 1, label: 'Net: 4' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Ali gives 12 to Ben: Ali = 76 &minus; 12 = 64, Ben = 44 + 12 = 56.',
+        'Ben gives 8 back to Ali: Ali = 64 + 8 = 72, Ben = 56 &minus; 8 = 48.',
+        'Net transfer: Ali gave 12 &minus; 8 = 4 stickers to Ben overall.',
+        'Final: Ali has <strong>72</strong>, Ben has <strong>48</strong>.',
+        'Check total: 76 + 44 = 120. After: 72 + 48 = 120. Same total!'
+      ],
+      answer: 'Ali has 72 stickers and Ben has 48 stickers.'
+    },
+    {
+      problem: 'Mei has 95 beads and Siti has 65 beads. Mei gives Siti 20 beads. Then Siti gives Mei 5 beads. How many more beads does Mei have than Siti now?',
+      model: {
+        bars: [
+          { label: 'Mei (Before)', units: 9, color: '#ec4899', section: 0 },
+          { label: 'Siti (Before)', units: 6, color: '#8b5cf6', section: 0 },
+          { label: 'Mei (After)', units: 8, color: '#ec4899', section: 1 },
+          { label: 'Siti (After)', units: 8, color: '#8b5cf6', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 8, label: '95', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 5, label: '65', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 7, label: '80', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 7, label: '80', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 2, bar2: 3, label: '?' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Mei gives 20 to Siti: Mei = 95 &minus; 20 = 75, Siti = 65 + 20 = 85.',
+        'Siti gives 5 back to Mei: Mei = 75 + 5 = 80, Siti = 85 &minus; 5 = 80.',
+        'Net transfer: Mei gave 20 &minus; 5 = 15 beads to Siti overall.',
+        'Difference: 80 &minus; 80 = <strong>0</strong>. They have the same number!',
+        'Check total: 95 + 65 = 160. After: 80 + 80 = 160. Correct!'
+      ],
+      answer: 'Mei and Siti have the same number of beads (80 each). The difference is 0.'
+    },
+    {
+      problem: 'Ravi has $150 and Kumar has $90. Ravi gives Kumar $35. Then Kumar gives Ravi $10. How much money does Kumar have now?',
+      model: {
+        bars: [
+          { label: 'Ravi (Before)', units: 8, color: '#38bdf8', section: 0 },
+          { label: 'Kumar (Before)', units: 5, color: '#f59e0b', section: 0 },
+          { label: 'Ravi (After)', units: 7, color: '#38bdf8', section: 1 },
+          { label: 'Kumar (After)', units: 6, color: '#f59e0b', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 7, label: '$150', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 4, label: '$90', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 6, label: '$125', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 5, label: '?', side: 'bottom' }
+        ],
+        arrows: [
+          { fromBar: 0, toBar: 1, label: 'Net: $25' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Ravi gives $35 to Kumar: Ravi = $150 &minus; $35 = $115, Kumar = $90 + $35 = $125.',
+        'Kumar gives $10 back: Ravi = $115 + $10 = $125, Kumar = $125 &minus; $10 = $115.',
+        'Net transfer: Ravi gave $35 &minus; $10 = $25 to Kumar overall.',
+        'Kumar now has $90 + $25 = <strong>$115</strong>.',
+        'Check total: $150 + $90 = $240. After: $125 + $115 = $240. Correct!'
+      ],
+      answer: 'Kumar has $115 now.'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'Tom has 84 cards and Jerry has 56 cards. Tom gives Jerry 16 cards. Then Jerry gives Tom 6 cards. How many cards does each person have in the end?',
+    height: 280,
+    beforeAfter: true,
+    steps: [
+      { instruction: 'Draw a bar for Tom\'s cards before (84)', hint: 'Tom starts with more cards.', action: 'addBar', label: 'Tom (Before)', units: 8, options: { color: '#38bdf8', section: 0 } },
+      { instruction: 'Draw a bar for Jerry\'s cards before (56)', hint: 'Jerry has fewer cards.', action: 'addBar', label: 'Jerry (Before)', units: 6, options: { color: '#34d399', section: 0 } },
+      { instruction: 'Find the net transfer: Tom gives 16, gets back 6. Net = 16 &minus; 6 = 10 from Tom to Jerry. Draw Tom\'s "after" bar: 84 &minus; 10 = 74.', hint: 'Tom ends with 74 cards.', action: 'addBar', label: 'Tom (After)', units: 7, options: { color: '#38bdf8', section: 1 } },
+      { instruction: 'Draw Jerry\'s "after" bar: 56 + 10 = 66', hint: 'Jerry ends with 66 cards.', action: 'addBar', label: 'Jerry (After)', units: 7, options: { color: '#34d399', section: 1 } },
+      { instruction: 'Label Tom\'s "after" bar with 74', action: 'addBracket', config: { barIdx: 2, startUnit: 0, endUnit: 6, label: '74', side: 'top' } },
+      { instruction: 'Label Jerry\'s "after" bar with 66', action: 'addBracket', config: { barIdx: 3, startUnit: 0, endUnit: 6, label: '66', side: 'bottom' } },
+      { instruction: 'Add an arrow showing the net transfer of 10 cards from Tom to Jerry.', hint: 'Net: Tom gave 10 more cards than he received.', action: 'addArrow', fromBar: 0, toBar: 1, label: 'Net: 10' }
+    ]
+  },
+
+  staticQuestions: [
+    { question: 'Ali has 80 marbles and Ben has 50 marbles. Ali gives Ben 15 marbles. Then Ben gives Ali 5 marbles. How many marbles does Ali have now?', options: ['60', '65', '70', '75'], correct: 2, explanation: 'Ali: 80 &minus; 15 + 5 = 70. Or net transfer: Ali gave 15 &minus; 5 = 10 to Ben. Ali = 80 &minus; 10 = 70.' },
+    { question: 'Ali has 80 marbles and Ben has 50 marbles. Ali gives Ben 15 marbles. Then Ben gives Ali 5 marbles. How many marbles does Ben have now?', options: ['50', '55', '60', '65'], correct: 2, explanation: 'Ben: 50 + 15 &minus; 5 = 60. Or net transfer: Ben gained 15 &minus; 5 = 10. Ben = 50 + 10 = 60.' },
+    { question: 'Siti has 120 stickers and Mei has 80 stickers. Siti gives Mei 25 stickers. Then Mei gives Siti 10 stickers. What is the net transfer?', options: ['10', '15', '25', '35'], correct: 1, explanation: 'Net transfer = 25 &minus; 10 = 15 stickers from Siti to Mei.' },
+    { question: 'Siti has 120 stickers and Mei has 80 stickers. Siti gives Mei 25 stickers. Then Mei gives Siti 10 stickers. How many stickers does Mei have now?', options: ['85', '90', '95', '100'], correct: 2, explanation: 'Mei: 80 + 25 &minus; 10 = 95. Check: Siti = 120 &minus; 25 + 10 = 105. Total: 105 + 95 = 200 = 120 + 80. Correct!' },
+    { question: 'Ravi has $200 and Kumar has $140. Ravi gives Kumar $40. Then Kumar gives Ravi $15. How much does Ravi have now?', options: ['$160', '$165', '$170', '$175'], correct: 3, explanation: 'Ravi: $200 &minus; $40 + $15 = $175. Net: Ravi gave $40 &minus; $15 = $25 to Kumar.' },
+    { question: 'Ravi has $200 and Kumar has $140. Ravi gives Kumar $40. Then Kumar gives Ravi $15. How much more does Ravi have than Kumar now?', options: ['$10', '$20', '$30', '$40'], correct: 0, explanation: 'Ravi = $175, Kumar = $140 + $40 &minus; $15 = $165. Difference = $175 &minus; $165 = $10.' },
+    { question: 'Lily has 90 beads and Rose has 70 beads. Lily gives Rose 30 beads. Then Rose gives Lily 20 beads. How many beads does Rose have now?', options: ['70', '75', '80', '85'], correct: 2, explanation: 'Rose: 70 + 30 &minus; 20 = 80. Net transfer: 30 &minus; 20 = 10 from Lily to Rose.' },
+    { question: 'Peter has 110 stamps and Sam has 60 stamps. Peter gives Sam 30 stamps. Then Sam gives Peter 5 stamps. How many stamps do they have altogether?', options: ['140', '150', '160', '170'], correct: 3, explanation: 'Total never changes: 110 + 60 = 170. After any number of transfers between them, the total is still 170.' }
+  ],
+
+  aiPromptContext: 'Generate before-and-after word problems where two people exchange items back and forth (two-way transfers). The total stays the same because items only move between the two people. Students should find the net transfer and compute final amounts. Use Singapore primary school contexts. Keep all numbers as whole numbers.'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>

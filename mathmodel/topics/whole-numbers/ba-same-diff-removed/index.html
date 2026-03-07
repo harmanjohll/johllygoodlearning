@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Before-and-After: Same Difference (Same Amount Removed) | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-ba-same-removed',
+  _depth: 3,
+  title: 'Before-and-After: Same Difference (Same Amount Removed)',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'What happens to the difference when the same amount is removed from both quantities?',
+    'Why does the difference stay unchanged even though both quantities decrease?',
+    'How do we draw a before-and-after model showing equal amounts removed?',
+    'How can we use the unchanged difference to find an unknown quantity?'
+  ],
+
+  glossary: [
+    { term: 'Same Difference', def: 'When the same amount is added to or removed from both quantities, the difference between them remains unchanged.' },
+    { term: 'Before-and-After Model', def: 'A bar model that shows two states: the original quantities (before) and the changed quantities (after) side by side.' },
+    { term: 'Constant Difference', def: 'A difference that does not change even when both quantities are increased or decreased by the same amount.' },
+    { term: 'Removed Equally', def: 'When both quantities lose the exact same amount. For example, both people spend $15.' }
+  ],
+
+  notes: [
+    {
+      heading: 'What Is the Same Difference Concept?',
+      content: `<p>When two people each have different amounts and they both <strong>lose the same quantity</strong>, the <strong>difference between them stays the same</strong>.</p>
+      <p>Think of it this way: if Ali has 80 marbles and Ben has 50 marbles, Ali has 30 more than Ben. If both give away 15 marbles, Ali now has 65 and Ben has 35. Ali still has 30 more than Ben!</p>
+      <ul>
+        <li>Before: 80 &minus; 50 = <strong>30</strong></li>
+        <li>After: 65 &minus; 35 = <strong>30</strong></li>
+      </ul>
+      <p>The difference is <strong>unchanged</strong> because both bars shrank by exactly the same amount.</p>`,
+      highlights: [
+        'Key principle: When the same amount is removed from both quantities, the difference stays constant.',
+        'This works because subtracting the same value from both sides of a subtraction does not change the result.'
+      ],
+      equations: [
+        'If A − B = D, then (A − k) − (B − k) = D'
+      ]
+    },
+    {
+      heading: 'Drawing the Before-and-After Model',
+      content: `<ol>
+        <li><strong>Draw the "Before" bars</strong> — two bars showing the original quantities, with the longer bar on top.</li>
+        <li><strong>Draw the "After" bars</strong> — two shorter bars showing the quantities after removal. Both bars are shorter by the same amount.</li>
+        <li><strong>Mark the removed part</strong> — shade or label the portion removed from each bar. Both removed portions are equal.</li>
+        <li><strong>Show the difference</strong> — mark the gap between the bars. It should be the same in both the before and after states.</li>
+        <li><strong>Label known and unknown values</strong> with numbers and "?".</li>
+      </ol>`,
+      highlights: [
+        'Both bars shrink by the same length, so the gap between them does not change.'
+      ]
+    },
+    {
+      heading: 'How to Solve Same-Difference (Removed) Problems',
+      content: `<p>These problems typically give you:</p>
+      <ul>
+        <li>The original amounts (or their difference)</li>
+        <li>The fact that both quantities decrease by the same amount</li>
+        <li>One piece of "after" information</li>
+      </ul>
+      <p>Strategy: Since the difference is constant, use it to connect the before and after states. If you know the difference and one "after" value, you can find the other "after" value. Then work backwards to find the "before" values if needed.</p>`,
+      equations: [
+        'Difference (before) = Difference (after)',
+        'After value = Before value − Amount removed'
+      ]
+    }
+  ],
+
+  summary: 'When the same amount is removed from two quantities, the difference between them stays the same. Draw before-and-after bars showing both shrinking by equal amounts. The gap (difference) remains constant across both states. Use this constant difference to solve for unknowns.',
+
+  workedExamples: [
+    {
+      problem: 'Ali has 80 stickers and Ben has 50 stickers. Both of them use 15 stickers each for a project. How many more stickers does Ali have than Ben now?',
+      model: {
+        bars: [
+          { label: 'Ali (Before)', units: 8, color: '#38bdf8', section: 0 },
+          { label: 'Ben (Before)', units: 5, color: '#34d399', section: 0 },
+          { label: 'Ali (After)', units: 6, color: '#38bdf8', section: 1 },
+          { label: 'Ben (After)', units: 3, color: '#34d399', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 7, label: '80', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 4, label: '50', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 5, label: '65', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 2, label: '35', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 2, bar2: 3, label: '?' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Before: Ali has 80, Ben has 50. Difference = 80 − 50 = 30.',
+        'Both use 15 stickers: Ali now has 80 − 15 = 65. Ben now has 50 − 15 = 35.',
+        'Since the same amount (15) was removed from both, the difference stays the same.',
+        'Difference after = 65 − 35 = <strong>30</strong>.'
+      ],
+      answer: 'Ali has 30 more stickers than Ben.'
+    },
+    {
+      problem: 'Mei has $120 and Sara has $75. They each spend $30 on a book. How much money do they have altogether now?',
+      model: {
+        bars: [
+          { label: 'Mei (Before)', units: 8, color: '#f97316', section: 0 },
+          { label: 'Sara (Before)', units: 5, color: '#8b5cf6', section: 0 },
+          { label: 'Mei (After)', units: 6, color: '#f97316', section: 1 },
+          { label: 'Sara (After)', units: 3, color: '#8b5cf6', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 7, label: '$120', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 4, label: '$75', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 5, label: '$90', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 2, label: '$45', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '$45' },
+          { bar1: 2, bar2: 3, label: '$45' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Before: Mei has $120, Sara has $75. Difference = $120 − $75 = $45.',
+        'Both spend $30: Mei now has $120 − $30 = $90. Sara now has $75 − $30 = $45.',
+        'The difference is still $45 (same amount removed from both).',
+        'Total now = $90 + $45 = <strong>$135</strong>.'
+      ],
+      answer: '$135'
+    },
+    {
+      problem: 'Ravi has 95 stamps and Kumar has 60 stamps. They each give away the same number of stamps. After that, Ravi has 70 stamps. How many stamps does Kumar have now?',
+      model: {
+        bars: [
+          { label: 'Ravi (Before)', units: 9, color: '#38bdf8', section: 0 },
+          { label: 'Kumar (Before)', units: 6, color: '#f59e0b', section: 0 },
+          { label: 'Ravi (After)', units: 7, color: '#38bdf8', section: 1 },
+          { label: 'Kumar (After)', units: 4, color: '#f59e0b', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 8, label: '95', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 5, label: '60', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 6, label: '70', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 3, label: '?', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '35' },
+          { bar1: 2, bar2: 3, label: '35' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Before: Ravi has 95, Kumar has 60. Difference = 95 − 60 = 35.',
+        'Both give away the same number of stamps, so the difference stays at 35.',
+        'After: Ravi has 70. Kumar = 70 − 35 = <strong>35</strong>.',
+        'Check: Ravi gave away 95 − 70 = 25. Kumar gave away 60 − 35 = 25. Both gave away 25. Correct!'
+      ],
+      answer: '35 stamps'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'Tom has 90 marbles and Jerry has 55 marbles. They each lose 20 marbles. How many more marbles does Tom have than Jerry now?',
+    height: 280,
+    beforeAfter: true,
+    steps: [
+      { instruction: 'Draw a bar for Tom\'s marbles before (90 marbles)', hint: 'Tom starts with more marbles, so his bar is longer.', action: 'addBar', label: 'Tom (Before)', units: 9, options: { color: '#38bdf8', section: 0 } },
+      { instruction: 'Draw a bar for Jerry\'s marbles before (55 marbles)', hint: 'Jerry has fewer, so his bar is shorter.', action: 'addBar', label: 'Jerry (Before)', units: 5, options: { color: '#34d399', section: 0 } },
+      { instruction: 'Draw a bar for Tom\'s marbles after losing 20 (90 − 20 = 70)', hint: 'Tom now has 70 marbles.', action: 'addBar', label: 'Tom (After)', units: 7, options: { color: '#38bdf8', section: 1 } },
+      { instruction: 'Draw a bar for Jerry\'s marbles after losing 20 (55 − 20 = 35)', hint: 'Jerry now has 35 marbles.', action: 'addBar', label: 'Jerry (After)', units: 3, options: { color: '#34d399', section: 1 } },
+      { instruction: 'Label Tom\'s "after" bar with 70', action: 'addBracket', config: { barIdx: 2, startUnit: 0, endUnit: 6, label: '70', side: 'top' } },
+      { instruction: 'Label Jerry\'s "after" bar with 35', action: 'addBracket', config: { barIdx: 3, startUnit: 0, endUnit: 2, label: '35', side: 'bottom' } },
+      { instruction: 'Mark the difference between Tom and Jerry after. It should be the same as before: 90 − 55 = 35.', hint: 'The difference stays at 35 because both lost the same amount!', action: 'addDifference', bar1: 2, bar2: 3, label: '35' }
+    ]
+  },
+
+  staticQuestions: [
+    { question: 'Ali has 70 marbles and Ben has 45 marbles. Both give away 10 marbles each. How many more marbles does Ali have than Ben now?', options: ['15', '20', '25', '35'], correct: 2, explanation: 'Before: difference = 70 − 45 = 25. Both lose 10, so the difference stays at 25. After: Ali has 60, Ben has 35. 60 − 35 = 25.' },
+    { question: 'Mei has $150 and Sara has $90. They each spend $35. How much money does Mei have now?', options: ['$105', '$115', '$125', '$55'], correct: 1, explanation: 'Mei now has $150 − $35 = $115.' },
+    { question: 'Ravi has 84 stamps and Kumar has 56 stamps. They each use 18 stamps. What is the difference in their stamps now?', options: ['18', '28', '38', '10'], correct: 1, explanation: 'Before: difference = 84 − 56 = 28. Same amount removed from both, so difference stays at 28. After: Ravi has 66, Kumar has 38. 66 − 38 = 28.' },
+    { question: 'Shop A has 200 cakes and Shop B has 135 cakes. Both shops sell 40 cakes. How many cakes does Shop B have now?', options: ['85', '95', '105', '160'], correct: 1, explanation: 'Shop B now has 135 − 40 = 95 cakes.' },
+    { question: 'Tom has 110 cards and Jerry has 75 cards. Both give away the same number of cards. Tom now has 85 cards. How many cards does Jerry have now?', options: ['40', '50', '60', '45'], correct: 1, explanation: 'Difference before = 110 − 75 = 35. Tom gave away 110 − 85 = 25 cards. Jerry also gave away 25. Jerry now has 75 − 25 = 50. Check: 85 − 50 = 35. Difference unchanged.' },
+    { question: 'Aisha has 96 beads and Lina has 64 beads. They each use 24 beads to make bracelets. How many beads do they have altogether now?', options: ['112', '128', '132', '108'], correct: 0, explanation: 'Aisha now has 96 − 24 = 72. Lina now has 64 − 24 = 40. Total = 72 + 40 = 112.' },
+    { question: 'Peter has 250 stickers and Mary has 180 stickers. They each give 50 stickers to charity. How many more stickers does Peter have than Mary?', options: ['60', '70', '80', '120'], correct: 1, explanation: 'Difference = 250 − 180 = 70. Same amount (50) removed from both, so the difference stays at 70.' },
+    { question: 'Raj has $340 and Siti has $260. Both pay $85 for a trip. How much does Siti have now?', options: ['$155', '$165', '$175', '$255'], correct: 2, explanation: 'Siti now has $260 − $85 = $175.' }
+  ],
+
+  aiPromptContext: 'Generate before-and-after word problems where the SAME amount is REMOVED from both quantities. The difference between the two quantities must remain unchanged. Use Singapore primary school contexts like marbles, stickers, stamps, money, food items. Keep numbers as whole numbers. The student should recognise that the difference is constant when both quantities decrease by the same amount.'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>

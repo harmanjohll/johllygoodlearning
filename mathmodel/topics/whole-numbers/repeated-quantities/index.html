@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Repeated Quantities | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-repeated',
+  _depth: 3,
+  title: 'Repeated Quantities',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'How do we draw a bar model when one quantity is a multiple of another?',
+    'What does "3 times as many" mean in terms of bar units?',
+    'How do we find the value of 1 unit?',
+    'Once we know 1 unit, how do we find any number of units?'
+  ],
+
+  glossary: [
+    { term: 'Multiple', def: 'A number that is the product of a given number and a whole number. For example, 15 is a multiple of 5 because 5 × 3 = 15.' },
+    { term: 'Unit', def: 'One equal part of a bar. In repeated-quantity problems, the smaller quantity is usually represented as 1 unit.' },
+    { term: '"Times as many"', def: 'A phrase indicating a multiplicative relationship. "3 times as many" means the quantity is 3 equal groups of the other.' },
+    { term: 'Value of 1 unit', def: 'The amount each unit represents. Found by dividing a known total by the number of units it covers.' },
+    { term: 'Total', def: 'The combined amount of all quantities. Found by adding all bars (all units) together.' }
+  ],
+
+  notes: [
+    {
+      heading: 'What are Repeated Quantities?',
+      content: `<p>In repeated-quantity problems, one quantity is described as a <strong>multiple</strong> of another. For example, "Ali has 3 times as many marbles as Ben" means Ali's amount is <strong>3 equal groups</strong>, each group the same size as Ben's amount.</p>
+      <p>We draw this by making Ben's bar <strong>1 unit</strong> and Ali's bar <strong>3 units</strong> of the same size.</p>
+      <ul>
+        <li>The <strong>smaller</strong> quantity is drawn as 1 unit.</li>
+        <li>The <strong>larger</strong> quantity is drawn as N units (the multiple).</li>
+        <li>All units are <strong>equal in value</strong>.</li>
+      </ul>`,
+      highlights: [
+        'Key strategy: Find the value of 1 unit first, then multiply to find any number of units.'
+      ]
+    },
+    {
+      heading: 'How to Draw a Repeated-Quantity Model',
+      content: `<ol>
+        <li><strong>Identify the multiple</strong> — look for phrases like "times as many", "times as much", or "N times more".</li>
+        <li><strong>Draw the smaller bar</strong> as 1 unit. Label it.</li>
+        <li><strong>Draw the larger bar</strong> as N equal units (same size as the small bar's unit). Label it.</li>
+        <li><strong>Label known values</strong> with numbers and unknowns with <strong>?</strong></li>
+        <li><strong>Find the value of 1 unit</strong> using the known information.</li>
+        <li><strong>Multiply or add</strong> to answer the question.</li>
+      </ol>`,
+      highlights: [
+        'The total of both bars together = (1 + N) units, where N is the multiple.'
+      ]
+    },
+    {
+      heading: 'Common Problem Types',
+      content: `<p>Repeated-quantity problems typically ask you to find one of these:</p>
+      <ul>
+        <li><strong>Find the smaller quantity:</strong> Given the larger quantity and the multiple. Divide by the multiple to get 1 unit.</li>
+        <li><strong>Find the larger quantity:</strong> Given the smaller quantity and the multiple. Multiply the smaller by the multiple.</li>
+        <li><strong>Find the total:</strong> Add both quantities, or find 1 unit first, then multiply by (1 + N).</li>
+        <li><strong>Find the difference:</strong> Difference = (N − 1) units.</li>
+      </ul>`,
+      equations: [
+        'Larger = Smaller × Multiple',
+        'Smaller = Larger ÷ Multiple',
+        'Total = Smaller × (1 + Multiple)',
+        'Difference = Smaller × (Multiple − 1)'
+      ]
+    }
+  ],
+
+  summary: 'When one quantity is a multiple of another, draw the smaller quantity as 1 unit and the larger as N units of the same size. The key strategy is to find the value of 1 unit first (by dividing a known value by its number of units), then multiply to find any other quantity. Always label the bars and the unknown clearly.',
+
+  workedExamples: [
+    {
+      problem: 'Ali has 3 times as many marbles as Ben. Ben has 24 marbles. How many marbles does Ali have?',
+      model: {
+        bars: [
+          { label: 'Ali', units: 3, color: '#38bdf8' },
+          { label: 'Ben', units: 1, color: '#34d399' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 2, label: '?', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 0, label: '24', side: 'bottom' }
+        ],
+        height: 200
+      },
+      steps: [
+        'Ben has fewer marbles, so draw Ben as 1 unit',
+        'Ali has 3 times as many, so draw Ali as 3 equal units',
+        'Label Ben\'s bar as 24',
+        '1 unit = 24',
+        'Ali = 3 units = 3 × 24 = <strong>72</strong>'
+      ],
+      answer: '72 marbles'
+    },
+    {
+      problem: 'Mei has 4 times as many stickers as Sara. Mei has 96 stickers. How many stickers does Sara have?',
+      model: {
+        bars: [
+          { label: 'Mei', units: 4, color: '#ec4899' },
+          { label: 'Sara', units: 1, color: '#f59e0b' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 3, label: '96', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 0, label: '?', side: 'bottom' }
+        ],
+        height: 200
+      },
+      steps: [
+        'Sara has fewer stickers, so draw Sara as 1 unit',
+        'Mei has 4 times as many, so draw Mei as 4 equal units',
+        'Label Mei\'s bar as 96',
+        '4 units = 96',
+        '1 unit = 96 ÷ 4 = <strong>24</strong>'
+      ],
+      answer: '24 stickers'
+    },
+    {
+      problem: 'Ravi has 5 times as many stamps as Kumar. They have 180 stamps altogether. How many stamps does each boy have?',
+      model: {
+        bars: [
+          { label: 'Ravi', units: 5, color: '#8b5cf6' },
+          { label: 'Kumar', units: 1, color: '#f97316' }
+        ],
+        brackets: [
+          { barIdxStart: 0, barIdxEnd: 1, label: '180', side: 'right' },
+          { barIdx: 1, startUnit: 0, endUnit: 0, label: '?', side: 'bottom' }
+        ],
+        height: 220
+      },
+      steps: [
+        'Kumar has fewer stamps, so draw Kumar as 1 unit',
+        'Ravi has 5 times as many, so draw Ravi as 5 equal units',
+        'Together they have 5 + 1 = 6 units',
+        '6 units = 180',
+        '1 unit = 180 ÷ 6 = 30',
+        'Kumar = 1 unit = 30',
+        'Ravi = 5 units = 5 × 30 = <strong>150</strong>'
+      ],
+      answer: 'Kumar has 30 stamps. Ravi has 150 stamps.'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'Tom has 3 times as many cards as Jerry. They have 120 cards altogether. How many cards does each boy have?',
+    height: 250,
+    steps: [
+      { instruction: 'Draw a bar for Tom (he has 3 times as many, so his bar has 3 units)', hint: 'Tom has the larger quantity', action: 'addBar', label: 'Tom', units: 3, options: { color: '#38bdf8' } },
+      { instruction: 'Draw a bar for Jerry below Tom (he has the base amount, so 1 unit)', hint: 'Jerry is the "1 times" reference', action: 'addBar', label: 'Jerry', units: 1, options: { color: '#34d399' } },
+      { instruction: 'Label the total of both bars as 120', action: 'addBracket', config: { barIdxStart: 0, barIdxEnd: 1, label: '120', side: 'right' } },
+      { instruction: 'Label Jerry\'s bar with "?" since we need to find 1 unit', action: 'addBracket', config: { barIdx: 1, startUnit: 0, endUnit: 0, label: '?', side: 'bottom' } }
+    ]
+  },
+
+  staticQuestions: [
+    { question: 'Ali has 4 times as many marbles as Ben. Ben has 18 marbles. How many marbles does Ali have?', options: ['54', '72', '22', '90'], correct: 1, explanation: 'Ali = 4 × 18 = 72. Ben is 1 unit (18), Ali is 4 units.' },
+    { question: 'Mei has 5 times as many stickers as Lina. Mei has 85 stickers. How many stickers does Lina have?', options: ['15', '17', '80', '425'], correct: 1, explanation: '5 units = 85. 1 unit = 85 ÷ 5 = 17.' },
+    { question: 'Ravi saved 3 times as much money as Kumar. They saved $240 altogether. How much did Kumar save?', options: ['$60', '$80', '$120', '$180'], correct: 0, explanation: 'Total = 3 + 1 = 4 units. 4 units = $240. 1 unit = $240 ÷ 4 = $60. Kumar = 1 unit = $60.' },
+    { question: 'Mrs Tan baked 6 times as many muffins as Mrs Lee. Mrs Tan baked 126 muffins. How many muffins did Mrs Lee bake?', options: ['21', '120', '132', '756'], correct: 0, explanation: '6 units = 126. 1 unit = 126 ÷ 6 = 21.' },
+    { question: 'Tom has 4 times as many stamps as Jerry. Tom has 60 more stamps than Jerry. How many stamps does Jerry have?', options: ['15', '20', '80', '240'], correct: 1, explanation: 'Difference = 4 − 1 = 3 units. 3 units = 60. 1 unit = 60 ÷ 3 = 20. Jerry = 1 unit = 20.' },
+    { question: 'Sara has 3 times as many beads as Mei. Sara has 48 more beads than Mei. How many beads does Mei have?', options: ['16', '24', '72', '96'], correct: 1, explanation: 'Difference = 3 − 1 = 2 units. 2 units = 48. 1 unit = 48 ÷ 2 = 24. Mei = 1 unit = 24.' },
+    { question: 'A pen costs 7 times as much as a pencil. The pen costs $4.20. How much does the pencil cost?', options: ['$0.50', '$0.60', '$3.20', '$29.40'], correct: 1, explanation: '7 units = $4.20. 1 unit = $4.20 ÷ 7 = $0.60.' },
+    { question: 'Father is 4 times as old as his son. Their total age is 50 years. How old is the son?', options: ['10', '12', '12.5', '40'], correct: 0, explanation: 'Total = 4 + 1 = 5 units. 5 units = 50. 1 unit = 50 ÷ 5 = 10. Son = 10 years old.' }
+  ],
+
+  aiPromptContext: 'Generate repeated-quantity (multiplicative comparison) word problems. One quantity is N times another. The student must find the value of 1 unit then use it to answer. Use contexts like marbles, stickers, money, stamps, food items, or ages. Keep all numbers as whole numbers and ensure divisions come out evenly.'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>

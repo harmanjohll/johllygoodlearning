@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Before-and-After: Both Changed | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-ba-both',
+  _depth: 3,
+  title: 'Before-and-After: Both Changed',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'What happens when BOTH quantities change by different amounts?',
+    'How does the difference between two quantities change when both are altered?',
+    'How do we draw a before-and-after model when both bars change?',
+    'How can we track the net effect on the difference or the total?'
+  ],
+
+  glossary: [
+    { term: 'Both Changed', def: 'A before-and-after situation where BOTH quantities change — they may increase, decrease, or one increases while the other decreases.' },
+    { term: 'Net Change', def: 'The overall effect of the changes. If one person gains $20 and another loses $15, the net change to their total is +$20 − $15 = +$5.' },
+    { term: 'Before-and-After Model', def: 'A bar model that shows two states: the original quantities (before) and the changed quantities (after) side by side.' },
+    { term: 'New Difference', def: 'The difference between the two quantities after both have changed. This is usually different from the original difference.' }
+  ],
+
+  notes: [
+    {
+      heading: 'What Is a "Both Changed" Problem?',
+      content: `<p>In a "Both Changed" problem, <strong>both quantities change</strong> between the before and after states. The changes may be different amounts or different directions (one increases, one decreases).</p>
+      <p>For example: Ali has $80 and Ben has $50. Ali spends $15. Ben receives $20. After the changes:</p>
+      <ul>
+        <li>Ali now has $80 &minus; $15 = <strong>$65</strong></li>
+        <li>Ben now has $50 + $20 = <strong>$70</strong></li>
+      </ul>
+      <p>Before, Ali had $30 more than Ben. After, Ben has $5 more than Ali! The difference changed because the two quantities changed by different amounts and in different directions.</p>`,
+      highlights: [
+        'Key idea: When both quantities change by different amounts, the difference between them changes too.',
+        'Track each quantity separately: apply each change to find the new values, then compare.'
+      ],
+      equations: [
+        'A(after) = A(before) ± change to A',
+        'B(after) = B(before) ± change to B',
+        'New difference = |A(after) − B(after)|'
+      ]
+    },
+    {
+      heading: 'Drawing the Before-and-After Model',
+      content: `<ol>
+        <li><strong>Draw the "Before" bars</strong> — two bars showing the original quantities.</li>
+        <li><strong>Draw the "After" bars</strong> — adjust BOTH bars according to the changes described. One may grow longer while the other shrinks.</li>
+        <li><strong>Mark the changes</strong> — label how much was added or removed from each bar.</li>
+        <li><strong>Show the new relationship</strong> — mark the new difference or total in the "After" section.</li>
+        <li><strong>Label known and unknown values</strong> with numbers and "?".</li>
+      </ol>`,
+      highlights: [
+        'Both bars change, so neither is an anchor. You must track each change separately.',
+        'The "After" bars may swap which one is longer if the changes are large enough.'
+      ]
+    },
+    {
+      heading: 'How to Solve Both Changed Problems',
+      content: `<p>These problems typically give you:</p>
+      <ul>
+        <li>The original amounts (or their relationship: difference, total, or ratio)</li>
+        <li>How each quantity changes</li>
+        <li>A question about the new state (new difference, new total, or a specific "after" amount)</li>
+      </ul>
+      <p>Strategy:</p>
+      <ol>
+        <li><strong>Find "After" values:</strong> Apply each change to each starting value.</li>
+        <li><strong>Answer the question:</strong> Use the "After" values to find the new difference, total, or whatever is asked.</li>
+        <li><strong>Check your work:</strong> Make sure each change was applied correctly (added vs subtracted).</li>
+      </ol>`,
+      equations: [
+        'New total = A(after) + B(after)',
+        'New difference = |A(after) − B(after)|',
+        'Change in total = Change to A + Change to B (with signs)'
+      ]
+    }
+  ],
+
+  summary: 'In "Both Changed" problems, both quantities change between the before and after states. Neither quantity is an anchor. Apply each change separately to find the new values, then answer the question. The difference and total both change when the two quantities are altered by different amounts. Always track each change carefully and double-check your arithmetic.',
+
+  workedExamples: [
+    {
+      problem: 'Ali has $80 and Ben has $50. Ali spends $15. Ben receives $20. How much more does Ben have than Ali now?',
+      model: {
+        bars: [
+          { label: 'Ali (Before)', units: 8, color: '#38bdf8', section: 0 },
+          { label: 'Ben (Before)', units: 5, color: '#34d399', section: 0 },
+          { label: 'Ali (After)', units: 6, color: '#38bdf8', section: 1 },
+          { label: 'Ben (After)', units: 7, color: '#34d399', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 7, label: '$80', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 4, label: '$50', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 5, label: '$65', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 6, label: '$70', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 3, bar2: 2, label: '?' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Before: Ali has $80, Ben has $50.',
+        'Ali spends $15: Ali now has $80 − $15 = $65.',
+        'Ben receives $20: Ben now has $50 + $20 = $70.',
+        'Ben now has more! Difference = $70 − $65 = <strong>$5</strong>.'
+      ],
+      answer: 'Ben has $5 more than Ali now.'
+    },
+    {
+      problem: 'Mei has 140 stickers and Sara has 95 stickers. Mei gives away 30 stickers. Sara buys 15 more stickers. How many more stickers does Mei have than Sara now?',
+      model: {
+        bars: [
+          { label: 'Mei (Before)', units: 7, color: '#f97316', section: 0 },
+          { label: 'Sara (Before)', units: 5, color: '#8b5cf6', section: 0 },
+          { label: 'Mei (After)', units: 5, color: '#f97316', section: 1 },
+          { label: 'Sara (After)', units: 5, color: '#8b5cf6', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 6, label: '140', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 4, label: '95', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 4, label: '110', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 4, label: '110', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 2, bar2: 3, label: '?' }
+        ],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Before: Mei has 140, Sara has 95. Difference = 140 − 95 = 45.',
+        'Mei gives away 30: Mei now has 140 − 30 = 110.',
+        'Sara buys 15 more: Sara now has 95 + 15 = 110.',
+        'Difference = 110 − 110 = <strong>0</strong>. They now have the same number!'
+      ],
+      answer: 'Mei has 0 more — they each have 110 stickers (they are equal now).'
+    },
+    {
+      problem: 'Ravi has 200 stamps and Kumar has 150 stamps. Ravi buys 35 more stamps. Kumar buys 50 more stamps. How many stamps do they have altogether now?',
+      model: {
+        bars: [
+          { label: 'Ravi (Before)', units: 8, color: '#38bdf8', section: 0 },
+          { label: 'Kumar (Before)', units: 6, color: '#f59e0b', section: 0 },
+          { label: 'Ravi (After)', units: 9, color: '#38bdf8', section: 1 },
+          { label: 'Kumar (After)', units: 8, color: '#f59e0b', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 7, label: '200', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 5, label: '150', side: 'bottom' },
+          { barIdx: 2, startUnit: 0, endUnit: 8, label: '235', side: 'top' },
+          { barIdx: 3, startUnit: 0, endUnit: 7, label: '200', side: 'bottom' }
+        ],
+        differences: [],
+        height: 280,
+        beforeAfter: true
+      },
+      steps: [
+        'Before: Ravi has 200, Kumar has 150. Total before = 350.',
+        'Ravi buys 35 more: Ravi now has 200 + 35 = 235.',
+        'Kumar buys 50 more: Kumar now has 150 + 50 = 200.',
+        'Total now = 235 + 200 = <strong>435</strong>.',
+        'Check: Total increased by 35 + 50 = 85. Original total 350 + 85 = 435. Correct!'
+      ],
+      answer: '435 stamps'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'Tom has 100 cards and Jerry has 70 cards. Tom gives away 25 cards. Jerry receives 10 cards. How many more cards does Tom have than Jerry now?',
+    height: 280,
+    beforeAfter: true,
+    steps: [
+      { instruction: 'Draw a bar for Tom\'s cards before (100 cards)', hint: 'Tom starts with more cards.', action: 'addBar', label: 'Tom (Before)', units: 10, options: { color: '#38bdf8', section: 0 } },
+      { instruction: 'Draw a bar for Jerry\'s cards before (70 cards)', hint: 'Jerry has fewer cards.', action: 'addBar', label: 'Jerry (Before)', units: 7, options: { color: '#34d399', section: 0 } },
+      { instruction: 'Draw a bar for Tom after giving away 25 cards (100 − 25 = 75)', hint: 'Tom\'s bar shrinks because he gave cards away.', action: 'addBar', label: 'Tom (After)', units: 7, options: { color: '#38bdf8', section: 1 } },
+      { instruction: 'Draw a bar for Jerry after receiving 10 cards (70 + 10 = 80)', hint: 'Jerry\'s bar grows because he received more cards.', action: 'addBar', label: 'Jerry (After)', units: 8, options: { color: '#34d399', section: 1 } },
+      { instruction: 'Label Tom\'s "after" bar with 75', action: 'addBracket', config: { barIdx: 2, startUnit: 0, endUnit: 6, label: '75', side: 'top' } },
+      { instruction: 'Label Jerry\'s "after" bar with 80', action: 'addBracket', config: { barIdx: 3, startUnit: 0, endUnit: 7, label: '80', side: 'bottom' } },
+      { instruction: 'Mark the difference. Jerry now has more! 80 − 75 = 5.', hint: 'The person with more swapped! Jerry now has 5 more than Tom.', action: 'addDifference', bar1: 3, bar2: 2, label: '5' }
+    ]
+  },
+
+  staticQuestions: [
+    { question: 'Ali has $90 and Ben has $65. Ali spends $20. Ben receives $10. How much money does Ali have now?', options: ['$60', '$70', '$80', '$75'], correct: 1, explanation: 'Ali now has $90 − $20 = $70.' },
+    { question: 'Mei has 110 stickers and Sara has 80 stickers. Mei buys 20 more. Sara buys 35 more. How many more stickers does Mei have than Sara now?', options: ['15', '25', '30', '45'], correct: 0, explanation: 'Mei now has 110 + 20 = 130. Sara now has 80 + 35 = 115. Difference = 130 − 115 = 15.' },
+    { question: 'Ravi has 180 stamps and Kumar has 120 stamps. Ravi gives away 50 stamps. Kumar gives away 30 stamps. How many stamps do they have altogether now?', options: ['220', '240', '250', '300'], correct: 0, explanation: 'Ravi now has 180 − 50 = 130. Kumar now has 120 − 30 = 90. Total = 130 + 90 = 220.' },
+    { question: 'Tom has 75 marbles and Jerry has 60 marbles. Tom loses 20 marbles. Jerry finds 25 marbles. Who has more now and by how much?', options: ['Tom, by 10', 'Jerry, by 10', 'Jerry, by 30', 'They are equal'], correct: 2, explanation: 'Tom now has 75 − 20 = 55. Jerry now has 60 + 25 = 85. Jerry has 85 − 55 = 30 more.' },
+    { question: 'Siti has $200 and Aisha has $160. Siti spends $45. Aisha spends $25. How much more does Siti have than Aisha now?', options: ['$10', '$20', '$30', '$40'], correct: 1, explanation: 'Siti now has $200 − $45 = $155. Aisha now has $160 − $25 = $135. Difference = $155 − $135 = $20.' },
+    { question: 'A shop has 300 apples and 250 oranges. It sells 80 apples and 45 oranges. How many fruits are left altogether?', options: ['375', '400', '425', '450'], correct: 2, explanation: 'Apples left = 300 − 80 = 220. Oranges left = 250 − 45 = 205. Total = 220 + 205 = 425.' },
+    { question: 'Peter has 95 cards and Mary has 70 cards. Peter buys 15 more cards. Mary buys 40 more cards. Who has more now?', options: ['Peter, by 10', 'Mary, by 10', 'Peter, by 25', 'They are equal'], correct: 3, explanation: 'Peter now has 95 + 15 = 110. Mary now has 70 + 40 = 110. They are equal!' },
+    { question: 'Lina has 160 beads and Wei has 130 beads. Lina gives 35 beads to a friend. Wei receives 15 beads from a friend. How many beads does Lina have now?', options: ['115', '120', '125', '135'], correct: 2, explanation: 'Lina now has 160 − 35 = 125 beads. Wei now has 130 + 15 = 145 beads, but the question only asks about Lina.' }
+  ],
+
+  aiPromptContext: 'Generate before-and-after word problems where BOTH quantities change. The changes should be different amounts or different directions (one gains while the other loses, or both gain/lose different amounts). The student must track both changes and find the new difference, total, or a specific after value. Use Singapore primary school contexts like marbles, stickers, stamps, money, food items. Keep all numbers as whole numbers.'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>

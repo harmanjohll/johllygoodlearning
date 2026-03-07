@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Before-and-After: Same Difference (Overlap) | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-ba-overlap',
+  _depth: 3,
+  title: 'Before-and-After: Same Difference (Overlap)',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'What does it mean for two quantities to "overlap"?',
+    'How does the overlapping portion affect the total and the difference?',
+    'How do we draw a bar model showing an overlapping (shared) part?',
+    'Why does the difference between the non-overlapping parts stay constant regardless of the overlap size?'
+  ],
+
+  glossary: [
+    { term: 'Overlap', def: 'A shared portion that belongs to both quantities at the same time. For example, a section of rope that is covered by both a red ribbon and a blue ribbon.' },
+    { term: 'Non-overlapping Part', def: 'The portion of a quantity that is NOT shared with the other. Each quantity has its own non-overlapping part.' },
+    { term: 'Same Difference (Overlap)', def: 'When two quantities share an overlapping part, the difference between them equals the difference between their non-overlapping parts.' },
+    { term: 'Total Length / Combined Length', def: 'The total span covered by two overlapping quantities. Total = Sum of both lengths − Overlap.' }
+  ],
+
+  notes: [
+    {
+      heading: 'What Is an Overlap Problem?',
+      content: `<p>An overlap problem involves two quantities that <strong>share a common portion</strong>. The classic example is two strips of paper or ribbon placed so that they overlap in the middle.</p>
+      <p>Imagine a red ribbon that is 80 cm long and a blue ribbon that is 60 cm long. They are placed along a table so that they overlap by 15 cm. The total length covered on the table is NOT 80 + 60 = 140 cm, because 15 cm is counted in both ribbons.</p>
+      <ul>
+        <li>Total length on the table = 80 + 60 &minus; 15 = <strong>125 cm</strong></li>
+        <li>Red non-overlapping part = 80 &minus; 15 = <strong>65 cm</strong></li>
+        <li>Blue non-overlapping part = 60 &minus; 15 = <strong>45 cm</strong></li>
+        <li>Difference of non-overlapping parts = 65 &minus; 45 = <strong>20 cm</strong></li>
+        <li>Difference of original lengths = 80 &minus; 60 = <strong>20 cm</strong></li>
+      </ul>
+      <p>The difference stays the same! This is because the overlap is subtracted from <em>both</em> quantities equally.</p>`,
+      highlights: [
+        'Key principle: The difference between two overlapping quantities equals the difference between their original lengths.',
+        'Total covered = Sum of both lengths − Overlap.'
+      ],
+      equations: [
+        'Total = A + B − Overlap',
+        'A − B = (A − Overlap) − (B − Overlap)'
+      ]
+    },
+    {
+      heading: 'Drawing the Overlap Model',
+      content: `<ol>
+        <li><strong>Draw the first bar</strong> — the longer quantity (e.g., the longer ribbon).</li>
+        <li><strong>Draw the second bar below</strong> — shift it so it starts partway along, creating a visible overlapping zone in the middle.</li>
+        <li><strong>Mark the overlap</strong> — label the shared portion where both bars cover the same section.</li>
+        <li><strong>Label the non-overlapping parts</strong> — the left portion only the first bar covers, and the right portion only the second bar covers.</li>
+        <li><strong>Show the total span</strong> — a bracket across the entire covered length.</li>
+      </ol>
+      <p>Alternatively, draw both bars aligned on the left (standard form) and use a bracket to show the overlap region within both bars.</p>`,
+      highlights: [
+        'The overlap is the part counted twice. Always subtract it once from the sum to get the true total.',
+        'You can also draw the bars aligned left and shade the overlapping portion in both bars.'
+      ]
+    },
+    {
+      heading: 'How to Solve Overlap Problems',
+      content: `<p>These problems typically ask you to find:</p>
+      <ul>
+        <li><strong>The total length covered</strong>: Add both lengths, then subtract the overlap.</li>
+        <li><strong>The overlap</strong>: Add both lengths, then subtract the total covered.</li>
+        <li><strong>One of the original lengths</strong>: Use Total = A + B &minus; Overlap, and rearrange.</li>
+      </ul>
+      <p>Strategy: Identify the three key numbers &mdash; the two individual lengths and the overlap (or the total). Two of these will be given; find the third.</p>`,
+      equations: [
+        'Total covered = A + B − Overlap',
+        'Overlap = A + B − Total covered',
+        'A = Total covered − B + Overlap'
+      ]
+    }
+  ],
+
+  summary: 'When two quantities overlap, they share a common portion. The total span equals the sum of both lengths minus the overlap. The difference between the two quantities remains the same as the difference between their non-overlapping parts, because the overlap is subtracted from both equally. Draw bars showing the shared region clearly, and label all parts.',
+
+  workedExamples: [
+    {
+      problem: 'A red ribbon is 80 cm long and a blue ribbon is 60 cm long. They are placed along a table overlapping by 15 cm. What is the total length of table covered by the ribbons?',
+      model: {
+        bars: [
+          { label: 'Red ribbon', units: 8, color: '#ec4899' },
+          { label: 'Blue ribbon', units: 6, color: '#38bdf8' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 7, label: '80 cm', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 5, label: '60 cm', side: 'bottom' },
+          { barIdx: 0, startUnit: 6, endUnit: 7, label: '15 cm (overlap)', side: 'bottom' }
+        ],
+        differences: [],
+        height: 200
+      },
+      steps: [
+        'Red ribbon = 80 cm. Blue ribbon = 60 cm.',
+        'If placed end to end, total = 80 + 60 = 140 cm.',
+        'But they overlap by 15 cm, so 15 cm is counted twice.',
+        'Total length covered = 140 − 15 = <strong>125 cm</strong>.'
+      ],
+      answer: '125 cm'
+    },
+    {
+      problem: 'Two planks of wood are joined with an overlap. Plank A is 120 cm and Plank B is 90 cm. The total length of the joined piece is 185 cm. What is the length of the overlap?',
+      model: {
+        bars: [
+          { label: 'Plank A', units: 8, color: '#f59e0b' },
+          { label: 'Plank B', units: 6, color: '#34d399' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 7, label: '120 cm', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 5, label: '90 cm', side: 'bottom' },
+          { barIdxStart: 0, barIdxEnd: 1, label: '185 cm (total)', side: 'right' }
+        ],
+        differences: [],
+        height: 200
+      },
+      steps: [
+        'Plank A = 120 cm. Plank B = 90 cm.',
+        'Sum of both = 120 + 90 = 210 cm.',
+        'Total joined length = 185 cm.',
+        'Overlap = 210 − 185 = <strong>25 cm</strong>.'
+      ],
+      answer: '25 cm'
+    },
+    {
+      problem: 'Two strips of tape overlap by 12 cm. Strip X is 75 cm long. The total length covered is 123 cm. How long is Strip Y?',
+      model: {
+        bars: [
+          { label: 'Strip X', units: 7, color: '#8b5cf6' },
+          { label: 'Strip Y', units: 6, color: '#f97316' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 6, label: '75 cm', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 5, label: '?', side: 'bottom' }
+        ],
+        differences: [],
+        height: 200
+      },
+      steps: [
+        'Total covered = Strip X + Strip Y − Overlap.',
+        '123 = 75 + Strip Y − 12.',
+        '123 = 63 + Strip Y.',
+        'Strip Y = 123 − 63 = <strong>60 cm</strong>.',
+        'Check: 75 + 60 − 12 = 123. Correct!'
+      ],
+      answer: '60 cm'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'A red rope is 100 cm long and a blue rope is 70 cm long. They are laid along a path overlapping by 20 cm. What is the total length of the path covered?',
+    height: 250,
+    beforeAfter: false,
+    steps: [
+      { instruction: 'Draw a bar for the red rope (100 cm)', hint: 'The red rope is longer, so draw a longer bar.', action: 'addBar', label: 'Red rope', units: 10, options: { color: '#ec4899' } },
+      { instruction: 'Draw a bar for the blue rope (70 cm)', hint: 'The blue rope is shorter.', action: 'addBar', label: 'Blue rope', units: 7, options: { color: '#38bdf8' } },
+      { instruction: 'Label the red rope as 100 cm', action: 'addBracket', config: { barIdx: 0, startUnit: 0, endUnit: 9, label: '100 cm', side: 'top' } },
+      { instruction: 'Label the blue rope as 70 cm', action: 'addBracket', config: { barIdx: 1, startUnit: 0, endUnit: 6, label: '70 cm', side: 'bottom' } },
+      { instruction: 'Mark the overlap of 20 cm on the red rope bar', hint: 'The overlap is the shared part counted in both ropes.', action: 'addBracket', config: { barIdx: 0, startUnit: 8, endUnit: 9, label: '20 cm overlap', side: 'bottom' } },
+      { instruction: 'Now calculate: Total = 100 + 70 − 20 = 150 cm. The path covered is 150 cm.', hint: 'Subtract the overlap once because it was counted twice!', action: 'addBracket', config: { barIdxStart: 0, barIdxEnd: 1, label: '150 cm', side: 'right' } }
+    ]
+  },
+
+  staticQuestions: [
+    { question: 'A red tape is 90 cm and a blue tape is 65 cm. They overlap by 20 cm. What is the total length covered?', options: ['135 cm', '145 cm', '155 cm', '175 cm'], correct: 0, explanation: 'Total = 90 + 65 − 20 = 135 cm.' },
+    { question: 'Two strips of paper are 50 cm and 40 cm long. They overlap by 10 cm. What is the total length covered?', options: ['80 cm', '90 cm', '100 cm', '70 cm'], correct: 0, explanation: 'Total = 50 + 40 − 10 = 80 cm.' },
+    { question: 'Two planks are joined. Plank A is 150 cm, Plank B is 110 cm. The total joined length is 230 cm. What is the overlap?', options: ['20 cm', '30 cm', '40 cm', '50 cm'], correct: 1, explanation: 'Overlap = 150 + 110 − 230 = 260 − 230 = 30 cm.' },
+    { question: 'Two ropes overlap by 25 cm. Rope P is 95 cm. The total length covered is 140 cm. How long is Rope Q?', options: ['45 cm', '60 cm', '70 cm', '80 cm'], correct: 2, explanation: 'Total = P + Q − Overlap. 140 = 95 + Q − 25. 140 = 70 + Q. Q = 70 cm.' },
+    { question: 'A wire is made by joining two pieces with a 15 cm overlap. Piece 1 is 85 cm and Piece 2 is 65 cm. What is the total wire length?', options: ['125 cm', '130 cm', '135 cm', '150 cm'], correct: 2, explanation: 'Total = 85 + 65 − 15 = 135 cm.' },
+    { question: 'Two ribbons cover a total of 110 cm. Ribbon A is 70 cm and they overlap by 8 cm. How long is Ribbon B?', options: ['40 cm', '48 cm', '32 cm', '52 cm'], correct: 1, explanation: 'Total = A + B − Overlap. 110 = 70 + B − 8. 110 = 62 + B. B = 48 cm.' },
+    { question: 'Siti has a red scarf (120 cm) and a blue scarf (80 cm). She lays them on a table so the total covered is 170 cm. What is the overlap?', options: ['20 cm', '25 cm', '30 cm', '40 cm'], correct: 2, explanation: 'Overlap = 120 + 80 − 170 = 200 − 170 = 30 cm.' },
+    { question: 'Two strips of cloth are each 55 cm long. They overlap by 18 cm. What is the total length covered?', options: ['82 cm', '88 cm', '92 cm', '110 cm'], correct: 2, explanation: 'Total = 55 + 55 − 18 = 110 − 18 = 92 cm.' }
+  ],
+
+  aiPromptContext: 'Generate overlap word problems where two quantities share a common portion. The student must find the total length covered (sum minus overlap), the overlap itself, or one of the individual lengths. Use Singapore primary school contexts like ribbons, ropes, strips of paper, planks of wood, scarves, or tape. Keep all numbers as whole numbers. The student should understand that the overlap is the part counted twice and must be subtracted once.'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>

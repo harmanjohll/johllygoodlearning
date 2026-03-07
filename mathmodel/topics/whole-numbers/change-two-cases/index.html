@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Change Involving Two Cases | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-two-cases',
+  _depth: 3,
+  title: 'Change Involving Two Cases',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'What stays the same across both cases, and what changes?',
+    'How does comparing two cases help us isolate an unknown?',
+    'How do we find the value of one item from the difference between two cases?',
+    'How do we use one found value to work backwards and find the other unknowns?'
+  ],
+
+  glossary: [
+    { term: 'Two Cases', def: 'Two different scenarios or situations that share some common elements but differ in specific quantities or conditions.' },
+    { term: 'Common Element', def: 'The quantity or item that stays the same across both cases. By holding it constant, we can isolate the changing element.' },
+    { term: 'Difference Between Cases', def: 'The change in quantity or cost that results from the difference in conditions between the two cases.' },
+    { term: 'Unit Value', def: 'The value of one single item, found by dividing the total difference by the number of extra items.' },
+    { term: '"Money left over"', def: 'Signals that the total amount of money is MORE than the cost. Total = Cost + Leftover.' },
+    { term: '"Need more" / "Not enough"', def: 'Signals that the total amount of money is LESS than the cost. Total = Cost − Shortage.' }
+  ],
+
+  notes: [
+    {
+      heading: 'What Are Two-Case Problems?',
+      content: `<p>In a two-case problem, you are given <strong>two different scenarios</strong> involving the same person or situation. The key insight is that something <strong>stays the same</strong> across both cases (like the amount of money a person has), while something else <strong>changes</strong> (like the number of items bought).</p>
+      <p>By comparing the two cases side by side, you can <strong>isolate and find the value of the changing element</strong>.</p>
+      <p>Common setups include:</p>
+      <ul>
+        <li>Buying different quantities of the same item with the same amount of money</li>
+        <li>Two purchases with the same common items but different extras</li>
+        <li>Different combinations of items totalling different amounts</li>
+      </ul>`,
+      highlights: [
+        'The key strategy: find what is the SAME in both cases and what is DIFFERENT.',
+        'The difference in total value ÷ difference in quantity = value of one item.'
+      ]
+    },
+    {
+      heading: 'Method: Comparing Two Cases',
+      content: `<p>Follow these steps to solve a two-case problem:</p>
+      <ol>
+        <li><strong>Write out both cases clearly.</strong> Identify the items and amounts in each case.</li>
+        <li><strong>Find the common element.</strong> What is the same in both cases? (e.g., same number of notebooks)</li>
+        <li><strong>Find the difference.</strong> What changed between the two cases? How many more/fewer items, and how much more/less money?</li>
+        <li><strong>Calculate the unit value.</strong> Divide the difference in total cost by the difference in number of items.</li>
+        <li><strong>Work backwards</strong> to find the remaining unknowns.</li>
+      </ol>`,
+      highlights: [
+        'Step formula: Value of 1 item = Difference in total ÷ Difference in quantity'
+      ],
+      equations: [
+        'Difference in total cost = Case 2 total − Case 1 total',
+        'Difference in quantity = Case 2 quantity − Case 1 quantity',
+        'Unit value = Difference in total cost ÷ Difference in quantity'
+      ]
+    },
+    {
+      heading: 'Two-Case Problems with "Left Over" and "Need More"',
+      content: `<p>A very common variation involves a <strong>fixed amount of money</strong> and two buying scenarios:</p>
+      <ul>
+        <li><strong>Case 1:</strong> "If I buy 3 items, I have $5 left."</li>
+        <li><strong>Case 2:</strong> "If I buy 7 items, I need $3 more."</li>
+      </ul>
+      <p>The key insight: the person has the <strong>same amount of money</strong> in both cases. The difference in cost between the two cases equals the sum of the leftover and the shortage.</p>
+      <p><strong>Total difference = Money left over + Money needed</strong></p>
+      <p>In the example above: buying 4 more items costs $5 + $3 = $8 more. So each item costs $8 ÷ 4 = $2.</p>`,
+      highlights: [
+        'When one case has "left over" and the other "needs more": Total difference = Left over + Need more',
+        'When both cases have "left over": Total difference = Larger leftover − Smaller leftover',
+        'When both cases "need more": Total difference = Larger shortage − Smaller shortage'
+      ],
+      equations: [
+        'Total difference = Left over + Need more (one of each)',
+        'Total difference = Left over₁ − Left over₂ (both left over, buying more in case 2)',
+        'Price per item = Total difference ÷ Difference in quantity'
+      ]
+    },
+    {
+      heading: 'Using Bar Models for Two-Case Problems',
+      content: `<p>Draw <strong>two bars</strong> — one for each case — representing the total cost or total value:</p>
+      <ul>
+        <li>Both bars start from the same left edge.</li>
+        <li>The <strong>common element</strong> takes up the same portion in both bars.</li>
+        <li>The <strong>extra items</strong> in one case extend the bar further.</li>
+        <li>The <strong>difference</strong> between the two bars can be clearly seen and labelled.</li>
+      </ul>
+      <p>For "left over / need more" problems, the bar represents the total money. One case undershoots it, the other overshoots it.</p>`,
+      highlights: [
+        'Align the common parts of both bars on the left — the difference appears on the right.'
+      ]
+    }
+  ],
+
+  summary: 'Two-case problems give you two scenarios that share a common element. By comparing the cases, you find what changed and by how much. Divide the difference in total value by the difference in quantity to find the unit value, then work backwards. For "left over / need more" problems, the total difference equals the leftover plus the shortage.',
+
+  workedExamples: [
+    {
+      problem: '5 notebooks and 3 pens cost $21. 5 notebooks and 7 pens cost $33. Find the cost of 1 pen and 1 notebook.',
+      model: {
+        bars: [
+          { label: 'Case 1', units: 8, color: '#38bdf8' },
+          { label: 'Case 2', units: 12, color: '#34d399' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 7, label: '$21', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 11, label: '$33', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 1, bar2: 0, label: '$12 (4 pens)' }
+        ],
+        height: 200
+      },
+      steps: [
+        'Case 1: 5 notebooks + 3 pens = $21',
+        'Case 2: 5 notebooks + 7 pens = $33',
+        'Both cases have the same 5 notebooks. The difference is 7 − 3 = 4 extra pens.',
+        'These 4 extra pens cost $33 − $21 = $12',
+        'Cost of 1 pen = $12 ÷ 4 = <strong>$3</strong>',
+        'From Case 1: 5 notebooks = $21 − (3 × $3) = $21 − $9 = $12',
+        'Cost of 1 notebook = $12 ÷ 5 = <strong>$2.40</strong>'
+      ],
+      answer: '1 pen costs $3, 1 notebook costs $2.40'
+    },
+    {
+      problem: 'If Siti buys 3 apples, she has $5 left. If she buys 7 apples, she needs $3 more. Find the cost of 1 apple and the amount of money Siti has.',
+      model: {
+        bars: [
+          { label: '3 apples', units: 3, color: '#f97316' },
+          { label: '7 apples', units: 7, color: '#8b5cf6' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 2, label: '3 apples (+ $5 left)', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 6, label: '7 apples (− $3 short)', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 1, bar2: 0, label: '4 apples = $8' }
+        ],
+        height: 200
+      },
+      steps: [
+        'Case 1: buys 3 apples, $5 left over',
+        'Case 2: buys 7 apples, needs $3 more',
+        'Difference in apples: 7 − 3 = 4 apples',
+        'Total difference in cost = $5 (left over) + $3 (short) = $8',
+        'Cost of 1 apple = $8 ÷ 4 = <strong>$2</strong>',
+        'From Case 1: Siti\'s money = 3 × $2 + $5 = $6 + $5 = <strong>$11</strong>',
+        'Check Case 2: 7 × $2 = $14, but she only has $11, so she needs $3 more ✓'
+      ],
+      answer: '1 apple costs $2, Siti has $11'
+    },
+    {
+      problem: 'Mrs Tan bought 4 files and 6 markers for $30. Mrs Lee bought 4 files and 10 markers for $42. Find the cost of 1 marker and 1 file.',
+      model: {
+        bars: [
+          { label: 'Mrs Tan', units: 10, color: '#ec4899' },
+          { label: 'Mrs Lee', units: 14, color: '#f59e0b' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 9, label: '$30', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 13, label: '$42', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 1, bar2: 0, label: '$12 (4 markers)' }
+        ],
+        height: 200
+      },
+      steps: [
+        'Mrs Tan: 4 files + 6 markers = $30',
+        'Mrs Lee: 4 files + 10 markers = $42',
+        'Both bought 4 files. Difference: 10 − 6 = 4 extra markers.',
+        '4 extra markers cost $42 − $30 = $12',
+        'Cost of 1 marker = $12 ÷ 4 = <strong>$3</strong>',
+        'From Mrs Tan: 4 files = $30 − (6 × $3) = $30 − $18 = $12',
+        'Cost of 1 file = $12 ÷ 4 = <strong>$3</strong>'
+      ],
+      answer: '1 marker costs $3, 1 file costs $3'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'Ali buys 5 erasers and has $4 left. If he buys 9 erasers, he needs $2 more. Find the cost of 1 eraser.',
+    height: 260,
+    steps: [
+      { instruction: 'Draw a bar for Case 1: the cost of 5 erasers', hint: 'Ali buys 5 erasers and has $4 left', action: 'addBar', label: '5 erasers', units: 5, options: { color: '#38bdf8' } },
+      { instruction: 'Draw a bar for Case 2: the cost of 9 erasers', hint: 'Ali buys 9 erasers but needs $2 more', action: 'addBar', label: '9 erasers', units: 9, options: { color: '#f97316' } },
+      { instruction: 'Label Case 1: cost of 5 erasers, with $4 left over from Ali\'s money', action: 'addBracket', config: { barIdx: 0, startUnit: 0, endUnit: 4, label: '5 erasers (+ $4 left)', side: 'top' } },
+      { instruction: 'Label Case 2: cost of 9 erasers, $2 short of Ali\'s money', action: 'addBracket', config: { barIdx: 1, startUnit: 0, endUnit: 8, label: '9 erasers (− $2 short)', side: 'bottom' } },
+      { instruction: 'Mark the difference: 4 extra erasers cost $4 + $2 = $6 more', hint: 'Left over + Shortage = Total difference', action: 'addDifference', bar1: 1, bar2: 0, label: '$6 (4 erasers)' }
+    ]
+  },
+
+  staticQuestions: [
+    {
+      question: '3 books and 2 bags cost $34. 3 books and 5 bags cost $55. What is the cost of 1 bag?',
+      options: ['$5', '$7', '$8', '$10'],
+      correct: 1,
+      explanation: 'Same 3 books in both cases. Difference: 5 − 2 = 3 extra bags cost $55 − $34 = $21. 1 bag = $21 ÷ 3 = $7.'
+    },
+    {
+      question: 'If Ravi buys 4 pens, he has $6 left. If he buys 10 pens, he needs $12 more. What is the cost of 1 pen?',
+      options: ['$2', '$3', '$4', '$5'],
+      correct: 1,
+      explanation: 'Difference in pens: 10 − 4 = 6. Total difference = $6 (left) + $12 (short) = $18. 1 pen = $18 ÷ 6 = $3. Check: Ravi has 4 × $3 + $6 = $18. 10 × $3 = $30, needs $30 − $18 = $12 more ✓'
+    },
+    {
+      question: 'Kumar buys 6 muffins and has $2 left. If he buys 8 muffins, he has no money left (exact amount). How much does 1 muffin cost?',
+      options: ['$1', '$2', '$3', '$4'],
+      correct: 0,
+      explanation: 'Difference in muffins: 8 − 6 = 2. Total difference = $2 (left) + $0 (exact) = $2. 1 muffin = $2 ÷ 2 = $1. Check: Kumar has 8 × $1 = $8. Case 1: 6 × $1 = $6, left over = $8 − $6 = $2 ✓'
+    },
+    {
+      question: '7 rulers and 4 pencils cost $22. 7 rulers and 9 pencils cost $32. Find the cost of 1 pencil.',
+      options: ['$1', '$1.50', '$2', '$2.50'],
+      correct: 2,
+      explanation: 'Same 7 rulers. Extra pencils: 9 − 4 = 5. Extra cost: $32 − $22 = $10. 1 pencil = $10 ÷ 5 = $2.'
+    },
+    {
+      question: 'If Mei buys 5 oranges, she has $7 left. If she buys 8 oranges, she has $1 left. What is the cost of 1 orange?',
+      options: ['$1', '$2', '$3', '$4'],
+      correct: 1,
+      explanation: 'Both cases have money left. Difference in oranges: 8 − 5 = 3. Difference in leftover: $7 − $1 = $6 (she spent $6 more). 1 orange = $6 ÷ 3 = $2. Check: Mei has 5 × $2 + $7 = $17. 8 × $2 + $1 = $17 ✓'
+    },
+    {
+      question: 'Sara buys 2 toys and needs $4 more. If she buys 5 toys, she needs $19 more. How much does 1 toy cost?',
+      options: ['$3', '$4', '$5', '$6'],
+      correct: 2,
+      explanation: 'Both cases need more money. Difference in toys: 5 − 2 = 3. Difference in shortage: $19 − $4 = $15. 1 toy = $15 ÷ 3 = $5. Check: Sara\'s money = 2 × $5 − $4 = $6. 5 × $5 = $25, needs $25 − $6 = $19 more ✓'
+    },
+    {
+      question: '2 shirts and 3 pairs of socks cost $41. 2 shirts and 8 pairs of socks cost $66. What is the total cost of 1 shirt and 1 pair of socks?',
+      options: ['$13', '$15', '$16', '$18'],
+      correct: 3,
+      explanation: 'Same 2 shirts. Extra socks: 8 − 3 = 5. Extra cost: $66 − $41 = $25. 1 pair of socks = $25 ÷ 5 = $5. From Case 1: 2 shirts = $41 − (3 × $5) = $41 − $15 = $26. 1 shirt = $26 ÷ 2 = $13. Total = $13 + $5 = $18.'
+    }
+  ],
+
+  aiPromptContext: 'Generate "two cases" comparison word problems. Two scenarios share a common element (like the same number of one item) but differ in the quantity of another item or in the total cost. The student compares the two cases to isolate and find unknown values. Include variations: (1) two purchases with the same base items but different extras, (2) "left over" and "need more" money problems, (3) both cases with money left over but different amounts. Use contexts like school supplies, food, and shopping. Keep all numbers as whole numbers or simple decimals.'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Before-and-After: Same Difference (Age) | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-ba-age',
+  _depth: 3,
+  title: 'Before-and-After: Same Difference (Age)',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'Why does the age difference between two people never change?',
+    'How can we use a comparison model to show ages at different points in time?',
+    'How do we find when a certain age ratio will hold?',
+    'How do we use the constant difference to solve age problems?'
+  ],
+
+  glossary: [
+    { term: 'Age Difference', def: 'The number of years between two people\'s ages. This never changes because both people age at the same rate.' },
+    { term: 'Constant Difference', def: 'A difference that stays the same no matter how much time passes. In age problems, the age gap is always constant.' },
+    { term: 'Comparison Model', def: 'Two bars drawn side by side showing two people\'s ages. The gap between them represents the age difference.' },
+    { term: 'Age Ratio', def: 'How many times one person\'s age is compared to another\'s. For example, "Father is 3 times as old as Son" means Father\'s age = 3 &times; Son\'s age.' }
+  ],
+
+  notes: [
+    {
+      heading: 'Why Does the Age Difference Stay the Same?',
+      content: `<p>Every year, everyone gets <strong>exactly 1 year older</strong>. If a father is 28 years older than his son now, then in 5 years the father will still be 28 years older. In 10 years, still 28 years older. Even 20 years ago, the difference was already 28 years.</p>
+      <p>This is because both ages increase by the same amount (the number of years that pass). When the same amount is added to both quantities, the difference does not change.</p>
+      <ul>
+        <li>Now: Father 36, Son 8. Difference = 36 &minus; 8 = <strong>28</strong></li>
+        <li>In 6 years: Father 42, Son 14. Difference = 42 &minus; 14 = <strong>28</strong></li>
+        <li>5 years ago: Father 31, Son 3. Difference = 31 &minus; 3 = <strong>28</strong></li>
+      </ul>`,
+      highlights: [
+        'The age difference between two people NEVER changes. This is the key principle for all age problems.',
+        'Even though the ratio of their ages changes over time, the difference is always constant.'
+      ],
+      equations: [
+        'Age difference = Older person\'s age − Younger person\'s age',
+        'Difference now = Difference in the past = Difference in the future'
+      ]
+    },
+    {
+      heading: 'Drawing the Model for Age Problems',
+      content: `<ol>
+        <li><strong>Draw two bars</strong> — a longer bar for the older person and a shorter bar for the younger person.</li>
+        <li><strong>Mark the difference</strong> — the gap between the bars. This stays constant.</li>
+        <li><strong>Show the target condition</strong> — if the problem says "Father will be 3 times Son's age", divide the longer bar into 3 equal parts, each equal to the shorter bar.</li>
+        <li><strong>Use the constant difference</strong> to find the value of each part.</li>
+      </ol>
+      <p>The model helps you see that the difference equals a certain number of "parts" or "units", which lets you find the value of one unit.</p>`,
+      highlights: [
+        'When Father = 3 &times; Son, the difference = 3 parts &minus; 1 part = 2 parts. So 1 part = Difference &divide; 2.'
+      ]
+    },
+    {
+      heading: 'Step-by-Step Strategy',
+      content: `<p>Follow these steps for age problems:</p>
+      <ol>
+        <li><strong>Find the age difference</strong> from the given current ages.</li>
+        <li><strong>Set up the target condition</strong>. For example, "Father is 3 times Son's age" means Father = 3 &times; Son.</li>
+        <li><strong>Use the constant difference</strong>. Since Father = Son + Difference, substitute: Son + Difference = 3 &times; Son. Solve for Son.</li>
+        <li><strong>Find how many years</strong> until (or since) that condition holds by comparing with the current age.</li>
+      </ol>`,
+      equations: [
+        'If Older = N &times; Younger, then Difference = (N &minus; 1) &times; Younger',
+        'Younger at that time = Difference &divide; (N &minus; 1)',
+        'Years from now = Target age &minus; Current age'
+      ]
+    }
+  ],
+
+  summary: 'In age problems, the difference between two people\'s ages never changes because everyone ages at the same rate. To solve, find the constant age difference, set up the target ratio or condition, and use the fact that Difference = (multiple &minus; 1) &times; Younger person\'s age at that time. Then calculate how many years forward or backward in time.',
+
+  workedExamples: [
+    {
+      problem: 'A father is 36 years old and his son is 8 years old. In how many years will the father be 3 times as old as his son?',
+      model: {
+        bars: [
+          { label: 'Father (future)', units: 6, color: '#38bdf8' },
+          { label: 'Son (future)', units: 2, color: '#34d399' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 5, label: 'Father\'s age', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 1, label: 'Son\'s age', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '28' }
+        ],
+        height: 200
+      },
+      steps: [
+        'Age difference = 36 &minus; 8 = 28. This will always be 28.',
+        'We need: Father = 3 &times; Son. Draw Father\'s bar as 3 equal parts and Son\'s bar as 1 part.',
+        'The difference = 3 parts &minus; 1 part = 2 parts = 28.',
+        'So 1 part = 28 &divide; 2 = 14. Son\'s age at that time = 14.',
+        'Father\'s age at that time = 3 &times; 14 = 42. Check: 42 &minus; 14 = 28. Correct!',
+        'Years from now = 14 &minus; 8 = <strong>6 years</strong>.',
+        'Verify: In 6 years, Father = 36 + 6 = 42, Son = 8 + 6 = 14. Is 42 = 3 &times; 14? Yes!'
+      ],
+      answer: 'In 6 years, the father will be 3 times as old as his son.'
+    },
+    {
+      problem: 'A mother is 42 years old and her daughter is 12 years old. How many years ago was the mother 6 times as old as her daughter?',
+      model: {
+        bars: [
+          { label: 'Mother (past)', units: 6, color: '#ec4899' },
+          { label: 'Daughter (past)', units: 1, color: '#8b5cf6' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 5, label: 'Mother\'s age then', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 0, label: 'Daughter\'s age then', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '30' }
+        ],
+        height: 200
+      },
+      steps: [
+        'Age difference = 42 &minus; 12 = 30. This has always been 30.',
+        'We need: Mother = 6 &times; Daughter. Draw Mother\'s bar as 6 parts, Daughter as 1 part.',
+        'Difference = 6 parts &minus; 1 part = 5 parts = 30.',
+        '1 part = 30 &divide; 5 = 6. Daughter was 6 years old at that time.',
+        'Mother was 6 &times; 6 = 36. Check: 36 &minus; 6 = 30. Correct!',
+        'Years ago = 12 &minus; 6 = <strong>6 years ago</strong>.',
+        'Verify: 6 years ago, Mother = 42 &minus; 6 = 36, Daughter = 12 &minus; 6 = 6. Is 36 = 6 &times; 6? Yes!'
+      ],
+      answer: '6 years ago, the mother was 6 times as old as her daughter.'
+    },
+    {
+      problem: 'Mr Tan is 45 years old and his son is 13 years old. In how many years will Mr Tan be 3 times as old as his son?',
+      model: {
+        bars: [
+          { label: 'Mr Tan (future)', units: 6, color: '#f97316' },
+          { label: 'Son (future)', units: 2, color: '#34d399' }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 5, label: 'Mr Tan\'s age', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 1, label: 'Son\'s age', side: 'bottom' }
+        ],
+        differences: [
+          { bar1: 0, bar2: 1, label: '32' }
+        ],
+        height: 200
+      },
+      steps: [
+        'Age difference = 45 &minus; 13 = 32. This will always be 32.',
+        'We need: Mr Tan = 3 &times; Son. Father\'s bar = 3 parts, Son\'s bar = 1 part.',
+        'Difference = 3 parts &minus; 1 part = 2 parts = 32.',
+        '1 part = 32 &divide; 2 = 16. Son = 16 at that time.',
+        'Mr Tan = 3 &times; 16 = 48. Check: 48 &minus; 16 = 32. Correct!',
+        'Years from now = 16 &minus; 13 = <strong>3 years</strong>.',
+        'Verify: In 3 years, Mr Tan = 48, Son = 16. 48 = 3 &times; 16. Yes!'
+      ],
+      answer: 'In 3 years, Mr Tan will be 3 times as old as his son.'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'Mrs Lim is 40 years old and her daughter is 10 years old. In how many years will Mrs Lim be 3 times as old as her daughter?',
+    height: 250,
+    steps: [
+      { instruction: 'Find the age difference: 40 &minus; 10 = 30. This difference is constant. Draw a bar for Mrs Lim\'s future age as 3 equal parts.', hint: 'Mrs Lim will be 3 times her daughter\'s age.', action: 'addBar', label: 'Mrs Lim (future)', units: 6, options: { color: '#ec4899' } },
+      { instruction: 'Draw a bar for Daughter\'s future age as 1 part.', hint: 'Daughter\'s age is 1 part.', action: 'addBar', label: 'Daughter (future)', units: 2, options: { color: '#8b5cf6' } },
+      { instruction: 'Mark the difference between their ages: 30 years (this never changes).', hint: 'The gap = 3 parts &minus; 1 part = 2 parts = 30.', action: 'addDifference', bar1: 0, bar2: 1, label: '30' },
+      { instruction: 'Find 1 part: 30 &divide; 2 = 15. Label Daughter\'s bar with 15.', action: 'addBracket', config: { barIdx: 1, startUnit: 0, endUnit: 1, label: '15', side: 'bottom' } },
+      { instruction: 'Label Mrs Lim\'s bar: 3 &times; 15 = 45.', action: 'addBracket', config: { barIdx: 0, startUnit: 0, endUnit: 5, label: '45', side: 'top' } }
+    ]
+  },
+
+  staticQuestions: [
+    { question: 'A father is 40 years old and his son is 10 years old. What is their age difference?', options: ['20', '25', '30', '35'], correct: 2, explanation: 'Age difference = 40 &minus; 10 = 30 years. This difference will never change.' },
+    { question: 'A father is 44 years old and his son is 12 years old. In how many years will the father be 3 times as old as his son?', options: ['2', '4', '6', '8'], correct: 1, explanation: 'Difference = 44 &minus; 12 = 32. When Father = 3 &times; Son: 2 parts = 32, so 1 part = 16. Son = 16 at that time. Years = 16 &minus; 12 = 4.' },
+    { question: 'Mrs Lee is 38 years old and her daughter is 6 years old. In how many years will Mrs Lee be 5 times as old as her daughter?', options: ['1', '2', '3', '4'], correct: 1, explanation: 'Difference = 38 &minus; 6 = 32. When Mother = 5 &times; Daughter: 4 parts = 32, 1 part = 8. Daughter = 8 at that time. Years = 8 &minus; 6 = 2.' },
+    { question: 'Mr Goh is 48 years old and his nephew is 12 years old. How many years ago was Mr Goh 7 times as old as his nephew?', options: ['4', '5', '6', '8'], correct: 2, explanation: 'Difference = 48 &minus; 12 = 36. When Uncle = 7 &times; Nephew: 6 parts = 36, 1 part = 6. Nephew was 6 then. Years ago = 12 &minus; 6 = 6.' },
+    { question: 'A grandfather is 72 years old and his grandson is 12 years old. In how many years will the grandfather be 4 times as old as his grandson?', options: ['4', '6', '8', '10'], correct: 2, explanation: 'Difference = 72 &minus; 12 = 60. When Grandfather = 4 &times; Grandson: 3 parts = 60, 1 part = 20. Grandson = 20. Years = 20 &minus; 12 = 8.' },
+    { question: 'Aunt Mary is 36 years old and her niece is 6 years old. Aunt Mary is currently how many times as old as her niece?', options: ['4', '5', '6', '7'], correct: 2, explanation: '36 &divide; 6 = 6. Aunt Mary is 6 times as old as her niece now.' },
+    { question: 'A father is 45 years old and his daughter is 15 years old. The father is currently 3 times as old as his daughter. In how many years will he be only 2 times as old?', options: ['10', '15', '20', '25'], correct: 1, explanation: 'Difference = 45 &minus; 15 = 30. When Father = 2 &times; Daughter: 1 part = 30. Daughter = 30. Years = 30 &minus; 15 = 15.' },
+    { question: 'Mr Wang is 50 years old and his son is 20 years old. How many years ago was Mr Wang 4 times as old as his son?', options: ['8', '10', '12', '15'], correct: 1, explanation: 'Difference = 50 &minus; 20 = 30. When Father = 4 &times; Son: 3 parts = 30, 1 part = 10. Son was 10. Years ago = 20 &minus; 10 = 10.' }
+  ],
+
+  aiPromptContext: 'Generate age-based before-and-after problems where the age difference between two people is constant. Typical setups: given current ages, find when one person will be N times as old as the other, or how many years ago a certain ratio held. Use family relationships (father/son, mother/daughter, uncle/nephew, grandparent/grandchild). Keep all ages and answers as whole numbers. The student should use the constant difference and the ratio to find the value of one "part".'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>

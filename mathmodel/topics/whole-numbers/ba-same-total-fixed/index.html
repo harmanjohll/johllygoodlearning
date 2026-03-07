@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Before-and-After: Same Total (Fixed Quantities) | Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<script>
+const TOPIC = {
+  id: 'wn-ba-fixed',
+  _depth: 3,
+  title: 'Before-and-After: Same Total (Fixed Quantities)',
+  chapter: 'whole-numbers',
+  chapterName: 'Whole Numbers',
+
+  keyQuestions: [
+    'What does it mean for the total to stay the same?',
+    'What is a fixed quantity and why does it not change?',
+    'How do the other quantities redistribute around the fixed one?',
+    'How do we draw a before-and-after model when one quantity is fixed?'
+  ],
+
+  glossary: [
+    { term: 'Fixed Quantity', def: 'A quantity that does not change between the before and after states. It stays the same while other quantities change around it.' },
+    { term: 'Same Total', def: 'The combined amount of all quantities remains unchanged. Nothing is added to or removed from the group.' },
+    { term: 'Redistribution', def: 'When items move from one person to another, without any items entering or leaving the system.' },
+    { term: 'Before-and-After Model', def: 'A bar model that shows two states: the original quantities (before) and the changed quantities (after) side by side.' },
+    { term: 'Transfer', def: 'Moving a certain number of items from one person to another. The giver loses and the receiver gains the same amount.' }
+  ],
+
+  notes: [
+    {
+      heading: 'What Is "Same Total with Fixed Quantities"?',
+      content: `<p>In these problems, several people share a collection of items. The <strong>total number of items stays the same</strong> because nothing is added or removed from the group. However, some people's amounts <strong>do not change</strong> (they are "fixed"), while others give or receive items among themselves.</p>
+      <p>For example, if 3 children share 90 marbles and Child C's amount stays the same, then any marbles that Child A gives away must go to Child B. The total remains 90, and Child C's share is untouched.</p>
+      <ul>
+        <li>Total before = Total after (nothing enters or leaves)</li>
+        <li>The fixed person's amount: same in both states</li>
+        <li>The change happens only between the non-fixed people</li>
+      </ul>`,
+      highlights: [
+        'Key insight: If the total is unchanged and some quantities are fixed, then the remaining quantities must redistribute among themselves.',
+        'The fixed quantity can be "set aside" — focus on the changing quantities, whose sub-total is also unchanged.'
+      ],
+      equations: [
+        'Total = Fixed + Changing quantities',
+        'Sub-total of changing quantities (before) = Sub-total of changing quantities (after)'
+      ]
+    },
+    {
+      heading: 'How to Draw the Model',
+      content: `<ol>
+        <li><strong>Draw "Before" bars</strong> for each person, showing their starting amounts.</li>
+        <li><strong>Draw "After" bars</strong> for each person, showing their amounts after the change.</li>
+        <li><strong>The fixed person's bar</strong> should be the same length in both states.</li>
+        <li><strong>Show the transfer</strong> — the amount that moved from one person to another. One bar gets shorter, the other gets longer by the same amount.</li>
+        <li><strong>Label all known values</strong> and mark unknowns with "?".</li>
+      </ol>`,
+      highlights: [
+        'The fixed bar is identical in before and after. This helps you focus on the bars that change.'
+      ]
+    },
+    {
+      heading: 'Solving Strategy',
+      content: `<p>Follow these steps:</p>
+      <ol>
+        <li><strong>Identify the fixed quantity</strong> — which person's amount does not change?</li>
+        <li><strong>Calculate the sub-total</strong> of the changing quantities: Total &minus; Fixed = Sub-total.</li>
+        <li><strong>Use the "after" clues</strong> to work out the new amounts of the changing quantities.</li>
+        <li><strong>Work backwards</strong> if needed: since you know the transfer amount, find the "before" values.</li>
+      </ol>
+      <p>Remember: the sub-total of the changing people is the same before and after, because the fixed person's amount did not change and the overall total did not change either.</p>`,
+      equations: [
+        'Changing sub-total = Total − Fixed quantity',
+        'Person gains X → their "after" = "before" + X',
+        'Person loses X → their "after" = "before" − X'
+      ]
+    }
+  ],
+
+  summary: 'When the total stays the same and some quantities are fixed (unchanged), the remaining quantities must redistribute among themselves. The sub-total of the changing quantities is also constant. Identify the fixed quantity, subtract it from the total to get the changing sub-total, and use the given clues to solve for unknowns.',
+
+  workedExamples: [
+    {
+      problem: 'Ali, Ben, and Cheng share 96 marbles. Ali has 42, Ben has 28, and Cheng has 26. Ali gives some marbles to Ben. Cheng\'s amount does not change. After that, Ali and Ben have the same number of marbles. How many marbles did Ali give to Ben?',
+      model: {
+        bars: [
+          { label: 'Ali (Before)', units: 7, color: '#38bdf8', section: 0 },
+          { label: 'Ben (Before)', units: 5, color: '#34d399', section: 0 },
+          { label: 'Cheng', units: 4, color: '#f59e0b', section: 0 },
+          { label: 'Ali (After)', units: 6, color: '#38bdf8', section: 1 },
+          { label: 'Ben (After)', units: 6, color: '#34d399', section: 1 },
+          { label: 'Cheng', units: 4, color: '#f59e0b', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 6, label: '42', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 4, label: '28', side: 'top' },
+          { barIdx: 2, startUnit: 0, endUnit: 3, label: '26', side: 'bottom' },
+          { barIdx: 3, startUnit: 0, endUnit: 5, label: '35', side: 'top' },
+          { barIdx: 4, startUnit: 0, endUnit: 5, label: '35', side: 'top' },
+          { barIdx: 5, startUnit: 0, endUnit: 3, label: '26', side: 'bottom' }
+        ],
+        height: 300,
+        beforeAfter: true
+      },
+      steps: [
+        'Total = 42 + 28 + 26 = 96. Cheng\'s amount is fixed at 26.',
+        'Sub-total for Ali and Ben = 96 &minus; 26 = 70.',
+        'After: Ali and Ben are equal. Each has 70 &divide; 2 = 35.',
+        'Ali went from 42 to 35, so Ali gave away 42 &minus; 35 = <strong>7</strong> marbles.',
+        'Check: Ben went from 28 to 35, gained 7. Total after: 35 + 35 + 26 = 96. Correct!'
+      ],
+      answer: 'Ali gave 7 marbles to Ben.'
+    },
+    {
+      problem: 'Siti, Mei, and Lina share 132 stickers. Siti has 56, Mei has 44, and Lina has 32. Siti gives some stickers to Mei. Lina\'s amount does not change. After that, Siti has 48 stickers. How many stickers does Mei have now?',
+      model: {
+        bars: [
+          { label: 'Siti (Before)', units: 7, color: '#ec4899', section: 0 },
+          { label: 'Mei (Before)', units: 5, color: '#8b5cf6', section: 0 },
+          { label: 'Lina', units: 4, color: '#f59e0b', section: 0 },
+          { label: 'Siti (After)', units: 6, color: '#ec4899', section: 1 },
+          { label: 'Mei (After)', units: 6, color: '#8b5cf6', section: 1 },
+          { label: 'Lina', units: 4, color: '#f59e0b', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 6, label: '56', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 4, label: '44', side: 'top' },
+          { barIdx: 2, startUnit: 0, endUnit: 3, label: '32', side: 'bottom' },
+          { barIdx: 3, startUnit: 0, endUnit: 5, label: '48', side: 'top' },
+          { barIdx: 4, startUnit: 0, endUnit: 5, label: '?', side: 'top' },
+          { barIdx: 5, startUnit: 0, endUnit: 3, label: '32', side: 'bottom' }
+        ],
+        height: 300,
+        beforeAfter: true
+      },
+      steps: [
+        'Total = 56 + 44 + 32 = 132. Lina is fixed at 32.',
+        'Sub-total for Siti and Mei = 132 &minus; 32 = 100.',
+        'After: Siti has 48. So Mei has 100 &minus; 48 = <strong>52</strong>.',
+        'Check: Siti gave 56 &minus; 48 = 8 stickers. Mei gained 52 &minus; 44 = 8. Total: 48 + 52 + 32 = 132. Correct!'
+      ],
+      answer: 'Mei has 52 stickers now.'
+    },
+    {
+      problem: 'Tom, Jerry, and Spike share 180 cards. Tom has 80, Jerry has 60, and Spike has 40. Tom gives some cards to Jerry. Spike\'s amount stays the same. After that, Jerry has 20 more cards than Tom. How many cards did Tom give Jerry?',
+      model: {
+        bars: [
+          { label: 'Tom (Before)', units: 8, color: '#38bdf8', section: 0 },
+          { label: 'Jerry (Before)', units: 6, color: '#34d399', section: 0 },
+          { label: 'Spike', units: 4, color: '#f97316', section: 0 },
+          { label: 'Tom (After)', units: 5, color: '#38bdf8', section: 1 },
+          { label: 'Jerry (After)', units: 7, color: '#34d399', section: 1 },
+          { label: 'Spike', units: 4, color: '#f97316', section: 1 }
+        ],
+        brackets: [
+          { barIdx: 0, startUnit: 0, endUnit: 7, label: '80', side: 'top' },
+          { barIdx: 1, startUnit: 0, endUnit: 5, label: '60', side: 'top' },
+          { barIdx: 2, startUnit: 0, endUnit: 3, label: '40', side: 'bottom' },
+          { barIdx: 3, startUnit: 0, endUnit: 4, label: '60', side: 'top' },
+          { barIdx: 4, startUnit: 0, endUnit: 6, label: '80', side: 'top' }
+        ],
+        differences: [
+          { bar1: 4, bar2: 3, label: '20' }
+        ],
+        height: 300,
+        beforeAfter: true
+      },
+      steps: [
+        'Total = 80 + 60 + 40 = 180. Spike is fixed at 40.',
+        'Sub-total for Tom and Jerry = 180 &minus; 40 = 140.',
+        'After: Jerry = Tom + 20. So Tom + (Tom + 20) = 140. This gives 2 &times; Tom = 120, Tom = 60.',
+        'Jerry = 60 + 20 = 80.',
+        'Tom gave 80 &minus; 60 = <strong>20</strong> cards to Jerry.',
+        'Check: Jerry gained 80 &minus; 60 = 20. Total: 60 + 80 + 40 = 180. Correct!'
+      ],
+      answer: 'Tom gave 20 cards to Jerry.'
+    }
+  ],
+
+  guidedBuild: {
+    problem: 'Ravi, Kumar, and Seng share 150 stickers. Ravi has 64, Kumar has 46, and Seng has 40. Ravi gives some stickers to Kumar. Seng\'s amount stays the same. After that, Ravi and Kumar have the same number. How many stickers did Ravi give Kumar?',
+    height: 300,
+    beforeAfter: true,
+    steps: [
+      { instruction: 'Draw a bar for Ravi\'s stickers before (64)', hint: 'Ravi starts with the most stickers.', action: 'addBar', label: 'Ravi (Before)', units: 7, options: { color: '#38bdf8', section: 0 } },
+      { instruction: 'Draw a bar for Kumar\'s stickers before (46)', hint: 'Kumar has fewer than Ravi.', action: 'addBar', label: 'Kumar (Before)', units: 5, options: { color: '#34d399', section: 0 } },
+      { instruction: 'Draw a bar for Seng\'s stickers (40) — this stays fixed', hint: 'Seng\'s amount does not change.', action: 'addBar', label: 'Seng', units: 4, options: { color: '#f59e0b', section: 0 } },
+      { instruction: 'Seng is fixed at 40. Sub-total for Ravi + Kumar = 150 &minus; 40 = 110. Each gets 110 &divide; 2 = 55. Draw Ravi\'s "after" bar (55).', hint: 'Ravi now has 55 stickers.', action: 'addBar', label: 'Ravi (After)', units: 6, options: { color: '#38bdf8', section: 1 } },
+      { instruction: 'Draw Kumar\'s "after" bar (55)', hint: 'Kumar also has 55 stickers now.', action: 'addBar', label: 'Kumar (After)', units: 6, options: { color: '#34d399', section: 1 } },
+      { instruction: 'Draw Seng\'s "after" bar (40) — same as before', hint: 'Seng did not change.', action: 'addBar', label: 'Seng', units: 4, options: { color: '#f59e0b', section: 1 } },
+      { instruction: 'Label Ravi\'s "after" bar with 55', action: 'addBracket', config: { barIdx: 3, startUnit: 0, endUnit: 5, label: '55', side: 'top' } },
+      { instruction: 'Label Kumar\'s "after" bar with 55', action: 'addBracket', config: { barIdx: 4, startUnit: 0, endUnit: 5, label: '55', side: 'top' } },
+      { instruction: 'Ravi gave 64 &minus; 55 = 9 stickers to Kumar. Add an arrow showing the transfer.', hint: 'The answer is 9 stickers!', action: 'addArrow', fromBar: 0, toBar: 1, label: '9' }
+    ]
+  },
+
+  staticQuestions: [
+    { question: 'Ali, Ben, and Cheng share 120 erasers. Ali has 50, Ben has 40, and Cheng has 30. Ali gives some erasers to Ben. Cheng\'s amount stays the same. After that, Ali and Ben have the same number. How many erasers did Ali give Ben?', options: ['5', '10', '15', '20'], correct: 0, explanation: 'Sub-total for Ali + Ben = 120 &minus; 30 = 90. After: each has 90 &divide; 2 = 45. Ali gave 50 &minus; 45 = 5 erasers to Ben.' },
+    { question: 'Tom, Dick, and Harry share 180 cards. Tom has 80, Dick has 60, and Harry has 40. Tom gives some cards to Dick. Harry\'s amount stays the same. After that, Tom and Dick have the same number. How many cards did Tom give Dick?', options: ['5', '10', '15', '20'], correct: 1, explanation: 'Sub-total for Tom + Dick = 180 &minus; 40 = 140. After: each has 140 &divide; 2 = 70. Tom gave 80 &minus; 70 = 10 cards to Dick.' },
+    { question: 'Lily, Rose, and Daisy share 132 sweets. Lily has 56, Rose has 44, and Daisy has 32. Lily gives some sweets to Rose. Daisy\'s amount does not change. After that, Lily has 48 sweets. How many sweets does Rose have now?', options: ['48', '50', '52', '56'], correct: 2, explanation: 'Sub-total for Lily + Rose = 132 &minus; 32 = 100. Lily after = 48. Rose after = 100 &minus; 48 = 52.' },
+    { question: 'Ravi, Kumar, and Seng share 200 stamps. Ravi has 90, Kumar has 70, and Seng has 40. Ravi gives some stamps to Kumar. Seng\'s amount stays the same. After that, Ravi and Kumar have the same number. How many stamps did Ravi give Kumar?', options: ['5', '10', '15', '20'], correct: 1, explanation: 'Sub-total for Ravi + Kumar = 200 &minus; 40 = 160. After: each has 160 &divide; 2 = 80. Ravi gave 90 &minus; 80 = 10 stamps to Kumar.' },
+    { question: 'Mei, Siti, and Nora share 162 beads. Mei has 72, Siti has 54, and Nora has 36. Mei gives some beads to Siti. Nora\'s amount does not change. After that, Mei and Siti have the same number. How many beads did Mei give Siti?', options: ['6', '9', '12', '15'], correct: 1, explanation: 'Sub-total for Mei + Siti = 162 &minus; 36 = 126. After: each has 126 &divide; 2 = 63. Mei gave 72 &minus; 63 = 9 beads to Siti.' },
+    { question: 'Peter, Sam, and Jane share 240 stickers. Peter has 100, Sam has 80, and Jane has 60. Peter gives some stickers to Sam. Jane\'s amount stays the same. After that, Sam has 100 stickers. How many stickers did Peter give Sam?', options: ['10', '15', '20', '25'], correct: 2, explanation: 'Sam went from 80 to 100, gaining 20. Peter gave 20 stickers. Check: Peter after = 100 &minus; 20 = 80. Total: 80 + 100 + 60 = 240. Correct!' },
+    { question: 'Three boys share 144 toy cars. Alan has 58, Bryan has 50, and Colin has 36. Alan gives some cars to Bryan. Colin\'s amount does not change. After that, Alan and Bryan have the same number. How many cars did Alan give Bryan?', options: ['2', '4', '6', '8'], correct: 1, explanation: 'Sub-total for Alan + Bryan = 144 &minus; 36 = 108. After: each has 108 &divide; 2 = 54. Alan gave 58 &minus; 54 = 4 cars to Bryan.' },
+    { question: 'Wei Ling, Priya, and Aisha share 168 bookmarks. Wei Ling has 72, Priya has 56, and Aisha has 40. Wei Ling gives some bookmarks to Priya. Aisha does not change. After that, Priya has 8 more bookmarks than Wei Ling. How many bookmarks did Wei Ling give Priya?', options: ['8', '10', '12', '14'], correct: 2, explanation: 'Sub-total = 168 &minus; 40 = 128. After: Priya = Wei Ling + 8. So Wei Ling + (Wei Ling + 8) = 128, giving 2 &times; Wei Ling = 120, Wei Ling = 60, Priya = 68. Wei Ling gave 72 &minus; 60 = 12 bookmarks.' }
+  ],
+
+  aiPromptContext: 'Generate before-and-after word problems where the total stays the same and one person\'s quantity is fixed (does not change). The remaining people transfer items among themselves. Use Singapore primary school contexts like marbles, stickers, stamps, cards, sweets. Ensure all numbers are whole numbers and the arithmetic works out cleanly. The student should identify the fixed quantity, calculate the changing sub-total, and use "after" clues to solve.'
+};
+</script>
+<script src="../../../shared.js"></script>
+<script src="../../../model-builder.js"></script>
+<script src="../../../topic-renderer.js"></script>
+</body>
+</html>
