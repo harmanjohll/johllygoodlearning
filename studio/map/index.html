@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mega Concept Map | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <script src="https://unpkg.com/d3@7/dist/d3.min.js"></script>
+  <style>
+    body { padding: 0; overflow: hidden; }
+
+    .map-shell {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      grid-template-rows: auto 1fr;
+      height: 100vh;
+      background: var(--bg);
+    }
+
+    .map-header {
+      grid-column: 1 / -1;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: .7rem 1.25rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .map-header h1 {
+      font-size: 1.05rem; font-weight: 800; margin: 0;
+      background: linear-gradient(135deg, #a78bfa 0%, #38bdf8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .map-header .spacer { flex: 1; }
+
+    .mode-toggle {
+      display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+    }
+    .mode-toggle button {
+      background: transparent; color: var(--muted);
+      border: none; padding: .45rem .9rem; font-size: .78rem; font-weight: 700; cursor: pointer;
+      transition: all .15s;
+    }
+    .mode-toggle button.active { background: var(--accent); color: #0f172a; }
+    .mode-toggle button:not(.active):hover { background: var(--card); color: var(--text); }
+
+    .legend {
+      display: inline-flex; gap: .9rem; font-size: .72rem; color: var(--muted); flex-wrap: wrap;
+    }
+    .legend-item { display: inline-flex; align-items: center; gap: .3rem; }
+    .legend-item::before {
+      content: ''; width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+    }
+    .legend-diversity::before    { background: var(--diversity); }
+    .legend-cycles::before       { background: var(--cycles); }
+    .legend-systems::before      { background: var(--systems); }
+    .legend-interactions::before { background: var(--interactions); }
+    .legend-energy::before       { background: var(--energy); }
+
+    .map-canvas {
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 45%, #11192b 0%, var(--bg) 70%);
+    }
+    #map-svg { width: 100%; height: 100%; display: block; cursor: grab; }
+    #map-svg:active { cursor: grabbing; }
+
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: #0b1320f2;
+      color: var(--text);
+      padding: .45rem .7rem;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      max-width: 280px;
+      line-height: 1.4;
+      box-shadow: 0 6px 24px rgba(0,0,0,.35);
+      opacity: 0;
+      transition: opacity .12s;
+      z-index: 20;
+    }
+    .tooltip.show { opacity: 1; }
+    .tooltip .tt-title { font-weight: 700; color: var(--accent); margin-bottom: .15rem; }
+    .tooltip .tt-kind  { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+
+    /* Coach sidebar */
+    .coach-panel {
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      padding: 1.1rem 1rem 1rem;
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+    }
+    .coach-panel h2 {
+      font-size: .92rem; font-weight: 800; margin: 0 0 .35rem; color: var(--text);
+      letter-spacing: .01em;
+    }
+    .coach-panel .coach-subtitle {
+      font-size: .74rem; color: var(--muted); margin-bottom: 1rem;
+    }
+    .coach-focus {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: .7rem .85rem; margin-bottom: .85rem;
+    }
+    .coach-focus .focus-kind { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+    .coach-focus .focus-label { font-size: .92rem; font-weight: 700; color: var(--text); margin-top: .15rem; }
+    .coach-focus .focus-tagline { font-size: .78rem; color: var(--muted); margin-top: .3rem; line-height: 1.4; }
+    .coach-focus .focus-deeplink {
+      display: inline-block; margin-top: .55rem; font-size: .74rem; font-weight: 700;
+      color: var(--accent); text-decoration: none;
+      padding: .28rem .6rem; border: 1px solid var(--accent); border-radius: 6px;
+    }
+    .coach-focus .focus-deeplink:hover { background: var(--accent); color: #0f172a; }
+
+    .coach-probe {
+      background: linear-gradient(135deg, #1a2a3a 0%, #1e1835 100%);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      padding: .85rem .95rem;
+      font-size: .84rem; line-height: 1.55; color: var(--text);
+      min-height: 70px;
+    }
+    .coach-probe .probe-label {
+      font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--accent);
+      font-weight: 700; display: block; margin-bottom: .3rem;
+    }
+    .coach-probe .probe-empty { color: var(--muted); font-style: italic; }
+    .coach-probe .probe-error { color: #fca5a5; font-size: .78rem; }
+
+    .coach-actions {
+      display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .75rem;
+    }
+    .coach-actions .btn {
+      font-size: .75rem; padding: .32rem .7rem;
+    }
+
+    .coach-foot {
+      margin-top: auto; padding-top: .9rem;
+      font-size: .72rem; color: var(--muted); line-height: 1.45;
+    }
+    .coach-foot a { color: var(--accent); text-decoration: none; }
+
+    /* Mobile: collapse sidebar below the map */
+    @media (max-width: 900px) {
+      .map-shell { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; height: auto; }
+      .coach-panel { border-left: none; border-top: 1px solid var(--border); max-height: 50vh; }
+      body { overflow: auto; }
+      .map-canvas { height: 60vh; min-height: 360px; }
+    }
+
+    /* Node + edge styles */
+    .node circle { stroke-width: 2; cursor: pointer; transition: r .15s, stroke-width .15s; }
+    .node text   { pointer-events: none; fill: var(--text); font-family: 'Inter', system-ui, sans-serif; }
+    .node.dim circle { opacity: .2; }
+    .node.dim text   { opacity: .25; }
+    .node.focus circle { stroke-width: 3.5; filter: drop-shadow(0 0 4px rgba(167,139,250,.55)); }
+
+    .edge { fill: none; stroke-width: 1.2; opacity: .55; }
+    .edge.cross { stroke-dasharray: 4 3; stroke-width: 1.6; opacity: .85; }
+    .edge.dim   { opacity: .08; }
+    .edge.active { opacity: 1; stroke-width: 2.2; }
+
+    .mobile-list {
+      display: none;
+    }
+    @media (max-width: 520px) {
+      #map-svg { display: none; }
+      .mobile-list { display: block; padding: 1rem 1.25rem; }
+      .mobile-list h3 { font-size: .9rem; margin: 0 0 .5rem; color: var(--text); }
+      .mobile-list ul { list-style: none; padding: 0; margin: 0 0 1rem; }
+      .mobile-list li { padding: .35rem 0; border-bottom: 1px dashed var(--border); font-size: .84rem; }
+      .mobile-list li a { color: var(--text); text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="map-shell">
+  <header class="map-header">
+    <a href="../index.html" class="btn btn-ghost" style="font-size:.78rem">← Hub</a>
+    <h1>🗺 Mega Concept Map</h1>
+    <div class="legend">
+      <span class="legend-item legend-diversity">Diversity</span>
+      <span class="legend-item legend-cycles">Cycles</span>
+      <span class="legend-item legend-systems">Systems</span>
+      <span class="legend-item legend-interactions">Interactions</span>
+      <span class="legend-item legend-energy">Energy</span>
+    </div>
+    <span class="spacer"></span>
+    <div class="mode-toggle" role="tablist" aria-label="Traversal mode">
+      <button id="mode-deductive" class="active" aria-pressed="true">Deductive</button>
+      <button id="mode-inductive" aria-pressed="false">Inductive</button>
+    </div>
+    <button id="reset-btn" class="btn btn-ghost" style="font-size:.78rem">↺ Reset</button>
+  </header>
+
+  <section class="map-canvas">
+    <svg id="map-svg" role="img" aria-label="Mega concept map of primary science topics"></svg>
+    <div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true"></div>
+
+    <div class="mobile-list" id="mobile-list" aria-hidden="true"></div>
+  </section>
+
+  <aside class="coach-panel" aria-label="Coach panel">
+    <h2>Coach</h2>
+    <div class="coach-subtitle">Click a node on the map. The Coach will ask one short probing question calibrated to where you are and where you are heading.</div>
+
+    <div id="coach-focus" class="coach-focus" aria-live="polite">
+      <div class="focus-kind">Nothing selected</div>
+      <div class="focus-label">Hover or click a theme, topic, or phenomenon</div>
+      <div class="focus-tagline">In Deductive mode, click a theme to fan out its topics and phenomena. In Inductive mode, click a phenomenon to trace up to the topics and theme it belongs to.</div>
+    </div>
+
+    <div id="coach-probe" class="coach-probe" aria-live="polite">
+      <span class="probe-label">Coach probe</span>
+      <span class="probe-empty">Pick a node to see a probing question.</span>
+    </div>
+
+    <div class="coach-actions">
+      <button id="coach-regen" class="btn btn-ghost" disabled>↻ Another probe</button>
+      <button id="coach-settings" class="btn btn-ghost">⚙ AI key</button>
+    </div>
+
+    <div class="coach-foot">
+      The mega map is a Phase 2 surface. Probes use Gemini if a key is set. Without a key, the Coach still shows a deterministic scaffold question. <a href="#" id="foot-settings-link">Add a key →</a>
+    </div>
+  </aside>
+</div>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script src="../shared/content.js"></script>
+<script src="../shared/lab.js"></script>
+<script src="../shared/coach.js"></script>
+<script src="./map.js"></script>
+</body>
+</html>

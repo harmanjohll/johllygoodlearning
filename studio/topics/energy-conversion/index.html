@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Energy & Energy Conversion | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--energy); flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .78rem; color: var(--muted); }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    .cue-question { font-size: .78rem; color: var(--muted); margin-bottom: .75rem; border-left: 2px solid var(--energy); padding-left: .6rem; }
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: var(--accent); }
+
+    /* Device picker */
+    .device-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .5rem; margin-top: .5rem; }
+    .device-btn {
+      padding: .65rem .5rem; border-radius: 9px; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text); cursor: pointer;
+      font-size: .8rem; font-weight: 600; text-align: center; line-height: 1.3;
+      transition: all .18s;
+    }
+    .device-btn.active { border-color: var(--energy); background: #2a1e3a; color: var(--energy); }
+    .device-btn:hover:not(.active) { background: var(--card); }
+
+    /* Energy flow canvas */
+    #flow-canvas { border-radius: 10px; background: #0d1117; display: block; width: 100%; max-width: 640px; }
+    .flow-legend {
+      display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .6rem;
+      font-size: .78rem; color: var(--muted);
+    }
+    .flow-legend span { display: inline-flex; align-items: center; gap: .35rem; }
+    .flow-legend span::before {
+      content:''; display:inline-block; width: 10px; height: 10px; border-radius: 50%;
+    }
+    .flow-legend .lg-input::before  { background: #60a5fa; }
+    .flow-legend .lg-useful::before { background: #34d399; }
+    .flow-legend .lg-waste::before  { background: #f59e0b; }
+
+    .equation { font-family: 'Inter', system-ui, sans-serif; font-weight: 700;
+      background: var(--surface); border-left: 3px solid var(--energy);
+      padding: .6rem .9rem; border-radius: 0 8px 8px 0; margin: .75rem 0;
+      font-size: .88rem; color: var(--text); }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>⚡ Energy &amp; Energy Conversion</h1>
+    <div class="meta">
+      <span class="badge badge-energy">Energy</span>&nbsp;
+      <span class="badge badge-p5">P5</span>&nbsp;
+      <span class="badge badge-p6">P6</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--energy)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════════ LEARN ══════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">What is energy and what forms can it take?</div>
+        <div class="cue-question">What does it mean to say energy is "converted"?</div>
+        <div class="cue-question">Why is some of the input energy always "wasted"?</div>
+        <div class="cue-question">What is the law of conservation of energy?</div>
+        <div class="cue-question">Where does the energy in our food originally come from?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+        <div class="glossary-term"><div class="term-name">Energy</div><div class="term-def">The ability to do work. Measured in joules (J). Exists in many forms and can be converted from one form to another.</div></div>
+        <div class="glossary-term"><div class="term-name">Kinetic energy</div><div class="term-def">The energy of a moving object. A fast car has more kinetic energy than a slow one.</div></div>
+        <div class="glossary-term"><div class="term-name">Potential energy</div><div class="term-def">Stored energy due to an object's position or condition. Two main types: gravitational (due to height) and elastic (stretched or compressed).</div></div>
+        <div class="glossary-term"><div class="term-name">Heat energy</div><div class="term-def">A form of energy that flows from a hotter object to a cooler one. Usually the wasted output of energy converters.</div></div>
+        <div class="glossary-term"><div class="term-name">Chemical energy</div><div class="term-def">Energy stored in the bonds between atoms in food, fuel, and batteries. Released when bonds are broken.</div></div>
+        <div class="glossary-term"><div class="term-name">Energy conversion</div><div class="term-def">Changing energy from one form to another. No energy is destroyed; the useful output and wasted output together equal the input.</div></div>
+        <div class="glossary-term"><div class="term-name">Wasted energy</div><div class="term-def">The output energy form we do not want. Almost always includes heat, and sometimes sound. Wasted energy is not lost; it spreads into the surroundings.</div></div>
+        <div class="glossary-term"><div class="term-name">Law of conservation of energy</div><div class="term-def">Energy cannot be created or destroyed; it can only be converted. Total energy before = total energy after.</div></div>
+      </div>
+
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🔋 What is Energy?</h4>
+          <p><strong>Energy</strong> is the ability to do work. It exists in many forms, and every form can be converted into every other form.</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Kinetic energy</strong> — the energy of motion (a running child, a falling ball).</li>
+            <li><strong>Potential energy</strong> — stored energy. <strong>Gravitational</strong> (due to height) or <strong>elastic</strong> (stretched or compressed).</li>
+            <li><strong>Heat energy</strong> — flows from hotter to cooler objects.</li>
+            <li><strong>Light energy</strong> — lets us see; given off by the Sun, flames, bulbs.</li>
+            <li><strong>Sound energy</strong> — produced by vibrating objects.</li>
+            <li><strong>Electrical energy</strong> — carried by moving electric charges.</li>
+            <li><strong>Chemical energy</strong> — stored in bonds between atoms in food, fuel, and batteries.</li>
+          </ul>
+          <div class="highlight">🔑 Energy is measured in <strong>joules (J)</strong>. A single Smartie has about 20,000 J of chemical energy.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🔁 Energy Conversion</h4>
+          <p>An <strong>energy converter</strong> is a device that changes one form of energy into another. Every everyday device is an energy converter:</p>
+          <ul style="margin-top:.4rem">
+            <li>A <strong>bulb</strong>: electrical energy → light energy + heat energy</li>
+            <li>A <strong>fan / motor</strong>: electrical energy → kinetic energy + heat energy + sound energy</li>
+            <li>A <strong>battery</strong>: chemical energy → electrical energy</li>
+            <li>A <strong>solar cell</strong>: light energy → electrical energy</li>
+            <li>A <strong>generator / dynamo</strong>: kinetic energy → electrical energy</li>
+            <li>A <strong>plant leaf (photosynthesis)</strong>: light energy → chemical energy</li>
+            <li>Your <strong>muscles</strong>: chemical energy → kinetic energy + heat energy</li>
+            <li>A <strong>loudspeaker</strong>: electrical energy → sound energy + heat energy</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>♻️ The Law of Conservation of Energy</h4>
+          <p><strong>Energy cannot be created or destroyed.</strong> It can only be converted from one form into another. The total amount of energy before a conversion equals the total amount after.</p>
+          <div class="equation">Input energy = Useful output energy + Wasted output energy</div>
+          <p>Wasted energy is <em>not</em> lost — it just spreads out into the surroundings, usually as heat and sometimes as sound. That is why a bulb that has been on for a while feels warm, and a running motor hums.</p>
+        </div>
+
+        <div class="note-section">
+          <h4>🌞 The Sun as Earth's Energy Source</h4>
+          <p>Almost all the energy we use traces back to the <strong>Sun</strong>. Plants convert light energy into chemical energy (photosynthesis). Animals eat plants and other animals to get that energy. Coal, oil, and gas are the remains of ancient plants and animals, so their chemical energy also came originally from the Sun.</p>
+        </div>
+
+        <div class="note-section">
+          <h4>🌱 Renewable vs Non-Renewable</h4>
+          <ul style="margin-top:.4rem">
+            <li><strong>Renewable:</strong> solar, wind, moving water (hydro), geothermal, biomass. Can be replaced naturally within a short time.</li>
+            <li><strong>Non-renewable:</strong> coal, oil, natural gas, nuclear fuel. Take millions of years to form; burning them releases carbon dioxide and contributes to climate change.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--energy);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          Energy is the ability to do work. It exists in many forms — <strong>kinetic, potential, heat, light, sound, electrical, chemical</strong> — and can be converted between them. Every device is an <strong>energy converter</strong>: its <strong>input energy</strong> becomes <strong>useful output energy</strong> plus some <strong>wasted energy</strong>, usually in the form of heat. By the <strong>law of conservation of energy</strong>, the total never changes; wasted energy is not destroyed, just spread out. The Sun is Earth's main source of energy.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SIMULATE ══════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">Which device wastes most of its input energy as heat?</div>
+        <div class="cue-question">Which device has sound as a useful output, not wasted?</div>
+        <div class="cue-question">For every converter, can you name the useful AND the wasted output?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Pick a device</div>
+        <div id="device-grid" class="device-grid"></div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Sentence builder</div>
+        <p id="sentence-output" style="font-size:.83rem;line-height:1.55;color:var(--text);background:var(--surface);border-left:3px solid var(--energy);padding:.6rem .9rem;border-radius:0 8px 8px 0;margin-top:.3rem">Pick a device to see its energy flow.</p>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:.6rem">Each device takes an <strong>input energy form</strong> and produces a <strong>useful output</strong> plus a <strong>wasted output</strong> (almost always heat).</p>
+        <canvas id="flow-canvas" width="640" height="280"></canvas>
+        <div class="flow-legend">
+          <span class="lg-input">Input</span>
+          <span class="lg-useful">Useful output</span>
+          <span class="lg-waste">Wasted output</span>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--energy);font-weight:700;margin-bottom:.4rem">What to notice</div>
+        <p class="summary-text">
+          Every device produces at least two outputs. The <strong>useful output</strong> is the form we want. The <strong>wasted output</strong> is usually heat, and sometimes sound. By the law of conservation of energy, useful + wasted always equals the input.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ QUIZ ══════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>For every conversion question:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li>Name the <strong>input</strong> energy form.</li>
+            <li>Name the <strong>useful</strong> output.</li>
+            <li>Name the <strong>wasted</strong> output (usually heat).</li>
+          </ul>
+          <p style="margin-top:.75rem">Say: "<em>Electrical energy is converted into light energy and heat energy.</em>"</p>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--energy)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container" data-topic-id="energy-conversion" data-topic-name="Energy Conversion" data-topic-level="5"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">A favourite PSLE trap: an answer that only names the useful output. <strong>Always also mention heat</strong> (and sound, if relevant).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MIND MAP ══════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+      <span style="font-size:.73rem;color:var(--muted);margin-left:.5rem">Double-click a node to rename it · Double-click empty space to add a node</span>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/gemini.js"></script>
+<script src="../../shared/content.js"></script>
+<script src="../../shared/lab.js"></script>
+<script src="../../shared/topic-render.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════
+//  ENERGY FLOW SIMULATOR
+// ══════════════════════════════════════════════════════════
+
+const DEVICES = [
+  { id: 'bulb',     name: 'Light bulb',      input: 'Electrical', useful: 'Light',      wasted: ['Heat'] },
+  { id: 'fan',      name: 'Electric fan',    input: 'Electrical', useful: 'Kinetic',    wasted: ['Heat', 'Sound'] },
+  { id: 'heater',   name: 'Electric heater', input: 'Electrical', useful: 'Heat',       wasted: ['Light'] },
+  { id: 'speaker',  name: 'Loudspeaker',     input: 'Electrical', useful: 'Sound',      wasted: ['Heat'] },
+  { id: 'battery',  name: 'Battery',         input: 'Chemical',   useful: 'Electrical', wasted: ['Heat'] },
+  { id: 'solar',    name: 'Solar cell',      input: 'Light',      useful: 'Electrical', wasted: ['Heat'] },
+  { id: 'dynamo',   name: 'Dynamo',          input: 'Kinetic',    useful: 'Electrical', wasted: ['Heat', 'Sound'] },
+  { id: 'photo',    name: 'Plant leaf',      input: 'Light',      useful: 'Chemical',   wasted: ['Heat'] },
+  { id: 'muscle',   name: 'Muscle',          input: 'Chemical',   useful: 'Kinetic',    wasted: ['Heat'] },
+  { id: 'candle',   name: 'Candle',          input: 'Chemical',   useful: 'Light',      wasted: ['Heat'] },
+  { id: 'fall',     name: 'Falling ball',    input: 'Gravitational PE', useful: 'Kinetic', wasted: ['Heat', 'Sound'] },
+  { id: 'spring',   name: 'Spring release',  input: 'Elastic PE', useful: 'Kinetic',    wasted: ['Heat', 'Sound'] },
+];
+
+let currentDevice = DEVICES[0];
+
+function renderDeviceGrid() {
+  const grid = document.getElementById('device-grid');
+  grid.innerHTML = '';
+  DEVICES.forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = 'device-btn' + (d.id === currentDevice.id ? ' active' : '');
+    btn.textContent = d.name;
+    btn.onclick = () => {
+      currentDevice = d;
+      document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      drawFlow();
+      updateSentence();
+      Progress.recordSimUsed('energy-conversion');
+    };
+    grid.appendChild(btn);
+  });
+}
+
+function updateSentence() {
+  const d = currentDevice;
+  const wasted = d.wasted.join(' and ');
+  const sentence = `${d.name}: ${d.input.toLowerCase()} energy \u2192 ${d.useful.toLowerCase()} energy (useful) + ${wasted.toLowerCase()} energy (wasted).`;
+  document.getElementById('sentence-output').textContent = sentence;
+}
+
+function drawFlow() {
+  const canvas = document.getElementById('flow-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const d = currentDevice;
+  const boxW = 170, boxH = 70;
+  const inputBox  = { x: 20,         y: H/2 - boxH/2, w: boxW, h: boxH, label: d.input + ' energy',  color: '#60a5fa' };
+  const deviceBox = { x: (W - boxW)/2, y: H/2 - boxH/2, w: boxW, h: boxH, label: d.name,             color: '#818cf8' };
+  const usefulBox = { x: W - boxW - 20, y: 40,           w: boxW, h: boxH - 20, label: d.useful + ' (useful)', color: '#34d399' };
+  const wasteBox  = { x: W - boxW - 20, y: H - 90,       w: boxW, h: boxH - 20, label: d.wasted.join(' + ') + ' (wasted)', color: '#f59e0b' };
+
+  function drawBox(b) {
+    ctx.fillStyle = '#0f172a';
+    ctx.strokeStyle = b.color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(b.x, b.y, b.w, b.h, 10);
+    else ctx.rect(b.x, b.y, b.w, b.h);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = b.color;
+    ctx.font = 'bold 13px Inter, system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    wrapText(ctx, b.label, b.x + b.w/2, b.y + b.h/2, b.w - 14, 16);
+  }
+
+  function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    const lines = [];
+    let cur = '';
+    words.forEach(w => {
+      const test = cur ? cur + ' ' + w : w;
+      if (ctx.measureText(test).width > maxWidth && cur) { lines.push(cur); cur = w; }
+      else cur = test;
+    });
+    if (cur) lines.push(cur);
+    const startY = y - ((lines.length - 1) / 2) * lineHeight;
+    lines.forEach((line, i) => ctx.fillText(line, x, startY + i * lineHeight));
+  }
+
+  function drawArrow(fromX, fromY, toX, toY, color) {
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(fromX, fromY);
+    ctx.lineTo(toX, toY);
+    ctx.stroke();
+    const angle = Math.atan2(toY - fromY, toX - fromX);
+    const size = 9;
+    ctx.beginPath();
+    ctx.moveTo(toX, toY);
+    ctx.lineTo(toX - size * Math.cos(angle - Math.PI/6), toY - size * Math.sin(angle - Math.PI/6));
+    ctx.lineTo(toX - size * Math.cos(angle + Math.PI/6), toY - size * Math.sin(angle + Math.PI/6));
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // input → device
+  drawArrow(inputBox.x + inputBox.w, inputBox.y + inputBox.h/2,
+            deviceBox.x, deviceBox.y + deviceBox.h/2, '#60a5fa');
+  // device → useful
+  drawArrow(deviceBox.x + deviceBox.w, deviceBox.y + deviceBox.h/2 - 10,
+            usefulBox.x, usefulBox.y + usefulBox.h/2, '#34d399');
+  // device → waste
+  drawArrow(deviceBox.x + deviceBox.w, deviceBox.y + deviceBox.h/2 + 10,
+            wasteBox.x, wasteBox.y + wasteBox.h/2, '#f59e0b');
+
+  drawBox(inputBox);
+  drawBox(deviceBox);
+  drawBox(usefulBox);
+  drawBox(wasteBox);
+
+  // Conservation note under the flow
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '11px Inter, system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Useful + Wasted = Input   (law of conservation of energy)', W/2, H - 8);
+}
+
+// ══════════════════════════════════════════════════════════
+//  QUIZ — static fallback (upgraded to AI via LLMQuizEngine)
+// ══════════════════════════════════════════════════════════
+const QUIZ_Q = [
+  { question: 'A torch is switched on. Which statement correctly describes the energy conversion?',
+    options: [
+      'Chemical energy is converted into light energy only.',
+      'Chemical energy is converted into light energy and heat energy.',
+      'Electrical energy is converted into chemical energy.',
+      'Light energy is converted into chemical energy.'
+    ],
+    correct: 1,
+    explanation: 'A torch uses a battery (chemical → electrical) and then the bulb (electrical → light + heat). The overall conversion from the student\'s perspective is chemical energy → light energy + heat energy.' },
+
+  { question: 'An electric fan takes in electrical energy. Name the useful output AND the wasted outputs.',
+    options: [
+      'Useful: heat. Wasted: kinetic and sound.',
+      'Useful: sound. Wasted: heat only.',
+      'Useful: kinetic. Wasted: heat and sound.',
+      'Useful: light. Wasted: heat.'
+    ],
+    correct: 2,
+    explanation: 'A fan is designed to move air, so kinetic energy is the useful output. The fan also gets warm (heat) and hums (sound); those are wasted.' },
+
+  { question: 'Which of the following best describes the law of conservation of energy?',
+    options: [
+      'Energy can be created when it is needed.',
+      'Energy is destroyed when devices waste some of it as heat.',
+      'Energy cannot be created or destroyed; it can only be converted from one form to another.',
+      'Only useful energy is conserved; wasted energy is lost.'
+    ],
+    correct: 2,
+    explanation: 'Energy is conserved in every conversion. Wasted energy is not destroyed; it just spreads into the surroundings, usually as heat.' },
+
+  { question: 'A ball is dropped from a height. Which energy conversion takes place as it falls?',
+    options: [
+      'Kinetic energy is converted into gravitational potential energy.',
+      'Gravitational potential energy is converted into kinetic energy.',
+      'Chemical energy is converted into kinetic energy.',
+      'No conversion takes place because the ball is not a device.'
+    ],
+    correct: 1,
+    explanation: 'As the ball falls, its height decreases so gravitational potential energy decreases. Its speed increases so kinetic energy increases. GPE is converted into kinetic energy.' },
+
+  { question: 'A leaf carries out photosynthesis. What is the main energy conversion?',
+    options: [
+      'Chemical energy → light energy',
+      'Light energy → chemical energy (stored in food)',
+      'Heat energy → chemical energy',
+      'Kinetic energy → chemical energy'
+    ],
+    correct: 1,
+    explanation: 'In photosynthesis, leaves use light energy from the Sun to make food. The energy is converted from light to chemical energy and stored in the food.' },
+
+  { question: 'A student says: "When a bulb is switched on, electrical energy is converted into light energy." Why is this answer incomplete at PSLE level?',
+    options: [
+      'Bulbs produce only heat, not light.',
+      'The answer does not mention the wasted heat energy.',
+      'Bulbs are not energy converters.',
+      'Light energy is not a real form of energy.'
+    ],
+    correct: 1,
+    explanation: 'PSLE answers require both the useful output AND the wasted output. A complete answer is: electrical energy → light energy + heat energy.' },
+
+  { question: 'Which of these is a renewable source of energy?',
+    options: ['Coal', 'Natural gas', 'Moving water (hydro)', 'Petrol'],
+    correct: 2,
+    explanation: 'Moving water (hydro) can be replaced naturally within a short time — rain refills the rivers. Coal, gas, and petrol are fossil fuels and are non-renewable.' },
+
+  { question: 'A child winds up a spring-loaded toy car and lets it go. Which best describes the energy conversions?',
+    options: [
+      'Elastic potential energy → kinetic energy (plus a little heat and sound).',
+      'Kinetic energy → elastic potential energy.',
+      'Chemical energy → kinetic energy.',
+      'Gravitational potential energy → kinetic energy.'
+    ],
+    correct: 0,
+    explanation: 'Winding the spring stores elastic PE. When released, elastic PE is converted into kinetic energy of the car, with a small amount of heat (friction) and sound.' },
+];
+
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1,  label:'Energy',              color:{ background:'#2a1e3a', border:'#a78bfa' }, font:{ size:15, color:'#c4b5fd' } },
+    { id:2,  label:'Forms of Energy' },
+    { id:3,  label:'Kinetic' },
+    { id:4,  label:'Potential (GPE, EPE)' },
+    { id:5,  label:'Heat' },
+    { id:6,  label:'Light' },
+    { id:7,  label:'Sound' },
+    { id:8,  label:'Electrical' },
+    { id:9,  label:'Chemical' },
+    { id:10, label:'Energy Conversion' },
+    { id:11, label:'Useful output' },
+    { id:12, label:'Wasted output\n(usually heat)' },
+    { id:13, label:'Conservation of Energy' },
+    { id:14, label:'The Sun\n(main source)' },
+  ],
+  edges: [
+    { from:1, to:2, label:'has' },
+    { from:2, to:3 }, { from:2, to:4 }, { from:2, to:5 },
+    { from:2, to:6 }, { from:2, to:7 }, { from:2, to:8 }, { from:2, to:9 },
+    { from:1, to:10, label:'undergoes' },
+    { from:10, to:11 }, { from:10, to:12 },
+    { from:1, to:13, label:'obeys' },
+    { from:1, to:14, label:'sourced from' },
+  ],
+  required: ['energy','kinetic','potential','heat','light','sound','electrical','chemical','conversion','conservation','useful','wasted']
+};
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+let sciMap;
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('energy-conversion');
+  document.getElementById('mastery-pct').textContent = Progress.masteryPct('energy-conversion') + '%';
+
+  renderDeviceGrid();
+  drawFlow();
+  updateSentence();
+
+  initAIQuizToggle(QUIZ_Q);
+  sciMap = new ScienceMindMap('mindmap-container', 'energy-conversion', MM_TEMPLATE);
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label (e.g. "Chemical energy", "Wasted heat"):');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>
