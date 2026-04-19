@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Light & Shadows | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--energy); flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .78rem; color: var(--muted); }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    .cue-question { font-size: .78rem; color: var(--muted); margin-bottom: .75rem; border-left: 2px solid var(--energy); padding-left: .6rem; }
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: var(--accent); }
+    #light-canvas { border-radius: 10px; background: #0d1117; cursor: default; display: block; }
+    .slider-row { display: flex; align-items: center; gap: .75rem; margin-top: .75rem; flex-wrap: wrap; }
+    .slider-row label { font-size: .82rem; color: var(--muted); min-width: 120px; }
+    .slider-row input[type=range] { flex: 1; min-width: 120px; accent-color: var(--energy); }
+    .slider-val { font-size: .82rem; font-weight: 700; color: var(--energy); min-width: 36px; text-align: right; }
+    .mat-classify { display: grid; grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); gap: .5rem; margin-top: .5rem; }
+    .mat-card { padding: .6rem; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface);
+      cursor: pointer; font-size: .8rem; font-weight: 600; text-align: center; transition: all .2s; }
+    .mat-card.transparent   { border-color: #60a5fa; background: #0f2038; color: #93c5fd; }
+    .mat-card.translucent   { border-color: #a78bfa; background: #1e1535; color: #c4b5fd; }
+    .mat-card.opaque        { border-color: #94a3b8; background: #1e293b; color: #cbd5e1; }
+    .sim-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: .5rem .9rem; font-size: .82rem; text-align: center; margin-bottom: .5rem; }
+    .sim-stat strong { display: block; font-size: 1.1rem; color: var(--energy); }
+    .sub-tabs { display:flex; gap:.35rem; margin-bottom:.85rem; flex-wrap:wrap; }
+    .sub-tab  { padding:.35rem .85rem; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:.8rem; font-weight:600; cursor:pointer; transition:all .15s; }
+    .sub-tab.active { background:var(--energy); color:#0f172a; border-color:var(--energy); }
+    .sub-pane { display:none; } .sub-pane.active { display:block; }
+    #reflect-canvas { border-radius:10px; background:#0d1117; display:block; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>💡 Light &amp; Shadows</h1>
+    <div class="meta">
+      <span class="badge badge-energy">Energy</span>&nbsp;
+      <span class="badge badge-p4">P4</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--energy)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+  </div>
+
+  <!-- ══════════════ LEARN ══════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cue-question">How does light travel?</div>
+        <div class="cue-question">How is a shadow formed?</div>
+        <div class="cue-question">What affects the size of a shadow?</div>
+        <div class="cue-question">What is the difference between transparent, translucent and opaque?</div>
+        <div class="cue-question">What happens to light when it hits a mirror?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+        <div class="glossary-term"><div class="term-name">Light source</div><div class="term-def">An object that produces its own light. E.g. the Sun, a lamp, a candle, fireflies. Objects that only reflect light (Moon, mirror) are NOT light sources.</div></div>
+        <div class="glossary-term"><div class="term-name">Transparent</div><div class="term-def">Allows almost all light to pass through. Objects can be seen clearly. E.g. clear glass, clean water, clear plastic wrap.</div></div>
+        <div class="glossary-term"><div class="term-name">Translucent</div><div class="term-def">Allows some light to pass through, but scatters it. Objects appear blurry through it. E.g. frosted glass, tissue paper, wax paper.</div></div>
+        <div class="glossary-term"><div class="term-name">Opaque</div><div class="term-def">Blocks all light. No light passes through. Forms a clear shadow. E.g. wood, brick, cardboard, metal, your hand.</div></div>
+        <div class="glossary-term"><div class="term-name">Shadow</div><div class="term-def">A dark area formed when an opaque object blocks light. The shadow is always on the opposite side of the object from the light source.</div></div>
+        <div class="glossary-term"><div class="term-name">Reflection</div><div class="term-def">Light bouncing off a surface. Smooth, shiny surfaces (mirrors, still water) reflect light clearly. Rough surfaces scatter it.</div></div>
+        <div class="glossary-term"><div class="term-name">Ray of light</div><div class="term-def">A straight-line representation of how light travels. Light always travels in straight lines unless it hits a new medium.</div></div>
+      </div>
+
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>💡 Properties of Light</h4>
+          <ul style="margin-top:.4rem">
+            <li>Light travels in a <strong>straight line</strong> (we can show this with a ray diagram)</li>
+            <li>Light travels incredibly fast — 300,000 km per second in space</li>
+            <li>Light can be <strong>reflected</strong> (bounced back) by shiny surfaces</li>
+            <li>Light can be <strong>blocked</strong> by opaque objects, forming shadows</li>
+          </ul>
+          <div class="highlight">🔑 Evidence that light travels in straight lines: you cannot see around corners without a mirror!</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🪟 Transparent, Translucent, Opaque</h4>
+          <ul style="margin-top:.4rem">
+            <li><strong>Transparent</strong> — all light passes through; see clearly (clear glass, clean water)</li>
+            <li><strong>Translucent</strong> — some light passes through but is scattered; see blurry shapes (frosted glass, tracing paper)</li>
+            <li><strong>Opaque</strong> — no light passes through; casts a dark shadow (wood, metal, cardboard)</li>
+          </ul>
+          <div class="equation">Transparent → clear view &nbsp;|&nbsp; Translucent → blurry &nbsp;|&nbsp; Opaque → no view</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🌑 How Shadows Are Formed</h4>
+          <p>A shadow forms when an <strong>opaque</strong> object blocks light from a source:</p>
+          <ol style="margin-top:.4rem">
+            <li>Light travels in straight lines from the source</li>
+            <li>The opaque object blocks some rays</li>
+            <li>A dark area (shadow) forms on the other side of the object</li>
+          </ol>
+          <div class="highlight">🔑 The shadow is always on the <strong>opposite side</strong> of the object from the light source. It has the same <strong>shape</strong> as the object.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>📏 What Affects Shadow Size?</h4>
+          <ul style="margin-top:.4rem">
+            <li><strong>Object closer to light source</strong> → shadow is <strong>larger</strong></li>
+            <li><strong>Object further from light source</strong> → shadow is <strong>smaller</strong></li>
+            <li><strong>Object closer to screen</strong> → shadow is <strong>smaller</strong> (less spreading)</li>
+            <li><strong>Larger light source</strong> → shadow has blurry edges (penumbra)</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🪞 Reflection of Light</h4>
+          <p>When light hits a smooth, shiny surface it reflects at the <strong>same angle</strong>. The angle of incidence equals the angle of reflection. Mirrors use this to create images.</p>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--energy);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          Light travels in <strong>straight lines</strong> from a light source. <strong>Opaque</strong> objects block all light and form shadows; <strong>translucent</strong> let some through; <strong>transparent</strong> let almost all through. A shadow forms on the opposite side of an object from the source. Moving an object <strong>closer to the light</strong> makes the shadow <strong>bigger</strong>. Light can be <strong>reflected</strong> by smooth surfaces.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SIMULATE ══════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">What happens to shadow size as the object moves closer to the lamp?</div>
+        <div class="cue-question">What happens as the object moves closer to the screen?</div>
+        <div class="cue-question">Which object types cast no shadow?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Shadow Readings</div>
+        <div class="sim-stat"><strong id="stat-obj-dist">—</strong>Object position</div>
+        <div class="sim-stat"><strong id="stat-shadow">—</strong>Shadow height</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Material Classifier</div>
+        <p style="font-size:.75rem;color:var(--muted);margin-bottom:.5rem">Click each material to classify it:</p>
+        <div id="mat-classify" class="mat-classify"></div>
+        <div id="mat-result" style="margin-top:.6rem;font-size:.8rem;color:var(--muted);display:none"></div>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <div class="sub-tabs">
+          <button class="sub-tab active" onclick="showLightSub('shadow-pane', this)">🌑 Shadow Simulator</button>
+          <button class="sub-tab" onclick="showLightSub('reflect-pane', this)">🪞 Reflection Angle</button>
+        </div>
+
+        <!-- Shadow Simulator -->
+        <div class="sub-pane active" id="shadow-pane">
+          <div class="slider-row">
+            <label>Object position</label>
+            <input type="range" id="obj-slider" min="15" max="85" value="50">
+            <span class="slider-val" id="obj-val">50%</span>
+          </div>
+          <div class="slider-row">
+            <label>Object type</label>
+            <select id="obj-type" style="flex:1;padding:.4rem .6rem;border-radius:7px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.85rem">
+              <option value="opaque">Opaque (solid block)</option>
+              <option value="translucent">Translucent (frosted)</option>
+              <option value="transparent">Transparent (clear)</option>
+            </select>
+          </div>
+          <div class="sim-canvas-wrap" style="height:300px;margin-top:.75rem">
+            <canvas id="light-canvas" width="660" height="290"></canvas>
+          </div>
+          <div id="sim-feedback" style="margin-top:.75rem;padding:.8rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5;min-height:48px"></div>
+        </div>
+
+        <!-- Reflection Angle Simulator -->
+        <div class="sub-pane" id="reflect-pane">
+          <p style="font-size:.85rem;color:var(--muted);margin-bottom:.75rem">
+            Adjust the angle of the incident ray. The law of reflection states: <strong>angle of incidence = angle of reflection</strong>. Both angles are measured from the <em>normal</em> (a line perpendicular to the mirror surface).
+          </p>
+          <div class="slider-row">
+            <label>Angle of incidence</label>
+            <input type="range" id="reflect-slider" min="5" max="85" value="40" oninput="onReflectSlider()">
+            <span class="slider-val" id="reflect-val" style="color:var(--energy)">40°</span>
+          </div>
+          <canvas id="reflect-canvas" width="640" height="340" style="margin-top:.75rem;width:100%;max-width:640px"></canvas>
+          <div id="reflect-info" style="margin-top:.75rem;padding:.8rem 1rem;border-radius:9px;font-size:.85rem;background:var(--surface);border:1px solid var(--border);line-height:1.5"></div>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--energy);font-weight:700;margin-bottom:.4rem">What to notice</div>
+        <p class="summary-text">Object <strong>closer to lamp → bigger shadow</strong>. Object <strong>closer to screen → smaller shadow</strong>. <strong>Opaque</strong> objects cast a solid shadow; <strong>translucent</strong> cast a faint shadow; <strong>transparent</strong> cast almost no shadow.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ QUIZ ══════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <ul style="padding-left:1rem">
+            <li>Always say <em>which direction</em> the shadow falls</li>
+            <li>Use the rule: closer to light = <strong>bigger</strong> shadow</li>
+            <li>Distinguish opaque / translucent / transparent carefully</li>
+          </ul>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--energy)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main"><div id="quiz-container" data-topic-id="light" data-topic-name="Light and Shadows" data-topic-level="4"></div></div>
+      <div class="cornell-summary">
+        <p class="summary-text">Key rule: shadow size depends on <strong>distance from light source</strong>. Shadow is always on the <strong>opposite side</strong> from the light. Only <strong>opaque</strong> objects form clear, dark shadows.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MIND MAP ══════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Mind map saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+      <span style="font-size:.73rem;color:var(--muted);margin-left:.5rem">Double-click a node to rename it · Double-click empty space to add a node</span>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/gemini.js"></script>
+<script src="../../shared/content.js"></script>
+<script src="../../shared/lab.js"></script>
+<script>
+// ══════════════════════════════════════════
+// LIGHT & SHADOW SIMULATOR
+// ══════════════════════════════════════════
+const canvas = document.getElementById('light-canvas');
+const ctx    = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+const LAMP_X  = 55;
+const SCREEN_X = W - 55;
+const OBJ_W = 30, OBJ_H = 80;
+
+function getObjX() {
+  const pct = parseInt(document.getElementById('obj-slider').value) / 100;
+  return LAMP_X + 60 + pct * (SCREEN_X - LAMP_X - 120 - 60);
+}
+
+function shadowHeight(objX, objH) {
+  // Similar triangles: lampY stays fixed; object at objX casts shadow on screen
+  const lampY = H / 2;
+  const objTop = lampY - objH / 2, objBot = lampY + objH / 2;
+  const dObj    = objX - LAMP_X;
+  const dScreen = SCREEN_X - LAMP_X;
+  if (dObj <= 0) return objH;
+  const scale = dScreen / dObj;
+  return objH * scale;
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, W, H);
+
+  const objX   = getObjX();
+  const type   = document.getElementById('obj-type').value;
+  const lampY  = H / 2;
+
+  // Compute shadow
+  const objTop = lampY - OBJ_H / 2, objBot = lampY + OBJ_H / 2;
+  const sH = shadowHeight(objX, OBJ_H);
+  const shadowAlpha = type === 'opaque' ? 0.92 : type === 'translucent' ? 0.35 : 0.05;
+
+  // Draw light rays (from lamp edges → around object → to screen)
+  const rays = [
+    { y0: objTop, y1: lampY - sH/2 },
+    { y0: objBot, y1: lampY + sH/2 }
+  ];
+
+  // Full beam fill (light cone from lamp to screen, clipped by shadow)
+  ctx.save();
+  ctx.globalAlpha = 0.08;
+  ctx.fillStyle = '#fde68a';
+  // Upper beam
+  ctx.beginPath();
+  ctx.moveTo(LAMP_X, lampY);
+  ctx.lineTo(objX - OBJ_W/2, objTop);
+  ctx.lineTo(SCREEN_X, lampY - sH/2);
+  ctx.lineTo(SCREEN_X, lampY);
+  ctx.closePath(); ctx.fill();
+  // Lower beam
+  ctx.beginPath();
+  ctx.moveTo(LAMP_X, lampY);
+  ctx.lineTo(objX - OBJ_W/2, objBot);
+  ctx.lineTo(SCREEN_X, lampY + sH/2);
+  ctx.lineTo(SCREEN_X, lampY);
+  ctx.closePath(); ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.restore();
+
+  // Ray lines
+  ctx.strokeStyle = '#fde68a'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
+  ctx.globalAlpha = 0.5;
+  [[lampY, objTop], [lampY, objBot]].forEach(([y0, y1]) => {
+    ctx.beginPath(); ctx.moveTo(LAMP_X, y0); ctx.lineTo(objX - OBJ_W/2, y1); ctx.stroke();
+  });
+  [[objTop, lampY - sH/2], [objBot, lampY + sH/2]].forEach(([y0, y1]) => {
+    ctx.beginPath(); ctx.moveTo(objX + OBJ_W/2, y0); ctx.lineTo(SCREEN_X, y1); ctx.stroke();
+  });
+  ctx.setLineDash([]); ctx.globalAlpha = 1;
+
+  // Shadow on screen
+  ctx.globalAlpha = shadowAlpha;
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(SCREEN_X - 12, lampY - sH/2, 12, sH);
+  ctx.globalAlpha = 1;
+
+  // Screen
+  ctx.fillStyle = '#334155'; ctx.fillRect(SCREEN_X, 30, 10, H - 60);
+  ctx.fillStyle = '#475569'; ctx.fillRect(SCREEN_X - 12, 30, 2, H - 60);
+
+  // Object
+  const objColor = type === 'opaque' ? '#64748b'
+                 : type === 'translucent' ? 'rgba(147,197,253,0.45)'
+                 : 'rgba(147,197,253,0.12)';
+  ctx.fillStyle = objColor;
+  ctx.strokeStyle = type === 'opaque' ? '#94a3b8' : '#93c5fd';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(objX - OBJ_W/2, objTop, OBJ_W, OBJ_H, 4);
+  ctx.fill(); ctx.stroke();
+
+  // Object label
+  ctx.font = '10px Inter'; ctx.textAlign = 'center'; ctx.fillStyle = '#94a3b8';
+  ctx.fillText(type, objX, objBot + 14);
+
+  // Lamp (circle with glow)
+  const gGlow = ctx.createRadialGradient(LAMP_X, lampY, 2, LAMP_X, lampY, 40);
+  gGlow.addColorStop(0, 'rgba(253,230,138,0.6)');
+  gGlow.addColorStop(1, 'rgba(253,230,138,0)');
+  ctx.fillStyle = gGlow;
+  ctx.beginPath(); ctx.arc(LAMP_X, lampY, 40, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(LAMP_X, lampY, 12, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#1e293b'; ctx.font = '10px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('LAMP', LAMP_X, lampY + 26);
+
+  // Shadow height label on screen
+  if (sH > 10) {
+    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(SCREEN_X + 16, lampY - sH/2); ctx.lineTo(SCREEN_X + 16, lampY + sH/2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#ef4444'; ctx.font = 'bold 11px Inter'; ctx.textAlign = 'left';
+    ctx.fillText(`Shadow: ${sH.toFixed(0)}px`, SCREEN_X + 20, lampY + 4);
+  }
+
+  // Dimension indicators
+  ctx.fillStyle = '#475569'; ctx.font = '10px Inter'; ctx.textAlign = 'center';
+  ctx.fillText('←  object–lamp distance  →', (LAMP_X + objX)/2, H - 12);
+
+  // Update stats & feedback
+  const pct = parseInt(document.getElementById('obj-slider').value);
+  const distLabel = pct < 33 ? 'Close to lamp' : pct < 67 ? 'Midway' : 'Close to screen';
+  document.getElementById('obj-val').textContent = pct + '%';
+  document.getElementById('stat-obj-dist').innerHTML = `<strong style="color:var(--energy)">${distLabel}</strong>Object position`;
+  document.getElementById('stat-shadow').innerHTML   = `<strong style="color:var(--energy)">${shadowAlpha < 0.1 ? 'None' : sH.toFixed(0) + 'px'}</strong>Shadow height`;
+
+  let fb = '';
+  if (type === 'transparent') {
+    fb = '🪟 The object is <strong>transparent</strong> — almost all light passes through. Very little shadow is formed.';
+  } else if (type === 'translucent') {
+    fb = '🌫 The object is <strong>translucent</strong> — some light passes through, some is blocked. A faint shadow forms.';
+  } else {
+    if (pct < 35) fb = `📏 Object is <strong>close to the lamp</strong> → shadow is <strong>large</strong> (${sH.toFixed(0)}px). Light rays spread out greatly past the object.`;
+    else if (pct > 70) fb = `📏 Object is <strong>close to the screen</strong> → shadow is <strong>small</strong> (${sH.toFixed(0)}px). Less spreading occurs.`;
+    else fb = `📏 Shadow height: <strong>${sH.toFixed(0)}px</strong>. Move the object closer to the lamp to make the shadow bigger.`;
+  }
+  document.getElementById('sim-feedback').innerHTML = fb;
+}
+
+document.getElementById('obj-slider').addEventListener('input', () => { draw(); Progress.recordSimUsed('light'); });
+document.getElementById('obj-type').addEventListener('change',  () => { draw(); Progress.recordSimUsed('light'); });
+
+// ── Materials classifier ─────────────────
+const MATERIALS = [
+  { name: 'Clear glass',      type: 'transparent'  },
+  { name: 'Frosted glass',    type: 'translucent'  },
+  { name: 'Cardboard',        type: 'opaque'       },
+  { name: 'Tissue paper',     type: 'translucent'  },
+  { name: 'Metal plate',      type: 'opaque'       },
+  { name: 'Cling wrap',       type: 'transparent'  },
+  { name: 'Wax paper',        type: 'translucent'  },
+  { name: 'Wooden board',     type: 'opaque'       },
+  { name: 'Clean water',      type: 'transparent'  },
+  { name: 'Your hand',        type: 'opaque'       },
+];
+const matDiv = document.getElementById('mat-classify');
+const TYPE_LABELS = { transparent: '🪟 Transparent', translucent: '🌫 Translucent', opaque: '⬛ Opaque' };
+MATERIALS.forEach(m => {
+  const btn = document.createElement('button');
+  btn.className = 'mat-card'; btn.textContent = m.name;
+  btn.onclick = () => {
+    btn.classList.remove('transparent','translucent','opaque');
+    btn.classList.add(m.type);
+    const res = document.getElementById('mat-result');
+    res.style.display = 'block';
+    const descs = {
+      transparent: 'allows all light through — see clearly through it.',
+      translucent: 'allows some light through — objects appear blurry.',
+      opaque:      'blocks all light — casts a dark shadow.'
+    };
+    res.innerHTML = `${TYPE_LABELS[m.type]} — <strong>${m.name}</strong> ${descs[m.type]}`;
+    Progress.recordSimUsed('light');
+  };
+  matDiv.appendChild(btn);
+});
+
+// ══════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════
+const QUIZ_Q = [
+  { question: 'A student moves a cardboard box closer to a torch. What happens to the shadow on the wall?',
+    options: ['The shadow gets smaller', 'The shadow gets larger', 'The shadow disappears', 'The shadow stays the same size'],
+    correct: 1, explanation: 'Moving the opaque object closer to the light source makes the shadow larger, because the light rays spread out more around the object.' },
+  { question: 'Which material would allow you to see a clear image of an object placed behind it?',
+    options: ['Cardboard', 'Frosted glass', 'Clear glass', 'Thick curtain'],
+    correct: 2, explanation: 'Clear glass is transparent — it allows almost all light to pass through without scattering, so objects behind it are seen clearly.' },
+  { question: 'Why is a shadow always the same shape as the object that blocks the light?',
+    options: ['Because light travels in curved lines', 'Because light travels in straight lines and is blocked by the object\'s outline', 'Because the shadow is a reflection', 'Because shadows are always rectangular'],
+    correct: 1, explanation: 'Since light travels in straight lines, the shadow is formed by the rays that are blocked by the object\'s silhouette — so it matches the object\'s shape.' },
+  { question: 'Tissue paper is an example of which type of material?',
+    options: ['Transparent', 'Translucent', 'Opaque', 'Reflective'],
+    correct: 1, explanation: 'Tissue paper is translucent — it allows some light to pass through but scatters it, so objects behind it appear blurry.' },
+  { question: 'The Moon is visible at night. The Moon is:',
+    options: ['A light source, because it is bright', 'Not a light source — it reflects sunlight', 'A transparent object', 'A translucent object'],
+    correct: 1, explanation: 'The Moon does not produce its own light. It reflects light from the Sun. A true light source generates its own light (e.g. the Sun, a torch).' },
+  { question: 'A tree casts a long shadow in the morning and a short shadow at noon. Why?',
+    options: ['The tree grows taller at noon', 'The position of the Sun (light source) changes during the day', 'The shadow disappears when it is hot', 'The ground absorbs the shadow at noon'],
+    correct: 1, explanation: 'The Sun is low on the horizon in the morning (long shadow) and high overhead at noon (short shadow). The light source angle determines shadow length.' },
+  { question: 'Which of these would form NO shadow when placed in front of a torch?',
+    options: ['A piece of cardboard', 'A clear glass block', 'A sheet of paper', 'A metal coin'],
+    correct: 1, explanation: 'A clear glass block is transparent — almost all light passes straight through it, so it casts little or no shadow.' },
+];
+
+// ══════════════════════════════════════════
+// MIND MAP
+// ══════════════════════════════════════════
+const MM_TEMPLATE = {
+  nodes: [
+    { id:1, label:'Light &\nShadows', color:{ background:'#2a1e07', border:'#f97316' }, font:{ size:15, color:'#fdba74' } },
+    { id:2, label:'Light Source' },
+    { id:3, label:'Travels in\nstraight lines' },
+    { id:4, label:'Transparent' },
+    { id:5, label:'Translucent' },
+    { id:6, label:'Opaque' },
+    { id:7, label:'Shadow' },
+    { id:8, label:'Reflection' },
+    { id:9, label:'Shadow size\nfactors' },
+    { id:10, label:'Distance\nfrom source' },
+  ],
+  edges: [
+    { from:1, to:2, label:'needs' },
+    { from:1, to:3, label:'property' },
+    { from:1, to:4 }, { from:1, to:5 }, { from:1, to:6 },
+    { from:6, to:7, label:'blocks light →' },
+    { from:7, to:9, label:'size depends on' },
+    { from:9, to:10 },
+    { from:1, to:8, label:'can be' },
+  ],
+  required: ['light source','straight','transparent','translucent','opaque','shadow','reflection','distance']
+};
+
+let sciMap;
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.recordVisit('light');
+  document.getElementById('mastery-pct').textContent = Progress.masteryPct('light') + '%';
+  initAIQuizToggle(QUIZ_Q);
+  sciMap = new ScienceMindMap('mindmap-container', 'light', MM_TEMPLATE);
+  draw();
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+
+// ═══════════════════════════════════════════════
+// LIGHT SUB-TAB SWITCHER
+// ═══════════════════════════════════════════════
+function showLightSub(paneId, btn) {
+  document.querySelectorAll('#tab-simulate .sub-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#tab-simulate .sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(paneId).classList.add('active');
+  btn.classList.add('active');
+  if (paneId === 'reflect-pane') {
+    drawReflection(parseInt(document.getElementById('reflect-slider').value));
+    Progress.recordSimUsed('light');
+  }
+}
+
+// ═══════════════════════════════════════════════
+// REFLECTION ANGLE SIMULATOR
+// ═══════════════════════════════════════════════
+function onReflectSlider() {
+  const angle = parseInt(document.getElementById('reflect-slider').value);
+  document.getElementById('reflect-val').textContent = angle + '°';
+  drawReflection(angle);
+}
+
+function drawArrow(ctx2, x1, y1, x2, y2, color) {
+  const ang = Math.atan2(y2 - y1, x2 - x1);
+  const a = 10;
+  ctx2.fillStyle = color;
+  ctx2.beginPath();
+  ctx2.moveTo(x2, y2);
+  ctx2.lineTo(x2 - a * Math.cos(ang - Math.PI/6), y2 - a * Math.sin(ang - Math.PI/6));
+  ctx2.lineTo(x2 - a * Math.cos(ang + Math.PI/6), y2 - a * Math.sin(ang + Math.PI/6));
+  ctx2.closePath(); ctx2.fill();
+}
+
+function drawReflection(angle) {
+  const c = document.getElementById('reflect-canvas');
+  if (!c) return;
+  const ctx2 = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx2.fillStyle = '#0d1117'; ctx2.fillRect(0, 0, W, H);
+
+  const CX = W / 2, mirrorY = H - 90;
+  const rad = (angle * Math.PI) / 180;
+  const len = 200;
+
+  // Mirror surface
+  ctx2.strokeStyle = '#94a3b8'; ctx2.lineWidth = 3; ctx2.setLineDash([]);
+  ctx2.beginPath(); ctx2.moveTo(80, mirrorY); ctx2.lineTo(W - 80, mirrorY); ctx2.stroke();
+  // Mirror hatching (below)
+  ctx2.strokeStyle = '#475569'; ctx2.lineWidth = 1;
+  for (let x = 80; x < W - 80; x += 20) {
+    ctx2.beginPath(); ctx2.moveTo(x, mirrorY); ctx2.lineTo(x - 12, mirrorY + 12); ctx2.stroke();
+  }
+  ctx2.fillStyle = '#94a3b8'; ctx2.font = '600 12px Inter,sans-serif'; ctx2.textAlign = 'left';
+  ctx2.fillText('Mirror', 82, mirrorY + 26);
+
+  // Normal (vertical dashed line at CX)
+  ctx2.strokeStyle = '#475569'; ctx2.lineWidth = 1.5; ctx2.setLineDash([6, 4]);
+  ctx2.beginPath(); ctx2.moveTo(CX, mirrorY - 180); ctx2.lineTo(CX, mirrorY + 40); ctx2.stroke();
+  ctx2.setLineDash([]);
+  ctx2.fillStyle = '#64748b'; ctx2.font = '600 12px Inter,sans-serif'; ctx2.textAlign = 'center';
+  ctx2.fillText('Normal', CX, mirrorY - 185);
+
+  // Incident ray (from upper-left to CX, mirrorY)
+  const ix = CX - Math.sin(rad) * len;
+  const iy = mirrorY - Math.cos(rad) * len;
+  ctx2.strokeStyle = '#fde68a'; ctx2.lineWidth = 2.5;
+  ctx2.beginPath(); ctx2.moveTo(ix, iy); ctx2.lineTo(CX, mirrorY); ctx2.stroke();
+  drawArrow(ctx2, ix, iy, CX, mirrorY, '#fde68a');
+  ctx2.fillStyle = '#fde68a'; ctx2.font = '700 13px Inter,sans-serif'; ctx2.textAlign = 'center';
+  ctx2.fillText('Incident ray', (ix + CX) / 2 - 18, (iy + mirrorY) / 2 - 10);
+
+  // Reflected ray (same angle, other side)
+  const rx = CX + Math.sin(rad) * len;
+  const ry = mirrorY - Math.cos(rad) * len;
+  ctx2.strokeStyle = '#60a5fa'; ctx2.lineWidth = 2.5;
+  ctx2.beginPath(); ctx2.moveTo(CX, mirrorY); ctx2.lineTo(rx, ry); ctx2.stroke();
+  drawArrow(ctx2, CX, mirrorY, rx, ry, '#60a5fa');
+  ctx2.fillStyle = '#60a5fa'; ctx2.font = '700 13px Inter,sans-serif'; ctx2.textAlign = 'center';
+  ctx2.fillText('Reflected ray', (rx + CX) / 2 + 18, (ry + mirrorY) / 2 - 10);
+
+  // Angle arcs + labels
+  const arcR = 50;
+  ctx2.strokeStyle = '#a3e635'; ctx2.lineWidth = 1.5;
+  // Angle of incidence arc (from normal going left)
+  ctx2.beginPath();
+  ctx2.arc(CX, mirrorY, arcR, -Math.PI / 2 - rad, -Math.PI / 2, false);
+  ctx2.stroke();
+  // Angle of reflection arc (from normal going right)
+  ctx2.beginPath();
+  ctx2.arc(CX, mirrorY, arcR, -Math.PI / 2, -Math.PI / 2 + rad, false);
+  ctx2.stroke();
+  ctx2.fillStyle = '#a3e635'; ctx2.font = '700 13px Inter,sans-serif';
+  ctx2.textAlign = 'center';
+  ctx2.fillText(`${angle}°`, CX - arcR * 0.85, mirrorY - arcR * 0.6);
+  ctx2.fillText(`${angle}°`, CX + arcR * 0.85, mirrorY - arcR * 0.6);
+  ctx2.fillStyle = 'rgba(163,230,53,0.7)'; ctx2.font = '600 11px Inter,sans-serif';
+  ctx2.fillText('∠i', CX - arcR * 0.5, mirrorY - arcR * 1.05);
+  ctx2.fillText('∠r', CX + arcR * 0.5, mirrorY - arcR * 1.05);
+
+  // Law of reflection label
+  ctx2.fillStyle = 'rgba(255,255,255,0.5)'; ctx2.font = '400 12px Inter,sans-serif';
+  ctx2.textAlign = 'center';
+  ctx2.fillText(`Law of Reflection: angle of incidence (${angle}°) = angle of reflection (${angle}°)`, CX, H - 18);
+
+  // Update info box
+  const info = document.getElementById('reflect-info');
+  if (info) {
+    info.innerHTML = `<strong style="color:var(--energy)">∠i = ∠r = ${angle}°</strong>&ensp;
+      The incident ray hits the mirror at ${angle}° from the normal. The reflected ray bounces off at the same angle (${angle}°) on the other side of the normal.
+      ${angle < 30 ? ' &ensp;🔍 Small angle — rays stay close to the normal (near-perpendicular reflection).'
+      : angle > 60 ? ' &ensp;🔍 Large angle — rays travel nearly parallel to the mirror surface.'
+      : ''}`;
+  }
+}
+</script>
+</body>
+</html>
