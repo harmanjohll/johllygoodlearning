@@ -269,6 +269,19 @@
 
 <main>
 
+  <!-- ═══ Mode Switcher (Phase 3 / B4) ═══ -->
+  <div class="vocab-mode-bar" id="vocab-mode-bar" role="tablist" aria-label="Vocab drill mode"
+       style="display:flex;gap:.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap">
+    <span style="color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:.68rem">Mode</span>
+    <div style="display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <button type="button" id="mode-recognise" role="tab" aria-selected="true"
+        style="border:none;background:var(--accent);color:#0f172a;padding:.4rem .9rem;font-weight:700;font-size:.78rem;cursor:pointer">Recognise</button>
+      <button type="button" id="mode-construct" role="tab" aria-selected="false"
+        style="border:none;background:transparent;color:var(--muted);padding:.4rem .9rem;font-weight:700;font-size:.78rem;cursor:pointer">Construct</button>
+    </div>
+    <span id="vocab-mode-blurb" style="color:var(--muted);font-size:.76rem">Pick the term that matches the definition.</span>
+  </div>
+
   <!-- ═══ Topic Filter Bar ═══ -->
   <div class="topic-filter-bar" id="topic-filter-bar">
     <!-- Pills injected by JS -->
@@ -313,6 +326,48 @@
     </div>
   </div>
 
+  <!-- ═══ Construct Panel (Phase 3 / B4) ═══ -->
+  <div id="construct-panel" style="display:none">
+    <div class="quiz-header">
+      <div class="quiz-progress-wrap">
+        <div class="quiz-progress-fill" id="cx-progress-fill" style="width:0%"></div>
+      </div>
+      <div class="q-label" id="cx-label">—</div>
+    </div>
+
+    <div class="definition-card">
+      <div class="definition-label">Define this term using the template</div>
+      <div class="definition-text" id="cx-term" style="font-weight:800;color:var(--text)">—</div>
+      <div id="cx-template" style="margin-top:.4rem;color:var(--muted);font-size:.88rem;line-height:1.5"></div>
+      <div class="topic-tag" id="cx-topic"></div>
+    </div>
+
+    <div style="margin-top:1rem">
+      <label for="cx-input" class="answer-label" style="display:block;margin-bottom:.4rem;font-size:.82rem;font-weight:700;color:var(--text)">Your definition</label>
+      <textarea id="cx-input" rows="3" maxlength="500" style="width:100%;min-height:90px;background:var(--surface);color:var(--text);border:1.5px solid var(--border);border-radius:9px;padding:.7rem .85rem;font:500 .92rem/1.55 'Inter',system-ui,sans-serif" placeholder="Write your definition, using the template as a scaffold..."></textarea>
+      <div style="color:var(--muted);font-size:.7rem;margin-top:.25rem"><span id="cx-count">0</span> / 500 characters</div>
+    </div>
+
+    <div style="display:flex;gap:.5rem;margin-top:.9rem;flex-wrap:wrap">
+      <button class="btn btn-primary" id="cx-reveal-btn">Reveal the model</button>
+      <button class="btn btn-ghost" id="cx-coach-btn">Ask the Coach</button>
+      <button class="btn btn-ghost" id="cx-skip-btn" style="margin-left:auto">Skip →</button>
+    </div>
+
+    <div id="cx-model" style="display:none;margin-top:.9rem;padding:.85rem 1rem;background:var(--surface);border-left:3px solid var(--accent);border-radius:0 10px 10px 0">
+      <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:800;margin-bottom:.3rem">Model definition</div>
+      <div id="cx-model-text" style="font-size:.88rem;line-height:1.55;color:var(--text)"></div>
+    </div>
+
+    <div id="cx-feedback" style="display:none;margin-top:.75rem;padding:.75rem .9rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.5"></div>
+
+    <div style="display:flex;gap:.5rem;margin-top:.9rem;flex-wrap:wrap">
+      <button class="btn btn-ghost" id="cx-mastered-btn" style="display:none">Mastered ✓</button>
+      <button class="btn btn-ghost" id="cx-missed-btn" style="display:none">I missed it</button>
+      <button class="btn btn-primary" id="cx-next-btn" style="display:none;margin-left:auto">Next term →</button>
+    </div>
+  </div>
+
   <!-- ═══ Results Panel ═══ -->
   <div id="results-panel">
     <div class="results-center">
@@ -336,52 +391,17 @@
 
 </main>
 
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script src="../shared/content.js"></script>
+<script src="../shared/lab.js"></script>
+<script src="../shared/coach.js"></script>
+<script src="../shared/spaced.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
-//  Shared utilities (inline subset — no external dependency)
-// ═══════════════════════════════════════════════════════════
-
-const Streak = {
-  META_KEY: 'sciLab_meta',
-  _getMeta() {
-    try { return JSON.parse(localStorage.getItem(this.META_KEY)) || {}; }
-    catch { return {}; }
-  },
-  _setMeta(m) { localStorage.setItem(this.META_KEY, JSON.stringify(m)); },
-  record() {
-    const today     = new Date().toISOString().slice(0, 10);
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-    const m = this._getMeta();
-    if (m.lastActivity === today) return;
-    m.streak = (m.lastActivity === yesterday) ? (m.streak || 0) + 1 : 1;
-    m.longestStreak = Math.max(m.longestStreak || 0, m.streak);
-    m.lastActivity  = today;
-    const days = m.activeDays || [];
-    if (!days.includes(today)) days.push(today);
-    m.activeDays = days.slice(-14);
-    this._setMeta(m);
-    const milestones = [3, 7, 14, 21, 30, 50, 100];
-    if (milestones.includes(m.streak)) {
-      setTimeout(() => showToast(`\uD83D\uDD25 ${m.streak}-day streak! Outstanding dedication!`), 400);
-    }
-  }
-};
-
-function showToast(msg, durationMs = 3000) {
-  let toast = document.getElementById('global-toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'global-toast';
-    toast.className = 'toast';
-    document.body.appendChild(toast);
-  }
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), durationMs);
-}
-
-// ═══════════════════════════════════════════════════════════
 //  Vocabulary Data
+//  (Streak + showToast now come from ../shared.js)
 // ═══════════════════════════════════════════════════════════
 
 const TOPICS = [
@@ -860,7 +880,236 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('next-btn').addEventListener('click', advanceQuestion);
   document.getElementById('new-session-btn').addEventListener('click', resetToStart);
   document.getElementById('drill-missed-btn').addEventListener('click', drillMissed);
+
+  initConstructMode();
 });
+
+// ═══════════════════════════════════════════════════════════
+//  CONSTRUCT MODE (B4) — template-scaffolded definition writing
+//  Pool comes from JglContent (loadAllThemes); only terms that
+//  have a non-empty template are included. Progress per term
+//  persists to jgl.progress.terms keyed as "<topicId>:<term>".
+// ═══════════════════════════════════════════════════════════
+let cxPool = [];
+let cxIndex = 0;
+let cxTerm  = null;
+let cxMode  = 'recognise';  // 'recognise' or 'construct'
+
+function setVocabMode(mode, fromUser) {
+  if (mode !== 'recognise' && mode !== 'construct') return;
+  const prev = cxMode;
+  cxMode = mode;
+
+  // Persist preference
+  if (fromUser && window.JglStorage) {
+    window.JglStorage.update(p => {
+      p.preferences = p.preferences || {};
+      p.preferences.vocabMode = mode;
+      if (prev !== mode) {
+        p.preferences.vocabModeFlips = (p.preferences.vocabModeFlips || 0) + 1;
+        if (p.preferences.vocabModeFlips >= 3) p.preferences.vocabModeDefault = mode;
+      }
+      return p;
+    });
+  }
+
+  const recBtn = document.getElementById('mode-recognise');
+  const conBtn = document.getElementById('mode-construct');
+  const blurb  = document.getElementById('vocab-mode-blurb');
+  const filter = document.getElementById('topic-filter-bar');
+  const cfg    = document.getElementById('config-row');
+  const quiz   = document.getElementById('quiz-panel');
+  const results= document.getElementById('results-panel');
+  const cx     = document.getElementById('construct-panel');
+
+  if (mode === 'construct') {
+    conBtn.style.background = 'var(--accent)'; conBtn.style.color = '#0f172a';
+    conBtn.setAttribute('aria-selected', 'true');
+    recBtn.style.background = 'transparent'; recBtn.style.color = 'var(--muted)';
+    recBtn.setAttribute('aria-selected', 'false');
+    blurb.textContent = 'Write the definition using the template; the Coach can check your version.';
+    filter.style.display = 'none';
+    cfg.style.display = 'none';
+    quiz.style.display = 'none';
+    results.style.display = 'none';
+    cx.style.display = 'block';
+    if (!cxPool.length) loadConstructPool();
+  } else {
+    recBtn.style.background = 'var(--accent)'; recBtn.style.color = '#0f172a';
+    recBtn.setAttribute('aria-selected', 'true');
+    conBtn.style.background = 'transparent'; conBtn.style.color = 'var(--muted)';
+    conBtn.setAttribute('aria-selected', 'false');
+    blurb.textContent = 'Pick the term that matches the definition.';
+    cx.style.display = 'none';
+    filter.style.display = '';
+    cfg.style.display = '';
+  }
+}
+
+async function loadConstructPool() {
+  const label = document.getElementById('cx-label');
+  label.textContent = 'Loading terms...';
+  const term = document.getElementById('cx-term');
+  term.textContent = '...';
+  try {
+    if (!window.JglContent) throw new Error('Shared content not available.');
+    const all = await window.JglContent.loadAllThemes();
+    const pool = [];
+    Object.values(all.topics || {}).forEach(topic => {
+      (topic.glossary || []).forEach(g => {
+        if (g.template && g.template.trim()) {
+          pool.push({
+            topicId: topic.id,
+            topicTitle: topic.title || topic.id,
+            term: g.term,
+            template: g.template,
+            definition: g.definition,
+          });
+        }
+      });
+    });
+    // Light shuffle
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    cxPool = pool;
+    cxIndex = 0;
+    if (!pool.length) {
+      label.textContent = '';
+      term.textContent = 'No template-enabled terms yet.';
+      document.getElementById('cx-template').textContent = 'Templates are being added topic by topic. Switch back to Recognise for now.';
+      return;
+    }
+    renderConstructTerm();
+  } catch (err) {
+    label.textContent = '';
+    term.textContent = 'Could not load terms.';
+    document.getElementById('cx-template').textContent = (err && err.message) || 'Unknown error.';
+  }
+}
+
+function renderConstructTerm() {
+  if (!cxPool.length) return;
+  const idx = cxIndex % cxPool.length;
+  cxTerm = cxPool[idx];
+  document.getElementById('cx-label').textContent = `Term ${idx + 1} of ${cxPool.length}`;
+  document.getElementById('cx-progress-fill').style.width = ((idx / cxPool.length) * 100).toFixed(1) + '%';
+  document.getElementById('cx-term').textContent = cxTerm.term;
+  document.getElementById('cx-template').textContent = cxTerm.template;
+  document.getElementById('cx-topic').textContent = cxTerm.topicTitle;
+  document.getElementById('cx-input').value = '';
+  document.getElementById('cx-count').textContent = '0';
+  document.getElementById('cx-model').style.display = 'none';
+  document.getElementById('cx-feedback').style.display = 'none';
+  document.getElementById('cx-mastered-btn').style.display = 'none';
+  document.getElementById('cx-missed-btn').style.display = 'none';
+  document.getElementById('cx-next-btn').style.display = 'none';
+  document.getElementById('cx-input').disabled = false;
+  document.getElementById('cx-input').focus();
+}
+
+function revealConstructModel() {
+  document.getElementById('cx-model-text').textContent = cxTerm.definition;
+  document.getElementById('cx-model').style.display = 'block';
+  document.getElementById('cx-mastered-btn').style.display = '';
+  document.getElementById('cx-missed-btn').style.display = '';
+  document.getElementById('cx-next-btn').style.display = '';
+}
+
+async function askConstructCoach() {
+  const attempt = (document.getElementById('cx-input').value || '').trim();
+  const fb = document.getElementById('cx-feedback');
+  fb.classList.remove('pass', 'miss');
+  fb.style.display = 'block';
+  if (attempt.length < 6) {
+    fb.textContent = 'Write your attempt first (at least 6 characters).';
+    return;
+  }
+  if (!window.askGemini) {
+    fb.textContent = 'Coach unavailable (Gemini wrapper missing). Reveal the model to compare manually.';
+    return;
+  }
+  const key = (window.JglStorage && window.JglStorage.getGeminiKey && window.JglStorage.getGeminiKey()) || '';
+  if (!key) {
+    fb.textContent = 'Add a Gemini key in Settings to use the Coach, or reveal the model to compare.';
+    return;
+  }
+  fb.textContent = 'Coach is looking...';
+  const system = [
+    (window.JglCoach && window.JglCoach.VOICE) || '',
+    'You are coaching a Primary 6 student who is writing the definition of a scientific term from memory.',
+    'Compare their attempt with the reference definition. Reply with Strengths (1 to 2) and Gaps (1 to 2). No score. Do not rewrite the definition for them.',
+    'No emoji. No hyphens or em dashes. Short, specific.'
+  ].join('\n');
+  const prompt = `Term: ${cxTerm.term}\nTemplate: ${cxTerm.template}\nReference definition: ${cxTerm.definition}\n\nStudent's attempt: "${attempt}"\n\nReturn JSON: {"strengths": ["..."], "gaps": ["..."]}`;
+  try {
+    const out = await window.askGemini({ system, prompt, temperature: 0.35, maxTokens: 220, responseMimeType: 'application/json', asJson: true });
+    const strengths = Array.isArray(out && out.strengths) ? out.strengths : [];
+    const gaps      = Array.isArray(out && out.gaps) ? out.gaps : [];
+    fb.innerHTML = '';
+    const mk = (label, items, colour) => {
+      const div = document.createElement('div');
+      div.style.marginBottom = '.4rem';
+      const h = document.createElement('div');
+      h.textContent = label;
+      h.style.cssText = `font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:${colour};font-weight:800;margin-bottom:.2rem`;
+      div.appendChild(h);
+      const ul = document.createElement('ul');
+      ul.style.cssText = 'margin:0;padding-left:1.1rem;font-size:.83rem';
+      items.forEach(it => { const li = document.createElement('li'); li.textContent = it; ul.appendChild(li); });
+      div.appendChild(ul);
+      return div;
+    };
+    if (strengths.length) fb.appendChild(mk('Strengths', strengths, '#6ee7b7'));
+    if (gaps.length)      fb.appendChild(mk('Gaps',      gaps,      '#fbbf24'));
+    if (!strengths.length && !gaps.length) fb.textContent = 'Coach could not parse a response.';
+  } catch (err) {
+    fb.textContent = (err && err.code === 'NO_KEY') ? 'Add a Gemini key in Settings first.' : ('Coach error: ' + ((err && err.message) || 'unknown'));
+  }
+}
+
+function cxMark(mastered) {
+  if (!window.JglStorage || !cxTerm) return;
+  const key = `${cxTerm.topicId}:${cxTerm.term}`;
+  window.JglStorage.update(p => {
+    p.terms = p.terms || {};
+    const t = p.terms[key] || { attempts: 0, mastered: false };
+    t.attempts = (t.attempts || 0) + 1;
+    t.mastered = !!mastered;
+    t.lastSeenIso = new Date().toISOString();
+    if (window.JglSpaced) {
+      t.nextDueIso = window.JglSpaced.nextDue({ attempts: t.attempts, success: mastered, fromIso: t.lastSeenIso });
+    }
+    p.terms[key] = t;
+    return p;
+  });
+}
+
+function initConstructMode() {
+  // Preference
+  let saved = 'recognise';
+  try {
+    if (window.JglStorage) {
+      const p = window.JglStorage.getProgress();
+      saved = (p.preferences && (p.preferences.vocabModeDefault || p.preferences.vocabMode)) || 'recognise';
+    }
+  } catch {}
+  setVocabMode(saved, false);
+
+  document.getElementById('mode-recognise').addEventListener('click', () => setVocabMode('recognise', true));
+  document.getElementById('mode-construct').addEventListener('click', () => setVocabMode('construct', true));
+
+  document.getElementById('cx-input').addEventListener('input', () => {
+    document.getElementById('cx-count').textContent = document.getElementById('cx-input').value.length;
+  });
+  document.getElementById('cx-reveal-btn').addEventListener('click', revealConstructModel);
+  document.getElementById('cx-coach-btn').addEventListener('click', askConstructCoach);
+  document.getElementById('cx-skip-btn').addEventListener('click', () => { cxIndex++; renderConstructTerm(); });
+  document.getElementById('cx-mastered-btn').addEventListener('click', () => { cxMark(true);  cxIndex++; renderConstructTerm(); });
+  document.getElementById('cx-missed-btn').addEventListener('click',   () => { cxMark(false); cxIndex++; renderConstructTerm(); });
+  document.getElementById('cx-next-btn').addEventListener('click',     () => { cxIndex++; renderConstructTerm(); });
+}
 </script>
 
 </body>

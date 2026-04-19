@@ -572,11 +572,56 @@
       font-weight: 600;
     }
 
+    /* ── Coach mode ── */
+    .coach-panel-struct {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+    }
+    .coach-thread .bubble {
+      padding: .7rem .85rem;
+      border-radius: 11px;
+      font-size: .88rem;
+      line-height: 1.55;
+      max-width: 92%;
+    }
+    .coach-thread .bubble.student {
+      align-self: flex-end;
+      background: rgba(56,189,248,.08);
+      border: 1px solid rgba(56,189,248,.35);
+      color: var(--text);
+      border-bottom-right-radius: 3px;
+    }
+    .coach-thread .bubble.coach {
+      align-self: flex-start;
+      background: linear-gradient(135deg, #1a2a3a 0%, #1e1835 100%);
+      border: 1px solid rgba(167,139,250,.55);
+      color: var(--text);
+      border-bottom-left-radius: 3px;
+    }
+    .coach-thread .bubble.coach strong {
+      display: block;
+      font-size: .66rem;
+      color: #a78bfa;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: .25rem;
+      font-weight: 800;
+    }
+    .coach-thread .bubble .probe-err {
+      display: block;
+      margin-top: .4rem;
+      font-size: .74rem;
+      color: #fca5a5;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 600px) {
       .question-card, .results-panel { padding: 1.25rem; }
       .marks-big { font-size: 1.8rem; }
       .progress-header { flex-wrap: wrap; gap: .5rem; }
+      .coach-panel-struct { padding: .85rem .9rem; }
     }
   </style>
 </head>
@@ -609,6 +654,16 @@
         </div>
       </div>
       <span class="progress-marks-label" id="marks-running">0 marks so far</span>
+    </div>
+
+    <!-- Marking mode: Examiner (PSLE marks) vs Coach (probing dialogue) -->
+    <div class="mode-segment" id="mode-segment" style="display:flex;gap:.6rem;align-items:center;margin:0 0 .9rem;font-size:.8rem;flex-wrap:wrap">
+      <span style="color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:.68rem">Marking mode</span>
+      <div role="tablist" aria-label="Marking mode" style="display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+        <button type="button" role="tab" id="mode-examiner" aria-selected="true" style="border:none;background:var(--accent);color:#0f172a;padding:.38rem .85rem;font-weight:700;font-size:.76rem;cursor:pointer">Examiner</button>
+        <button type="button" role="tab" id="mode-coach" aria-selected="false" style="border:none;background:transparent;color:var(--muted);padding:.38rem .85rem;font-weight:700;font-size:.76rem;cursor:pointer">Coach</button>
+      </div>
+      <span id="mode-blurb" style="color:var(--muted);font-size:.75rem">Submit once for examiner-style marks and feedback.</span>
     </div>
 
     <!-- Question card -->
@@ -662,6 +717,16 @@
         maxlength="1500"
       ></textarea>
       <div class="char-count"><span id="char-count">0</span> / 1500 characters</div>
+    </div>
+
+    <!-- Coach dialogue thread (visible only in Coach mode) -->
+    <div id="coach-panel" class="coach-panel-struct" style="display:none;margin-top:.9rem">
+      <div id="coach-thread" class="coach-thread" style="display:flex;flex-direction:column;gap:.6rem;margin-bottom:.8rem"></div>
+      <div class="coach-footer" style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">
+        <button class="btn btn-ghost" id="coach-nailed" type="button" style="font-size:.78rem">I have nailed this &mdash; show the model</button>
+        <button class="btn btn-ghost" id="coach-restart" type="button" style="font-size:.78rem">Restart this question</button>
+        <span id="coach-hint" style="color:var(--muted);font-size:.74rem;margin-left:.25rem"></span>
+      </div>
     </div>
 
     <!-- Submit row -->
@@ -996,6 +1061,14 @@ function renderQuestion() {
   // Hide results panel
   document.getElementById('results-panel').classList.remove('show');
 
+  // Reset coach thread between questions
+  coachTurns = [];
+  coachRevealed = false;
+  const coachThread = document.getElementById('coach-thread');
+  if (coachThread) coachThread.innerHTML = '';
+  const coachHint = document.getElementById('coach-hint');
+  if (coachHint) coachHint.textContent = '';
+
   // Show question card
   document.getElementById('question-card').style.display = 'block';
   document.querySelector('.answer-section').style.display = 'block';
@@ -1140,6 +1213,12 @@ async function handleSubmit() {
 
   if (!AIConfig.hasKey()) {
     showAISetup();
+    return;
+  }
+
+  // Coach mode routes to the probe dialogue; Examiner mode continues to marks.
+  if (currentMode === 'coach') {
+    await submitCoachTurn();
     return;
   }
 
@@ -1377,7 +1456,209 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Restart from summary
   document.getElementById('restart-btn').addEventListener('click', handleRestart);
+
+  // Coach mode (B4)
+  initCoachMode();
 });
+
+// ══════════════════════════════════════════════════════════════════
+//  COACH MODE (B4) — probe-only dialogue; never reveals model
+//  unless the student asks. Preference sticks to jgl.progress and
+//  flips default after 3 switches.
+// ══════════════════════════════════════════════════════════════════
+let currentMode = 'examiner';
+let coachTurns = []; // [{ role: 'student' | 'coach', content: string }]
+let coachRevealed = false;
+
+function prefsRead() {
+  try {
+    if (window.JglStorage) {
+      const p = window.JglStorage.getProgress();
+      return p.preferences || (p.preferences = {});
+    }
+  } catch {}
+  return {};
+}
+function prefsWrite(mutator) {
+  if (!window.JglStorage) return;
+  window.JglStorage.update(p => {
+    p.preferences = p.preferences || {};
+    mutator(p.preferences);
+    return p;
+  });
+}
+
+function setMode(mode, fromUser) {
+  if (mode !== 'examiner' && mode !== 'coach') return;
+  const prev = currentMode;
+  currentMode = mode;
+
+  // Persist + flip default if the student keeps switching
+  if (fromUser && prev !== mode) {
+    prefsWrite(prefs => {
+      prefs.structuredMode = mode;
+      prefs.structuredModeFlips = (prefs.structuredModeFlips || 0) + 1;
+      if (prefs.structuredModeFlips >= 3) {
+        prefs.structuredModeDefault = mode;
+      }
+    });
+  }
+
+  const exam = document.getElementById('mode-examiner');
+  const coach = document.getElementById('mode-coach');
+  const blurb = document.getElementById('mode-blurb');
+  const submitBtn = document.getElementById('submit-btn');
+  const submitHint = document.getElementById('submit-hint');
+  const coachPanel = document.getElementById('coach-panel');
+  const resultsPanel = document.getElementById('results-panel');
+
+  if (mode === 'coach') {
+    coach.style.background = 'var(--accent)'; coach.style.color = '#0f172a';
+    coach.setAttribute('aria-selected', 'true');
+    exam.style.background = 'transparent'; exam.style.color = 'var(--muted)';
+    exam.setAttribute('aria-selected', 'false');
+    blurb.textContent = 'The Coach asks one question at a time. No marks until you ask for the model.';
+    submitBtn.innerHTML = '\u00a0\u279C Ask the Coach';
+    submitHint.textContent = 'The Coach will probe, not mark.';
+    coachPanel.style.display = 'block';
+    resultsPanel.classList.remove('show');
+  } else {
+    exam.style.background = 'var(--accent)'; exam.style.color = '#0f172a';
+    exam.setAttribute('aria-selected', 'true');
+    coach.style.background = 'transparent'; coach.style.color = 'var(--muted)';
+    coach.setAttribute('aria-selected', 'false');
+    blurb.textContent = 'Submit once for examiner-style marks and feedback.';
+    submitBtn.innerHTML = '&#10003; Submit for Marking';
+    submitHint.textContent = 'Gemini will mark your answer like a real PSLE examiner.';
+    coachPanel.style.display = 'none';
+  }
+}
+
+function initCoachMode() {
+  // Apply saved preference / sticky default
+  const p = prefsRead();
+  const saved = p.structuredModeDefault || p.structuredMode || 'examiner';
+  setMode(saved, false);
+
+  document.getElementById('mode-examiner').addEventListener('click', () => setMode('examiner', true));
+  document.getElementById('mode-coach').addEventListener('click', () => setMode('coach', true));
+  document.getElementById('coach-nailed').addEventListener('click', handleCoachNailed);
+  document.getElementById('coach-restart').addEventListener('click', handleCoachRestart);
+}
+
+function coachBubble(role, text) {
+  const div = document.createElement('div');
+  div.className = 'bubble ' + role;
+  if (role === 'coach') {
+    const label = document.createElement('strong');
+    label.textContent = 'Coach';
+    div.appendChild(label);
+  }
+  const body = document.createElement('div');
+  body.textContent = text;
+  div.appendChild(body);
+  return div;
+}
+
+function coachAppend(role, text) {
+  coachTurns.push({ role, content: text });
+  const thread = document.getElementById('coach-thread');
+  thread.appendChild(coachBubble(role, text));
+  thread.scrollTop = thread.scrollHeight;
+}
+
+async function submitCoachTurn() {
+  const answer = (document.getElementById('answer-input').value || '').trim();
+  if (!answer) {
+    document.getElementById('coach-hint').textContent = 'Write something, then ask the Coach.';
+    return;
+  }
+  const q = shuffledQuestions[currentIndex];
+  coachAppend('student', answer);
+  document.getElementById('answer-input').value = '';
+  document.getElementById('char-count').textContent = '0';
+
+  // Show thinking bubble
+  const thread = document.getElementById('coach-thread');
+  const thinking = coachBubble('coach', 'Thinking...');
+  thread.appendChild(thinking);
+  thread.scrollTop = thread.scrollHeight;
+
+  const system = [
+    (window.JglCoach && window.JglCoach.VOICE) || '',
+    'You are coaching a Primary 6 Singapore student on a PSLE Science open-ended question.',
+    'You have the mark scheme but MUST NOT quote it. Never reveal the model answer.',
+    'Reply with ONE probing question in 1 to 2 sentences. If the student has nailed a mark point, acknowledge it briefly with specific praise (strategy only), then probe the next gap.',
+    'No emoji. No "great job" or "I feel". No hyphens or em dashes.',
+    'When no more probes are needed, write exactly: "That covers the mark points. Click \\"I have nailed this\\" to compare with the model."'
+  ].join('\n');
+
+  const history = coachTurns.slice(-10).map(t => `${t.role === 'student' ? 'Student' : 'Coach'}: ${t.content}`).join('\n');
+  const mpList = (q.markPoints || []).map((pt, i) => `${i + 1}. ${pt}`).join('\n');
+  const prompt = `Question (${q.marks} marks, command word: ${q.command}): ${q.question}\n\nHidden mark scheme (for your use only, never quote):\n${mpList}\n\nDialogue so far:\n${history}\n\nWrite your next probe.`;
+
+  try {
+    if (!window.askGemini) throw new Error('Gemini wrapper missing.');
+    const text = await window.askGemini({ system, prompt, temperature: 0.55, maxTokens: 160 });
+    thinking.remove();
+    coachAppend('coach', (text || 'Could not reach Gemini. Try again.').trim());
+    document.getElementById('coach-hint').textContent = '';
+  } catch (err) {
+    thinking.remove();
+    const msg = (err && err.code === 'NO_KEY')
+      ? 'Open Settings to add a Gemini key so the Coach can probe.'
+      : (err && err.message) || 'Coach unavailable.';
+    const errBubble = coachBubble('coach', 'The Coach cannot probe right now.');
+    const span = document.createElement('span');
+    span.className = 'probe-err';
+    span.textContent = msg;
+    errBubble.appendChild(span);
+    thread.appendChild(errBubble);
+  }
+}
+
+function handleCoachNailed() {
+  if (coachRevealed) return;
+  coachRevealed = true;
+  const q = shuffledQuestions[currentIndex];
+  const thread = document.getElementById('coach-thread');
+  const reveal = document.createElement('div');
+  reveal.className = 'bubble coach';
+  reveal.innerHTML = '<strong>Model answer</strong>';
+  const body = document.createElement('div');
+  body.textContent = q.modelAnswer || '(No model stored for this question.)';
+  reveal.appendChild(body);
+  thread.appendChild(reveal);
+
+  if (Array.isArray(q.markPoints) && q.markPoints.length) {
+    const mp = document.createElement('div');
+    mp.className = 'bubble coach';
+    mp.innerHTML = '<strong>Mark points</strong>';
+    const ul = document.createElement('ul');
+    ul.style.cssText = 'margin:.25rem 0 0 .95rem;padding:0';
+    q.markPoints.forEach(pt => {
+      const li = document.createElement('li');
+      li.textContent = pt;
+      ul.appendChild(li);
+    });
+    mp.appendChild(ul);
+    thread.appendChild(mp);
+  }
+
+  thread.scrollTop = thread.scrollHeight;
+  document.getElementById('coach-hint').textContent = 'When you are ready, move on with Next.';
+  try { Streak.record(); } catch {}
+}
+
+function handleCoachRestart() {
+  coachTurns = [];
+  coachRevealed = false;
+  document.getElementById('coach-thread').innerHTML = '';
+  document.getElementById('coach-hint').textContent = '';
+  document.getElementById('answer-input').value = '';
+  document.getElementById('answer-input').disabled = false;
+  document.getElementById('char-count').textContent = '0';
+}
 </script>
 </body>
 </html>
