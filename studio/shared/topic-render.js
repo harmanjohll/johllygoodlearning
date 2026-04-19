@@ -127,83 +127,119 @@
     const slot = pane && pane.querySelector('[data-key-ideas-root]');
     if (!slot) return;
     const ideas = Array.isArray(topic.keyIdeas) ? topic.keyIdeas : [];
+    const traps = Array.isArray(topic.misconceptions) ? topic.misconceptions : [];
     slot.innerHTML = '';
-    if (!ideas.length) {
+
+    if (!ideas.length && !traps.length) {
       slot.innerHTML = '<p class="summary-text" style="color:var(--muted);font-style:italic">Key Ideas for this topic are not available yet.</p>';
       return;
     }
+
     const state = keyIdeaState(topic.id);
-    const list = document.createElement('ol');
-    list.className = 'key-ideas-list';
-    ideas.forEach((idea, i) => {
-      const li = document.createElement('li');
-      li.className = 'key-idea' + (state[i] ? ' done' : '');
-      li.dataset.index = String(i);
 
-      const num = document.createElement('span');
-      num.className = 'key-idea-num';
-      num.textContent = (i + 1).toString().padStart(2, '0');
+    if (ideas.length) {
+      const list = document.createElement('ol');
+      list.className = 'key-ideas-list';
+      ideas.forEach((idea, i) => {
+        const li = document.createElement('li');
+        li.className = 'key-idea' + (state[i] ? ' done' : '');
+        li.dataset.index = String(i);
 
-      const body = document.createElement('div');
-      body.className = 'key-idea-body';
-      body.textContent = idea;
+        const num = document.createElement('span');
+        num.className = 'key-idea-num';
+        num.textContent = (i + 1).toString().padStart(2, '0');
 
-      const actions = document.createElement('div');
-      actions.style.cssText = 'display:flex;flex-direction:column;gap:.35rem;align-items:stretch';
+        const body = document.createElement('div');
+        body.className = 'key-idea-body';
+        body.textContent = idea;
 
-      const check = document.createElement('button');
-      check.type = 'button';
-      check.className = 'key-idea-check';
-      check.setAttribute('aria-pressed', state[i] ? 'true' : 'false');
-      check.textContent = state[i] ? '✓ I said it' : '✓ I said it';
-      check.addEventListener('click', () => {
-        const on = li.classList.toggle('done');
-        check.setAttribute('aria-pressed', on ? 'true' : 'false');
-        persistKeyIdea(topic.id, i, on);
+        const actions = document.createElement('div');
+        actions.style.cssText = 'display:flex;flex-direction:column;gap:.35rem;align-items:stretch';
+
+        const check = document.createElement('button');
+        check.type = 'button';
+        check.className = 'key-idea-check';
+        check.setAttribute('aria-pressed', state[i] ? 'true' : 'false');
+        check.textContent = '\u2713 I said it';
+        check.addEventListener('click', () => {
+          const on = li.classList.toggle('done');
+          check.setAttribute('aria-pressed', on ? 'true' : 'false');
+          persistKeyIdea(topic.id, i, on);
+        });
+
+        const recall = document.createElement('button');
+        recall.type = 'button';
+        recall.className = 'key-idea-check';
+        recall.textContent = '\ud83d\udcdd Say it back';
+        recall.addEventListener('click', () => {
+          li.classList.toggle('recalling');
+        });
+
+        actions.appendChild(check);
+        actions.appendChild(recall);
+
+        const recallPanel = document.createElement('div');
+        recallPanel.className = 'key-idea-recall';
+        const ta = document.createElement('textarea');
+        ta.placeholder = 'Say this idea back in your own words...';
+        ta.setAttribute('aria-label', `Say idea ${i + 1} back in your own words`);
+        const act = document.createElement('div');
+        act.className = 'key-idea-recall-actions';
+        const go = document.createElement('button');
+        go.type = 'button';
+        go.className = 'btn btn-primary';
+        go.style.cssText = 'font-size:.78rem;padding:.35rem .85rem';
+        go.textContent = 'Check';
+        const fb = document.createElement('div');
+        fb.className = 'key-idea-recall-feedback';
+        go.addEventListener('click', () => checkRecall(idea, ta.value, fb, () => {
+          li.classList.add('done');
+          check.setAttribute('aria-pressed', 'true');
+          persistKeyIdea(topic.id, i, true);
+        }));
+        act.appendChild(go);
+        recallPanel.appendChild(ta);
+        recallPanel.appendChild(act);
+        recallPanel.appendChild(fb);
+
+        li.appendChild(num);
+        li.appendChild(body);
+        li.appendChild(actions);
+        li.appendChild(recallPanel);
+        list.appendChild(li);
       });
+      slot.appendChild(list);
+    }
 
-      const recall = document.createElement('button');
-      recall.type = 'button';
-      recall.className = 'key-idea-check';
-      recall.textContent = '📝 Say it back';
-      recall.addEventListener('click', () => {
-        li.classList.toggle('recalling');
+    if (traps.length) {
+      const section = document.createElement('section');
+      section.className = 'key-traps';
+      const heading = document.createElement('h3');
+      heading.className = 'key-traps-heading';
+      heading.textContent = 'Common traps to avoid';
+      section.appendChild(heading);
+      const tagline = document.createElement('p');
+      tagline.className = 'key-traps-tag';
+      tagline.textContent = 'Tempting but wrong. If you hear yourself thinking these, stop and check.';
+      section.appendChild(tagline);
+      const list = document.createElement('ul');
+      list.className = 'key-traps-list';
+      traps.forEach(t => {
+        const li = document.createElement('li');
+        li.className = 'key-trap';
+        const claim = document.createElement('div');
+        claim.className = 'key-trap-claim';
+        claim.textContent = t.claim;
+        const fix = document.createElement('div');
+        fix.className = 'key-trap-fix';
+        fix.textContent = t.correction;
+        li.appendChild(claim);
+        li.appendChild(fix);
+        list.appendChild(li);
       });
-
-      actions.appendChild(check);
-      actions.appendChild(recall);
-
-      const recallPanel = document.createElement('div');
-      recallPanel.className = 'key-idea-recall';
-      const ta = document.createElement('textarea');
-      ta.placeholder = 'Say this idea back in your own words...';
-      ta.setAttribute('aria-label', `Say idea ${i + 1} back in your own words`);
-      const act = document.createElement('div');
-      act.className = 'key-idea-recall-actions';
-      const go = document.createElement('button');
-      go.type = 'button';
-      go.className = 'btn btn-primary';
-      go.style.cssText = 'font-size:.78rem;padding:.35rem .85rem';
-      go.textContent = 'Check';
-      const fb = document.createElement('div');
-      fb.className = 'key-idea-recall-feedback';
-      go.addEventListener('click', () => checkRecall(idea, ta.value, fb, () => {
-        li.classList.add('done');
-        check.setAttribute('aria-pressed', 'true');
-        persistKeyIdea(topic.id, i, true);
-      }));
-      act.appendChild(go);
-      recallPanel.appendChild(ta);
-      recallPanel.appendChild(act);
-      recallPanel.appendChild(fb);
-
-      li.appendChild(num);
-      li.appendChild(body);
-      li.appendChild(actions);
-      li.appendChild(recallPanel);
-      list.appendChild(li);
-    });
-    slot.appendChild(list);
+      section.appendChild(list);
+      slot.appendChild(section);
+    }
   }
 
   async function checkRecall(idea, studentText, feedbackEl, onPass) {
