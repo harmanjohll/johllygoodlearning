@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Singapore Primary Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Hub-specific styles */
+    .hero {
+      text-align: center;
+      padding: 3.5rem 1rem 2.5rem;
+      position: relative;
+    }
+    .hero-title {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: .5rem;
+    }
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto 2rem;
+    }
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+    .stat-pill {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: .6rem 1.2rem;
+      border-radius: 99px;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+    .stat-pill span { color: var(--accent); }
+
+    /* Theme section */
+    .theme-section { margin: 2rem 0; }
+    .theme-header {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: 1rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .theme-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .theme-title { font-size: 1rem; font-weight: 700; }
+    .theme-desc  { font-size: .78rem; color: var(--muted); }
+
+    /* Topic grid */
+    .topics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .topic-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .topic-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .topic-card:hover:not(.coming-soon) { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,.4); }
+    .topic-card.coming-soon { opacity: .55; }
+    .topic-meta { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .6rem; }
+    .topic-name { font-size: .95rem; font-weight: 700; margin-bottom: .3rem; }
+    .topic-blurb { font-size: .77rem; color: var(--muted); line-height: 1.45; margin-bottom: .9rem; }
+    .topic-footer { display: flex; align-items: center; justify-content: space-between; }
+    .mastery-ring {
+      display: flex; align-items: center; gap: .35rem;
+      font-size: .72rem; color: var(--muted);
+    }
+    .ring-svg { width: 32px; height: 32px; }
+
+    /* "Available" button glow */
+    .btn-topic {
+      font-size: .78rem;
+      padding: .35rem .85rem;
+      border-radius: 7px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all .15s;
+      text-decoration: none;
+    }
+    .btn-available { background: var(--accent); color: #0f172a; }
+    .btn-available:hover { background: #7dd3fc; }
+    .btn-soon { background: var(--border); color: var(--muted); cursor: default; }
+
+    /* Streak widget */
+    .streak-widget {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: .9rem 1.4rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .streak-fire { font-size: 2.2rem; line-height: 1; }
+    .streak-info { flex: 1; min-width: 140px; }
+    .streak-count { font-size: 1.35rem; font-weight: 800; color: var(--text); }
+    .streak-count span { color: #f97316; }
+    .streak-sub { font-size: .75rem; color: var(--muted); margin-top: .1rem; }
+    .streak-dots { display: flex; gap: 5px; align-items: center; }
+    .streak-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--border);
+    }
+    .streak-dot.active { background: #f97316; }
+    .streak-dot.today  { background: #fcd34d; box-shadow: 0 0 6px #f97316; }
+
+    /* Overall progress banner */
+    .overall-progress {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .overall-progress h3 { font-size: 1rem; margin-bottom: .3rem; }
+    .overall-progress .progress-bar-wrap { width: 220px; }
+
+    /* Container */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      font-size: .78rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .stats-row { gap: .75rem; }
+      .overall-progress { flex-direction: column; }
+      .overall-progress .progress-bar-wrap { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HERO ═══════════════════════════ -->
+<div class="hero">
+  <div class="container">
+    <div style="font-size:2.5rem;margin-bottom:.5rem">🔬</div>
+    <h1 class="hero-title">Singapore Primary Science Lab</h1>
+    <p class="hero-sub">
+      Explore, simulate, and master every science topic for P3–P6.
+      Learn inductively through experiments, build concept maps,
+      and test your understanding with targeted quizzes.
+    </p>
+    <div class="stats-row">
+      <div class="stat-pill">📚 <span id="stat-topics">0</span> Topics</div>
+      <div class="stat-pill">🎮 <span id="stat-sims">0</span> Simulations</div>
+      <div class="stat-pill">⭐ Overall: <span id="stat-pct">0%</span></div>
+      <div class="stat-pill">🗺 <span id="stat-maps">0</span> Mind Maps Saved</div>
+    </div>
+    <div style="display:flex;gap:.75rem;justify-content:center;margin-top:1.25rem;flex-wrap:wrap">
+      <a href="assess/index.html"     class="btn btn-primary" style="font-size:.88rem">🧠 Synoptic Assessment</a>
+      <a href="explain/index.html"    class="btn btn-primary" style="font-size:.88rem">✍️ Explain-It-Back</a>
+      <a href="structured/index.html" class="btn btn-primary" style="font-size:.88rem">📋 Structured Answers</a>
+      <a href="commands/index.html"   class="btn btn-ghost"   style="font-size:.88rem">🔑 Command Words</a>
+      <a href="flashcards/index.html" class="btn btn-ghost"   style="font-size:.88rem">🃏 Flashcards</a>
+      <a href="vocab/index.html"      class="btn btn-ghost"   style="font-size:.88rem">📖 Vocab Drill</a>
+      <a href="diagrams/index.html"   class="btn btn-ghost"   style="font-size:.88rem">🏷 Label Diagrams</a>
+      <a href="psle-tips/index.html"  class="btn btn-ghost"   style="font-size:.88rem">📝 PSLE Tips</a>
+      <button class="btn btn-ghost" onclick="showAISetup()"   style="font-size:.88rem">🤖 Set Up AI Quizzes</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Streak widget -->
+  <div class="streak-widget" id="streak-widget">
+    <div class="streak-fire" id="streak-fire">🔥</div>
+    <div class="streak-info">
+      <div class="streak-count"><span id="streak-count">0</span>-day study streak</div>
+      <div class="streak-sub">Longest: <span id="streak-longest">0</span> days &nbsp;·&nbsp; <span id="streak-status">Start studying to begin your streak!</span></div>
+    </div>
+    <div class="streak-dots" id="streak-dots" title="Last 7 days"></div>
+  </div>
+
+  <!-- Overall progress -->
+  <div class="overall-progress">
+    <div style="flex:1;min-width:180px">
+      <h3>🏆 Your Science Mastery</h3>
+      <p style="font-size:.78rem">Across all available topics</p>
+    </div>
+    <div style="flex:2;min-width:220px">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="overall-bar" style="width:0%;background:linear-gradient(90deg,#38bdf8,#818cf8)"></div>
+      </div>
+      <p style="font-size:.72rem;margin-top:.3rem;color:var(--muted)">Complete simulations, quizzes, and mind maps to level up</p>
+    </div>
+    <a href="topics/circuits/index.html" class="btn btn-primary" style="white-space:nowrap">🚀 Start Learning</a>
+  </div>
+
+  <!-- Review-due banner -->
+  <div id="review-banner" style="display:none;background:#1a1200;border:1px solid #f59e0b55;border-radius:12px;padding:.85rem 1.25rem;margin-bottom:1.5rem;align-items:center;gap:.75rem;font-size:.88rem">
+    <span style="font-size:1.2rem">📅</span>
+    <span id="review-banner-text" style="color:#fcd34d"></span>
+  </div>
+
+  <!-- ════════════════ DIVERSITY ════════════════ -->
+  <div class="theme-section">
+    <div class="theme-header">
+      <div class="theme-dot" style="background:var(--diversity)"></div>
+      <div>
+        <div class="theme-title" style="color:var(--diversity)">DIVERSITY</div>
+        <div class="theme-desc">Classifying and comparing living and non-living things, plants, animals, and materials</div>
+      </div>
+    </div>
+    <div class="topics-grid" id="grid-diversity"></div>
+  </div>
+
+  <!-- ════════════════ CYCLES ════════════════ -->
+  <div class="theme-section">
+    <div class="theme-header">
+      <div class="theme-dot" style="background:var(--cycles)"></div>
+      <div>
+        <div class="theme-title" style="color:var(--cycles)">CYCLES</div>
+        <div class="theme-desc">Life cycles of organisms, water cycle, and changes that repeat in nature</div>
+      </div>
+    </div>
+    <div class="topics-grid" id="grid-cycles"></div>
+  </div>
+
+  <!-- ════════════════ SYSTEMS ════════════════ -->
+  <div class="theme-section">
+    <div class="theme-header">
+      <div class="theme-dot" style="background:var(--systems)"></div>
+      <div>
+        <div class="theme-title" style="color:var(--systems)">SYSTEMS</div>
+        <div class="theme-desc">Organs and body systems, electrical circuits, plant transport</div>
+      </div>
+    </div>
+    <div class="topics-grid" id="grid-systems"></div>
+  </div>
+
+  <!-- ════════════════ INTERACTIONS ════════════════ -->
+  <div class="theme-section">
+    <div class="theme-header">
+      <div class="theme-dot" style="background:var(--interactions)"></div>
+      <div>
+        <div class="theme-title" style="color:var(--interactions)">INTERACTIONS</div>
+        <div class="theme-desc">Forces, magnets, food webs, and how organisms interact with their environment</div>
+      </div>
+    </div>
+    <div class="topics-grid" id="grid-interactions"></div>
+  </div>
+
+  <!-- ════════════════ ENERGY ════════════════ -->
+  <div class="theme-section">
+    <div class="theme-header">
+      <div class="theme-dot" style="background:var(--energy)"></div>
+      <div>
+        <div class="theme-title" style="color:var(--energy)">ENERGY</div>
+        <div class="theme-desc">Light, heat, photosynthesis — how energy is transferred and transformed</div>
+      </div>
+    </div>
+    <div class="topics-grid" id="grid-energy"></div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  <p>Singapore Primary Science Lab · Built for the curious young scientist · P3 – P6 MOE Syllabus</p>
+  <p style="margin-top:.3rem">Cornell Notes · Interactive Simulations · Mind Maps · Mastery Quizzes · AI Quizzes · Synoptic Assessment</p>
+</footer>
+
+<script src="shared.js"></script>
+<script src="shared/storage.js"></script>
+<script src="shared/gemini.js"></script>
+<script src="shared/content.js"></script>
+<script src="shared/lab.js"></script>
+<script>
+// ── Topic catalogue ───────────────────────────────────────
+const TOPICS = [
+  // DIVERSITY
+  { id:'diversity', name:'Diversity of Living Things', theme:'diversity', levels:['P3'],
+    blurb:'Classify living vs non-living things; vertebrates, invertebrates, and plant groups.',
+    url:'topics/diversity/index.html', ready:true },
+  { id:'diversity-materials', name:'Diversity of Materials', theme:'diversity', levels:['P4'],
+    blurb:'Compare properties of materials and match them to uses. Explore solubility and conductivity.',
+    url:'topics/materials/index.html', ready:true },
+
+  // CYCLES
+  { id:'life-cycles', name:'Life Cycles of Animals', theme:'cycles', levels:['P3'],
+    blurb:'Explore complete and incomplete metamorphosis in butterflies, frogs & more.',
+    url:'topics/life-cycles/index.html', ready:true },
+  { id:'plant-lifecycle', name:'Life Cycles of Plants', theme:'cycles', levels:['P4'],
+    blurb:'Pollination, seed dispersal, germination, and the plant life cycle.', url:null },
+  { id:'water-cycle', name:'Water Cycle', theme:'cycles', levels:['P5'],
+    blurb:'Evaporation, condensation, precipitation — the journey of water on Earth.',
+    url:'topics/water-cycle/index.html', ready:true },
+  { id:'plant-reproduction', name:'Reproduction in Plants', theme:'cycles', levels:['P6'],
+    blurb:'Sexual and asexual reproduction; role of flowers and fruits.',
+    url:'topics/plant-reproduction/index.html', ready:true },
+
+  // SYSTEMS
+  { id:'digestive', name:'Human Digestive System', theme:'systems', levels:['P4'],
+    blurb:'Trace food through the digestive tract and understand each organ\'s role.',
+    url:'topics/digestive/index.html', ready:true },
+  { id:'respiratory', name:'Respiratory System', theme:'systems', levels:['P5'],
+    blurb:'How lungs, diaphragm and alveoli supply oxygen — animated breathing sim.',
+    url:'topics/respiratory/index.html', ready:true },
+  { id:'circulatory', name:'Circulatory System', theme:'systems', levels:['P5'],
+    blurb:'The beating heart, blood vessels, and blood — animated circulation sim.',
+    url:'topics/circulatory/index.html', ready:true },
+  { id:'circuits', name:'Electrical System & Circuits', theme:'systems', levels:['P5','P6'],
+    blurb:'Build and analyse series & parallel circuits; explore conductors and insulators.',
+    url:'topics/circuits/index.html', ready:true },
+  { id:'plants', name:'Photosynthesis & Plants', theme:'systems', levels:['P5','P6'],
+    blurb:'How plants make food using light; leaf anatomy, transpiration, and transport.',
+    url:'topics/plants/index.html', ready:true },
+  { id:'cell-system', name:'Cells & Body Systems', theme:'systems', levels:['P6'],
+    blurb:'From cell to tissue to organ to system — the hierarchy of life.',
+    url:'topics/cell-system/index.html', ready:true },
+  { id:'human-reproduction', name:'Human Reproduction', theme:'systems', levels:['P6'],
+    blurb:'Male and female reproductive systems, fertilisation, foetal development, and puberty.',
+    url:'topics/human-reproduction/index.html', ready:true },
+
+  // INTERACTIONS
+  { id:'magnets', name:'Magnets', theme:'interactions', levels:['P3'],
+    blurb:'Properties of magnets, poles, magnetic fields, and everyday uses.',
+    url:'topics/magnets/index.html', ready:true },
+  { id:'habitats', name:'Habitats & Food Chains', theme:'interactions', levels:['P4'],
+    blurb:'Build food webs, explore predator-prey dynamics in different habitats.',
+    url:'topics/habitats/index.html', ready:true },
+  { id:'forces', name:'Forces', theme:'interactions', levels:['P5'],
+    blurb:'Investigate friction, gravitational force, and spring force with live simulations.',
+    url:'topics/forces/index.html', ready:true },
+  { id:'ecosystems', name:'Interactions Within Environment', theme:'interactions', levels:['P6'],
+    blurb:'Predator-prey relationships, adaptations, and ecosystem balance.',
+    url:'topics/ecosystems/index.html', ready:true },
+
+  // ENERGY
+  { id:'sound', name:'Sound', theme:'energy', levels:['P4','P5'],
+    blurb:'Vibration creates sound — explore pitch, loudness, and how sound travels through different media.',
+    url:'topics/sound/index.html', ready:true },
+  { id:'light', name:'Light & Shadows', theme:'energy', levels:['P4'],
+    blurb:'Ray tracing, reflection, refraction, colour mixing — interactive light sim.',
+    url:'topics/light/index.html', ready:true },
+  { id:'heat', name:'Heat & Temperature', theme:'energy', levels:['P4','P5'],
+    blurb:'Conduction race, thermometer reading, and thermal expansion simulations.',
+    url:'topics/heat/index.html', ready:true },
+];
+
+const THEME_IDS = ['diversity','cycles','systems','interactions','energy'];
+const THEME_COLORS = {
+  diversity: 'var(--diversity)', cycles: 'var(--cycles)',
+  systems: 'var(--systems)', interactions: 'var(--interactions)', energy: 'var(--energy)'
+};
+const LEVEL_BADGES = { P3:'badge-p3', P4:'badge-p4', P5:'badge-p5', P6:'badge-p6' };
+
+// ── Mastery ring SVG ──────────────────────────────────────
+function ringHTML(pct, color) {
+  const r = 12, circ = 2 * Math.PI * r;
+  const dash = (pct / 100) * circ;
+  return `<svg class="ring-svg" viewBox="0 0 32 32">
+    <circle cx="16" cy="16" r="${r}" fill="none" stroke="var(--border)" stroke-width="3"/>
+    <circle cx="16" cy="16" r="${r}" fill="none" stroke="${color}" stroke-width="3"
+      stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}"
+      stroke-linecap="round"
+      transform="rotate(-90 16 16)"/>
+    <text x="16" y="20" text-anchor="middle" fill="${color}" font-size="8" font-weight="700">${pct}%</text>
+  </svg>`;
+}
+
+// ── Build cards ───────────────────────────────────────────
+function buildCards() {
+  const allProgress = JSON.parse(localStorage.getItem('sciLab_progress') || '{}');
+  let overallSum = 0, overallCount = 0, mapsCount = 0, dueTopics = [];
+
+  THEME_IDS.forEach(theme => {
+    const grid = document.getElementById(`grid-${theme}`);
+    TOPICS.filter(t => t.theme === theme).forEach(topic => {
+      const p   = allProgress[topic.id] || {};
+      const pct = computeMastery(p);
+      if (topic.ready) { overallSum += pct; overallCount++; }
+      if (p.mindMapSaved) mapsCount++;
+
+      const color = THEME_COLORS[theme];
+      const levelBadges = topic.levels.map(l =>
+        `<span class="badge ${LEVEL_BADGES[l]}">${l}</span>`
+      ).join('');
+      const themeBadge = `<span class="badge badge-${theme}">${theme}</span>`;
+
+      const isNew  = topic.ready && (p.visitCount || 0) === 0;
+      const isDue  = topic.ready && Progress.isDue(topic.id) && pct > 0;
+      const newBadge  = isNew ? `<span style="background:#1a1a00;color:#fcd34d;border:1px solid #f59e0b66;font-size:.63rem;padding:.15rem .45rem;border-radius:5px;font-weight:700">🆕 New</span>` : '';
+      const dueBadge  = isDue ? `<span style="background:#2a1400;color:#fb923c;border:1px solid #f9731666;font-size:.63rem;padding:.15rem .45rem;border-radius:5px;font-weight:700">📅 Review</span>` : '';
+      if (isDue) dueTopics.push(topic.name);
+
+      const card = document.createElement('div');
+      card.className = `topic-card${topic.ready ? '' : ' coming-soon'}`;
+      card.style.setProperty('--topic-color', color);
+      card.querySelector?.(':before');
+      // Set ::before colour via inline style trick
+      card.setAttribute('style', `--topic-color:${color};`);
+      card.innerHTML = `
+        <style>.topic-card[data-id="${topic.id}"]::before{background:${color};}</style>
+        <div class="topic-meta">${themeBadge} ${levelBadges} ${newBadge} ${dueBadge}</div>
+        <div class="topic-name">${topic.name}</div>
+        <div class="topic-blurb">${topic.blurb}</div>
+        <div class="topic-footer">
+          <div class="mastery-ring">
+            ${ringHTML(pct, color)}
+            <span>${pct}%</span>
+          </div>
+          ${topic.ready
+            ? `<a href="${topic.url}" class="btn-topic btn-available">▶ Start</a>`
+            : `<span class="btn-topic btn-soon">🔒 Coming soon</span>`
+          }
+        </div>
+      `;
+      card.dataset.id = topic.id;
+      grid.appendChild(card);
+    });
+  });
+
+  // Stats
+  const readyTopics = TOPICS.filter(t => t.ready).length;
+  const overallPct = overallCount ? Math.round(overallSum / overallCount) : 0;
+  document.getElementById('stat-topics').textContent = TOPICS.length;
+  document.getElementById('stat-sims').textContent = readyTopics;
+  document.getElementById('stat-pct').textContent = overallPct + '%';
+  document.getElementById('stat-maps').textContent = mapsCount;
+  document.getElementById('overall-bar').style.width = overallPct + '%';
+
+  if (dueTopics.length > 0) {
+    const banner = document.getElementById('review-banner');
+    document.getElementById('review-banner-text').textContent =
+      `${dueTopics.length} topic${dueTopics.length > 1 ? 's' : ''} due for review: ${dueTopics.join(', ')}`;
+    banner.style.display = 'flex';
+  }
+}
+
+function computeMastery(p) {
+  let score = 0;
+  if ((p.visitCount || 0) > 0) score += 10;
+  if (p.simUsed)               score += 30;
+  if (p.mindMapSaved)          score += 20;
+  if (p.quizTotal > 0)         score += Math.round((p.quizScore / p.quizTotal) * 40);
+  return Math.min(score, 100);
+}
+
+buildCards();
+
+// ── Streak widget ────────────────────────────────────────
+function renderStreak() {
+  const s = Streak.get();
+  document.getElementById('streak-count').textContent   = s.current;
+  document.getElementById('streak-longest').textContent = s.longest;
+
+  const fire = document.getElementById('streak-fire');
+  fire.textContent = s.current >= 7 ? '🔥' : s.current >= 3 ? '🔥' : s.current > 0 ? '⚡' : '💤';
+
+  const today = new Date().toISOString().slice(0, 10);
+  const statusEl = document.getElementById('streak-status');
+  if (s.current === 0) {
+    statusEl.textContent = 'Study anything today to start your streak!';
+  } else if (s.lastActivity === today) {
+    statusEl.textContent = `Studied today ✓`;
+  } else {
+    statusEl.textContent = `Study today to keep it going!`;
+    statusEl.style.color = '#f97316';
+  }
+
+  // Last 7 day dots
+  const dotsEl = document.getElementById('streak-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 6; i >= 0; i--) {
+    const d   = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+    const dot = document.createElement('div');
+    dot.className = 'streak-dot' + (d === today && s.activeDays.includes(d) ? ' today' : s.activeDays.includes(d) ? ' active' : '');
+    dot.title = d;
+    dotsEl.appendChild(dot);
+  }
+}
+renderStreak();
+</script>
+</body>
+</html>
