@@ -371,6 +371,7 @@
 <script src="../../shared/gemini.js"></script>
 <script src="../../shared/content.js"></script>
 <script src="../../shared/lab.js"></script>
+<script src="../../shared/topic-render.js"></script>
 <script>
 // ══════════════════════════════════════════
 // CIRCUIT SIMULATOR
@@ -904,64 +905,6 @@ function drawOhmCanvas(V, R, I) {
   ctx.fillStyle = '#64748b'; ctx.font = '11px Inter'; ctx.textAlign = 'center';
   ctx.fillText(`I = V / R = ${V} / ${R} = ${I.toFixed(3)} A`, W / 2, H - 8);
 }
-</script>
-
-<script>
-// Phase 1 pilot: render circuits glossary and key questions from
-// /studio/shared/content/systems.json so this topic no longer relies
-// on inline HTML for that content. If the JSON is missing or empty,
-// the inline HTML stays as-is (no regression).
-(async () => {
-  if (!window.JglContent) return;
-  let topic;
-  try { topic = await window.JglContent.loadTopic('circuits'); } catch { return; }
-  if (!topic) return;
-
-  const cue = document.querySelector('#tab-learn .cornell-cue');
-  if (!cue) return;
-
-  const labels = cue.querySelectorAll('.cornell-cue-label');
-
-  // Replace Key Questions (first label) if the JSON has them.
-  if (Array.isArray(topic.keyQuestions) && topic.keyQuestions.length && labels[0]) {
-    let node = labels[0].nextElementSibling;
-    while (node && node.classList.contains('cue-question')) {
-      const next = node.nextElementSibling;
-      node.remove();
-      node = next;
-    }
-    let anchor = labels[0];
-    topic.keyQuestions.forEach(q => {
-      const div = document.createElement('div');
-      div.className = 'cue-question';
-      div.textContent = q;
-      anchor.insertAdjacentElement('afterend', div);
-      anchor = div;
-    });
-  }
-
-  // Replace Glossary (last label is "Glossary") if the JSON has terms.
-  const glossaryLabel = Array.from(labels).find(l => l.textContent.trim() === 'Glossary');
-  if (glossaryLabel && Array.isArray(topic.glossary) && topic.glossary.length) {
-    cue.querySelectorAll('.glossary-term').forEach(el => el.remove());
-    const frag = document.createDocumentFragment();
-    topic.glossary.forEach(item => {
-      const wrap = document.createElement('div');
-      wrap.className = 'glossary-term';
-      const name = document.createElement('div');
-      name.className = 'term-name';
-      name.textContent = item.term;
-      const def = document.createElement('div');
-      def.className = 'term-def';
-      def.textContent = item.definition;
-      wrap.appendChild(name);
-      wrap.appendChild(def);
-      frag.appendChild(wrap);
-    });
-    cue.appendChild(frag);
-    if (typeof initGlossary === 'function') initGlossary();
-  }
-})();
 </script>
 </body>
 </html>
