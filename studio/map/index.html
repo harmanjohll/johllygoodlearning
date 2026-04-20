@@ -9,222 +9,288 @@
   <link rel="stylesheet" href="../style.css">
   <script src="https://unpkg.com/d3@7/dist/d3.min.js"></script>
   <style>
+    html, body { height: 100%; }
     body { padding: 0; overflow: hidden; }
 
-    .map-shell {
+    .shell {
       display: grid;
-      grid-template-columns: 1fr 320px;
+      grid-template-columns: 1fr 340px;
       grid-template-rows: auto 1fr;
       height: 100vh;
-      background: var(--bg);
+      background: #0a0f1d;
     }
-
-    .map-header {
+    .head {
       grid-column: 1 / -1;
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: .7rem 1.25rem;
-      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      padding: .55rem 1rem;
+      display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
     }
-    .map-header h1 {
-      font-size: 1.05rem; font-weight: 800; margin: 0;
+    .head h1 {
+      margin: 0; font-size: 1rem; font-weight: 800;
       background: linear-gradient(135deg, #a78bfa 0%, #38bdf8 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    .map-header .spacer { flex: 1; }
+    .head .spacer { flex: 1; }
+    .head .search {
+      background: var(--card); color: var(--text);
+      border: 1px solid var(--border); border-radius: 7px;
+      padding: .34rem .6rem; font-size: .78rem; width: 220px; outline: none;
+    }
+    .head .search:focus { border-color: var(--accent); }
 
-    .mode-toggle {
-      display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
-    }
-    .mode-toggle button {
-      background: transparent; color: var(--muted);
-      border: none; padding: .45rem .9rem; font-size: .78rem; font-weight: 700; cursor: pointer;
-      transition: all .15s;
-    }
-    .mode-toggle button.active { background: var(--accent); color: #0f172a; }
-    .mode-toggle button:not(.active):hover { background: var(--card); color: var(--text); }
+    .legend { display: inline-flex; gap: .7rem; font-size: .66rem; color: var(--muted); flex-wrap: wrap; }
+    .legend span { display: inline-flex; align-items: center; gap: .28rem; }
+    .legend span::before { content:''; width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    .lg-diversity::before    { background: var(--diversity); }
+    .lg-cycles::before       { background: var(--cycles); }
+    .lg-systems::before      { background: var(--systems); }
+    .lg-interactions::before { background: var(--interactions); }
+    .lg-energy::before       { background: var(--energy); }
+    .lg-note::before { background: #fbbf24; border-radius: 2px; transform: rotate(45deg); }
 
-    .legend {
-      display: inline-flex; gap: .9rem; font-size: .72rem; color: var(--muted); flex-wrap: wrap;
+    .canvas-wrap {
+      position: relative; overflow: hidden;
+      background: radial-gradient(circle at 50% 45%, #11192b 0%, #0a0f1d 75%);
     }
-    .legend-item { display: inline-flex; align-items: center; gap: .3rem; }
-    .legend-item::before {
-      content: ''; width: 10px; height: 10px; border-radius: 50%; display: inline-block;
-    }
-    .legend-diversity::before    { background: var(--diversity); }
-    .legend-cycles::before       { background: var(--cycles); }
-    .legend-systems::before      { background: var(--systems); }
-    .legend-interactions::before { background: var(--interactions); }
-    .legend-energy::before       { background: var(--energy); }
+    #svg { width: 100%; height: 100%; display: block; touch-action: none; cursor: default; }
+    #svg.linking { cursor: crosshair; }
 
-    .map-canvas {
-      position: relative;
-      overflow: hidden;
-      background: radial-gradient(circle at 50% 45%, #11192b 0%, var(--bg) 70%);
+    .node circle, .node rect {
+      cursor: pointer;
+      transition: stroke-width .12s, opacity .2s;
     }
-    #map-svg { width: 100%; height: 100%; display: block; cursor: grab; }
-    #map-svg:active { cursor: grabbing; }
+    .node text {
+      pointer-events: none;
+      fill: #cfd3df;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 500;
+      paint-order: stroke;
+      stroke: #0a0f1d;
+      stroke-width: 3.5;
+      stroke-linejoin: round;
+    }
+    .node.theme text { fill: #ffffff; font-weight: 700; }
+    .node.note  text { fill: #fde68a; font-weight: 600; }
+
+    .node.dim circle, .node.dim rect { opacity: .12; }
+    .node.dim text { opacity: .18; }
+    .node.focus circle, .node.focus rect { stroke-width: 3; filter: drop-shadow(0 0 5px currentColor); }
+    .node.match circle, .node.match rect { stroke: #fde68a !important; stroke-width: 2.5; }
+    .node.pinned circle::after { content:''; }
+
+    .edge { fill: none; stroke-width: .6; opacity: .3; transition: opacity .12s, stroke-width .12s; }
+    .edge.cross     { stroke-dasharray: 3 2; }
+    .edge.note-link { stroke: #fbbf24; stroke-width: 1.1; opacity: .75; }
+    .edge.temp-link { stroke: #fde68a; stroke-width: 1.3; stroke-dasharray: 4 3; opacity: .95; }
+    .edge.dim       { opacity: .06; }
+    .edge.active    { opacity: 1; stroke-width: 1.6; }
 
     .tooltip {
-      position: absolute;
-      pointer-events: none;
-      background: #0b1320f2;
-      color: var(--text);
-      padding: .45rem .7rem;
-      border-radius: 7px;
+      position: absolute; pointer-events: none;
+      background: #0b1320f2; color: var(--text);
+      padding: .4rem .65rem; border-radius: 7px;
       border: 1px solid var(--border);
-      font-size: .78rem;
-      max-width: 280px;
-      line-height: 1.4;
-      box-shadow: 0 6px 24px rgba(0,0,0,.35);
-      opacity: 0;
-      transition: opacity .12s;
-      z-index: 20;
+      font-size: .75rem; max-width: 280px; line-height: 1.45;
+      box-shadow: 0 6px 24px rgba(0,0,0,.4);
+      opacity: 0; transition: opacity .1s; z-index: 20;
     }
     .tooltip.show { opacity: 1; }
-    .tooltip .tt-title { font-weight: 700; color: var(--accent); margin-bottom: .15rem; }
-    .tooltip .tt-kind  { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .tooltip .tk { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .tooltip .tt { font-weight: 700; color: var(--accent); margin-top: .1rem; }
 
-    /* Coach sidebar */
-    .coach-panel {
+    .banner {
+      position: absolute; top: 12px; left: 50%;
+      transform: translateX(-50%);
+      background: #2a1e3acc; border: 1px solid #a78bfa;
+      color: #e9d5ff; padding: .4rem .9rem; border-radius: 999px;
+      font-size: .76rem; display: none; z-index: 30;
+    }
+    .banner.show { display: block; }
+
+    /* Sidebar */
+    .side {
       background: var(--surface);
       border-left: 1px solid var(--border);
-      padding: 1.1rem 1rem 1rem;
-      display: flex; flex-direction: column;
-      overflow-y: auto;
+      display: flex; flex-direction: column; overflow: hidden;
     }
-    .coach-panel h2 {
-      font-size: .92rem; font-weight: 800; margin: 0 0 .35rem; color: var(--text);
-      letter-spacing: .01em;
+    .side-tabs { display: flex; border-bottom: 1px solid var(--border); }
+    .side-tabs button {
+      flex: 1; background: transparent; color: var(--muted);
+      border: none; padding: .65rem .6rem;
+      font-size: .76rem; font-weight: 700; cursor: pointer;
+      border-bottom: 2px solid transparent; transition: all .15s;
     }
-    .coach-panel .coach-subtitle {
-      font-size: .74rem; color: var(--muted); margin-bottom: 1rem;
-    }
-    .coach-focus {
-      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-      padding: .7rem .85rem; margin-bottom: .85rem;
-    }
-    .coach-focus .focus-kind { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-    .coach-focus .focus-label { font-size: .92rem; font-weight: 700; color: var(--text); margin-top: .15rem; }
-    .coach-focus .focus-tagline { font-size: .78rem; color: var(--muted); margin-top: .3rem; line-height: 1.4; }
-    .coach-focus .focus-deeplink {
-      display: inline-block; margin-top: .55rem; font-size: .74rem; font-weight: 700;
-      color: var(--accent); text-decoration: none;
-      padding: .28rem .6rem; border: 1px solid var(--accent); border-radius: 6px;
-    }
-    .coach-focus .focus-deeplink:hover { background: var(--accent); color: #0f172a; }
+    .side-tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .side-body { flex: 1; overflow-y: auto; padding: .9rem 1rem 1rem; }
 
-    .coach-probe {
+    .focus-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: .65rem .8rem; margin-bottom: .75rem;
+    }
+    .fk { font-size: .62rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+    .fl { font-size: .9rem; font-weight: 700; color: var(--text); margin-top: .15rem; }
+    .ft { font-size: .74rem; color: var(--muted); margin-top: .3rem; line-height: 1.45; }
+    .deeplink {
+      display: inline-block; margin-top: .5rem;
+      font-size: .7rem; font-weight: 700; color: var(--accent);
+      padding: .22rem .55rem; border: 1px solid var(--accent); border-radius: 6px; text-decoration: none;
+    }
+    .deeplink:hover { background: var(--accent); color: #0f172a; }
+
+    .probe {
       background: linear-gradient(135deg, #1a2a3a 0%, #1e1835 100%);
       border: 1px solid var(--accent);
-      border-radius: 10px;
-      padding: .85rem .95rem;
-      font-size: .84rem; line-height: 1.55; color: var(--text);
-      min-height: 70px;
+      border-radius: 10px; padding: .75rem .9rem;
+      font-size: .8rem; line-height: 1.55; color: var(--text);
+      min-height: 64px;
     }
-    .coach-probe .probe-label {
-      font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--accent);
-      font-weight: 700; display: block; margin-bottom: .3rem;
-    }
-    .coach-probe .probe-empty { color: var(--muted); font-style: italic; }
-    .coach-probe .probe-error { color: #fca5a5; font-size: .78rem; }
+    .probe-label { font-size: .6rem; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--accent); font-weight: 700; display: block; margin-bottom: .3rem; }
+    .probe-empty { color: var(--muted); font-style: italic; }
+    .probe-err { color: #fca5a5; font-size: .72rem; display: block; margin-top: .3rem; }
 
-    .coach-actions {
-      display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .75rem;
+    .backlinks { margin-top: 1rem; }
+    .bl-head { font-size: .62rem; text-transform: uppercase; letter-spacing: .09em;
+      color: var(--muted); font-weight: 800; margin-bottom: .3rem; }
+    .bl {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 7px; padding: .3rem .55rem; margin-bottom: .3rem;
+      font-size: .76rem; cursor: pointer;
     }
-    .coach-actions .btn {
-      font-size: .75rem; padding: .32rem .7rem;
+    .bl:hover { border-color: var(--accent); }
+    .bl .bl-t { font-size: .6rem; color: var(--muted); font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em; margin-left: .4rem; }
+
+    .vault-intro { font-size: .74rem; color: var(--muted); line-height: 1.5; margin-bottom: .7rem; }
+    .vault-actions { display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: .7rem; }
+    .vault-actions .btn { font-size: .7rem; padding: .3rem .7rem; }
+
+    .note-editor {
+      background: var(--card); border: 1px solid var(--accent);
+      border-radius: 10px; padding: .7rem .85rem; margin-bottom: .75rem;
+    }
+    .note-editor input, .note-editor textarea {
+      width: 100%; background: var(--surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: 7px;
+      padding: .4rem .55rem;
+      font: 500 .8rem/1.5 'Inter', system-ui, sans-serif;
+      margin-bottom: .4rem; outline: none;
+    }
+    .note-editor input:focus, .note-editor textarea:focus { border-color: var(--accent); }
+    .note-editor textarea { min-height: 78px; resize: vertical; }
+    .note-editor .row { display: flex; gap: .35rem; flex-wrap: wrap; align-items: center; }
+    .note-editor .spc { flex: 1; }
+    .note-editor .ne-hint { font-size: .66rem; color: var(--muted); margin-top: .15rem; }
+
+    .chip-row { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .35rem; }
+    .chip {
+      font-size: .66rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: .18rem .55rem;
+      display: inline-flex; align-items: center; gap: .3rem;
+    }
+    .chip.interactive { cursor: pointer; }
+    .chip.interactive:hover { border-color: var(--accent); }
+    .chip button {
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: .9rem; padding: 0; line-height: 1;
     }
 
-    .coach-foot {
-      margin-top: auto; padding-top: .9rem;
-      font-size: .72rem; color: var(--muted); line-height: 1.45;
+    .note-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-left: 3px solid #fbbf24;
+      border-radius: 8px; padding: .55rem .7rem; margin-bottom: .5rem;
+      transition: border-color .15s;
     }
-    .coach-foot a { color: var(--accent); text-decoration: none; }
+    .note-card.active { border-color: var(--accent); }
+    .nc-label { font-size: .82rem; font-weight: 700; color: var(--text); margin-bottom: .2rem; cursor: pointer; }
+    .nc-body  { font-size: .72rem; color: var(--muted); line-height: 1.45;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .nc-meta  { display: flex; justify-content: space-between; align-items: center;
+      margin-top: .4rem; font-size: .62rem; color: var(--muted); gap: .25rem; flex-wrap: wrap; }
+    .nc-actions button {
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: .68rem; padding: .15rem .35rem;
+    }
+    .nc-actions button:hover { color: var(--accent); }
 
-    /* Mobile: collapse sidebar below the map */
+    .foot { font-size: .68rem; color: var(--muted); line-height: 1.5;
+      padding-top: .8rem; border-top: 1px dashed var(--border); margin-top: .9rem; }
+    .foot a { color: var(--accent); text-decoration: none; }
+
+    .empty { font-size: .74rem; color: var(--muted); font-style: italic; margin: .5rem 0; }
+
     @media (max-width: 900px) {
-      .map-shell { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; height: auto; }
-      .coach-panel { border-left: none; border-top: 1px solid var(--border); max-height: 50vh; }
+      .shell { grid-template-columns: 1fr; grid-template-rows: auto 54vh 46vh; height: auto; }
+      .side { border-left: none; border-top: 1px solid var(--border); }
       body { overflow: auto; }
-      .map-canvas { height: 60vh; min-height: 360px; }
-    }
-
-    /* Node + edge styles */
-    .node circle { stroke-width: 2; cursor: pointer; transition: r .15s, stroke-width .15s; }
-    .node text   { pointer-events: none; fill: var(--text); font-family: 'Inter', system-ui, sans-serif; }
-    .node.dim circle { opacity: .2; }
-    .node.dim text   { opacity: .25; }
-    .node.focus circle { stroke-width: 3.5; filter: drop-shadow(0 0 4px rgba(167,139,250,.55)); }
-
-    .edge { fill: none; stroke-width: 1.2; opacity: .55; }
-    .edge.cross { stroke-dasharray: 4 3; stroke-width: 1.6; opacity: .85; }
-    .edge.dim   { opacity: .08; }
-    .edge.active { opacity: 1; stroke-width: 2.2; }
-
-    .mobile-list {
-      display: none;
-    }
-    @media (max-width: 520px) {
-      #map-svg { display: none; }
-      .mobile-list { display: block; padding: 1rem 1.25rem; }
-      .mobile-list h3 { font-size: .9rem; margin: 0 0 .5rem; color: var(--text); }
-      .mobile-list ul { list-style: none; padding: 0; margin: 0 0 1rem; }
-      .mobile-list li { padding: .35rem 0; border-bottom: 1px dashed var(--border); font-size: .84rem; }
-      .mobile-list li a { color: var(--text); text-decoration: none; }
     }
   </style>
 </head>
 <body>
-
-<div class="map-shell">
-  <header class="map-header">
-    <a href="../index.html" class="btn btn-ghost" style="font-size:.78rem">← Hub</a>
+<div class="shell">
+  <header class="head">
+    <a href="../index.html" class="btn btn-ghost" style="font-size:.72rem">← Hub</a>
     <h1>🗺 Mega Concept Map</h1>
     <div class="legend">
-      <span class="legend-item legend-diversity">Diversity</span>
-      <span class="legend-item legend-cycles">Cycles</span>
-      <span class="legend-item legend-systems">Systems</span>
-      <span class="legend-item legend-interactions">Interactions</span>
-      <span class="legend-item legend-energy">Energy</span>
+      <span class="lg-diversity">Diversity</span>
+      <span class="lg-cycles">Cycles</span>
+      <span class="lg-systems">Systems</span>
+      <span class="lg-interactions">Interactions</span>
+      <span class="lg-energy">Energy</span>
+      <span class="lg-note">Your notes</span>
     </div>
     <span class="spacer"></span>
-    <div class="mode-toggle" role="tablist" aria-label="Traversal mode">
-      <button id="mode-deductive" class="active" aria-pressed="true">Deductive</button>
-      <button id="mode-inductive" aria-pressed="false">Inductive</button>
-    </div>
-    <button id="reset-btn" class="btn btn-ghost" style="font-size:.78rem">↺ Reset</button>
+    <input id="search" class="search" type="search" placeholder="Search (press /)" aria-label="Search the map">
+    <button id="unpin-btn" class="btn btn-ghost" style="font-size:.7rem" title="Release all pinned nodes so the layout settles again">Unpin all</button>
+    <button id="center-btn" class="btn btn-ghost" style="font-size:.7rem" title="Reset zoom and centre">Centre</button>
   </header>
 
-  <section class="map-canvas">
-    <svg id="map-svg" role="img" aria-label="Mega concept map of primary science topics"></svg>
+  <section class="canvas-wrap" id="canvas-wrap">
+    <svg id="svg" role="img" aria-label="Mega concept map"></svg>
     <div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true"></div>
-
-    <div class="mobile-list" id="mobile-list" aria-hidden="true"></div>
+    <div id="banner" class="banner">Click a node to link it to this note — Esc to cancel</div>
   </section>
 
-  <aside class="coach-panel" aria-label="Coach panel">
-    <h2>Coach</h2>
-    <div class="coach-subtitle">Click a node on the map. The Coach will ask one short probing question calibrated to where you are and where you are heading.</div>
-
-    <div id="coach-focus" class="coach-focus" aria-live="polite">
-      <div class="focus-kind">Nothing selected</div>
-      <div class="focus-label">Hover or click a theme, topic, or phenomenon</div>
-      <div class="focus-tagline">In Deductive mode, click a theme to fan out its topics and phenomena. In Inductive mode, click a phenomenon to trace up to the topics and theme it belongs to.</div>
+  <aside class="side" aria-label="Side panel">
+    <div class="side-tabs" role="tablist">
+      <button id="tab-coach" class="active" aria-selected="true">Coach</button>
+      <button id="tab-vault"              aria-selected="false">Vault</button>
     </div>
+    <div class="side-body">
+      <div id="pane-coach">
+        <div id="focus-card" class="focus-card" aria-live="polite">
+          <div class="fk">Nothing selected</div>
+          <div class="fl">Click a node to focus it</div>
+          <div class="ft">Drag to reposition. Double-click empty space to drop a note. Press <kbd>/</kbd> to search, <kbd>Esc</kbd> to cancel.</div>
+        </div>
+        <div id="probe" class="probe" aria-live="polite">
+          <span class="probe-label">Coach probe</span>
+          <span class="probe-empty">Pick a node to see a probing question.</span>
+        </div>
+        <div style="display:flex;gap:.4rem;margin-top:.6rem;flex-wrap:wrap">
+          <button id="regen-btn" class="btn btn-ghost" style="font-size:.7rem" disabled>↻ Another probe</button>
+          <button id="settings-btn" class="btn btn-ghost" style="font-size:.7rem">⚙ AI key</button>
+        </div>
+        <div id="backlinks" class="backlinks"></div>
+        <div class="foot">
+          Without a Gemini key the Coach shows a deterministic scaffold. <a href="#" id="foot-link">Add a key →</a>
+        </div>
+      </div>
 
-    <div id="coach-probe" class="coach-probe" aria-live="polite">
-      <span class="probe-label">Coach probe</span>
-      <span class="probe-empty">Pick a node to see a probing question.</span>
-    </div>
-
-    <div class="coach-actions">
-      <button id="coach-regen" class="btn btn-ghost" disabled>↻ Another probe</button>
-      <button id="coach-settings" class="btn btn-ghost">⚙ AI key</button>
-    </div>
-
-    <div class="coach-foot">
-      The mega map is a Phase 2 surface. Probes use Gemini if a key is set. Without a key, the Coach still shows a deterministic scaffold question. <a href="#" id="foot-settings-link">Add a key →</a>
+      <div id="pane-vault" style="display:none">
+        <p class="vault-intro">Your own notes. Double-click empty canvas to drop a note at that point, or use New note. Open a note and "Link to node…" to attach it to a topic or phenomenon. Everything stays in this browser.</p>
+        <div class="vault-actions">
+          <button id="note-new" class="btn btn-primary">+ New note</button>
+          <button id="note-export" class="btn btn-ghost" title="Copy all notes as JSON to the clipboard">Export JSON</button>
+        </div>
+        <div id="editor-host"></div>
+        <div id="notes-list"></div>
+      </div>
     </div>
   </aside>
 </div>
@@ -235,6 +301,8 @@
 <script src="../shared/content.js"></script>
 <script src="../shared/lab.js"></script>
 <script src="../shared/coach.js"></script>
-<script src="./map.js"></script>
+<script src="./graph.js"></script>
+<script src="./coach.js"></script>
+<script src="./vault.js"></script>
 </body>
 </html>
