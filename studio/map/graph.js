@@ -93,25 +93,38 @@
       STATE.nodesById.set(n.id, n);
     }
 
-    // seed positions around a circle so first tick doesn't look random
+    // Seed positions on three well-separated rings so the force sim
+    // starts from a clean, breathing layout rather than clustered.
     const themes = STATE.data.themes;
+    const shortSide = Math.min(STATE.viewport.w, STATE.viewport.h) || 720;
+    const rTheme = Math.max(220, shortSide * 0.30);
+    const rTopic = Math.max(380, shortSide * 0.52);
+    const rPhen  = Math.max(560, shortSide * 0.78);
     themes.forEach((t, i) => {
       const a = (i / themes.length) * Math.PI * 2 - Math.PI / 2;
-      const r = Math.min(STATE.viewport.w, STATE.viewport.h) * 0.18 || 180;
       addNode({ id: t.id, kind: 'theme', label: t.label, tagline: t.tagline,
-                x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
+                x: cx + rTheme * Math.cos(a), y: cy + rTheme * Math.sin(a) });
     });
-    STATE.data.topics.forEach(t => {
-      const parent = STATE.nodesById.get(t.theme);
-      const px = parent ? parent.x : cx, py = parent ? parent.y : cy;
+    STATE.data.topics.forEach((t, i) => {
+      const theme = STATE.nodesById.get(t.theme);
+      const sibs = STATE.data.topics.filter(tt => tt.theme === t.theme);
+      const idx = sibs.indexOf(t);
+      const spread = Math.PI / 2.3; // 80deg fan around the theme
+      const base = theme ? Math.atan2(theme.y - cy, theme.x - cx) : 0;
+      const a = sibs.length > 1 ? base - spread/2 + (idx/(sibs.length - 1)) * spread : base;
       addNode({ id: t.id, kind: 'topic', label: t.label, theme: t.theme,
-                x: px + (Math.random() - .5) * 80, y: py + (Math.random() - .5) * 80 });
+                x: cx + rTopic * Math.cos(a), y: cy + rTopic * Math.sin(a) });
     });
-    STATE.data.phenomena.forEach(p => {
-      const parent = STATE.nodesById.get((p.topics || [])[0]);
-      const px = parent ? parent.x : cx, py = parent ? parent.y : cy;
+    STATE.data.phenomena.forEach((p, i) => {
+      const primaryId = (p.topics || [])[0];
+      const primary = STATE.nodesById.get(primaryId);
+      const sibs = STATE.data.phenomena.filter(pp => (pp.topics || [])[0] === primaryId);
+      const idx = sibs.indexOf(p);
+      const spread = Math.PI / 3; // 60deg fan around the parent topic
+      const base = primary ? Math.atan2(primary.y - cy, primary.x - cx) : 0;
+      const a = sibs.length > 1 ? base - spread/2 + (idx/(sibs.length - 1)) * spread : base;
       addNode({ id: p.id, kind: 'phenomenon', label: p.label, topics: p.topics || [],
-                x: px + (Math.random() - .5) * 140, y: py + (Math.random() - .5) * 140 });
+                x: cx + rPhen * Math.cos(a), y: cy + rPhen * Math.sin(a) });
     });
 
     // hierarchy links
@@ -175,16 +188,16 @@
     if (STATE.sim) STATE.sim.stop();
     const cx = STATE.viewport.w / 2, cy = STATE.viewport.h / 2;
     STATE.sim = d3.forceSimulation(STATE.nodes)
-      .alphaDecay(0.035)
-      .velocityDecay(0.45)
+      .alphaDecay(0.03)
+      .velocityDecay(0.5)
       .force('link', d3.forceLink(STATE.links)
         .id(d => d.id)
-        .distance(l => l.type === 'is-a' ? 75 : l.type === 'example-of' ? 55 : 95)
-        .strength(l => l._hier ? 0.7 : 0.35))
-      .force('charge', d3.forceManyBody().strength(d => d.kind === 'theme' ? -650 : d.kind === 'topic' ? -260 : -120))
-      .force('collide', d3.forceCollide().radius(d => nodeRadius(d) + 6).strength(0.9))
-      .force('x', d3.forceX(cx).strength(0.035))
-      .force('y', d3.forceY(cy).strength(0.035))
+        .distance(l => l.type === 'is-a' ? 170 : l.type === 'example-of' ? 130 : 210)
+        .strength(l => l._hier ? 0.5 : 0.2))
+      .force('charge', d3.forceManyBody().strength(d => d.kind === 'theme' ? -1400 : d.kind === 'topic' ? -600 : -260))
+      .force('collide', d3.forceCollide().radius(d => nodeRadius(d) + 16).strength(0.92))
+      .force('x', d3.forceX(cx).strength(0.015))
+      .force('y', d3.forceY(cy).strength(0.015))
       .on('tick', tick);
   }
 

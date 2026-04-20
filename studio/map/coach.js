@@ -63,12 +63,18 @@
   }
 
   function renderBacklinks(node) {
+    const seen = new Set();
     const edges = [];
-    M.nodes.forEach(() => {});
-    (window.MAP.links || M.links || []).forEach(l => {
+    (M.links || []).forEach(l => {
       const s = typeof l.source === 'object' ? l.source.id : l.source;
       const t = typeof l.target === 'object' ? l.target.id : l.target;
-      if (s === node.id || t === node.id) edges.push({ other: s === node.id ? t : s, type: l.type || (l.kind === 'note-link' ? 'note' : 'hier') });
+      if (s !== node.id && t !== node.id) return;
+      const other = s === node.id ? t : s;
+      const type  = l.type || (l.kind === 'note-link' ? 'note' : 'hier');
+      const key = other + ':' + type;
+      if (seen.has(key)) return;
+      seen.add(key);
+      edges.push({ other, type });
     });
     if (!edges.length) { backlinksEl.innerHTML = ''; return; }
     backlinksEl.innerHTML = '<div class="bl-head">Connections</div>';

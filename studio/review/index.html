@@ -83,6 +83,7 @@
 <script src="../shared/storage.js"></script>
 <script src="../shared/content.js"></script>
 <script src="../shared/lab.js"></script>
+<script src="../shared/jarvis.js"></script>
 <script src="../shared/spaced.js"></script>
 <script src="../shared/pomodoro.js"></script>
 <script>
@@ -151,26 +152,32 @@ function makeCard({kind, label, sub, body, onPass, onFail, nextDueIso}) {
     }));
   });
 
-  // Key Ideas (per-topic checked state)
+  // Key Ideas: due = either "not yet said back" OR due under SM-2.
+  // Walk the actual topic content so we surface ideas that have no
+  // progress entry yet, not just ones already visited.
   let ideaCount = 0;
-  Object.entries(p.topics || {}).forEach(([topicId, topic]) => {
-    const states = Array.isArray(topic.keyIdeaState) ? topic.keyIdeaState : [];
-    states.forEach((v, idx) => {
-      if (!v) return; // only ideas marked as said-back appear here
+  for (const [topicId, topic] of Object.entries(themes.topics || {})) {
+    const ideas = Array.isArray(topic.keyIdeas) ? topic.keyIdeas : [];
+    const progress = (p.topics && p.topics[topicId]) || {};
+    const states   = Array.isArray(progress.keyIdeaState)   ? progress.keyIdeaState   : [];
+    const dues     = Array.isArray(progress.keyIdeaNextDue) ? progress.keyIdeaNextDue : [];
+    ideas.forEach((idea, idx) => {
+      const hasSaid = !!states[idx];
+      const dueIso  = dues[idx] || null;
+      const dueNow  = hasSaid ? (dueIso && dueIso <= today) : true; // not-yet-said counts as due
+      if (!dueNow) return;
       ideaCount++;
-      const idea = lookupIdea(topicId, idx);
-      if (!idea) return;
       cards.push(makeCard({
         kind: `Key Idea · ${topicId}`,
         label: `#${String(idx + 1).padStart(2,'0')}`,
         sub: 'Say it back in your own words, then check.',
         body: idea,
-        nextDueIso: null,
-        onPass: () => {},
+        nextDueIso: dueIso,
+        onPass: () => markIdea(topicId, idx, true),
         onFail: () => markIdea(topicId, idx, false),
       }));
     });
-  });
+  }
 
   // Questions (structured answer bank, if tracked)
   let qCount = 0;
@@ -218,6 +225,18 @@ function makeCard({kind, label, sub, body, onPass, onFail, nextDueIso}) {
       t.keyIdeaState = t.keyIdeaState || [];
       while (t.keyIdeaState.length <= idx) t.keyIdeaState.push(false);
       t.keyIdeaState[idx] = !!success;
+      t.keyIdeaAttempts = t.keyIdeaAttempts || [];
+      while (t.keyIdeaAttempts.length <= idx) t.keyIdeaAttempts.push(0);
+      t.keyIdeaAttempts[idx] = (t.keyIdeaAttempts[idx] || 0) + 1;
+      t.keyIdeaNextDue = t.keyIdeaNextDue || [];
+      while (t.keyIdeaNextDue.length <= idx) t.keyIdeaNextDue.push(null);
+      if (window.JglSpaced) {
+        t.keyIdeaNextDue[idx] = window.JglSpaced.nextDue({
+          attempts: t.keyIdeaAttempts[idx],
+          success,
+          fromIso: new Date().toISOString(),
+        });
+      }
       return p;
     });
   }
