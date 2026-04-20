@@ -189,7 +189,10 @@
     if (!SR) return false;
     if (STATE.rec) { try { STATE.rec.abort(); } catch {} }
     const r = new SR();
-    r.lang = 'en-SG';
+    // en-SG support is spotty; use the browser's preferred English if it is English,
+    // otherwise fall back to en-GB.
+    const navLang = (navigator.language || '').toLowerCase();
+    r.lang = navLang.startsWith('en') ? navLang : 'en-GB';
     r.interimResults = true;
     r.continuous = false;
     let finalText = '';
@@ -227,17 +230,30 @@
 
   function speak(text) {
     if (!canSpeak()) return;
-    try {
-      TTS.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.rate = 1.0; u.pitch = 1.0;
-      // Prefer a clear English voice
-      const voices = TTS.getVoices();
-      const pref = voices.find(v => /en[-_](GB|US|SG|AU)/i.test(v.lang)) || voices[0];
-      if (pref) u.voice = pref;
-      STATE.speakingUtter = u;
-      TTS.speak(u);
-    } catch {}
+    const go = () => {
+      try {
+        TTS.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.rate = 1.0; u.pitch = 1.0;
+        const voices = TTS.getVoices();
+        const pref = voices.find(v => /en[-_]GB/i.test(v.lang))
+                  || voices.find(v => /en[-_]SG/i.test(v.lang))
+                  || voices.find(v => /en[-_]AU/i.test(v.lang))
+                  || voices.find(v => /^en/i.test(v.lang))
+                  || voices[0];
+        if (pref) u.voice = pref;
+        STATE.speakingUtter = u;
+        TTS.speak(u);
+      } catch {}
+    };
+    // Some browsers return [] until the voiceschanged event fires.
+    if (TTS.getVoices().length) go();
+    else {
+      const once = () => { TTS.removeEventListener('voiceschanged', once); go(); };
+      TTS.addEventListener('voiceschanged', once);
+      // Safety fallback: speak anyway if voiceschanged never fires within 400ms.
+      setTimeout(go, 400);
+    }
   }
 
   // ── Conversation ────────────────────────────────────────
@@ -282,14 +298,16 @@
     const prompt = `Context:\n${grounding}\n\nDialogue so far:\n${history}\n\nStudent just said: "${text}"\n\nReply as Jarvis.`;
 
     let replyText = '';
+    let needsKey = false;
     try {
       if (!window.askGemini) throw new Error('Gemini wrapper missing.');
       const key = (window.JglStorage && window.JglStorage.getGeminiKey && window.JglStorage.getGeminiKey()) || '';
-      if (!key) throw { code: 'NO_KEY', message: 'Add a Gemini key in Settings to enable Jarvis.' };
+      if (!key) throw { code: 'NO_KEY', message: 'No Gemini key.' };
       replyText = await window.askGemini({ system, prompt, temperature: 0.5, maxTokens: 320 });
     } catch (err) {
       if (err && err.code === 'NO_KEY') {
-        replyText = 'I cannot hear you properly without a Gemini key. Open Settings and paste one in, then try again.';
+        needsKey = true;
+        replyText = 'I need a Gemini API key to reply. Tap "Set up key" below, paste one in, then ask me again.';
       } else {
         replyText = 'Something broke. ' + ((err && err.message) || 'Please try again.');
       }
@@ -298,6 +316,16 @@
     thinkingEl.classList.remove('thinking');
     thinkingEl.textContent = (replyText || 'No reply.').trim();
     STATE.turns[STATE.turns.length - 1].text = thinkingEl.textContent;
+    if (needsKey) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'jv-setup-key';
+      btn.style.cssText = 'margin-top:.5rem;background:rgba(167,139,250,.18);border:1px solid #a78bfa;color:#e9d5ff;padding:.3rem .7rem;border-radius:7px;font-size:.72rem;font-weight:700;cursor:pointer';
+      btn.textContent = 'Set up key';
+      btn.addEventListener('click', () => window.JglLab && window.JglLab.openSettings());
+      thinkingEl.appendChild(document.createElement('br'));
+      thinkingEl.appendChild(btn);
+    }
     speak(thinkingEl.textContent);
   }
 
