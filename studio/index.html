@@ -15,20 +15,26 @@
       position: relative;
     }
     .hero-title {
-      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5.2vw, 3.2rem);
       font-weight: 800;
-      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #34d399 100%);
+      letter-spacing: -0.018em;
+      line-height: 1.05;
+      background: linear-gradient(135deg, #38bdf8 0%, #a78bfa 50%, #34d399 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin-bottom: .5rem;
+      margin-bottom: .6rem;
     }
     .hero-sub {
-      font-size: 1rem;
+      font-family: var(--font-body);
+      font-size: 1.02rem;
       color: var(--muted);
-      max-width: 520px;
+      max-width: 560px;
       margin: 0 auto 2rem;
+      line-height: 1.55;
     }
+    .stat-pill .num-display { color: var(--accent); font-weight: 700; }
     .stats-row {
       display: flex;
       justify-content: center;
@@ -174,20 +180,17 @@
 <body>
 
 <!-- ═══════════════════════ HERO ═══════════════════════════ -->
-<div class="hero">
+<div class="hero hub-hero">
   <div class="container">
-    <div style="font-size:2.5rem;margin-bottom:.5rem">🔬</div>
     <h1 class="hero-title">Singapore Primary Science Lab</h1>
     <p class="hero-sub">
-      Explore, simulate, and master every science topic for P3–P6.
-      Learn inductively through experiments, build concept maps,
-      and test your understanding with targeted quizzes.
+      Twenty topics, precise glossaries, a mega map, and a Coach that probes rather than lectures. Built so that knowing a little more precisely does more work than knowing a lot more.
     </p>
     <div class="stats-row">
-      <div class="stat-pill">📚 <span id="stat-topics">0</span> Topics</div>
-      <div class="stat-pill">🎮 <span id="stat-sims">0</span> Simulations</div>
-      <div class="stat-pill">⭐ Overall: <span id="stat-pct">0%</span></div>
-      <div class="stat-pill">🗺 <span id="stat-maps">0</span> Mind Maps Saved</div>
+      <div class="stat-pill"><span class="num-display" id="stat-topics">0</span>&nbsp;Topics</div>
+      <div class="stat-pill"><span class="num-display" id="stat-sims">0</span>&nbsp;Simulations</div>
+      <div class="stat-pill">Overall&nbsp;<span class="num-display" id="stat-pct">0%</span></div>
+      <div class="stat-pill"><span class="num-display" id="stat-maps">0</span>&nbsp;Mind Maps saved</div>
     </div>
     <div style="display:flex;gap:.75rem;justify-content:center;margin-top:1.25rem;flex-wrap:wrap">
       <a href="assess/index.html"     class="btn btn-primary" style="font-size:.88rem">🧠 Synoptic Assessment</a>
@@ -227,8 +230,10 @@
       </div>
       <p style="font-size:.72rem;margin-top:.3rem;color:var(--muted)">Complete simulations, quizzes, and mind maps to level up</p>
     </div>
-    <a href="topics/circuits/index.html" class="btn btn-primary" style="white-space:nowrap">🚀 Start Learning</a>
-    <a href="map/index.html" class="btn btn-ghost" style="white-space:nowrap;border:1.5px solid var(--accent);color:var(--accent);font-weight:700">🗺 Mega Map</a>
+    <a href="compass/index.html" class="btn btn-primary" style="white-space:nowrap">🧭 Compass</a>
+    <a href="mirror/index.html"  class="btn btn-ghost"   style="white-space:nowrap">🪞 Mirror</a>
+    <a href="review/index.html"  class="btn btn-ghost"   style="white-space:nowrap">🔁 Review due</a>
+    <a href="map/index.html"     class="btn btn-ghost"   style="white-space:nowrap;border:1.5px solid var(--accent);color:var(--accent);font-weight:700">🗺 Mega Map</a>
   </div>
 
   <!-- Review-due banner -->

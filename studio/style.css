@@ -3,12 +3,18 @@
    Cornell Notes Layout + Theme System + Simulation Styles
    ========================================================= */
 
+/* Typography tokens (B8 visual refresh).
+   Fraunces for display (diaristic, not gamified), Inter Tight
+   for body, IBM Plex Mono for numeric + code. Fall back to
+   Inter if webfonts are blocked. */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,800;1,9..144,500&family=Inter+Tight:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;700&display=swap');
+
 :root {
-  /* Theme colours */
-  --diversity:    #10b981;
-  --cycles:       #3b82f6;
-  --systems:      #8b5cf6;
-  --interactions: #f97316;
+  /* Theme colours (slightly desaturated, to let content breathe). */
+  --diversity:    #14b8a6;
+  --cycles:       #60a5fa;
+  --systems:      #a78bfa;
+  --interactions: #f87171;
   --energy:       #f59e0b;
 
   /* Base palette */
@@ -23,16 +29,40 @@
   /* Cornell Notes */
   --cue-width:    260px;
   --summary-bg:   #162032;
+
+  /* Typography stacks (B8) */
+  --font-display: 'Fraunces', 'Cambria', Georgia, 'Times New Roman', serif;
+  --font-body:    'Inter Tight', 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --font-mono:    'IBM Plex Mono', 'Menlo', 'SF Mono', ui-monospace, monospace;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   line-height: 1.6;
+  font-feature-settings: 'ss01', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Display type (B8): Fraunces for the hub hero + major page titles */
+.display-heading,
+.hub-hero h1,
+.mirror-hero h1,
+.compass-hero {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+
+/* Numeric display (B8): Plex Mono for counts + tickers */
+.num-display {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum';
 }
 
 /* ── Typography ── */
