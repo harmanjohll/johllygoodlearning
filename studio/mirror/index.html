@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mirror | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; background: var(--bg); }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    .hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4rem; }
+    .hd a { font-size: .78rem; color: var(--muted); text-decoration: none; border: 1px solid var(--border); padding: .35rem .7rem; border-radius: 7px; }
+    .hd a:hover { color: var(--accent); border-color: var(--accent); }
+
+    h1 { font-size: 1.55rem; font-weight: 800; color: var(--text); letter-spacing: -.01em; margin: 0 0 .25rem; }
+    .sub { font-size: .86rem; color: var(--muted); margin-bottom: 1.8rem; line-height: 1.5; }
+
+    .grid {
+      display: grid; gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .tile {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.1rem 1.2rem 1.15rem;
+      min-height: 170px;
+      display: flex; flex-direction: column;
+    }
+    .tile h2 {
+      font-size: .65rem; text-transform: uppercase; letter-spacing: .09em;
+      color: var(--muted); font-weight: 800; margin: 0 0 .65rem;
+    }
+    .tile .big { font-size: 2.1rem; font-weight: 800; color: var(--text); line-height: 1; letter-spacing: -.02em; }
+    .tile .sm  { font-size: .78rem; color: var(--muted); margin-top: .45rem; line-height: 1.5; }
+    .tile .cta {
+      margin-top: .7rem; align-self: flex-start;
+      font-size: .74rem; color: var(--accent);
+      text-decoration: none; font-weight: 700;
+      border: 1px solid var(--accent); padding: .28rem .6rem; border-radius: 7px;
+    }
+    .tile .cta:hover { background: var(--accent); color: #0f172a; }
+
+    .bar-row {
+      display: flex; align-items: flex-end; gap: .3rem; height: 80px; margin: .5rem 0 .4rem;
+    }
+    .bar {
+      flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 4px 4px 0 0;
+      position: relative;
+    }
+    .bar-diversity    { background: var(--diversity); }
+    .bar-cycles       { background: var(--cycles); }
+    .bar-systems      { background: var(--systems); }
+    .bar-interactions { background: var(--interactions); }
+    .bar-energy       { background: var(--energy); }
+    .bar-labels { display: flex; gap: .3rem; font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .bar-labels span { flex: 1; text-align: center; }
+
+    .heat {
+      display: grid; grid-template-columns: repeat(14, 1fr); gap: 3px;
+      margin: .45rem 0 .5rem;
+    }
+    .heat-cell {
+      aspect-ratio: 1 / 1; background: var(--card); border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+    .heat-cell[data-lvl="1"] { background: #1e2b40; }
+    .heat-cell[data-lvl="2"] { background: #2b4266; }
+    .heat-cell[data-lvl="3"] { background: #3d68a8; }
+    .heat-cell[data-lvl="4"] { background: var(--accent); }
+
+    .prose-note {
+      background: var(--card); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: .6rem .8rem; border-radius: 0 8px 8px 0;
+      font-size: .78rem; color: var(--text); line-height: 1.5;
+      margin-top: .6rem;
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd">
+    <a href="../index.html">← Hub</a>
+    <a href="../compass/index.html">Compass →</a>
+  </div>
+
+  <h1>Mirror</h1>
+  <p class="sub">The honest read of where things stand. Not a score; a story. Effort has its own track — on a hard day, showing up is enough.</p>
+
+  <div class="grid">
+    <!-- Consolidated -->
+    <div class="tile" id="tile-consol">
+      <h2>Consolidated</h2>
+      <div class="big" id="consol-n">0</div>
+      <div class="sm" id="consol-copy">Key Ideas you have said back. Terms you have mastered. Questions you have passed.</div>
+      <a class="cta" href="../review/index.html">Review what is due →</a>
+    </div>
+
+    <!-- On the edge -->
+    <div class="tile" id="tile-edge">
+      <h2>On the edge</h2>
+      <div class="big" id="edge-n">0</div>
+      <div class="sm" id="edge-copy">Items due for review today. Surfacing now beats forgetting later.</div>
+      <a class="cta" href="../review/index.html">Surface them →</a>
+    </div>
+
+    <!-- Where your time is going -->
+    <div class="tile" id="tile-time">
+      <h2>Where your time is going (7 days)</h2>
+      <div class="bar-row" id="time-bars"></div>
+      <div class="bar-labels">
+        <span>Div</span><span>Cyc</span><span>Sys</span><span>Int</span><span>Eng</span>
+      </div>
+      <div class="prose-note" id="time-note">Theme hours come from your session intentions.</div>
+    </div>
+
+    <!-- Effort (28-day heatmap) -->
+    <div class="tile" id="tile-effort">
+      <h2>Effort (last 28 days)</h2>
+      <div class="heat" id="heat-grid"></div>
+      <div class="sm" id="effort-copy">Effort is its own story. Showing up on a hard day counts.</div>
+    </div>
+  </div>
+</div>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/content.js"></script>
+<script src="../shared/lab.js"></script>
+<script>
+const THEME_BARS = [
+  { id: 'diversity',    cls: 'bar-diversity' },
+  { id: 'cycles',       cls: 'bar-cycles' },
+  { id: 'systems',      cls: 'bar-systems' },
+  { id: 'interactions', cls: 'bar-interactions' },
+  { id: 'energy',       cls: 'bar-energy' },
+];
+const THEME_NAMES = {
+  diversity: 'Diversity', cycles: 'Cycles', systems: 'Systems',
+  interactions: 'Interactions', energy: 'Energy',
+};
+
+(async function () {
+  const p = (window.JglStorage && window.JglStorage.getProgress()) || {};
+
+  // --- Consolidated: key ideas true + terms mastered ---
+  let consol = 0;
+  Object.values(p.topics || {}).forEach(t => {
+    if (Array.isArray(t.keyIdeaState)) consol += t.keyIdeaState.filter(Boolean).length;
+  });
+  Object.values(p.terms || {}).forEach(t => { if (t.mastered) consol += 1; });
+  document.getElementById('consol-n').textContent = consol;
+  document.getElementById('consol-copy').textContent = consol === 0
+    ? 'Nothing yet. Start with the Key Ideas tab on any topic.'
+    : consol < 10 ? `Off the mark. ${consol} items locked in so far.`
+    : consol < 40 ? `Good. ${consol} items are stable in memory.`
+    : `Strong base. ${consol} items consolidated.`;
+
+  // --- On the edge: spaced-rep due today ---
+  const today = new Date().toISOString().slice(0,10);
+  function isDue(iso) { return iso && iso <= today; }
+  let due = 0;
+  Object.values(p.terms || {}).forEach(t => { if (isDue(t.nextDueIso)) due += 1; });
+  Object.values(p.questions || {}).forEach(q => { if (isDue(q.nextDueIso)) due += 1; });
+  document.getElementById('edge-n').textContent = due;
+  document.getElementById('edge-copy').textContent = due === 0
+    ? 'Nothing due today. Quiet day.'
+    : due < 10 ? `${due} items due. Worth a 15-minute pass.`
+    : `${due} items due. That is a lot; do a chunk, leave the rest for tomorrow.`;
+
+  // --- Time by theme (last 7 days from sessions) ---
+  const sevenAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+  const themeMins = { diversity:0, cycles:0, systems:0, interactions:0, energy:0 };
+  const topicTheme = await (async () => {
+    if (!window.JglContent) return {};
+    const all = await window.JglContent.loadAllThemes();
+    const map = {};
+    Object.values(all.topics || {}).forEach(t => { map[t.id] = t._theme || (t.themes && t.themes[0]); });
+    return map;
+  })();
+  (p.sessions || []).forEach(s => {
+    if (!s.startIso || s.startIso < sevenAgo) return;
+    const mins = s.minutesPlanned || (() => {
+      const m = (s.intention || '').match(/(\d+)\s*minutes?/);
+      return m ? parseInt(m[1], 10) : 20;
+    })();
+    // Infer theme from focus label (best-effort)
+    const focus = (s.focus || '').toLowerCase();
+    let key = null;
+    for (const [tid, theme] of Object.entries(topicTheme)) {
+      if (focus.includes(tid.replace(/-/g,' ')) || focus.includes(tid)) { key = theme; break; }
+    }
+    if (!key) {
+      if (focus.includes('circuit') || focus.includes('respir') || focus.includes('circulat') || focus.includes('digest') || focus.includes('cell') || focus.includes('plant') || focus.includes('human reprod')) key = 'systems';
+      else if (focus.includes('energy') || focus.includes('heat') || focus.includes('light') || focus.includes('sound')) key = 'energy';
+      else if (focus.includes('force') || focus.includes('magnet') || focus.includes('habitat') || focus.includes('ecosyst')) key = 'interactions';
+      else if (focus.includes('cycle') || focus.includes('reproduc') || focus.includes('water')) key = 'cycles';
+      else if (focus.includes('diversity') || focus.includes('material')) key = 'diversity';
+    }
+    if (key) themeMins[key] = (themeMins[key] || 0) + mins;
+  });
+  const totalMins = Object.values(themeMins).reduce((a,b)=>a+b,0);
+  const maxMins = Math.max(1, ...Object.values(themeMins));
+  const bars = document.getElementById('time-bars');
+  THEME_BARS.forEach(t => {
+    const pct = themeMins[t.id] ? (themeMins[t.id] / maxMins) * 100 : 2;
+    const b = document.createElement('div');
+    b.className = 'bar ' + t.cls;
+    b.style.height = pct + '%';
+    b.title = `${THEME_NAMES[t.id]}: ${themeMins[t.id] || 0} min`;
+    bars.appendChild(b);
+  });
+  if (totalMins === 0) {
+    document.getElementById('time-note').textContent = 'No tracked sessions yet. Open the Compass to set an intention with a session length, and the time will show here.';
+  } else {
+    const weakest = Object.entries(themeMins).sort((a,b) => a[1]-b[1])[0];
+    const strongest = Object.entries(themeMins).sort((a,b) => b[1]-a[1])[0];
+    document.getElementById('time-note').textContent =
+      `${totalMins} minutes across 7 days. Most: ${THEME_NAMES[strongest[0]]} (${strongest[1]} min). Least: ${THEME_NAMES[weakest[0]]} (${weakest[1]} min). If that matches where you are weakest, you are on it.`;
+  }
+
+  // --- Effort heatmap 28 days ---
+  const heat = document.getElementById('heat-grid');
+  const daily = (p.effort && p.effort.dailyMinutes) || {};
+  const days = [];
+  for (let i = 27; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000).toISOString().slice(0,10);
+    days.push({ iso: d, mins: daily[d] || 0 });
+  }
+  days.forEach(d => {
+    const cell = document.createElement('div');
+    cell.className = 'heat-cell';
+    const lvl = d.mins === 0 ? 0 : d.mins < 10 ? 1 : d.mins < 25 ? 2 : d.mins < 45 ? 3 : 4;
+    cell.dataset.lvl = lvl;
+    cell.title = `${d.iso}: ${d.mins} min`;
+    heat.appendChild(cell);
+  });
+  const totalEffort = days.reduce((a,b)=>a+b.mins,0);
+  const activeDays = days.filter(d => d.mins > 0).length;
+  document.getElementById('effort-copy').textContent =
+    totalEffort === 0
+      ? 'Nothing tracked yet. Compass sessions with a length will populate this.'
+      : `${totalEffort} minutes across ${activeDays} active days. That is your last four weeks.`;
+})();
+</script>
+</body>
+</html>

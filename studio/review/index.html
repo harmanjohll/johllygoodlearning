@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; background: var(--bg); }
+    .wrap { max-width: 780px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    .hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4rem; }
+    .hd a { font-size: .78rem; color: var(--muted); text-decoration: none; border: 1px solid var(--border); padding: .35rem .7rem; border-radius: 7px; }
+    .hd a:hover { color: var(--accent); border-color: var(--accent); }
+    h1 { font-size: 1.5rem; font-weight: 800; color: var(--text); letter-spacing: -.01em; margin: 0 0 .25rem; }
+    .sub { font-size: .86rem; color: var(--muted); margin-bottom: 1.6rem; line-height: 1.5; }
+
+    .counts {
+      display: flex; gap: .7rem; flex-wrap: wrap; margin-bottom: 1.1rem;
+    }
+    .count-tile {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: .75rem 1rem;
+      flex: 1; min-width: 140px;
+    }
+    .count-tile .n  { font-size: 1.5rem; font-weight: 800; color: var(--accent); line-height: 1; }
+    .count-tile .l  { font-size: .66rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 800; margin-top: .2rem; }
+
+    .review-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem 1.15rem;
+      margin-bottom: .7rem;
+    }
+    .rc-kind { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 800; margin-bottom: .25rem; }
+    .rc-label { font-size: .95rem; font-weight: 700; color: var(--text); line-height: 1.4; }
+    .rc-sub { font-size: .78rem; color: var(--muted); margin-top: .35rem; line-height: 1.5; }
+    .rc-due { font-size: .68rem; color: #fbbf24; margin-top: .35rem; font-weight: 700; letter-spacing: .02em; }
+    .rc-actions { display: flex; gap: .4rem; margin-top: .75rem; flex-wrap: wrap; }
+    .rc-actions button { font-size: .74rem; padding: .35rem .85rem; }
+
+    .rc-body {
+      margin-top: .65rem; padding-top: .65rem;
+      border-top: 1px dashed var(--border);
+      font-size: .86rem; line-height: 1.55; color: var(--text);
+    }
+    .rc-body[hidden] { display: none; }
+    .rc-body em { color: var(--accent); font-style: normal; font-weight: 600; }
+
+    .empty {
+      padding: 2rem; text-align: center;
+      color: var(--muted); font-size: .88rem; line-height: 1.55;
+      border: 1px dashed var(--border); border-radius: 12px;
+    }
+  </style>
+</head>
+<body data-studio-pomodoro>
+<div class="wrap">
+  <div class="hd">
+    <a href="../index.html">← Hub</a>
+    <a href="../mirror/index.html">Mirror →</a>
+  </div>
+
+  <h1>Review due</h1>
+  <p class="sub">Every item here is due today under the SM-2 schedule. Retrieval now pushes the next interval further out — and what you miss resets to a 1-day interval.</p>
+
+  <div class="counts">
+    <div class="count-tile"><div class="n" id="c-terms">0</div><div class="l">Terms</div></div>
+    <div class="count-tile"><div class="n" id="c-ideas">0</div><div class="l">Key Ideas</div></div>
+    <div class="count-tile"><div class="n" id="c-questions">0</div><div class="l">Questions</div></div>
+  </div>
+
+  <div id="list"></div>
+</div>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/content.js"></script>
+<script src="../shared/lab.js"></script>
+<script src="../shared/spaced.js"></script>
+<script src="../shared/pomodoro.js"></script>
+<script>
+const today = new Date().toISOString().slice(0,10);
+function isDue(iso) { return !iso || iso <= today; }
+
+function makeCard({kind, label, sub, body, onPass, onFail, nextDueIso}) {
+  const card = document.createElement('div');
+  card.className = 'review-card';
+  card.innerHTML = `
+    <div class="rc-kind">${kind}</div>
+    <div class="rc-label"></div>
+    <div class="rc-sub"></div>
+    <div class="rc-due">${nextDueIso ? 'was due ' + nextDueIso : 'never seen yet'}</div>
+    <div class="rc-actions">
+      <button type="button" class="btn btn-ghost rc-show">Show answer</button>
+      <button type="button" class="btn btn-ghost rc-fail">Missed</button>
+      <button type="button" class="btn btn-primary rc-pass">Got it</button>
+    </div>
+    <div class="rc-body" hidden></div>
+  `;
+  card.querySelector('.rc-label').textContent = label;
+  card.querySelector('.rc-sub').textContent = sub || '';
+  const bodyEl = card.querySelector('.rc-body');
+  bodyEl.textContent = body || '';
+  card.querySelector('.rc-show').addEventListener('click', () => bodyEl.hidden = !bodyEl.hidden);
+  card.querySelector('.rc-pass').addEventListener('click', () => { onPass(); card.remove(); });
+  card.querySelector('.rc-fail').addEventListener('click', () => { onFail(); card.remove(); });
+  return card;
+}
+
+(async function () {
+  const p = (window.JglStorage && window.JglStorage.getProgress()) || {};
+  const list = document.getElementById('list');
+  const cards = [];
+
+  // Load topic content for term + idea bodies
+  let themes = { topics: {} };
+  if (window.JglContent) { try { themes = await window.JglContent.loadAllThemes(); } catch {} }
+  function lookupTerm(topicId, term) {
+    const topic = themes.topics && themes.topics[topicId];
+    if (!topic || !Array.isArray(topic.glossary)) return null;
+    return topic.glossary.find(g => g.term === term) || null;
+  }
+  function lookupIdea(topicId, idx) {
+    const topic = themes.topics && themes.topics[topicId];
+    if (!topic || !Array.isArray(topic.keyIdeas)) return null;
+    return topic.keyIdeas[idx] || null;
+  }
+
+  // Terms (from vocab Construct mode)
+  let termCount = 0;
+  Object.entries(p.terms || {}).forEach(([key, t]) => {
+    if (!isDue(t.nextDueIso)) return;
+    termCount++;
+    const [topicId, termName] = key.split(':');
+    const g = lookupTerm(topicId, termName);
+    cards.push(makeCard({
+      kind: `Term · ${topicId}`,
+      label: termName,
+      sub: g ? (g.template || '') : '',
+      body: g ? g.definition : 'No reference definition available.',
+      nextDueIso: t.nextDueIso,
+      onPass: () => mark('terms', key, true),
+      onFail: () => mark('terms', key, false),
+    }));
+  });
+
+  // Key Ideas (per-topic checked state)
+  let ideaCount = 0;
+  Object.entries(p.topics || {}).forEach(([topicId, topic]) => {
+    const states = Array.isArray(topic.keyIdeaState) ? topic.keyIdeaState : [];
+    states.forEach((v, idx) => {
+      if (!v) return; // only ideas marked as said-back appear here
+      ideaCount++;
+      const idea = lookupIdea(topicId, idx);
+      if (!idea) return;
+      cards.push(makeCard({
+        kind: `Key Idea · ${topicId}`,
+        label: `#${String(idx + 1).padStart(2,'0')}`,
+        sub: 'Say it back in your own words, then check.',
+        body: idea,
+        nextDueIso: null,
+        onPass: () => {},
+        onFail: () => markIdea(topicId, idx, false),
+      }));
+    });
+  });
+
+  // Questions (structured answer bank, if tracked)
+  let qCount = 0;
+  Object.entries(p.questions || {}).forEach(([qid, q]) => {
+    if (!isDue(q.nextDueIso)) return;
+    qCount++;
+    cards.push(makeCard({
+      kind: 'Question',
+      label: q.stem || qid,
+      sub: q.commandWord ? 'Command word: ' + q.commandWord : '',
+      body: q.modelAnswer || 'No model stored.',
+      nextDueIso: q.nextDueIso,
+      onPass: () => mark('questions', qid, true),
+      onFail: () => mark('questions', qid, false),
+    }));
+  });
+
+  document.getElementById('c-terms').textContent = termCount;
+  document.getElementById('c-ideas').textContent = ideaCount;
+  document.getElementById('c-questions').textContent = qCount;
+
+  if (!cards.length) {
+    list.innerHTML = '<div class="empty">Nothing due right now. Either you are ahead, or you have not started marking items for review yet.<br><br>Try Construct mode in Vocab Drill, or click "I said it" on a Key Idea to schedule it.</div>';
+  } else {
+    cards.forEach(c => list.appendChild(c));
+  }
+
+  function mark(bucket, key, success) {
+    if (!window.JglStorage) return;
+    window.JglStorage.update(p => {
+      p[bucket] = p[bucket] || {};
+      const r = p[bucket][key] || { attempts: 0 };
+      r.attempts = (r.attempts || 0) + 1;
+      r.mastered = !!success;
+      r.lastSeenIso = new Date().toISOString();
+      if (window.JglSpaced) r.nextDueIso = window.JglSpaced.nextDue({ attempts: r.attempts, success, fromIso: r.lastSeenIso });
+      p[bucket][key] = r;
+      return p;
+    });
+  }
+  function markIdea(topicId, idx, success) {
+    if (!window.JglStorage) return;
+    window.JglStorage.update(p => {
+      const t = p.topics[topicId] = p.topics[topicId] || {};
+      t.keyIdeaState = t.keyIdeaState || [];
+      while (t.keyIdeaState.length <= idx) t.keyIdeaState.push(false);
+      t.keyIdeaState[idx] = !!success;
+      return p;
+    });
+  }
+})();
+</script>
+</body>
+</html>

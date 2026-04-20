@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compass | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; background: var(--bg); }
+    .wrap { max-width: 640px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    .hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .hd a { font-size: .78rem; color: var(--muted); text-decoration: none; border: 1px solid var(--border); padding: .35rem .7rem; border-radius: 7px; }
+    .hd a:hover { color: var(--accent); border-color: var(--accent); }
+
+    .greet {
+      font-size: 1.7rem; font-weight: 800; color: var(--text); letter-spacing: -.01em;
+      margin-bottom: .25rem;
+    }
+    .sub { font-size: .9rem; color: var(--muted); margin-bottom: 2rem; line-height: 1.5; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.25rem 1.25rem 1.1rem; margin-bottom: 1.1rem;
+    }
+    .card h2 {
+      font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em;
+      font-weight: 800; margin: 0 0 .6rem;
+    }
+    .mood-row { display: flex; gap: .4rem; flex-wrap: wrap; }
+    .mood-btn {
+      flex: 1; min-width: 80px;
+      background: var(--card); color: var(--text);
+      border: 1.5px solid var(--border); border-radius: 10px;
+      padding: .65rem .5rem;
+      font-size: .82rem; font-weight: 700; cursor: pointer;
+      transition: all .15s; line-height: 1.35;
+    }
+    .mood-btn .emoji { display: block; font-size: 1.2rem; margin-bottom: .15rem; }
+    .mood-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .mood-btn.active { border-color: var(--accent); background: #1a2a3a; color: var(--text); }
+
+    .proposal {
+      background: linear-gradient(135deg, #1a2a3a 0%, #1e1835 100%);
+      border: 1px solid var(--accent);
+      padding: 1rem 1.2rem;
+      border-radius: 12px;
+      color: var(--text);
+      font-size: .92rem;
+      line-height: 1.55;
+      margin-bottom: .9rem;
+    }
+    .proposal strong { color: var(--accent); }
+
+    .intent-form { display: grid; grid-template-columns: 70px 1fr 1fr; gap: .45rem; align-items: center; }
+    .intent-form select, .intent-form input {
+      background: var(--card); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: .55rem .7rem; font-size: .88rem; font-family: inherit; outline: none;
+    }
+    .intent-form select:focus, .intent-form input:focus { border-color: var(--accent); }
+    .intent-preview { font-size: .82rem; color: var(--muted); margin-top: .6rem; line-height: 1.5; }
+    .intent-preview em { color: var(--text); font-style: normal; font-weight: 600; }
+
+    .go-row { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin-top: .85rem; }
+    .go-row .btn { font-size: .88rem; padding: .55rem 1rem; }
+
+    .streak-row {
+      display: flex; align-items: center; gap: .85rem;
+      padding: .75rem 1rem;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      margin-bottom: 1.4rem;
+    }
+    .streak-number { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+    .streak-text { font-size: .82rem; color: var(--muted); line-height: 1.45; flex: 1; }
+
+    .rest-banner {
+      padding: .8rem 1rem;
+      background: #1a2610;
+      border: 1px solid #34d399;
+      color: #6ee7b7;
+      border-radius: 10px;
+      font-size: .86rem;
+      margin-bottom: 1.1rem;
+      display: none;
+    }
+    .rest-banner.show { display: block; }
+
+    @media (max-width: 520px) {
+      .intent-form { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd">
+    <a href="../index.html">← Hub</a>
+    <a href="../mirror/index.html">Mirror →</a>
+  </div>
+
+  <div id="greet" class="greet">Good evening.</div>
+  <div class="sub">One short check-in, then we pick a focus and you choose how long. Nothing long, nothing automated; you decide the shape of the next block.</div>
+
+  <div id="streak-card" class="streak-row" style="display:none">
+    <div class="streak-number" id="streak-n">0</div>
+    <div class="streak-text" id="streak-copy">Keep showing up. Two days strong.</div>
+  </div>
+
+  <div id="rest-banner" class="rest-banner"></div>
+
+  <div class="card">
+    <h2>How are you feeling about studying right now?</h2>
+    <div class="mood-row" id="mood-row"></div>
+  </div>
+
+  <div class="card" id="proposal-card" style="display:none">
+    <h2>Proposal</h2>
+    <div class="proposal" id="proposal-text"></div>
+    <h2 style="margin-top:.9rem">Implementation intention</h2>
+    <div class="intent-form">
+      <select id="intent-minutes" aria-label="Session minutes">
+        <option value="15">15 min</option>
+        <option value="20">20 min</option>
+        <option value="25" selected>25 min</option>
+        <option value="40">40 min</option>
+      </select>
+      <select id="intent-action" aria-label="Action">
+        <option value="work on">work on</option>
+        <option value="revise">revise</option>
+        <option value="practise">practise</option>
+        <option value="say back">say back</option>
+        <option value="explain">explain</option>
+      </select>
+      <select id="intent-focus" aria-label="Focus"></select>
+    </div>
+    <div id="intent-preview" class="intent-preview">Pick a mood to see a suggestion.</div>
+    <div class="go-row">
+      <button id="go-btn" class="btn btn-primary">Begin →</button>
+      <button id="rest-btn" class="btn btn-ghost" style="font-size:.78rem">Take a rest day</button>
+    </div>
+  </div>
+
+  <p class="sub" style="margin-top:1.2rem;font-size:.78rem">Rest days do not break a streak. Consolidation happens during rest.</p>
+</div>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script src="../shared/content.js"></script>
+<script src="../shared/lab.js"></script>
+<script src="../shared/spaced.js"></script>
+<script>
+const STUDENT_NAME = 'Alexey';
+const MOODS = [
+  { score: 1, label: 'Drained', emoji: '😔', mode: 'gentle',   minutes: 15 },
+  { score: 2, label: 'Low',     emoji: '😐', mode: 'gentle',   minutes: 15 },
+  { score: 3, label: 'Okay',    emoji: '🙂', mode: 'balanced', minutes: 20 },
+  { score: 4, label: 'Good',    emoji: '😊', mode: 'stretch',  minutes: 25 },
+  { score: 5, label: 'Strong',  emoji: '💪', mode: 'stretch',  minutes: 25 },
+];
+
+const FOCUSES = [
+  { value: 'topics/circuits/index.html',   label: 'Circuits (Key Ideas)' },
+  { value: 'topics/forces/index.html',     label: 'Forces' },
+  { value: 'topics/water-cycle/index.html',label: 'Water Cycle' },
+  { value: 'topics/energy-conversion/index.html', label: 'Energy Conversion' },
+  { value: 'topics/respiratory/index.html',label: 'Respiratory System' },
+  { value: 'structured/index.html',        label: 'Structured Answer Builder' },
+  { value: 'explain/index.html',           label: 'Explain It Back' },
+  { value: 'assess/index.html',            label: 'Synoptic Assessment' },
+  { value: 'vocab/index.html',             label: 'Vocab Drill' },
+  { value: 'map/index.html',               label: 'Mega Concept Map' },
+  { value: 'review/index.html',            label: 'Review what is due' },
+];
+
+let selectedMood = null;
+const focusSelect = document.getElementById('intent-focus');
+FOCUSES.forEach(f => { const o = document.createElement('option'); o.value = f.value; o.textContent = f.label; focusSelect.appendChild(o); });
+
+// Greeting
+(function () {
+  const hr = new Date().getHours();
+  const t = hr < 5 ? 'Good night' : hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : hr < 22 ? 'Good evening' : 'Good night';
+  document.getElementById('greet').textContent = `${t}, ${STUDENT_NAME}.`;
+})();
+
+// Mood buttons
+const moodRow = document.getElementById('mood-row');
+MOODS.forEach(m => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'mood-btn';
+  b.dataset.score = m.score;
+  b.innerHTML = `<span class="emoji">${m.emoji}</span>${m.label}`;
+  b.addEventListener('click', () => selectMood(m, b));
+  moodRow.appendChild(b);
+});
+
+function selectMood(m, btn) {
+  selectedMood = m;
+  document.querySelectorAll('.mood-btn').forEach(x => x.classList.remove('active'));
+  btn.classList.add('active');
+
+  document.getElementById('proposal-card').style.display = '';
+  const modeCopy = m.mode === 'gentle'
+      ? `This is a lot. Let us keep it gentle. <strong>${m.minutes} minutes</strong> of revision of something you have already mastered.`
+    : m.mode === 'balanced'
+      ? `A balanced <strong>${m.minutes}-minute</strong> session. Pick one thing and stay with it.`
+      : `Great. Let us stretch. <strong>${m.minutes} minutes</strong> on something new or synoptic.`;
+  document.getElementById('proposal-text').innerHTML = modeCopy;
+  document.getElementById('intent-minutes').value = String(m.minutes);
+
+  // Seed focus with something sensible for the mode
+  if (m.mode === 'gentle') focusSelect.value = 'vocab/index.html';
+  else if (m.mode === 'balanced') focusSelect.value = 'topics/circuits/index.html';
+  else focusSelect.value = 'structured/index.html';
+
+  updatePreview();
+  persistMood(m.score);
+}
+
+function updatePreview() {
+  const mins = document.getElementById('intent-minutes').value;
+  const action = document.getElementById('intent-action').value;
+  const focus = FOCUSES.find(f => f.value === focusSelect.value) || FOCUSES[0];
+  document.getElementById('intent-preview').innerHTML =
+    `<em>"In the next ${mins} minutes I will ${action} ${focus.label}."</em>`;
+}
+document.getElementById('intent-minutes').addEventListener('change', updatePreview);
+document.getElementById('intent-action').addEventListener('change', updatePreview);
+focusSelect.addEventListener('change', updatePreview);
+
+// Persistence helpers
+function persistMood(score) {
+  if (!window.JglStorage) return;
+  window.JglStorage.update(p => {
+    p.wellbeing = p.wellbeing || { recentMoodScores: [] };
+    p.wellbeing.recentMoodScores = (p.wellbeing.recentMoodScores || []).concat([{ iso: new Date().toISOString(), score }]).slice(-30);
+    p.wellbeing.lastCheckInIso = new Date().toISOString();
+    return p;
+  });
+}
+
+function saveSessionIntention() {
+  if (!window.JglStorage) return;
+  const mins = +document.getElementById('intent-minutes').value;
+  const focus = focusSelect.value;
+  const action = document.getElementById('intent-action').value;
+  const focusLabel = (FOCUSES.find(f => f.value === focus) || {}).label || focus;
+  window.JglStorage.update(p => {
+    p.sessions = p.sessions || [];
+    p.sessions.push({
+      startIso: new Date().toISOString(),
+      endIso: null,
+      mode: selectedMood ? selectedMood.mode : 'balanced',
+      focus: focusLabel,
+      intention: `In the next ${mins} minutes I will ${action} ${focusLabel}.`,
+      completed: false,
+    });
+    p.sessions = p.sessions.slice(-60);
+    return p;
+  });
+}
+
+document.getElementById('go-btn').addEventListener('click', () => {
+  saveSessionIntention();
+  try { window.Streak && window.Streak.record(); } catch {}
+  const url = focusSelect.value || 'index.html';
+  // Attach ?pomo=<mins> so the target page can auto-launch the Pomodoro if it opts in
+  const glue = url.includes('?') ? '&' : '?';
+  const mins = document.getElementById('intent-minutes').value;
+  window.location.href = `../${url}${glue}pomo=${encodeURIComponent(mins)}`;
+});
+
+document.getElementById('rest-btn').addEventListener('click', () => {
+  if (!window.JglStorage) return;
+  window.JglStorage.update(p => {
+    p.streak = p.streak || { current: 0, longest: 0, lastStudiedIso: null, restDaysUsed: 0, activeDays: [] };
+    p.streak.restDaysUsed = (p.streak.restDaysUsed || 0) + 1;
+    return p;
+  });
+  alert('Rest noted. Sleep and movement do more for memory than one more session. See you tomorrow.');
+  window.location.href = '../index.html';
+});
+
+// Streak + rest banner
+(function () {
+  if (!window.JglStorage) return;
+  const p = window.JglStorage.getProgress();
+  const cur = (p.streak && p.streak.current) || 0;
+  const sc = document.getElementById('streak-card');
+  if (cur > 0) {
+    sc.style.display = '';
+    document.getElementById('streak-n').textContent = cur;
+    document.getElementById('streak-copy').textContent =
+      cur === 1 ? 'Good start. One day in.' :
+      cur < 5 ? `Keep going. ${cur} days in a row.` :
+      cur < 14 ? `Strong. ${cur} days running.` :
+      `Remarkable. ${cur} days.`;
+  }
+  // Nudge rest after 5 consecutive active days
+  const lastIso = (p.streak && p.streak.lastStudiedIso) || null;
+  const today = new Date().toISOString().slice(0,10);
+  const yday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+  if (cur >= 5 && lastIso === today) {
+    const r = document.getElementById('rest-banner');
+    r.textContent = 'You have been at it for five days. A rest day today would not break your streak; it would help it. Worth considering.';
+    r.classList.add('show');
+  } else if (lastIso && lastIso !== today && lastIso !== yday) {
+    const r = document.getElementById('rest-banner');
+    r.textContent = 'Welcome back. Missing one day is fine; missing two is where streaks go to die. Today counts.';
+    r.classList.add('show');
+  }
+})();
+</script>
+</body>
+</html>
