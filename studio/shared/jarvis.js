@@ -437,6 +437,13 @@
       }
     });
 
+    // React to a key arriving via any other route (the Settings
+    // modal, Coach sidebar, vocab Coach check, etc.): if Jarvis
+    // was blocking on "no key", let the student know they can go.
+    document.addEventListener('jgl:gemini-key-changed', () => {
+      if (STATE.open) setHint('Gemini key set. Ready to go.', false);
+    });
+
     STATE.mounted = true;
   }
 

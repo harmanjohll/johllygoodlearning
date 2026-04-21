@@ -125,8 +125,27 @@ const AIConfig = {
   GEMINI_KEY: 'sciLab_gemini_key',
   LEVEL_KEY:  'sciLab_levels',
 
-  getKey()  { return localStorage.getItem(this.GEMINI_KEY) || ''; },
-  setKey(k) { localStorage.setItem(this.GEMINI_KEY, k.trim()); },
+  // Delegates to JglStorage when available so the key lives in one
+  // canonical place (jgl.geminiKey) while sciLab_gemini_key stays in
+  // sync for any legacy reader. Any save triggers a
+  // jgl:gemini-key-changed event that the Coach, Jarvis, and the
+  // quiz-toggle listen for, so the UI updates without a reload.
+  getKey() {
+    if (window.JglStorage && typeof window.JglStorage.getGeminiKey === 'function') {
+      return window.JglStorage.getGeminiKey();
+    }
+    return localStorage.getItem(this.GEMINI_KEY) || '';
+  },
+  setKey(k) {
+    const trimmed = (k || '').trim();
+    if (!trimmed) return;
+    if (window.JglStorage && typeof window.JglStorage.setGeminiKey === 'function') {
+      window.JglStorage.setGeminiKey(trimmed);
+      return;
+    }
+    localStorage.setItem(this.GEMINI_KEY, trimmed);
+    try { document.dispatchEvent(new CustomEvent('jgl:gemini-key-changed', { detail: { key: trimmed } })); } catch {}
+  },
   hasKey()  { return !!this.getKey(); },
 
   getLevels() {
@@ -702,6 +721,14 @@ function initAIQuizToggle(staticQuestions = []) {
   wrapper.appendChild(quizArea);
   container.appendChild(wrapper);
 
+  // Keep the "set up key" hint in sync when a key arrives via any
+  // route (Settings modal, Coach sidebar, Jarvis, etc.).
+  document.addEventListener('jgl:gemini-key-changed', () => {
+    const aiBtn = toggleBar.querySelector('[data-mode="ai"]');
+    if (!aiBtn) return;
+    aiBtn.innerHTML = '🤖 AI Quiz' + (AIConfig.hasKey() ? '' : ' <span class="ai-setup-hint">— set up key</span>');
+  });
+
   // Lazy instances
   let staticEngine = null;
   let aiEngine     = null;
@@ -749,130 +776,414 @@ function initAIQuizToggle(staticQuestions = []) {
   });
 }
 
-// ── Mind Map (vis-network wrapper) ─────────────────────────
+// ── Mind Map (d3-force, Obsidian-style) ───────────────────
+// Same public API as before (addNode/addEdge/deleteSelected/reset/
+// togglePhysics/save/load/check) so every topic page keeps working.
+// Requires d3 v7 (injected by the topic HTML). If d3 is unavailable
+// we fall back to vis-network via the old code path guarded below.
 class ScienceMindMap {
   constructor(containerId, topicId, template) {
     this.containerId = containerId;
     this.topicId     = topicId;
     this.template    = template;
-    this.nodes = new vis.DataSet(template.nodes.map(n => ({ ...n })));
-    this.edges = new vis.DataSet(template.edges.map(e => ({ ...e })));
-    this.network = null;
+    this.nodes = [];
+    this.links = [];
+    this.sim   = null;
+    this.focusId = null;
+    this.linkingFrom = null;
     this.nodeIdCounter = 1000;
-    this.init();
+    this.transform = (typeof d3 !== 'undefined') ? d3.zoomIdentity : { x:0, y:0, k:1 };
+    this._pendingSize = null;
+    this._initD3();
   }
 
-  init() {
+  _initD3() {
     const container = document.getElementById(this.containerId);
-    const options = {
-      nodes: {
-        shape: 'box', borderWidth: 2,
-        color: { background: '#1e293b', border: '#38bdf8', highlight: { background: '#1a3a5a', border: '#7dd3fc' } },
-        font: { color: '#e2e8f0', size: 14, face: 'Inter, system-ui' },
-        margin: 8, widthConstraint: { minimum: 80, maximum: 180 }
-      },
-      edges: {
-        color: { color: '#475569', highlight: '#38bdf8' },
-        width: 1.5, smooth: { type: 'cubicBezier', roundness: 0.4 },
-        arrows: { to: { enabled: true, scaleFactor: 0.5 } }
-      },
-      physics: {
-        enabled: true,
-        solver: 'forceAtlas2Based',
-        forceAtlas2Based: { gravitationalConstant: -60, springLength: 130, springConstant: 0.06 },
-        stabilization: { iterations: 150, fit: true }
-      },
-      interaction: {
-        hover: true, tooltipDelay: 200,
-        navigationButtons: true, keyboard: false,
-        dragNodes: true, dragView: true, zoomView: true
-      },
-      manipulation: { enabled: false }
-    };
-    this.network = new vis.Network(container, { nodes: this.nodes, edges: this.edges }, options);
-    this.network.once('stabilizationIterationsDone', () => {
-      this.network.setOptions({ physics: { enabled: false } });
-      this.network.fit();
-      this._updatePhysicsBtn(false);
-    });
-    this.network.on('doubleClick', params => {
-      if (params.nodes.length) {
-        const id  = params.nodes[0];
-        const cur = this.nodes.get(id).label;
-        const lbl = prompt('Edit node label:', cur);
-        if (lbl !== null && lbl.trim()) this.nodes.update({ id, label: lbl.trim() });
-      } else if (params.edges.length === 0) {
-        const lbl = prompt('New node label:');
-        if (lbl && lbl.trim()) {
-          const id = ++this.nodeIdCounter;
-          this.nodes.add({ id, label: lbl.trim(),
-            x: params.pointer.canvas.x, y: params.pointer.canvas.y,
-            color: { background: '#1e3a2a', border: '#10b981' } });
+    if (!container) return;
+    if (typeof d3 === 'undefined') {
+      container.innerHTML = '<div style="color:#94a3b8;padding:1rem;font-size:.85rem">Mind map unavailable (d3 did not load).</div>';
+      return;
+    }
+
+    // Create SVG scaffold inside the container
+    container.innerHTML = '';
+    container.style.position = 'relative';
+    container.style.overflow = 'hidden';
+    this.svg = d3.select(container).append('svg')
+      .attr('class', 'sci-mm-svg')
+      .attr('width', '100%')
+      .attr('height', '100%')
+      .style('display', 'block')
+      .style('touch-action', 'none')
+      .style('cursor', 'default');
+    this.root = this.svg.append('g').attr('class', 'sci-mm-root');
+    this.edgeG = this.root.append('g').attr('class', 'sci-mm-edges');
+    this.nodeG = this.root.append('g').attr('class', 'sci-mm-nodes');
+
+    // Styles scoped to mind maps
+    if (!document.getElementById('sci-mm-style')) {
+      const s = document.createElement('style');
+      s.id = 'sci-mm-style';
+      s.textContent = `
+        .sci-mm-svg .node text {
+          pointer-events: none; fill: #cfd3df;
+          font-family: 'Inter Tight','Inter',system-ui,sans-serif;
+          font-weight: 600; paint-order: stroke;
+          stroke: #0d1a2e; stroke-width: 3.5; stroke-linejoin: round;
         }
+        .sci-mm-svg .node.root text { fill: #ffffff; font-weight: 800; }
+        .sci-mm-svg .node circle { cursor: pointer; transition: stroke-width .12s, opacity .15s; }
+        .sci-mm-svg .node.focus circle { stroke-width: 3.5; filter: drop-shadow(0 0 6px currentColor); }
+        .sci-mm-svg .node.dim circle { opacity: .22; }
+        .sci-mm-svg .node.dim text   { opacity: .28; }
+        .sci-mm-svg .edge { fill: none; stroke: #64748b; stroke-width: .9; opacity: .45; }
+        .sci-mm-svg .edge.active { stroke: #a78bfa; opacity: 1; stroke-width: 1.6; }
+        .sci-mm-svg .edge.dim { opacity: .1; }
+        .sci-mm-svg .edge-label { font-size: 9px; fill: #94a3b8; pointer-events: none; }
+        .sci-mm-svg.linking { cursor: crosshair; }
+      `;
+      document.head.appendChild(s);
+    }
+
+    // Seed from template
+    this._loadFromTemplate();
+    this._layoutSeed();
+    this._initSim();
+    this._initZoom();
+    this._initDblClick();
+    this._render();
+
+    // Observe container resize + visibility so the layout re-centres
+    // when the tab becomes visible (fixes the "stuck off-screen" bug
+    // caused by vis-network being initialised while display:none).
+    const ro = new ResizeObserver(() => this._onResize());
+    ro.observe(container);
+    // Also trigger on tab clicks — topic pages drive tab switches via
+    // the shared initTabs() handler; we re-centre any time our own
+    // container becomes measurable.
+    this._checkSizeSoon();
+  }
+
+  _checkSizeSoon() {
+    const container = document.getElementById(this.containerId);
+    if (!container) return;
+    const poll = () => {
+      const r = container.getBoundingClientRect();
+      if (r.width > 10 && r.height > 10) {
+        this._onResize();
+        this.sim && this.sim.alpha(0.7).restart();
+        setTimeout(() => this.svg && this._centreView(), 60);
+        return;
       }
+      setTimeout(poll, 200);
+    };
+    poll();
+  }
+
+  _loadFromTemplate() {
+    this.nodes = (this.template.nodes || []).map(n => ({
+      id: n.id, label: n.label || 'Node', _root: !!n.color, _colour: (n.color && n.color.border) || '#a78bfa',
+    }));
+    this.links = (this.template.edges || []).map(e => ({ source: e.from, target: e.to, label: e.label || '' }));
+  }
+
+  _layoutSeed() {
+    const container = document.getElementById(this.containerId);
+    const r = container.getBoundingClientRect();
+    const cx = (r.width || 800) / 2, cy = (r.height || 420) / 2;
+    const radius = Math.min(r.width || 800, r.height || 420) * 0.30 || 160;
+    const n = this.nodes.length || 1;
+    this.nodes.forEach((node, i) => {
+      if (node._root || i === 0) { node.x = cx; node.y = cy; return; }
+      const a = ((i - 1) / Math.max(1, n - 1)) * Math.PI * 2 - Math.PI / 2;
+      node.x = cx + radius * Math.cos(a);
+      node.y = cy + radius * Math.sin(a);
     });
+  }
+
+  _initSim() {
+    const container = document.getElementById(this.containerId);
+    const r = container.getBoundingClientRect();
+    const cx = (r.width || 800) / 2, cy = (r.height || 420) / 2;
+    this.sim = d3.forceSimulation(this.nodes)
+      .alphaDecay(0.03)
+      .velocityDecay(0.5)
+      .force('link', d3.forceLink(this.links).id(d => d.id).distance(110).strength(0.55))
+      .force('charge', d3.forceManyBody().strength(d => d._root ? -900 : -380))
+      .force('collide', d3.forceCollide().radius(28).strength(0.9))
+      .force('x', d3.forceX(cx).strength(0.04))
+      .force('y', d3.forceY(cy).strength(0.04))
+      .on('tick', () => this._tick());
+  }
+
+  _initZoom() {
+    const zoom = d3.zoom()
+      .scaleExtent([0.3, 3])
+      .filter(ev => {
+        if (ev.type === 'dblclick') return false;
+        return !ev.target.closest('g.node');
+      })
+      .on('zoom', (ev) => { this.transform = ev.transform; this.root.attr('transform', ev.transform); });
+    this.svg.call(zoom).on('dblclick.zoom', null);
+    this._zoom = zoom;
+  }
+
+  _initDblClick() {
+    this.svg.on('dblclick', (ev) => {
+      if (ev.target.closest('g.node')) return;
+      const [x, y] = this.transform.invert(d3.pointer(ev));
+      const lbl = prompt('New node label:');
+      if (lbl && lbl.trim()) this._addNodeAt(lbl.trim(), x, y);
+    });
+  }
+
+  _centreView() {
+    if (!this._zoom) return;
+    this.svg.transition().duration(300).call(this._zoom.transform, d3.zoomIdentity);
+  }
+
+  _onResize() {
+    const container = document.getElementById(this.containerId);
+    if (!container || !this.sim) return;
+    const r = container.getBoundingClientRect();
+    if (r.width < 10) return;
+    const cx = r.width / 2, cy = r.height / 2;
+    this.sim.force('x').x(cx);
+    this.sim.force('y').y(cy);
+    this.sim.alpha(0.3).restart();
+  }
+
+  _tick() {
+    this.edgeG.selectAll('path.edge')
+      .attr('d', d => {
+        const a = typeof d.source === 'object' ? d.source : this._byId(d.source);
+        const b = typeof d.target === 'object' ? d.target : this._byId(d.target);
+        if (!a || !b) return '';
+        return `M${a.x},${a.y} L${b.x},${b.y}`;
+      });
+    this.nodeG.selectAll('g.node').attr('transform', d => `translate(${d.x||0},${d.y||0})`);
+  }
+
+  _byId(id) { return this.nodes.find(n => n.id === id); }
+
+  _render() {
+    // Edges
+    const edgeKey = d => {
+      const s = typeof d.source === 'object' ? d.source.id : d.source;
+      const t = typeof d.target === 'object' ? d.target.id : d.target;
+      return s + '→' + t;
+    };
+    const esel = this.edgeG.selectAll('path.edge').data(this.links, edgeKey);
+    esel.exit().remove();
+    esel.enter().append('path').attr('class', 'edge');
+
+    // Nodes
+    const nsel = this.nodeG.selectAll('g.node').data(this.nodes, d => d.id);
+    nsel.exit().remove();
+    const enter = nsel.enter().append('g').attr('class', d => 'node' + (d._root ? ' root' : ''));
+    enter.append('circle')
+      .attr('r', d => d._root ? 14 : 8)
+      .attr('fill', '#0d1a2e')
+      .attr('stroke-width', d => d._root ? 2 : 1.5);
+    enter.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', d => d._root ? 30 : 22)
+      .attr('font-size', d => d._root ? 13 : 11);
+
+    const all = enter.merge(nsel);
+    all.select('circle').attr('stroke', d => d._colour || '#a78bfa');
+    all.select('text').text(d => d.label);
+
+    all.on('click', (ev, d) => this._onClickNode(ev, d))
+       .call(this._dragBehavior());
+
+    // Sim refresh
+    if (this.sim) {
+      this.sim.nodes(this.nodes);
+      this.sim.force('link').links(this.links);
+      this.sim.alpha(0.6).restart();
+    }
+  }
+
+  _dragBehavior() {
+    const self = this;
+    return d3.drag()
+      .on('start', (ev, d) => {
+        if (!ev.active) self.sim.alphaTarget(0.3).restart();
+        d.fx = d.x; d.fy = d.y;
+      })
+      .on('drag', (ev, d) => { d.fx = ev.x; d.fy = ev.y; })
+      .on('end', (ev, d) => {
+        if (!ev.active) self.sim.alphaTarget(0);
+        // Keep pinned so user-positioned nodes stay put
+      });
+  }
+
+  _onClickNode(ev, d) {
+    if (this.linkingFrom) {
+      if (d.id !== this.linkingFrom) {
+        this.links.push({ source: this.linkingFrom, target: d.id });
+        this._render();
+        if (typeof showToast === 'function') showToast('Connected.');
+      }
+      this.linkingFrom = null;
+      this.svg.classed('linking', false);
+      return;
+    }
+    this.focusId = this.focusId === d.id ? null : d.id;
+    this._applyFocus();
+  }
+
+  _applyFocus() {
+    const id = this.focusId;
+    const adj = new Set(id ? [id] : []);
+    if (id) this.links.forEach(l => {
+      const s = typeof l.source === 'object' ? l.source.id : l.source;
+      const t = typeof l.target === 'object' ? l.target.id : l.target;
+      if (s === id) adj.add(t);
+      if (t === id) adj.add(s);
+    });
+    this.nodeG.selectAll('g.node')
+      .classed('dim',   d => id && !adj.has(d.id))
+      .classed('focus', d => d.id === id);
+    this.edgeG.selectAll('path.edge').each(function (l) {
+      const s = typeof l.source === 'object' ? l.source.id : l.source;
+      const t = typeof l.target === 'object' ? l.target.id : l.target;
+      const active = id && (s === id || t === id);
+      d3.select(this).classed('active', !!active).classed('dim', id && !active);
+    });
+  }
+
+  _addNodeAt(label, x, y) {
+    const id = ++this.nodeIdCounter;
+    this.nodes.push({ id, label, x, y, _colour: '#10b981' });
+    this._render();
+    return id;
+  }
+
+  // ═══════ Public API (preserved) ═══════
+  addNode(label) {
+    const container = document.getElementById(this.containerId);
+    const r = container.getBoundingClientRect();
+    const id = ++this.nodeIdCounter;
+    this.nodes.push({
+      id, label: label || 'New Idea',
+      x: r.width / 2 + (Math.random() - .5) * 60,
+      y: r.height / 2 + (Math.random() - .5) * 60,
+      _colour: '#10b981',
+    });
+    this._render();
+    return id;
+  }
+
+  addEdge() {
+    if (this.nodes.length < 2) { if (typeof showToast === 'function') showToast('Add more nodes first.'); return; }
+    if (typeof showToast === 'function') showToast('Click the first node, then the second node, to connect.');
+    this.linkingFrom = null;
+    this.svg.classed('linking', true);
+    // First click sets linkingFrom, second click draws the edge.
+    const handler = (ev, d) => {
+      if (!this.linkingFrom) {
+        this.linkingFrom = d.id;
+        return;
+      }
+    };
+    // Override one-time: temporarily intercept the click via _onClickNode's
+    // existing linkingFrom flow. We just need to arm the flag.
+    // Wait for first click to arm linkingFrom via a one-shot listener.
+    const once = (ev) => {
+      const target = ev.target.closest('g.node');
+      if (!target) return;
+      const dat = d3.select(target).datum();
+      if (!this.linkingFrom) { this.linkingFrom = dat.id; }
+      this.svg.node().removeEventListener('click', once, true);
+    };
+    this.svg.node().addEventListener('click', once, true);
+  }
+
+  deleteSelected() {
+    if (!this.focusId) { if (typeof showToast === 'function') showToast('Click a node to select it, then Delete.'); return; }
+    const id = this.focusId;
+    this.nodes = this.nodes.filter(n => n.id !== id);
+    this.links = this.links.filter(l => {
+      const s = typeof l.source === 'object' ? l.source.id : l.source;
+      const t = typeof l.target === 'object' ? l.target.id : l.target;
+      return s !== id && t !== id;
+    });
+    this.focusId = null;
+    this._render();
+    this._applyFocus();
   }
 
   togglePhysics() {
-    const on = !this.network.physics.physicsEnabled;
-    this.network.setOptions({ physics: { enabled: on } });
-    if (!on) this.network.fit();
-    this._updatePhysicsBtn(on);
-    showToast(on ? '🌀 Auto-layout ON — drag to pin, click again to stop.' : '📌 Physics OFF — drag freely.');
+    // In d3 we don't "stop" physics; we simply unpin all nodes so the
+    // layout settles, or pin them in place. Toggle semantics:
+    const anyPinned = this.nodes.some(n => n.fx != null);
+    if (anyPinned) {
+      this.nodes.forEach(n => { delete n.fx; delete n.fy; });
+      this.sim.alpha(0.7).restart();
+      this._updatePhysicsBtn(true);
+      if (typeof showToast === 'function') showToast('Auto-layout ON — drag to pin.');
+    } else {
+      this.nodes.forEach(n => { n.fx = n.x; n.fy = n.y; });
+      this.sim.alphaTarget(0).alpha(0);
+      this._updatePhysicsBtn(false);
+      if (typeof showToast === 'function') showToast('Pinned. Drag to rearrange freely.');
+    }
   }
 
   _updatePhysicsBtn(on) {
     const btn = document.getElementById('mm-physics-btn');
-    if (btn) btn.textContent = on ? '⏹ Stop Auto-layout' : '🌀 Re-layout';
+    if (btn) btn.textContent = on ? '⏹ Pin all' : '🌀 Re-layout';
   }
-
-  addNode(label) {
-    const id = ++this.nodeIdCounter;
-    this.nodes.add({ id, label: label || 'New Idea', color: { background: '#1e3a2a', border: '#10b981' } });
-    return id;
-  }
-
-  addEdge()         { this.network.addEdgeMode(); showToast('Drag from one node to another to connect. Press Esc to cancel.'); }
-  deleteSelected()  { this.nodes.remove(this.network.getSelectedNodes()); this.edges.remove(this.network.getSelectedEdges()); }
 
   save() {
-    const data = { nodes: this.nodes.get(), edges: this.edges.get() };
-    localStorage.setItem(`sciLab_mindmap_${this.topicId}`, JSON.stringify(data));
-    Progress.recordMindMap(this.topicId);
+    const data = {
+      nodes: this.nodes.map(n => ({ id: n.id, label: n.label, _root: n._root, _colour: n._colour, fx: n.fx, fy: n.fy })),
+      edges: this.links.map(l => ({
+        from: typeof l.source === 'object' ? l.source.id : l.source,
+        to:   typeof l.target === 'object' ? l.target.id : l.target,
+        label: l.label || ''
+      }))
+    };
+    try { localStorage.setItem(`sciLab_mindmap_${this.topicId}`, JSON.stringify(data)); } catch {}
+    if (typeof Progress !== 'undefined') Progress.recordMindMap(this.topicId);
     return data;
   }
 
   load() {
     try {
-      const saved = JSON.parse(localStorage.getItem(`sciLab_mindmap_${this.topicId}`));
-      if (saved) {
-        this.nodes.clear(); this.edges.clear();
-        this.nodes.add(saved.nodes); this.edges.add(saved.edges);
-        showToast('Mind map loaded!');
-      }
-    } catch { showToast('No saved mind map found.'); }
+      const raw = localStorage.getItem(`sciLab_mindmap_${this.topicId}`);
+      if (!raw) { if (typeof showToast === 'function') showToast('No saved mind map found.'); return; }
+      const saved = JSON.parse(raw);
+      this.nodes = (saved.nodes || []).map(n => ({ ...n }));
+      this.links = (saved.edges || []).map(e => ({ source: e.from, target: e.to, label: e.label || '' }));
+      this._render();
+      if (typeof showToast === 'function') showToast('Mind map loaded.');
+    } catch { if (typeof showToast === 'function') showToast('Could not load mind map.'); }
   }
 
   check() {
     const required  = this.template.required || [];
-    const allLabels = this.nodes.get().map(n => n.label.toLowerCase());
+    const allLabels = this.nodes.map(n => (n.label || '').toLowerCase());
     const missing   = required.filter(r => !allLabels.some(l => l.includes(r.toLowerCase())));
     const found     = required.filter(r =>  allLabels.some(l => l.includes(r.toLowerCase())));
-
     let fb = `<strong>Mind Map Check</strong><br><br>`;
     fb += `✅ Found (${found.length}/${required.length}): ${found.join(', ') || 'none'}<br>`;
     if (missing.length) fb += `💡 Consider adding: <em>${missing.join(', ')}</em>`;
-    else fb += `🏆 Excellent! Your map includes all the key ideas.`;
-
+    else                fb += `🏆 Excellent. Your map covers all the required ideas.`;
     const box = document.getElementById('mindmap-feedback');
     if (box) { box.innerHTML = fb; box.style.display = 'block'; }
     return missing;
   }
 
   reset() {
-    this.nodes.clear(); this.edges.clear();
-    this.nodes.add(this.template.nodes.map(n => ({ ...n })));
-    this.edges.add(this.template.edges.map(e => ({ ...e })));
+    this._loadFromTemplate();
+    this._layoutSeed();
+    this.focusId = null;
+    this._render();
+    this.sim && this.sim.alpha(0.8).restart();
+    this._centreView();
   }
 }
 

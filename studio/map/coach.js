@@ -137,6 +137,16 @@
   // Hook into focus events from graph.js
   M.hooks.onFocus = setFocusCard;
 
+  // If the student sets a Gemini key while the Coach is open,
+  // re-render the probe immediately so they do not have to click
+  // anything extra.
+  document.addEventListener('jgl:gemini-key-changed', () => {
+    if (M.focusId) {
+      const node = M.nodesById.get(M.focusId);
+      if (node) renderProbe(node, false);
+    }
+  });
+
   // Hydrate callback after init
   M.api.hydrateCoach = () => setFocusCard(null);
 })();

@@ -131,9 +131,17 @@
   function setGeminiKey(key) {
     const trimmed = (key || '').trim();
     if (!trimmed) return;
+    const prev = getGeminiKey();
     try { localStorage.setItem(KEY_GEMINI, trimmed); } catch {}
     // Keep legacy key in sync so shared.js AIConfig continues to work.
     try { localStorage.setItem(SCILAB_GEMINI, trimmed); } catch {}
+    if (prev !== trimmed) {
+      try {
+        document.dispatchEvent(new CustomEvent('jgl:gemini-key-changed', {
+          detail: { key: trimmed, hadKey: !!prev }
+        }));
+      } catch {}
+    }
   }
 
   // Auto-run on first load so jgl.progress always exists once /studio/ is opened.
