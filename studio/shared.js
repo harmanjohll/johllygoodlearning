@@ -125,8 +125,27 @@ const AIConfig = {
   GEMINI_KEY: 'sciLab_gemini_key',
   LEVEL_KEY:  'sciLab_levels',
 
-  getKey()  { return localStorage.getItem(this.GEMINI_KEY) || ''; },
-  setKey(k) { localStorage.setItem(this.GEMINI_KEY, k.trim()); },
+  // Delegates to JglStorage when available so the key lives in one
+  // canonical place (jgl.geminiKey) while sciLab_gemini_key stays in
+  // sync for any legacy reader. Any save triggers a
+  // jgl:gemini-key-changed event that the Coach, Jarvis, and the
+  // quiz-toggle listen for, so the UI updates without a reload.
+  getKey() {
+    if (window.JglStorage && typeof window.JglStorage.getGeminiKey === 'function') {
+      return window.JglStorage.getGeminiKey();
+    }
+    return localStorage.getItem(this.GEMINI_KEY) || '';
+  },
+  setKey(k) {
+    const trimmed = (k || '').trim();
+    if (!trimmed) return;
+    if (window.JglStorage && typeof window.JglStorage.setGeminiKey === 'function') {
+      window.JglStorage.setGeminiKey(trimmed);
+      return;
+    }
+    localStorage.setItem(this.GEMINI_KEY, trimmed);
+    try { document.dispatchEvent(new CustomEvent('jgl:gemini-key-changed', { detail: { key: trimmed } })); } catch {}
+  },
   hasKey()  { return !!this.getKey(); },
 
   getLevels() {
@@ -701,6 +720,14 @@ function initAIQuizToggle(staticQuestions = []) {
   wrapper.appendChild(toggleBar);
   wrapper.appendChild(quizArea);
   container.appendChild(wrapper);
+
+  // Keep the "set up key" hint in sync when a key arrives via any
+  // route (Settings modal, Coach sidebar, Jarvis, etc.).
+  document.addEventListener('jgl:gemini-key-changed', () => {
+    const aiBtn = toggleBar.querySelector('[data-mode="ai"]');
+    if (!aiBtn) return;
+    aiBtn.innerHTML = '🤖 AI Quiz' + (AIConfig.hasKey() ? '' : ' <span class="ai-setup-hint">— set up key</span>');
+  });
 
   // Lazy instances
   let staticEngine = null;

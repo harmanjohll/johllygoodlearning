@@ -10,10 +10,19 @@
   const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
   function resolveKey() {
-    if (global.AIConfig && typeof global.AIConfig.getKey === 'function') {
-      return global.AIConfig.getKey();
+    // JglStorage is the canonical reader (checks both jgl.geminiKey
+    // and sciLab_gemini_key). Fall back to AIConfig (which itself
+    // now delegates to JglStorage when present), then to raw
+    // localStorage if neither module has loaded.
+    if (global.JglStorage && typeof global.JglStorage.getGeminiKey === 'function') {
+      const k = global.JglStorage.getGeminiKey();
+      if (k) return k;
     }
-    return localStorage.getItem('sciLab_gemini_key') || localStorage.getItem('jgl.geminiKey') || '';
+    if (global.AIConfig && typeof global.AIConfig.getKey === 'function') {
+      const k = global.AIConfig.getKey();
+      if (k) return k;
+    }
+    return localStorage.getItem('jgl.geminiKey') || localStorage.getItem('sciLab_gemini_key') || '';
   }
 
   function extractText(data) {
