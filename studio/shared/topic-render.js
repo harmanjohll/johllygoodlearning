@@ -268,7 +268,7 @@
     const system = (window.JglCoach && window.JglCoach.VOICE) || '';
     const prompt = `A Primary 6 student is trying to say this AL1 Key Idea back in their own words.\n\nOriginal: "${idea}"\n\nStudent: "${trimmed}"\n\nReturn ONLY a JSON object {"pass": true|false, "feedback": "one short sentence; if missing, name the key term missed"}. Pass if the student's version captures the same causal structure and uses at least one of the precise terms.`;
     try {
-      const out = await window.askGemini({ system, prompt, temperature: 0.2, maxTokens: 160, responseMimeType: 'application/json', asJson: true });
+      const out = await window.askGemini({ system, prompt, temperature: 0.2, maxTokens: 512, responseMimeType: 'application/json', asJson: true, thinkingBudget: 0 });
       const pass = !!(out && out.pass);
       const fb = (out && out.feedback) || (pass ? 'Good.' : 'Close. Try again and keep the precise term.');
       feedbackEl.textContent = fb;

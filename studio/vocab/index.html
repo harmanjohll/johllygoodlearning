@@ -1045,7 +1045,7 @@ async function askConstructCoach() {
   ].join('\n');
   const prompt = `Term: ${cxTerm.term}\nTemplate: ${cxTerm.template}\nReference definition: ${cxTerm.definition}\n\nStudent's attempt: "${attempt}"\n\nReturn JSON: {"strengths": ["..."], "gaps": ["..."]}`;
   try {
-    const out = await window.askGemini({ system, prompt, temperature: 0.35, maxTokens: 220, responseMimeType: 'application/json', asJson: true });
+    const out = await window.askGemini({ system, prompt, temperature: 0.35, maxTokens: 512, responseMimeType: 'application/json', asJson: true, thinkingBudget: 0 });
     const strengths = Array.isArray(out && out.strengths) ? out.strengths : [];
     const gaps      = Array.isArray(out && out.gaps) ? out.gaps : [];
     fb.innerHTML = '';

@@ -303,7 +303,12 @@
       if (!window.askGemini) throw new Error('Gemini wrapper missing.');
       const key = (window.JglStorage && window.JglStorage.getGeminiKey && window.JglStorage.getGeminiKey()) || '';
       if (!key) throw { code: 'NO_KEY', message: 'No Gemini key.' };
-      replyText = await window.askGemini({ system, prompt, temperature: 0.5, maxTokens: 320 });
+      replyText = await window.askGemini({
+        system, prompt,
+        temperature: 0.5,
+        maxTokens: 1024,
+        thinkingBudget: 0,   // keep replies snappy; no hidden thinking budget.
+      });
     } catch (err) {
       if (err && err.code === 'NO_KEY') {
         needsKey = true;

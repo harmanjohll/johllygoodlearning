@@ -61,6 +61,10 @@
       model = DEFAULT_MODEL,
       responseMimeType,
       asJson = false,
+      thinkingBudget,            // number | undefined. 0 disables extended
+                                 // thinking on gemini-2.5 models so short
+                                 // replies do not get clipped by the
+                                 // thinking budget eating maxOutputTokens.
     } = opts || {};
 
     const key = resolveKey();
@@ -86,6 +90,7 @@
         temperature,
         maxOutputTokens: maxTokens,
         ...(responseMimeType ? { responseMimeType } : {}),
+        ...(typeof thinkingBudget === 'number' ? { thinkingConfig: { thinkingBudget } } : {}),
       },
     };
     if (system) body.systemInstruction = { parts: [{ text: system }] };
