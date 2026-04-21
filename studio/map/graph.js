@@ -318,6 +318,8 @@
       exitLinking();
       return;
     }
+    // Clicking the already-focused node clears the selection (toggle).
+    if (STATE.focusId === d.id) { clearFocus(); return; }
     focusNode(d.id);
   }
 
@@ -409,6 +411,24 @@
       if (!STATE.hooks.onDblClickCanvas) return;
       const [x, y] = STATE.transform.invert(d3.pointer(event));
       STATE.hooks.onDblClickCanvas(x, y);
+    });
+
+    // Click on empty canvas (not on a node, not a pan-drag) clears the
+    // current focus so the student can get back to the full map.
+    let bgDown = null;
+    svg.on('mousedown', (ev) => {
+      if (ev.target.closest('g.node')) { bgDown = null; return; }
+      bgDown = { x: ev.clientX, y: ev.clientY, t: Date.now() };
+    });
+    svg.on('mouseup', (ev) => {
+      if (!bgDown) return;
+      const moved = Math.hypot(ev.clientX - bgDown.x, ev.clientY - bgDown.y);
+      const dt = Date.now() - bgDown.t;
+      bgDown = null;
+      if (moved < 4 && dt < 400 && !ev.target.closest('g.node')) {
+        if (STATE.linking) { exitLinking(); return; }
+        if (STATE.focusId) clearFocus();
+      }
     });
 
     STATE.api.centre = () => {
