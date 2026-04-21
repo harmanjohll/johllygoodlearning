@@ -23,9 +23,17 @@
   function setFocusCard(node) {
     if (!node) {
       focusCard.innerHTML = `
-        <div class="fk">Nothing selected</div>
-        <div class="fl">Click a node to focus it</div>
-        <div class="ft">Drag to reposition. Double-click empty space to drop a note. Press <kbd>/</kbd> to search, <kbd>Esc</kbd> to cancel.</div>`;
+        <div class="fk">How the Coach works</div>
+        <div class="fl">Click any node. I ask one question.</div>
+        <div class="ft">
+          1. <strong>Click a node</strong> on the map (a theme, topic, phenomenon, or one of your notes).<br>
+          2. I drop a single probing question in the box below. Read it, then answer it <em>in your head</em> (or out loud) in one full sentence, using the precise term.<br>
+          3. Tap <strong>Another probe</strong> for a different angle on the same idea. Tap a chip under <strong>Connections</strong> to jump to a related node.<br>
+          4. Click the same node again, click the empty canvas, or press <kbd>Esc</kbd> to deselect.
+        </div>
+        <div class="ft" style="margin-top:.45rem;color:var(--muted);opacity:.85">
+          Tip: drag nodes to rearrange them, press <kbd>/</kbd> to search, and use the Vault tab to drop your own notes and link them to any node.
+        </div>`;
       probeEl.innerHTML = '<span class="probe-label">Coach probe</span><span class="probe-empty">Pick a node to see a probing question.</span>';
       regenBtn.disabled = true;
       backlinksEl.innerHTML = '';
@@ -44,6 +52,9 @@
       <div class="ft">${escapeHtml(tag)}</div>
       ${deepHref ? `<a class="deeplink" href="${deepHref}">Open →</a>` : ''}
       ${node.body ? `<div style="margin-top:.5rem;font-size:.74rem;color:var(--text);line-height:1.5">${escapeHtml(node.body)}</div>` : ''}
+      <div class="ft" style="margin-top:.45rem;color:var(--muted);opacity:.85">
+        Click the node again, click empty canvas, or press <kbd>Esc</kbd> to deselect.
+      </div>
     `;
     regenBtn.disabled = false;
     renderBacklinks(node);
@@ -108,7 +119,7 @@
 
   async function renderProbe(node, regen) {
     const base = fallbackProbe(node);
-    probeEl.innerHTML = '<span class="probe-label">Coach probe</span>' + escapeHtml(base);
+    setProbeText(base);
     if (!window.askGemini) return;
     const key = (window.JglStorage && window.JglStorage.getGeminiKey && window.JglStorage.getGeminiKey()) || '';
     if (!key) return; // fallback only
@@ -123,15 +134,49 @@
       node.kind === 'note' ? `Student note body: ${(node.body || '').slice(0, 600)}` : '',
     ].filter(Boolean).join('\n');
 
-    const system = voice + '\nYou are probing a Primary 6 student studying for PSLE Science. Reply with ONE short probing question (1 to 2 sentences). No preamble, no bullet lists, no "great job". No emoji.';
-    const prompt = `${context}\n\nWrite one short probing question tailored to this node.${regen ? ' Vary it from previous questions.' : ''}`;
-    probeEl.innerHTML = '<span class="probe-label">Coach probe</span><span style="opacity:.6">Thinking...</span>';
+    const system = [
+      voice,
+      'You are probing a Primary 6 student studying for PSLE Science.',
+      'Output: ONE complete question (one or two sentences) that MUST end with a question mark.',
+      'No preamble ("You mentioned..." / "Great, so..."). No bullet points. No emoji. No hyphens or em dashes.',
+      'Prefer causal probes ("What does X need that Y provides?", "Why does the pitch change when ...?") over recall ("What is X?").',
+    ].join('\n');
+    const prompt = `${context}\n\nWrite your probing question now.${regen ? ' Vary it from previous questions on this node.' : ''} Remember: one complete sentence, ending with "?".`;
+
+    probeEl.innerHTML = '<span class="probe-label">Coach probe</span><span style="opacity:.6;font-style:italic">Thinking...</span>';
     try {
-      const text = await window.askGemini({ system, prompt, temperature: regen ? 0.85 : 0.6, maxTokens: 140 });
-      probeEl.innerHTML = '<span class="probe-label">Coach probe</span>' + escapeHtml((text || base).trim());
+      let text = await window.askGemini({ system, prompt, temperature: regen ? 0.85 : 0.6, maxTokens: 220 });
+      text = (text || '').trim();
+      // Retry once if the model returned a fragment (no question mark) — that's what
+      // produced the "You mentioned plants make food" UX bug.
+      if (text && !/\?\s*$/.test(text)) {
+        const retry = await window.askGemini({
+          system,
+          prompt: prompt + '\n\nYour previous reply was incomplete. Reply again with ONE complete sentence ending in "?".',
+          temperature: 0.6,
+          maxTokens: 220,
+        });
+        if (retry && /\?\s*$/.test(retry.trim())) text = retry.trim();
+      }
+      setProbeText((text || base).trim());
     } catch (err) {
-      probeEl.innerHTML = `<span class="probe-label">Coach probe</span>${escapeHtml(base)}<span class="probe-err">${escapeHtml((err && err.message) || 'AI unavailable')}</span>`;
+      probeEl.innerHTML =
+        '<span class="probe-label">Coach probe</span>' + escapeHtml(base) +
+        '<span class="probe-err">' + escapeHtml((err && err.message) || 'AI unavailable') + '</span>';
     }
+  }
+
+  function setProbeText(text) {
+    probeEl.innerHTML = '';
+    const label = document.createElement('span');
+    label.className = 'probe-label';
+    label.textContent = 'Coach probe';
+    const body = document.createElement('span');
+    body.className = 'probe-body';
+    body.style.cssText = 'display:block;white-space:pre-line';
+    body.textContent = text;
+    probeEl.appendChild(label);
+    probeEl.appendChild(body);
   }
 
   // Hook into focus events from graph.js
