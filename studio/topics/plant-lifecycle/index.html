@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Life Cycles of Plants | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <script src="https://unpkg.com/d3@7/dist/d3.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--cycles); flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .78rem; color: var(--muted); }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    .cue-question { font-size: .78rem; color: var(--muted); margin-bottom: .75rem; border-left: 2px solid var(--cycles); padding-left: .6rem; }
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: var(--accent); }
+
+    /* Life cycle stepper */
+    .stage-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: .55rem; margin-bottom: 1rem; }
+    .stage-card {
+      background: var(--card); border: 1.5px solid var(--border); border-radius: 10px;
+      padding: .65rem .55rem; cursor: pointer;
+      transition: all .18s; text-align: center; position: relative;
+    }
+    .stage-card:hover { border-color: var(--cycles); }
+    .stage-card.active { border-color: var(--cycles); background: #0d2a3a; }
+    .stage-card .stage-num {
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+      font-size: .68rem; font-weight: 700;
+      color: var(--muted); letter-spacing: .05em;
+    }
+    .stage-card.active .stage-num { color: var(--cycles); }
+    .stage-card .stage-name {
+      font-size: .82rem; font-weight: 700; color: var(--text); margin-top: .1rem;
+    }
+    .stage-card .stage-icon {
+      font-size: 1.4rem; line-height: 1; display: block; margin: .35rem auto;
+    }
+
+    .stage-detail {
+      background: linear-gradient(135deg, #0d2a3a 0%, #0e1e33 100%);
+      border: 1px solid var(--cycles); border-radius: 12px;
+      padding: 1rem 1.15rem; min-height: 140px;
+    }
+    .stage-detail h4 { color: var(--cycles); font-size: 1rem; margin-bottom: .5rem; }
+    .stage-detail p { font-size: .86rem; line-height: 1.6; color: var(--text); }
+    .stage-detail .tip {
+      margin-top: .65rem; font-size: .78rem; color: var(--muted);
+      border-left: 3px solid var(--cycles); padding-left: .7rem; line-height: 1.5;
+    }
+
+    .controls-row {
+      display: flex; gap: .5rem; align-items: center; margin: .85rem 0;
+      flex-wrap: wrap;
+    }
+    .controls-row .btn { font-size: .8rem; padding: .4rem .9rem; }
+    .play-btn.playing { background: #3a1e0d; border-color: #fb923c; color: #fdba74; }
+
+    /* Germination needs */
+    .needs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); gap: .45rem; margin-top: .75rem; }
+    .need-btn {
+      padding: .55rem .45rem; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text); cursor: pointer;
+      font-size: .8rem; font-weight: 600; text-align: center;
+      transition: all .18s;
+    }
+    .need-btn.needed  { border-color: #34d399; background: #063b27; color: #6ee7b7; }
+    .need-btn.notneeded { border-color: #ef4444; background: #3b0f0f; color: #fca5a5; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🌱 Life Cycles of Plants</h1>
+    <div class="meta">
+      <span class="badge badge-cycles">Cycles</span>&nbsp;
+      <span class="badge badge-p4">P4</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--cycles)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+    <button class="tab-btn" data-tab="tab-keyideas">💡 Key Ideas</button>
+  </div>
+
+  <!-- ══════════════ LEARN ══════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+      </div>
+
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🌱 The Life Cycle of a Flowering Plant</h4>
+          <p>A <strong>life cycle</strong> is the series of stages a living thing goes through from birth to reproduction. A flowering plant's life cycle has four main stages that repeat through every generation:</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>1. Seed</strong> — contains a tiny embryo plus stored food in the cotyledon.</li>
+            <li><strong>2. Seedling</strong> — a young plant with first leaves; still living off the cotyledon's stored food.</li>
+            <li><strong>3. Young plant</strong> — grows leaves, roots, and stems; now makes its own food by photosynthesis.</li>
+            <li><strong>4. Adult plant</strong> — produces flowers, which are pollinated and fertilised to form new seeds.</li>
+          </ul>
+          <div class="highlight">🔑 The cycle is <strong>continuous</strong>: the adult's seeds become the next generation's starting point.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>💧 Germination</h4>
+          <p><strong>Germination</strong> is the process by which a seed begins to grow into a seedling. Three conditions are needed:</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Water</strong> — softens the seed coat and activates enzymes.</li>
+            <li><strong>Air (oxygen)</strong> — allows the seed to respire and release energy.</li>
+            <li><strong>Warmth</strong> — a suitable temperature for growth.</li>
+          </ul>
+          <p style="margin-top:.4rem">Light is <strong>NOT</strong> needed for germination itself. Light becomes important once the seedling breaks through the soil and starts photosynthesis.</p>
+        </div>
+
+        <div class="note-section">
+          <h4>🌾 Inside a Seed</h4>
+          <p>A seed has three main parts:</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Seed coat</strong> — tough outer layer that protects the seed.</li>
+            <li><strong>Embryo</strong> — the tiny undeveloped plant.</li>
+            <li><strong>Cotyledon</strong> — the food store that feeds the growing embryo until the seedling can make its own food.</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🌸 From Flower to New Seed</h4>
+          <p>An adult flowering plant produces flowers. Pollen is transferred from the anther to the stigma (<strong>pollination</strong>). The pollen nucleus then joins with an ovule (<strong>fertilisation</strong>). The fertilised ovule becomes a <strong>seed</strong>, and the ovary develops into the <strong>fruit</strong>. The seeds are dispersed, land in soil, and the cycle begins again.</p>
+        </div>
+
+        <div class="note-section">
+          <h4>🌿 Non-flowering plants</h4>
+          <p>Not all plants reproduce with seeds. <strong>Non-flowering plants</strong> such as ferns and mosses reproduce using <strong>spores</strong>. Their life cycles follow different stages, but the idea of a repeating cycle is the same.</p>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--cycles);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          A flowering plant's life cycle has four stages: <strong>seed → seedling → young plant → adult plant</strong>, repeating because the adult produces new seeds. Germination needs <strong>water, air, and warmth</strong> (not light). A seed contains an <strong>embryo</strong> and a <strong>cotyledon</strong> that feeds the seedling until leaves appear. Non-flowering plants like <strong>ferns and mosses</strong> reproduce by <strong>spores</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SIMULATE ══════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">Which stage is the cotyledon most important?</div>
+        <div class="cue-question">Where does a young plant's food come from, after the cotyledon is used up?</div>
+        <div class="cue-question">Which three needs must be present for a seed to germinate?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Germination test</div>
+        <p style="font-size:.75rem;color:var(--muted);margin-bottom:.5rem">Click each condition to see whether a seed needs it for germination.</p>
+        <div class="needs-grid" id="needs-grid"></div>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:.6rem">Click through the stages, or press <strong>Play</strong> to auto-advance every 3 seconds.</p>
+
+        <div class="stage-row" id="stage-row"></div>
+        <div class="stage-detail" id="stage-detail"></div>
+
+        <div class="controls-row">
+          <button class="btn btn-primary play-btn" id="play-btn">▶ Play</button>
+          <button class="btn btn-ghost" id="back-stage-btn">◀ Previous</button>
+          <button class="btn btn-ghost" id="next-stage-btn">Next ▶</button>
+          <span style="font-size:.75rem;color:var(--muted);margin-left:.25rem" id="stage-counter">1 of 5</span>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--cycles);font-weight:700;margin-bottom:.4rem">What to notice</div>
+        <p class="summary-text">
+          The cycle is <strong>continuous</strong>: stage 5 (seed formation) feeds back into stage 1 (a new seed). For germination you need <strong>water, air, and warmth</strong>. Light and soil nutrients are not required to trigger germination — they matter only once the seedling has pushed above the ground.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ QUIZ ══════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Three words that win germination questions:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li><em>water</em></li>
+            <li><em>air</em> (or oxygen)</li>
+            <li><em>warmth</em></li>
+          </ul>
+          <p style="margin-top:.75rem">Do <strong>not</strong> write "sunlight" — examiners penalise that.</p>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--cycles)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container" data-topic-id="plant-lifecycle" data-topic-name="Life Cycles of Plants" data-topic-level="4"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Know the stages in order, know the three conditions for germination, and know the spore vs seed distinction. Most P4 questions here are straight recall once those three are solid.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MIND MAP ══════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+
+  <!-- ══════════════ KEY IDEAS ══════════════ -->
+  <div class="tab-pane" id="tab-keyideas">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">How to use</div>
+        <div class="cue-question">Read one idea. Look away. Say it back in your own words.</div>
+        <div class="cue-question">Hit "Say it back" to check your version (uses Gemini if set; self-check otherwise).</div>
+        <div class="cue-question">These are the sentences examiners want echoes of.</div>
+      </div>
+      <div class="cornell-main">
+        <div data-key-ideas-root></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Key Ideas are the precise AL1 framings. Practise saying each back until it feels natural; your progress is saved.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/gemini.js"></script>
+<script src="../../shared/content.js"></script>
+<script src="../../shared/lab.js"></script>
+<script src="../../shared/jarvis.js"></script>
+<script src="../../shared/topic-render.js"></script>
+<script>
+// ══ Life cycle stages ══
+const STAGES = [
+  { num: '01', name: 'Seed',        icon: '🌰',
+    title: 'Stage 1: Seed',
+    body: 'A seed contains an embryo and a cotyledon (food store), protected by a seed coat. It waits for the right conditions.',
+    tip:  'A seed can stay dormant for a long time. Give it water, air, and warmth and the embryo begins to grow.' },
+  { num: '02', name: 'Germination', icon: '🌱',
+    title: 'Stage 2: Germination',
+    body: 'The seed absorbs water, softens, and the embryo starts growing. The root pushes down, the shoot pushes up, using food from the cotyledon.',
+    tip:  'Three conditions: water, air, and warmth. Light is NOT required yet.' },
+  { num: '03', name: 'Seedling',    icon: '🌿',
+    title: 'Stage 3: Seedling',
+    body: 'The shoot breaks through the soil and opens its first leaves. The seedling still feeds from the cotyledon until the leaves take over.',
+    tip:  'Once leaves appear and catch sunlight, the seedling begins photosynthesis.' },
+  { num: '04', name: 'Young plant', icon: '🌳',
+    title: 'Stage 4: Young plant',
+    body: 'More leaves, stems, and roots develop. The cotyledon shrivels and falls off — the young plant now makes all its own food.',
+    tip:  'From this stage on, the plant depends on sunlight, water, and carbon dioxide, not the seed food.' },
+  { num: '05', name: 'Adult + Seed',icon: '🌼',
+    title: 'Stage 5: Adult plant produces seeds',
+    body: 'The adult produces flowers. After pollination and fertilisation, the ovary becomes a fruit containing the new seeds. The seeds are dispersed and the cycle begins again.',
+    tip:  'The cycle is continuous: stage 5 feeds back into stage 1 through the new seeds.' },
+];
+
+let stageIndex = 0;
+let playTimer = null;
+
+function renderStages() {
+  const row = document.getElementById('stage-row');
+  row.innerHTML = '';
+  STAGES.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'stage-card' + (i === stageIndex ? ' active' : '');
+    card.innerHTML = `<div class="stage-num">${s.num}</div><span class="stage-icon">${s.icon}</span><div class="stage-name">${s.name}</div>`;
+    card.addEventListener('click', () => { stageIndex = i; refresh(); });
+    row.appendChild(card);
+  });
+}
+function renderDetail() {
+  const s = STAGES[stageIndex];
+  document.getElementById('stage-detail').innerHTML =
+    `<h4>${s.title}</h4><p>${s.body}</p><div class="tip">${s.tip}</div>`;
+  document.getElementById('stage-counter').textContent = `${stageIndex + 1} of ${STAGES.length}`;
+}
+function refresh() {
+  renderStages();
+  renderDetail();
+  try { Progress.recordSimUsed('plant-lifecycle'); } catch {}
+}
+function togglePlay() {
+  const btn = document.getElementById('play-btn');
+  if (playTimer) {
+    clearInterval(playTimer); playTimer = null;
+    btn.textContent = '▶ Play'; btn.classList.remove('playing');
+    return;
+  }
+  btn.textContent = '■ Stop'; btn.classList.add('playing');
+  playTimer = setInterval(() => {
+    stageIndex = (stageIndex + 1) % STAGES.length;
+    refresh();
+  }, 3000);
+}
+
+// ══ Germination needs test ══
+const NEEDS = [
+  { name: 'Water',        needed: true  },
+  { name: 'Air (oxygen)', needed: true  },
+  { name: 'Warmth',       needed: true  },
+  { name: 'Sunlight',     needed: false },
+  { name: 'Soil',         needed: false },
+  { name: 'Fertiliser',   needed: false },
+];
+function renderNeeds() {
+  const grid = document.getElementById('needs-grid');
+  grid.innerHTML = '';
+  NEEDS.forEach(n => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'need-btn'; b.textContent = n.name;
+    b.addEventListener('click', () => {
+      b.classList.toggle('needed',    n.needed);
+      b.classList.toggle('notneeded', !n.needed);
+      try { Progress.recordSimUsed('plant-lifecycle'); } catch {}
+    });
+    grid.appendChild(b);
+  });
+}
+
+// ══ Quiz ══
+const QUIZ_Q = [
+  { question: 'A bean seed is placed in moist cotton wool in a warm, dark cupboard. Will it germinate?',
+    options: ['No, it needs sunlight','Yes, germination needs water, air, and warmth','Only if soil is added','Only if fertiliser is added'],
+    correct: 1,
+    explanation: 'Germination needs water, air, and warmth. Light is not needed until the seedling emerges above the soil.' },
+  { question: 'Which part of the seed supplies food to the growing embryo?',
+    options: ['Seed coat','Flower','Cotyledon','Root'],
+    correct: 2,
+    explanation: 'The cotyledon stores food for the embryo until the seedling has leaves and can photosynthesise.' },
+  { question: 'What is the correct order of the main stages of a flowering plant life cycle?',
+    options: [
+      'Seed → young plant → seedling → adult plant',
+      'Seed → seedling → young plant → adult plant',
+      'Seedling → seed → young plant → adult plant',
+      'Seed → adult plant → young plant → seedling'
+    ],
+    correct: 1,
+    explanation: 'Seed → seedling → young plant → adult plant, and the adult plant then produces new seeds, continuing the cycle.' },
+  { question: 'A fern does NOT produce flowers. How does it reproduce?',
+    options: ['By seeds','By spores','By fruits','It does not reproduce'],
+    correct: 1,
+    explanation: 'Non-flowering plants like ferns and mosses reproduce using spores instead of seeds.' },
+  { question: 'What becomes the fruit of a plant after fertilisation?',
+    options: ['The stamen','The petals','The ovary','The leaf'],
+    correct: 2,
+    explanation: 'After fertilisation, the ovary develops into the fruit, which protects the new seeds inside.' },
+  { question: 'A student claims the first leaves of a seedling come up from the soil. What is the correct explanation?',
+    options: [
+      'The soil grows the first leaves.',
+      'The first leaves come from the cotyledon or the shoot of the seedling.',
+      'The water in the soil turns into leaves.',
+      'The seed coat becomes the first leaves.'
+    ],
+    correct: 1,
+    explanation: 'The first leaves come from the cotyledon (in some plants) or grow out of the shoot. Soil provides water and minerals only.' },
+  { question: 'Once a young plant has several leaves, where does its food come from?',
+    options: ['The cotyledon still feeds it','The soil feeds it','It makes its own food by photosynthesis','It takes food from nearby plants'],
+    correct: 2,
+    explanation: 'After the leaves form, the young plant makes its own food by photosynthesis. The cotyledon is used up and drops off.' },
+];
+
+// ══ Mind Map template ══
+const MM_TEMPLATE = {
+  nodes: [
+    { id: 1,  label: 'Plant Life Cycle', color: { background: '#1a2a3a', border: '#60a5fa' }, font: { size: 15, color: '#93c5fd' } },
+    { id: 2,  label: 'Seed' },
+    { id: 3,  label: 'Embryo' },
+    { id: 4,  label: 'Cotyledon' },
+    { id: 5,  label: 'Seed coat' },
+    { id: 6,  label: 'Germination' },
+    { id: 7,  label: 'Water' },
+    { id: 8,  label: 'Air (oxygen)' },
+    { id: 9,  label: 'Warmth' },
+    { id: 10, label: 'Seedling' },
+    { id: 11, label: 'Young plant' },
+    { id: 12, label: 'Adult plant' },
+    { id: 13, label: 'Flower' },
+    { id: 14, label: 'Fruit + new seed' },
+    { id: 15, label: 'Non-flowering: spores' },
+  ],
+  edges: [
+    { from: 1, to: 2,  label: '1' },
+    { from: 2, to: 3 }, { from: 2, to: 4 }, { from: 2, to: 5 },
+    { from: 2, to: 6,  label: 'needs' },
+    { from: 6, to: 7 }, { from: 6, to: 8 }, { from: 6, to: 9 },
+    { from: 6, to: 10, label: '2 →' },
+    { from: 10, to: 11, label: '3 →' },
+    { from: 11, to: 12, label: '4 →' },
+    { from: 12, to: 13 }, { from: 13, to: 14 },
+    { from: 14, to: 2,  label: 'new cycle' },
+    { from: 1, to: 15 },
+  ],
+  required: ['seed','germination','water','air','warmth','seedling','young plant','adult','flower','fruit','spore']
+};
+
+// ══ Init ══
+let sciMap;
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    Progress.recordVisit('plant-lifecycle');
+    document.getElementById('mastery-pct').textContent = Progress.masteryPct('plant-lifecycle') + '%';
+  } catch {}
+
+  renderStages();
+  renderDetail();
+  renderNeeds();
+  document.getElementById('play-btn').addEventListener('click', togglePlay);
+  document.getElementById('next-stage-btn').addEventListener('click', () => { stageIndex = (stageIndex + 1) % STAGES.length; refresh(); });
+  document.getElementById('back-stage-btn').addEventListener('click', () => { stageIndex = (stageIndex - 1 + STAGES.length) % STAGES.length; refresh(); });
+
+  try { initAIQuizToggle(QUIZ_Q); } catch {}
+  try { sciMap = new ScienceMindMap('mindmap-container', 'plant-lifecycle', MM_TEMPLATE); } catch {}
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label (e.g. "Pollination", "Photosynthesis"):');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>
