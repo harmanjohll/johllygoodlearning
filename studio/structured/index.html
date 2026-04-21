@@ -1600,7 +1600,7 @@ async function submitCoachTurn() {
 
   try {
     if (!window.askGemini) throw new Error('Gemini wrapper missing.');
-    const text = await window.askGemini({ system, prompt, temperature: 0.55, maxTokens: 160 });
+    const text = await window.askGemini({ system, prompt, temperature: 0.55, maxTokens: 512, thinkingBudget: 0 });
     thinking.remove();
     coachAppend('coach', (text || 'Could not reach Gemini. Try again.').trim());
     document.getElementById('coach-hint').textContent = '';

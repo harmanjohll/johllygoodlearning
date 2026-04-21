@@ -144,25 +144,38 @@
     const prompt = `${context}\n\nWrite your probing question now.${regen ? ' Vary it from previous questions on this node.' : ''} Remember: one complete sentence, ending with "?".`;
 
     probeEl.innerHTML = '<span class="probe-label">Coach probe</span><span style="opacity:.6;font-style:italic">Thinking...</span>';
+    const isComplete = s => typeof s === 'string' && s.length >= 20 && /\?\s*$/.test(s);
     try {
-      let text = await window.askGemini({ system, prompt, temperature: regen ? 0.85 : 0.6, maxTokens: 220 });
+      // thinkingBudget:0 keeps gemini-2.5-flash from eating most of the
+      // token budget on internal thinking and returning a truncated reply.
+      let text = await window.askGemini({
+        system, prompt,
+        temperature: regen ? 0.85 : 0.55,
+        maxTokens: 512,
+        thinkingBudget: 0,
+      });
       text = (text || '').trim();
-      // Retry once if the model returned a fragment (no question mark) — that's what
-      // produced the "You mentioned plants make food" UX bug.
-      if (text && !/\?\s*$/.test(text)) {
+      if (!isComplete(text)) {
         const retry = await window.askGemini({
           system,
-          prompt: prompt + '\n\nYour previous reply was incomplete. Reply again with ONE complete sentence ending in "?".',
-          temperature: 0.6,
-          maxTokens: 220,
+          prompt: prompt + '\n\nYour previous reply was incomplete. Reply again with ONE complete sentence ending in "?". No preamble.',
+          temperature: 0.55,
+          maxTokens: 512,
+          thinkingBudget: 0,
         });
-        if (retry && /\?\s*$/.test(retry.trim())) text = retry.trim();
+        const t2 = (retry || '').trim();
+        if (isComplete(t2)) text = t2;
       }
-      setProbeText((text || base).trim());
+      // If neither attempt gave a complete question, prefer the
+      // deterministic scaffold over a fragment.
+      if (!isComplete(text)) text = base;
+      setProbeText(text);
     } catch (err) {
-      probeEl.innerHTML =
-        '<span class="probe-label">Coach probe</span>' + escapeHtml(base) +
-        '<span class="probe-err">' + escapeHtml((err && err.message) || 'AI unavailable') + '</span>';
+      probeEl.innerHTML = '';
+      const label = document.createElement('span'); label.className = 'probe-label'; label.textContent = 'Coach probe';
+      const body = document.createElement('span'); body.style.cssText = 'display:block;white-space:pre-line'; body.textContent = base;
+      const errSpan = document.createElement('span'); errSpan.className = 'probe-err'; errSpan.textContent = (err && err.message) || 'AI unavailable';
+      probeEl.appendChild(label); probeEl.appendChild(body); probeEl.appendChild(errSpan);
     }
   }
 
