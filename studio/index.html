@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Singapore Primary Science Lab</title>
+  <title>Singapore Primary Science Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -182,7 +182,7 @@
 <!-- ═══════════════════════ HERO ═══════════════════════════ -->
 <div class="hero hub-hero">
   <div class="container">
-    <h1 class="hero-title">Singapore Primary Science Lab</h1>
+    <h1 class="hero-title">Singapore Primary Science Studio</h1>
     <p class="hero-sub">
       Twenty topics, precise glossaries, a mega map, and a Coach that probes rather than lectures. Built so that knowing a little more precisely does more work than knowing a lot more.
     </p>
@@ -234,6 +234,15 @@
     <a href="mirror/index.html"  class="btn btn-ghost"   style="white-space:nowrap">🪞 Mirror</a>
     <a href="review/index.html"  class="btn btn-ghost"   style="white-space:nowrap">🔁 Review due</a>
     <a href="map/index.html"     class="btn btn-ghost"   style="white-space:nowrap;border:1.5px solid var(--accent);color:var(--accent);font-weight:700">🗺 Mega Map</a>
+  </div>
+
+  <!-- Today strip: greeting + streak + quick compass CTA -->
+  <div id="today-strip" style="display:none;background:linear-gradient(135deg,#0f1c2d 0%,#1b1430 100%);border:1px solid #38bdf855;border-radius:14px;padding:1rem 1.3rem;margin-bottom:1.1rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+    <div style="flex:1;min-width:200px">
+      <div id="today-greet" style="font-family:var(--font-display);font-weight:800;font-size:1.15rem;color:var(--text);letter-spacing:-.01em"></div>
+      <div id="today-line" style="font-size:.82rem;color:#cbd5e1;margin-top:.25rem;line-height:1.5"></div>
+    </div>
+    <a id="today-cta" href="compass/index.html" class="btn btn-primary" style="font-size:.82rem;white-space:nowrap">Open Compass →</a>
   </div>
 
   <!-- Review-due banner -->
@@ -305,7 +314,7 @@
 </div><!-- /container -->
 
 <footer>
-  <p>Singapore Primary Science Lab · Built for the curious young scientist · P3 – P6 MOE Syllabus</p>
+  <p>Singapore Primary Science Studio · Built for the curious young scientist · P3 – P6 MOE Syllabus</p>
   <p style="margin-top:.3rem">Cornell Notes · Interactive Simulations · Mind Maps · Mastery Quizzes · AI Quizzes · Synoptic Assessment</p>
 </footer>
 
@@ -534,6 +543,54 @@ function renderStreak() {
   }
 }
 renderStreak();
+
+// ── Today strip (hub-level greeting + check-in nudge) ───────
+(function renderTodayStrip() {
+  const strip = document.getElementById('today-strip');
+  if (!strip) return;
+  strip.style.display = 'flex';
+
+  // Warm, slightly cheesy greeting (mirrors Compass tone)
+  const hr = new Date().getHours();
+  const band = hr < 5 ? 'night' : hr < 12 ? 'morning' : hr < 17 ? 'afternoon' : hr < 22 ? 'evening' : 'night';
+  const OPENERS = {
+    morning:   ['Morning, Alexey.', 'Morning, Alexey. Brain warming up?', 'Morning, Alexey. Photons are photon-ing.'],
+    afternoon: ['Afternoon, Alexey.', 'Afternoon, Alexey. Time to cause some reactions.', 'Afternoon, Alexey. One focused block?'],
+    evening:   ['Evening, Alexey.', 'Evening, Alexey. Small session, big compounding.', 'Evening, Alexey. One last rep?'],
+    night:     ['Late, Alexey.', 'Late, Alexey. Sleep does the consolidating — keep it short.'],
+  };
+  const pick = OPENERS[band][Math.floor(Math.random() * OPENERS[band].length)];
+  document.getElementById('today-greet').textContent = pick;
+
+  // Streak-aware line. Falls back to Streak.get() (legacy) on the hub.
+  const s = (typeof Streak !== 'undefined' && Streak.get) ? Streak.get() : { current: 0, lastActivity: null };
+  const today = new Date().toISOString().slice(0,10);
+  const checkedInToday = (() => {
+    try {
+      const p = window.JglStorage && window.JglStorage.getProgress();
+      const iso = p && p.wellbeing && p.wellbeing.lastCheckInIso;
+      return iso && iso.slice(0,10) === today;
+    } catch { return false; }
+  })();
+  let line;
+  if (checkedInToday) {
+    line = s.current > 1
+      ? `Checked in today. ${s.current} days running — the system is working.`
+      : `Checked in today. First rep is the hardest; nice work.`;
+    document.getElementById('today-cta').textContent = 'Back to Compass →';
+  } else if (s.current >= 1 && s.lastActivity === today) {
+    line = `Already studied today. Review what is due?`;
+    document.getElementById('today-cta').textContent = 'Review due →';
+    document.getElementById('today-cta').href = 'review/index.html';
+  } else if (s.current >= 5) {
+    line = `${s.current}-day streak. Honestly, that's the habit you're building — one tap keeps it alive.`;
+  } else if (s.current >= 1) {
+    line = `${s.current} in a row. One short check-in sets the next block.`;
+  } else {
+    line = `No check-in yet. One mood tap, one intention, and we're off.`;
+  }
+  document.getElementById('today-line').textContent = line;
+})();
 </script>
 </body>
 </html>

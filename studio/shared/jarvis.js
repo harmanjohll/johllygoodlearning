@@ -283,7 +283,7 @@
     const voice = (window.JglCoach && window.JglCoach.VOICE) || '';
     const system = [
       voice,
-      `You are ${studentName()}'s tutor working alongside him through the Singapore Primary Science Lab.`,
+      `You are ${studentName()}'s tutor working alongside him through the Singapore Primary Science Studio.`,
       'Tone: warm, professional, specific. One or two paragraphs at most. No emoji. No markdown lists. Plain prose because the reply will be read aloud.',
       'If the student asks a conceptual question, answer it at P6 level with precise science terms. If the student asks to be quizzed, ask one question and wait. If the student answers a quiz question, mark it briefly then probe the next gap.',
     ].join('\n');
