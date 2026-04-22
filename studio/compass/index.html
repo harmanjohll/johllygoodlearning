@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Compass | Science Lab</title>
+  <title>Compass | Science Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
@@ -102,7 +102,8 @@
   </div>
 
   <div id="greet" class="greet">Good evening.</div>
-  <div class="sub">One short check-in, then we pick a focus and you choose how long. Nothing long, nothing automated; you decide the shape of the next block.</div>
+  <div class="sub" id="sub-line">One short check-in, then we pick a focus and you choose how long. Nothing long, nothing automated; you decide the shape of the next block.</div>
+  <div id="joke" class="sub" style="margin-top:-.85rem;font-size:.82rem;font-style:italic;color:#94a3b8"></div>
 
   <div id="streak-card" class="streak-row" style="display:none">
     <div class="streak-number" id="streak-n">0</div>
@@ -153,6 +154,7 @@
 <script src="../shared/lab.js"></script>
 <script src="../shared/jarvis.js"></script>
 <script src="../shared/spaced.js"></script>
+<script src="../shared/streak.js"></script>
 <script>
 const STUDENT_NAME = (() => {
   try {
@@ -186,11 +188,57 @@ let selectedMood = null;
 const focusSelect = document.getElementById('intent-focus');
 FOCUSES.forEach(f => { const o = document.createElement('option'); o.value = f.value; o.textContent = f.label; focusSelect.appendChild(o); });
 
-// Greeting
+// Greeting — warm, a little cheesy. Rotates through openers.
+const GREETING_OPENERS = {
+  morning: [
+    `Morning, ${STUDENT_NAME}. Coffee optional, brain mandatory.`,
+    `Morning, ${STUDENT_NAME}. Let's cause some reactions.`,
+    `Morning, ${STUDENT_NAME}. Photons are photon-ing; let's match their energy.`,
+  ],
+  afternoon: [
+    `Afternoon, ${STUDENT_NAME}. You, me, and some science.`,
+    `Afternoon, ${STUDENT_NAME}. Time to do the thing.`,
+    `Afternoon, ${STUDENT_NAME}. Plants are photosynthesising. You can study.`,
+  ],
+  evening: [
+    `Evening, ${STUDENT_NAME}. Let's make the evening count.`,
+    `Evening, ${STUDENT_NAME}. One small session, big compounding.`,
+    `Evening, ${STUDENT_NAME}. Brain still warm?`,
+  ],
+  night: [
+    `Late session, ${STUDENT_NAME}. Keep it short; sleep does the rest.`,
+    `Late, ${STUDENT_NAME}. Ten good minutes beats an hour of falling asleep on the keyboard.`,
+  ],
+};
+// Lame, cheesy, reliably groan-worthy. Keep short.
+const SCIENCE_JOKES = [
+  "Why don't scientists trust atoms? Because they make up everything.",
+  "I told a chemistry joke. No reaction.",
+  "What do you call an educated tube? A graduated cylinder.",
+  "Biology is the only science where multiplication is the same thing as division.",
+  "Parallel lines have so much in common. It's a shame they'll never meet.",
+  "Never trust an atom; they literally make up everything.",
+  "Why was the photon travelling light? Because it had no mass.",
+  "Gravity is a real downer.",
+  "I was reading a book on anti-gravity. Couldn't put it down.",
+  "Electrons have a negative attitude. That's why they repel each other.",
+  "Why did the germ cross the microscope? To get to the other slide.",
+  "A neutron walks into a bar. 'How much for a drink?' 'For you, no charge.'",
+  "H₂O is water. H₂O₂ is hydrogen peroxide. What's H₂O₄? Drinking.",
+  "Entropy isn't what it used to be.",
+  "I would tell you a joke about sodium, but Na.",
+];
 (function () {
   const hr = new Date().getHours();
-  const t = hr < 5 ? 'Good night' : hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : hr < 22 ? 'Good evening' : 'Good night';
-  document.getElementById('greet').textContent = `${t}, ${STUDENT_NAME}.`;
+  const band = hr < 5 ? 'night' : hr < 12 ? 'morning' : hr < 17 ? 'afternoon' : hr < 22 ? 'evening' : 'night';
+  const opts = GREETING_OPENERS[band];
+  const pick = opts[Math.floor(Math.random() * opts.length)];
+  document.getElementById('greet').textContent = pick;
+  // Joke of the session. Rotate per calendar day so each day's joke is stable.
+  const dayIdx = Math.floor(Date.now() / 86400000);
+  const joke = SCIENCE_JOKES[dayIdx % SCIENCE_JOKES.length];
+  const jokeEl = document.getElementById('joke');
+  if (jokeEl) jokeEl.textContent = `Joke of the day (lame, on purpose): ${joke}`;
 })();
 
 // Mood buttons
@@ -282,42 +330,36 @@ document.getElementById('go-btn').addEventListener('click', () => {
 });
 
 document.getElementById('rest-btn').addEventListener('click', () => {
-  if (!window.JglStorage) return;
-  window.JglStorage.update(p => {
-    p.streak = p.streak || { current: 0, longest: 0, lastStudiedIso: null, restDaysUsed: 0, activeDays: [] };
-    p.streak.restDaysUsed = (p.streak.restDaysUsed || 0) + 1;
-    return p;
-  });
-  alert('Rest noted. Sleep and movement do more for memory than one more session. See you tomorrow.');
+  try { window.Streak && window.Streak.takeRestDay(); } catch {}
+  alert("Rest logged. Sleep and a walk beat one more rushed session. See you tomorrow, " + STUDENT_NAME + ".");
   window.location.href = '../index.html';
 });
 
-// Streak + rest banner
+// Streak + rest banner — humane, via window.Streak
 (function () {
-  if (!window.JglStorage) return;
-  const p = window.JglStorage.getProgress();
-  const cur = (p.streak && p.streak.current) || 0;
+  if (!window.Streak) return;
+  const s = window.Streak.status();
   const sc = document.getElementById('streak-card');
-  if (cur > 0) {
+  if (s.current > 0) {
     sc.style.display = '';
-    document.getElementById('streak-n').textContent = cur;
+    document.getElementById('streak-n').textContent = s.current;
     document.getElementById('streak-copy').textContent =
-      cur === 1 ? 'Good start. One day in.' :
-      cur < 5 ? `Keep going. ${cur} days in a row.` :
-      cur < 14 ? `Strong. ${cur} days running.` :
-      `Remarkable. ${cur} days.`;
+      s.current === 1 ? "Day one. That's the hardest one; the rest ride the coattails." :
+      s.current === 2 ? "Two in a row. Habits start at two." :
+      s.current < 5   ? `${s.current} days running. Compounding in progress.` :
+      s.current < 14  ? `${s.current} days strong. You're the variable the experiment depends on.` :
+      s.current < 30  ? `${s.current} days. This isn't luck; this is a system.` :
+                        `${s.current} days. Chef's kiss.`;
   }
-  // Nudge rest after 5 consecutive active days
-  const lastIso = (p.streak && p.streak.lastStudiedIso) || null;
-  const today = new Date().toISOString().slice(0,10);
-  const yday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
-  if (cur >= 5 && lastIso === today) {
-    const r = document.getElementById('rest-banner');
-    r.textContent = 'You have been at it for five days. A rest day today would not break your streak; it would help it. Worth considering.';
+  const r = document.getElementById('rest-banner');
+  if (s.isRestDay) {
+    r.textContent = "Today is a rest day. That counts. Consolidation happens while you sleep.";
     r.classList.add('show');
-  } else if (lastIso && lastIso !== today && lastIso !== yday) {
-    const r = document.getElementById('rest-banner');
-    r.textContent = 'Welcome back. Missing one day is fine; missing two is where streaks go to die. Today counts.';
+  } else if (s.shouldOfferRest) {
+    r.textContent = "Five consecutive days in. A rest today wouldn't break the streak; it would help it. Tap 'Take a rest day' if you fancy.";
+    r.classList.add('show');
+  } else if (s.neverMissTwice) {
+    r.textContent = "Welcome back. One missed day is noise; two is where streaks go to die. Today's the one.";
     r.classList.add('show');
   }
 })();
