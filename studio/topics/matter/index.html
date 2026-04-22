@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matter: Three States | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <script src="https://unpkg.com/d3@7/dist/d3.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--cycles); flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .78rem; color: var(--muted); }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    .cue-question { font-size: .78rem; color: var(--muted); margin-bottom: .75rem; border-left: 2px solid var(--cycles); padding-left: .6rem; }
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: var(--accent); }
+
+    #particle-canvas {
+      border-radius: 10px; background: #0d1a2e; display: block;
+      width: 100%; max-width: 640px;
+    }
+
+    .state-legend { display: flex; gap: .8rem; font-size: .74rem; color: var(--muted); flex-wrap: wrap; margin-top: .5rem; }
+    .state-chip {
+      padding: .45rem .8rem; border-radius: 999px;
+      border: 1.5px solid var(--border); background: var(--surface); color: var(--text);
+      font-weight: 700; cursor: default; font-size: .8rem;
+    }
+    .state-chip.active.solid  { border-color: #60a5fa; background: #0f1f38; color: #93c5fd; }
+    .state-chip.active.liquid { border-color: #34d399; background: #0f2a22; color: #6ee7b7; }
+    .state-chip.active.gas    { border-color: #f59e0b; background: #2a1d08; color: #fcd34d; }
+
+    .temp-row { display: flex; gap: .6rem; align-items: center; margin-top: .7rem; flex-wrap: wrap; }
+    .temp-row input[type=range] { flex: 1; min-width: 200px; }
+    .temp-value { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-weight: 700; color: var(--cycles); min-width: 70px; text-align: right; }
+
+    .jump-row { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .7rem; }
+    .jump-btn {
+      padding: .45rem .8rem; border-radius: 8px; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text); cursor: pointer;
+      font-size: .78rem; font-weight: 700;
+    }
+    .jump-btn:hover { border-color: var(--cycles); color: var(--cycles); }
+
+    .change-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 3px solid var(--cycles); border-radius: 0 10px 10px 0;
+      padding: .55rem .8rem; margin-top: .7rem;
+      font-size: .84rem; color: var(--text); line-height: 1.55;
+      min-height: 50px;
+    }
+    .change-card.melt    { border-left-color: #34d399; }
+    .change-card.boil    { border-left-color: #f59e0b; }
+    .change-card.cond    { border-left-color: #60a5fa; }
+    .change-card.freeze  { border-left-color: #a78bfa; }
+    .change-card .ctitle { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .15rem; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🧊 Matter: Three States</h1>
+    <div class="meta">
+      <span class="badge badge-cycles">Cycles</span>&nbsp;
+      <span class="badge badge-p4">P4</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--cycles)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+    <button class="tab-btn" data-tab="tab-keyideas">💡 Key Ideas</button>
+  </div>
+
+  <!-- ══════════════ LEARN ══════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+      </div>
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🧊 The three states</h4>
+          <p>All <strong>matter</strong> exists in one of three states:</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Solid</strong> — fixed shape, fixed volume. Particles are close and only vibrate.</li>
+            <li><strong>Liquid</strong> — fixed volume, takes the shape of its container. Particles are loosely packed and flow.</li>
+            <li><strong>Gas</strong> — no fixed shape or volume. Particles move freely and spread out to fill the container.</li>
+          </ul>
+          <div class="highlight">🔑 The <strong>particles are the same</strong> in all three states — only how they are arranged and how much they move is different.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🔥 Heating and cooling change the state</h4>
+          <p>Adding heat gives particles more energy. Removing heat takes energy away.</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Melting</strong> (solid → liquid) happens when a solid is heated past its melting point.</li>
+            <li><strong>Evaporation</strong> (liquid → gas) happens at the surface at any temperature below boiling.</li>
+            <li><strong>Boiling</strong> (liquid → gas) happens throughout the liquid at the boiling point.</li>
+            <li><strong>Condensation</strong> (gas → liquid) happens when a gas cools.</li>
+            <li><strong>Freezing</strong> (liquid → solid) happens when a liquid cools past its freezing point.</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>⚖️ Matter is conserved</h4>
+          <p>State changes do <strong>not</strong> create or destroy matter. The same particles are still there, just arranged differently. If you could weigh the ice, the water, and the water vapour made from the same piece of ice, they would all have the same mass (as long as none escapes).</p>
+          <div class="equation">Mass before state change  =  Mass after state change</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🎈 Gases have mass</h4>
+          <p>Even though we cannot see most gases, they take up space and have mass. A balloon full of air is heavier than an empty one. Air presses on us from every direction — that is the mass of the gases in our atmosphere.</p>
+        </div>
+      </div>
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--cycles);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          Matter has three states: <strong>solid</strong> (fixed shape and volume), <strong>liquid</strong> (fixed volume only), <strong>gas</strong> (neither fixed). <strong>Heating</strong> drives particles further apart (melting, evaporation, boiling). <strong>Cooling</strong> pulls them back together (condensation, freezing). Evaporation is at the surface at any temperature; boiling is throughout the liquid at the boiling point. No particles are created or destroyed — mass is conserved.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SIMULATE ══════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">How does the motion of particles differ between the three states?</div>
+        <div class="cue-question">At which temperature does water go from liquid to gas?</div>
+        <div class="cue-question">When gas cools, which state does it become? What is that called?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">State chips</div>
+        <div class="state-legend">
+          <span class="state-chip solid" id="chip-solid">Solid</span>
+          <span class="state-chip liquid" id="chip-liquid">Liquid</span>
+          <span class="state-chip gas" id="chip-gas">Gas</span>
+        </div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Jump to</div>
+        <div class="jump-row">
+          <button class="jump-btn" data-temp="-10">-10°C (ice)</button>
+          <button class="jump-btn" data-temp="25">25°C (water)</button>
+          <button class="jump-btn" data-temp="110">110°C (vapour)</button>
+        </div>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:.6rem">Slide the temperature. Watch the particles slow down, speed up, and change state. The simulation uses pure water's points: melts at 0 °C, boils at 100 °C.</p>
+        <canvas id="particle-canvas" width="640" height="320"></canvas>
+
+        <div class="temp-row">
+          <span style="font-size:.75rem;color:var(--muted);font-weight:700">❄️ cold</span>
+          <input type="range" id="temp-slider" min="-30" max="150" step="1" value="25">
+          <span style="font-size:.75rem;color:var(--muted);font-weight:700">hot 🔥</span>
+          <span class="temp-value" id="temp-value">25 °C</span>
+        </div>
+
+        <div class="change-card" id="change-card">
+          <div class="ctitle">Current state</div>
+          <div id="change-body">Water at 25 °C is a <strong>liquid</strong>. Particles are loosely packed and flow around each other.</div>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--cycles);font-weight:700;margin-bottom:.4rem">What to notice</div>
+        <p class="summary-text">
+          The particles never change into different things — only how they are packed and how they move changes. At 0 °C ice <strong>melts</strong> to water; at 100 °C water <strong>boils</strong> throughout to vapour; below 100 °C water can still <strong>evaporate</strong> from its surface; if vapour cools it <strong>condenses</strong> back; if water cools to 0 °C or below it <strong>freezes</strong> back to ice.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ QUIZ ══════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Name the trigger:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li><em>heating</em> for melting, evaporation, boiling</li>
+            <li><em>cooling</em> for condensation, freezing</li>
+          </ul>
+          <p style="margin-top:.75rem">Evaporation vs boiling: <em>surface vs throughout</em>, <em>any temperature vs only at boiling point</em>.</p>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--cycles)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container" data-topic-id="matter" data-topic-name="Matter: Three States" data-topic-level="4"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Know: three states (shape/volume), particle motion in each, the five state changes (heating/cooling triggers), evaporation vs boiling, and that matter is conserved. That is the whole P4 Matter unit in one sentence.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MIND MAP ══════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+
+  <!-- ══════════════ KEY IDEAS ══════════════ -->
+  <div class="tab-pane" id="tab-keyideas">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">How to use</div>
+        <div class="cue-question">Read one idea. Look away. Say it back.</div>
+        <div class="cue-question">"Say it back" checks your wording with Gemini if a key is set.</div>
+      </div>
+      <div class="cornell-main">
+        <div data-key-ideas-root></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Key Ideas are the precise AL1 framings. Practise until these sentences feel natural.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/gemini.js"></script>
+<script src="../../shared/content.js"></script>
+<script src="../../shared/lab.js"></script>
+<script src="../../shared/jarvis.js"></script>
+<script src="../../shared/topic-render.js"></script>
+<script>
+// ══ Particle-box simulator ══════════════════════════════════
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+const N = 90;
+const particles = [];
+for (let i = 0; i < N; i++) {
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: canvas.height * 0.7 + (Math.random() - .5) * 40,
+    vx: 0, vy: 0,
+    hx: 0, hy: 0, // home (for solid lattice)
+  });
+}
+// Set solid lattice home positions
+(function seedLattice() {
+  const cols = 12, rows = Math.ceil(N / cols);
+  const dx = canvas.width / (cols + 1);
+  const dy = 18;
+  for (let i = 0; i < N; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    particles[i].hx = dx * (col + 1);
+    particles[i].hy = canvas.height - 40 - row * dy;
+  }
+})();
+
+function stateAt(T) {
+  if (T < 0)   return 'solid';
+  if (T < 100) return 'liquid';
+  return 'gas';
+}
+
+let temp = 25;
+let hot = false;
+
+function colourForState(s) {
+  if (s === 'solid')  return '#60a5fa';
+  if (s === 'liquid') return '#34d399';
+  return '#f59e0b';
+}
+
+function step() {
+  const s = stateAt(temp);
+  const w = canvas.width, h = canvas.height;
+
+  // Liquid surface / gas fill region
+  const surfaceY = h - (s === 'gas' ? h - 30 : s === 'liquid' ? h * 0.45 : 0);
+
+  particles.forEach(p => {
+    if (s === 'solid') {
+      // Vibrate around lattice home
+      const jitter = 0.6 + Math.abs(temp) * 0.02;
+      p.x += (p.hx - p.x) * 0.08 + (Math.random() - .5) * jitter;
+      p.y += (p.hy - p.y) * 0.08 + (Math.random() - .5) * jitter;
+    } else if (s === 'liquid') {
+      // Flow; heavy bias downward so it pools
+      const speed = 0.5 + (temp / 100) * 0.7;
+      p.vx += (Math.random() - .5) * speed;
+      p.vy += 0.18 + (Math.random() - .5) * speed * 0.7;
+      p.vx *= 0.90; p.vy *= 0.90;
+      p.x += p.vx; p.y += p.vy;
+      // Bound to liquid pool
+      if (p.y < surfaceY) p.y = surfaceY + 1;
+      if (p.y > h - 6)    p.y = h - 6;
+      if (p.x < 6)        p.x = 6;
+      if (p.x > w - 6)    p.x = w - 6;
+    } else {
+      // Gas: fly freely
+      const speed = 1.6 + (temp - 100) * 0.02;
+      p.vx += (Math.random() - .5) * speed;
+      p.vy += (Math.random() - .5) * speed;
+      p.vx *= 0.96; p.vy *= 0.96;
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 4)        { p.x = 4; p.vx *= -1; }
+      if (p.x > w - 4)    { p.x = w - 4; p.vx *= -1; }
+      if (p.y < 20)       { p.y = 20; p.vy *= -1; }
+      if (p.y > h - 4)    { p.y = h - 4; p.vy *= -1; }
+    }
+  });
+
+  // Paint
+  ctx.fillStyle = '#0d1a2e';
+  ctx.fillRect(0, 0, w, h);
+
+  // Temperature bar + label on the right
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(w - 28, 20, 12, h - 40);
+  const minT = -30, maxT = 150;
+  const tFrac = (temp - minT) / (maxT - minT);
+  const barH = (h - 40) * tFrac;
+  const grd = ctx.createLinearGradient(0, h - 20, 0, 20);
+  grd.addColorStop(0, '#60a5fa'); grd.addColorStop(.45, '#34d399'); grd.addColorStop(1, '#f59e0b');
+  ctx.fillStyle = grd;
+  ctx.fillRect(w - 28, h - 20 - barH, 12, barH);
+  ctx.strokeStyle = '#334155';
+  ctx.strokeRect(w - 28, 20, 12, h - 40);
+  // 0 and 100 marks
+  [0, 100].forEach(t => {
+    const y = h - 20 - ((t - minT) / (maxT - minT)) * (h - 40);
+    ctx.strokeStyle = '#64748b';
+    ctx.beginPath(); ctx.moveTo(w - 34, y); ctx.lineTo(w - 16, y); ctx.stroke();
+    ctx.fillStyle = '#94a3b8'; ctx.font = '10px Inter, system-ui, sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(t + '°C', w - 38, y + 3);
+  });
+
+  // Liquid pool shading
+  if (s === 'liquid') {
+    ctx.fillStyle = 'rgba(52,211,153,0.08)';
+    ctx.fillRect(0, surfaceY, w - 40, h - surfaceY);
+  }
+
+  // Particles
+  const col = colourForState(s);
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = col;
+    ctx.fill();
+  });
+
+  // Label
+  ctx.fillStyle = '#cbd5e1';
+  ctx.font = 'bold 12px Inter, system-ui, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(`State: ${s.toUpperCase()}`, 10, 18);
+
+  requestAnimationFrame(step);
+}
+step();
+
+// Chips / card / slider
+const chips = { solid: document.getElementById('chip-solid'), liquid: document.getElementById('chip-liquid'), gas: document.getElementById('chip-gas') };
+const changeCard = document.getElementById('change-card');
+const changeBody = document.getElementById('change-body');
+
+function describe(T) {
+  let cls = 'melt', title = 'Current state', body = '';
+  const s = stateAt(T);
+  if (s === 'solid') {
+    cls = 'freeze'; title = 'Solid';
+    body = `At ${T} °C water is <strong>solid (ice)</strong>. Particles are close, arranged in a lattice, and only vibrate.`;
+  } else if (s === 'liquid') {
+    cls = 'melt'; title = 'Liquid';
+    body = `At ${T} °C water is a <strong>liquid</strong>. Particles are loosely packed and flow. <strong>Evaporation</strong> can happen at the surface at any temperature below 100 °C.`;
+  } else {
+    cls = 'boil'; title = 'Gas';
+    body = `At ${T} °C water is a <strong>gas (water vapour)</strong>. Particles move freely and spread out. At 100 °C it would be <strong>boiling throughout</strong> the liquid.`;
+  }
+  changeCard.className = 'change-card ' + cls;
+  changeCard.innerHTML = `<div class="ctitle">${title}</div><div>${body}</div>`;
+  Object.values(chips).forEach(c => c.classList.remove('active'));
+  chips[s].classList.add('active');
+}
+
+const slider = document.getElementById('temp-slider');
+const tempValue = document.getElementById('temp-value');
+slider.addEventListener('input', () => {
+  temp = parseInt(slider.value, 10);
+  tempValue.textContent = temp + ' °C';
+  describe(temp);
+  try { Progress.recordSimUsed('matter'); } catch {}
+});
+describe(temp);
+
+document.querySelectorAll('.jump-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    const t = parseInt(b.dataset.temp, 10);
+    slider.value = t; temp = t; tempValue.textContent = t + ' °C';
+    describe(t);
+    try { Progress.recordSimUsed('matter'); } catch {}
+  });
+});
+
+// ══ Quiz ══
+const QUIZ_Q = [
+  { question: 'Which statement about a gas is TRUE?',
+    options: ['A gas has a fixed shape and a fixed volume','A gas has a fixed volume but no fixed shape','A gas has no fixed shape and no fixed volume','A gas has no mass'],
+    correct: 2,
+    explanation: 'A gas has no fixed shape and no fixed volume. Its particles spread out to fill the container. Gases do have mass.' },
+  { question: 'A puddle dries up on a warm afternoon even though the temperature never reaches 100 °C. What has happened?',
+    options: ['The water boiled','The water evaporated from the surface','The water froze','The water disappeared'],
+    correct: 1,
+    explanation: 'Evaporation happens at the surface at any temperature below the boiling point. The water became water vapour (gas) and entered the air.' },
+  { question: 'Which pair of changes is caused by COOLING?',
+    options: ['Melting and boiling','Freezing and condensation','Melting and evaporation','Boiling and freezing'],
+    correct: 1,
+    explanation: 'Cooling slows particles. Gas -> liquid is condensation; liquid -> solid is freezing. Melting and boiling are caused by heating.' },
+  { question: 'A beaker of water is weighed, sealed, boiled, then cooled. What will its mass be after cooling back to room temperature?',
+    options: ['Less than before','The same as before','More than before','Zero, because the water evaporated'],
+    correct: 1,
+    explanation: 'Matter is conserved during state changes. Because the beaker is sealed, no particles escape, so the mass stays the same.' },
+  { question: 'Which best describes the particles in a solid?',
+    options: ['Far apart, moving freely','Loosely packed, flowing','Close together, only vibrating','In constant free fall'],
+    correct: 2,
+    explanation: 'Solid particles are packed close together in a fixed pattern and only vibrate in place.' },
+  { question: 'Which statement correctly distinguishes evaporation from boiling?',
+    options: [
+      'Evaporation happens only at the boiling point; boiling happens at any temperature.',
+      'Evaporation happens throughout the liquid; boiling happens at the surface only.',
+      'Evaporation happens at the surface at any temperature below boiling; boiling happens throughout the liquid at the boiling point.',
+      'Evaporation and boiling are the same thing.'
+    ],
+    correct: 2,
+    explanation: 'Evaporation: at the surface, any temperature below boiling. Boiling: throughout the liquid, only at the boiling point.' },
+  { question: 'A glass of cold water is left on a table. Droplets form on the OUTSIDE of the glass. Why?',
+    options: [
+      'Water is leaking through the glass.',
+      'Water vapour in the air condenses on the cold surface of the glass.',
+      'The glass is evaporating.',
+      'The water inside is boiling.'
+    ],
+    correct: 1,
+    explanation: 'Water vapour in the surrounding air touches the cold glass, cools, and condenses into liquid droplets on the outside of the glass.' },
+];
+
+// ══ Mind Map template ══
+const MM_TEMPLATE = {
+  nodes: [
+    { id: 1,  label: 'Matter', color: { background: '#0d2a3a', border: '#60a5fa' }, font: { size: 15, color: '#93c5fd' } },
+    { id: 2,  label: 'Solid' },
+    { id: 3,  label: 'Liquid' },
+    { id: 4,  label: 'Gas' },
+    { id: 5,  label: 'Melting' },
+    { id: 6,  label: 'Freezing' },
+    { id: 7,  label: 'Evaporation' },
+    { id: 8,  label: 'Boiling' },
+    { id: 9,  label: 'Condensation' },
+    { id: 10, label: 'Particles' },
+    { id: 11, label: 'Heating →' },
+    { id: 12, label: 'Cooling →' },
+    { id: 13, label: 'Mass conserved' },
+  ],
+  edges: [
+    { from: 1, to: 2 }, { from: 1, to: 3 }, { from: 1, to: 4 },
+    { from: 1, to: 10, label: 'made of' },
+    { from: 2, to: 3, label: 'melt' },
+    { from: 3, to: 2, label: 'freeze' },
+    { from: 3, to: 4, label: 'evap / boil' },
+    { from: 4, to: 3, label: 'condense' },
+    { from: 5, to: 11 }, { from: 7, to: 11 }, { from: 8, to: 11 },
+    { from: 6, to: 12 }, { from: 9, to: 12 },
+    { from: 1, to: 13 },
+  ],
+  required: ['solid','liquid','gas','melt','evap','boil','condens','freez','mass']
+};
+
+let sciMap;
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    Progress.recordVisit('matter');
+    document.getElementById('mastery-pct').textContent = Progress.masteryPct('matter') + '%';
+  } catch {}
+  try { initAIQuizToggle(QUIZ_Q); } catch {}
+  try { sciMap = new ScienceMindMap('mindmap-container', 'matter', MM_TEMPLATE); } catch {}
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>

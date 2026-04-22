@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adaptations | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <script src="https://unpkg.com/d3@7/dist/d3.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--interactions); flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .78rem; color: var(--muted); }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    .cue-question { font-size: .78rem; color: var(--muted); margin-bottom: .75rem; border-left: 2px solid var(--interactions); padding-left: .6rem; }
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: var(--accent); }
+
+    /* Habitat picker */
+    .hab-row { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .7rem; }
+    .hab-btn {
+      padding: .55rem .9rem; border-radius: 999px; border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text); cursor: pointer;
+      font-size: .8rem; font-weight: 700; line-height: 1.2;
+    }
+    .hab-btn.active { border-color: var(--interactions); background: #2a0f13; color: #fca5a5; }
+    .hab-btn:hover:not(.active) { background: var(--card); }
+
+    .animal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .6rem; }
+    .animal-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: .75rem .9rem;
+    }
+    .animal-name { font-size: .92rem; font-weight: 800; color: var(--text); margin-bottom: .25rem; }
+    .animal-tag  { font-size: .65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .trait-list { margin-top: .5rem; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .3rem; }
+    .trait-item { font-size: .78rem; line-height: 1.5; padding: .35rem .5rem; border-radius: 7px; background: var(--surface); border-left: 3px solid var(--border); }
+    .trait-item.structural  { border-left-color: #60a5fa; }
+    .trait-item.behavioural { border-left-color: #f59e0b; }
+    .trait-kind { font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-right: .3rem; }
+    .trait-kind.structural { color: #60a5fa; }
+    .trait-kind.behavioural { color: #f59e0b; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🦎 Adaptations</h1>
+    <div class="meta">
+      <span class="badge badge-interactions">Interactions</span>&nbsp;
+      <span class="badge badge-p6">P6</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--interactions)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+    <button class="tab-btn" data-tab="tab-keyideas">💡 Key Ideas</button>
+  </div>
+
+  <!-- ══════════════ LEARN ══════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+      </div>
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🦎 What is an adaptation?</h4>
+          <p>An <strong>adaptation</strong> is a feature or behaviour that helps an organism <strong>survive and reproduce</strong> in its habitat. Every part of an organism's body, and every regular thing it does, has been shaped over many generations by the environment it lives in.</p>
+          <div class="highlight">🔑 Adaptations are <strong>inherited</strong>. An individual does NOT grow an adaptation because it needs one; populations adapt over generations.</div>
+        </div>
+
+        <div class="note-section">
+          <h4>🧬 Structural vs behavioural</h4>
+          <ul style="margin-top:.4rem">
+            <li><strong>Structural adaptations</strong> are physical features of the body.<br>
+                <em>Polar bear</em>: thick fur, blubber, small ears. <em>Cactus</em>: spines, thick stem, deep roots. <em>Duck</em>: webbed feet, oily feathers.</li>
+            <li><strong>Behavioural adaptations</strong> are actions the organism does.<br>
+                <em>Birds</em> migrate. <em>Bears</em> hibernate. <em>Owls</em> hunt at night. <em>Herring</em> swim in schools.</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🌵 Same habitat → similar adaptations</h4>
+          <p>Organisms that share a habitat often share similar features because the same environmental pressures favour the same solutions:</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Desert</strong>: thick skin or waxy coat to reduce water loss; active at night; store water.</li>
+            <li><strong>Polar</strong>: thick fur or blubber; white colouring; compact body shape to reduce heat loss.</li>
+            <li><strong>Rainforest</strong>: camouflage; sharp senses; climbing or gliding adaptations.</li>
+            <li><strong>Ocean</strong>: streamlined body, gills, fins, salt glands.</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>⏳ When habitats change</h4>
+          <p>Adaptation takes generations. If a habitat changes faster than the population can adapt — a forest cut down, a climate warming too quickly, a river polluted — the species may shrink in number or go <strong>extinct</strong>. This is why habitat protection matters.</p>
+        </div>
+      </div>
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--interactions);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          An adaptation is an <strong>inherited</strong> feature or behaviour that helps an organism survive and reproduce in its habitat. <strong>Structural</strong> adaptations are body features; <strong>behavioural</strong> adaptations are actions. Organisms in the same habitat often share similar adaptations. When habitats change faster than populations can adapt, species may decline or become <strong>extinct</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SIMULATE ══════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">Which adaptations are structural? Which are behavioural?</div>
+        <div class="cue-question">Why do two animals in the same habitat often share similar features?</div>
+        <div class="cue-question">Is "the squirrel learned to store nuts" an adaptation? Why or why not?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Pick a habitat</div>
+        <div class="hab-row" id="hab-row"></div>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:.7rem" id="hab-blurb">Select a habitat to see its animals and their adaptations.</p>
+        <div class="animal-grid" id="animal-grid"></div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--interactions);font-weight:700;margin-bottom:.4rem">What to notice</div>
+        <p class="summary-text">
+          Pay attention to the <strong>pattern</strong>: in each habitat, different animals converge on similar solutions (thick insulation in cold places; water conservation in deserts; streamlining underwater). That is the footprint of adaptation over generations.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ QUIZ ══════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>For every adaptation, name:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li>the <em>feature</em> or <em>behaviour</em></li>
+            <li>the <em>function</em> — what it helps the animal DO</li>
+            <li>the <em>habitat</em> — why the feature matters there</li>
+          </ul>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--interactions)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container" data-topic-id="adaptations" data-topic-name="Adaptations" data-topic-level="6"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Know: structural vs behavioural; adaptation is inherited (not learned); same habitat converges to similar features; extinction happens when the environment changes faster than adaptation.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MIND MAP ══════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+
+  <!-- ══════════════ KEY IDEAS ══════════════ -->
+  <div class="tab-pane" id="tab-keyideas">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">How to use</div>
+        <div class="cue-question">Read one idea. Look away. Say it back.</div>
+      </div>
+      <div class="cornell-main">
+        <div data-key-ideas-root></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Anchor every P6 adaptation answer to these sentences.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/gemini.js"></script>
+<script src="../../shared/content.js"></script>
+<script src="../../shared/lab.js"></script>
+<script src="../../shared/jarvis.js"></script>
+<script src="../../shared/topic-render.js"></script>
+<script>
+// ══ Habitat picker ══════════════════════════════════════════
+const HABITATS = [
+  {
+    id: 'desert', name: '🏜 Desert',
+    blurb: 'Very dry, hot by day, cold at night. Adaptations focus on water conservation and heat.',
+    animals: [
+      { name: 'Camel', traits: [
+        { kind: 'structural',  t: 'Hump stores fat (a backup food and water source when food is scarce).' },
+        { kind: 'structural',  t: 'Long eyelashes and closable nostrils keep sand out.' },
+        { kind: 'structural',  t: 'Wide flat feet stop it sinking into sand.' },
+        { kind: 'behavioural', t: 'Can drink a huge amount of water in one go when it finds an oasis.' },
+      ]},
+      { name: 'Cactus', traits: [
+        { kind: 'structural',  t: 'Spines instead of leaves reduce water loss (and deter animals).' },
+        { kind: 'structural',  t: 'Thick waxy stem stores water.' },
+        { kind: 'structural',  t: 'Shallow, wide roots catch rare rainfall quickly.' },
+      ]},
+      { name: 'Fennec fox', traits: [
+        { kind: 'structural',  t: 'Very large ears release heat; also give sharp hearing for prey.' },
+        { kind: 'behavioural', t: 'Nocturnal — hunts at night to avoid daytime heat.' },
+      ]},
+    ],
+  },
+  {
+    id: 'polar', name: '❄ Polar',
+    blurb: 'Extremely cold, snowy, with short summers. Adaptations focus on insulation.',
+    animals: [
+      { name: 'Polar bear', traits: [
+        { kind: 'structural',  t: 'Thick fur + blubber trap heat.' },
+        { kind: 'structural',  t: 'White coat camouflages against snow.' },
+        { kind: 'structural',  t: 'Small ears and short tail reduce heat loss.' },
+        { kind: 'behavioural', t: 'Mother digs a den in snow to give birth; stays with cubs for months.' },
+      ]},
+      { name: 'Penguin', traits: [
+        { kind: 'structural',  t: 'Dense waterproof feathers + fat layer keep it warm in icy water.' },
+        { kind: 'behavioural', t: 'Huddles in large groups to share body heat in storms.' },
+      ]},
+      { name: 'Arctic fox', traits: [
+        { kind: 'structural',  t: 'Coat changes from brown (summer) to white (winter) for camouflage.' },
+        { kind: 'structural',  t: 'Short legs and small ears reduce heat loss.' },
+      ]},
+    ],
+  },
+  {
+    id: 'rainforest', name: '🌳 Rainforest',
+    blurb: 'Warm, humid, full of life. Adaptations focus on camouflage, climbing, and layers.',
+    animals: [
+      { name: 'Stick insect', traits: [
+        { kind: 'structural',  t: 'Body shape and colour mimic a twig (camouflage).' },
+        { kind: 'behavioural', t: 'Stays still during the day; moves only at night.' },
+      ]},
+      { name: 'Sloth', traits: [
+        { kind: 'structural',  t: 'Long hooked claws grip branches so it can sleep upside down.' },
+        { kind: 'structural',  t: 'Algae grow on its fur — natural green camouflage.' },
+        { kind: 'behavioural', t: 'Moves very slowly to avoid attracting predators.' },
+      ]},
+      { name: 'Tree frog', traits: [
+        { kind: 'structural',  t: 'Sticky toe pads let it cling to smooth leaves and branches.' },
+        { kind: 'structural',  t: 'Bright colours warn predators it is poisonous (in some species).' },
+      ]},
+    ],
+  },
+  {
+    id: 'ocean', name: '🌊 Ocean',
+    blurb: 'Salt water, currents, and pressure. Adaptations focus on streamlining and breathing.',
+    animals: [
+      { name: 'Shark', traits: [
+        { kind: 'structural',  t: 'Streamlined body + powerful tail cut through water fast.' },
+        { kind: 'structural',  t: 'Gills absorb dissolved oxygen from sea water.' },
+        { kind: 'behavioural', t: 'Keeps swimming forward to force water over its gills.' },
+      ]},
+      { name: 'Dolphin', traits: [
+        { kind: 'structural',  t: 'Blowhole on top of the head lets it breathe air without stopping.' },
+        { kind: 'structural',  t: 'Thick blubber insulates against cold water.' },
+        { kind: 'behavioural', t: 'Uses echolocation clicks to locate prey in dark water.' },
+      ]},
+      { name: 'Octopus', traits: [
+        { kind: 'structural',  t: 'Skin cells change colour to camouflage with the seabed.' },
+        { kind: 'behavioural', t: 'Squeezes into tight crevices to hide from predators.' },
+      ]},
+    ],
+  },
+  {
+    id: 'freshwater', name: '💧 Freshwater',
+    blurb: 'Rivers, lakes, ponds. Adaptations for moving in or around water.',
+    animals: [
+      { name: 'Duck', traits: [
+        { kind: 'structural',  t: 'Webbed feet push water like paddles.' },
+        { kind: 'structural',  t: 'Oily feathers repel water and keep the bird dry.' },
+        { kind: 'behavioural', t: 'Dives or tips up to find plants and small animals underwater.' },
+      ]},
+      { name: 'Water lily', traits: [
+        { kind: 'structural',  t: 'Broad flat leaves float on the water surface to catch sunlight.' },
+        { kind: 'structural',  t: 'Long stems reach from muddy bottom up to the surface.' },
+      ]},
+      { name: 'Frog', traits: [
+        { kind: 'structural',  t: 'Webbed hind feet for swimming; strong back legs for jumping.' },
+        { kind: 'structural',  t: 'Moist skin helps breathing (gas exchange) in air or water.' },
+      ]},
+    ],
+  },
+];
+
+let currentHab = HABITATS[0].id;
+function renderHabButtons() {
+  const row = document.getElementById('hab-row');
+  row.innerHTML = '';
+  HABITATS.forEach(h => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'hab-btn' + (h.id === currentHab ? ' active' : '');
+    b.textContent = h.name;
+    b.addEventListener('click', () => { currentHab = h.id; refreshSim(); });
+    row.appendChild(b);
+  });
+}
+function renderAnimals() {
+  const h = HABITATS.find(x => x.id === currentHab);
+  document.getElementById('hab-blurb').textContent = h.blurb;
+  const grid = document.getElementById('animal-grid');
+  grid.innerHTML = '';
+  h.animals.forEach(a => {
+    const card = document.createElement('div');
+    card.className = 'animal-card';
+    const name = document.createElement('div'); name.className = 'animal-name'; name.textContent = a.name;
+    const tag  = document.createElement('div'); tag.className = 'animal-tag'; tag.textContent = h.name.replace(/^[^A-Za-z]+/, '') + ' inhabitant';
+    const list = document.createElement('ul'); list.className = 'trait-list';
+    a.traits.forEach(t => {
+      const li = document.createElement('li');
+      li.className = 'trait-item ' + t.kind;
+      li.innerHTML = `<span class="trait-kind ${t.kind}">${t.kind}</span>${t.t}`;
+      list.appendChild(li);
+    });
+    card.appendChild(name); card.appendChild(tag); card.appendChild(list);
+    grid.appendChild(card);
+  });
+}
+function refreshSim() {
+  renderHabButtons(); renderAnimals();
+  try { Progress.recordSimUsed('adaptations'); } catch {}
+}
+
+// ══ Quiz ══
+const QUIZ_Q = [
+  { question: 'Which of these is BEST described as a behavioural adaptation?',
+    options: ['A polar bear has thick fur', 'A bird migrates south for winter', 'A cactus has spines', 'A shark has gills'],
+    correct: 1,
+    explanation: 'Migration is an action — a behavioural adaptation. Thick fur, spines, and gills are body features (structural).' },
+  { question: 'Why do polar bears and arctic foxes BOTH have thick coats and small ears?',
+    options: [
+      'They copied each other.',
+      'They share the same cold habitat, and similar features help survive in it.',
+      'They are closely related species.',
+      'The cold caused their bodies to change in one lifetime.'
+    ],
+    correct: 1,
+    explanation: 'Species sharing a habitat often evolve similar features because the same environmental pressures favour them. This is not copying or lifetime change.' },
+  { question: 'A student writes: "The giraffe grew a long neck during its life because it needed to reach tall leaves." What is wrong?',
+    options: [
+      'Giraffes do not eat leaves.',
+      'Adaptations are inherited over generations; an individual does not grow features it needs within its lifetime.',
+      'Giraffes actually have short necks.',
+      'Leaves are not found in giraffe habitats.'
+    ],
+    correct: 1,
+    explanation: 'Adaptations are inherited through reproduction. Populations adapt over many generations; individuals do not grow new features because they need them.' },
+  { question: 'Which example BEST shows a structural adaptation for water conservation in a desert?',
+    options: ['Hibernating in summer', 'A waxy, thick stem on a cactus', 'Hunting at night', 'Migrating to a wetter habitat'],
+    correct: 1,
+    explanation: 'A waxy thick stem reduces water loss and stores water — a structural feature. The others are behaviours.' },
+  { question: 'If a forest is cleared faster than the animals living there can adapt, the most likely outcome is:',
+    options: [
+      'The animals grow new adaptations in a few weeks.',
+      'The population shrinks, and may go extinct locally.',
+      'The habitat will grow back immediately.',
+      'The animals will all migrate to the same new forest.'
+    ],
+    correct: 1,
+    explanation: 'Adaptation takes many generations. If change is too fast, populations decline and some species may become extinct.' },
+  { question: 'Which pair lists ONE structural and ONE behavioural adaptation of the same animal (polar bear)?',
+    options: [
+      'Thick fur; thick blubber',
+      'Migration; hibernation',
+      'Thick fur; digging a den in snow to give birth',
+      'White coat; small ears'
+    ],
+    correct: 2,
+    explanation: 'Thick fur is a body feature (structural); digging a den in snow is an action (behavioural). The others are two of the same kind.' },
+];
+
+// ══ Mind Map template ══
+const MM_TEMPLATE = {
+  nodes: [
+    { id: 1,  label: 'Adaptation', color: { background: '#2a0f13', border: '#f87171' }, font: { size: 15, color: '#fca5a5' } },
+    { id: 2,  label: 'Structural' },
+    { id: 3,  label: 'Behavioural' },
+    { id: 4,  label: 'Inherited\n(not learned)' },
+    { id: 5,  label: 'Habitat' },
+    { id: 6,  label: 'Camouflage' },
+    { id: 7,  label: 'Hibernation' },
+    { id: 8,  label: 'Migration' },
+    { id: 9,  label: 'Desert example:\ncactus spines' },
+    { id: 10, label: 'Polar example:\nthick fur' },
+    { id: 11, label: 'Extinction' },
+  ],
+  edges: [
+    { from: 1, to: 2 }, { from: 1, to: 3 },
+    { from: 1, to: 4, label: 'is' },
+    { from: 1, to: 5, label: 'fits' },
+    { from: 2, to: 6 }, { from: 2, to: 9 }, { from: 2, to: 10 },
+    { from: 3, to: 7 }, { from: 3, to: 8 },
+    { from: 5, to: 11, label: 'change too fast →' },
+  ],
+  required: ['structural','behavioural','inherit','habitat','camouflage','hibernation','migration','extinct']
+};
+
+let sciMap;
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    Progress.recordVisit('adaptations');
+    document.getElementById('mastery-pct').textContent = Progress.masteryPct('adaptations') + '%';
+  } catch {}
+  refreshSim();
+  try { initAIQuizToggle(QUIZ_Q); } catch {}
+  try { sciMap = new ScienceMindMap('mindmap-container', 'adaptations', MM_TEMPLATE); } catch {}
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plant Transport System | Science Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <script src="https://unpkg.com/d3@7/dist/d3.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; background: var(--systems); flex-shrink: 0; }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .78rem; color: var(--muted); }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    .cue-question { font-size: .78rem; color: var(--muted); margin-bottom: .75rem; border-left: 2px solid var(--systems); padding-left: .6rem; }
+    .summary-text { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .summary-text strong { color: var(--accent); }
+
+    #plant-canvas {
+      border-radius: 10px; background: #0d1a2e; display: block;
+      width: 100%; max-width: 520px;
+    }
+    .sim-legend { display: flex; flex-wrap: wrap; gap: .7rem; font-size: .74rem; color: var(--muted); margin-top: .55rem; }
+    .sim-legend span { display: inline-flex; align-items: center; gap: .3rem; }
+    .sim-legend span::before { content:''; width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .lg-xylem::before  { background: #60a5fa; }
+    .lg-phloem::before { background: #34d399; }
+    .lg-vapour::before { background: #fcd34d; }
+
+    .controls-row { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: .75rem; align-items: center; }
+    .controls-row .btn { font-size: .78rem; padding: .4rem .8rem; }
+    .controls-row .state-pill {
+      font-size: .72rem; font-weight: 700; padding: .3rem .7rem;
+      border-radius: 999px; border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .controls-row .state-pill.open  { border-color: #34d399; color: #6ee7b7; background: #063b27; }
+    .controls-row .state-pill.shut  { border-color: #f87171; color: #fca5a5; background: #2a0f13; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="topic-color-bar"></div>
+  <div style="flex:1">
+    <h1>🌿 Plant Transport System</h1>
+    <div class="meta">
+      <span class="badge badge-systems">Systems</span>&nbsp;
+      <span class="badge badge-p5">P5</span>&nbsp;&nbsp;
+      Mastery: <strong id="mastery-pct" style="color:var(--systems)">—</strong>
+    </div>
+  </div>
+  <button id="back-btn" class="btn btn-ghost" style="font-size:.82rem">← All Topics</button>
+</div>
+
+<main>
+  <div class="tabs tabs-root">
+    <button class="tab-btn active" data-tab="tab-learn">📖 Learn</button>
+    <button class="tab-btn" data-tab="tab-simulate">🧪 Simulate</button>
+    <button class="tab-btn" data-tab="tab-quiz">❓ Quiz</button>
+    <button class="tab-btn" data-tab="tab-mindmap">🗺 Mind Map</button>
+    <button class="tab-btn" data-tab="tab-keyideas">💡 Key Ideas</button>
+  </div>
+
+  <!-- ══════════════ LEARN ══════════════ -->
+  <div class="tab-pane active" id="tab-learn">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Key Questions</div>
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Glossary</div>
+      </div>
+      <div class="cornell-main">
+        <div class="note-section">
+          <h4>🌿 Two transport tissues</h4>
+          <p>A plant has two separate transport tissues running through its stems, leaves, and roots:</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Xylem</strong> — carries <strong>water and mineral salts UP</strong> from the roots to the leaves. Made of <em>dead, hollow cells</em> stacked end-to-end to form continuous tubes.</li>
+            <li><strong>Phloem</strong> — carries <strong>food</strong> (sugars made by photosynthesis) around the plant. Made of <em>living cells</em>. Food flows from a <strong>source</strong> (leaf) to a <strong>sink</strong> (root, growing shoot, fruit).</li>
+          </ul>
+          <div class="highlight">🔑 Water in xylem: <strong>one direction</strong> (up). Food in phloem: <strong>both directions</strong> (up or down, source → sink).</div>
+        </div>
+
+        <div class="note-section">
+          <h4>💨 Transpiration pulls water up</h4>
+          <p><strong>Transpiration</strong> is the loss of water vapour from the leaves through tiny pores called <strong>stomata</strong>. As water leaves the top, it pulls more water up from below — a continuous <em>transpiration stream</em> that can lift water more than 30 metres in a tall tree.</p>
+          <ul style="margin-top:.4rem">
+            <li>Water is absorbed at the <strong>root hair cells</strong> (which have lots of surface area).</li>
+            <li>It rises through the <strong>xylem</strong> in the stem.</li>
+            <li>It exits as water vapour through the <strong>stomata</strong> on the underside of the leaves.</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🍬 Food: source to sink</h4>
+          <p>Sugar is made in the leaves by photosynthesis. It is loaded into the <strong>phloem</strong> and sent to every part of the plant that needs energy or storage:</p>
+          <ul style="margin-top:.4rem">
+            <li><strong>Up</strong> to flowers and growing shoots.</li>
+            <li><strong>Down</strong> to the roots (for respiration and storage, e.g. potatoes).</li>
+            <li><strong>Across</strong> to fruits as they swell and ripen.</li>
+          </ul>
+        </div>
+
+        <div class="note-section">
+          <h4>🫧 Stomata control the flow</h4>
+          <p>Stomata can open and close. When they open, water vapour escapes (transpiration increases) and gases can be exchanged for photosynthesis. When they shut (often at night or on hot dry days), the plant keeps hold of water but slows photosynthesis.</p>
+        </div>
+      </div>
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--systems);font-weight:700;margin-bottom:.4rem">Summary</div>
+        <p class="summary-text">
+          A plant's transport system has two tissues. <strong>Xylem</strong> carries <strong>water and mineral salts UP</strong> from the roots to the leaves; flow is one way and is driven by <strong>transpiration</strong> at the leaves. <strong>Phloem</strong> carries <strong>food</strong> from the leaves (source) to wherever it is used or stored (sink), up or down. Without this system, a tall plant could not get water to its leaves or food to its roots.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SIMULATE ══════════════ -->
+  <div class="tab-pane" id="tab-simulate">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">Observe &amp; Infer</div>
+        <div class="cue-question">When stomata close, how does the speed of water movement change?</div>
+        <div class="cue-question">In which direction do the blue (water) dots travel? In which direction do the green (food) dots travel?</div>
+        <div class="cue-question">Why does evaporation at the leaves affect the roots?</div>
+
+        <div class="cornell-cue-label" style="margin-top:1.25rem">Legend</div>
+        <div class="sim-legend">
+          <span class="lg-xylem">Water (xylem)</span>
+          <span class="lg-phloem">Food (phloem)</span>
+          <span class="lg-vapour">Water vapour</span>
+        </div>
+      </div>
+
+      <div class="cornell-main" style="padding:1rem">
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:.7rem">Watch water rise through the xylem (blue) and food flow through the phloem (green). Toggle stomata to see how transpiration changes the flow.</p>
+
+        <canvas id="plant-canvas" width="520" height="360"></canvas>
+
+        <div class="controls-row">
+          <button class="btn btn-primary" id="stomata-btn">Toggle stomata</button>
+          <span class="state-pill open" id="stomata-state">Stomata: OPEN</span>
+          <button class="btn btn-ghost" id="source-btn">Swap source</button>
+          <span style="font-size:.72rem;color:var(--muted)" id="source-label">Source: leaves → Sink: roots + fruit</span>
+        </div>
+      </div>
+
+      <div class="cornell-summary">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--systems);font-weight:700;margin-bottom:.4rem">What to notice</div>
+        <p class="summary-text">
+          When stomata close, transpiration slows, so the <strong>water stream</strong> up the xylem slows. Food in the phloem still moves because it is actively pumped from source to sink. Water only ever flows <strong>up</strong> in xylem; food can flow <strong>up or down</strong> in phloem.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ QUIZ ══════════════ -->
+  <div class="tab-pane" id="tab-quiz">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">PSLE Tip</div>
+        <div style="font-size:.8rem;color:var(--muted);line-height:1.5">
+          <p>Always name the substance AND the direction:</p>
+          <ul style="margin-top:.5rem;padding-left:1rem">
+            <li>Xylem: <em>water + mineral salts, roots to leaves</em></li>
+            <li>Phloem: <em>food, source to sink (both ways)</em></li>
+          </ul>
+          <p style="margin-top:.75rem">Transpiration is NOT respiration.</p>
+          <p style="margin-top:.75rem">Score: <strong id="quiz-score-display" style="color:var(--systems)">—</strong></p>
+        </div>
+      </div>
+      <div class="cornell-main">
+        <div id="quiz-container" data-topic-id="plant-transport" data-topic-name="Plant Transport System" data-topic-level="5"></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Know: two tissues and what each carries; transpiration pulls water up; source-to-sink for food; stomata control water loss.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MIND MAP ══════════════ -->
+  <div class="tab-pane" id="tab-mindmap">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center">
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="addMindNode()">＋ Add Node</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.addEdge()">🔗 Connect</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.deleteSelected()">🗑 Delete</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.reset()">↺ Reset</button>
+      <button id="mm-physics-btn" class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.togglePhysics()">🌀 Re-layout</button>
+      <button class="btn btn-ghost" style="font-size:.82rem" onclick="sciMap.load()">📂 Load</button>
+      <button class="btn btn-primary" style="font-size:.82rem" onclick="sciMap.save();showToast('Saved! ✅')">💾 Save</button>
+      <button class="btn btn-success" style="font-size:.82rem" onclick="sciMap.check()">✔ Check My Map</button>
+    </div>
+    <div id="mindmap-container"></div>
+    <div id="mindmap-feedback" style="display:none;margin-top:.75rem;padding:.85rem 1rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:.85rem;line-height:1.6"></div>
+  </div>
+
+  <!-- ══════════════ KEY IDEAS ══════════════ -->
+  <div class="tab-pane" id="tab-keyideas">
+    <div class="cornell-wrapper">
+      <div class="cornell-cue">
+        <div class="cornell-cue-label">How to use</div>
+        <div class="cue-question">Read one idea. Look away. Say it back.</div>
+      </div>
+      <div class="cornell-main">
+        <div data-key-ideas-root></div>
+      </div>
+      <div class="cornell-summary">
+        <p class="summary-text">Anchor every answer to these P5 sentences. Precise terms win marks.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="../../shared.js"></script>
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/gemini.js"></script>
+<script src="../../shared/content.js"></script>
+<script src="../../shared/lab.js"></script>
+<script src="../../shared/jarvis.js"></script>
+<script src="../../shared/topic-render.js"></script>
+<script>
+// ══ xylem / phloem animation ═══════════════════════════════
+const canvas = document.getElementById('plant-canvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+// Plant geometry (simple silhouette)
+const STEM_X = W / 2;
+const ROOT_Y = H - 20;
+const LEAVES_Y = 80;
+const XYLEM_X  = STEM_X - 10;
+const PHLOEM_X = STEM_X + 10;
+
+// Particles
+const waters = []; // move upward in xylem
+const foods  = []; // move either direction in phloem
+const vapours = []; // float up from leaves
+for (let i = 0; i < 22; i++) {
+  waters.push({ y: ROOT_Y - Math.random() * (ROOT_Y - LEAVES_Y) });
+}
+for (let i = 0; i < 14; i++) {
+  foods.push({ y: LEAVES_Y + Math.random() * (ROOT_Y - LEAVES_Y), dir: Math.random() > .5 ? 1 : -1 });
+}
+
+let stomataOpen = true;
+let sourceLeavesDown = true; // when true: leaves=source, roots+fruit=sink
+
+function step() {
+  ctx.fillStyle = '#0d1a2e'; ctx.fillRect(0, 0, W, H);
+
+  // ─── Plant silhouette ───
+  // Ground
+  ctx.strokeStyle = '#475569'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(20, ROOT_Y - 8); ctx.lineTo(W - 20, ROOT_Y - 8); ctx.stroke();
+
+  // Roots (below ground)
+  ctx.strokeStyle = '#92400e'; ctx.lineWidth = 2;
+  [-1, 0, 1].forEach(k => {
+    ctx.beginPath();
+    ctx.moveTo(STEM_X, ROOT_Y - 10);
+    ctx.quadraticCurveTo(STEM_X + 30 * k, ROOT_Y, STEM_X + 55 * k, ROOT_Y + 14);
+    ctx.stroke();
+  });
+
+  // Stem
+  ctx.fillStyle = '#166534';
+  ctx.fillRect(STEM_X - 14, LEAVES_Y, 28, ROOT_Y - LEAVES_Y - 10);
+
+  // Leaves
+  ctx.fillStyle = '#15803d';
+  function leaf(x, y, flip) {
+    ctx.beginPath();
+    ctx.ellipse(x, y, 38, 16, flip ? -0.35 : 0.35, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  leaf(STEM_X - 35, LEAVES_Y + 10, true);
+  leaf(STEM_X + 35, LEAVES_Y + 10, false);
+  leaf(STEM_X - 45, LEAVES_Y + 35, true);
+  leaf(STEM_X + 45, LEAVES_Y + 35, false);
+
+  // Flower/fruit at top
+  ctx.fillStyle = '#fbbf24';
+  ctx.beginPath(); ctx.arc(STEM_X, LEAVES_Y - 8, 9, 0, Math.PI * 2); ctx.fill();
+
+  // Xylem channel (blue tint)
+  ctx.fillStyle = 'rgba(96,165,250,0.12)';
+  ctx.fillRect(XYLEM_X - 3, LEAVES_Y, 6, ROOT_Y - LEAVES_Y - 10);
+  // Phloem channel (green tint)
+  ctx.fillStyle = 'rgba(52,211,153,0.12)';
+  ctx.fillRect(PHLOEM_X - 3, LEAVES_Y, 6, ROOT_Y - LEAVES_Y - 10);
+
+  // ─── Water particles (upward, speed scaled by stomata) ───
+  const waterSpeed = stomataOpen ? 1.1 : 0.35;
+  waters.forEach(p => {
+    p.y -= waterSpeed;
+    if (p.y < LEAVES_Y + 5) {
+      // Turn into water vapour at a random leaf
+      vapours.push({ x: STEM_X + (Math.random() - .5) * 90, y: LEAVES_Y + 20, vx: (Math.random() - .5) * 0.6, vy: -0.6 - Math.random() * 0.4 });
+      p.y = ROOT_Y - 5;
+    }
+    ctx.beginPath(); ctx.arc(XYLEM_X, p.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#60a5fa'; ctx.fill();
+  });
+
+  // ─── Food particles (direction per particle, source→sink) ───
+  foods.forEach(p => {
+    // If leaves are the source, most food should flow down (dir = 1 meaning downward)
+    // We implement "source drives" by nudging dir slightly toward the sink on each step
+    const targetDir = sourceLeavesDown ? 1 : -1;
+    if (p.dir !== targetDir && Math.random() < 0.005) p.dir = targetDir;
+    p.y += p.dir * 0.9;
+    if (p.y > ROOT_Y - 12) { p.y = ROOT_Y - 12; p.dir = -1; }
+    if (p.y < LEAVES_Y + 5) { p.y = LEAVES_Y + 5; p.dir = 1; }
+    ctx.beginPath(); ctx.arc(PHLOEM_X, p.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#34d399'; ctx.fill();
+  });
+
+  // ─── Water vapour (float up and fade) ───
+  for (let i = vapours.length - 1; i >= 0; i--) {
+    const v = vapours[i];
+    v.x += v.vx; v.y += v.vy; v.vy *= 0.995;
+    ctx.beginPath(); ctx.arc(v.x, v.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(252,211,77,${Math.max(0, 0.9 + v.vy * 1.1)})`;
+    ctx.fill();
+    if (v.y < 8 || v.x < 4 || v.x > W - 4) vapours.splice(i, 1);
+  }
+
+  // Stomata indicator dots on the big leaves
+  ctx.fillStyle = stomataOpen ? '#fcd34d' : '#475569';
+  [ [STEM_X - 50, LEAVES_Y + 30], [STEM_X + 50, LEAVES_Y + 30] ].forEach(([lx, ly]) => {
+    ctx.beginPath(); ctx.arc(lx, ly, 2.5, 0, Math.PI * 2); ctx.fill();
+  });
+
+  // Labels
+  ctx.fillStyle = '#cbd5e1'; ctx.font = 'bold 11px Inter, system-ui, sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('xylem', XYLEM_X - 45, ROOT_Y - 30);
+  ctx.fillText('phloem', PHLOEM_X + 10, ROOT_Y - 30);
+  ctx.fillStyle = '#94a3b8'; ctx.font = '10px Inter, system-ui, sans-serif';
+  ctx.fillText(stomataOpen ? 'stomata open — water leaves' : 'stomata shut — water kept in', 10, H - 6);
+
+  requestAnimationFrame(step);
+}
+step();
+
+const stomataBtn   = document.getElementById('stomata-btn');
+const stomataPill  = document.getElementById('stomata-state');
+stomataBtn.addEventListener('click', () => {
+  stomataOpen = !stomataOpen;
+  stomataPill.textContent = 'Stomata: ' + (stomataOpen ? 'OPEN' : 'SHUT');
+  stomataPill.classList.toggle('open', stomataOpen);
+  stomataPill.classList.toggle('shut', !stomataOpen);
+  try { Progress.recordSimUsed('plant-transport'); } catch {}
+});
+
+const sourceBtn   = document.getElementById('source-btn');
+const sourceLabel = document.getElementById('source-label');
+sourceBtn.addEventListener('click', () => {
+  sourceLeavesDown = !sourceLeavesDown;
+  sourceLabel.textContent = sourceLeavesDown
+    ? 'Source: leaves → Sink: roots + fruit'
+    : 'Source: stored roots (after winter) → Sink: growing shoots';
+  try { Progress.recordSimUsed('plant-transport'); } catch {}
+});
+
+// ══ Quiz ══
+const QUIZ_Q = [
+  { question: 'Which tissue carries water and mineral salts UP from the roots to the leaves?',
+    options: ['Phloem','Xylem','Stomata','Roots only'],
+    correct: 1,
+    explanation: 'Xylem is the tissue that carries water and dissolved mineral salts from roots to leaves, one direction only.' },
+  { question: 'Which statement about phloem is CORRECT?',
+    options: [
+      'Phloem carries water in one direction only.',
+      'Phloem carries food in both directions, from source to sink.',
+      'Phloem is made of dead hollow cells.',
+      'Phloem only carries gases.'
+    ],
+    correct: 1,
+    explanation: 'Phloem carries food (made by photosynthesis) from where it is made (source) to where it is used or stored (sink). That can be up or down.' },
+  { question: 'What is transpiration?',
+    options: [
+      'The release of energy from food inside cells',
+      'The loss of water vapour from leaves through stomata',
+      'The process by which plants make food',
+      'The movement of food through phloem'
+    ],
+    correct: 1,
+    explanation: 'Transpiration is the loss of water vapour from the leaves through tiny pores called stomata. Do not confuse with respiration (energy release).' },
+  { question: 'On a very hot, dry day a plant closes its stomata. What is the main purpose?',
+    options: [
+      'To stop food from flowing in the phloem',
+      'To prevent too much water loss',
+      'To speed up photosynthesis',
+      'To stop mineral salts entering the roots'
+    ],
+    correct: 1,
+    explanation: 'Closing stomata reduces water loss by transpiration. It also slows photosynthesis as a side effect, but the main reason is to conserve water.' },
+  { question: 'A potato plant is storing starch in its tubers (underground). Where is the SOURCE and where is the SINK?',
+    options: [
+      'Source: tubers; Sink: leaves',
+      'Source: leaves; Sink: tubers',
+      'Source: roots; Sink: stem',
+      'There is no source or sink in plants.'
+    ],
+    correct: 1,
+    explanation: 'Leaves are where food is made (source). Tubers are where food is stored (sink). So food flows through the phloem down from leaves to tubers.' },
+  { question: 'A student says plants "drink" water. What is the more accurate statement?',
+    options: [
+      'Water is absorbed by root hair cells and pulled up the xylem by transpiration.',
+      'Plants pump water with a heart.',
+      'Plants do not need water.',
+      'Water flows through the phloem only.'
+    ],
+    correct: 0,
+    explanation: 'Plants absorb water through root hair cells. Transpiration at the leaves creates a pull that moves water up through the xylem; there is no heart or drinking.' },
+];
+
+// ══ Mind Map template ══
+const MM_TEMPLATE = {
+  nodes: [
+    { id: 1,  label: 'Plant Transport', color: { background: '#1e183a', border: '#a78bfa' }, font: { size: 15, color: '#c4b5fd' } },
+    { id: 2,  label: 'Xylem' },
+    { id: 3,  label: 'Phloem' },
+    { id: 4,  label: 'Water +\nMineral salts' },
+    { id: 5,  label: 'Food\n(sugars)' },
+    { id: 6,  label: 'Roots' },
+    { id: 7,  label: 'Leaves' },
+    { id: 8,  label: 'Transpiration' },
+    { id: 9,  label: 'Stomata' },
+    { id: 10, label: 'Root hair cells' },
+    { id: 11, label: 'Source → Sink' },
+  ],
+  edges: [
+    { from: 1, to: 2 }, { from: 1, to: 3 },
+    { from: 2, to: 4, label: 'carries' },
+    { from: 3, to: 5, label: 'carries' },
+    { from: 4, to: 6, label: 'from' }, { from: 4, to: 7, label: 'to' },
+    { from: 7, to: 8, label: 'loses vapour →' },
+    { from: 8, to: 9 },
+    { from: 6, to: 10 },
+    { from: 3, to: 11 },
+  ],
+  required: ['xylem','phloem','water','food','transpiration','stomata','root','source','sink']
+};
+
+let sciMap;
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    Progress.recordVisit('plant-transport');
+    document.getElementById('mastery-pct').textContent = Progress.masteryPct('plant-transport') + '%';
+  } catch {}
+  try { initAIQuizToggle(QUIZ_Q); } catch {}
+  try { sciMap = new ScienceMindMap('mindmap-container', 'plant-transport', MM_TEMPLATE); } catch {}
+});
+
+function addMindNode() {
+  const lbl = prompt('Node label:');
+  if (lbl && lbl.trim()) sciMap.addNode(lbl.trim());
+}
+</script>
+</body>
+</html>
