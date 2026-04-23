@@ -99,15 +99,15 @@
        node. Rendered as a separate circle in graph.js so it doesn't
        fight with the node's real radius. */
     @keyframes focus-ping {
-      0%   { transform: scale(.55); opacity: .9; stroke-width: 2.5; }
-      100% { transform: scale(3.4); opacity: 0;  stroke-width: .4; }
+      0%   { transform: scale(.7); opacity: .45; stroke-width: 1.4; }
+      100% { transform: scale(2.4); opacity: 0; stroke-width: .3; }
     }
     .ping {
       fill: none;
       stroke: currentColor;
       transform-box: fill-box;
       transform-origin: center;
-      animation: focus-ping 1.7s ease-out infinite;
+      animation: focus-ping 2.4s ease-out infinite;
       pointer-events: none;
     }
 
@@ -126,26 +126,25 @@
       96%  { opacity: 1; }
       100% { stroke-dashoffset: -10; opacity: 0; }
     }
-    /* Two-layer packet. INVISIBLE at rest. Only fires when an edge is
-       .active (its endpoint is the focused node). Keeps the map calm
-       and removes ~170 continuously-animated paths from the GPU
-       budget. The halo's <g filter="url(#neon-glow)"> in graph.js does
-       the glow once per element. */
+    /* Two-layer packet. Invisible at rest. On focus, a very subtle
+       pulse travels along each connected edge. Thin strokes, low
+       opacity, slow cycle — closer to a trickle than a Jarvis beam. */
     .spark-halo, .spark-core {
       fill: none;
       pointer-events: none;
       stroke-linecap: round;
-      opacity: 0;          /* invisible at rest */
+      opacity: 0;
     }
-    .spark-halo { stroke-width: 4;   stroke-dasharray: 28 160; }
-    .spark-core { stroke: #f8fbff; stroke-width: 1.8; stroke-dasharray: 22 166; }
-    .spark-halo.active,
+    .spark-halo { stroke-width: 2;   stroke-dasharray: 10 190; }
+    .spark-core { stroke: #f8fbff; stroke-width: 1; stroke-dasharray: 7 193; }
+    .spark-halo.active {
+      animation: synapse 2.6s linear infinite;
+      opacity: .4;
+    }
     .spark-core.active {
-      animation: synapse 1.6s linear infinite;
-      opacity: 1;
+      animation: synapse 2.6s linear infinite;
+      opacity: .6;
     }
-    .spark-halo.active { stroke-width: 5; }
-    .spark-core.active { stroke-width: 2.2; }
     .spark-halo.dim, .spark-core.dim { animation: none; opacity: 0; }
 
     /* Respect users who prefer reduced motion: disable all breathing. */
