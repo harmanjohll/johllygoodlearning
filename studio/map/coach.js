@@ -11,10 +11,12 @@
   const focusCard = document.getElementById('focus-card');
   const probeEl = document.getElementById('probe');
   const regenBtn = document.getElementById('regen-btn');
+  const stemBtn  = document.getElementById('stem-btn');
   const backlinksEl = document.getElementById('backlinks');
   document.getElementById('settings-btn').addEventListener('click', () => window.JglLab && window.JglLab.openSettings());
   document.getElementById('foot-link').addEventListener('click', (e) => { e.preventDefault(); window.JglLab && window.JglLab.openSettings(); });
   regenBtn.addEventListener('click', () => { if (M.focusId) renderProbe(M.nodesById.get(M.focusId), true); });
+  if (stemBtn) stemBtn.addEventListener('click', () => { if (M.focusId) renderStemDecode(M.nodesById.get(M.focusId)); });
 
   function escapeHtml(s) {
     return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -28,14 +30,15 @@
         <div class="ft">
           1. <strong>Click a node</strong> on the map (a theme, topic, phenomenon, or one of your notes).<br>
           2. I drop a single probing question in the box below. Read it, then answer it <em>in your head</em> (or out loud) in one full sentence, using the precise term.<br>
-          3. Tap <strong>Another probe</strong> for a different angle on the same idea. Tap a chip under <strong>Connections</strong> to jump to a related node.<br>
-          4. Click the same node again, click the empty canvas, or press <kbd>Esc</kbd> to deselect.
+          3. Tap <strong>Another probe</strong> for a different angle, or <strong>🔍 Decode a stem</strong> to see the command words and trigger phrases a PSLE question about this would use.<br>
+          4. Click a chip under <strong>Connections</strong> to jump to a related node. Click the same node again, click empty canvas, or press <kbd>Esc</kbd> to deselect.
         </div>
         <div class="ft" style="margin-top:.45rem;color:var(--muted);opacity:.85">
           Tip: drag nodes to rearrange them, press <kbd>/</kbd> to search, and use the Vault tab to drop your own notes and link them to any node.
         </div>`;
       probeEl.innerHTML = '<span class="probe-label">Coach probe</span><span class="probe-empty">Pick a node to see a probing question.</span>';
       regenBtn.disabled = true;
+      if (stemBtn) stemBtn.disabled = true;
       backlinksEl.innerHTML = '';
       return;
     }
@@ -57,6 +60,7 @@
       </div>
     `;
     regenBtn.disabled = false;
+    if (stemBtn) stemBtn.disabled = node.kind === 'note';
     renderBacklinks(node);
     renderProbe(node, false);
   }
@@ -179,17 +183,81 @@
     }
   }
 
-  function setProbeText(text) {
+  function setProbeText(text, labelText) {
     probeEl.innerHTML = '';
     const label = document.createElement('span');
     label.className = 'probe-label';
-    label.textContent = 'Coach probe';
+    label.textContent = labelText || 'Coach probe';
     const body = document.createElement('span');
     body.className = 'probe-body';
     body.style.cssText = 'display:block;white-space:pre-line';
     body.textContent = text;
     probeEl.appendChild(label);
     probeEl.appendChild(body);
+  }
+
+  // ── Stem decoder ─────────────────────────────────────────
+  // Teaches Alexey the examiner's eye: what command word to expect,
+  // which trigger phrases flag what kind of answer, and the 2-3
+  // processes he should walk through before writing a single word.
+  function fallbackStemDecode(node) {
+    const lines = [];
+    lines.push(`Question stems about "${node.label}" usually start with one of these command words:`);
+    lines.push(`• "Explain why..." → give a causal chain (because A, so B, so C).`);
+    lines.push(`• "Describe..."   → observations only; no reasons.`);
+    lines.push(`• "Suggest..."    → propose a reason or method; more than one answer can score.`);
+    lines.push(`• "Infer..."      → use the data given to draw a conclusion; do not add new facts.`);
+    lines.push(`• "Predict..."    → state what happens next; then say why.`);
+    lines.push(`• "Compare..."    → name the variable, then give both sides.`);
+    lines.push('');
+    lines.push(`Before you write, think through: (1) what process is happening, (2) what substance or energy is moving or changing, (3) what the final effect on the question's subject is.`);
+    return lines.join('\n');
+  }
+
+  async function renderStemDecode(node) {
+    const base = fallbackStemDecode(node);
+    setProbeText(base, 'Stem decoder');
+    if (!window.askGemini) return;
+    const key = (window.JglStorage && window.JglStorage.getGeminiKey && window.JglStorage.getGeminiKey()) || '';
+    if (!key) return;
+
+    const voice = (window.JglCoach && window.JglCoach.VOICE) || '';
+    const themeLabel = node.kind === 'topic' && node.theme
+      ? (M.nodesById.get(node.theme)?.label || node.theme) : '';
+    const context = [
+      `Focus node kind: ${node.kind}`,
+      `Focus node label: ${node.label}`,
+      themeLabel ? `Theme: ${themeLabel}` : '',
+      node.kind === 'phenomenon' ? `Observed in: ${(node.topics || []).map(id => M.nodesById.get(id)?.label).filter(Boolean).join(', ')}` : '',
+    ].filter(Boolean).join('\n');
+
+    const system = [
+      voice,
+      'Role: PSLE examiner coach. You teach a Primary 6 student HOW to read a question stem, not how to answer.',
+      'Output EXACTLY this structure, in plain text, no markdown, no emoji, no hyphens or em dashes:',
+      '',
+      'Line 1: "Likely command words: <2-3 words, comma separated>"',
+      'Line 2: "Trigger phrases to watch for: <2-3 short phrases, comma separated>"',
+      'Lines 3-5: three short bullets, each starting with a dash and a space ("- "). Each bullet names ONE thing Alexey should identify or process in the stem before writing (e.g. "- Identify the energy source the stem gives you.").',
+      'Line 6: "One-sentence self-check: <a single question he should ask himself once his answer is drafted, ending with a question mark>"',
+      'Total output under 90 words. Do not number lines. Do not add any other preamble or closing text.',
+    ].join('\n');
+
+    const prompt = `${context}\n\nProduce the stem-decoder block now. Follow the structure exactly.`;
+
+    setProbeText('Thinking...', 'Stem decoder');
+    try {
+      let text = await window.askGemini({ system, prompt, temperature: 0.4, maxTokens: 512, thinkingBudget: 0 });
+      text = (text || '').trim();
+      if (!text || text.length < 40) text = base;
+      setProbeText(text, 'Stem decoder');
+    } catch (err) {
+      probeEl.innerHTML = '';
+      const label = document.createElement('span'); label.className = 'probe-label'; label.textContent = 'Stem decoder';
+      const body = document.createElement('span'); body.style.cssText = 'display:block;white-space:pre-line'; body.textContent = base;
+      const errSpan = document.createElement('span'); errSpan.className = 'probe-err'; errSpan.textContent = (err && err.message) || 'AI unavailable';
+      probeEl.appendChild(label); probeEl.appendChild(body); probeEl.appendChild(errSpan);
+    }
   }
 
   // Hook into focus events from graph.js
