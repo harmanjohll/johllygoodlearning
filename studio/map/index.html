@@ -79,12 +79,12 @@
     .node.match circle, .node.match rect { stroke: #fde68a !important; stroke-width: 2.5; }
     .node.pinned circle::after { content:''; }
 
-    .edge { fill: none; stroke-width: .6; opacity: .3; transition: opacity .12s, stroke-width .12s; }
-    .edge.cross     { stroke-dasharray: 3 2; }
-    .edge.note-link { stroke: #fbbf24; stroke-width: 1.1; opacity: .75; }
-    .edge.temp-link { stroke: #fde68a; stroke-width: 1.3; stroke-dasharray: 4 3; opacity: .95; }
-    .edge.dim       { opacity: .06; }
-    .edge.active    { opacity: 1; stroke-width: 1.6; }
+    .edge { fill: none; stroke-width: 1.2; opacity: .55; transition: opacity .12s, stroke-width .12s; }
+    .edge.cross     { stroke-dasharray: 4 3; }
+    .edge.note-link { stroke: #fbbf24; stroke-width: 1.4; opacity: .8; }
+    .edge.temp-link { stroke: #fde68a; stroke-width: 1.5; stroke-dasharray: 4 3; opacity: .95; }
+    .edge.dim       { opacity: .12; }
+    .edge.active    { opacity: 1; stroke-width: 2.2; }
 
     /* Breathing web: gentle node pulse + electricity flowing along
        edges. currentColor resolves to the inline style="color: ..."
@@ -118,54 +118,61 @@
       pointer-events: none;
     }
 
-    /* Base edge thread: very faint, slow dash drift. */
+    /* Base edge: solid, visible, slow dash-drift. This is the "wire". */
     @keyframes edge-pulse {
       from { stroke-dashoffset: 0; }
-      to   { stroke-dashoffset: -120; }
+      to   { stroke-dashoffset: -60; }
     }
-    .edge {
-      stroke-dasharray: 1 14;
-      animation: edge-pulse 4.5s linear infinite;
-    }
-    .edge.cross { stroke-dasharray: 3 10; animation-duration: 3.2s; }
-    .edge.active { stroke-dasharray: 4 10; animation-duration: 1.8s; }
-    .edge.note-link { stroke-dasharray: 2 8; animation-duration: 3.5s; }
-    .edge.dim { animation-play-state: paused; }
+    .edge { animation: edge-pulse 5s linear infinite; }
+    .edge.cross    { animation-duration: 3.5s; }
+    .edge.active   { animation-duration: 1.8s; }
+    .edge.dim      { animation-play-state: paused; }
 
-    /* Synapse spark: a bright "packet" that fires source-to-target
-       along the same path as .edge. Drawn on top of the muted thread,
-       currentColor-tinted via the inline style="color:..." that
-       graph.js sets to the source theme colour. The glow stack +
-       short bright dash + long gap is what gives the "neuron firing"
-       look. Brighter & faster when the edge is active. */
+    /* Jarvis-style synapse packet. Two layers on the same path:
+       - .spark-halo: wide theme-coloured glow (outer glow)
+       - .spark-core: bright near-white centre line (hot core)
+       Same animation cycle, identical animation-delay (set per-link
+       in graph.js) so the halo and core move together as one packet.
+    */
     @keyframes synapse {
       0%   { stroke-dashoffset: 320; opacity: 0; }
-      6%   { opacity: .9; }
-      94%  { opacity: 1; }
+      4%   { opacity: 1; }
+      96%  { opacity: 1; }
       100% { stroke-dashoffset: -10; opacity: 0; }
     }
-    .spark {
+    .spark-halo, .spark-core {
       fill: none;
-      stroke-width: 2.6;
-      stroke-linecap: round;
-      stroke-dasharray: 9 311;
-      animation: synapse 4.5s linear infinite;
-      filter: drop-shadow(0 0 6px currentColor)
-              drop-shadow(0 0 3px currentColor)
-              drop-shadow(0 0 1px currentColor);
       pointer-events: none;
-      opacity: .85;
+      animation: synapse 3.6s linear infinite;
+      stroke-linecap: round;
     }
-    .spark.cross  { stroke-width: 2.2; stroke-dasharray: 6 220; animation-duration: 3.2s; opacity: .9; }
-    .spark.active { stroke-width: 3.6; stroke-dasharray: 14 140; animation-duration: 1.6s; opacity: 1; }
-    .spark.dim    { animation-play-state: paused; opacity: 0; }
+    .spark-halo {
+      stroke-width: 6;
+      stroke-dasharray: 28 240;
+      opacity: .95;
+      filter: drop-shadow(0 0 10px currentColor)
+              drop-shadow(0 0 5px currentColor)
+              drop-shadow(0 0 2px currentColor);
+    }
+    .spark-core {
+      stroke: #f8fbff;
+      stroke-width: 2;
+      stroke-dasharray: 22 246;
+      opacity: 1;
+      filter: drop-shadow(0 0 3px #ffffff);
+    }
+    .spark-halo.cross  { animation-duration: 2.8s; stroke-dasharray: 20 200; }
+    .spark-core.cross  { animation-duration: 2.8s; stroke-dasharray: 16 204; }
+    .spark-halo.active { animation-duration: 1.4s; stroke-width: 8; stroke-dasharray: 38 150; }
+    .spark-core.active { animation-duration: 1.4s; stroke-width: 2.6; stroke-dasharray: 32 156; }
+    .spark-halo.dim, .spark-core.dim { animation-play-state: paused; opacity: 0; }
 
     /* Respect users who prefer reduced motion: disable all breathing. */
     @media (prefers-reduced-motion: reduce) {
-      .node circle, .node rect, .edge, .spark, .ping {
+      .node circle, .node rect, .edge, .spark-halo, .spark-core, .ping {
         animation: none !important;
       }
-      .spark, .ping { display: none; }
+      .spark-halo, .spark-core, .ping { display: none; }
     }
 
     .tooltip {
