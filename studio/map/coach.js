@@ -43,7 +43,7 @@
       return;
     }
     const themeId = nodeTheme(node);
-    const themeLabel = themeId ? (M.nodesById.get(themeId)?.label || themeId) : '';
+    const themeLabel = themeId ? (M.nodesById.get('theme:' + themeId)?.label || themeId) : '';
     const tag = node.kind === 'theme' ? (node.tagline || '')
       : node.kind === 'topic' ? `Under ${themeLabel}`
       : node.kind === 'note' ? 'Your note'
@@ -67,7 +67,7 @@
 
   function nodeTheme(n) {
     if (!n) return null;
-    if (n.kind === 'theme')  return n.id;
+    if (n.kind === 'theme')  return n.themeKey;
     if (n.kind === 'topic')  return n.theme;
     if (n.kind === 'phenomenon') {
       const first = (n.topics || [])[0];
@@ -110,7 +110,7 @@
     }
     if (node.kind === 'topic') {
       const themeId = nodeTheme(node);
-      const themeLabel = themeId ? (M.nodesById.get(themeId)?.label || themeId) : 'its theme';
+      const themeLabel = themeId ? (M.nodesById.get('theme:' + themeId)?.label || themeId) : 'its theme';
       return `${node.label} sits under ${themeLabel}. Think of one phenomenon you have observed. In one sentence, what makes it an example of ${node.label}?`;
     }
     if (node.kind === 'note') {
@@ -133,7 +133,7 @@
       `Node kind: ${node.kind}`,
       `Node label: ${node.label}`,
       node.tagline ? `Tagline: ${node.tagline}` : '',
-      node.kind === 'topic' ? `Theme: ${M.nodesById.get(node.theme)?.label}` : '',
+      node.kind === 'topic' ? `Theme: ${M.nodesById.get("theme:" + node.theme)?.label}` : '',
       node.kind === 'phenomenon' ? `Related topics: ${(node.topics || []).map(id => M.nodesById.get(id)?.label).filter(Boolean).join(', ')}` : '',
       node.kind === 'note' ? `Student note body: ${(node.body || '').slice(0, 600)}` : '',
     ].filter(Boolean).join('\n');
@@ -223,7 +223,7 @@
 
     const voice = (window.JglCoach && window.JglCoach.VOICE) || '';
     const themeLabel = node.kind === 'topic' && node.theme
-      ? (M.nodesById.get(node.theme)?.label || node.theme) : '';
+      ? (M.nodesById.get("theme:" + node.theme)?.label || node.theme) : '';
     const context = [
       `Focus node kind: ${node.kind}`,
       `Focus node label: ${node.label}`,

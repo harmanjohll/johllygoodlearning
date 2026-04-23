@@ -119,6 +119,10 @@
 
     // Seed positions on three well-separated rings so the force sim
     // starts from a clean, breathing layout rather than clustered.
+    // Theme node ids are prefixed so they cannot collide with topic
+    // ids (the mega.json topic "diversity" shares the theme id
+    // otherwise, which leaves the Diversity theme orphaned).
+    const themeNodeId = (key) => 'theme:' + key;
     const themes = STATE.data.themes;
     const shortSide = Math.min(STATE.viewport.w, STATE.viewport.h) || 720;
     const rTheme = Math.max(220, shortSide * 0.30);
@@ -126,11 +130,11 @@
     const rPhen  = Math.max(560, shortSide * 0.78);
     themes.forEach((t, i) => {
       const a = (i / themes.length) * Math.PI * 2 - Math.PI / 2;
-      addNode({ id: t.id, kind: 'theme', label: t.label, tagline: t.tagline,
+      addNode({ id: themeNodeId(t.id), themeKey: t.id, kind: 'theme', label: t.label, tagline: t.tagline,
                 x: cx + rTheme * Math.cos(a), y: cy + rTheme * Math.sin(a) });
     });
     STATE.data.topics.forEach((t, i) => {
-      const theme = STATE.nodesById.get(t.theme);
+      const theme = STATE.nodesById.get(themeNodeId(t.theme));
       const sibs = STATE.data.topics.filter(tt => tt.theme === t.theme);
       const idx = sibs.indexOf(t);
       const spread = Math.PI / 2.3; // 80deg fan around the theme
@@ -151,8 +155,9 @@
                 x: cx + rPhen * Math.cos(a), y: cy + rPhen * Math.sin(a) });
     });
 
-    // hierarchy links
-    STATE.data.topics.forEach(t => STATE.links.push({ source: t.theme, target: t.id, type: 'is-a', _hier: true }));
+    // hierarchy links — use the namespaced theme id so the source
+    // resolves to the theme node and not a same-named topic.
+    STATE.data.topics.forEach(t => STATE.links.push({ source: themeNodeId(t.theme), target: t.id, type: 'is-a', _hier: true }));
     STATE.data.phenomena.forEach(p => {
       (p.topics || []).forEach(tid => {
         if (STATE.nodesById.has(tid)) STATE.links.push({ source: tid, target: p.id, type: 'example-of', _hier: true });
@@ -176,7 +181,7 @@
   // ── Helpers ──────────────────────────────────────────────
   function nodeTheme(n) {
     if (!n) return null;
-    if (n.kind === 'theme')  return n.id;
+    if (n.kind === 'theme')  return n.themeKey;
     if (n.kind === 'topic')  return n.theme;
     if (n.kind === 'phenomenon') {
       const first = (n.topics || [])[0];
@@ -224,11 +229,10 @@
     if (STATE.sim) STATE.sim.stop();
     const cx = STATE.viewport.w / 2, cy = STATE.viewport.h / 2;
     STATE.sim = d3.forceSimulation(STATE.nodes)
-      // alphaDecay high so the sim settles in ~2s. Once settled tick()
-      // stops firing, which means the filter rasterisation cost is paid
-      // only during layout + user drag, never per animation frame.
-      .alphaDecay(0.06)
-      .velocityDecay(0.55)
+      // alphaDecay 0.04: enough settle time for a neat layout,
+      // short enough that tick() stops firing quickly afterwards.
+      .alphaDecay(0.04)
+      .velocityDecay(0.5)
       .force('link', d3.forceLink(STATE.links)
         .id(d => d.id)
         .distance(l => l.type === 'is-a' ? 260 : l.type === 'example-of' ? 210 : l.type === 'part-of' ? 230 : 340)
