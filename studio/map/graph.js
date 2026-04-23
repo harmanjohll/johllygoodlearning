@@ -34,11 +34,12 @@
   const svg = d3.select('#svg');
   const tooltipEl = document.getElementById('tooltip');
   const bannerEl = document.getElementById('banner');
-  const rootG = svg.append('g').attr('class', 'root');
-  const edgeG  = rootG.append('g').attr('class', 'edges');
-  const sparkG = rootG.append('g').attr('class', 'sparks');
-  const pingG  = rootG.append('g').attr('class', 'pings');
-  const nodeG  = rootG.append('g').attr('class', 'nodes');
+  const rootG    = svg.append('g').attr('class', 'root');
+  const edgeG    = rootG.append('g').attr('class', 'edges');
+  const haloG    = rootG.append('g').attr('class', 'spark-halos');
+  const coreG    = rootG.append('g').attr('class', 'spark-cores');
+  const pingG    = rootG.append('g').attr('class', 'pings');
+  const nodeG    = rootG.append('g').attr('class', 'nodes');
 
   function setViewport() {
     const r = svg.node().getBoundingClientRect();
@@ -221,10 +222,8 @@
     const a = STATE.nodesById.get(typeof d.source === 'object' ? d.source.id : d.source);
     return nodeColour(a);
   }
-  function sparkClass(d) {
-    if (d.kind === 'note-link') return 'spark note-link';
-    return 'spark' + (isCross(d) ? ' cross' : '');
-  }
+  function haloClass(d) { return 'spark-halo' + (isCross(d) ? ' cross' : '') + (d.kind === 'note-link' ? ' note-link' : ''); }
+  function coreClass(d) { return 'spark-core' + (isCross(d) ? ' cross' : '') + (d.kind === 'note-link' ? ' note-link' : ''); }
 
   function renderEdges() {
     // Threads (muted base line)
@@ -239,21 +238,34 @@
       .attr('class', d => edgeClass(d))
       .attr('stroke', edgeStroke);
 
-    // Synapse sparks: one bright "packet" per edge, same geometry,
-    // theme-coloured like the source. CSS color is set so currentColor
-    // in the drop-shadow filter glows in the theme colour rather than
-    // the inherited grey.
-    const sSel = sparkG.selectAll('path.spark').data(STATE.links, d => keyEdge(d));
-    sSel.exit().remove();
-    const sEnter = sSel.enter().append('path')
-      .attr('class', sparkClass)
+    // Jarvis-style packet: two synced layers per edge.
+    // - halo: wide theme-coloured glow
+    // - core: bright near-white centre line on top
+    // Both share the same per-link animation-delay so they travel
+    // together as a single "hot core + glow" packet.
+    STATE.links.forEach(l => { if (l._sparkDelay == null) l._sparkDelay = Math.random() * -3.6; });
+
+    const hSel = haloG.selectAll('path.spark-halo').data(STATE.links, d => keyEdge(d));
+    hSel.exit().remove();
+    const hEnter = hSel.enter().append('path')
+      .attr('class', haloClass)
       .attr('stroke', edgeStroke)
       .style('color', edgeStroke)
-      .style('animation-delay', () => (Math.random() * -4.8) + 's');
-    sEnter.merge(sSel)
-      .attr('class', sparkClass)
+      .style('animation-delay', d => d._sparkDelay + 's');
+    hEnter.merge(hSel)
+      .attr('class', haloClass)
       .attr('stroke', edgeStroke)
-      .style('color', edgeStroke);
+      .style('color', edgeStroke)
+      .style('animation-delay', d => d._sparkDelay + 's');
+
+    const cSel = coreG.selectAll('path.spark-core').data(STATE.links, d => keyEdge(d));
+    cSel.exit().remove();
+    const cEnter = cSel.enter().append('path')
+      .attr('class', coreClass)
+      .style('animation-delay', d => d._sparkDelay + 's');
+    cEnter.merge(cSel)
+      .attr('class', coreClass)
+      .style('animation-delay', d => d._sparkDelay + 's');
   }
   function edgeClass(d) {
     if (d.kind === 'note-link') return 'edge note-link';
@@ -328,11 +340,11 @@
 
   function tick() {
     edgeG.selectAll('path.edge').attr('d', pathFor);
-    // Mirror the same geometry onto the synapse-spark overlay so the
+    // Mirror the same geometry onto both synapse layers so the
     // bright packet travels along the exact same curve as the thread.
-    sparkG.selectAll('path.spark').attr('d', pathFor);
+    haloG.selectAll('path.spark-halo').attr('d', pathFor);
+    coreG.selectAll('path.spark-core').attr('d', pathFor);
     nodeG.selectAll('g.node').attr('transform', d => `translate(${d.x||0},${d.y||0})`);
-    // Pings follow the focused node.
     pingG.selectAll('circle.ping').attr('transform', d => `translate(${d.x||0},${d.y||0})`);
   }
 
@@ -437,12 +449,11 @@
       }
       el.classed('dim', dim).classed('active', active);
     });
-    // Mirror dim/active onto the synapse-spark overlay so the
-    // bright packets brighten and quicken when their edge is active.
-    sparkG.selectAll('path.spark').each(function (l) {
+    // Mirror dim/active onto the two synapse layers (halo + core) so
+    // the bright packets brighten and quicken when their edge is active.
+    function classifyEdge(l) {
       const s = typeof l.source === 'object' ? l.source.id : l.source;
       const t = typeof l.target === 'object' ? l.target.id : l.target;
-      const el = d3.select(this);
       let dim = false, active = false;
       if (focusIds) {
         const both = focusIds.has(s) && focusIds.has(t);
@@ -451,7 +462,15 @@
       } else if (hasQuery) {
         dim = !(matchIds.has(s) && matchIds.has(t));
       }
-      el.classed('dim', dim).classed('active', active);
+      return { dim, active };
+    }
+    haloG.selectAll('path.spark-halo').each(function (l) {
+      const c = classifyEdge(l);
+      d3.select(this).classed('dim', c.dim).classed('active', c.active);
+    });
+    coreG.selectAll('path.spark-core').each(function (l) {
+      const c = classifyEdge(l);
+      d3.select(this).classed('dim', c.dim).classed('active', c.active);
     });
     renderPing();
   }
