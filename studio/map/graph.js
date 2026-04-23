@@ -168,6 +168,18 @@
   function nodeRadius(n) {
     return n.kind === 'theme' ? 14 : n.kind === 'topic' ? 7 : n.kind === 'note' ? 6 : 3.5;
   }
+  // Collide radius accounts for the label's horizontal extent: long
+  // phenomenon labels (20-30 chars) are much wider than the circle, so
+  // we grow the collider with label length to stop label overlap.
+  function labelColliderRadius(n) {
+    const base = nodeRadius(n);
+    const len  = (n.label || '').length;
+    if (n.kind === 'theme')      return base + 46;
+    if (n.kind === 'topic')      return base + Math.min(34 + len * 1.5, 80);
+    if (n.kind === 'phenomenon') return base + Math.min(32 + len * 2.0, 90);
+    if (n.kind === 'note')       return base + 28;
+    return base + 28;
+  }
   function isCross(l) {
     const a = STATE.nodesById.get(typeof l.source === 'object' ? l.source.id : l.source);
     const b = STATE.nodesById.get(typeof l.target === 'object' ? l.target.id : l.target);
@@ -188,16 +200,16 @@
     if (STATE.sim) STATE.sim.stop();
     const cx = STATE.viewport.w / 2, cy = STATE.viewport.h / 2;
     STATE.sim = d3.forceSimulation(STATE.nodes)
-      .alphaDecay(0.03)
-      .velocityDecay(0.5)
+      .alphaDecay(0.025)
+      .velocityDecay(0.48)
       .force('link', d3.forceLink(STATE.links)
         .id(d => d.id)
-        .distance(l => l.type === 'is-a' ? 170 : l.type === 'example-of' ? 130 : 210)
-        .strength(l => l._hier ? 0.5 : 0.2))
-      .force('charge', d3.forceManyBody().strength(d => d.kind === 'theme' ? -1400 : d.kind === 'topic' ? -600 : -260))
-      .force('collide', d3.forceCollide().radius(d => nodeRadius(d) + 16).strength(0.92))
-      .force('x', d3.forceX(cx).strength(0.015))
-      .force('y', d3.forceY(cy).strength(0.015))
+        .distance(l => l.type === 'is-a' ? 260 : l.type === 'example-of' ? 210 : l.type === 'part-of' ? 230 : 340)
+        .strength(l => l._hier ? 0.42 : 0.15))
+      .force('charge', d3.forceManyBody().strength(d => d.kind === 'theme' ? -2600 : d.kind === 'topic' ? -1100 : -520))
+      .force('collide', d3.forceCollide().radius(labelColliderRadius).strength(0.95))
+      .force('x', d3.forceX(cx).strength(0.006))
+      .force('y', d3.forceY(cy).strength(0.006))
       .on('tick', tick);
   }
 
@@ -211,7 +223,9 @@
         if (d.kind === 'note-link') return NOTE_COLOUR;
         const a = STATE.nodesById.get(typeof d.source === 'object' ? d.source.id : d.source);
         return nodeColour(a);
-      });
+      })
+      // Stagger the "electricity" pulse so the web doesn't beat in unison.
+      .style('animation-delay', () => (Math.random() * -4.5) + 's');
     enter.merge(sel)
       .attr('class', d => edgeClass(d))
       .attr('stroke', d => {
@@ -236,15 +250,20 @@
     const enter = sel.enter().append('g').attr('class', d => 'node ' + d.kind).attr('data-id', d => d.id);
     enter.each(function (d) {
       const g = d3.select(this);
+      // Stagger the node-breathe animation per node so the pulse feels
+      // like a living mesh rather than a synchronised blink.
+      const breatheDelay = (Math.random() * -7) + 's';
       if (d.kind === 'note') {
         g.append('rect')
           .attr('width',  2 * nodeRadius(d))
           .attr('height', 2 * nodeRadius(d))
           .attr('x', -nodeRadius(d))
           .attr('y', -nodeRadius(d))
-          .attr('transform', 'rotate(45)');
+          .attr('transform', 'rotate(45)')
+          .style('animation-delay', breatheDelay);
       } else {
-        g.append('circle').attr('r', nodeRadius(d));
+        g.append('circle').attr('r', nodeRadius(d))
+          .style('animation-delay', breatheDelay);
       }
       g.append('text')
         .attr('text-anchor', 'middle')
