@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emotions & Habits of Learning | Science Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;800&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; background: var(--bg); }
+    .wrap { max-width: 780px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    .hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4rem; }
+    .hd a { font-size: .78rem; color: var(--muted); text-decoration: none; border: 1px solid var(--border); padding: .35rem .7rem; border-radius: 7px; }
+    .hd a:hover { color: var(--accent); border-color: var(--accent); }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: 2.1rem; font-weight: 800;
+      color: var(--text); letter-spacing: -.018em;
+      line-height: 1.08; margin: 0 0 .35rem;
+      background: linear-gradient(135deg, #a78bfa 0%, #38bdf8 55%, #34d399 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .lede {
+      font-size: 1rem; color: var(--text); line-height: 1.6;
+      margin: .2rem 0 2rem; max-width: 640px;
+      font-family: var(--font-body);
+    }
+    .lede em { color: #cbd5e1; font-style: italic; }
+
+    h2 {
+      font-family: var(--font-display);
+      font-size: 1.2rem; font-weight: 700;
+      color: var(--text); margin: 2.4rem 0 .8rem;
+      letter-spacing: -.01em;
+    }
+    h2 .hn {
+      display: inline-block; font-family: var(--font-mono); font-size: .72rem;
+      color: var(--accent); vertical-align: middle;
+      margin-right: .55rem; border: 1px solid var(--accent);
+      padding: .12rem .45rem; border-radius: 5px; letter-spacing: .04em;
+    }
+
+    p { color: var(--text); line-height: 1.65; font-size: .94rem; margin: 0 0 .9rem; }
+    p.muted { color: var(--muted); font-size: .85rem; }
+
+    .pillar {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 12px 12px 0;
+      padding: 1rem 1.2rem 1.05rem; margin-bottom: 1rem;
+    }
+    .pillar .pk { font-size: .6rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; font-weight: 800; }
+    .pillar .pt { font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; margin-top: .15rem; color: var(--text); }
+    .pillar .ps { font-size: .75rem; color: var(--muted); margin-top: .35rem; margin-bottom: .55rem; font-style: italic; }
+    .pillar p { font-size: .92rem; margin: 0 0 .5rem; line-height: 1.62; }
+
+    .derail-grid {
+      display: grid; gap: .85rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-bottom: 1.5rem;
+    }
+    .derail {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: .85rem 1rem;
+    }
+    .derail .dh {
+      font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+      color: var(--text); margin-bottom: .3rem;
+    }
+    .derail p { font-size: .82rem; color: var(--muted); line-height: 1.55; margin: 0; }
+    .derail .tag {
+      display: inline-block; font-size: .62rem; color: var(--accent);
+      text-transform: uppercase; letter-spacing: .08em; font-weight: 700;
+      margin-top: .5rem;
+    }
+
+    .daily {
+      background: linear-gradient(135deg, #1a2a3a 0%, #1e1835 100%);
+      border: 1px solid #a78bfa;
+      border-radius: 14px; padding: 1.2rem 1.4rem;
+      margin: 1.6rem 0 2rem;
+    }
+    .daily h3 { font-family: var(--font-display); margin: 0 0 .5rem; font-size: 1.05rem; color: var(--text); font-weight: 700; }
+    .daily .line {
+      font-family: var(--font-mono); font-size: .86rem; color: #e9d5ff;
+      background: #0b1320cc; padding: .55rem .75rem; border-radius: 7px;
+      margin: .35rem 0; line-height: 1.55;
+    }
+    .daily .lb { font-size: .66rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 800; margin-top: .7rem; display: block; }
+
+    .refs {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1rem 1.1rem 1.15rem;
+      margin-top: 2rem;
+    }
+    .refs h3 { margin: 0 0 .5rem; font-size: .84rem; font-family: var(--font-body); font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .refs ol { margin: 0; padding: 0 0 0 1.2rem; color: var(--text); font-size: .8rem; line-height: 1.55; }
+    .refs ol li { margin: .3rem 0; }
+    .refs ol li em { color: var(--accent); font-style: italic; }
+
+    .cta-row {
+      display: flex; gap: .55rem; flex-wrap: wrap; margin-top: 1.2rem;
+    }
+    .cta-row a { font-size: .78rem; padding: .45rem .9rem; }
+
+    .callout {
+      background: #14251c; border: 1px solid #34d399; color: #6ee7b7;
+      padding: .8rem 1rem; border-radius: 10px; margin: 1rem 0;
+      font-size: .85rem; line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd">
+    <a href="../index.html">← Hub</a>
+    <a href="../compass/index.html">Compass →</a>
+  </div>
+
+  <h1>Emotions &amp; the Habit of Learning</h1>
+  <p class="lede">
+    Cognition is the steering. Emotion is the engine. The best study systems design for the engine first. This page sets out, in plain terms, why how you feel decides what you learn, and how a few small habits make the feeling work <em>with</em> you rather than against you.
+  </p>
+
+  <!-- ────────── PILLARS ────────── -->
+  <h2><span class="hn">1</span>Three pillars</h2>
+  <p class="muted">These are the three habits of emotional self-regulation that, practised together, predict long-run academic achievement better than raw ability on its own.</p>
+
+  <div class="pillar">
+    <div class="pk">Pillar 1</div>
+    <div class="pt">Name it to tame it</div>
+    <div class="ps">Psychology of Learning; Lieberman, 2007</div>
+    <p>
+      When a feeling is labelled in words, the brain takes it down a notch. In Lieberman's fMRI work, simply labelling a felt emotion ("I'm frustrated", "I'm nervous") reduced amygdala reactivity by roughly half. Labelling is not indulgence; it is regulation.
+    </p>
+    <p>
+      The Compass check-in (<em>drained, low, okay, good, strong</em>) does exactly this. It is not a mood score. It is the cheapest, fastest intervention available before a study block. Do it every session, even when the answer is boring.
+    </p>
+  </div>
+
+  <div class="pillar">
+    <div class="pk">Pillar 2</div>
+    <div class="pt">Make it satisfying in the moment</div>
+    <div class="ps">Atomic Habits (Clear, 2018); Tiny Habits (Fogg, 2019)</div>
+    <p>
+      Habits stick when they feel good <em>during</em> or <em>right after</em> the rep, not three weeks later when the test arrives. Clear's fourth law is <em>make it satisfying</em>; Fogg's prescription is <em>celebrate immediately</em>.
+    </p>
+    <p>
+      In practice: when you finish a flashcard, notice the tiny flicker of "got it" before moving on. When you close a Compass session, say the sentence out loud: "I showed up today." Do not wait for PSLE to feel the reward. Waiting for distant rewards is how motivation dies.
+    </p>
+  </div>
+
+  <div class="pillar">
+    <div class="pk">Pillar 3</div>
+    <div class="pt">Forgive yesterday</div>
+    <div class="ps">Academic Tenacity (Dweck, Walton &amp; Cohen, 2014); Atomic Habits, Never Miss Twice</div>
+    <p>
+      <em>Academic tenacity</em> is the tendency to pursue long-term learning goals through short-term setbacks. Dweck, Walton, and Cohen's 2014 paper shows that beliefs about oneself and about setbacks, practised as skills, are the strongest non-cognitive predictors of long-run achievement; they can be taught and shift measurably within a single semester.
+    </p>
+    <p>
+      The practical rule: yesterday is data, not a verdict. Missing one day is noise. Missing two begins the end. If you missed yesterday, today is the recovery, and today is always available.
+    </p>
+  </div>
+
+  <!-- ────────── DERAIL ────────── -->
+  <h2><span class="hn">2</span>When feelings derail study</h2>
+  <p class="muted">Four common states and the smallest sensible response to each. Pattern-match, don't push through.</p>
+
+  <div class="derail-grid">
+    <div class="derail">
+      <div class="dh">Frustration</div>
+      <p>Ninety seconds off the page. Stand up, drink water, look at something 20 feet away. Return to something you have mastered <em>before</em> something new.</p>
+      <span class="tag">Yerkes-Dodson (1908)</span>
+    </div>
+    <div class="derail">
+      <div class="dh">Overwhelm</div>
+      <p>Shrink the unit. Two minutes of anything beats twenty minutes not started. Open one flashcard; the rest will follow.</p>
+      <span class="tag">Clear's 2-minute rule</span>
+    </div>
+    <div class="derail">
+      <div class="dh">Boredom / fluency</div>
+      <p>Bump the challenge. Switch modes or interleave two topics. If the session feels comfortable, you are probably not learning much new.</p>
+      <span class="tag">Csikszentmihalyi; Bjork</span>
+    </div>
+    <div class="derail">
+      <div class="dh">Pre-test anxiety</div>
+      <p>Reframe. "This is my brain getting ready to perform" beats "this is me cracking." Same physiology, different story, measurably different outcome.</p>
+      <span class="tag">McGonigal (2015)</span>
+    </div>
+  </div>
+
+  <!-- ────────── DAILY PAIR ────────── -->
+  <h2><span class="hn">3</span>The one-pager daily pair</h2>
+  <p>Two lines. One before the session, one after. They take less than ten seconds each. They do more work than another hour of drilling.</p>
+
+  <div class="daily">
+    <h3>Before the session</h3>
+    <div class="line">I am feeling ________. One thing that matters to me today is ________.</div>
+    <span class="lb">After the session</span>
+    <div class="line">I showed up. The one thing I will carry into tomorrow is ________.</div>
+  </div>
+
+  <div class="callout">
+    The Compass already captures the "before" line. If you add the "after" line in your own words, in a notebook or in the Vault, you close the loop that turns sessions into a habit rather than a chore.
+  </div>
+
+  <!-- ────────── WHAT IS ACADEMIC TENACITY ────────── -->
+  <h2><span class="hn">4</span>What Academic Tenacity actually is</h2>
+  <p>
+    Dweck, Walton, and Cohen define academic tenacity as the combination of mindsets and skills that allow a student to look beyond short-term concerns and the immediate difficulty of a task in favour of longer-term goals. Three components recur in the literature: <em>self-theories</em> (do I believe ability is fixed or grown?), <em>belonging</em> (do I feel like I belong in this domain?), and <em>purpose</em> (what is this for, beyond the grade?).
+  </p>
+  <p>
+    For a P6 student aiming at AL1 in PSLE Science, tenacity is the quiet multiplier. Ability gets you a pass; tenacity gets you through the fourteen weeks of setbacks between today and the paper. It is coachable. Every session that asks, even briefly, "what matters about this to me?" is tenacity practice.
+  </p>
+
+  <div class="cta-row">
+    <a href="../compass/index.html" class="btn btn-primary">🧭 Open Compass</a>
+    <a href="../mirror/index.html"  class="btn btn-ghost">🪞 See your Mirror</a>
+    <a href="../review/index.html"  class="btn btn-ghost">🔁 Review what is due</a>
+  </div>
+
+  <!-- ────────── REFERENCES ────────── -->
+  <div class="refs">
+    <h3>References</h3>
+    <ol>
+      <li>Clear, J. (2018). <em>Atomic Habits</em>. Avery.</li>
+      <li>Dweck, C. S., Walton, G. M., &amp; Cohen, G. L. (2014). <em>Academic Tenacity: Mindsets and Skills that Promote Long-Term Learning</em>. Bill &amp; Melinda Gates Foundation.</li>
+      <li>Fogg, B. J. (2019). <em>Tiny Habits: The Small Changes that Change Everything</em>. Houghton Mifflin Harcourt.</li>
+      <li>Lieberman, M. D., Eisenberger, N. I., Crockett, M. J., Tom, S. M., Pfeifer, J. H., &amp; Way, B. M. (2007). Putting feelings into words: Affect labeling disrupts amygdala activity in response to affective stimuli. <em>Psychological Science</em>, 18(5), 421–428.</li>
+      <li>McGonigal, K. (2015). <em>The Upside of Stress</em>. Avery.</li>
+      <li>Yerkes, R. M., &amp; Dodson, J. D. (1908). The relation of strength of stimulus to rapidity of habit-formation. <em>Journal of Comparative Neurology and Psychology</em>, 18(5), 459–482.</li>
+      <li>Csikszentmihalyi, M. (1990). <em>Flow: The Psychology of Optimal Experience</em>. Harper &amp; Row.</li>
+      <li>Bjork, R. A. (1994). Institutional impediments to effective training. In D. Druckman &amp; R. Bjork (Eds.), <em>Learning, remembering, believing</em> (pp. 295–306). National Academy Press.</li>
+      <li>Dweck, C. S. (2006). <em>Mindset: The New Psychology of Success</em>. Random House.</li>
+    </ol>
+  </div>
+</div>
+</body>
+</html>

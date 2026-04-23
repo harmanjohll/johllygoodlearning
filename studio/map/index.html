@@ -88,19 +88,33 @@
 
     /* Breathing web: gentle node pulse + electricity flowing along edges */
     @keyframes node-breathe {
-      0%, 100% { filter: drop-shadow(0 0 0   currentColor); }
-      50%      { filter: drop-shadow(0 0 7px currentColor); }
+      0%, 100% { filter: drop-shadow(0 0 2px currentColor); }
+      50%      { filter: drop-shadow(0 0 12px currentColor) drop-shadow(0 0 4px currentColor); }
     }
     .node.theme       circle { animation: node-breathe 5.5s ease-in-out infinite; }
     .node.topic       circle { animation: node-breathe 6.5s ease-in-out infinite; }
-    .node.phenomenon  circle { animation: node-breathe 7.2s ease-in-out infinite; animation-play-state: paused; }
-    .node.focus       circle,
-    .node:hover       circle { animation-play-state: running; }
+    .node.phenomenon  circle { animation: node-breathe 7.2s ease-in-out infinite; }
     .node.note        rect   { animation: node-breathe 7s ease-in-out infinite; }
+    .node.focus       circle,
+    .node:hover       circle { animation-duration: 1.4s; }
 
-    /* Electricity pulse travelling along each edge — a tiny dash
-       moves source-to-target. Subtle at rest (the "breathing web"),
-       bright when its endpoint is focused. */
+    /* Focus ping: a sonar ripple that expands out of the focused
+       node. Rendered as a separate circle in graph.js so it doesn't
+       fight with the node's real radius. */
+    @keyframes focus-ping {
+      0%   { transform: scale(.55); opacity: .9; stroke-width: 2.5; }
+      100% { transform: scale(3.4); opacity: 0;  stroke-width: .4; }
+    }
+    .ping {
+      fill: none;
+      stroke: currentColor;
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: focus-ping 1.7s ease-out infinite;
+      pointer-events: none;
+    }
+
+    /* Base edge thread: very faint, slow dash drift. */
     @keyframes edge-pulse {
       from { stroke-dashoffset: 0; }
       to   { stroke-dashoffset: -120; }
@@ -109,21 +123,41 @@
       stroke-dasharray: 1 14;
       animation: edge-pulse 4.5s linear infinite;
     }
-    .edge.cross {
-      stroke-dasharray: 3 2, 1 10; /* keep the dashed cross-link visual */
-      animation: edge-pulse 3.2s linear infinite;
-    }
-    .edge.active {
-      stroke-dasharray: 4 10;
-      animation: edge-pulse 1.8s linear infinite;
-    }
-    .edge.note-link { stroke-dasharray: 2 8; animation: edge-pulse 3.5s linear infinite; }
+    .edge.cross { stroke-dasharray: 3 10; animation-duration: 3.2s; }
+    .edge.active { stroke-dasharray: 4 10; animation-duration: 1.8s; }
+    .edge.note-link { stroke-dasharray: 2 8; animation-duration: 3.5s; }
     .edge.dim { animation-play-state: paused; }
+
+    /* Synapse spark: a bright "packet" that fires source-to-target
+       along the same path as .edge. Drawn on top, currentColor'd by
+       the source theme, with a glow. Always runs; brighter & faster
+       when the edge is active. */
+    @keyframes synapse {
+      0%   { stroke-dashoffset: 320; opacity: 0; }
+      8%   { opacity: .4; }
+      90%  { opacity: .85; }
+      100% { stroke-dashoffset: -10; opacity: 0; }
+    }
+    .spark {
+      fill: none;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-dasharray: 5 315;
+      animation: synapse 4.8s linear infinite;
+      filter: drop-shadow(0 0 3px currentColor) drop-shadow(0 0 1.2px currentColor);
+      pointer-events: none;
+      opacity: .55;
+    }
+    .spark.cross  { stroke-width: 1.2; stroke-dasharray: 3 220; animation-duration: 3.4s; opacity: .75; }
+    .spark.active { stroke-width: 2.3; stroke-dasharray: 8 140; animation-duration: 1.8s; opacity: 1; }
+    .spark.dim    { animation-play-state: paused; opacity: 0; }
+
     /* Respect users who prefer reduced motion: disable all breathing. */
     @media (prefers-reduced-motion: reduce) {
-      .node circle, .node rect, .edge.pulse, .edge.active, .edge.cross.pulse, .edge.cross.active {
+      .node circle, .node rect, .edge, .spark, .ping {
         animation: none !important;
       }
+      .spark, .ping { display: none; }
     }
 
     .tooltip {
