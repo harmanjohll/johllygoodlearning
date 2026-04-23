@@ -35,8 +35,10 @@
   const tooltipEl = document.getElementById('tooltip');
   const bannerEl = document.getElementById('banner');
   const rootG = svg.append('g').attr('class', 'root');
-  const edgeG = rootG.append('g').attr('class', 'edges');
-  const nodeG = rootG.append('g').attr('class', 'nodes');
+  const edgeG  = rootG.append('g').attr('class', 'edges');
+  const sparkG = rootG.append('g').attr('class', 'sparks');
+  const pingG  = rootG.append('g').attr('class', 'pings');
+  const nodeG  = rootG.append('g').attr('class', 'nodes');
 
   function setViewport() {
     const r = svg.node().getBoundingClientRect();
@@ -214,25 +216,41 @@
   }
 
   // ── Render ───────────────────────────────────────────────
+  function edgeStroke(d) {
+    if (d.kind === 'note-link') return NOTE_COLOUR;
+    const a = STATE.nodesById.get(typeof d.source === 'object' ? d.source.id : d.source);
+    return nodeColour(a);
+  }
+  function sparkClass(d) {
+    if (d.kind === 'note-link') return 'spark note-link';
+    return 'spark' + (isCross(d) ? ' cross' : '');
+  }
+
   function renderEdges() {
+    // Threads (muted base line)
     const sel = edgeG.selectAll('path.edge').data(STATE.links, d => keyEdge(d));
     sel.exit().remove();
     const enter = sel.enter().append('path')
       .attr('class', d => edgeClass(d))
-      .attr('stroke', d => {
-        if (d.kind === 'note-link') return NOTE_COLOUR;
-        const a = STATE.nodesById.get(typeof d.source === 'object' ? d.source.id : d.source);
-        return nodeColour(a);
-      })
-      // Stagger the "electricity" pulse so the web doesn't beat in unison.
+      .attr('stroke', edgeStroke)
+      // Stagger the thread's dash-drift so the whole web isn't in sync.
       .style('animation-delay', () => (Math.random() * -4.5) + 's');
     enter.merge(sel)
       .attr('class', d => edgeClass(d))
-      .attr('stroke', d => {
-        if (d.kind === 'note-link') return NOTE_COLOUR;
-        const a = STATE.nodesById.get(typeof d.source === 'object' ? d.source.id : d.source);
-        return nodeColour(a);
-      });
+      .attr('stroke', edgeStroke);
+
+    // Synapse sparks: one bright "packet" per edge, same geometry,
+    // theme-coloured like the source. Staggered delay so sparks fire
+    // asynchronously. This is the neuron-network animation layer.
+    const sSel = sparkG.selectAll('path.spark').data(STATE.links, d => keyEdge(d));
+    sSel.exit().remove();
+    const sEnter = sSel.enter().append('path')
+      .attr('class', sparkClass)
+      .attr('stroke', edgeStroke)
+      .style('animation-delay', () => (Math.random() * -4.8) + 's');
+    sEnter.merge(sSel)
+      .attr('class', sparkClass)
+      .attr('stroke', edgeStroke);
   }
   function edgeClass(d) {
     if (d.kind === 'note-link') return 'edge note-link';
@@ -287,22 +305,29 @@
     applyFilters();
   }
 
+  function pathFor(d) {
+    const a = typeof d.source === 'object' ? d.source : STATE.nodesById.get(d.source);
+    const b = typeof d.target === 'object' ? d.target : STATE.nodesById.get(d.target);
+    if (!a || !b) return '';
+    if (isCross(d) || d.kind === 'note-link') {
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const nx = -dy, ny = dx;
+      const len = Math.hypot(nx, ny) || 1;
+      const curve = 22;
+      return `M${a.x},${a.y} Q${mx + (nx/len)*curve},${my + (ny/len)*curve} ${b.x},${b.y}`;
+    }
+    return `M${a.x},${a.y} L${b.x},${b.y}`;
+  }
+
   function tick() {
-    edgeG.selectAll('path.edge').attr('d', d => {
-      const a = typeof d.source === 'object' ? d.source : STATE.nodesById.get(d.source);
-      const b = typeof d.target === 'object' ? d.target : STATE.nodesById.get(d.target);
-      if (!a || !b) return '';
-      if (isCross(d) || d.kind === 'note-link') {
-        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-        const dx = b.x - a.x, dy = b.y - a.y;
-        const nx = -dy, ny = dx;
-        const len = Math.hypot(nx, ny) || 1;
-        const curve = 22;
-        return `M${a.x},${a.y} Q${mx + (nx/len)*curve},${my + (ny/len)*curve} ${b.x},${b.y}`;
-      }
-      return `M${a.x},${a.y} L${b.x},${b.y}`;
-    });
+    edgeG.selectAll('path.edge').attr('d', pathFor);
+    // Mirror the same geometry onto the synapse-spark overlay so the
+    // bright packet travels along the exact same curve as the thread.
+    sparkG.selectAll('path.spark').attr('d', pathFor);
     nodeG.selectAll('g.node').attr('transform', d => `translate(${d.x||0},${d.y||0})`);
+    // Pings follow the focused node.
+    pingG.selectAll('circle.ping').attr('transform', d => `translate(${d.x||0},${d.y||0})`);
   }
 
   // ── Interaction ──────────────────────────────────────────
@@ -406,6 +431,45 @@
       }
       el.classed('dim', dim).classed('active', active);
     });
+    // Mirror dim/active onto the synapse-spark overlay so the
+    // bright packets brighten and quicken when their edge is active.
+    sparkG.selectAll('path.spark').each(function (l) {
+      const s = typeof l.source === 'object' ? l.source.id : l.source;
+      const t = typeof l.target === 'object' ? l.target.id : l.target;
+      const el = d3.select(this);
+      let dim = false, active = false;
+      if (focusIds) {
+        const both = focusIds.has(s) && focusIds.has(t);
+        dim = !both;
+        active = both && (s === STATE.focusId || t === STATE.focusId);
+      } else if (hasQuery) {
+        dim = !(matchIds.has(s) && matchIds.has(t));
+      }
+      el.classed('dim', dim).classed('active', active);
+    });
+    renderPing();
+  }
+
+  // Ensures the focus ping exists on the focused node and nowhere
+  // else. Separate so repeated applyFilters calls (e.g. for search)
+  // don't restart its animation unless the focused node has changed.
+  function renderPing() {
+    const want = STATE.focusId || null;
+    const existing = pingG.selectAll('circle.ping');
+    const have = existing.size() ? existing.attr('data-for') : null;
+    if (have === want) return;
+    existing.remove();
+    if (!want) return;
+    const fn = STATE.nodesById.get(want);
+    if (!fn) return;
+    const pingR = Math.max(nodeRadius(fn) + 4, 10);
+    pingG.append('circle')
+      .attr('class', 'ping')
+      .attr('data-for', want)
+      .attr('r', pingR)
+      .attr('stroke', nodeColour(fn))
+      .datum(fn)
+      .attr('transform', `translate(${fn.x||0},${fn.y||0})`);
   }
 
   // ── Zoom / pan ───────────────────────────────────────────

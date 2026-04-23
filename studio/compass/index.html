@@ -259,11 +259,16 @@ function selectMood(m, btn) {
   btn.classList.add('active');
 
   document.getElementById('proposal-card').style.display = '';
-  const modeCopy = m.mode === 'gentle'
+  let modeCopy = m.mode === 'gentle'
       ? `This is a lot. Let us keep it gentle. <strong>${m.minutes} minutes</strong> of revision of something you have already mastered.`
     : m.mode === 'balanced'
       ? `A balanced <strong>${m.minutes}-minute</strong> session. Pick one thing and stay with it.`
-      : `Great. Let us stretch. <strong>${m.minutes} minutes</strong> on something new or synoptic.`;
+      : `Nice. Let us stretch. <strong>${m.minutes} minutes</strong> on something new or synoptic.`;
+  // On low-mood sessions, offer the Emotions & Habits module as a
+  // soft alternative. Name it to tame it before grinding.
+  if (m.mode === 'gentle') {
+    modeCopy += ` <br><span style="font-size:.82rem;color:#cbd5e1;display:inline-block;margin-top:.4rem">Feeling flat? A 3-minute read of <a href="../emotions/index.html" style="color:#a78bfa;font-weight:600">Emotions &amp; Habits</a> before you start often does more than another session.</span>`;
+  }
   document.getElementById('proposal-text').innerHTML = modeCopy;
   document.getElementById('intent-minutes').value = String(m.minutes);
 
