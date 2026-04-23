@@ -34,9 +34,30 @@
   const svg = d3.select('#svg');
   const tooltipEl = document.getElementById('tooltip');
   const bannerEl = document.getElementById('banner');
+
+  // SVG filter defs for neon glow. A single feGaussianBlur + feMerge
+  // referenced by url(#neon-glow) is dramatically cheaper than stacking
+  // CSS drop-shadow filters on hundreds of animated paths; the browser
+  // caches one rasterised glow per element instead of re-filtering on
+  // every tick. Built with d3 append/append to stay in the SVG
+  // namespace (defs.html() with SVG children can hit parser quirks).
+  const defs = svg.append('defs');
+  function buildGlow(id, stdDev, extraMerges) {
+    const f = defs.append('filter')
+      .attr('id', id)
+      .attr('x', '-75%').attr('y', '-75%')
+      .attr('width', '250%').attr('height', '250%');
+    f.append('feGaussianBlur').attr('stdDeviation', stdDev).attr('result', 'b');
+    const merge = f.append('feMerge');
+    for (let i = 0; i < (extraMerges || 1); i++) merge.append('feMergeNode').attr('in', 'b');
+    merge.append('feMergeNode').attr('in', 'SourceGraphic');
+  }
+  buildGlow('neon-glow',      3.2, 2);
+  buildGlow('neon-glow-node', 2.2, 1);
+
   const rootG    = svg.append('g').attr('class', 'root');
   const edgeG    = rootG.append('g').attr('class', 'edges');
-  const haloG    = rootG.append('g').attr('class', 'spark-halos');
+  const haloG    = rootG.append('g').attr('class', 'spark-halos').attr('filter', 'url(#neon-glow)');
   const coreG    = rootG.append('g').attr('class', 'spark-cores');
   const pingG    = rootG.append('g').attr('class', 'pings');
   const nodeG    = rootG.append('g').attr('class', 'nodes');
@@ -203,8 +224,11 @@
     if (STATE.sim) STATE.sim.stop();
     const cx = STATE.viewport.w / 2, cy = STATE.viewport.h / 2;
     STATE.sim = d3.forceSimulation(STATE.nodes)
-      .alphaDecay(0.025)
-      .velocityDecay(0.48)
+      // alphaDecay high so the sim settles in ~2s. Once settled tick()
+      // stops firing, which means the filter rasterisation cost is paid
+      // only during layout + user drag, never per animation frame.
+      .alphaDecay(0.06)
+      .velocityDecay(0.55)
       .force('link', d3.forceLink(STATE.links)
         .id(d => d.id)
         .distance(l => l.type === 'is-a' ? 260 : l.type === 'example-of' ? 210 : l.type === 'part-of' ? 230 : 340)
