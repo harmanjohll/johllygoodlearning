@@ -35,32 +35,12 @@
   const tooltipEl = document.getElementById('tooltip');
   const bannerEl = document.getElementById('banner');
 
-  // SVG filter defs for neon glow. A single feGaussianBlur + feMerge
-  // referenced by url(#neon-glow) is dramatically cheaper than stacking
-  // CSS drop-shadow filters on hundreds of animated paths; the browser
-  // caches one rasterised glow per element instead of re-filtering on
-  // every tick. Built with d3 append/append to stay in the SVG
-  // namespace (defs.html() with SVG children can hit parser quirks).
-  const defs = svg.append('defs');
-  function buildGlow(id, stdDev, extraMerges) {
-    const f = defs.append('filter')
-      .attr('id', id)
-      .attr('x', '-75%').attr('y', '-75%')
-      .attr('width', '250%').attr('height', '250%');
-    f.append('feGaussianBlur').attr('stdDeviation', stdDev).attr('result', 'b');
-    const merge = f.append('feMerge');
-    for (let i = 0; i < (extraMerges || 1); i++) merge.append('feMergeNode').attr('in', 'b');
-    merge.append('feMergeNode').attr('in', 'SourceGraphic');
-  }
-  buildGlow('neon-glow',      3.2, 2);
-  buildGlow('neon-glow-node', 2.2, 1);
-
-  const rootG    = svg.append('g').attr('class', 'root');
-  const edgeG    = rootG.append('g').attr('class', 'edges');
-  const haloG    = rootG.append('g').attr('class', 'spark-halos').attr('filter', 'url(#neon-glow)');
-  const coreG    = rootG.append('g').attr('class', 'spark-cores');
-  const pingG    = rootG.append('g').attr('class', 'pings');
-  const nodeG    = rootG.append('g').attr('class', 'nodes');
+  // NO SVG filters. Group-level feGaussianBlur/feMerge filters
+  // re-rasterise on any reflow inside the viewbox (hover, tooltip,
+  // scroll), which produces the flicker. Static styling only.
+  const rootG = svg.append('g').attr('class', 'root');
+  const edgeG = rootG.append('g').attr('class', 'edges');
+  const nodeG = rootG.append('g').attr('class', 'nodes');
 
   function setViewport() {
     const r = svg.node().getBoundingClientRect();
@@ -250,50 +230,16 @@
     const a = STATE.nodesById.get(typeof d.source === 'object' ? d.source.id : d.source);
     return nodeColour(a);
   }
-  function haloClass(d) { return 'spark-halo' + (isCross(d) ? ' cross' : '') + (d.kind === 'note-link' ? ' note-link' : ''); }
-  function coreClass(d) { return 'spark-core' + (isCross(d) ? ' cross' : '') + (d.kind === 'note-link' ? ' note-link' : ''); }
 
   function renderEdges() {
-    // Threads (muted base line)
     const sel = edgeG.selectAll('path.edge').data(STATE.links, d => keyEdge(d));
     sel.exit().remove();
     const enter = sel.enter().append('path')
       .attr('class', d => edgeClass(d))
-      .attr('stroke', edgeStroke)
-      // Stagger the thread's dash-drift so the whole web isn't in sync.
-      .style('animation-delay', () => (Math.random() * -4.5) + 's');
+      .attr('stroke', edgeStroke);
     enter.merge(sel)
       .attr('class', d => edgeClass(d))
       .attr('stroke', edgeStroke);
-
-    // Jarvis-style packet: two synced layers per edge.
-    // - halo: wide theme-coloured glow
-    // - core: bright near-white centre line on top
-    // Both share the same per-link animation-delay so they travel
-    // together as a single "hot core + glow" packet.
-    STATE.links.forEach(l => { if (l._sparkDelay == null) l._sparkDelay = Math.random() * -3.6; });
-
-    const hSel = haloG.selectAll('path.spark-halo').data(STATE.links, d => keyEdge(d));
-    hSel.exit().remove();
-    const hEnter = hSel.enter().append('path')
-      .attr('class', haloClass)
-      .attr('stroke', edgeStroke)
-      .style('color', edgeStroke)
-      .style('animation-delay', d => d._sparkDelay + 's');
-    hEnter.merge(hSel)
-      .attr('class', haloClass)
-      .attr('stroke', edgeStroke)
-      .style('color', edgeStroke)
-      .style('animation-delay', d => d._sparkDelay + 's');
-
-    const cSel = coreG.selectAll('path.spark-core').data(STATE.links, d => keyEdge(d));
-    cSel.exit().remove();
-    const cEnter = cSel.enter().append('path')
-      .attr('class', coreClass)
-      .style('animation-delay', d => d._sparkDelay + 's');
-    cEnter.merge(cSel)
-      .attr('class', coreClass)
-      .style('animation-delay', d => d._sparkDelay + 's');
   }
   function edgeClass(d) {
     if (d.kind === 'note-link') return 'edge note-link';
@@ -311,20 +257,15 @@
     const enter = sel.enter().append('g').attr('class', d => 'node ' + d.kind).attr('data-id', d => d.id);
     enter.each(function (d) {
       const g = d3.select(this);
-      // Stagger the node-breathe animation per node so the pulse feels
-      // like a living mesh rather than a synchronised blink.
-      const breatheDelay = (Math.random() * -7) + 's';
       if (d.kind === 'note') {
         g.append('rect')
           .attr('width',  2 * nodeRadius(d))
           .attr('height', 2 * nodeRadius(d))
           .attr('x', -nodeRadius(d))
           .attr('y', -nodeRadius(d))
-          .attr('transform', 'rotate(45)')
-          .style('animation-delay', breatheDelay);
+          .attr('transform', 'rotate(45)');
       } else {
-        g.append('circle').attr('r', nodeRadius(d))
-          .style('animation-delay', breatheDelay);
+        g.append('circle').attr('r', nodeRadius(d));
       }
       g.append('text')
         .attr('text-anchor', 'middle')
@@ -368,12 +309,7 @@
 
   function tick() {
     edgeG.selectAll('path.edge').attr('d', pathFor);
-    // Mirror the same geometry onto both synapse layers so the
-    // bright packet travels along the exact same curve as the thread.
-    haloG.selectAll('path.spark-halo').attr('d', pathFor);
-    coreG.selectAll('path.spark-core').attr('d', pathFor);
     nodeG.selectAll('g.node').attr('transform', d => `translate(${d.x||0},${d.y||0})`);
-    pingG.selectAll('circle.ping').attr('transform', d => `translate(${d.x||0},${d.y||0})`);
   }
 
   // ── Interaction ──────────────────────────────────────────
@@ -477,53 +413,8 @@
       }
       el.classed('dim', dim).classed('active', active);
     });
-    // Mirror dim/active onto the two synapse layers (halo + core) so
-    // the bright packets brighten and quicken when their edge is active.
-    function classifyEdge(l) {
-      const s = typeof l.source === 'object' ? l.source.id : l.source;
-      const t = typeof l.target === 'object' ? l.target.id : l.target;
-      let dim = false, active = false;
-      if (focusIds) {
-        const both = focusIds.has(s) && focusIds.has(t);
-        dim = !both;
-        active = both && (s === STATE.focusId || t === STATE.focusId);
-      } else if (hasQuery) {
-        dim = !(matchIds.has(s) && matchIds.has(t));
-      }
-      return { dim, active };
-    }
-    haloG.selectAll('path.spark-halo').each(function (l) {
-      const c = classifyEdge(l);
-      d3.select(this).classed('dim', c.dim).classed('active', c.active);
-    });
-    coreG.selectAll('path.spark-core').each(function (l) {
-      const c = classifyEdge(l);
-      d3.select(this).classed('dim', c.dim).classed('active', c.active);
-    });
-    renderPing();
-  }
-
-  // Ensures the focus ping exists on the focused node and nowhere
-  // else. Separate so repeated applyFilters calls (e.g. for search)
-  // don't restart its animation unless the focused node has changed.
-  function renderPing() {
-    const want = STATE.focusId || null;
-    const existing = pingG.selectAll('circle.ping');
-    const have = existing.size() ? existing.attr('data-for') : null;
-    if (have === want) return;
-    existing.remove();
-    if (!want) return;
-    const fn = STATE.nodesById.get(want);
-    if (!fn) return;
-    const pingR = Math.max(nodeRadius(fn) + 4, 10);
-    pingG.append('circle')
-      .attr('class', 'ping')
-      .attr('data-for', want)
-      .attr('r', pingR)
-      .attr('stroke', nodeColour(fn))
-      .style('color', nodeColour(fn))
-      .datum(fn)
-      .attr('transform', `translate(${fn.x||0},${fn.y||0})`);
+    // Focus brightens the base edge itself via the .active class
+    // on path.edge, through a plain CSS transition. No extra layers.
   }
 
   // ── Zoom / pan ───────────────────────────────────────────
