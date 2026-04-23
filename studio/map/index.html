@@ -86,10 +86,14 @@
     .edge.dim       { opacity: .06; }
     .edge.active    { opacity: 1; stroke-width: 1.6; }
 
-    /* Breathing web: gentle node pulse + electricity flowing along edges */
+    /* Breathing web: gentle node pulse + electricity flowing along
+       edges. currentColor resolves to the inline style="color: ..."
+       set by graph.js, so the halo glows in the node's theme colour. */
     @keyframes node-breathe {
-      0%, 100% { filter: drop-shadow(0 0 2px currentColor); }
-      50%      { filter: drop-shadow(0 0 12px currentColor) drop-shadow(0 0 4px currentColor); }
+      0%, 100% { filter: drop-shadow(0 0 3px currentColor); }
+      50%      { filter: drop-shadow(0 0 18px currentColor)
+                         drop-shadow(0 0 8px currentColor)
+                         drop-shadow(0 0 2px currentColor); }
     }
     .node.theme       circle { animation: node-breathe 5.5s ease-in-out infinite; }
     .node.topic       circle { animation: node-breathe 6.5s ease-in-out infinite; }
@@ -129,27 +133,31 @@
     .edge.dim { animation-play-state: paused; }
 
     /* Synapse spark: a bright "packet" that fires source-to-target
-       along the same path as .edge. Drawn on top, currentColor'd by
-       the source theme, with a glow. Always runs; brighter & faster
-       when the edge is active. */
+       along the same path as .edge. Drawn on top of the muted thread,
+       currentColor-tinted via the inline style="color:..." that
+       graph.js sets to the source theme colour. The glow stack +
+       short bright dash + long gap is what gives the "neuron firing"
+       look. Brighter & faster when the edge is active. */
     @keyframes synapse {
       0%   { stroke-dashoffset: 320; opacity: 0; }
-      8%   { opacity: .4; }
-      90%  { opacity: .85; }
+      6%   { opacity: .9; }
+      94%  { opacity: 1; }
       100% { stroke-dashoffset: -10; opacity: 0; }
     }
     .spark {
       fill: none;
-      stroke-width: 1.6;
+      stroke-width: 2.6;
       stroke-linecap: round;
-      stroke-dasharray: 5 315;
-      animation: synapse 4.8s linear infinite;
-      filter: drop-shadow(0 0 3px currentColor) drop-shadow(0 0 1.2px currentColor);
+      stroke-dasharray: 9 311;
+      animation: synapse 4.5s linear infinite;
+      filter: drop-shadow(0 0 6px currentColor)
+              drop-shadow(0 0 3px currentColor)
+              drop-shadow(0 0 1px currentColor);
       pointer-events: none;
-      opacity: .55;
+      opacity: .85;
     }
-    .spark.cross  { stroke-width: 1.2; stroke-dasharray: 3 220; animation-duration: 3.4s; opacity: .75; }
-    .spark.active { stroke-width: 2.3; stroke-dasharray: 8 140; animation-duration: 1.8s; opacity: 1; }
+    .spark.cross  { stroke-width: 2.2; stroke-dasharray: 6 220; animation-duration: 3.2s; opacity: .9; }
+    .spark.active { stroke-width: 3.6; stroke-dasharray: 14 140; animation-duration: 1.6s; opacity: 1; }
     .spark.dim    { animation-play-state: paused; opacity: 0; }
 
     /* Respect users who prefer reduced motion: disable all breathing. */

@@ -240,17 +240,20 @@
       .attr('stroke', edgeStroke);
 
     // Synapse sparks: one bright "packet" per edge, same geometry,
-    // theme-coloured like the source. Staggered delay so sparks fire
-    // asynchronously. This is the neuron-network animation layer.
+    // theme-coloured like the source. CSS color is set so currentColor
+    // in the drop-shadow filter glows in the theme colour rather than
+    // the inherited grey.
     const sSel = sparkG.selectAll('path.spark').data(STATE.links, d => keyEdge(d));
     sSel.exit().remove();
     const sEnter = sSel.enter().append('path')
       .attr('class', sparkClass)
       .attr('stroke', edgeStroke)
+      .style('color', edgeStroke)
       .style('animation-delay', () => (Math.random() * -4.8) + 's');
     sEnter.merge(sSel)
       .attr('class', sparkClass)
-      .attr('stroke', edgeStroke);
+      .attr('stroke', edgeStroke)
+      .style('color', edgeStroke);
   }
   function edgeClass(d) {
     if (d.kind === 'note-link') return 'edge note-link';
@@ -300,7 +303,10 @@
     all.select('circle, rect')
        .attr('fill', d => d.kind === 'theme' ? '#0b1220' : (d.kind === 'note' ? '#2a1e05' : '#111a2d'))
        .attr('stroke', d => nodeColour(d))
-       .attr('stroke-width', d => d.kind === 'theme' ? 2 : 1.5);
+       .attr('stroke-width', d => d.kind === 'theme' ? 2 : 1.5)
+       // Set CSS color so currentColor in drop-shadow filters resolves
+       // to the theme colour — otherwise the halo is a dim grey.
+       .style('color', d => nodeColour(d));
 
     applyFilters();
   }
@@ -468,6 +474,7 @@
       .attr('data-for', want)
       .attr('r', pingR)
       .attr('stroke', nodeColour(fn))
+      .style('color', nodeColour(fn))
       .datum(fn)
       .attr('transform', `translate(${fn.x||0},${fn.y||0})`);
   }
