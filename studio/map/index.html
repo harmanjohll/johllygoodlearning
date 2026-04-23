@@ -75,7 +75,7 @@
 
     .node.dim circle, .node.dim rect { opacity: .12; }
     .node.dim text { opacity: .18; }
-    .node.focus circle, .node.focus rect { stroke-width: 3; filter: drop-shadow(0 0 5px currentColor); }
+    .node.focus circle, .node.focus rect { stroke-width: 3.5; }
     .node.match circle, .node.match rect { stroke: #fde68a !important; stroke-width: 2.5; }
     .node.pinned circle::after { content:''; }
 
@@ -86,74 +86,11 @@
     .edge.dim       { opacity: .12; }
     .edge.active    { opacity: 1; stroke-width: 2.2; }
 
-    /* Node halo. Static glow only — no breathing animation. The map
-       at rest is calm; only the focused subgraph fires (see .active
-       rules on the spark layers). This keeps the canvas readable and
-       the GPU idle until the student interacts. */
-    .node.theme       circle { filter: url(#neon-glow-node); }
-    .node.topic       circle { filter: url(#neon-glow-node); }
-    .node.focus       circle,
-    .node:hover       circle { filter: url(#neon-glow-node); }
-
-    /* Focus ping: a sonar ripple that expands out of the focused
-       node. Rendered as a separate circle in graph.js so it doesn't
-       fight with the node's real radius. */
-    @keyframes focus-ping {
-      0%   { transform: scale(.7); opacity: .45; stroke-width: 1.4; }
-      100% { transform: scale(2.4); opacity: 0; stroke-width: .3; }
-    }
-    .ping {
-      fill: none;
-      stroke: currentColor;
-      transform-box: fill-box;
-      transform-origin: center;
-      animation: focus-ping 2.4s ease-out infinite;
-      pointer-events: none;
-    }
-
-    /* Base edges: static wires. No dash drift at rest. */
-    .edge.cross { stroke-dasharray: 4 3; }
-
-    /* Jarvis-style synapse packet. Two layers on the same path:
-       - .spark-halo: wide theme-coloured glow (outer glow)
-       - .spark-core: bright near-white centre line (hot core)
-       Same animation cycle, identical animation-delay (set per-link
-       in graph.js) so the halo and core move together as one packet.
-    */
-    @keyframes synapse {
-      0%   { stroke-dashoffset: 320; opacity: 0; }
-      4%   { opacity: 1; }
-      96%  { opacity: 1; }
-      100% { stroke-dashoffset: -10; opacity: 0; }
-    }
-    /* Two-layer packet. Invisible at rest. On focus, a very subtle
-       pulse travels along each connected edge. Thin strokes, low
-       opacity, slow cycle — closer to a trickle than a Jarvis beam. */
-    .spark-halo, .spark-core {
-      fill: none;
-      pointer-events: none;
-      stroke-linecap: round;
-      opacity: 0;
-    }
-    .spark-halo { stroke-width: 2;   stroke-dasharray: 10 190; }
-    .spark-core { stroke: #f8fbff; stroke-width: 1; stroke-dasharray: 7 193; }
-    .spark-halo.active {
-      animation: synapse 2.6s linear infinite;
-      opacity: .4;
-    }
-    .spark-core.active {
-      animation: synapse 2.6s linear infinite;
-      opacity: .6;
-    }
-    .spark-halo.dim, .spark-core.dim { animation: none; opacity: 0; }
-
-    /* Respect users who prefer reduced motion: disable all breathing. */
-    @media (prefers-reduced-motion: reduce) {
-      .node circle, .node rect, .edge, .spark-halo, .spark-core, .ping {
-        animation: none !important;
-      }
-      .spark-halo, .spark-core, .ping { display: none; }
-    }
+    /* Fully static. No SVG filters, no keyframes, no per-frame work.
+       Focus effect is a plain CSS transition already on .edge above:
+       .active bumps opacity to 1 and stroke-width to 2.2px.
+       The node circle already gets a thicker stroke via .node.focus
+       in the base rules. That is the entire focus feedback. */
 
     .tooltip {
       position: absolute; pointer-events: none;
