@@ -86,20 +86,14 @@
     .edge.dim       { opacity: .12; }
     .edge.active    { opacity: 1; stroke-width: 2.2; }
 
-    /* Node halo. Filter applied via the SVG <filter id="neon-glow-node">
-       rather than a CSS drop-shadow stack — cheaper per frame. The
-       node-breathe animation now modulates the stroke-opacity instead
-       of the drop-shadow blur so the sim doesn't jitter under load. */
-    @keyframes node-breathe {
-      0%, 100% { stroke-opacity: .75; }
-      50%      { stroke-opacity: 1;   }
-    }
-    .node.theme       circle { animation: node-breathe 5.5s ease-in-out infinite; filter: url(#neon-glow-node); }
-    .node.topic       circle { animation: node-breathe 6.5s ease-in-out infinite; filter: url(#neon-glow-node); }
-    .node.phenomenon  circle { animation: node-breathe 7.2s ease-in-out infinite; }
-    .node.note        rect   { animation: node-breathe 7s ease-in-out infinite; }
+    /* Node halo. Static glow only — no breathing animation. The map
+       at rest is calm; only the focused subgraph fires (see .active
+       rules on the spark layers). This keeps the canvas readable and
+       the GPU idle until the student interacts. */
+    .node.theme       circle { filter: url(#neon-glow-node); }
+    .node.topic       circle { filter: url(#neon-glow-node); }
     .node.focus       circle,
-    .node:hover       circle { animation-duration: 1.4s; filter: url(#neon-glow-node); }
+    .node:hover       circle { filter: url(#neon-glow-node); }
 
     /* Focus ping: a sonar ripple that expands out of the focused
        node. Rendered as a separate circle in graph.js so it doesn't
@@ -117,15 +111,8 @@
       pointer-events: none;
     }
 
-    /* Base edge: solid, visible, slow dash-drift. This is the "wire". */
-    @keyframes edge-pulse {
-      from { stroke-dashoffset: 0; }
-      to   { stroke-dashoffset: -60; }
-    }
-    .edge { animation: edge-pulse 5s linear infinite; }
-    .edge.cross    { animation-duration: 3.5s; }
-    .edge.active   { animation-duration: 1.8s; }
-    .edge.dim      { animation-play-state: paused; }
+    /* Base edges: static wires. No dash drift at rest. */
+    .edge.cross { stroke-dasharray: 4 3; }
 
     /* Jarvis-style synapse packet. Two layers on the same path:
        - .spark-halo: wide theme-coloured glow (outer glow)
@@ -139,31 +126,27 @@
       96%  { opacity: 1; }
       100% { stroke-dashoffset: -10; opacity: 0; }
     }
-    /* Two-layer packet. The halo's <g filter="url(#neon-glow)"> in
-       graph.js does the glow once per element (GPU-cached), so the
-       packet stays crisp while the force sim moves paths around. */
+    /* Two-layer packet. INVISIBLE at rest. Only fires when an edge is
+       .active (its endpoint is the focused node). Keeps the map calm
+       and removes ~170 continuously-animated paths from the GPU
+       budget. The halo's <g filter="url(#neon-glow)"> in graph.js does
+       the glow once per element. */
     .spark-halo, .spark-core {
       fill: none;
       pointer-events: none;
-      animation: synapse 3.6s linear infinite;
       stroke-linecap: round;
+      opacity: 0;          /* invisible at rest */
     }
-    .spark-halo {
-      stroke-width: 3.5;
-      stroke-dasharray: 20 260;
-      opacity: .95;
-    }
-    .spark-core {
-      stroke: #f8fbff;
-      stroke-width: 1.6;
-      stroke-dasharray: 16 264;
+    .spark-halo { stroke-width: 4;   stroke-dasharray: 28 160; }
+    .spark-core { stroke: #f8fbff; stroke-width: 1.8; stroke-dasharray: 22 166; }
+    .spark-halo.active,
+    .spark-core.active {
+      animation: synapse 1.6s linear infinite;
       opacity: 1;
     }
-    .spark-halo.cross  { animation-duration: 2.8s; stroke-dasharray: 14 220; }
-    .spark-core.cross  { animation-duration: 2.8s; stroke-dasharray: 11 224; }
-    .spark-halo.active { animation-duration: 1.4s; stroke-width: 5;   stroke-dasharray: 30 160; }
-    .spark-core.active { animation-duration: 1.4s; stroke-width: 2.2; stroke-dasharray: 24 166; }
-    .spark-halo.dim, .spark-core.dim { animation-play-state: paused; opacity: 0; }
+    .spark-halo.active { stroke-width: 5; }
+    .spark-core.active { stroke-width: 2.2; }
+    .spark-halo.dim, .spark-core.dim { animation: none; opacity: 0; }
 
     /* Respect users who prefer reduced motion: disable all breathing. */
     @media (prefers-reduced-motion: reduce) {
