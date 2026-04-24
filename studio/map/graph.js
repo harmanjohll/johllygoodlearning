@@ -38,9 +38,14 @@
   // NO SVG filters. Group-level feGaussianBlur/feMerge filters
   // re-rasterise on any reflow inside the viewbox (hover, tooltip,
   // scroll), which produces the flicker. Static styling only.
-  const rootG = svg.append('g').attr('class', 'root');
-  const edgeG = rootG.append('g').attr('class', 'edges');
-  const nodeG = rootG.append('g').attr('class', 'nodes');
+  const rootG   = svg.append('g').attr('class', 'root');
+  const edgeG   = rootG.append('g').attr('class', 'edges');
+  // Signal overlay: one invisible path per edge, sharing the edge's
+  // geometry. When fired, a bright dot sweeps it from source→target.
+  // Drawn above edges, below nodes, so signals glide across wires but
+  // don't occlude the nodes themselves.
+  const signalG = rootG.append('g').attr('class', 'signals');
+  const nodeG   = rootG.append('g').attr('class', 'nodes');
 
   function setViewport() {
     const r = svg.node().getBoundingClientRect();
@@ -246,31 +251,37 @@
   }
 
   // ── Random idle synapse firing ───────────────────────────
-  // When nothing is focused, pick a random edge every ~900ms and
-  // fire a one-shot packet along it via the .firing CSS class. Each
-  // firing runs a single animation and cleans itself up on
-  // animationend. At any moment, at most 1-2 of ~80 edges are
-  // animating, and always briefly — zero continuous load.
+  // When nothing is focused, periodically pick a handful of random
+  // signal paths and fire them. Each .firing class runs a one-shot
+  // CSS animation (a bright dot sweeps source→target) and auto-
+  // removes via animationend { once: true }. With ~450ms interval
+  // and 1.15s animation duration, typically 2-5 signals are in
+  // flight simultaneously — the "brain idling" feel.
   let idleTimer = null;
   function startIdleFiring() {
     if (idleTimer || STATE.focusId) return;
-    const tick = () => {
+    const schedule = () => {
       if (STATE.focusId) { stopIdleFiring(); return; }
-      const paths = edgeG.selectAll('path.edge').nodes()
+      const paths = signalG.selectAll('path.signal').nodes()
         .filter(el => !el.classList.contains('firing'));
       if (paths.length) {
-        const el = paths[Math.floor(Math.random() * paths.length)];
-        el.classList.add('firing');
-        el.addEventListener('animationend', () => el.classList.remove('firing'), { once: true });
+        // Fire 1-3 new signals per tick (jittered). Combined with the
+        // 1.15s animation, peak concurrency lands around 3-5.
+        const burst = 1 + Math.floor(Math.random() * 3);
+        for (let i = 0; i < burst && paths.length; i++) {
+          const idx = Math.floor(Math.random() * paths.length);
+          const el = paths.splice(idx, 1)[0];
+          el.classList.add('firing');
+          el.addEventListener('animationend', () => el.classList.remove('firing'), { once: true });
+        }
       }
-      // Jitter the interval so firings don't feel metronomic.
-      idleTimer = setTimeout(tick, 600 + Math.random() * 900);
+      idleTimer = setTimeout(schedule, 350 + Math.random() * 450);
     };
-    idleTimer = setTimeout(tick, 400);
+    idleTimer = setTimeout(schedule, 400);
   }
   function stopIdleFiring() {
     if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
-    edgeG.selectAll('path.edge.firing').each(function () { this.classList.remove('firing'); });
+    signalG.selectAll('path.signal.firing').each(function () { this.classList.remove('firing'); });
   }
 
   // ── Render ───────────────────────────────────────────────
@@ -289,6 +300,13 @@
     enter.merge(sel)
       .attr('class', d => edgeClass(d))
       .attr('stroke', edgeStroke);
+
+    // Mirror into the signal overlay layer. Same data key, same
+    // geometry on tick, but a dedicated path so we can animate the
+    // signal independently of the wire.
+    const sSel = signalG.selectAll('path.signal').data(STATE.links, d => keyEdge(d));
+    sSel.exit().remove();
+    sSel.enter().append('path').attr('class', 'signal');
   }
   function edgeClass(d) {
     if (d.kind === 'note-link') return 'edge note-link';
@@ -358,6 +376,7 @@
 
   function tick() {
     edgeG.selectAll('path.edge').attr('d', pathFor);
+    signalG.selectAll('path.signal').attr('d', pathFor); // same geometry as edge
     nodeG.selectAll('g.node').attr('transform', d => `translate(${d.x||0},${d.y||0})`);
   }
 

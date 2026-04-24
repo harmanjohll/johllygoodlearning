@@ -102,23 +102,31 @@
        On focus: everything goes static. No pulses, no animations on
        the focused subgraph. Calm anchor for reading. */
 
-    /* Random idle synapse firing. A single bright packet travels from
-       source to target along the edge. Gap is much larger than any
-       realistic edge length (400px) so only ONE dot is ever on the
-       path — no repeating dashes, just one signal travelling across.
-       Packet fades in at source, bright through the middle, fades out
-       past target. One-shot; .firing class auto-removes on animationend. */
-    @keyframes synapse-fire {
-      0%   { stroke-dashoffset:   10; opacity: 0; stroke-width: 1.2; }
-      12%  { opacity: 1; stroke-width: 3; }
-      85%  { opacity: 1; stroke-width: 3; }
-      100% { stroke-dashoffset: -420; opacity: 0; stroke-width: 1.2; }
-    }
-    .edge.firing, .edge.cross.firing, .edge.note-link.firing {
-      stroke-dasharray: 6 420;
+    /* Signal overlay layer. One .signal path per edge shares geometry
+       with the base .edge but sits on top and is invisible by default.
+       On .firing it runs a one-shot animation that sweeps a single
+       bright dot from source to target. The base edge underneath is
+       never touched — dashed cross-edges stay dashed, solid edges
+       stay solid, the signal just flies over them like a packet on a
+       wire. Up to ~5 signals can be firing at once (independent
+       paths, independent animation-end listeners). */
+    .signal {
+      fill: none;
+      stroke: #f8fbff;             /* near-white for unambiguous signal */
+      stroke-width: 3;
       stroke-linecap: round;
-      animation: synapse-fire 1.1s linear;
+      stroke-dasharray: 6 460;     /* gap larger than any real edge */
+      stroke-dashoffset: 10;
+      opacity: 0;
+      pointer-events: none;
     }
+    @keyframes signal-fire {
+      0%   { stroke-dashoffset:   10; opacity: 0; }
+      10%  { opacity: 1; }
+      88%  { opacity: 1; }
+      100% { stroke-dashoffset: -460; opacity: 0; }
+    }
+    .signal.firing { animation: signal-fire 1.15s linear; }
     .node.match circle, .node.match rect { stroke: #fde68a !important; stroke-width: 2.5; }
     .node.pinned circle::after { content:''; }
 
