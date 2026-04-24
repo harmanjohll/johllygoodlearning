@@ -238,7 +238,39 @@
       // Radial: the strong structural force. Each kind orbits its
       // own ring around (cx, cy). Replaces the old x/y centre pulls.
       .force('radial', d3.forceRadial(radiusFor, cx, cy).strength(0.18))
-      .on('tick', tick);
+      .on('tick', tick)
+      // When the simulation cools (nodes settle), start the idle
+      // synapse firing. While the sim is hot, path.d is being rewritten
+      // every frame; don't compound that with a dashoffset animation.
+      .on('end', () => { if (!STATE.focusId) startIdleFiring(); });
+  }
+
+  // ── Random idle synapse firing ───────────────────────────
+  // When nothing is focused, pick a random edge every ~900ms and
+  // fire a one-shot packet along it via the .firing CSS class. Each
+  // firing runs a single animation and cleans itself up on
+  // animationend. At any moment, at most 1-2 of ~80 edges are
+  // animating, and always briefly — zero continuous load.
+  let idleTimer = null;
+  function startIdleFiring() {
+    if (idleTimer || STATE.focusId) return;
+    const tick = () => {
+      if (STATE.focusId) { stopIdleFiring(); return; }
+      const paths = edgeG.selectAll('path.edge').nodes()
+        .filter(el => !el.classList.contains('firing'));
+      if (paths.length) {
+        const el = paths[Math.floor(Math.random() * paths.length)];
+        el.classList.add('firing');
+        el.addEventListener('animationend', () => el.classList.remove('firing'), { once: true });
+      }
+      // Jitter the interval so firings don't feel metronomic.
+      idleTimer = setTimeout(tick, 600 + Math.random() * 900);
+    };
+    idleTimer = setTimeout(tick, 400);
+  }
+  function stopIdleFiring() {
+    if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+    edgeG.selectAll('path.edge.firing').each(function () { this.classList.remove('firing'); });
   }
 
   // ── Render ───────────────────────────────────────────────
@@ -386,12 +418,14 @@
   function focusNode(id) {
     STATE.focusId = id;
     applyFilters();
+    stopIdleFiring(); // calm anchor while reading a focused node
     const n = STATE.nodesById.get(id);
     if (STATE.hooks.onFocus) STATE.hooks.onFocus(n);
   }
   function clearFocus() {
     STATE.focusId = null;
     applyFilters();
+    startIdleFiring(); // let the brain idle again
     if (STATE.hooks.onFocus) STATE.hooks.onFocus(null);
   }
 
@@ -594,9 +628,10 @@
 
     window.addEventListener('resize', () => {
       setViewport();
-      STATE.sim.force('x').x(STATE.viewport.w / 2);
-      STATE.sim.force('y').y(STATE.viewport.h / 2);
-      STATE.sim.alpha(0.25).restart();
+      // Re-init the sim so forceRadial pulls new ring radii from the
+      // fresh viewport dimensions, then let it settle briefly.
+      initSim();
+      STATE.sim.alpha(0.3).restart();
     });
 
     // Ask vault.js + coach.js to hydrate if they loaded

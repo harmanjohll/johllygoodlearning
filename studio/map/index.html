@@ -97,23 +97,24 @@
 
     /* Animation budget intentionally small and safe:
        1. .canvas-wrap::before — one ambient gradient breath (9s, GPU layer)
-       2. .edge.active         — synapse pulse only on the focused
-                                 subgraph (~2-10 edges typically, not 80)
-       No SVG filters anywhere. No animations on unfocused edges. */
+       2. .edge.firing         — random idle synapse firing (one-shot,
+                                 1-2 edges at any moment, self-cleaning)
+       On focus: everything goes static. No pulses, no animations on
+       the focused subgraph. Calm anchor for reading. */
 
-    /* Synapse pulse: plain stroke-dashoffset on the already-present
-       .edge path. No extra layer, no filter, no glow stack. Runs only
-       on .active (the focused node's connected edges), so the number
-       of animated elements is tiny. This is the pattern that's safe
-       by construction — same geometry as the static edge, just a
-       moving dash. */
-    @keyframes edge-synapse {
-      from { stroke-dashoffset: 0; }
-      to   { stroke-dashoffset: -40; }
+    /* Random idle synapse firing. A one-shot packet travels along a
+       random edge, then the .firing class auto-removes via
+       animationend. At any moment only 1-2 of ~80 edges are animating,
+       and always briefly. This is the "neurons idling" feel without
+       continuous load on the GPU. */
+    @keyframes synapse-fire {
+      0%   { stroke-dashoffset: 36; stroke-width: 1.6; opacity: .9; }
+      45%  { stroke-dashoffset: 0;  stroke-width: 2.2; opacity: 1;   }
+      100% { stroke-dashoffset: -14; stroke-width: 1.2; opacity: .55; }
     }
-    .edge.active {
+    .edge.firing {
       stroke-dasharray: 5 14;
-      animation: edge-synapse 1.9s linear infinite;
+      animation: synapse-fire 1.25s ease-out;
     }
     .node.match circle, .node.match rect { stroke: #fde68a !important; stroke-width: 2.5; }
     .node.pinned circle::after { content:''; }
