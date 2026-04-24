@@ -95,15 +95,26 @@
     .node.dim text { opacity: .18; }
     .node.focus circle, .node.focus rect { stroke-width: 3.5; }
 
-    /* One-shot pop on the focused node: runs once when the .focus
-       class is added (i.e. when a node is clicked), then stops. Single
-       element at a time, no infinite loop, no SVG filter — safe. */
-    @keyframes focus-pop {
-      0%   { stroke-width: 1.5; }
-      55%  { stroke-width: 5;   }
-      100% { stroke-width: 3.5; }
+    /* Animation budget intentionally small and safe:
+       1. .canvas-wrap::before — one ambient gradient breath (9s, GPU layer)
+       2. .edge.active         — synapse pulse only on the focused
+                                 subgraph (~2-10 edges typically, not 80)
+       No SVG filters anywhere. No animations on unfocused edges. */
+
+    /* Synapse pulse: plain stroke-dashoffset on the already-present
+       .edge path. No extra layer, no filter, no glow stack. Runs only
+       on .active (the focused node's connected edges), so the number
+       of animated elements is tiny. This is the pattern that's safe
+       by construction — same geometry as the static edge, just a
+       moving dash. */
+    @keyframes edge-synapse {
+      from { stroke-dashoffset: 0; }
+      to   { stroke-dashoffset: -40; }
     }
-    .node.focus circle { animation: focus-pop .65s ease-out; }
+    .edge.active {
+      stroke-dasharray: 5 14;
+      animation: edge-synapse 1.9s linear infinite;
+    }
     .node.match circle, .node.match rect { stroke: #fde68a !important; stroke-width: 2.5; }
     .node.pinned circle::after { content:''; }
 

@@ -208,19 +208,36 @@
   function initSim() {
     if (STATE.sim) STATE.sim.stop();
     const cx = STATE.viewport.w / 2, cy = STATE.viewport.h / 2;
+    // Radial targets: each node kind is pulled toward its own ring
+    // around the canvas centre. This keeps the hierarchy legible
+    // (themes inside, topics middle, phenomena outside) no matter how
+    // many cross-theme links tug at specific nodes.
+    const shortSide = Math.min(STATE.viewport.w, STATE.viewport.h) || 720;
+    const rTheme = Math.max(150, shortSide * 0.18);
+    const rTopic = Math.max(290, shortSide * 0.36);
+    const rPhen  = Math.max(440, shortSide * 0.54);
+    const radiusFor = d => d.kind === 'theme' ? rTheme
+                         : d.kind === 'topic' ? rTopic
+                         : d.kind === 'phenomenon' ? rPhen
+                         : rTopic;
+
     STATE.sim = d3.forceSimulation(STATE.nodes)
-      // alphaDecay 0.04: enough settle time for a neat layout,
-      // short enough that tick() stops firing quickly afterwards.
+      // alphaDecay 0.04: neat settle in ~3s, then tick() stops firing.
       .alphaDecay(0.04)
-      .velocityDecay(0.5)
+      .velocityDecay(0.55)
+      // Shorter link distances pull connected nodes together. The
+      // long cross-theme distance was the main cause of giant
+      // diagonal crossings across the whole canvas.
       .force('link', d3.forceLink(STATE.links)
         .id(d => d.id)
-        .distance(l => l.type === 'is-a' ? 260 : l.type === 'example-of' ? 210 : l.type === 'part-of' ? 230 : 340)
-        .strength(l => l._hier ? 0.42 : 0.15))
-      .force('charge', d3.forceManyBody().strength(d => d.kind === 'theme' ? -2600 : d.kind === 'topic' ? -1100 : -520))
-      .force('collide', d3.forceCollide().radius(labelColliderRadius).strength(0.95))
-      .force('x', d3.forceX(cx).strength(0.006))
-      .force('y', d3.forceY(cy).strength(0.006))
+        .distance(l => l.type === 'is-a' ? 150 : l.type === 'example-of' ? 120 : l.type === 'part-of' ? 140 : 180)
+        .strength(l => l._hier ? 0.7 : 0.25))
+      // Weaker repulsion so the radial force can hold its rings.
+      .force('charge', d3.forceManyBody().strength(d => d.kind === 'theme' ? -1400 : d.kind === 'topic' ? -600 : -260))
+      .force('collide', d3.forceCollide().radius(labelColliderRadius).strength(0.92))
+      // Radial: the strong structural force. Each kind orbits its
+      // own ring around (cx, cy). Replaces the old x/y centre pulls.
+      .force('radial', d3.forceRadial(radiusFor, cx, cy).strength(0.18))
       .on('tick', tick);
   }
 
