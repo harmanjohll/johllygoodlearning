@@ -102,19 +102,22 @@
        On focus: everything goes static. No pulses, no animations on
        the focused subgraph. Calm anchor for reading. */
 
-    /* Random idle synapse firing. A one-shot packet travels along a
-       random edge, then the .firing class auto-removes via
-       animationend. At any moment only 1-2 of ~80 edges are animating,
-       and always briefly. This is the "neurons idling" feel without
-       continuous load on the GPU. */
+    /* Random idle synapse firing. A single bright packet travels from
+       source to target along the edge. Gap is much larger than any
+       realistic edge length (400px) so only ONE dot is ever on the
+       path — no repeating dashes, just one signal travelling across.
+       Packet fades in at source, bright through the middle, fades out
+       past target. One-shot; .firing class auto-removes on animationend. */
     @keyframes synapse-fire {
-      0%   { stroke-dashoffset: 36; stroke-width: 1.6; opacity: .9; }
-      45%  { stroke-dashoffset: 0;  stroke-width: 2.2; opacity: 1;   }
-      100% { stroke-dashoffset: -14; stroke-width: 1.2; opacity: .55; }
+      0%   { stroke-dashoffset:   10; opacity: 0; stroke-width: 1.2; }
+      12%  { opacity: 1; stroke-width: 3; }
+      85%  { opacity: 1; stroke-width: 3; }
+      100% { stroke-dashoffset: -420; opacity: 0; stroke-width: 1.2; }
     }
-    .edge.firing {
-      stroke-dasharray: 5 14;
-      animation: synapse-fire 1.25s ease-out;
+    .edge.firing, .edge.cross.firing, .edge.note-link.firing {
+      stroke-dasharray: 6 420;
+      stroke-linecap: round;
+      animation: synapse-fire 1.1s linear;
     }
     .node.match circle, .node.match rect { stroke: #fde68a !important; stroke-width: 2.5; }
     .node.pinned circle::after { content:''; }
