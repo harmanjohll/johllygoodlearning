@@ -53,6 +53,24 @@
       position: relative; overflow: hidden;
       background: radial-gradient(circle at 50% 45%, #11192b 0%, #0a0f1d 75%);
     }
+    /* Ambient breath: a single soft radial gradient on a pseudo-element
+       gently fading in and out. One element, no SVG filter, no per-tick
+       paint — just GPU-compositable opacity on a static layer. Brings
+       life without touching the graph. */
+    @keyframes ambient-breath {
+      0%, 100% { opacity: .5; }
+      50%      { opacity: 1;  }
+    }
+    .canvas-wrap::before {
+      content: '';
+      position: absolute; inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(56, 189, 248, .06) 0%, transparent 55%),
+        radial-gradient(circle at 30% 80%, rgba(167, 139, 250, .04) 0%, transparent 50%),
+        radial-gradient(circle at 75% 25%, rgba(52, 211, 153, .035) 0%, transparent 50%);
+      animation: ambient-breath 9s ease-in-out infinite;
+    }
     #svg { width: 100%; height: 100%; display: block; touch-action: none; cursor: default; }
     #svg.linking { cursor: crosshair; }
 
@@ -76,21 +94,31 @@
     .node.dim circle, .node.dim rect { opacity: .12; }
     .node.dim text { opacity: .18; }
     .node.focus circle, .node.focus rect { stroke-width: 3.5; }
+
+    /* One-shot pop on the focused node: runs once when the .focus
+       class is added (i.e. when a node is clicked), then stops. Single
+       element at a time, no infinite loop, no SVG filter — safe. */
+    @keyframes focus-pop {
+      0%   { stroke-width: 1.5; }
+      55%  { stroke-width: 5;   }
+      100% { stroke-width: 3.5; }
+    }
+    .node.focus circle { animation: focus-pop .65s ease-out; }
     .node.match circle, .node.match rect { stroke: #fde68a !important; stroke-width: 2.5; }
     .node.pinned circle::after { content:''; }
 
-    .edge { fill: none; stroke-width: 1.2; opacity: .55; transition: opacity .12s, stroke-width .12s; }
+    .edge { fill: none; stroke-width: 1.2; opacity: .55; transition: opacity .35s ease, stroke-width .35s ease; }
     .edge.cross     { stroke-dasharray: 4 3; }
     .edge.note-link { stroke: #fbbf24; stroke-width: 1.4; opacity: .8; }
     .edge.temp-link { stroke: #fde68a; stroke-width: 1.5; stroke-dasharray: 4 3; opacity: .95; }
     .edge.dim       { opacity: .12; }
     .edge.active    { opacity: 1; stroke-width: 2.2; }
 
-    /* Fully static. No SVG filters, no keyframes, no per-frame work.
-       Focus effect is a plain CSS transition already on .edge above:
-       .active bumps opacity to 1 and stroke-width to 2.2px.
-       The node circle already gets a thicker stroke via .node.focus
-       in the base rules. That is the entire focus feedback. */
+    /* Animation budget intentionally tiny:
+       1. .canvas-wrap::before — one ambient gradient breath (9s, GPU layer)
+       2. .node.focus circle    — one-shot pop on focus (0.65s, single element)
+       3. .edge transition      — smoother fade when .active toggles (0.35s)
+       Nothing else animates. No SVG filters anywhere. */
 
     .tooltip {
       position: absolute; pointer-events: none;
