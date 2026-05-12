@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topik | PSLE Bahasa Melayu Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../style.css">
+  <script src="https://unpkg.com/d3@7/dist/d3.min.js"></script>
+  <style>
+    body { padding: 0; }
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: .9rem 1.5rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .back-link {
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border); border-radius: 7px;
+      padding: .35rem .75rem; font-size: .8rem; cursor: pointer;
+      font-weight: 600;
+    }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    .topic-color-bar { width: 4px; height: 36px; border-radius: 3px; flex-shrink: 0; }
+    .topic-title-wrap { flex: 1; min-width: 200px; }
+    .topic-title-wrap h1 { font-size: 1.3rem; line-height: 1.2; margin-bottom: .3rem; }
+    .topic-meta-pills { display: flex; gap: .35rem; flex-wrap: wrap; }
+    .topic-mastery { display: flex; flex-direction: column; align-items: center; gap: .15rem; }
+    .mastery-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 700; }
+
+    main { max-width: 980px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+
+    .tab-nav { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+
+    .pel-section { margin-bottom: 1.5rem; padding: 1.1rem 1.25rem; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
+    .pel-section h3 { font-size: .92rem; margin-bottom: .75rem; color: var(--accent); letter-spacing: .03em; text-transform: uppercase; font-weight: 700; }
+    .key-questions { list-style: none; display: flex; flex-direction: column; gap: .55rem; }
+    .key-questions li { font-size: .92rem; color: var(--text); padding-left: 1.4rem; position: relative; line-height: 1.5; }
+    .key-questions li::before { content: '？'; position: absolute; left: 0; color: var(--accent); font-weight: 800; }
+    .learn-body, .summary-body { font-size: .9rem; color: var(--text); line-height: 1.6; }
+    .learn-body p, .summary-body p { margin-bottom: .75rem; color: var(--text); }
+    .learn-body code, .summary-body code { background: var(--surface); padding: .1rem .3rem; border-radius: 4px; font-family: 'IBM Plex Mono', monospace; font-size: .85em; }
+    .glossary { display: flex; flex-direction: column; gap: .35rem; }
+    .psle-tips-section { background: linear-gradient(135deg, var(--surface) 0%, var(--card) 100%); }
+    .psle-tips { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+    .psle-tips li { font-size: .88rem; color: var(--text); padding-left: 1.4rem; position: relative; line-height: 1.5; }
+    .psle-tips li::before { content: '✓'; position: absolute; left: 0; color: var(--tatabahasa); font-weight: 800; }
+
+    /* Mind map */
+    .mm-toolbar { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .85rem; padding: .6rem; background: var(--surface); border-radius: 9px; }
+    .btn-sm { padding: .35rem .7rem; font-size: .78rem; }
+    .mm-container { height: 520px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .mm-feedback { margin-top: 1rem; padding: .85rem 1rem; background: var(--surface); border: 1px solid var(--accent); border-radius: 9px; font-size: .85rem; color: var(--text); line-height: 1.55; }
+
+    #topic-error { display: none; padding: 1rem; margin: 1rem 0; background: #3a1212; border: 1px solid #f87171; border-radius: 9px; color: #fca5a5; font-size: .9rem; }
+
+    @media (max-width: 600px) {
+      .mm-container { height: 380px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header" id="topic-header">
+  <button class="back-link" onclick="window.location.href='../../index.html'">← Kembali</button>
+  <div style="flex:1">Memuat…</div>
+</header>
+
+<main>
+  <div id="topic-error" role="alert"></div>
+
+  <nav class="tab-nav tabs-root">
+    <button class="tab-btn active" data-tab="tab-pelajaran">📘 Pelajaran</button>
+    <button class="tab-btn" data-tab="tab-latih">🎯 Latih</button>
+    <button class="tab-btn" data-tab="tab-kuiz">📝 Kuiz</button>
+    <button class="tab-btn" data-tab="tab-peta-minda">🗺 Peta Minda</button>
+  </nav>
+
+  <section id="tab-pelajaran" class="tab-pane active"></section>
+  <section id="tab-latih" class="tab-pane"></section>
+  <section id="tab-kuiz" class="tab-pane"></section>
+  <section id="tab-peta-minda" class="tab-pane"></section>
+</main>
+
+<script>window.MALAY_TOPIC_ID = 'imbuhan';</script>
+<script src="../../shared.js"></script>
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/gemini.js"></script>
+<script src="../../shared/coach.js"></script>
+<script src="../../shared/content.js"></script>
+<script src="../../shared/lab.js"></script>
+<script src="../../shared/mindmap.js"></script>
+<script src="../../shared/latih.js"></script>
+<script src="../../shared/malay-topic.js"></script>
+</body>
+</html>
