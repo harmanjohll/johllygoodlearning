@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSLE Bahasa Melayu Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .hero { text-align: center; padding: 3.5rem 1rem 2.5rem; position: relative; }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5.2vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -0.018em;
+      line-height: 1.05;
+      background: linear-gradient(135deg, #34d399 0%, #e879f9 50%, #fb7185 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: .6rem;
+    }
+    .hero-sub {
+      font-family: var(--font-body);
+      font-size: 1.02rem;
+      color: var(--muted);
+      max-width: 580px;
+      margin: 0 auto 2rem;
+      line-height: 1.55;
+    }
+    .stats-row { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-top: 1.5rem; }
+    .stat-pill { background: var(--card); border: 1px solid var(--border); padding: .6rem 1.2rem; border-radius: 99px; font-size: .85rem; font-weight: 600; }
+    .stat-pill .num-display { color: var(--accent); font-weight: 700; }
+
+    .theme-section { margin: 2rem 0; }
+    .theme-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--border); }
+    .theme-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .theme-title { font-size: 1rem; font-weight: 700; letter-spacing: .04em; }
+    .theme-desc  { font-size: .78rem; color: var(--muted); }
+
+    .topics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    .topic-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .topic-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--topic-color, var(--accent)); }
+    .topic-card:hover:not(.coming-soon) { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,.4); }
+    .topic-card.coming-soon { opacity: .55; }
+    .topic-meta { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .6rem; }
+    .topic-name { font-size: .95rem; font-weight: 700; margin-bottom: .3rem; }
+    .topic-blurb { font-size: .77rem; color: var(--muted); line-height: 1.45; margin-bottom: .9rem; }
+    .topic-footer { display: flex; align-items: center; justify-content: space-between; }
+    .mastery-ring { display: flex; align-items: center; gap: .35rem; font-size: .72rem; color: var(--muted); }
+    .ring-svg { width: 32px; height: 32px; }
+
+    .btn-topic {
+      font-size: .78rem;
+      padding: .35rem .85rem;
+      border-radius: 7px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all .15s;
+      text-decoration: none;
+    }
+    .btn-available { background: var(--accent); color: #0f172a; }
+    .btn-available:hover { background: #7dd3fc; }
+    .btn-soon { background: var(--border); color: var(--muted); cursor: default; }
+
+    .streak-widget {
+      display: flex; align-items: center; gap: 1rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: .9rem 1.4rem;
+      margin-bottom: 1rem; flex-wrap: wrap;
+    }
+    .streak-fire { font-size: 2.2rem; line-height: 1; }
+    .streak-info { flex: 1; min-width: 140px; }
+    .streak-count { font-size: 1.35rem; font-weight: 800; color: var(--text); }
+    .streak-count span { color: #f97316; }
+    .streak-sub { font-size: .75rem; color: var(--muted); margin-top: .1rem; }
+    .streak-dots { display: flex; gap: 5px; align-items: center; }
+    .streak-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); }
+    .streak-dot.active { background: #f97316; }
+    .streak-dot.today  { background: #fcd34d; box-shadow: 0 0 6px #f97316; }
+
+    .overall-progress {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+      display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+    }
+    .overall-progress h3 { font-size: 1rem; margin-bottom: .3rem; }
+    .overall-progress .progress-bar-wrap { width: 220px; }
+
+    .confidence-banner {
+      background: linear-gradient(135deg, #14302b 0%, #2d1a3a 100%);
+      border: 1px solid var(--tatabahasa);
+      border-radius: 14px;
+      padding: 1rem 1.4rem;
+      margin: 1.25rem 0 1.75rem;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .confidence-banner .label { color: var(--tatabahasa); }
+    .confidence-banner h3 { font-size: 1rem; margin-bottom: .15rem; }
+    .confidence-banner p { font-size: .78rem; color: var(--muted); line-height: 1.4; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+
+    footer {
+      text-align: center; padding: 2.5rem 1rem;
+      font-size: .78rem; color: var(--muted);
+      border-top: 1px solid var(--border); margin-top: 3rem;
+    }
+
+    @media (max-width: 600px) {
+      .stats-row { gap: .75rem; }
+      .overall-progress { flex-direction: column; }
+      .overall-progress .progress-bar-wrap { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero hub-hero">
+  <div class="container">
+    <h1 class="hero-title">PSLE Bahasa Melayu Studio</h1>
+    <p class="hero-sub">
+      Tatabahasa yang tepat, kosa kata yang luas, peribahasa yang bermakna. Latihan yang dibina untuk membina keyakinan dahulu, kemudian menjurus ke kertas PSLE.
+    </p>
+    <div class="stats-row">
+      <div class="stat-pill"><span class="num-display" id="stat-topics">0</span>&nbsp;Topik</div>
+      <div class="stat-pill"><span class="num-display" id="stat-drills">0</span>&nbsp;Latihan</div>
+      <div class="stat-pill">Penguasaan&nbsp;<span class="num-display" id="stat-pct">0%</span></div>
+      <div class="stat-pill"><span class="num-display" id="stat-maps">0</span>&nbsp;Peta Minda</div>
+    </div>
+    <div style="display:flex;gap:.75rem;justify-content:center;margin-top:1.25rem;flex-wrap:wrap">
+      <a href="confidence/index.html" class="btn btn-primary" style="font-size:.88rem">🌱 Latihan Mudah</a>
+      <a href="assess/index.html"      class="btn btn-primary" style="font-size:.88rem">🧠 Pentaksiran Sinoptik</a>
+      <a href="structured/index.html"  class="btn btn-primary" style="font-size:.88rem">📋 Karangan &amp; Kefahaman</a>
+      <a href="explain/index.html"     class="btn btn-ghost"   style="font-size:.88rem">✍️ Jelaskan-Semula</a>
+      <a href="flashcards/index.html"  class="btn btn-ghost"   style="font-size:.88rem">🃏 Kad Kilas</a>
+      <a href="vocab/index.html"       class="btn btn-ghost"   style="font-size:.88rem">📖 Latihan Kosa Kata</a>
+      <a href="commands/index.html"    class="btn btn-ghost"   style="font-size:.88rem">🔑 Kata Arahan</a>
+      <a href="psle-tips/index.html"   class="btn btn-ghost"   style="font-size:.88rem">📝 Petua PSLE</a>
+      <button class="btn btn-ghost" onclick="showAISetup()"    style="font-size:.88rem">🤖 Set Up AI Quizzes</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="streak-widget" id="streak-widget">
+    <div class="streak-fire" id="streak-fire">🔥</div>
+    <div class="streak-info">
+      <div class="streak-count"><span id="streak-count">0</span>-hari berturut-turut</div>
+      <div class="streak-sub">Terpanjang: <span id="streak-longest">0</span> hari &nbsp;·&nbsp; <span id="streak-status">Belajar hari ini untuk memulakan rentetan!</span></div>
+    </div>
+    <div class="streak-dots" id="streak-dots" title="7 hari terakhir"></div>
+  </div>
+
+  <div class="overall-progress">
+    <div style="flex:1;min-width:180px">
+      <h3>🏆 Penguasaan Bahasa Melayu Anda</h3>
+      <p style="font-size:.78rem">Merangkumi semua topik tersedia</p>
+    </div>
+    <div style="flex:2;min-width:220px">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="overall-bar" style="width:0%;background:linear-gradient(90deg,#34d399,#fb7185)"></div>
+      </div>
+      <p style="font-size:.72rem;margin-top:.3rem;color:var(--muted)">Selesaikan kuiz, kad kilas, dan peta minda untuk meningkatkan paras anda.</p>
+    </div>
+    <a href="compass/index.html" class="btn btn-primary" style="white-space:nowrap">🧭 Kompas</a>
+    <a href="mirror/index.html"  class="btn btn-ghost"   style="white-space:nowrap">🪞 Cermin</a>
+    <a href="review/index.html"  class="btn btn-ghost"   style="white-space:nowrap">🔁 Ulang Kaji</a>
+    <a href="map/index.html"     class="btn btn-ghost"   style="white-space:nowrap;border:1.5px solid var(--accent);color:var(--accent);font-weight:700">🗺 Peta Besar</a>
+  </div>
+
+  <!-- Confidence-building rail (the user's explicit ask). Lives above the theme grids
+       so it is the first thing the student sees when they are not sure where to start. -->
+  <div class="confidence-banner">
+    <div style="font-size:2rem">🌱</div>
+    <div style="flex:1;min-width:220px">
+      <div class="label">LATIHAN MUDAH</div>
+      <h3>Mula dengan latihan ringkas yang membina keyakinan.</h3>
+      <p>Pilih jawapan, lengkapkan ayat, dan padankan pasangan. Soalan ringkas dahulu, jawapan serta-merta. Tiada masa, tiada tekanan.</p>
+    </div>
+    <a href="confidence/index.html" class="btn btn-primary" style="white-space:nowrap;font-size:.85rem">Mula Latihan →</a>
+  </div>
+
+  <!-- ════════════════ TATABAHASA ════════════════ -->
+  <div class="theme-section">
+    <div class="theme-header">
+      <div class="theme-dot" style="background:var(--tatabahasa)"></div>
+      <div>
+        <div class="theme-title" style="color:var(--tatabahasa)">TATABAHASA</div>
+        <div class="theme-desc">Imbuhan, kata nama, kata kerja, kata adjektif, kata hubung, kata sendi, kata ganti, penjodoh bilangan</div>
+      </div>
+    </div>
+    <div class="topics-grid" id="grid-tatabahasa"></div>
+  </div>
+
+  <!-- ════════════════ KOSA KATA ════════════════ -->
+  <div class="theme-section">
+    <div class="theme-header">
+      <div class="theme-dot" style="background:var(--kosakata)"></div>
+      <div>
+        <div class="theme-title" style="color:var(--kosakata)">KOSA KATA</div>
+        <div class="theme-desc">Perbendaharaan kata, sinonim, antonim, kata harian — luaskan kosa kata anda</div>
+      </div>
+    </div>
+    <div class="topics-grid" id="grid-kosakata"></div>
+  </div>
+
+  <!-- ════════════════ PERIBAHASA ════════════════ -->
+  <div class="theme-section">
+    <div class="theme-header">
+      <div class="theme-dot" style="background:var(--peribahasa)"></div>
+      <div>
+        <div class="theme-title" style="color:var(--peribahasa)">PERIBAHASA</div>
+        <div class="theme-desc">Peribahasa, simpulan bahasa, dan kebijaksanaan budaya Melayu</div>
+      </div>
+    </div>
+    <div class="topics-grid" id="grid-peribahasa"></div>
+  </div>
+
+  <!-- ════════════════ KEFAHAMAN ════════════════ -->
+  <div class="theme-section">
+    <div class="theme-header">
+      <div class="theme-dot" style="background:var(--kefahaman)"></div>
+      <div>
+        <div class="theme-title" style="color:var(--kefahaman)">KEFAHAMAN</div>
+        <div class="theme-desc">Petikan kefahaman, jawapan literal dan inferens, pelajari struktur soalan PSLE</div>
+      </div>
+    </div>
+    <div class="topics-grid" id="grid-kefahaman"></div>
+  </div>
+
+  <!-- ════════════════ PENULISAN ════════════════ -->
+  <div class="theme-section">
+    <div class="theme-header">
+      <div class="theme-dot" style="background:var(--penulisan)"></div>
+      <div>
+        <div class="theme-title" style="color:var(--penulisan)">PENULISAN</div>
+        <div class="theme-desc">Karangan terancang, bersituasi, deskriptif — rangka, perenggan model, rubrik PSLE</div>
+      </div>
+    </div>
+    <div class="topics-grid" id="grid-penulisan"></div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  <p>PSLE Bahasa Melayu Studio · Dibina untuk pelajar Darjah 6 · Sukatan MOE Singapura</p>
+  <p style="margin-top:.3rem">Tatabahasa · Kosa Kata · Peribahasa · Kefahaman · Karangan · Latihan AI</p>
+</footer>
+
+<script src="shared.js"></script>
+<script src="shared/storage.js"></script>
+<script src="shared/gemini.js"></script>
+<script src="shared/coach.js"></script>
+<script src="shared/content.js"></script>
+<script src="shared/lab.js"></script>
+<script>
+// ── Topic catalogue ───────────────────────────────────────
+// Phase 1 ships the catalogue empty-of-readies so the hub renders
+// the theme grid scaffolding without broken links. Phase 2 fills
+// in Tatabahasa first (imbuhan, kata-nama, …), Phase 3 adds Kosa
+// Kata and Peribahasa, Phase 4 adds Kefahaman and Karangan.
+const TOPICS = [
+  // TATABAHASA (Phase 2)
+  { id:'imbuhan', name:'Imbuhan', theme:'tatabahasa', levels:['P5','P6'],
+    blurb:'meN-, beR-, peN-, di-, ter-, ke-an. Pembentukan kata dan asimilasi bunyi hidung.',
+    url:'topics/imbuhan/index.html', ready:false },
+  { id:'kata-nama', name:'Kata Nama', theme:'tatabahasa', levels:['P5','P6'],
+    blurb:'Kata nama am, khas, mujarad — bentuk jamak, kata ganda, dan penjenisan.',
+    url:'topics/kata-nama/index.html', ready:false },
+  { id:'kata-kerja', name:'Kata Kerja', theme:'tatabahasa', levels:['P5','P6'],
+    blurb:'Kata kerja transitif dan tak transitif; penanda aspek (sedang, telah, akan).',
+    url:'topics/kata-kerja/index.html', ready:false },
+  { id:'kata-adjektif', name:'Kata Adjektif', theme:'tatabahasa', levels:['P5','P6'],
+    blurb:'Sifat, darjah perbandingan, dan kolokasi yang biasa dijumpai.',
+    url:'topics/kata-adjektif/index.html', ready:false },
+  { id:'kata-hubung', name:'Kata Hubung', theme:'tatabahasa', levels:['P5','P6'],
+    blurb:'dan, atau, tetapi, kerana, supaya, walaupun — gabungkan idea dengan tepat.',
+    url:'topics/kata-hubung/index.html', ready:false },
+  { id:'kata-sendi', name:'Kata Sendi Nama', theme:'tatabahasa', levels:['P5','P6'],
+    blurb:'di, ke, dari, daripada, kepada, pada, untuk — kelainan halus, makna besar.',
+    url:'topics/kata-sendi/index.html', ready:false },
+  { id:'kata-ganti-nama', name:'Kata Ganti Nama', theme:'tatabahasa', levels:['P5','P6'],
+    blurb:'Diri, tunjuk, tanya — saya, kamu, ini, itu, apa, mana, siapa.',
+    url:'topics/kata-ganti-nama/index.html', ready:false },
+  { id:'penjodoh-bilangan', name:'Penjodoh Bilangan', theme:'tatabahasa', levels:['P5','P6'],
+    blurb:'seekor, sebuah, sepasang, segenggam — pilih penjodoh yang betul untuk setiap kata nama.',
+    url:'topics/penjodoh-bilangan/index.html', ready:false },
+
+  // KOSA KATA (Phase 3)
+  { id:'kosa-kata', name:'Kosa Kata Harian', theme:'kosakata', levels:['P5','P6'],
+    blurb:'Bank perkataan mengikut tema. Kuasai perbendaharaan untuk karangan dan kefahaman.',
+    url:'topics/kosa-kata/index.html', ready:false },
+  { id:'sinonim-antonim', name:'Sinonim &amp; Antonim', theme:'kosakata', levels:['P5','P6'],
+    blurb:'Pasangan perkataan yang berlawanan dan seerti — luaskan ekspresi.',
+    url:'topics/sinonim-antonim/index.html', ready:false },
+
+  // PERIBAHASA (Phase 3)
+  { id:'peribahasa', name:'Peribahasa', theme:'peribahasa', levels:['P5','P6'],
+    blurb:'80+ peribahasa lazim, makna, contoh penggunaan, dan konteks budaya.',
+    url:'topics/peribahasa/index.html', ready:false },
+  { id:'simpulan-bahasa', name:'Simpulan Bahasa', theme:'peribahasa', levels:['P5','P6'],
+    blurb:'Frasa ringkas, makna kiasan — buah hati, panjang tangan, naik darah.',
+    url:'topics/simpulan-bahasa/index.html', ready:false },
+
+  // KEFAHAMAN (Phase 4)
+  { id:'kefahaman', name:'Kefahaman Petikan', theme:'kefahaman', levels:['P6'],
+    blurb:'Petikan naratif, fakta, dialog — soalan literal, inferens, kosa kata, dan respons peribadi.',
+    url:'topics/kefahaman/index.html', ready:false },
+
+  // PENULISAN (Phase 4)
+  { id:'karangan', name:'Karangan', theme:'penulisan', levels:['P6'],
+    blurb:'Karangan terancang, bersituasi, deskriptif, naratif — rangka, perenggan model, dan rubrik PSLE.',
+    url:'topics/karangan/index.html', ready:false },
+];
+
+const THEME_IDS = ['tatabahasa','kosakata','peribahasa','kefahaman','penulisan'];
+const THEME_COLORS = {
+  tatabahasa: 'var(--tatabahasa)', kosakata: 'var(--kosakata)',
+  peribahasa: 'var(--peribahasa)', kefahaman: 'var(--kefahaman)', penulisan: 'var(--penulisan)'
+};
+const LEVEL_BADGES = { P3:'badge-p3', P4:'badge-p4', P5:'badge-p5', P6:'badge-p6' };
+
+function ringHTML(pct, color) {
+  const r = 12, circ = 2 * Math.PI * r;
+  const dash = (pct / 100) * circ;
+  return `<svg class="ring-svg" viewBox="0 0 32 32">
+    <circle cx="16" cy="16" r="${r}" fill="none" stroke="var(--border)" stroke-width="3"/>
+    <circle cx="16" cy="16" r="${r}" fill="none" stroke="${color}" stroke-width="3"
+      stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}"
+      stroke-linecap="round"
+      transform="rotate(-90 16 16)"/>
+    <text x="16" y="20" text-anchor="middle" fill="${color}" font-size="8" font-weight="700">${pct}%</text>
+  </svg>`;
+}
+
+function buildCards() {
+  const allProgress = JSON.parse(localStorage.getItem('malay_progress') || '{}');
+  let overallSum = 0, overallCount = 0, mapsCount = 0;
+
+  THEME_IDS.forEach(theme => {
+    const grid = document.getElementById(`grid-${theme}`);
+    if (!grid) return;
+    const list = TOPICS.filter(t => t.theme === theme);
+    if (list.length === 0) {
+      grid.innerHTML = '<p style="color:var(--muted);font-size:.82rem;padding:.75rem 0">Tiada topik buat masa ini. Topik akan ditambah dalam fasa seterusnya.</p>';
+      return;
+    }
+    list.forEach(topic => {
+      const p   = allProgress[topic.id] || {};
+      const pct = computeMastery(p);
+      if (topic.ready) { overallSum += pct; overallCount++; }
+      if (p.mindMapSaved) mapsCount++;
+
+      const color = THEME_COLORS[theme];
+      const levelBadges = topic.levels.map(l =>
+        `<span class="badge ${LEVEL_BADGES[l]}">${l}</span>`
+      ).join('');
+      const themeBadge = `<span class="badge badge-${theme}">${theme}</span>`;
+
+      const isNew  = topic.ready && (p.visitCount || 0) === 0;
+      const isDue  = topic.ready && Progress.isDue(topic.id) && pct > 0;
+      const newBadge  = isNew ? `<span style="background:#1a1a00;color:#fcd34d;border:1px solid #f59e0b66;font-size:.63rem;padding:.15rem .45rem;border-radius:5px;font-weight:700">🆕 Baharu</span>` : '';
+      const dueBadge  = isDue ? `<span style="background:#2a1400;color:#fb923c;border:1px solid #f9731666;font-size:.63rem;padding:.15rem .45rem;border-radius:5px;font-weight:700">📅 Ulang Kaji</span>` : '';
+
+      const card = document.createElement('div');
+      card.className = `topic-card${topic.ready ? '' : ' coming-soon'}`;
+      card.style.setProperty('--topic-color', color);
+      card.innerHTML = `
+        <div class="topic-meta">${themeBadge} ${levelBadges} ${newBadge} ${dueBadge}</div>
+        <div class="topic-name">${topic.name}</div>
+        <div class="topic-blurb">${topic.blurb}</div>
+        <div class="topic-footer">
+          <div class="mastery-ring">
+            ${ringHTML(pct, color)}
+            <span>${pct}%</span>
+          </div>
+          ${topic.ready
+            ? `<a href="${topic.url}" class="btn-topic btn-available">▶ Mula</a>`
+            : `<span class="btn-topic btn-soon">🔒 Akan datang</span>`
+          }
+        </div>
+      `;
+      card.dataset.id = topic.id;
+      grid.appendChild(card);
+    });
+  });
+
+  const readyTopics = TOPICS.filter(t => t.ready).length;
+  const overallPct  = overallCount ? Math.round(overallSum / overallCount) : 0;
+  document.getElementById('stat-topics').textContent = TOPICS.length;
+  document.getElementById('stat-drills').textContent = readyTopics;
+  document.getElementById('stat-pct').textContent    = overallPct + '%';
+  document.getElementById('stat-maps').textContent   = mapsCount;
+  document.getElementById('overall-bar').style.width = overallPct + '%';
+}
+
+function computeMastery(p) {
+  let score = 0;
+  if ((p.visitCount || 0) > 0) score += 10;
+  if (p.drillUsed)             score += 30;
+  if (p.mindMapSaved)          score += 20;
+  if (p.quizTotal > 0)         score += Math.round((p.quizScore / p.quizTotal) * 40);
+  return Math.min(score, 100);
+}
+
+buildCards();
+
+// ── Streak widget ────────────────────────────────────────
+function renderStreak() {
+  const s = Streak.get();
+  document.getElementById('streak-count').textContent   = s.current;
+  document.getElementById('streak-longest').textContent = s.longest;
+
+  const fire = document.getElementById('streak-fire');
+  fire.textContent = s.current >= 7 ? '🔥' : s.current >= 3 ? '🔥' : s.current > 0 ? '⚡' : '💤';
+
+  const today = new Date().toISOString().slice(0, 10);
+  const statusEl = document.getElementById('streak-status');
+  if (s.current === 0) {
+    statusEl.textContent = 'Belajar apa-apa hari ini untuk memulakan rentetan!';
+  } else if (s.lastActivity === today) {
+    statusEl.textContent = `Sudah belajar hari ini ✓`;
+  } else {
+    statusEl.textContent = `Belajar hari ini untuk meneruskan rentetan!`;
+    statusEl.style.color = '#f97316';
+  }
+
+  const dotsEl = document.getElementById('streak-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 6; i >= 0; i--) {
+    const d   = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+    const dot = document.createElement('div');
+    dot.className = 'streak-dot' + (d === today && s.activeDays.includes(d) ? ' today' : s.activeDays.includes(d) ? ' active' : '');
+    dot.title = d;
+    dotsEl.appendChild(dot);
+  }
+}
+renderStreak();
+</script>
+</body>
+</html>
