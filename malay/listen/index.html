@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mendengar (Kertas 3) | PSLE Bahasa Melayu Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 760px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .intro { font-size: .9rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.5rem; max-width: 65ch; }
+    .key-warn { background: #2a1400; border: 1px solid #f59e0b; border-radius: 9px; padding: .85rem 1.1rem; margin-bottom: 1rem; font-size: .85rem; color: #fcd34d; line-height: 1.55; display: none; }
+    .key-warn.show { display: block; }
+
+    .picker { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .pchip { padding: .35rem .75rem; border-radius: 99px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: .78rem; font-weight: 600; }
+    .pchip.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.3rem 1.5rem; margin-bottom: 1.25rem; }
+    .panel h3 { font-size: .95rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .85rem; }
+
+    .player {
+      background: linear-gradient(135deg, #1a2236 0%, #2d1a3a 100%);
+      border: 1px solid var(--accent); border-radius: 11px;
+      padding: 1.4rem 1.5rem; text-align: center; margin-bottom: 1rem;
+    }
+    .player .title { font-family: var(--font-display, serif); font-size: 1.25rem; font-weight: 800; margin-bottom: .5rem; }
+    .player .level { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; margin-bottom: 1rem; }
+    .player-actions { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin-top: .85rem; }
+    .play-btn { background: var(--accent); color: #0f172a; border: none; border-radius: 9px; padding: .7rem 1.25rem; font-size: .95rem; font-weight: 700; cursor: pointer; }
+    .play-btn:hover:not(:disabled) { background: #7dd3fc; }
+    .play-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .stop-btn { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 9px; padding: .7rem 1.15rem; font-size: .9rem; font-weight: 700; cursor: pointer; }
+    .stop-btn:hover { background: var(--border); color: var(--text); }
+    .plays-left { font-size: .78rem; color: var(--muted); margin-top: .65rem; font-family: var(--font-mono, monospace); }
+    .plays-left strong { color: var(--accent); }
+
+    .reveal-text { display: none; background: var(--surface); border-left: 3px solid var(--muted); padding: .85rem 1.1rem; border-radius: 7px; font-size: .85rem; color: var(--text); line-height: 1.7; margin: .85rem 0; }
+    .reveal-text.show { display: block; }
+    .reveal-toggle { background: transparent; color: var(--muted); border: none; font-size: .78rem; cursor: pointer; text-decoration: underline; margin-bottom: .5rem; }
+
+    .voice-info { font-size: .76rem; color: var(--muted); margin-top: .85rem; }
+    .voice-info.warn { color: #fb923c; }
+
+    .question { background: var(--surface); border-left: 3px solid var(--kefahaman); padding: .9rem 1.1rem; border-radius: 8px; margin-bottom: 1rem; }
+    .question .q-num { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; margin-bottom: .35rem; }
+    .question .q-stem { font-size: .92rem; color: var(--text); font-weight: 600; line-height: 1.5; margin-bottom: .85rem; }
+    .options { display: flex; flex-direction: column; gap: .4rem; }
+    .opt { background: var(--card); border: 1.5px solid var(--border); border-radius: 7px; padding: .55rem .8rem; text-align: left; color: var(--text); cursor: pointer; font-size: .88rem; transition: all .15s; }
+    .opt:hover:not(:disabled) { border-color: var(--accent); }
+    .opt.correct { border-color: var(--tatabahasa); background: #053b27; color: #6ee7b7; }
+    .opt.wrong { border-color: #f87171; background: #3a1212; color: #fca5a5; }
+    .opt:disabled { cursor: default; opacity: .85; }
+
+    .fb { display: none; margin-top: .5rem; padding: .55rem .8rem; border-radius: 6px; font-size: .82rem; line-height: 1.5; }
+    .fb.show { display: block; }
+    .fb.pass { background: #053b27; color: #a7f3d0; }
+    .fb.miss { background: #3a1212; color: #fca5a5; }
+
+    .result {
+      background: linear-gradient(135deg, #14302b 0%, #2d1a3a 100%);
+      border: 1px solid var(--tatabahasa); border-radius: 11px;
+      padding: 1.4rem 1.6rem; text-align: center; margin-top: 1rem; display: none;
+    }
+    .result.show { display: block; }
+    .result-pct { font-size: 2.5rem; font-weight: 800; color: var(--accent); font-family: var(--font-mono, monospace); }
+    .result-line { color: var(--text); margin: .35rem 0 .85rem; }
+
+    .stop-btn[hidden] { display: none; }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">🎧 Mendengar (Kertas 3)</h1>
+    <div style="font-size:.76rem;color:var(--muted)">Latihan kefahaman mendengar dengan synthesis suara penyemak imbas. Setiap petikan boleh dimainkan dua kali (peraturan PSLE).</div>
+  </div>
+</header>
+
+<main>
+  <p class="intro">
+    Pilih satu petikan. Tekan <strong>Mainkan</strong> untuk dengar — perlahan dan jelas. Anda boleh main maksimum <strong>dua kali</strong>, sama seperti peperiksaan sebenar. Selepas itu, jawab soalan MCQ. Petikan akan tertutup automatik selepas dua main.
+  </p>
+
+  <div class="key-warn" id="voice-warn">
+    ⚠️ <strong>Pelayar anda tidak mempunyai suara Bahasa Melayu (ms-MY) atau Indonesia (id-ID).</strong> Anda boleh terus latihan dengan membaca petikan secara visual, tetapi pemain audio tidak akan berfungsi. Cuba menggunakan Chrome atau Edge untuk sokongan terbaik.
+  </div>
+
+  <div class="picker" id="picker"></div>
+
+  <div class="panel" id="player-panel" style="display:none">
+    <div class="player">
+      <div class="title" id="p-title">—</div>
+      <div class="level" id="p-level">—</div>
+      <div class="player-actions">
+        <button class="play-btn" id="play-btn">▶ Mainkan</button>
+        <button class="stop-btn" id="stop-btn" hidden>⏹ Berhenti</button>
+        <button class="stop-btn" id="reveal-toggle-btn">📖 Tunjuk petikan</button>
+      </div>
+      <div class="plays-left">Mainan tinggal: <strong id="plays-left">2</strong> / 2</div>
+      <div class="voice-info" id="voice-info"></div>
+    </div>
+    <div class="reveal-text" id="reveal-text"></div>
+  </div>
+
+  <div class="panel" id="quiz-panel" style="display:none">
+    <h3>Soalan Kefahaman</h3>
+    <div id="quiz-area"></div>
+    <div class="result" id="result"></div>
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script>
+const TOPIC_ID = 'mendengar';
+const MAX_PLAYS = 2;
+
+const state = {
+  passages: [],
+  current: null,
+  playsLeft: MAX_PLAYS,
+  voice: null,
+  answered: 0,
+  score: 0,
+};
+
+// ── Voice selection ───────────────────────────────────────
+function pickVoice() {
+  if (!('speechSynthesis' in window)) return null;
+  const voices = speechSynthesis.getVoices();
+  if (!voices.length) return null;
+  // Prefer ms-MY → id-ID → any Malay-related → first
+  return voices.find(v => v.lang === 'ms-MY')
+      || voices.find(v => v.lang === 'ms')
+      || voices.find(v => v.lang === 'id-ID')
+      || voices.find(v => v.lang === 'id')
+      || null;
+}
+
+function setVoiceInfo() {
+  const info = document.getElementById('voice-info');
+  state.voice = pickVoice();
+  if (state.voice) {
+    info.classList.remove('warn');
+    info.textContent = `Suara: ${state.voice.name} (${state.voice.lang})`;
+    document.getElementById('voice-warn').classList.remove('show');
+  } else if ('speechSynthesis' in window) {
+    info.classList.add('warn');
+    info.textContent = 'Tiada suara Bahasa Melayu / Indonesia tersedia. Mainan audio dilumpuhkan.';
+    document.getElementById('voice-warn').classList.add('show');
+  } else {
+    info.classList.add('warn');
+    info.textContent = 'Pelayar ini tidak menyokong synthesis suara. Audio dilumpuhkan.';
+    document.getElementById('voice-warn').classList.add('show');
+  }
+}
+
+if ('speechSynthesis' in window) {
+  speechSynthesis.onvoiceschanged = setVoiceInfo;
+  setVoiceInfo();
+}
+
+// ── Data load ─────────────────────────────────────────────
+async function loadData() {
+  const r = await fetch('../shared/content/mendengar.json', { cache: 'no-cache' });
+  if (!r.ok) throw new Error('mendengar.json fetch failed');
+  const d = await r.json();
+  state.passages = d.passages || [];
+  buildPicker();
+}
+
+function buildPicker() {
+  const p = document.getElementById('picker');
+  p.innerHTML = state.passages.map((x, i) =>
+    `<button class="pchip${i === 0 ? ' active' : ''}" data-id="${x.id}">${escapeHtml(x.title)}</button>`
+  ).join('');
+  p.querySelectorAll('.pchip').forEach(b => {
+    b.addEventListener('click', () => {
+      p.querySelectorAll('.pchip').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      selectPassage(b.dataset.id);
+    });
+  });
+  if (state.passages.length) selectPassage(state.passages[0].id);
+}
+
+function selectPassage(id) {
+  state.current = state.passages.find(x => x.id === id);
+  state.playsLeft = MAX_PLAYS;
+  state.answered = 0;
+  state.score = 0;
+  if (!state.current) return;
+  document.getElementById('player-panel').style.display = 'block';
+  document.getElementById('quiz-panel').style.display = 'none';
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('p-title').textContent = state.current.title;
+  document.getElementById('p-level').textContent = state.current.level || 'P6';
+  document.getElementById('plays-left').textContent = MAX_PLAYS;
+  document.getElementById('play-btn').disabled = false;
+  document.getElementById('reveal-text').classList.remove('show');
+  document.getElementById('reveal-text').textContent = state.current.text;
+  if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+}
+
+// ── Player ────────────────────────────────────────────────
+let currentUtterance = null;
+
+document.getElementById('play-btn').addEventListener('click', () => {
+  if (!state.current || !state.voice || state.playsLeft <= 0) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(state.current.text);
+  u.voice = state.voice;
+  u.lang = state.voice.lang;
+  u.rate = 0.92;
+  u.pitch = 1;
+  u.onstart = () => {
+    document.getElementById('play-btn').disabled = true;
+    document.getElementById('stop-btn').hidden = false;
+  };
+  u.onend = () => {
+    document.getElementById('stop-btn').hidden = true;
+    state.playsLeft = Math.max(0, state.playsLeft - 1);
+    document.getElementById('plays-left').textContent = state.playsLeft;
+    if (state.playsLeft <= 0) {
+      document.getElementById('play-btn').disabled = true;
+      document.getElementById('play-btn').textContent = 'Habis mainan';
+      showQuestions();
+    } else {
+      document.getElementById('play-btn').disabled = false;
+    }
+  };
+  u.onerror = (e) => {
+    document.getElementById('stop-btn').hidden = true;
+    document.getElementById('play-btn').disabled = false;
+  };
+  currentUtterance = u;
+  speechSynthesis.speak(u);
+});
+
+document.getElementById('stop-btn').addEventListener('click', () => {
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  document.getElementById('stop-btn').hidden = true;
+  document.getElementById('play-btn').disabled = false;
+});
+
+document.getElementById('reveal-toggle-btn').addEventListener('click', () => {
+  const r = document.getElementById('reveal-text');
+  r.classList.toggle('show');
+  document.getElementById('reveal-toggle-btn').textContent = r.classList.contains('show') ? '🙈 Sembunyikan petikan' : '📖 Tunjuk petikan';
+});
+
+// ── Quiz ──────────────────────────────────────────────────
+function showQuestions() {
+  document.getElementById('quiz-panel').style.display = 'block';
+  const qa = document.getElementById('quiz-area');
+  qa.innerHTML = state.current.questions.map((q, i) => `
+    <div class="question" data-i="${i}">
+      <div class="q-num">Soalan ${i + 1} / ${state.current.questions.length}</div>
+      <div class="q-stem">${escapeHtml(q.stem)}</div>
+      <div class="options">
+        ${q.options.map((o, j) => `<button class="opt" data-q="${i}" data-o="${j}">${escapeHtml(o)}</button>`).join('')}
+      </div>
+      <div class="fb" id="fb-${i}"></div>
+    </div>
+  `).join('');
+  qa.querySelectorAll('.opt').forEach(b => {
+    b.addEventListener('click', () => answerQ(parseInt(b.dataset.q, 10), parseInt(b.dataset.o, 10)));
+  });
+  document.getElementById('quiz-panel').scrollIntoView({ behavior: 'smooth' });
+}
+
+function answerQ(qIdx, oIdx) {
+  const q = state.current.questions[qIdx];
+  const block = document.querySelector(`.question[data-i="${qIdx}"]`);
+  const opts = block.querySelectorAll('.opt');
+  if ([...opts].some(o => o.disabled)) return;
+  opts.forEach(o => o.disabled = true);
+  opts[oIdx].classList.add(oIdx === q.correct ? 'correct' : 'wrong');
+  if (oIdx !== q.correct && opts[q.correct]) opts[q.correct].classList.add('correct');
+  const fb = document.getElementById('fb-' + qIdx);
+  fb.classList.add('show', oIdx === q.correct ? 'pass' : 'miss');
+  fb.innerHTML = (oIdx === q.correct ? '✓ ' : '✗ ') + escapeHtml(q.explanation || '');
+  if (oIdx === q.correct) state.score++;
+  state.answered++;
+  if (state.answered >= state.current.questions.length) finish();
+}
+
+function finish() {
+  const total = state.current.questions.length;
+  const pct = Math.round((state.score / total) * 100);
+  const r = document.getElementById('result');
+  r.classList.add('show');
+  let line;
+  if (pct >= 80) line = 'Cemerlang. Telinga anda sudah biasa dengan irama Bahasa Melayu.';
+  else if (pct >= 60) line = 'Bagus. Cuba dengar petikan lebih kerap untuk meningkatkan kebiasaan.';
+  else line = 'Teruskan berlatih. Dengar Berita Harian atau podcast BM 10 minit sehari.';
+  r.innerHTML = `
+    <div class="result-pct">${pct}%</div>
+    <div style="font-size:1rem;color:var(--text)">${state.score} / ${total} betul</div>
+    <p class="result-line">${line}</p>
+  `;
+  // Save to Progress
+  try {
+    if (typeof Progress !== 'undefined') {
+      Progress.recordQuiz(TOPIC_ID, state.score, total);
+    }
+    if (typeof Streak !== 'undefined') Streak.record();
+  } catch {}
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+loadData().catch(err => {
+  document.querySelector('main').innerHTML = '<p style="color:#fca5a5;padding:2rem">Ralat: ' + escapeHtml(err.message) + '</p>';
+});
+</script>
+</body>
+</html>
