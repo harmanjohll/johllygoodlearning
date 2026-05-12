@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emosi &amp; Kesejahteraan | PSLE Bahasa Melayu Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 760px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .intro { font-size: .92rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.75rem; max-width: 65ch; }
+
+    .mood-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: .5rem; margin-bottom: 1.5rem; }
+    @media (max-width: 540px) { .mood-grid { grid-template-columns: repeat(5, 1fr); gap: .35rem; } }
+    .mood {
+      background: var(--card); border: 1.5px solid var(--border); border-radius: 11px;
+      padding: 1.1rem .65rem; text-align: center; cursor: pointer;
+      transition: all .15s; user-select: none;
+    }
+    .mood:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .mood.selected { background: var(--surface); border-color: var(--accent); box-shadow: 0 0 0 2px rgba(56,189,248,.25); }
+    .mood-emoji { font-size: 2rem; line-height: 1; margin-bottom: .35rem; }
+    .mood-label { font-size: .78rem; font-weight: 700; color: var(--text); }
+    .mood-vocab { font-size: .68rem; color: var(--muted); margin-top: .25rem; font-style: italic; }
+
+    .section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+    .section h3 { font-size: .95rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .85rem; }
+
+    textarea { width: 100%; min-height: 110px; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: .85rem 1rem; font-family: inherit; font-size: .9rem; color: var(--text); line-height: 1.5; }
+    textarea:focus { outline: none; border-color: var(--accent); }
+
+    .suggestion { background: var(--surface); border-left: 3px solid var(--tatabahasa); padding: .85rem 1.1rem; border-radius: 7px; font-size: .88rem; color: var(--text); line-height: 1.55; margin-top: 1rem; display: none; }
+    .suggestion.show { display: block; }
+    .suggestion strong { color: var(--tatabahasa); }
+    .suggestion a { color: var(--accent); text-decoration: none; font-weight: 700; }
+
+    .history { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: .85rem 1.1rem; margin-top: 1rem; max-height: 240px; overflow-y: auto; font-size: .82rem; }
+    .history h4 { font-size: .82rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .5rem; }
+    .history-row { padding: .35rem 0; border-bottom: 1px solid var(--border); display: flex; gap: .85rem; align-items: center; }
+    .history-row:last-child { border-bottom: none; }
+    .history-date { color: var(--muted); font-size: .76rem; min-width: 90px; }
+    .history-mood { font-size: 1.2rem; }
+    .history-note { color: var(--text); flex: 1; line-height: 1.4; }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">💙 Emosi &amp; Kesejahteraan</h1>
+    <div style="font-size:.76rem;color:var(--muted)">Periksa diri sebelum mula belajar. Yang penting bukan tahap mood — tetapi <em>mengenalinya</em>.</div>
+  </div>
+</header>
+
+<main>
+  <p class="intro">
+    Belajar Bahasa Melayu bukan hanya tentang otak — ia tentang seluruh diri anda. Sebelum membuka kuiz atau menulis karangan, ambil 30 saat untuk daftar masuk dengan diri sendiri. Jika hari berat, sesi pendek dengan latihan mudah lebih bermanfaat daripada sesi panjang yang dipaksa.
+  </p>
+
+  <div class="section">
+    <h3>Bagaimana Perasaan Anda Hari Ini?</h3>
+    <div class="mood-grid" id="mood-grid">
+      <div class="mood" data-score="1"><div class="mood-emoji">😴</div><div class="mood-label">Letih</div><div class="mood-vocab">lesu, penat</div></div>
+      <div class="mood" data-score="2"><div class="mood-emoji">😔</div><div class="mood-label">Rendah</div><div class="mood-vocab">murung, bimbang</div></div>
+      <div class="mood" data-score="3"><div class="mood-emoji">😐</div><div class="mood-label">Biasa</div><div class="mood-vocab">OK, neutral</div></div>
+      <div class="mood" data-score="4"><div class="mood-emoji">🙂</div><div class="mood-label">Baik</div><div class="mood-vocab">gembira, lega</div></div>
+      <div class="mood" data-score="5"><div class="mood-emoji">🤩</div><div class="mood-label">Cergas</div><div class="mood-vocab">teruja, bertenaga</div></div>
+    </div>
+
+    <div class="suggestion" id="suggestion"></div>
+  </div>
+
+  <div class="section">
+    <h3>Catatan Hari Ini (Pilihan)</h3>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.5;margin-bottom:.85rem">Tulis dalam Bahasa Melayu. Latih kosa kata emosi yang sebenar — <em>terharu</em>, <em>cemas</em>, <em>lega</em>, <em>tertekan</em>. Latihan dwifungsi.</p>
+    <textarea id="note" placeholder="Hari ini saya berasa…"></textarea>
+    <div style="display:flex;gap:.6rem;margin-top:.85rem;flex-wrap:wrap">
+      <button class="btn btn-primary" id="save-btn" style="font-size:.85rem">💾 Simpan Daftar Masuk</button>
+      <button class="btn btn-ghost" id="clear-btn" style="font-size:.85rem">↺ Batal</button>
+    </div>
+  </div>
+
+  <div class="history" id="history">
+    <h4>Daftar masuk terakhir</h4>
+    <div id="history-list"><div style="color:var(--muted);font-style:italic">Tiada catatan lagi. Daftar masuk pertama anda akan dipaparkan di sini.</div></div>
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script>
+const KEY = 'malay_wellbeing';
+const SUGGESTIONS = {
+  1: { title: 'Letih hari ini? Mari sesi ringan.', body: 'Cuba <strong>Latihan Mudah</strong> selama 10 minit sahaja. Pilih topik yang anda sudah biasa. <a href="../confidence/index.html">Buka Latihan Mudah →</a>' },
+  2: { title: 'Rendah hari ini? Itu OK.', body: 'Cuba <strong>kad kilas</strong> daripada terma yang sudah anda kuasai. Buat 5 kad sahaja. Tujuannya: terus ingat. <a href="../flashcards/index.html">Buka Kad Kilas →</a>' },
+  3: { title: 'Biasa? Mari mulakan.', body: 'Pilih satu topik daripada hub dan buat satu kuiz. Tiada tekanan, hanya konsisten. <a href="../index.html">Kembali ke Hub →</a>' },
+  4: { title: 'Baik! Cabar diri sedikit.', body: 'Cuba topik yang anda kurang yakin. Latih sesuatu yang baharu. <a href="../review/index.html">Lihat ulang kaji →</a>' },
+  5: { title: 'Cergas! Hari yang sesuai untuk ujian.', body: 'Cuba <strong>Pentaksiran Sinoptik</strong> atau menulis karangan penuh. Manfaatkan tenaga yang ada. <a href="../structured/index.html">Buka Karangan →</a>' },
+};
+
+let selectedScore = null;
+
+document.querySelectorAll('.mood').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.mood').forEach(m => m.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedScore = parseInt(el.dataset.score, 10);
+    const s = SUGGESTIONS[selectedScore];
+    const box = document.getElementById('suggestion');
+    box.classList.add('show');
+    box.innerHTML = `<strong>${s.title}</strong> ${s.body}`;
+  });
+});
+
+function getHistory() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } }
+function setHistory(h) { localStorage.setItem(KEY, JSON.stringify(h.slice(-30))); }
+
+function renderHistory() {
+  const h = getHistory().slice().reverse();
+  const el = document.getElementById('history-list');
+  if (!h.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-style:italic">Tiada catatan lagi. Daftar masuk pertama anda akan dipaparkan di sini.</div>';
+    return;
+  }
+  const EMOJI = { 1: '😴', 2: '😔', 3: '😐', 4: '🙂', 5: '🤩' };
+  el.innerHTML = h.map(r => `
+    <div class="history-row">
+      <div class="history-date">${r.date.slice(5)}</div>
+      <div class="history-mood">${EMOJI[r.score] || '·'}</div>
+      <div class="history-note">${(r.note || '').replace(/</g,'&lt;') || '<em style="color:var(--muted)">tiada nota</em>'}</div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('save-btn').addEventListener('click', () => {
+  if (!selectedScore) return alert('Sila pilih mood dahulu.');
+  const note = document.getElementById('note').value.trim();
+  const today = new Date().toISOString().slice(0, 10);
+  const h = getHistory();
+  // Replace today's entry if exists
+  const todayIdx = h.findIndex(r => r.date === today);
+  const entry = { date: today, score: selectedScore, note };
+  if (todayIdx >= 0) h[todayIdx] = entry; else h.push(entry);
+  setHistory(h);
+  // Also sync to jgl.progress wellbeing
+  if (window.JglStorage && window.JglStorage.update) {
+    window.JglStorage.update(p => {
+      p.wellbeing = p.wellbeing || { lastCheckInIso: null, recentMoodScores: [] };
+      p.wellbeing.lastCheckInIso = new Date().toISOString();
+      p.wellbeing.recentMoodScores = (p.wellbeing.recentMoodScores || []).concat(selectedScore).slice(-14);
+      return p;
+    });
+  }
+  document.getElementById('note').value = '';
+  renderHistory();
+});
+
+document.getElementById('clear-btn').addEventListener('click', () => {
+  document.getElementById('note').value = '';
+  selectedScore = null;
+  document.querySelectorAll('.mood').forEach(m => m.classList.remove('selected'));
+  document.getElementById('suggestion').classList.remove('show');
+});
+
+renderHistory();
+</script>
+</body>
+</html>

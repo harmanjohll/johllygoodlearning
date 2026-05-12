@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kad Kilas | PSLE Bahasa Melayu Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 720px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .filter-bar { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .filter-chip { padding: .4rem .85rem; border-radius: 99px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: .82rem; font-weight: 600; transition: all .15s; }
+    .filter-chip.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+    .filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-chip.active:hover { color: #0f172a; }
+
+    .progress-bar { background: var(--surface); border-radius: 99px; height: 6px; overflow: hidden; margin-bottom: 1rem; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--tatabahasa), var(--accent)); transition: width .3s; }
+
+    .stats { display: flex; gap: 1rem; font-size: .78rem; color: var(--muted); margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .stats span { color: var(--text); font-weight: 700; }
+
+    .card {
+      perspective: 1200px;
+      height: 320px;
+      margin-bottom: 1.25rem;
+    }
+    .card-inner {
+      position: relative; width: 100%; height: 100%;
+      transform-style: preserve-3d;
+      transition: transform .55s;
+    }
+    .card.flipped .card-inner { transform: rotateY(180deg); }
+    .card-face {
+      position: absolute; inset: 0;
+      backface-visibility: hidden;
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 2rem 1.75rem;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      cursor: pointer;
+      text-align: center;
+    }
+    .card-face .role { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; position: absolute; top: 1rem; left: 1.25rem; }
+    .card-face .topic-tag { font-size: .68rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; position: absolute; top: 1rem; right: 1.25rem; }
+    .card-face .term { font-family: var(--font-display, serif); font-size: 1.7rem; font-weight: 800; color: var(--text); margin-bottom: .5rem; line-height: 1.2; }
+    .card-face .hint { font-size: .82rem; color: var(--muted); position: absolute; bottom: 1rem; }
+    .card-back { transform: rotateY(180deg); justify-content: flex-start; padding-top: 2.5rem; }
+    .card-back .def { font-size: .95rem; color: var(--text); line-height: 1.55; margin-bottom: .85rem; }
+    .card-back .template { font-size: .82rem; color: var(--muted); font-style: italic; background: var(--surface); padding: .6rem .85rem; border-radius: 7px; line-height: 1.5; }
+
+    .actions { display: flex; gap: .55rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
+    .empty { padding: 3rem 1rem; text-align: center; color: var(--muted); }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">🃏 Kad Kilas</h1>
+    <div style="font-size:.76rem;color:var(--muted)">Kuasai istilah dengan kad: lihat istilah, fikir maksud, klik untuk semak.</div>
+  </div>
+</header>
+
+<main>
+  <div class="filter-bar" id="filter-bar">
+    <button class="filter-chip active" data-filter="all">Semua</button>
+    <button class="filter-chip" data-filter="tatabahasa">Tatabahasa</button>
+    <button class="filter-chip" data-filter="kosakata">Kosa Kata</button>
+    <button class="filter-chip" data-filter="peribahasa">Peribahasa</button>
+    <button class="filter-chip" data-filter="kefahaman">Kefahaman</button>
+    <button class="filter-chip" data-filter="penulisan">Penulisan</button>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+  <div class="stats">
+    <span><span id="seen">0</span>/<span id="total">0</span></span> dilihat ·
+    <span><span id="known">0</span></span> dikuasai ·
+    <span><span id="again">0</span></span> ulang
+  </div>
+
+  <div id="card-area">
+    <div class="empty">Memuat kad…</div>
+  </div>
+
+  <div class="actions" id="actions" style="display:none">
+    <button class="btn btn-ghost" id="flip-btn" style="font-size:.85rem">↻ Pusing</button>
+    <button class="btn btn-primary" id="known-btn" style="font-size:.85rem">✓ Saya tahu</button>
+    <button class="btn btn-ghost" id="again-btn" style="font-size:.85rem">↺ Ulang lagi</button>
+    <button class="btn btn-ghost" id="skip-btn" style="font-size:.85rem">→ Skip</button>
+    <button class="btn btn-ghost" id="shuffle-btn" style="font-size:.85rem">🔀 Kocok</button>
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/content.js"></script>
+<script>
+const ALL_THEMES = ['tatabahasa', 'kosakata', 'peribahasa', 'kefahaman', 'penulisan'];
+let cards = [];
+let idx = 0;
+let stats = { seen: 0, known: new Set(), again: new Set() };
+let currentFilter = 'all';
+
+async function loadAll() {
+  const merged = [];
+  for (const theme of ALL_THEMES) {
+    try {
+      const data = await window.MalayContent.loadTheme(theme);
+      Object.values(data.topics || {}).forEach(topic => {
+        (topic.glossary || []).forEach(g => {
+          merged.push({
+            term: g.term,
+            definition: g.definition,
+            template: g.template || '',
+            theme,
+            topicId: topic.id,
+            topicTitle: topic.title,
+          });
+        });
+      });
+    } catch (err) {
+      console.warn('Could not load theme', theme, err);
+    }
+  }
+  return merged;
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function filtered() {
+  if (currentFilter === 'all') return cards;
+  return cards.filter(c => c.theme === currentFilter);
+}
+
+function render() {
+  const list = filtered();
+  if (!list.length) {
+    document.getElementById('card-area').innerHTML = '<div class="empty">Tiada kad untuk penapis ini.</div>';
+    document.getElementById('actions').style.display = 'none';
+    return;
+  }
+  if (idx >= list.length) idx = 0;
+  const card = list[idx];
+  const themeColor = `var(--${card.theme})`;
+  document.getElementById('card-area').innerHTML = `
+    <div class="card" id="card" style="border-color:${themeColor}">
+      <div class="card-inner">
+        <div class="card-face card-front">
+          <div class="role">Istilah</div>
+          <div class="topic-tag" style="color:${themeColor}">${card.topicTitle}</div>
+          <div class="term">${card.term}</div>
+          <div class="hint">Klik untuk semak maksud</div>
+        </div>
+        <div class="card-face card-back">
+          <div class="role">Maksud</div>
+          <div class="topic-tag" style="color:${themeColor}">${card.topicTitle}</div>
+          <div class="def">${card.definition}</div>
+          ${card.template ? `<div class="template">${card.template}</div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('card').addEventListener('click', () => {
+    document.getElementById('card').classList.toggle('flipped');
+  });
+  document.getElementById('actions').style.display = 'flex';
+  document.getElementById('seen').textContent = stats.seen;
+  document.getElementById('total').textContent = list.length;
+  document.getElementById('known').textContent = stats.known.size;
+  document.getElementById('again').textContent = stats.again.size;
+  document.getElementById('progress').style.width = `${(stats.seen / list.length) * 100}%`;
+}
+
+function next() {
+  const list = filtered();
+  stats.seen = Math.min(stats.seen + 1, list.length);
+  idx = (idx + 1) % list.length;
+  render();
+}
+
+document.getElementById('filter-bar').addEventListener('click', (e) => {
+  const chip = e.target.closest('.filter-chip');
+  if (!chip) return;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  currentFilter = chip.dataset.filter;
+  idx = 0;
+  stats.seen = 0;
+  render();
+});
+
+(async function init() {
+  cards = await loadAll();
+  cards = shuffle(cards);
+  if (!cards.length) {
+    document.getElementById('card-area').innerHTML = '<div class="empty">Tiada glosari ditemui. Pastikan content/*.json wujud.</div>';
+    return;
+  }
+  render();
+
+  document.getElementById('flip-btn').addEventListener('click', () => {
+    document.getElementById('card').classList.toggle('flipped');
+  });
+  document.getElementById('known-btn').addEventListener('click', () => {
+    const list = filtered();
+    stats.known.add(list[idx].term);
+    if (typeof Progress !== 'undefined') Progress.recordFlashcard(list[idx].topicId, list[idx].term, true);
+    next();
+  });
+  document.getElementById('again-btn').addEventListener('click', () => {
+    const list = filtered();
+    stats.again.add(list[idx].term);
+    if (typeof Progress !== 'undefined') Progress.recordFlashcard(list[idx].topicId, list[idx].term, false);
+    next();
+  });
+  document.getElementById('skip-btn').addEventListener('click', next);
+  document.getElementById('shuffle-btn').addEventListener('click', () => {
+    cards = shuffle(cards);
+    idx = 0; stats.seen = 0;
+    render();
+  });
+})();
+</script>
+</body>
+</html>

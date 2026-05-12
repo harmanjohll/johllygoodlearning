@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pentaksiran Sinoptik | PSLE Bahasa Melayu Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 720px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem 1.5rem; margin-bottom: 1.25rem; }
+    .panel h3 { font-size: .95rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .85rem; }
+
+    .mode-row { display: flex; gap: .45rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .mode-chip { padding: .5rem .95rem; border-radius: 8px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: .85rem; font-weight: 700; }
+    .mode-chip.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+
+    .timer-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .65rem 1.1rem; display: flex; align-items: center; gap: .85rem; margin-bottom: 1rem; font-family: var(--font-mono, monospace); font-weight: 700; }
+    .timer-bar .timer { font-size: 1.3rem; color: var(--accent); }
+    .timer-bar .timer.warn { color: #f59e0b; }
+    .timer-bar .timer.danger { color: #f87171; }
+    .timer-bar .progress { flex: 1; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .timer-bar .progress-fill { height: 100%; background: var(--accent); transition: width 1s linear; }
+
+    .quiz-area { min-height: 200px; }
+    .q-num { font-size: .76rem; color: var(--muted); margin-bottom: .5rem; font-weight: 700; }
+    .q-stem { font-size: .95rem; color: var(--text); font-weight: 600; line-height: 1.55; margin-bottom: 1rem; padding: .85rem 1.1rem; background: var(--surface); border-radius: 8px; border-left: 3px solid var(--accent); }
+    .q-meta { font-size: .72rem; color: var(--muted); margin-bottom: .5rem; }
+    .options { display: flex; flex-direction: column; gap: .45rem; }
+    .opt { background: var(--card); border: 1.5px solid var(--border); border-radius: 8px; padding: .65rem .9rem; text-align: left; color: var(--text); cursor: pointer; font-size: .9rem; transition: all .15s; }
+    .opt:hover:not(:disabled) { border-color: var(--accent); background: var(--surface); }
+    .opt.correct { border-color: var(--tatabahasa); background: #063b27; color: #6ee7b7; }
+    .opt.wrong { border-color: #f87171; background: #3a1212; color: #fca5a5; }
+    .opt:disabled { cursor: default; opacity: .85; }
+
+    .feedback { margin-top: .85rem; padding: .65rem .9rem; border-radius: 8px; font-size: .85rem; line-height: 1.55; display: none; }
+    .feedback.show { display: block; }
+    .feedback.pass { background: #063b27; color: #a7f3d0; }
+    .feedback.miss { background: #3a1212; color: #fca5a5; }
+
+    .result { text-align: center; padding: 2rem 1rem; }
+    .result-pct { font-size: 3rem; font-weight: 800; color: var(--accent); font-family: var(--font-mono, monospace); }
+    .result-narrative { font-size: .9rem; color: var(--muted); margin: .65rem auto 1.25rem; max-width: 50ch; line-height: 1.55; }
+    .breakdown { background: var(--surface); border-radius: 9px; padding: .85rem 1.1rem; margin-top: 1rem; text-align: left; }
+    .breakdown-row { display: flex; justify-content: space-between; padding: .35rem 0; font-size: .85rem; border-bottom: 1px solid var(--border); }
+    .breakdown-row:last-child { border-bottom: none; }
+    .breakdown-row .theme { color: var(--text); font-weight: 600; }
+    .breakdown-row .score { font-family: var(--font-mono, monospace); }
+
+    .loader { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--muted); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">🧠 Pentaksiran Sinoptik</h1>
+    <div style="font-size:.76rem;color:var(--muted)">Latih rentas-topik. 20 soalan, pemasa, breakdown skor per tema.</div>
+  </div>
+</header>
+
+<main>
+  <div class="panel" id="config-panel">
+    <h3>Pilih Mod</h3>
+    <div class="mode-row">
+      <button class="mode-chip active" data-mode="synoptic">Sinoptik (rentas semua tema)</button>
+      <button class="mode-chip" data-mode="tatabahasa">Tatabahasa sahaja</button>
+      <button class="mode-chip" data-mode="kosakata">Kosa Kata sahaja</button>
+      <button class="mode-chip" data-mode="peribahasa">Peribahasa sahaja</button>
+    </div>
+
+    <h3>Pilih Bilangan Soalan</h3>
+    <div class="mode-row">
+      <button class="mode-chip active" data-count="10">10 soalan (10 min)</button>
+      <button class="mode-chip" data-count="20">20 soalan (20 min)</button>
+      <button class="mode-chip" data-count="30">30 soalan (30 min, paper-style)</button>
+    </div>
+
+    <h3>Pemasa</h3>
+    <div class="mode-row">
+      <button class="mode-chip active" data-timer="on">Hidup (latih bawah tekanan)</button>
+      <button class="mode-chip" data-timer="off">Mati (santai)</button>
+    </div>
+
+    <button class="btn btn-primary" id="start-btn" style="margin-top:.65rem;font-size:.9rem">🚀 Mulakan Pentaksiran</button>
+  </div>
+
+  <div class="panel" id="play-panel" style="display:none">
+    <div class="timer-bar" id="timer-bar">
+      <span class="timer" id="timer-display">--:--</span>
+      <div class="progress"><div class="progress-fill" id="timer-fill" style="width:100%"></div></div>
+      <span style="font-size:.85rem;color:var(--muted)" id="q-progress">0/0</span>
+    </div>
+    <div class="quiz-area" id="quiz-area"></div>
+  </div>
+
+  <div class="panel" id="result-panel" style="display:none"></div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/content.js"></script>
+<script>
+const config = { mode: 'synoptic', count: 10, timer: 'on' };
+let pool = [];
+let questions = [];
+let idx = 0;
+let score = 0;
+let perTheme = {};
+let answered = false;
+let timerInterval = null;
+let timeLeft = 0;
+let totalSeconds = 0;
+const THEMES_ALL = ['tatabahasa', 'kosakata', 'peribahasa', 'kefahaman', 'penulisan'];
+const THEME_COLOR = { tatabahasa:'var(--tatabahasa)', kosakata:'var(--kosakata)', peribahasa:'var(--peribahasa)', kefahaman:'var(--kefahaman)', penulisan:'var(--penulisan)' };
+
+document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-mode]').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  config.mode = b.dataset.mode;
+}));
+document.querySelectorAll('[data-count]').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-count]').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  config.count = parseInt(b.dataset.count, 10);
+}));
+document.querySelectorAll('[data-timer]').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-timer]').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  config.timer = b.dataset.timer;
+}));
+
+async function loadPool() {
+  const out = [];
+  const themesToLoad = config.mode === 'synoptic' ? THEMES_ALL : [config.mode];
+  for (const theme of themesToLoad) {
+    try {
+      const data = await window.MalayContent.loadTheme(theme);
+      Object.values(data.topics || {}).forEach(topic => {
+        (topic.questions || []).forEach(q => {
+          out.push({ ...q, _theme: theme, _topic: topic.title, _topicId: topic.id });
+        });
+      });
+    } catch {}
+  }
+  return out;
+}
+
+function shuffle(arr) {
+  arr = arr.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+document.getElementById('start-btn').addEventListener('click', async () => {
+  pool = shuffle(await loadPool());
+  if (!pool.length) { alert('Tiada soalan untuk mod ini.'); return; }
+  questions = pool.slice(0, config.count).map(q => {
+    const indices = q.options.map((_, i) => i).sort(() => Math.random() - 0.5);
+    return { ...q, options: indices.map(i => q.options[i]), correct: indices.indexOf(q.correct) };
+  });
+  idx = 0; score = 0; perTheme = {}; answered = false;
+  document.getElementById('config-panel').style.display = 'none';
+  document.getElementById('play-panel').style.display = 'block';
+  if (config.timer === 'on') {
+    totalSeconds = config.count * 60; // 1 min per question
+    timeLeft = totalSeconds;
+    startTimer();
+  } else {
+    document.getElementById('timer-bar').style.display = 'none';
+  }
+  render();
+});
+
+function startTimer() {
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) { clearInterval(timerInterval); finish(); }
+  }, 1000);
+}
+function updTimer(el) { return `${String(Math.floor(timeLeft/60)).padStart(2,'0')}:${String(timeLeft%60).padStart(2,'0')}`; }
+function updateTimerDisplay() {
+  const t = document.getElementById('timer-display');
+  t.textContent = updTimer();
+  t.classList.remove('warn','danger');
+  if (timeLeft <= 30) t.classList.add('danger');
+  else if (timeLeft <= 60) t.classList.add('warn');
+  document.getElementById('timer-fill').style.width = `${Math.max(0,(timeLeft/totalSeconds)*100)}%`;
+}
+
+function render() {
+  if (idx >= questions.length) { finish(); return; }
+  const q = questions[idx];
+  answered = false;
+  document.getElementById('q-progress').textContent = `${idx+1}/${questions.length}`;
+  document.getElementById('quiz-area').innerHTML = `
+    <div class="q-num">Soalan ${idx+1} daripada ${questions.length}</div>
+    <div class="q-meta">Tema: <span style="color:${THEME_COLOR[q._theme]||'var(--accent)'};font-weight:700">${q._theme}</span> · ${q._topic} · <span style="text-transform:uppercase;font-weight:700">${q.tier||'asas'}</span></div>
+    <div class="q-stem">${q.question}</div>
+    <div class="options">
+      ${q.options.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join('')}
+    </div>
+    <div class="feedback" id="fb"></div>
+  `;
+  document.querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => answer(parseInt(b.dataset.i,10))));
+}
+
+function answer(i) {
+  if (answered) return;
+  answered = true;
+  const q = questions[idx];
+  const opts = document.querySelectorAll('.opt');
+  opts.forEach(b => b.disabled = true);
+  const fb = document.getElementById('fb');
+  const theme = q._theme;
+  perTheme[theme] = perTheme[theme] || { correct: 0, total: 0 };
+  perTheme[theme].total++;
+  if (i === q.correct) {
+    score++;
+    perTheme[theme].correct++;
+    opts[i].classList.add('correct');
+    fb.className = 'feedback show pass'; fb.innerHTML = `✓ ${q.explanation || 'Tepat.'}`;
+  } else {
+    opts[i].classList.add('wrong');
+    if (opts[q.correct]) opts[q.correct].classList.add('correct');
+    fb.className = 'feedback show miss'; fb.innerHTML = `✗ ${q.explanation || ''}`;
+  }
+  setTimeout(() => { idx++; render(); }, 1100);
+}
+
+function finish() {
+  if (timerInterval) clearInterval(timerInterval);
+  const pct = Math.round((score/questions.length)*100);
+  if (typeof Progress !== 'undefined') {
+    // Per-topic recording would be heavy; we instead record on each contributing topic by best-effort
+    const seenTopics = new Set();
+    questions.slice(0, idx).forEach(q => seenTopics.add(q._topicId));
+    seenTopics.forEach(tid => Progress.set(tid, { lastQuizDate: new Date().toISOString().slice(0,10) }));
+  }
+  if (typeof Streak !== 'undefined') Streak.record();
+  let line = '';
+  if (pct === 100) line = 'Sempurna. Latih topik baharu yang lebih mencabar.';
+  else if (pct >= 80) line = 'Sangat baik. Anda dalam band cemerlang. Ulang kaji topik dengan skor terendah untuk kekal teguh.';
+  else if (pct >= 60) line = 'Baik. Fokus pada tema yang anda kurang skor. Buka topik tersebut daripada hub.';
+  else line = 'Sesi ulang kaji yang baik. Ulang kaji tema dengan skor 0/x dahulu.';
+
+  const breakdownHtml = Object.entries(perTheme).map(([t, v]) => `
+    <div class="breakdown-row">
+      <span class="theme" style="color:${THEME_COLOR[t]||'var(--text)'}">${t}</span>
+      <span class="score">${v.correct}/${v.total} · ${Math.round((v.correct/v.total)*100)}%</span>
+    </div>
+  `).join('');
+
+  document.getElementById('play-panel').style.display = 'none';
+  const r = document.getElementById('result-panel');
+  r.style.display = 'block';
+  r.innerHTML = `
+    <div class="result">
+      <div class="result-pct">${pct}%</div>
+      <div style="font-size:1.1rem;color:var(--text);margin-top:.45rem">${score} / ${questions.length} betul</div>
+      <p class="result-narrative">${line}</p>
+      <div class="breakdown">
+        <div style="font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.5rem;font-weight:700">Skor mengikut tema</div>
+        ${breakdownHtml || '<div style="color:var(--muted)">Tiada data tema.</div>'}
+      </div>
+      <div style="display:flex;gap:.55rem;justify-content:center;margin-top:1.25rem;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="location.reload()">↻ Pentaksiran Baharu</button>
+        <a class="btn btn-ghost" href="../review/index.html">🔁 Lihat Ulang Kaji</a>
+        <a class="btn btn-ghost" href="../index.html">← Kembali ke Hub</a>
+      </div>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>

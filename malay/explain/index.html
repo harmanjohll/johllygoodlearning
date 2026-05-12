@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jelaskan Semula | PSLE Bahasa Melayu Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 760px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .intro { font-size: .92rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.5rem; max-width: 65ch; }
+
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem 1.5rem; margin-bottom: 1.25rem; }
+    .panel h3 { font-size: .95rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .85rem; }
+
+    .pick-row { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: 1rem; }
+    .pick-chip { padding: .4rem .85rem; border-radius: 99px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: .82rem; font-weight: 600; }
+    .pick-chip.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+
+    .concept-display { background: var(--surface); border-left: 3px solid var(--accent); padding: .9rem 1.15rem; border-radius: 7px; font-size: .95rem; color: var(--text); line-height: 1.6; margin-bottom: 1rem; }
+    .concept-display strong { color: var(--accent); }
+
+    textarea { width: 100%; min-height: 180px; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: .95rem 1.1rem; font-family: inherit; font-size: .92rem; color: var(--text); line-height: 1.6; }
+    textarea:focus { outline: none; border-color: var(--accent); }
+    .word-counter { font-size: .78rem; color: var(--muted); margin-top: .3rem; }
+
+    .actions { display: flex; gap: .55rem; margin-top: 1rem; flex-wrap: wrap; }
+
+    .feedback { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 1.1rem 1.25rem; margin-top: 1rem; font-size: .9rem; color: var(--text); line-height: 1.65; border-left: 3px solid var(--accent); }
+    .feedback.show { display: block; }
+    .feedback h4 { font-size: .82rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .65rem; }
+    .feedback .section-label { font-size: .76rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; margin-top: .85rem; margin-bottom: .3rem; }
+
+    .loader { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--muted); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: -2px; margin-right: .3rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">✍️ Jelaskan Semula (Feynman)</h1>
+    <div style="font-size:.76rem;color:var(--muted)">Jika anda tidak boleh jelaskan dengan mudah, anda belum betul-betul faham. Latihan Feynman.</div>
+  </div>
+</header>
+
+<main>
+  <p class="intro">
+    Pilih satu konsep, terangkan dengan ayat anda sendiri (anggap anda mengajar adik), kemudian Coach AI akan mengenal pasti kekuatan dan jurang dalam penjelasan anda. Bukan kuiz — ini latihan KEFAHAMAN MENDALAM.
+  </p>
+
+  <div class="panel">
+    <h3>Pilih Konsep</h3>
+    <div class="pick-row" id="theme-row">
+      <button class="pick-chip active" data-theme="tatabahasa">Tatabahasa</button>
+      <button class="pick-chip" data-theme="kosakata">Kosa Kata</button>
+      <button class="pick-chip" data-theme="peribahasa">Peribahasa</button>
+      <button class="pick-chip" data-theme="kefahaman">Kefahaman</button>
+      <button class="pick-chip" data-theme="penulisan">Penulisan</button>
+    </div>
+    <div class="pick-row" id="concept-row"></div>
+  </div>
+
+  <div class="panel">
+    <h3>Konsep Dipilih</h3>
+    <div class="concept-display" id="concept-display">Sila pilih konsep di atas.</div>
+
+    <h3>Terangkan dengan Bahasa Anda</h3>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.5;margin-bottom:.5rem">Bayangkan anda mengajar adik berumur 8 tahun. Tulis 3-5 ayat. Gunakan contoh konkrit.</p>
+    <textarea id="explanation" placeholder="Saya akan menerangkan [konsep] seperti ini…"></textarea>
+    <div class="word-counter" id="counter">0 patah perkataan</div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="grade-btn">🔍 Semak Penjelasan</button>
+      <button class="btn btn-ghost" id="reset-btn">↻ Set Semula</button>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script src="../shared/coach.js"></script>
+<script src="../shared/content.js"></script>
+<script>
+const ALL_THEMES = ['tatabahasa', 'kosakata', 'peribahasa', 'kefahaman', 'penulisan'];
+let conceptsByTheme = {};
+let selected = null;
+
+async function loadConcepts() {
+  for (const theme of ALL_THEMES) {
+    conceptsByTheme[theme] = [];
+    try {
+      const data = await window.MalayContent.loadTheme(theme);
+      Object.values(data.topics || {}).forEach(topic => {
+        (topic.glossary || []).forEach(g => {
+          conceptsByTheme[theme].push({
+            term: g.term, definition: g.definition, template: g.template,
+            topicId: topic.id, topicTitle: topic.title, theme,
+          });
+        });
+      });
+    } catch {}
+  }
+}
+
+function renderConcepts(theme) {
+  const row = document.getElementById('concept-row');
+  const list = conceptsByTheme[theme] || [];
+  row.innerHTML = list.slice(0, 24).map(c =>
+    `<button class="pick-chip" data-term="${c.term}">${c.term}</button>`
+  ).join('');
+  row.querySelectorAll('.pick-chip').forEach(b => {
+    b.addEventListener('click', () => {
+      row.querySelectorAll('.pick-chip').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      selected = list.find(x => x.term === b.dataset.term);
+      const cd = document.getElementById('concept-display');
+      cd.innerHTML = `<strong>${selected.term}</strong> (${selected.topicTitle}) — ${selected.definition}`;
+      document.getElementById('feedback').classList.remove('show');
+      document.getElementById('explanation').value = '';
+      updateCounter();
+    });
+  });
+}
+
+document.querySelectorAll('#theme-row .pick-chip').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#theme-row .pick-chip').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    renderConcepts(b.dataset.theme);
+  });
+});
+
+function countWords(s) { return (s.trim().match(/\S+/g) || []).length; }
+function updateCounter() {
+  document.getElementById('counter').textContent = `${countWords(document.getElementById('explanation').value)} patah perkataan`;
+}
+document.getElementById('explanation').addEventListener('input', updateCounter);
+
+document.getElementById('grade-btn').addEventListener('click', async () => {
+  const ex = document.getElementById('explanation').value.trim();
+  if (!selected) return alert('Pilih konsep dahulu.');
+  if (!ex) return alert('Tulis penjelasan dahulu.');
+  if (typeof window.askGemini !== 'function') return alert('Coach memerlukan Gemini key. Buka hub → "🤖 Set Up AI Quizzes".');
+
+  const fb = document.getElementById('feedback');
+  fb.classList.add('show');
+  fb.innerHTML = `<h4>Coach</h4><p><span class="loader"></span> Menilai penjelasan…</p>`;
+  const sys = (window.MalayCoach ? window.MalayCoach.VOICE : '') + ' Anda menilai cubaan pelajar menjelaskan konsep dalam Bahasa Melayu. Berikan SATU perkara baik (Kekuatan), SATU jurang (Jurang), dan SATU kata kunci yang mereka terlepas (Kata Kunci). Format JSON: {"strengths":"…","gaps":"…","keywords":"…"}. Bahasa Melayu formal. Maksimum 30 patah perkataan untuk setiap bahagian. Tiada emoji.';
+  const prompt = `Konsep: "${selected.term}"\nDefinisi rasmi: "${selected.definition}"\nTopik: ${selected.topicTitle}\n\nCubaan pelajar:\n${ex}\n\nKembalikan JSON sahaja, tanpa pagar kod.`;
+  try {
+    const out = await window.askGemini({ system: sys, prompt, temperature: 0.3, maxTokens: 400, asJson: true, responseMimeType: 'application/json', thinkingBudget: 0 });
+    fb.innerHTML = `
+      <h4>Coach — Penilaian Penjelasan</h4>
+      <div class="section-label">✓ Kekuatan</div>
+      <div>${out.strengths || '—'}</div>
+      <div class="section-label">⚠ Jurang</div>
+      <div>${out.gaps || '—'}</div>
+      <div class="section-label">🔑 Kata Kunci Penting</div>
+      <div>${out.keywords || '—'}</div>
+    `;
+  } catch (err) {
+    fb.innerHTML = `<h4>Ralat</h4><p style="color:#fca5a5">${err.message}</p>`;
+  }
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  document.getElementById('explanation').value = '';
+  document.getElementById('feedback').classList.remove('show');
+  updateCounter();
+});
+
+(async function init() {
+  await loadConcepts();
+  renderConcepts('tatabahasa');
+})();
+</script>
+</body>
+</html>
