@@ -56,6 +56,71 @@
     .feedback.show { display: block; }
     .feedback.examiner { border-left: 3px solid var(--accent); }
     .feedback.coach { border-left: 3px solid var(--peribahasa); }
+    .feedback.annotator { border-left: 3px solid var(--kosakata); }
+
+    /* Annotator — colour-coded sentence underlines */
+    .annot-body {
+      font-size: .95rem; line-height: 1.95;
+      background: var(--bg); padding: 1rem 1.2rem;
+      border-radius: 9px; margin: .75rem 0;
+      color: var(--text);
+    }
+    .annot-ayat {
+      cursor: pointer; padding: .1rem .15rem;
+      border-radius: 3px; transition: background .12s;
+    }
+    .annot-ayat:hover { background: var(--surface); }
+    .annot-ayat.active { background: var(--surface); outline: 2px solid var(--accent); }
+    .annot-ayat[data-type="Imbuhan"]    { border-bottom: 2.5px solid #f87171; }
+    .annot-ayat[data-type="KataSendi"]  { border-bottom: 2.5px solid #fb923c; }
+    .annot-ayat[data-type="Register"]   { border-bottom: 2.5px solid #fbbf24; }
+    .annot-ayat[data-type="Klise"]      { border-bottom: 2.5px solid #e879f9; }
+    .annot-ayat[data-type="Pengulangan"]{ border-bottom: 2.5px solid #60a5fa; }
+    .annot-ayat[data-type="Tatabahasa"] { border-bottom: 2.5px solid #a78bfa; }
+    .annot-ayat[data-type="OK"]         { border-bottom: 2.5px solid #34d39966; }
+    .annot-summary {
+      display: flex; flex-wrap: wrap; gap: .35rem;
+      margin: .5rem 0 .85rem;
+      font-size: .76rem;
+    }
+    .annot-chip {
+      padding: .2rem .55rem; border-radius: 99px;
+      font-weight: 700;
+    }
+    .annot-chip-imbuhan    { background: #3a1212; color: #fca5a5; }
+    .annot-chip-katasendi  { background: #2a1400; color: #fdba74; }
+    .annot-chip-register   { background: #1a1500; color: #fde68a; }
+    .annot-chip-klise      { background: #2a103a; color: #f0abfc; }
+    .annot-chip-pengulangan{ background: #1a2a3a; color: #93c5fd; }
+    .annot-chip-tatabahasa { background: #1e183a; color: #c4b5fd; }
+    .annot-chip-ok         { background: #053b27; color: #6ee7b7; }
+    .annot-issues {
+      display: flex; flex-direction: column; gap: .45rem;
+      font-size: .82rem;
+    }
+    .annot-issue {
+      padding: .55rem .75rem; border-radius: 7px;
+      background: var(--surface); border-left: 3px solid;
+    }
+    .annot-issue[data-type="Imbuhan"]    { border-left-color: #f87171; }
+    .annot-issue[data-type="KataSendi"]  { border-left-color: #fb923c; }
+    .annot-issue[data-type="Register"]   { border-left-color: #fbbf24; }
+    .annot-issue[data-type="Klise"]      { border-left-color: #e879f9; }
+    .annot-issue[data-type="Pengulangan"]{ border-left-color: #60a5fa; }
+    .annot-issue[data-type="Tatabahasa"] { border-left-color: #a78bfa; }
+    .annot-issue .annot-q {
+      font-size: .68rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .05em; font-weight: 700;
+      margin-bottom: .2rem;
+    }
+    .annot-issue .annot-h { color: var(--text); margin-bottom: .25rem; }
+    .annot-issue .annot-s { color: var(--muted); font-style: italic; font-size: .76rem; }
+    .annot-export {
+      background: transparent; color: var(--accent);
+      border: 1px solid var(--accent); border-radius: 7px;
+      padding: .3rem .75rem; font-size: .76rem; cursor: pointer;
+      margin-top: .65rem;
+    }
     .feedback h4 { font-size: .85rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .65rem; }
     .feedback.coach h4 { color: var(--peribahasa); }
     .feedback ul { margin: .5rem 0 .5rem 1.25rem; }
@@ -123,6 +188,7 @@
     <div class="mode-tabs" style="margin-top:1rem">
       <button class="mode-tab active" data-mode="examiner" data-target="karangan">Pemeriksa</button>
       <button class="mode-tab" data-mode="coach" data-target="karangan">Coach</button>
+      <button class="mode-tab" data-mode="annotator" data-target="karangan">Anotasi</button>
     </div>
 
     <div class="actions">
@@ -342,14 +408,134 @@ async function callGemini(prompt, system) {
   });
 }
 
+// ── Annotator helpers ──────────────────────────────────────
+// Split karangan into ayat (sentences) — keep terminal punctuation.
+function splitAyat(text) {
+  // Match ayat as: characters then sentence terminator (. ! ?) and optional quote.
+  const re = /[^.!?]+[.!?]+["']?\s*/g;
+  const out = text.match(re) || [text];
+  return out.map(s => s.trim()).filter(Boolean);
+}
+
+// Deterministic fallback when there's no Gemini key: regex-based klise + register
+// flags. Conservative — only flags items we're confident about.
+function annotateRegex(ayatList) {
+  const KLISE_OPEN  = /^(pada suatu hari|pada satu hari|pagi itu adalah hari biasa|saya ingin bercerita)/i;
+  const KLISE_END   = /^(itulah hari yang|sejak hari itu, saya|akhirnya kami pulang dengan)/i;
+  const INFORMAL    = /\b(aku|kau|awak nak|tu|ni)\b/i;
+  const MISSING_KE  = /\b(pergi|menuju|berjalan)\s+(sekolah|kedai|kelas|rumah)/i;
+  const counts = {};
+  const out = ayatList.map((ayat, i) => {
+    let type = 'OK', issue = '', suggestion = '';
+    if (i === 0 && KLISE_OPEN.test(ayat)) {
+      type = 'Klise';
+      issue = 'Pengenalan klise.';
+      suggestion = 'Gunakan latar spesifik + suasana, contoh: "Pagi Sabtu yang cerah itu, …".';
+    } else if (KLISE_END.test(ayat)) {
+      type = 'Klise';
+      issue = 'Pengakhiran klise.';
+      suggestion = 'Tunjukkan pertumbuhan watak melalui tindakan. Contoh: "Sambil mengemas barang, saya menyedari bahawa …".';
+    } else if (INFORMAL.test(ayat)) {
+      type = 'Register';
+      issue = 'Register tidak formal (aku, kau, tu/ni).';
+      suggestion = 'Gunakan saya, anda, itu, ini.';
+    } else if (MISSING_KE.test(ayat)) {
+      type = 'KataSendi';
+      issue = 'Kata sendi "ke" mungkin hilang.';
+      suggestion = 'Tulis "pergi KE sekolah", "menuju KE kedai".';
+    }
+    counts[type] = (counts[type] || 0) + 1;
+    return { sentence_index: i, type, issue, suggestion };
+  });
+  return { annotations: out, counts, mode: 'regex' };
+}
+
+function renderAnnotation(ayatList, annotations, counts, fb) {
+  const TYPE_LABEL = {
+    Imbuhan: 'Imbuhan', KataSendi: 'Kata Sendi', Register: 'Register',
+    Klise: 'Klise', Pengulangan: 'Pengulangan', Tatabahasa: 'Tatabahasa', OK: 'OK',
+  };
+  const summary = Object.entries(counts || {})
+    .filter(([t, n]) => n > 0)
+    .map(([t, n]) => `<span class="annot-chip annot-chip-${t.toLowerCase()}">${TYPE_LABEL[t] || t}: ${n}</span>`).join('');
+  const body = ayatList.map((ayat, i) => {
+    const a = annotations.find(x => x.sentence_index === i) || { type: 'OK' };
+    return `<span class="annot-ayat" data-i="${i}" data-type="${a.type}" title="${escapeHtml(a.issue || '')}">${escapeHtml(ayat)}</span> `;
+  }).join('');
+  const issues = annotations.filter(a => a.type !== 'OK' && a.issue).map(a => `
+    <div class="annot-issue" data-type="${a.type}" data-i="${a.sentence_index}">
+      <div class="annot-q">Ayat ${a.sentence_index + 1} · ${TYPE_LABEL[a.type] || a.type}</div>
+      <div class="annot-h">${escapeHtml(a.issue)}</div>
+      ${a.suggestion ? `<div class="annot-s">→ ${escapeHtml(a.suggestion)}</div>` : ''}
+    </div>
+  `).join('');
+  fb.innerHTML = `
+    <h4>Anotasi Karangan</h4>
+    ${summary ? `<div class="annot-summary">${summary}</div>` : ''}
+    <div class="annot-body">${body}</div>
+    ${issues || '<div style="font-size:.82rem;color:var(--muted)">Tiada isu utama dijumpai. Bagus.</div>'}
+    <button class="annot-export">📋 Salin sebagai teks</button>
+  `;
+  // Cross-highlighting between issue cards and ayat spans
+  fb.querySelectorAll('.annot-issue').forEach(card => {
+    card.addEventListener('click', () => {
+      const i = card.dataset.i;
+      fb.querySelectorAll('.annot-ayat').forEach(s => s.classList.remove('active'));
+      const span = fb.querySelector(`.annot-ayat[data-i="${i}"]`);
+      if (span) { span.classList.add('active'); span.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    });
+  });
+  fb.querySelector('.annot-export').addEventListener('click', () => {
+    const text = annotations
+      .filter(a => a.type !== 'OK' && a.issue)
+      .map(a => `Ayat ${a.sentence_index + 1} [${TYPE_LABEL[a.type] || a.type}]: ${a.issue}${a.suggestion ? '\n  → ' + a.suggestion : ''}`)
+      .join('\n\n');
+    navigator.clipboard.writeText(text).then(() => {
+      fb.querySelector('.annot-export').textContent = '✓ Disalin';
+      setTimeout(() => fb.querySelector('.annot-export').textContent = '📋 Salin sebagai teks', 1200);
+    });
+  });
+}
+
 // ── Karangan marking ──────────────────────────────────────────
 document.getElementById('karangan-mark').addEventListener('click', async () => {
-  if (!checkKey()) return;
   const draft = document.getElementById('karangan-draft').value.trim();
   if (!draft) return;
   const topic = state.karangan.topic;
   const fb = document.getElementById('karangan-feedback');
   const mode = state.karangan.mode;
+
+  if (mode === 'annotator') {
+    fb.className = 'feedback show annotator';
+    const ayatList = splitAyat(draft);
+    if (!checkKey() || typeof window.askGemini !== 'function') {
+      // Deterministic regex fallback
+      const { annotations, counts } = annotateRegex(ayatList);
+      renderAnnotation(ayatList, annotations, counts, fb);
+      return;
+    }
+    fb.innerHTML = `<h4>Anotasi Karangan</h4><p><span class="loader"></span> AI sedang membaca ayat demi ayat…</p>`;
+    const sys = 'Anda adalah pemeriksa Bahasa Melayu PSLE yang menanda ayat demi ayat. Untuk setiap ayat, kenal pasti SATU isu utama atau "OK" jika tidak ada isu. Jenis isu: Imbuhan, KataSendi, Register, Klise, Pengulangan, Tatabahasa, OK. Berikan isu yang spesifik (bukan umum) dan satu cadangan pembetulan. Gunakan Bahasa Melayu formal.';
+    const prompt = `Tajuk: "${topic.title}"\n\nKarangan terpecah ayat demi ayat:\n${ayatList.map((a, i) => `[${i}] ${a}`).join('\n')}\n\nKembalikan tepat satu objek per ayat dalam bentuk JSON array (tanpa markdown atau kod pagar):\n[{"sentence_index": 0, "type": "Klise", "issue": "…", "suggestion": "…"}, ...]\n\nGunakan "OK" untuk ayat tanpa isu (issue dan suggestion kosong).`;
+    try {
+      const arr = await window.askGemini({ system: sys, prompt, temperature: 0.2, maxTokens: 1400, asJson: true, responseMimeType: 'application/json', thinkingBudget: 0 });
+      const annotations = Array.isArray(arr) ? arr : (arr.annotations || []);
+      const counts = {};
+      annotations.forEach(a => { counts[a.type] = (counts[a.type] || 0) + 1; });
+      renderAnnotation(ayatList, annotations, counts, fb);
+    } catch (err) {
+      // Fallback to regex if AI fails
+      const { annotations, counts } = annotateRegex(ayatList);
+      renderAnnotation(ayatList, annotations, counts, fb);
+      const warn = document.createElement('div');
+      warn.style.cssText = 'font-size:.74rem;color:#fb923c;margin-top:.5rem';
+      warn.textContent = 'AI gagal — menggunakan pengesan regex sebagai pengganti.';
+      fb.appendChild(warn);
+    }
+    return;
+  }
+
+  if (!checkKey()) return;
 
   if (mode === 'examiner') {
     fb.className = 'feedback show examiner';
