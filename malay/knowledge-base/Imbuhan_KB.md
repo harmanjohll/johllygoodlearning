@@ -257,3 +257,313 @@ ke-…-an	noun (state)	kebenaran (from benar)	truth
 •	This is just a conceptual table; actual teaching might break it into smaller parts.
 •	Error correction practice: For older students, provide sentences with affix errors (very common in exam prep). E.g. Dia telah terbunuh ular itu dengan kayu. (Wrong: he didn’t accidentally kill the snake, he did it on purpose, so should be Dia telah membunuh ular itu…). Or Masalah itu dirungkai oleh mereka. (Should be dirungkaikan or better dirungkai depending on context? Actually rungkai seldom used in passive, maybe diselesaikan). Such exercises hone their understanding of function.
 Conclusion: Mastering Malay imbuhan is like having the keys to unlock meaning and form sentences correctly. We started with core affixes (meN-, beR-, peN-, -kan, -i) critical for primary learners to express basic ideas and gradually introduced the full range they'll see by secondary level. By using clear patterns, plenty of examples, and engaging practice (mnemonics like “Sony Pam Tin Kosong” for meN-, analogies for -kan vs -i, and so on), learners can build a strong foundation. The knowledge base formed here supports a self-directed learning journey: students can refer back to the rules, test themselves by generating sentences, and even predict if something “sounds right” in Malay. With continuous feedback and correction of misconceptions, they will gain confidence in using imbuhan – eventually using affixes to generate new words, understand nuanced meanings, and form grammatically solid sentences in Malay. Selamat belajar!
+
+---
+
+# 📖 Appendix: Cara Menggunakan Imbuhan dalam Karangan PSLE
+
+> Added Phase 3. This section is calibrated for the Singapore PSLE Paper 1 (Karangan) and Paper 2A (Tatabahasa) registers, drawing from the Cowork-supplied `Tatabahasa_Complete_Grammar_Reference.md` and the AKAR Education / EduReach style.
+
+## 1. The "meN- discipline" — never drop meN- in a karangan
+
+In casual Singapore speech, **meN-** is often dropped: *"Saya baca buku itu"*, *"Adik tulis surat"*. PSLE marks this. In a karangan, kata kerja transitif **must** carry meN- (or di- in passive).
+
+| Casual (avoid in karangan) | PSLE register |
+|---|---|
+| Saya baca buku itu. | Saya **membaca** buku itu. |
+| Adik tulis surat panjang. | Adik **menulis** surat panjang. |
+| Ibu masak nasi lemak. | Ibu **memasak** nasi lemak. |
+| Kami tonton wayang. | Kami **menonton** wayang. |
+| Dia ambil bola. | Dia **mengambil** bola. |
+| Pelajar itu hafaz puisi. | Pelajar itu **menghafaz** puisi. |
+
+**Rule of thumb**: if the verb has an object that follows it, attach meN-. Coach probe when the student writes a bare verb in their draft: *"Apakah objek bagi kata kerja itu? Jika ada, imbuhan meN- diperlukan."*
+
+## 2. Asimilasi meN- — the "Sony Pam Tin Kosong" mnemonic
+
+The Cowork reference lists the rules clearly; here is a memorable mnemonic used in Singapore tuition:
+
+> **Sony Pam Tin Kosong** — *S, p* drop; *t, c, d, j* take *men-*; *k, g, vowel* take *meng-*; *m, n, ng, ny, l, r, w, y* keep me-.
+
+| Pattern | Rule | Example |
+|---|---|---|
+| `meN- + s_` | `s` drops, becomes `meny-` | sapu → **menyapu**, susun → **menyusun** |
+| `meN- + p_` | `p` drops, becomes `mem-` | pukul → **memukul**, potong → **memotong** |
+| `meN- + b_` | becomes `mem-`, b stays | beli → **membeli**, baca → **membaca** |
+| `meN- + f_` | becomes `mem-` | fikir → **memikirkan**, fokus → **memfokus** |
+| `meN- + t_` | `t` drops, becomes `men-` | tulis → **menulis**, tarik → **menarik** |
+| `meN- + d_` | becomes `men-` | dorong → **mendorong**, dengar → **mendengar** |
+| `meN- + c_` | becomes `men-` | cari → **mencari**, cuba → **mencuba** |
+| `meN- + j_` | becomes `men-` | jual → **menjual**, jaga → **menjaga** |
+| `meN- + k_` | `k` drops, becomes `meng-` | kira → **mengira**, kumpul → **mengumpul** |
+| `meN- + g_` | becomes `meng-` | gambar → **menggambar**, garis → **menggaris** |
+| `meN- + vowel` | becomes `meng-` | ambil → **mengambil**, isi → **mengisi**, ukur → **mengukur** |
+| `meN- + m/n/ng/ny/l/r/w/y` | unchanged `me-` | masak → **memasak**, larang → **melarang**, runding → **merunding** |
+| `meN- + single-syllable` | becomes `menge-` | cat → **mengecat**, bom → **mengebom**, las → **mengelas** |
+
+### Mini-drills (try in your head):
+1. meN- + lukis → ?  ▸ **melukis** (l kekal)
+2. meN- + tangkap → ?  ▸ **menangkap** (t gugur)
+3. meN- + suruh → ?  ▸ **menyuruh** (s gugur, ganti ny)
+4. meN- + sokong → ?  ▸ **menyokong**
+5. meN- + ubah → ?  ▸ **mengubah**
+6. meN- + cat → ?  ▸ **mengecat** (suku kata tunggal → menge-)
+
+## 3. -kan vs -i — the most-tested suffix pair
+
+Examiners love this. The Cowork reference says it plainly: **-kan = causative; -i = locative/repetitive**.
+
+| -kan (kausatif — "menjadikan", "untuk") | -i (lokatif — "kepada", "atas") |
+|---|---|
+| Saya **memanaskan** air. (cause water to be hot) | Saya **memanasi** badan dengan jaket. (apply heat to body) |
+| Ibu **membelikan** saya buku. (buy for me) | — (no common -i form) |
+| Guru **menjelaskan** konsep itu. (cause it to be clear) | Guru **menjelaskan** kepada kami. (NB: also valid; -kan with kepada) |
+| Saya **mendekatkan** kerusi ke meja. (move closer) | Saya **mendekati** pelajar baharu itu. (approach the student) |
+| Mereka **menurunkan** harga. (lower price) | Mereka **menuruni** anak tangga. (descend the stairs) |
+| Ayah **menaikkan** bendera. (raise the flag) | Ayah **menaiki** kereta api. (board the train) |
+
+### Coach probe for -kan vs -i
+
+> Tanya: **Adakah anda menjadikan sesuatu (kan), atau membuat tindakan terhadap sesuatu/seseorang (i)?**
+
+If the verb means "to make something X" → **-kan**.
+If the verb means "to do X to someone/at a place" → **-i**.
+
+### Cluster: nasihat (advise)
+- **menasihatkan** sesuatu kepada seseorang  — give the advice (the advice is the object)
+- **menasihati** seseorang — counsel the person (the person is the object)
+
+> Dia **menasihatkan** kebijaksanaan kepada saya.  vs.  Dia **menasihati** saya.
+
+### Cluster: kunjung (visit)
+- **mengunjungi** (visit a place/person) — *Kami mengunjungi datuk di kampung.*
+- **mengunjungkan** does not exist in standard PSLE register.
+
+### Cluster: hadir (attend)
+- **menghadiri** (attend an event/meeting) — *Saya menghadiri majlis itu.*
+- **menghadirkan** (cause to be present, summon) — *Polis menghadirkan saksi.*
+
+## 4. ter- has three faces
+
+The Cowork reference highlights three uses. Each affects karangan tone differently.
+
+### 4.1 ter- + verb = tidak sengaja (accidental)
+Most common in narrative karangan.
+
+- *Saya **terjatuh** di tangga.* (I fell, by accident)
+- *Adik **terlupa** kunci di rumah.* (Adik forgot, accidentally)
+- *Kami **tertinggal** beg di kantin.* (We left the bag behind, by accident)
+- *Bayi itu **terbangun** kerana bunyi guruh.* (The baby woke up unintentionally)
+
+> 💡 **Karangan tip**: ter- adds emotional weight to a narrative. *"Adik terjatuh"* is more vivid than *"Adik jatuh"* — it suggests surprise.
+
+### 4.2 ter- + adjective = paling (superlative)
+- *Pelajar itu **terpandai** dalam kelas.* (the most clever)
+- *Bangunan itu **tertinggi** di Singapura.* (the tallest)
+- *Hadiah ini **terbaik** untuk anda.* (the best)
+- *Burung itu **tercantik** di taman.* (the most beautiful)
+
+> 💡 *ter-* and *paling* are interchangeable in this slot. *terpandai* = *paling pandai*. *ter-* often sounds more literary; *paling* is neutral.
+
+### 4.3 ter- + verb = keadaan tetap (completed state, no agency)
+- *Pintu itu **terbuka**.* (The door is in an open state — passive description)
+- *Lampu **terpasang** sepanjang malam.* (The light was on all night)
+- *Surat **tertulis** di papan kenyataan.* (A letter is posted on the board)
+
+> Contrast with **dibuka** (was opened, agent implied): *Pintu itu **dibuka oleh** Ali.*
+
+## 5. ke-…-an + pe(N)-…-an — kata nama mujarad
+
+These two apitan unlock abstract, "essay-friendly" vocabulary. Use them in karangan to elevate register.
+
+### Common ke-…-an nouns (state/quality)
+
+| Akar | ke-…-an | Maksud | Slot ayat karangan |
+|---|---|---|---|
+| baik | kebaikan | goodness | *Kebaikan beliau tidak terbalas.* |
+| selamat | keselamatan | safety | *Keselamatan anak-anak adalah utama.* |
+| bersih | kebersihan | cleanliness | *Marilah kita menjaga kebersihan sekolah.* |
+| maju | kemajuan | progress | *Kemajuan Singapura amat pesat.* |
+| bahagia | kebahagiaan | happiness | *Kebahagiaan keluarga ialah anugerah.* |
+| sedih | kesedihan | sadness | *Kesedihan itu masih membayangi dirinya.* |
+| jujur | kejujuran | honesty | *Kejujuran ialah sifat yang dipuji.* |
+| sabar | kesabaran | patience | *Kesabaran ibu tidak berbatas.* |
+| berani | keberanian | bravery | *Keberanian pemuda itu mengagumkan.* |
+| sihat | kesihatan | health | *Kesihatan badan amat penting.* |
+| indah | keindahan | beauty | *Keindahan Pulau Ubin tidak terlupakan.* |
+
+### Common pe(N)-…-an nouns (process/result)
+
+| Akar | pe(N)-…-an | Maksud | Slot ayat karangan |
+|---|---|---|---|
+| didik | pendidikan | education | *Pendidikan kunci masa depan.* |
+| ajar | pengajaran | a lesson | *Pengajaran daripada peristiwa itu amat berharga.* |
+| baca | pembacaan | reading (act) | *Pembacaan dapat meluaskan ufuk minda.* |
+| buat | perbuatan | action/deed | *Perbuatan baik mendapat balasan.* |
+| jalan | perjalanan | journey | *Perjalanan kami berakhir di taman.* |
+| tumbuh | pertumbuhan | growth | *Pertumbuhan ekonomi memberangsangkan.* |
+| sedia | penyediaan | preparation | *Penyediaan teliti diperlukan.* |
+| selesai | penyelesaian | solution | *Penyelesaian masalah memerlukan masa.* |
+| fikir | pemikiran | thought/thinking | *Pemikiran kritis dipupuk di sekolah.* |
+| guna | penggunaan | usage | *Penggunaan telefon bimbit perlu dikawal.* |
+
+## 6. Affix combinations in one ayat
+
+Strong karangan paragraphs use **multiple** affixed forms in one sentence. Examples:
+
+> *Pelajar yang **bersungguh-sungguh** **belajar** akan **memperoleh** **kejayaan** yang **gemilang**.*
+> beR-…-beR + beR- + meN-(per) + ke-…-an + standalone adjective.
+
+> *Bapa saya **menasihati** saya agar **mengamalkan** sifat **kejujuran** dan **kerajinan**.*
+> meN-…-i + meN-…-kan + 2× ke-…-an.
+
+> *Penyelesaian masalah itu memerlukan kebijaksanaan, kesabaran, dan kerjasama daripada semua pihak.*
+> 4× kata nama mujarad daripada 4 akar berbeza.
+
+## 7. Common exam traps (Coach probe targets)
+
+### Trap 1: di- (kata sendi) vs di- (imbuhan)
+
+The **#1** error in PSLE Paper 2A.
+
+| Kata sendi `di` (with space) | Imbuhan `di-` (no space) |
+|---|---|
+| **di** sekolah | **di**baca |
+| **di** rumah | **di**makan |
+| **di** atas meja | **di**tulis |
+
+> Coach probe: *"Apakah perkataan selepasnya — tempat (kata nama) atau perbuatan (kata kerja)?"*
+
+### Trap 2: meN- + dropped consonant confusion
+
+Students sometimes preserve the consonant when they shouldn't:
+
+| Wrong | Right | Why |
+|---|---|---|
+| menpukul | memukul | p drops, becomes mem- |
+| mentulis | menulis | t drops |
+| menkira | mengira | k drops, becomes meng- |
+| mensapu | menyapu | s drops, becomes meny- |
+
+### Trap 3: Stacking imbuhan inappropriately
+
+| Wrong | Right |
+|---|---|
+| mempelajarkan (tidak standard) | mempelajari |
+| memberhentikan (boleh, kausatif: cause to stop) | menghentikan (also acceptable) |
+| menyatukan (cause to unite) ≠ bersatu (be united) | use the right one for the meaning |
+
+### Trap 4: ter- assumed to always mean accidental
+
+Not always. *terpandai* = "most clever" (superlative). *terbuka* = "in open state" (resultative). Coach probe: *"Adakah ini perbuatan tidak sengaja, paling [adjektif], atau keadaan tetap?"*
+
+### Trap 5: ke- (ordinal) vs ke-…-an (abstract)
+
+- **ke-** alone (no -an) on numbers makes ordinals: kedua (second), ketiga (third), kelima (fifth).
+- **ke-…-an** wraps an adjective or root to make an abstract noun: ketiga**an** is not standard; *kebahagiaan* is.
+
+## 8. Imbuhan in karangan paragraphs — worked exemplars
+
+### Example A — Karangan Bertajuk: "Hari yang Tidak Terlupakan"
+
+> Pada suatu hari Ahad, keluarga saya **mengunjungi** datuk di kampungnya. **Perjalanan** ke sana memakan masa hampir dua jam. Setibanya di sana, saya **terkejut** melihat banyak saudara-mara yang sudah **berkumpul**. Mereka semua **menyambut** kami dengan **penuh** kemesraan.
+
+Affixes flagged:
+- *mengunjungi* — meN-…-i (visit a place/person)
+- *perjalanan* — pe(N)-…-an (journey)
+- *terkejut* — ter- (accidental/sudden state)
+- *berkumpul* — beR- (intransitive: gather)
+- *menyambut* — meN- (welcome — transitive)
+
+### Example B — Karangan Bergambar: gambar pelajar berkawan
+
+> Pada waktu rehat, **kelihatan** ramai pelajar yang sedang **berbual-bual** di kantin. Aiman, seorang pelajar baharu, sedang **duduk** sendirian. Saya berasa kasihan lalu **menghampirinya** dan **memperkenalkan** diri. **Sejak** hari itu, kami **menjadi** sahabat karib.
+
+Affixes flagged:
+- *kelihatan* — ke-…-an (passive/state: visible)
+- *berbual-bual* — beR- + reduplication (chatting)
+- *menghampirinya* — meN-…-i + -nya (approach him)
+- *memperkenalkan* — mem-per-…-kan (causative: introduce)
+- *menjadi* — meN- (become)
+
+## 9. Quick reference table — affix → function → karangan slot
+
+| Imbuhan | Fungsi utama | Bila guna dalam karangan |
+|---|---|---|
+| meN- | Kata kerja transitif aktif | Setiap kata kerja dengan objek |
+| beR- | Kata kerja tak transitif / mempunyai | Pergerakan, keadaan, "ada/pakai" |
+| peN- | Kata nama pelaku/alat | "Orang yang …" atau "alat untuk …" |
+| di- | Kata kerja pasif | Apabila subjek menerima perbuatan |
+| ter- | Tidak sengaja / paling / keadaan | Naratif, pujian, gambaran |
+| ke- | Ordinal (dengan nombor) | Senarai bernombor |
+| -kan | Kausatif | "Menjadikan …" |
+| -i | Lokatif/terhadap | "Kepada …", "di atas …" |
+| -an | Kata nama daripada akar | Hasil, tempat, koleksi |
+| -nya | Kata ganti milik / penekanan | Selepas kata nama atau kata kerja |
+| ke-…-an | Kata nama mujarad (sifat) | "-ness/-ity" konsep abstrak |
+| pe(N)-…-an | Kata nama mujarad (proses) | "-tion/-ment" proses atau hasil |
+| beR-…-an | Saling / bertaburan | Tindakan timbal balik / bertaburan |
+| meN-…-kan | Kausatif aktif | "Membuatkan sesuatu jadi X" |
+| meN-…-i | Lokatif aktif | "Melakukan X kepada Y" |
+| mem-per-…-kan | Kausatif intensif | "Menjadikan amat X" |
+
+## 10. 50 worked words for memorisation
+
+A short bank for spaced repetition. Recognise → produce → use in a sentence.
+
+| # | Akar | Bentuk imbuhan | Maksud | Contoh slot |
+|---|---|---|---|---|
+| 1 | baca | membaca / dibaca / pembaca / pembacaan / bacaan | read | *Saya membaca novel itu.* |
+| 2 | tulis | menulis / ditulis / penulis / penulisan / tulisan | write | *Penulis itu menulis dengan tekun.* |
+| 3 | masak | memasak / dimasak / pemasak / pemasakan / masakan | cook | *Masakan ibu paling lazat.* |
+| 4 | ajar | mengajar / diajar / pengajar / pengajaran / ajaran | teach | *Pengajaran itu bermakna.* |
+| 5 | beli | membeli / dibeli / pembeli / pembelian / belian | buy | *Pembelian dilakukan dalam talian.* |
+| 6 | jual | menjual / dijual / penjual / penjualan / jualan | sell | *Jualan akhir tahun bermula esok.* |
+| 7 | jaga | menjaga / dijaga / penjaga / penjagaan | care for | *Penjagaan kanak-kanak penting.* |
+| 8 | tolong | menolong / ditolong / penolong / pertolongan | help | *Pertolongan datang tepat pada masanya.* |
+| 9 | cuba | mencuba / dicuba / percubaan | try | *Percubaan pertama berjaya.* |
+| 10 | tangkap | menangkap / ditangkap / penangkapan | catch | *Penangkapan itu berlaku semalam.* |
+| 11 | sambut | menyambut / disambut / sambutan | welcome | *Sambutan hangat diberikan.* |
+| 12 | hantar | menghantar / dihantar / penghantaran | send | *Penghantaran percuma untuk pembeli.* |
+| 13 | datang | berdatangan / kedatangan | arrive | *Kedatangan tetamu disambut.* |
+| 14 | balas | membalas / dibalas / balasan | reply | *Balasan beliau menyentuh hati.* |
+| 15 | tunggu | menunggu / ditunggu / penantian | wait | *Penantian berakhir dengan kejayaan.* |
+| 16 | duduk | menduduki / kedudukan | sit / hold | *Kedudukan pasukan kami pertama.* |
+| 17 | tinggi | meninggikan / ketinggian | high | *Ketinggian bukit itu mengagumkan.* |
+| 18 | turun | menurunkan / penurunan | down | *Penurunan suhu mendadak.* |
+| 19 | naik | menaiki / menaikkan / kenaikan | up | *Kenaikan harga mengejutkan.* |
+| 20 | rasa | merasai / merasakan / perasaan | feel | *Perasaannya bercampur baur.* |
+| 21 | fikir | memikirkan / pemikir / pemikiran | think | *Pemikiran kritis penting.* |
+| 22 | percaya | mempercayai / kepercayaan | trust | *Kepercayaan dibina perlahan-lahan.* |
+| 23 | benar | membenarkan / kebenaran | true | *Kebenaran sentiasa menang.* |
+| 24 | bersih | membersihkan / kebersihan | clean | *Kebersihan diutamakan.* |
+| 25 | bahagia | membahagiakan / kebahagiaan | happy | *Kebahagiaan ialah anugerah.* |
+| 26 | sabar | bersabar / kesabaran | patient | *Kesabaran berbuah manis.* |
+| 27 | rajin | berusaha rajin / kerajinan | diligent | *Kerajinan kunci kejayaan.* |
+| 28 | jujur | berlaku jujur / kejujuran | honest | *Kejujuran ialah polisi terbaik.* |
+| 29 | berani | berani / keberanian | brave | *Keberanian beliau dipuji.* |
+| 30 | maju | memajukan / kemajuan | progress | *Kemajuan dicapai dengan usaha.* |
+| 31 | indah | memperindahkan / keindahan | beauty | *Keindahan alam memukau.* |
+| 32 | selamat | menyelamatkan / keselamatan | safe | *Keselamatan paling utama.* |
+| 33 | sihat | menyihatkan / kesihatan | healthy | *Kesihatan adalah harta.* |
+| 34 | suka | menyukai / disukai / kesukaan | like | *Buku ialah kesukaan saya.* |
+| 35 | tahu | mengetahui / pengetahuan | know | *Pengetahuan berkuasa.* |
+| 36 | guna | menggunakan / penggunaan | use | *Penggunaan plastik perlu dikurangkan.* |
+| 37 | lihat | melihat / penglihatan | see | *Penglihatannya semakin kurang.* |
+| 38 | dengar | mendengar / pendengaran | hear | *Pendengaran beliau masih tajam.* |
+| 39 | suara | bersuara / suara | voice | *Bersuaralah untuk kebenaran.* |
+| 40 | ubah | mengubah / perubahan | change | *Perubahan ini perlu masa.* |
+| 41 | bangun | membangun / pembangunan | build/rise | *Pembangunan ekonomi pesat.* |
+| 42 | bantu | membantu / bantuan | help | *Bantuan diperlukan segera.* |
+| 43 | kawal | mengawal / kawalan | control | *Kawalan trafik ketat.* |
+| 44 | jaga | berjaga / penjagaan / pengawal | guard | *Pengawal keselamatan berdiri di pintu.* |
+| 45 | sampai | menyampaikan / penyampaian | deliver | *Penyampaian beliau berkesan.* |
+| 46 | tulis | tertulis / tulisan / penulisan | written | *Tulisan tangan beliau cantik.* |
+| 47 | jatuh | terjatuh / kejatuhan / menjatuhkan | fall | *Kejatuhan kerajaan itu mengejutkan.* |
+| 48 | ingat | mengingati / mengingatkan / kenangan | remember | *Kenangan itu sukar dilupakan.* |
+| 49 | lupa | terlupa / melupakan / kelupaan | forget | *Saya terlupa kunci.* |
+| 50 | cinta | mencintai / kecintaan / pencinta | love | *Kecintaan terhadap negara.* |
+
+---
+
+*Appendix added Phase 3 — Authored from training and calibrated against `source/reference/Tatabahasa_Complete_Grammar_Reference.md`. Re-calibrate against past PSLE BM papers when sources arrive.*

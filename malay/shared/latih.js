@@ -118,6 +118,58 @@
         { stem: 'Ibu membeli ___ kasut.', options: ['sebuah', 'seekor', 'sepasang', 'sehelai'], correct: 2, why: 'Berpasangan → sepasang.' },
       ],
     },
+
+    'kosa-kata': {
+      title: 'Pelbagaikan Kosa Kata',
+      intro: 'Pilih perkataan yang PALING tepat untuk slot karangan.',
+      items: [
+        { stem: 'Sinonim PALING formal untuk "gembira":', options: ['happy', 'sukacita', 'okay', 'fine'], correct: 1, why: 'Sukacita = formal Malay untuk "joyful/delighted".' },
+        { stem: 'Cuaca hari ini sangat ___ . Matahari menyengat kulit.', options: ['tenang', 'terik', 'lembap', 'sejuk'], correct: 1, why: 'Matahari menyengat → cuaca terik (sangat panas).' },
+        { stem: 'Ali mengulang kaji ___ untuk peperiksaan akhir tahun.', options: ['malas-malasan', 'bersungguh-sungguh', 'tergesa-gesa', 'sambil lewa'], correct: 1, why: 'Konteks positif → bersungguh-sungguh (formal, vivid).' },
+        { stem: 'Mendengar berita kemenangan, air matanya ___ kerana terharu.', options: ['kering', 'bergenang', 'hilang', 'meleleh'], correct: 1, why: 'Bergenang = welling up. Sesuai untuk klimaks emosi karangan.' },
+        { stem: 'Pilih perkataan untuk suasana TEGANG:', options: ['mencengkam', 'meriah', 'tenang', 'biasa'], correct: 0, why: 'Suasana mencengkam = atmosfera tegang. Sesuai untuk perenggan konflik karangan.' },
+        { stem: 'Suasana di pasar pada hari Sabtu sangat ___ .', options: ['sunyi sepi', 'penuh sesak', 'lapang', 'kosong'], correct: 1, why: 'Pasar hari Sabtu = ramai orang → penuh sesak.' },
+      ],
+    },
+
+    'sinonim-antonim': {
+      title: 'Pasangan Seerti & Berlawanan',
+      intro: 'Pilih sinonim atau antonim yang BETUL.',
+      items: [
+        { stem: 'Sinonim untuk "pandai":', options: ['bodoh', 'cerdik', 'malas', 'sedih'], correct: 1, why: 'Cerdik = sinonim biasa untuk pandai.' },
+        { stem: 'Antonim untuk "berani":', options: ['gagah', 'perkasa', 'takut', 'tinggi'], correct: 2, why: 'Berani ↔ takut (atau pengecut).' },
+        { stem: 'Sinonim PALING formal untuk "cantik":', options: ['cute', 'cantik je', 'jelita', 'biasa'], correct: 2, why: 'Jelita = sinonim literari untuk cantik. Sesuai karangan deskriptif.' },
+        { stem: 'Antonim langsung untuk "miskin":', options: ['kaya', 'sederhana', 'tinggi', 'sedih'], correct: 0, why: 'Miskin ↔ kaya (antonim langsung).' },
+        { stem: 'Sinonim untuk "penat":', options: ['rajin', 'letih', 'gembira', 'sedih'], correct: 1, why: 'Letih / lelah / lesu = sinonim penat.' },
+        { stem: 'Antonim untuk "rajin":', options: ['tekun', 'gigih', 'malas', 'pandai'], correct: 2, why: 'Rajin ↔ malas.' },
+      ],
+    },
+
+    'peribahasa': {
+      title: 'Pilih Peribahasa',
+      intro: 'Padankan peribahasa dengan maksud atau konteksnya.',
+      items: [
+        { stem: '"Bagai aur dengan tebing" bermaksud:', options: ['Bermusuh', 'Saling menyokong', 'Bercerai', 'Berbohong'], correct: 1, why: 'Aur (buluh) dan tebing saling menyokong = hubungan rapat yang saling menguatkan.' },
+        { stem: '"Sedikit-sedikit, lama-lama menjadi bukit" mengajarkan:', options: ['Bermalas-malasan', 'Usaha kecil yang konsisten menghasilkan kejayaan', 'Berputus asa', 'Bercerai-berai'], correct: 1, why: 'Akumulasi usaha kecil = kejayaan besar.' },
+        { stem: 'Konteks: "Ali bekerja keras bertahun-tahun sehingga akhirnya berjaya membuka kedainya sendiri." Peribahasa yang sesuai:', options: ['Sudah jatuh ditimpa tangga', 'Sedikit-sedikit, lama-lama menjadi bukit', 'Ada udang di sebalik batu', 'Hangat-hangat tahi ayam'], correct: 1, why: 'Usaha konsisten bertahun-tahun → peribahasa konsistensi.' },
+        { stem: '"Sudah jatuh ditimpa tangga" menggambarkan:', options: ['Pelajar yang rajin', 'Malang bertimpa-timpa', 'Kawan yang baik', 'Cuaca yang elok'], correct: 1, why: 'Kemalangan demi kemalangan (peribahasa untuk situasi malang yang berlapis).' },
+        { stem: '"Bersatu teguh, bercerai roboh" menekankan kepentingan:', options: ['Berpecah', 'Perpaduan dan kerjasama', 'Berdiam diri', 'Bermusuh'], correct: 1, why: 'Bersatu = kuat (teguh); bercerai = jatuh (roboh).' },
+        { stem: '"Air yang tenang jangan disangka tiada buaya" mengajar kita untuk:', options: ['Bermain air', 'Berhati-hati dengan orang yang nampak diam', 'Mencari buaya', 'Tinggal jauh dari sungai'], correct: 1, why: 'Air tenang boleh menyembunyikan bahaya. Berhati-hati terhadap orang/keadaan yang nampak aman.' },
+      ],
+    },
+
+    'simpulan-bahasa': {
+      title: 'Faham Simpulan Bahasa',
+      intro: 'Pilih makna simpulan bahasa.',
+      items: [
+        { stem: '"Buah hati" bermaksud:', options: ['buah-buahan', 'jantung sebenar', 'orang yang amat disayangi', 'taman'], correct: 2, why: 'Simpulan untuk kekasih atau anak yang amat disayangi.' },
+        { stem: '"Panjang tangan" bermaksud:', options: ['lengan panjang', 'suka menolong', 'suka mencuri', 'rajin'], correct: 2, why: 'Simpulan untuk sifat mencuri.' },
+        { stem: '"Naik darah" bermaksud:', options: ['sihat', 'menjadi marah', 'lapar', 'sejuk'], correct: 1, why: 'Simpulan untuk berasa marah/berang.' },
+        { stem: '"Tangan kanan" merujuk kepada:', options: ['tangan kanan fizikal', 'orang kepercayaan', 'kemenangan', 'pukulan'], correct: 1, why: 'Orang yang membantu dan boleh dipercayai sepenuhnya.' },
+        { stem: '"Mata duitan" menggambarkan sifat:', options: ['pemurah', 'rajin', 'tamakkan wang', 'penyabar'], correct: 2, why: 'Mata yang hanya melihat wang → sifat tamak material.' },
+        { stem: '"Berat tulang" menggambarkan:', options: ['badan kuat', 'sifat malas', 'tulang yang patah', 'berat badan'], correct: 1, why: 'Tulang berat → susah bergerak → simpulan untuk malas.' },
+      ],
+    },
   };
 
   // ── Widget mount ───────────────────────────────────────

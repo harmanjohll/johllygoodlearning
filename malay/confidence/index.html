@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Latihan Mudah | PSLE Bahasa Melayu Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .9rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    .page-header h1 { font-size: 1.3rem; }
+    main { max-width: 820px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .hero-band {
+      background: linear-gradient(135deg, #14302b 0%, #2d1a3a 100%);
+      border: 1px solid var(--tatabahasa);
+      border-radius: 14px;
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1.75rem;
+    }
+    .hero-band h2 { font-size: 1.2rem; color: var(--tatabahasa); margin-bottom: .35rem; }
+    .hero-band p { font-size: .92rem; color: var(--muted); line-height: 1.6; }
+
+    .picker { display: grid; gap: .75rem; margin-bottom: 1.5rem; }
+    .topic-picker {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .85rem 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: .85rem;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .topic-picker:hover { background: var(--surface); border-color: var(--accent); }
+    .topic-picker.selected { background: #0d2933; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(56, 189, 248, .25); }
+    .topic-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .topic-name { font-weight: 700; color: var(--text); font-size: .9rem; flex: 1; }
+    .topic-blurb { font-size: .76rem; color: var(--muted); line-height: 1.45; }
+
+    .actions { display: flex; gap: .75rem; flex-wrap: wrap; }
+
+    .drill-area { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+    .drill-area.active { display: block; }
+
+    .pickbar { background: var(--surface); padding: .65rem .9rem; border-radius: 9px; font-size: .8rem; color: var(--muted); margin-bottom: 1rem; }
+    .pickbar strong { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1>🌱 Latihan Mudah</h1>
+    <div style="font-size:.78rem;color:var(--muted)">Latihan ringkas yang membina keyakinan — pilih topik, jawab 6 soalan, dapatkan maklum balas segera</div>
+  </div>
+</header>
+
+<main>
+  <div class="hero-band">
+    <h2>Membina Keyakinan, Satu Topik pada Satu Masa</h2>
+    <p>Latihan ini dipilih dari bank Common-Mistake setiap topik. Sasaran kejayaan: ~85%. Bukan ujian — ini ulang kaji ringan untuk hari yang mungkin terasa berat. Tiada masa, tiada tekanan, tiada potongan markah.</p>
+  </div>
+
+  <div id="picker-view">
+    <h3 style="font-size:.95rem;margin-bottom:.85rem;color:var(--text)">Pilih topik untuk dilatih:</h3>
+    <div class="picker" id="picker-grid"></div>
+
+    <h3 style="font-size:.95rem;margin:1.5rem 0 .85rem;color:var(--text)">Atau cuba sampel rentas topik:</h3>
+    <div class="actions">
+      <button class="btn btn-primary" id="random-btn">🎲 Pilih topik secara rawak</button>
+      <a href="../map/index.html" class="btn btn-ghost">🗺 Buka Peta Besar</a>
+    </div>
+  </div>
+
+  <div id="drill-area" class="drill-area">
+    <div class="pickbar"><strong>Topik dipilih: <span id="picked-name"></span></strong> · <a href="#" id="change-pick" style="color:var(--accent);text-decoration:none">↺ Tukar topik</a></div>
+    <div id="latih-mount"></div>
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script src="../shared/coach.js"></script>
+<script src="../shared/latih.js"></script>
+<script>
+const TOPICS = [
+  { id: 'imbuhan',          name: 'Imbuhan',         theme: 'tatabahasa', blurb: 'meN-, beR-, peN-, di-, ter-, ke-…-an. Asimilasi bunyi hidung.' },
+  { id: 'kata-nama',        name: 'Kata Nama',       theme: 'tatabahasa', blurb: 'Am / khas / mujarad; kata ganda penuh & berentak.' },
+  { id: 'kata-kerja',       name: 'Kata Kerja',      theme: 'tatabahasa', blurb: 'Transitif / tak transitif; aspek (sedang, telah, akan).' },
+  { id: 'kata-adjektif',    name: 'Kata Adjektif',   theme: 'tatabahasa', blurb: 'Darjah perbandingan: lebih, paling, ter-.' },
+  { id: 'kata-hubung',      name: 'Kata Hubung',     theme: 'tatabahasa', blurb: 'dan, tetapi, kerana, supaya, walaupun, apabila.' },
+  { id: 'kata-sendi',       name: 'Kata Sendi Nama', theme: 'tatabahasa', blurb: 'di, ke, kepada, dari, daripada, pada, oleh.' },
+  { id: 'kata-ganti-nama',  name: 'Kata Ganti Nama', theme: 'tatabahasa', blurb: 'saya / anda / beliau; kami vs kita.' },
+  { id: 'penjodoh-bilangan',name: 'Penjodoh Bilangan',theme: 'tatabahasa', blurb: 'seorang, seekor, sebuah, sehelai, sepasang.' },
+  { id: 'kosa-kata',        name: 'Kosa Kata',       theme: 'kosakata',   blurb: 'Pelbagaikan emosi, latar, sifat dalam karangan.' },
+  { id: 'sinonim-antonim',  name: 'Sinonim & Antonim',theme: 'kosakata',  blurb: 'Pasangan seerti dan berlawanan.' },
+  { id: 'peribahasa',       name: 'Peribahasa',      theme: 'peribahasa', blurb: 'Padankan peribahasa dengan maksud atau konteks.' },
+  { id: 'simpulan-bahasa',  name: 'Simpulan Bahasa', theme: 'peribahasa', blurb: 'buah hati, panjang tangan, naik darah.' },
+];
+
+const THEME_COLOR = {
+  tatabahasa: 'var(--tatabahasa)',
+  kosakata:   'var(--kosakata)',
+  peribahasa: 'var(--peribahasa)',
+  kefahaman:  'var(--kefahaman)',
+  penulisan:  'var(--penulisan)',
+};
+
+const grid = document.getElementById('picker-grid');
+TOPICS.forEach(t => {
+  const card = document.createElement('div');
+  card.className = 'topic-picker';
+  card.dataset.tid = t.id;
+  card.innerHTML = `
+    <div class="topic-dot" style="background:${THEME_COLOR[t.theme]}"></div>
+    <div style="flex:1">
+      <div class="topic-name">${t.name}</div>
+      <div class="topic-blurb">${t.blurb}</div>
+    </div>
+  `;
+  card.addEventListener('click', () => startDrill(t));
+  grid.appendChild(card);
+});
+
+document.getElementById('random-btn').addEventListener('click', () => {
+  const t = TOPICS[Math.floor(Math.random() * TOPICS.length)];
+  startDrill(t);
+});
+
+document.getElementById('change-pick').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('drill-area').classList.remove('active');
+  document.getElementById('picker-view').style.display = 'block';
+});
+
+function startDrill(topic) {
+  document.getElementById('picker-view').style.display = 'none';
+  document.getElementById('picked-name').textContent = topic.name;
+  document.getElementById('drill-area').classList.add('active');
+  const mount = document.getElementById('latih-mount');
+  if (window.MalayLatih && typeof window.MalayLatih.mount === 'function') {
+    window.MalayLatih.mount(topic.id, mount);
+  } else {
+    mount.innerHTML = '<p style="color:var(--muted)">Latih widget belum dimuat.</p>';
+  }
+}
+</script>
+</body>
+</html>

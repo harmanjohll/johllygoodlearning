@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peta Besar | PSLE Bahasa Melayu Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <script src="https://unpkg.com/d3@7/dist/d3.min.js"></script>
+  <style>
+    body { padding: 0; overflow-x: hidden; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .76rem; color: var(--muted); }
+
+    .map-toolbar { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; padding: .75rem 1.5rem; background: var(--bg); border-bottom: 1px solid var(--border); }
+    .map-toolbar .label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    .mode-toggle { display: flex; gap: .35rem; }
+    .mode-btn { padding: .4rem .9rem; border-radius: 7px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: .82rem; font-weight: 600; transition: all .15s; }
+    .mode-btn.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+    .map-toolbar .legend { display: flex; gap: .75rem; align-items: center; font-size: .72rem; color: var(--muted); flex-wrap: wrap; margin-left: auto; }
+    .legend-swatch { display: inline-flex; align-items: center; gap: .3rem; }
+    .legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+    main {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 0;
+      height: calc(100vh - 130px);
+      min-height: 600px;
+    }
+    .map-canvas { background: var(--bg); position: relative; overflow: hidden; }
+    .map-canvas svg { width: 100%; height: 100%; display: block; cursor: default; }
+
+    .info-panel { background: var(--surface); border-left: 1px solid var(--border); padding: 1.25rem 1.25rem 1.25rem; overflow-y: auto; }
+    .info-panel h2 { font-size: 1.05rem; margin-bottom: .35rem; color: var(--text); }
+    .info-panel .info-meta { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; margin-bottom: .85rem; }
+    .info-panel .info-body { font-size: .87rem; color: var(--text); line-height: 1.55; margin-bottom: .85rem; }
+    .info-panel .info-prompt { font-size: .85rem; color: var(--muted); background: var(--card); border-left: 3px solid var(--accent); padding: .65rem .85rem; border-radius: 6px; line-height: 1.55; margin-bottom: .85rem; }
+    .info-panel .info-prompt strong { color: var(--accent); }
+    .info-panel .info-actions { display: flex; flex-direction: column; gap: .5rem; margin-top: .9rem; }
+    .info-panel .info-empty { color: var(--muted); font-size: .85rem; font-style: italic; line-height: 1.55; }
+    .info-panel .connections { font-size: .78rem; color: var(--muted); margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .info-panel .connection-pill { display: inline-block; padding: .25rem .55rem; margin: .15rem; background: var(--card); border: 1px solid var(--border); border-radius: 99px; font-size: .72rem; color: var(--text); cursor: pointer; transition: all .15s; }
+    .info-panel .connection-pill:hover { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+
+    /* Node + edge styles */
+    .mm-node text {
+      pointer-events: none; fill: #cfd3df;
+      font-family: 'Inter Tight','Inter',system-ui,sans-serif;
+      font-weight: 600; paint-order: stroke;
+      stroke: #0d1a2e; stroke-width: 3.5; stroke-linejoin: round;
+    }
+    .mm-node.root text { fill: #ffffff; font-weight: 800; font-size: 14px; }
+    .mm-node.theme text { fill: #ffffff; font-weight: 700; }
+    .mm-node circle { cursor: pointer; transition: r .2s, stroke-width .15s, opacity .15s; }
+    .mm-node.focus circle { stroke-width: 4; filter: drop-shadow(0 0 8px currentColor); }
+    .mm-node.dim circle { opacity: .15; }
+    .mm-node.dim text { opacity: .15; }
+    .mm-node.highlight circle { stroke-width: 4; filter: drop-shadow(0 0 6px currentColor); }
+    .mm-node.collapsed circle { stroke-dasharray: 3 2; }
+
+    .mm-edge { fill: none; stroke: #475569; stroke-width: 1; opacity: .55; }
+    .mm-edge.cross { stroke-dasharray: 4 3; stroke: #94a3b8; }
+    .mm-edge.active { stroke-width: 2; opacity: 1; stroke: var(--accent); }
+    .mm-edge.dim { opacity: .07; }
+
+    .map-tooltip {
+      position: absolute; pointer-events: none;
+      background: rgba(15, 23, 42, .96);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: .4rem .6rem;
+      font-size: .78rem;
+      color: var(--text);
+      max-width: 240px;
+      line-height: 1.4;
+      z-index: 50;
+      transition: opacity .15s;
+      opacity: 0;
+    }
+    .map-tooltip.show { opacity: 1; }
+
+    @media (max-width: 800px) {
+      main { grid-template-columns: 1fr; height: auto; }
+      .map-canvas { height: 60vh; min-height: 460px; }
+      .info-panel { border-left: none; border-top: 1px solid var(--border); max-height: 50vh; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1>🗺 Peta Besar — PSLE Bahasa Melayu</h1>
+    <div class="meta">Lima tema · 14 topik · 60+ konsep · Klik tema untuk fan-out, klik topik untuk konsep, klik konsep untuk Coach probe</div>
+  </div>
+</header>
+
+<div class="map-toolbar">
+  <span class="label">Mod</span>
+  <div class="mode-toggle">
+    <button class="mode-btn active" data-mode="deductive">⇣ Deduktif (tema → konsep)</button>
+    <button class="mode-btn" data-mode="inductive">⇡ Induktif (konsep → tema)</button>
+  </div>
+  <button class="mode-btn" id="reset-btn" style="margin-left:.5rem">↺ Set Semula</button>
+  <button class="mode-btn" id="expand-all-btn">⊞ Buka Semua</button>
+  <div class="legend">
+    <span class="legend-swatch"><span class="legend-dot" style="background:#38bdf8"></span> Akar</span>
+    <span class="legend-swatch"><span class="legend-dot" style="background:#34d399"></span> Tatabahasa</span>
+    <span class="legend-swatch"><span class="legend-dot" style="background:#fbbf24"></span> Kosa Kata</span>
+    <span class="legend-swatch"><span class="legend-dot" style="background:#e879f9"></span> Peribahasa</span>
+    <span class="legend-swatch"><span class="legend-dot" style="background:#60a5fa"></span> Kefahaman</span>
+    <span class="legend-swatch"><span class="legend-dot" style="background:#fb7185"></span> Penulisan</span>
+  </div>
+</div>
+
+<main>
+  <div class="map-canvas" id="map-canvas">
+    <svg id="map-svg"></svg>
+    <div class="map-tooltip" id="map-tooltip"></div>
+  </div>
+
+  <aside class="info-panel" id="info-panel">
+    <div class="info-empty" id="info-empty">
+      Klik mana-mana nod untuk membuka penerangan dan soalan probe daripada Coach.
+      Tema dan topik berkembang ke konsep apabila diklik. Konsep boleh ditelusur kembali ke tema dalam mod Induktif.
+    </div>
+    <div id="info-content" style="display:none">
+      <div class="info-meta" id="info-meta"></div>
+      <h2 id="info-title"></h2>
+      <div class="info-body" id="info-body"></div>
+      <div class="info-prompt" id="info-prompt" style="display:none"></div>
+      <div class="info-actions" id="info-actions"></div>
+      <div class="connections" id="info-connections" style="display:none">
+        <strong style="color:var(--text)">Berkaitan dengan:</strong>
+        <div id="connection-list" style="margin-top:.45rem"></div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script src="../shared/coach.js"></script>
+<script>
+// ── Mega-map data ──────────────────────────────────────────
+// Each node carries: id, label, level (0=root, 1=theme, 2=topic, 3=concept),
+// theme, blurb (panel body), probe (Coach question), link? (topic URL).
+const DATA = {
+  nodes: [
+    { id: 'root', label: 'PSLE Bahasa Melayu', level: 0, theme: 'root', blurb: 'Sukatan Pelajaran MOE 0006. Empat kertas: Karangan (40), Tatabahasa+Kefahaman (90), Mendengar (20), Lisan (50). Setiap tema di sini menyokong satu atau lebih kertas.' },
+
+    // Themes
+    { id: 'tatabahasa',  label: 'TATABAHASA',  level: 1, theme: 'tatabahasa', blurb: 'Tatabahasa = peraturan binaan Bahasa Melayu. Diuji secara langsung dalam Kertas 2 Booklet A (50 markah MCQ). Asas kepada semua karangan dan kefahaman.' },
+    { id: 'kosakata',    label: 'KOSA KATA',   level: 1, theme: 'kosakata', blurb: 'Bank perkataan: emosi, pergerakan, sifat, latar tempat. Kosa kata yang luas membezakan karangan biasa dengan karangan cemerlang.' },
+    { id: 'peribahasa-th', label: 'PERIBAHASA', level: 1, theme: 'peribahasa', blurb: 'Peribahasa & simpulan bahasa. ~5 soalan MCQ dalam Kertas 2A; juga menambah markah dalam karangan jika digunakan dengan tepat.' },
+    { id: 'kefahaman-th', label: 'KEFAHAMAN',   level: 1, theme: 'kefahaman', blurb: 'Petikan dan dialog. Soalan literal, inferens, kosa kata, respons peribadi. Bahagian wajaran tinggi dalam Kertas 2B.' },
+    { id: 'penulisan',   label: 'PENULISAN',    level: 1, theme: 'penulisan', blurb: 'Karangan bertajuk (topik diberi) atau bergambar. 180-250 patah perkataan dalam 50 minit. Memerlukan kosa kata dan kawalan tatabahasa.' },
+
+    // Tatabahasa topics
+    { id: 'imbuhan', label: 'Imbuhan', level: 2, theme: 'tatabahasa', link: '../topics/imbuhan/', blurb: 'meN-, beR-, peN-, di-, ter-, ke-…-an, pe(N)-…-an. Pembentukan kata dan asimilasi bunyi hidung. Paling banyak diuji dalam Kertas 2A.' },
+    { id: 'kata-nama', label: 'Kata Nama', level: 2, theme: 'tatabahasa', link: '../topics/kata-nama/', blurb: 'Am, khas, mujarad. Kata ganda penuh, separa, berentak. Cara menunjukkan jamak tanpa "-s".' },
+    { id: 'kata-kerja', label: 'Kata Kerja', level: 2, theme: 'tatabahasa', link: '../topics/kata-kerja/', blurb: 'Transitif vs tak transitif. Penanda aspek: sedang, telah, akan, belum, masih, pernah.' },
+    { id: 'kata-adjektif', label: 'Kata Adjektif', level: 2, theme: 'tatabahasa', link: '../topics/kata-adjektif/', blurb: 'Sifat, warna, ukuran, perasaan. Darjah perbandingan: lebih … daripada, paling, ter-.' },
+    { id: 'kata-hubung', label: 'Kata Hubung', level: 2, theme: 'tatabahasa', link: '../topics/kata-hubung/', blurb: 'Gabungan, pertentangan, sebab, syarat, tujuan, urutan. Tulang belakang ayat majmuk dalam karangan.' },
+    { id: 'kata-sendi', label: 'Kata Sendi', level: 2, theme: 'tatabahasa', link: '../topics/kata-sendi/', blurb: 'di, ke, kepada, dari, daripada, pada, oleh, dengan. Pasangan halus yang sering diuji.' },
+    { id: 'kata-ganti-nama', label: 'Kata Ganti Nama', level: 2, theme: 'tatabahasa', link: '../topics/kata-ganti-nama/', blurb: 'Diri, tunjuk, tanya. saya/anda/beliau; kami vs kita.' },
+    { id: 'penjodoh-bilangan', label: 'Penjodoh Bilangan', level: 2, theme: 'tatabahasa', link: '../topics/penjodoh-bilangan/', blurb: 'seorang, seekor, sebuah, sehelai, sebatang, sebiji, sepasang. Padankan dengan bentuk atau sifat kata nama.' },
+
+    // Kosa Kata topics
+    { id: 'kosa-kata', label: 'Kosa Kata Tematik', level: 2, theme: 'kosakata', link: '../topics/kosa-kata/', blurb: 'Bank perbendaharaan kata mengikut tema: emosi, pergerakan, sifat watak, latar tempat, komuniti, sekolah, kesihatan.' },
+    { id: 'sinonim-antonim', label: 'Sinonim & Antonim', level: 2, theme: 'kosakata', link: '../topics/sinonim-antonim/', blurb: 'Pasangan kata seerti dan berlawanan. Penting untuk mengelakkan pengulangan dalam karangan.' },
+
+    // Peribahasa topics
+    { id: 'peribahasa', label: 'Peribahasa', level: 2, theme: 'peribahasa', link: '../topics/peribahasa/', blurb: 'Bagai aur dengan tebing, Sedikit-sedikit lama-lama jadi bukit, Bersatu teguh bercerai roboh. 50 peribahasa lazim untuk PSLE.' },
+    { id: 'simpulan-bahasa', label: 'Simpulan Bahasa', level: 2, theme: 'peribahasa', link: '../topics/simpulan-bahasa/', blurb: 'Frasa ringkas dengan makna kiasan: buah hati, panjang tangan, naik darah, tangan kanan.' },
+
+    // Kefahaman + Penulisan (Phase 4 topics, listed for completeness)
+    { id: 'kefahaman', label: 'Kefahaman Petikan', level: 2, theme: 'kefahaman', link: '../topics/kefahaman/', blurb: 'Petikan naratif, fakta, dialog. Soalan literal, inferens, kosa kata, respons peribadi. (Akan datang dalam Fasa 4.)' },
+    { id: 'karangan', label: 'Karangan', level: 2, theme: 'penulisan', link: '../topics/karangan/', blurb: 'Karangan bertajuk dan bergambar. Rangka, perenggan model, rubrik PSLE. (Akan datang dalam Fasa 4.)' },
+
+    // Concepts under Tatabahasa topics
+    { id: 'c-meN', label: 'meN- (aktif)', level: 3, theme: 'tatabahasa', blurb: 'Imbuhan awalan yang membentuk kata kerja transitif aktif. Mengalami asimilasi bunyi hidung: mem-, men-, meng-, meny-, menge-.' },
+    { id: 'c-beR', label: 'beR- (tak transitif)', level: 3, theme: 'tatabahasa', blurb: 'Awalan untuk kata kerja tak transitif atau menunjukkan "mempunyai/memakai/dalam keadaan". Contoh: berlari, bermain, berbaju.' },
+    { id: 'c-peN', label: 'peN- (pelaku/alat)', level: 3, theme: 'tatabahasa', blurb: 'Awalan yang membentuk kata nama pelaku atau alat. Contoh: penulis, pemasak, pemain, penolong.' },
+    { id: 'c-di-', label: 'di- (pasif)', level: 3, theme: 'tatabahasa', blurb: 'Imbuhan kata kerja pasif. Ditulis BERSAMA kata kerja (tanpa jarak). Jangan keliru dengan kata sendi "di" (tempat, dengan jarak).' },
+    { id: 'c-ter', label: 'ter- (tidak sengaja)', level: 3, theme: 'tatabahasa', blurb: 'Tiga muka: (1) tindakan tidak sengaja — terjatuh, (2) darjah penghabisan — terbesar, (3) keadaan tetap — terbuka.' },
+    { id: 'c-kean', label: 'ke-…-an (mujarad)', level: 3, theme: 'tatabahasa', blurb: 'Apitan yang membentuk kata nama abstrak (sifat/keadaan). Contoh: kebahagiaan, keselamatan, kebersihan, kemajuan.' },
+    { id: 'c-kkan', label: '-kan (kausatif)', level: 3, theme: 'tatabahasa', blurb: '"Menjadikan sesuatu X" atau "untuk seseorang". Contoh: memanaskan air = cause water to be hot.' },
+    { id: 'c-ki',   label: '-i (lokatif)', level: 3, theme: 'tatabahasa', blurb: '"Kepada/atas seseorang/tempat". Contoh: menasihati pelajar = give advice TO the student.' },
+    { id: 'c-am',   label: 'Kata Nama Am', level: 3, theme: 'tatabahasa', blurb: 'Nama umum bagi orang/tempat/benda. Tidak dimulakan dengan huruf besar. Contoh: budak, buku, sekolah.' },
+    { id: 'c-khas', label: 'Kata Nama Khas', level: 3, theme: 'tatabahasa', blurb: 'Nama spesifik. Bermula dengan huruf besar. Tidak boleh diganda. Contoh: Singapura, Encik Rahman.' },
+    { id: 'c-muj',  label: 'Kata Nama Mujarad', level: 3, theme: 'tatabahasa', blurb: 'Nama abstrak (tidak boleh disentuh). Sering dibentuk dengan ke-…-an atau pe(N)-…-an.' },
+    { id: 'c-trans',label: 'Transitif vs Tak Transitif', level: 3, theme: 'tatabahasa', blurb: 'Transitif perlu objek (membaca buku); tak transitif tidak perlu (berlari). Pemilihan imbuhan bergantung kepada ini.' },
+    { id: 'c-aspek',label: 'Penanda Aspek', level: 3, theme: 'tatabahasa', blurb: 'sedang, telah, sudah, akan, belum, masih, pernah. Bahasa Melayu tiada kata kerja "tense" — aspek penanda inilah yang menunjukkan masa.' },
+    { id: 'c-darjah',label: 'Darjah Perbandingan', level: 3, theme: 'tatabahasa', blurb: 'Bandingan: lebih X daripada Y. Penghabisan: paling X / ter-X. Sama: sama X dengan Y.' },
+    { id: 'c-di-kp',label: 'di vs di- (kritikal)', level: 3, theme: 'tatabahasa', blurb: 'Kata sendi "di" (tempat) ditulis dengan jarak. Imbuhan "di-" (pasif) ditulis BERSAMA kata kerja. Konflik paling kerap diuji di PSLE.' },
+    { id: 'c-ke-kp',label: 'ke vs kepada', level: 3, theme: 'tatabahasa', blurb: 'ke + tempat (ke sekolah). kepada + orang/abstrak (kepada ibu, kepada Tuhan).' },
+    { id: 'c-dr-dp',label: 'dari vs daripada', level: 3, theme: 'tatabahasa', blurb: 'dari + tempat/masa. daripada + orang/bahan/perbandingan.' },
+    { id: 'c-kami-kita',label: 'kami vs kita', level: 3, theme: 'tatabahasa', blurb: 'kami = saya + orang lain, TANPA pendengar. kita = saya + pendengar (termasuk). Soalan PSLE setiap tahun.' },
+    { id: 'c-dia-bel', label: 'dia vs beliau', level: 3, theme: 'tatabahasa', blurb: 'dia = neutral. beliau = hormat (untuk guru, datuk, pemimpin). Menggunakan beliau dalam karangan menunjukkan kematangan.' },
+    { id: 'c-pdj',  label: 'Penjodoh mengikut bentuk', level: 3, theme: 'tatabahasa', blurb: 'Manusia → seorang. Haiwan → seekor. Objek besar → sebuah. Kain → sehelai. Panjang → sebatang. Bulat kecil → sebiji.' },
+
+    // Concepts under Kosa Kata
+    { id: 'c-emosi',label: 'Emosi positif/negatif', level: 3, theme: 'kosakata', blurb: 'gembira, riang, terharu, bangga (positif); sedih, pilu, kecewa, geram (negatif). Pelbagaikan dalam karangan.' },
+    { id: 'c-gerak',label: 'Pergerakan & gerak-geri', level: 3, theme: 'kosakata', blurb: 'berlari, bergegas, terjatuh, tersandung. Buat aksi tampak hidup dalam karangan naratif.' },
+    { id: 'c-sifat',label: 'Sifat watak', level: 3, theme: 'kosakata', blurb: 'rajin, jujur, sabar, peramah, bertanggungjawab. Pilih satu trait dan tunjukkan melalui aksi, bukan hanya sebut.' },
+    { id: 'c-latar',label: 'Latar tempat & cuaca', level: 3, theme: 'kosakata', blurb: 'hujan lebat, langit mendung, suasana meriah, sunyi sepi. Tetapkan latar pada perenggan pertama.' },
+    { id: 'c-sin',  label: 'Sinonim utama', level: 3, theme: 'kosakata', blurb: 'gembira ↔ riang, sukacita. pandai ↔ cerdik, bijak. cantik ↔ jelita, indah. Pelbagaikan supaya tidak monoton.' },
+    { id: 'c-ant',  label: 'Antonim utama', level: 3, theme: 'kosakata', blurb: 'tinggi ↔ rendah. rajin ↔ malas. berani ↔ takut. Berguna untuk soalan kefahaman.' },
+
+    // Concepts under Peribahasa
+    { id: 'c-aur',  label: 'Bagai aur dengan tebing', level: 3, theme: 'peribahasa', blurb: 'Hubungan yang saling menyokong. Kawan rapat, persaudaraan yang erat. Sesuai untuk karangan persahabatan.' },
+    { id: 'c-bukit',label: 'Sedikit-sedikit, lama-lama menjadi bukit', level: 3, theme: 'peribahasa', blurb: 'Usaha kecil yang konsisten menghasilkan kejayaan besar. Sesuai untuk karangan tentang berusaha, simpan duit.' },
+    { id: 'c-tangga', label: 'Sudah jatuh ditimpa tangga', level: 3, theme: 'peribahasa', blurb: 'Malang bertimpa-timpa. Sesuai untuk karangan naratif yang menggambarkan kemalangan berturut-turut.' },
+    { id: 'c-udang', label: 'Ada udang di sebalik batu', level: 3, theme: 'peribahasa', blurb: 'Ada motif tersembunyi. Sesuai untuk karangan tentang penipuan atau kelakuan mencurigakan.' },
+    { id: 'c-bh',   label: 'buah hati (kekasih)', level: 3, theme: 'peribahasa', blurb: 'Simpulan bahasa: orang yang amat disayangi. Digunakan dalam karangan keluarga.' },
+    { id: 'c-pt',   label: 'panjang tangan (suka mencuri)', level: 3, theme: 'peribahasa', blurb: 'Simpulan bahasa: bermaksud suka mengambil barang orang lain. Sesuai untuk karangan tentang kejujuran.' },
+    { id: 'c-nd',   label: 'naik darah (marah)', level: 3, theme: 'peribahasa', blurb: 'Simpulan bahasa: menjadi marah. Sesuai untuk karangan naratif konflik.' },
+
+    // Concepts under Kefahaman
+    { id: 'c-lit',  label: 'Soalan Literal', level: 3, theme: 'kefahaman', blurb: '"Apakah" / "Di mana" / "Bilakah" — jawapan terus daripada petikan. Carikan ayat yang mengandungi jawapan.' },
+    { id: 'c-inf',  label: 'Soalan Inferens', level: 3, theme: 'kefahaman', blurb: '"Mengapa" / "Bagaimana" — jawapan TIDAK terus daripada petikan. Buat kesimpulan daripada apa yang ditulis.' },
+    { id: 'c-resp', label: 'Respons Peribadi', level: 3, theme: 'kefahaman', blurb: '"Adakah anda setuju?" — beri pendapat dengan justifikasi. Format: pendapat + sebab + contoh.' },
+
+    // Concepts under Penulisan
+    { id: 'c-bjk',  label: 'Karangan Bertajuk', level: 3, theme: 'penulisan', blurb: 'Topik diberi, pelajar bina sendiri watak/latar/plot. Topik biasa: Hari yang tidak terlupakan, Cita-cita saya.' },
+    { id: 'c-bg',   label: 'Karangan Bergambar', level: 3, theme: 'penulisan', blurb: 'Gambar diberi, pelajar tulis cerita berdasarkan gambar itu. Perhatikan setiap watak dan suasana dalam gambar.' },
+    { id: 'c-perenggan', label: 'Pemerengganan', level: 3, theme: 'penulisan', blurb: 'Pendahuluan + 2-3 perenggan isi + penutup. Setiap perenggan satu idea utama.' },
+  ],
+
+  // Edges: tree edges + cross-topic links
+  edges: [
+    // Root → themes
+    { from: 'root', to: 'tatabahasa' }, { from: 'root', to: 'kosakata' },
+    { from: 'root', to: 'peribahasa-th' }, { from: 'root', to: 'kefahaman-th' }, { from: 'root', to: 'penulisan' },
+
+    // Tatabahasa → topics
+    { from: 'tatabahasa', to: 'imbuhan' }, { from: 'tatabahasa', to: 'kata-nama' },
+    { from: 'tatabahasa', to: 'kata-kerja' }, { from: 'tatabahasa', to: 'kata-adjektif' },
+    { from: 'tatabahasa', to: 'kata-hubung' }, { from: 'tatabahasa', to: 'kata-sendi' },
+    { from: 'tatabahasa', to: 'kata-ganti-nama' }, { from: 'tatabahasa', to: 'penjodoh-bilangan' },
+
+    // Kosa Kata → topics
+    { from: 'kosakata', to: 'kosa-kata' }, { from: 'kosakata', to: 'sinonim-antonim' },
+
+    // Peribahasa → topics
+    { from: 'peribahasa-th', to: 'peribahasa' }, { from: 'peribahasa-th', to: 'simpulan-bahasa' },
+
+    // Kefahaman/Penulisan
+    { from: 'kefahaman-th', to: 'kefahaman' }, { from: 'penulisan', to: 'karangan' },
+
+    // Imbuhan → concepts
+    { from: 'imbuhan', to: 'c-meN' }, { from: 'imbuhan', to: 'c-beR' },
+    { from: 'imbuhan', to: 'c-peN' }, { from: 'imbuhan', to: 'c-di-' },
+    { from: 'imbuhan', to: 'c-ter' }, { from: 'imbuhan', to: 'c-kean' },
+    { from: 'imbuhan', to: 'c-kkan' }, { from: 'imbuhan', to: 'c-ki' },
+
+    // Kata Nama → concepts
+    { from: 'kata-nama', to: 'c-am' }, { from: 'kata-nama', to: 'c-khas' }, { from: 'kata-nama', to: 'c-muj' },
+    // Kata Kerja → concepts
+    { from: 'kata-kerja', to: 'c-trans' }, { from: 'kata-kerja', to: 'c-aspek' },
+    // Kata Adjektif → concepts
+    { from: 'kata-adjektif', to: 'c-darjah' },
+    // Kata Sendi → concepts
+    { from: 'kata-sendi', to: 'c-di-kp' }, { from: 'kata-sendi', to: 'c-ke-kp' }, { from: 'kata-sendi', to: 'c-dr-dp' },
+    // Kata Ganti Nama → concepts
+    { from: 'kata-ganti-nama', to: 'c-kami-kita' }, { from: 'kata-ganti-nama', to: 'c-dia-bel' },
+    // Penjodoh
+    { from: 'penjodoh-bilangan', to: 'c-pdj' },
+
+    // Kosa Kata
+    { from: 'kosa-kata', to: 'c-emosi' }, { from: 'kosa-kata', to: 'c-gerak' },
+    { from: 'kosa-kata', to: 'c-sifat' }, { from: 'kosa-kata', to: 'c-latar' },
+    { from: 'sinonim-antonim', to: 'c-sin' }, { from: 'sinonim-antonim', to: 'c-ant' },
+
+    // Peribahasa
+    { from: 'peribahasa', to: 'c-aur' }, { from: 'peribahasa', to: 'c-bukit' },
+    { from: 'peribahasa', to: 'c-tangga' }, { from: 'peribahasa', to: 'c-udang' },
+    { from: 'simpulan-bahasa', to: 'c-bh' }, { from: 'simpulan-bahasa', to: 'c-pt' },
+    { from: 'simpulan-bahasa', to: 'c-nd' },
+
+    // Kefahaman
+    { from: 'kefahaman', to: 'c-lit' }, { from: 'kefahaman', to: 'c-inf' }, { from: 'kefahaman', to: 'c-resp' },
+
+    // Penulisan
+    { from: 'karangan', to: 'c-bjk' }, { from: 'karangan', to: 'c-bg' }, { from: 'karangan', to: 'c-perenggan' },
+
+    // ── Cross-topic links (dashed in render) ──
+    { from: 'c-kean', to: 'c-muj', cross: true },           // ke-…-an builds kata nama mujarad
+    { from: 'c-meN', to: 'c-trans', cross: true },          // meN- pairs with transitive verbs
+    { from: 'c-di-', to: 'c-di-kp', cross: true },          // di- vs di confusion
+    { from: 'c-pdj', to: 'c-am', cross: true },             // penjodoh sits before kata nama am
+    { from: 'c-emosi', to: 'c-bjk', cross: true },          // emosi vocab fuels karangan
+    { from: 'c-sifat', to: 'c-bjk', cross: true },          // sifat vocab fuels karangan
+    { from: 'c-aur', to: 'c-bjk', cross: true },            // peribahasa in karangan
+    { from: 'c-bukit', to: 'c-bjk', cross: true },          // peribahasa in karangan
+  ],
+};
+
+// ── Theme colours ──────────────────────────────────────────
+const THEME_COLOR = {
+  root:        '#38bdf8',
+  tatabahasa:  '#34d399',
+  kosakata:    '#fbbf24',
+  peribahasa:  '#e879f9',
+  kefahaman:   '#60a5fa',
+  penulisan:   '#fb7185',
+};
+
+// ── State ──────────────────────────────────────────────────
+const state = {
+  mode: 'deductive',
+  // expanded set of node IDs whose children are visible.
+  // In deductive default, only root is expanded.
+  expanded: new Set(['root']),
+  focusId: null,
+};
+
+// ── Helpers ────────────────────────────────────────────────
+function nodeById(id) { return DATA.nodes.find(n => n.id === id); }
+function childrenOf(id) {
+  return DATA.edges
+    .filter(e => e.from === id && !e.cross)
+    .map(e => nodeById(e.to))
+    .filter(Boolean);
+}
+function parentOf(id) {
+  const e = DATA.edges.find(ed => ed.to === id && !ed.cross);
+  return e ? nodeById(e.from) : null;
+}
+function isVisible(id) {
+  if (id === 'root') return true;
+  // Visible if every ancestor up to root is expanded
+  let n = nodeById(id);
+  while (n && n.id !== 'root') {
+    const p = parentOf(n.id);
+    if (!p) return false;
+    if (!state.expanded.has(p.id)) return false;
+    n = p;
+  }
+  return true;
+}
+
+// ── SVG setup ──────────────────────────────────────────────
+const svg = d3.select('#map-svg');
+const gRoot = svg.append('g');
+const gEdges = gRoot.append('g').attr('class', 'edges-layer');
+const gNodes = gRoot.append('g').attr('class', 'nodes-layer');
+const tooltip = d3.select('#map-tooltip');
+
+let sim = null;
+let allNodes = [], allLinks = [];
+
+function rebuild() {
+  // Visible nodes
+  const visIds = new Set(DATA.nodes.filter(n => isVisible(n.id)).map(n => n.id));
+  allNodes = DATA.nodes.filter(n => visIds.has(n.id)).map(n => ({ ...n }));
+  // Visible edges (tree + cross)
+  allLinks = DATA.edges
+    .filter(e => visIds.has(e.from) && visIds.has(e.to))
+    .map(e => ({ source: e.from, target: e.to, cross: !!e.cross }));
+}
+
+function radiusFor(level) {
+  if (level === 0) return 18;
+  if (level === 1) return 13;
+  if (level === 2) return 9;
+  return 6;
+}
+
+function tick() {
+  gEdges.selectAll('path.mm-edge')
+    .attr('d', d => {
+      const a = typeof d.source === 'object' ? d.source : nodeById(d.source);
+      const b = typeof d.target === 'object' ? d.target : nodeById(d.target);
+      if (!a || !b || a.x == null || b.x == null) return '';
+      // Curved for cross links
+      if (d.cross) {
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const dr = Math.sqrt(dx * dx + dy * dy) * 1.5;
+        return `M${a.x},${a.y}A${dr},${dr} 0 0,1 ${b.x},${b.y}`;
+      }
+      return `M${a.x},${a.y} L${b.x},${b.y}`;
+    });
+  gNodes.selectAll('g.mm-node')
+    .attr('transform', d => `translate(${d.x || 0},${d.y || 0})`);
+}
+
+function startSim() {
+  const canvas = document.getElementById('map-canvas');
+  const r = canvas.getBoundingClientRect();
+  const cx = r.width / 2, cy = r.height / 2;
+  sim = d3.forceSimulation(allNodes)
+    .alphaDecay(0.025)
+    .velocityDecay(0.5)
+    .force('link', d3.forceLink(allLinks).id(d => d.id).distance(d => {
+      if (d.cross) return 220;
+      const a = nodeById(typeof d.source === 'object' ? d.source.id : d.source);
+      const b = nodeById(typeof d.target === 'object' ? d.target.id : d.target);
+      const lvl = Math.max(a ? a.level : 0, b ? b.level : 0);
+      return [180, 120, 90, 70][lvl] || 90;
+    }).strength(d => d.cross ? 0.15 : 0.7))
+    .force('charge', d3.forceManyBody().strength(d => d.level === 0 ? -1400 : d.level === 1 ? -800 : -300))
+    .force('collide', d3.forceCollide().radius(d => radiusFor(d.level) + 18).strength(0.85))
+    .force('x', d3.forceX(cx).strength(0.04))
+    .force('y', d3.forceY(cy).strength(0.04))
+    .on('tick', tick);
+}
+
+function renderEdges() {
+  const sel = gEdges.selectAll('path.mm-edge').data(allLinks, d => d.source.id || d.source + '→' + (d.target.id || d.target));
+  sel.exit().remove();
+  sel.enter().append('path')
+    .attr('class', d => 'mm-edge' + (d.cross ? ' cross' : ''));
+}
+
+function renderNodes() {
+  const sel = gNodes.selectAll('g.mm-node').data(allNodes, d => d.id);
+  sel.exit().remove();
+
+  const enter = sel.enter().append('g')
+    .attr('class', d => {
+      const c = ['mm-node'];
+      if (d.level === 0) c.push('root');
+      if (d.level === 1) c.push('theme');
+      return c.join(' ');
+    });
+  enter.append('circle')
+    .attr('r', d => radiusFor(d.level))
+    .attr('fill', '#0d1a2e')
+    .attr('stroke', d => THEME_COLOR[d.theme] || '#38bdf8')
+    .attr('stroke-width', d => d.level === 0 ? 3 : 2);
+  enter.append('text')
+    .attr('text-anchor', 'middle')
+    .attr('dy', d => radiusFor(d.level) + 14)
+    .attr('font-size', d => d.level === 0 ? 14 : d.level === 1 ? 12 : 11)
+    .text(d => d.label);
+
+  const all = enter.merge(sel);
+  all.classed('collapsed', d => childrenOf(d.id).length > 0 && !state.expanded.has(d.id))
+     .classed('focus', d => state.focusId === d.id);
+  all.select('circle').attr('stroke', d => THEME_COLOR[d.theme] || '#38bdf8');
+  all.select('text').text(d => d.label);
+
+  all.on('click', (ev, d) => onNodeClick(ev, d))
+     .on('mouseover', (ev, d) => onNodeHover(ev, d, true))
+     .on('mouseout', (ev, d) => onNodeHover(ev, d, false));
+}
+
+function onNodeClick(ev, d) {
+  // Expand/collapse OR focus
+  const children = childrenOf(d.id);
+  state.focusId = d.id;
+  if (children.length > 0) {
+    if (state.expanded.has(d.id)) {
+      // Collapse this node and all descendants
+      const stack = [d.id];
+      while (stack.length) {
+        const id = stack.pop();
+        state.expanded.delete(id);
+        childrenOf(id).forEach(c => stack.push(c.id));
+      }
+    } else {
+      state.expanded.add(d.id);
+    }
+  }
+  rebuild();
+  renderEdges();
+  renderNodes();
+  sim.nodes(allNodes); sim.force('link').links(allLinks); sim.alpha(0.7).restart();
+  updateInfoPanel(d);
+  updateInductiveTrace(d);
+}
+
+function onNodeHover(ev, d, on) {
+  if (on) {
+    const adj = new Set([d.id]);
+    DATA.edges.forEach(e => {
+      if (e.from === d.id) adj.add(e.to);
+      if (e.to === d.id)   adj.add(e.from);
+    });
+    gNodes.selectAll('g.mm-node')
+      .classed('dim', n => !adj.has(n.id))
+      .classed('highlight', n => adj.has(n.id) && n.id !== d.id);
+    gEdges.selectAll('path.mm-edge')
+      .classed('active', e => {
+        const sid = typeof e.source === 'object' ? e.source.id : e.source;
+        const tid = typeof e.target === 'object' ? e.target.id : e.target;
+        return sid === d.id || tid === d.id;
+      })
+      .classed('dim', e => {
+        const sid = typeof e.source === 'object' ? e.source.id : e.source;
+        const tid = typeof e.target === 'object' ? e.target.id : e.target;
+        return sid !== d.id && tid !== d.id;
+      });
+    // Tooltip
+    const canvasRect = document.getElementById('map-canvas').getBoundingClientRect();
+    tooltip.html(d.blurb || d.label)
+      .style('left', (ev.clientX - canvasRect.left + 12) + 'px')
+      .style('top', (ev.clientY - canvasRect.top + 12) + 'px')
+      .classed('show', true);
+  } else {
+    gNodes.selectAll('g.mm-node').classed('dim', false).classed('highlight', false);
+    gEdges.selectAll('path.mm-edge').classed('active', false).classed('dim', false);
+    tooltip.classed('show', false);
+  }
+}
+
+function updateInductiveTrace(d) {
+  if (state.mode !== 'inductive') return;
+  // Trace from d back to root via parent chain, highlight
+  const trace = new Set();
+  let n = d;
+  while (n) {
+    trace.add(n.id);
+    const p = parentOf(n.id);
+    if (!p) break;
+    n = p;
+  }
+  gNodes.selectAll('g.mm-node').classed('highlight', n => trace.has(n.id));
+  gEdges.selectAll('path.mm-edge').classed('active', e => {
+    const sid = typeof e.source === 'object' ? e.source.id : e.source;
+    const tid = typeof e.target === 'object' ? e.target.id : e.target;
+    return trace.has(sid) && trace.has(tid);
+  });
+}
+
+function updateInfoPanel(d) {
+  document.getElementById('info-empty').style.display = 'none';
+  document.getElementById('info-content').style.display = 'block';
+  document.getElementById('info-meta').textContent = `${d.level === 0 ? 'Akar' : d.level === 1 ? 'Tema' : d.level === 2 ? 'Topik' : 'Konsep'} · ${d.theme === 'root' ? 'PSLE BM' : d.theme}`;
+  document.getElementById('info-title').textContent = d.label;
+  document.getElementById('info-body').textContent = d.blurb || '';
+
+  // Coach-style probe by level
+  let probe = '';
+  if (d.level === 3) {
+    probe = `<strong>Probe Coach:</strong> Bolehkah anda terangkan <em>${d.label}</em> dalam satu ayat anda sendiri, dengan menggunakan satu contoh konkrit?`;
+  } else if (d.level === 2) {
+    probe = `<strong>Probe Coach:</strong> Apakah tiga konsep paling penting dalam topik <em>${d.label}</em>, dan bagaimana ia berkaitan dengan tema yang lebih luas?`;
+  } else if (d.level === 1) {
+    probe = `<strong>Probe Coach:</strong> Bagaimana tema <em>${d.label}</em> menyokong skor PSLE anda — kertas yang mana, dan kemahiran yang mana?`;
+  } else {
+    probe = `<strong>Probe Coach:</strong> Antara lima tema, yang manakah anda rasa anda paling lemah, dan apakah satu langkah konkrit untuk mengatasinya minggu ini?`;
+  }
+  const promptEl = document.getElementById('info-prompt');
+  promptEl.innerHTML = probe;
+  promptEl.style.display = 'block';
+
+  // Actions
+  const actions = document.getElementById('info-actions');
+  actions.innerHTML = '';
+  if (d.link) {
+    const a = document.createElement('a');
+    a.href = d.link;
+    a.className = 'btn btn-primary';
+    a.style.fontSize = '.85rem';
+    a.textContent = `Buka topik ${d.label} →`;
+    actions.appendChild(a);
+  }
+  if (childrenOf(d.id).length > 0) {
+    const b = document.createElement('button');
+    b.className = 'btn btn-ghost';
+    b.style.fontSize = '.85rem';
+    b.textContent = state.expanded.has(d.id) ? '⊟ Tutup cabang' : '⊞ Buka cabang';
+    b.addEventListener('click', () => onNodeClick(null, d));
+    actions.appendChild(b);
+  }
+
+  // Connections (cross + parent + siblings of interest)
+  const conn = document.getElementById('info-connections');
+  const list = document.getElementById('connection-list');
+  list.innerHTML = '';
+  const related = new Set();
+  DATA.edges.forEach(e => {
+    if (e.from === d.id) related.add(e.to);
+    if (e.to === d.id)   related.add(e.from);
+  });
+  related.delete(d.id);
+  if (related.size > 0) {
+    related.forEach(rid => {
+      const n = nodeById(rid);
+      if (!n) return;
+      const pill = document.createElement('span');
+      pill.className = 'connection-pill';
+      pill.textContent = n.label;
+      pill.addEventListener('click', () => {
+        state.focusId = n.id;
+        // Expand path so n is visible
+        let cur = n;
+        while (cur) {
+          const p = parentOf(cur.id);
+          if (!p) break;
+          state.expanded.add(p.id);
+          cur = p;
+        }
+        rebuild(); renderEdges(); renderNodes();
+        sim.nodes(allNodes); sim.force('link').links(allLinks); sim.alpha(0.6).restart();
+        updateInfoPanel(n);
+      });
+      list.appendChild(pill);
+    });
+    conn.style.display = 'block';
+  } else {
+    conn.style.display = 'none';
+  }
+}
+
+// ── Mode toggle ────────────────────────────────────────────
+document.querySelectorAll('.mode-toggle .mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-toggle .mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.mode = btn.dataset.mode;
+    if (state.mode === 'deductive') {
+      gNodes.selectAll('g.mm-node').classed('highlight', false);
+      gEdges.selectAll('path.mm-edge').classed('active', false);
+    } else {
+      // In inductive mode, show all leaves and highlight chain when clicked
+      DATA.nodes.forEach(n => {
+        if (childrenOf(n.id).length > 0) state.expanded.add(n.id);
+      });
+      rebuild(); renderEdges(); renderNodes();
+      sim.nodes(allNodes); sim.force('link').links(allLinks); sim.alpha(0.7).restart();
+    }
+  });
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  state.expanded.clear();
+  state.expanded.add('root');
+  state.focusId = null;
+  document.getElementById('info-empty').style.display = 'block';
+  document.getElementById('info-content').style.display = 'none';
+  rebuild(); renderEdges(); renderNodes();
+  sim.nodes(allNodes); sim.force('link').links(allLinks); sim.alpha(0.85).restart();
+});
+
+document.getElementById('expand-all-btn').addEventListener('click', () => {
+  DATA.nodes.forEach(n => {
+    if (childrenOf(n.id).length > 0) state.expanded.add(n.id);
+  });
+  rebuild(); renderEdges(); renderNodes();
+  sim.nodes(allNodes); sim.force('link').links(allLinks); sim.alpha(0.7).restart();
+});
+
+// ── Zoom + pan ─────────────────────────────────────────────
+const zoom = d3.zoom().scaleExtent([0.3, 2.5])
+  .filter(ev => !ev.target.closest('g.mm-node'))
+  .on('zoom', (ev) => gRoot.attr('transform', ev.transform));
+svg.call(zoom).on('dblclick.zoom', null);
+
+// Initial render. Start with themes already expanded so the map
+// shows the 5 main branches before any click.
+DATA.nodes.filter(n => n.level === 0 || n.level === 1).forEach(n => state.expanded.add(n.id));
+rebuild();
+renderEdges();
+renderNodes();
+startSim();
+sim.alpha(0.95).restart();
+</script>
+</body>
+</html>
