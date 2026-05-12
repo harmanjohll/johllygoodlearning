@@ -186,6 +186,33 @@
   function nodeColour(n) {
     return THEME_COLOURS[nodeTheme(n)] || '#94a3b8';
   }
+  // Topic-only: dim the fill toward grey when mastery is low. Theme &
+  // phenomenon nodes keep their themed dark fill. A 0% topic looks
+  // muted grey; a 100% topic gets a saturated themed centre. Stroke
+  // (the outer ring) stays full-colour so the topic remains identifiable.
+  function topicMastery(n) {
+    if (n.kind !== 'topic') return null;
+    try {
+      // `Progress` is declared as a top-level `const` in /malay/shared.js.
+      // In non-module scripts, `const` lives in the global lexical scope —
+      // accessible by bareword from any later script (including this IIFE)
+      // but NOT visible as `window.Progress`. So we use a typeof guard.
+      // eslint-disable-next-line no-undef
+      if (typeof Progress === 'undefined') return 0;
+      // eslint-disable-next-line no-undef
+      return Progress.masteryPct(n.id) || 0;
+    } catch { return 0; }
+  }
+  function nodeFill(n) {
+    const baseDark = '#0d1a2e';
+    if (n.kind !== 'topic') return baseDark;
+    const pct = topicMastery(n);
+    if (pct <= 0) return baseDark;
+    // Interpolate from baseDark to theme colour at the requested
+    // saturation. Use d3 colour interpolation for a clean ramp.
+    const themeC = nodeColour(n);
+    return d3.interpolateRgb(baseDark, themeC)(Math.min(pct, 100) / 100 * 0.78);
+  }
   function nodeRadius(n) {
     return n.kind === 'theme' ? 16 : n.kind === 'topic' ? 8 : 4;
   }
@@ -284,10 +311,14 @@
 
     enter.append('circle')
       .attr('r', d => nodeRadius(d))
-      .attr('fill', '#0d1a2e')
+      .attr('fill', d => nodeFill(d))
       .attr('stroke', d => nodeColour(d))
       .attr('stroke-width', d => d.kind === 'theme' ? 2.2 : 1.6)
       .style('color', d => nodeColour(d));
+
+    // Refresh fill on existing nodes too (mastery may have ticked up
+    // since last render).
+    nodeG.selectAll('g.node circle').attr('fill', function (d) { return nodeFill(d); });
 
     enter.append('text')
       .attr('text-anchor', 'middle')
