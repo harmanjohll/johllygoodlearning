@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Format Kertas PSLE Bahasa Melayu | PSLE Bahasa Melayu Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .9rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    .page-header h1 { font-size: 1.3rem; line-height: 1.2; }
+    main { max-width: 980px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .intro { font-size: .95rem; color: var(--muted); margin-bottom: 2rem; line-height: 1.6; max-width: 70ch; }
+
+    .papers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.1rem; margin-bottom: 2rem; }
+    .paper {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .paper-head { display: flex; align-items: baseline; justify-content: space-between; gap: .5rem; flex-wrap: wrap; margin-bottom: .6rem; }
+    .paper-title { font-size: 1.05rem; font-weight: 800; color: var(--text); }
+    .paper-marks { font-family: var(--font-mono, monospace); font-size: .85rem; font-weight: 700; }
+    .paper-pct { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
+    .paper-body { font-size: .87rem; color: var(--muted); line-height: 1.55; margin-bottom: .85rem; }
+    .paper-sections { list-style: none; display: flex; flex-direction: column; gap: .35rem; font-size: .82rem; }
+    .paper-sections li { padding-left: 1.1rem; position: relative; color: var(--text); line-height: 1.5; }
+    .paper-sections li::before { content: '▸'; position: absolute; left: 0; color: var(--accent); }
+    .paper-sections .marks { color: var(--muted); font-size: .78rem; font-family: var(--font-mono, monospace); margin-left: .4rem; }
+
+    .paper-1 { border-left-color: var(--penulisan); }
+    .paper-1 .paper-marks { color: var(--penulisan); }
+    .paper-1 .paper-sections li::before { color: var(--penulisan); }
+
+    .paper-2 { border-left-color: var(--tatabahasa); }
+    .paper-2 .paper-marks { color: var(--tatabahasa); }
+    .paper-2 .paper-sections li::before { color: var(--tatabahasa); }
+
+    .paper-3 { border-left-color: var(--kefahaman); }
+    .paper-3 .paper-marks { color: var(--kefahaman); }
+    .paper-3 .paper-sections li::before { color: var(--kefahaman); }
+
+    .paper-4 { border-left-color: var(--peribahasa); }
+    .paper-4 .paper-marks { color: var(--peribahasa); }
+    .paper-4 .paper-sections li::before { color: var(--peribahasa); }
+
+    .priority-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    .priority-table th, .priority-table td { padding: .75rem 1rem; text-align: left; font-size: .87rem; border-bottom: 1px solid var(--border); }
+    .priority-table th { background: var(--surface); font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: .04em; font-size: .72rem; }
+    .priority-table tr:last-child td { border-bottom: none; }
+    .priority-high { color: #fb7185; font-weight: 700; }
+    .priority-medium { color: #fbbf24; font-weight: 700; }
+    .priority-low { color: #34d399; font-weight: 700; }
+
+    .section-h { font-size: 1.1rem; margin: 2rem 0 .85rem; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: .4rem; }
+
+    .theme-map { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .85rem; margin-bottom: 2rem; }
+    .theme-map-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1.1rem; border-left: 3px solid var(--accent); }
+    .theme-map-card h4 { font-size: .92rem; margin-bottom: .35rem; }
+    .theme-map-card p { font-size: .78rem; color: var(--muted); line-height: 1.5; }
+    .theme-map-card .papers { font-size: .72rem; color: var(--accent); margin-top: .45rem; font-weight: 700; }
+
+    .theme-map-card.tatabahasa { border-left-color: var(--tatabahasa); }
+    .theme-map-card.tatabahasa .papers { color: var(--tatabahasa); }
+    .theme-map-card.kosakata { border-left-color: var(--kosakata); }
+    .theme-map-card.kosakata .papers { color: var(--kosakata); }
+    .theme-map-card.peribahasa { border-left-color: var(--peribahasa); }
+    .theme-map-card.peribahasa .papers { color: var(--peribahasa); }
+    .theme-map-card.kefahaman { border-left-color: var(--kefahaman); }
+    .theme-map-card.kefahaman .papers { color: var(--kefahaman); }
+    .theme-map-card.penulisan { border-left-color: var(--penulisan); }
+    .theme-map-card.penulisan .papers { color: var(--penulisan); }
+
+    .source-note { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .85rem 1.1rem; font-size: .82rem; color: var(--muted); line-height: 1.6; margin-top: 2rem; }
+    .source-note strong { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Kembali ke Hub</button>
+  <div style="flex:1">
+    <h1>📄 Format Kertas PSLE Bahasa Melayu</h1>
+    <p style="font-size:.78rem;color:var(--muted)">Empat kertas · 200 markah · Sukatan MOE 0006</p>
+  </div>
+</header>
+
+<main>
+  <p class="intro">
+    Peperiksaan PSLE Bahasa Melayu mempunyai <strong>empat kertas</strong> yang menguji kemahiran berbeza — penulisan, tatabahasa, kefahaman, mendengar, dan lisan. Jumlah keseluruhan markah adalah <strong>200</strong>, dan setiap kertas membawa wajaran yang berbeza. Halaman ini memetakan setiap tema dalam Studio kepada kertas yang sesuai supaya anda tahu di mana setiap latihan akan dinilai.
+  </p>
+
+  <h2 class="section-h">Empat Kertas</h2>
+
+  <div class="papers-grid">
+
+    <div class="paper paper-1">
+      <div class="paper-head">
+        <div>
+          <div class="paper-title">Kertas 1 — Karangan</div>
+          <div class="paper-pct">20% · 50 minit</div>
+        </div>
+        <div class="paper-marks">40 markah</div>
+      </div>
+      <div class="paper-body">Penulisan karangan: pelajar memilih satu daripada dua soalan dan menulis karangan 180–250 patah perkataan.</div>
+      <ul class="paper-sections">
+        <li>Karangan Bertajuk (topik diberi)</li>
+        <li>Karangan Bergambar (gambar dirujuk)</li>
+      </ul>
+    </div>
+
+    <div class="paper paper-2">
+      <div class="paper-head">
+        <div>
+          <div class="paper-title">Kertas 2 — Tatabahasa &amp; Kefahaman</div>
+          <div class="paper-pct">45% · 1 jam 50 minit</div>
+        </div>
+        <div class="paper-marks">90 markah</div>
+      </div>
+      <div class="paper-body">Kertas berwajaran paling tinggi. Dua buku: A untuk tatabahasa MCQ, B untuk kefahaman bertulis.</div>
+      <ul class="paper-sections">
+        <li>Booklet A — Tatabahasa <span class="marks">(50 markah, MCQ)</span></li>
+        <li>Booklet B — Kefahaman <span class="marks">(40 markah)</span>
+          <ul style="font-size:.75rem;margin-top:.3rem;margin-left:1rem;color:var(--muted)">
+            <li>Lengkapkan Dialog (8 markah)</li>
+            <li>Kefahaman MCQ + Subjektif (32 markah)</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div class="paper paper-3">
+      <div class="paper-head">
+        <div>
+          <div class="paper-title">Kertas 3 — Mendengar</div>
+          <div class="paper-pct">10% · ~30 minit</div>
+        </div>
+        <div class="paper-marks">20 markah</div>
+      </div>
+      <div class="paper-body">Soalan aneka pilihan berdasarkan petikan audio. Pelajar mendengar dua kali sebelum menjawab.</div>
+      <ul class="paper-sections">
+        <li>MCQ berdasarkan rakaman audio</li>
+      </ul>
+    </div>
+
+    <div class="paper paper-4">
+      <div class="paper-head">
+        <div>
+          <div class="paper-title">Kertas 4 — Lisan</div>
+          <div class="paper-pct">25% · ~10 minit</div>
+        </div>
+        <div class="paper-marks">50 markah</div>
+      </div>
+      <div class="paper-body">Komunikasi lisan dengan pemeriksa. Diadakan pada Ogos, terpisah daripada kertas bertulis.</div>
+      <ul class="paper-sections">
+        <li>Membaca Kuat (bacaan petikan)</li>
+        <li>Perbualan Berasaskan Rangsangan (video + soalan)</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <h2 class="section-h">Keutamaan Markah</h2>
+  <table class="priority-table">
+    <thead>
+      <tr><th>Komponen</th><th>Markah</th><th>Wajaran</th><th>Keutamaan</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Kertas 2 (Tatabahasa + Kefahaman)</td><td>90</td><td>45%</td><td class="priority-high">🔴 PALING TINGGI</td></tr>
+      <tr><td>Kertas 4 (Lisan)</td><td>50</td><td>25%</td><td class="priority-high">🔴 TINGGI</td></tr>
+      <tr><td>Kertas 1 (Karangan)</td><td>40</td><td>20%</td><td class="priority-medium">🟡 SEDERHANA</td></tr>
+      <tr><td>Kertas 3 (Mendengar)</td><td>20</td><td>10%</td><td class="priority-low">🟢 RENDAH</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem;line-height:1.6">
+    Studio ini menumpukan pada Kertas 1 (Karangan) dan Kertas 2 (Tatabahasa + Kefahaman) — bahagian yang paling boleh dilatih melalui platform digital. Lisan dan Mendengar memerlukan latihan suara dan audio yang dibina di luar Studio.
+  </p>
+
+  <h2 class="section-h">Pemetaan Tema Studio kepada Kertas</h2>
+  <div class="theme-map">
+    <div class="theme-map-card tatabahasa">
+      <h4>Tatabahasa</h4>
+      <p>Imbuhan, golongan kata, penjodoh bilangan. Diuji dalam Kertas 2A (50 markah MCQ).</p>
+      <div class="papers">Kertas 2A · Booklet A</div>
+    </div>
+    <div class="theme-map-card kosakata">
+      <h4>Kosa Kata</h4>
+      <p>Perbendaharaan kata, sinonim, antonim. Mempercepat menulis karangan dan menjawab kefahaman.</p>
+      <div class="papers">Kertas 1 · Kertas 2B</div>
+    </div>
+    <div class="theme-map-card peribahasa">
+      <h4>Peribahasa</h4>
+      <p>Peribahasa, simpulan bahasa. ~5 soalan MCQ dalam Kertas 2A; menambah markah dalam karangan jika digunakan dengan tepat.</p>
+      <div class="papers">Kertas 2A · Kertas 1</div>
+    </div>
+    <div class="theme-map-card kefahaman">
+      <h4>Kefahaman</h4>
+      <p>Petikan, soalan literal &amp; inferens, lengkapkan dialog. Bahagian wajaran tinggi.</p>
+      <div class="papers">Kertas 2B</div>
+    </div>
+    <div class="theme-map-card penulisan">
+      <h4>Penulisan</h4>
+      <p>Karangan bertajuk &amp; bergambar. Rangka, pemerengganan, kosa kata yang kaya.</p>
+      <div class="papers">Kertas 1</div>
+    </div>
+  </div>
+
+  <div class="source-note">
+    <strong>Sumber rujukan:</strong> Sukatan Pelajaran MOE 0006, EduReach Singapore, AKAR Education, CPD Singapore. Format ini disusun daripada bahan rujukan terkini yang disimpan di <code>/malay/knowledge-base/source/reference/</code>. Markah dan struktur boleh berubah dari tahun ke tahun — sahkan dengan dokumen SEAB rasmi sebelum peperiksaan.
+  </div>
+</main>
+
+</body>
+</html>
