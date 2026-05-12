@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Latihan Kosa Kata | PSLE Bahasa Melayu Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 720px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .intro { font-size: .9rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.5rem; max-width: 65ch; }
+
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem 1.6rem; margin-bottom: 1.25rem; }
+
+    .term-block { text-align: center; margin-bottom: 1rem; }
+    .term-block .role { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; margin-bottom: .3rem; }
+    .term-block .term { font-family: var(--font-display, serif); font-size: 1.85rem; font-weight: 800; color: var(--text); }
+    .term-block .topic { font-size: .76rem; color: var(--accent); margin-top: .25rem; font-weight: 700; }
+
+    .template-box { background: var(--surface); border-left: 3px solid var(--accent); padding: .85rem 1.1rem; border-radius: 8px; font-size: .88rem; color: var(--text); line-height: 1.55; margin-bottom: 1.25rem; font-style: italic; }
+
+    textarea { width: 100%; min-height: 110px; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: .85rem 1rem; font-family: inherit; font-size: .92rem; color: var(--text); line-height: 1.55; }
+    textarea:focus { outline: none; border-color: var(--accent); }
+
+    .reveal-box { display: none; background: var(--surface); border-left: 3px solid var(--tatabahasa); padding: .9rem 1.1rem; border-radius: 8px; margin-top: 1rem; font-size: .9rem; color: var(--text); line-height: 1.55; }
+    .reveal-box.show { display: block; }
+    .reveal-box h4 { font-size: .8rem; color: var(--tatabahasa); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .45rem; }
+    .reveal-box .model { font-weight: 600; }
+
+    .coach-fb { display: none; background: #1e183a; border-left: 3px solid var(--peribahasa); padding: .9rem 1.1rem; border-radius: 8px; margin-top: 1rem; font-size: .9rem; color: var(--text); line-height: 1.55; }
+    .coach-fb.show { display: block; }
+    .coach-fb h4 { font-size: .8rem; color: var(--peribahasa); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .45rem; }
+
+    .actions { display: flex; gap: .55rem; flex-wrap: wrap; margin-top: 1rem; }
+    .self-check { display: flex; gap: .4rem; align-items: center; margin-top: .75rem; font-size: .82rem; color: var(--muted); }
+    .self-check button { padding: .3rem .75rem; border-radius: 7px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-weight: 700; font-size: .78rem; }
+    .self-check button.yes { border-color: var(--tatabahasa); color: var(--tatabahasa); }
+    .self-check button.no { border-color: #f87171; color: #f87171; }
+    .self-check button:hover { background: var(--surface); }
+
+    .filter-bar { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .filter-chip { padding: .3rem .7rem; border-radius: 99px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: .78rem; font-weight: 600; }
+    .filter-chip.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+
+    .loader { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--muted); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: -2px; margin-right: .3rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">📖 Latihan Kosa Kata</h1>
+    <div style="font-size:.76rem;color:var(--muted)">Definition Gym: lihat istilah, tulis maksud anda, kemudian semak. Opsyenal: minta Coach AI semak.</div>
+  </div>
+</header>
+
+<main>
+  <p class="intro">
+    Untuk setiap istilah, tulis maksudnya dalam ayat anda sendiri. Tidak perlu sempurna — yang penting cuba. Kemudian klik <em>Dedahkan</em> untuk membandingkan dengan maksud rasmi.
+  </p>
+
+  <div class="filter-bar" id="filter-bar">
+    <button class="filter-chip active" data-filter="all">Semua</button>
+    <button class="filter-chip" data-filter="tatabahasa">Tatabahasa</button>
+    <button class="filter-chip" data-filter="kosakata">Kosa Kata</button>
+    <button class="filter-chip" data-filter="peribahasa">Peribahasa</button>
+    <button class="filter-chip" data-filter="kefahaman">Kefahaman</button>
+    <button class="filter-chip" data-filter="penulisan">Penulisan</button>
+  </div>
+
+  <div class="panel" id="panel">
+    <div class="term-block">
+      <div class="role">Memuat…</div>
+      <div class="term" id="term">—</div>
+      <div class="topic" id="topic-tag"></div>
+    </div>
+
+    <div class="template-box" id="template" style="display:none"></div>
+
+    <label style="font-size:.82rem;color:var(--muted);display:block;margin-bottom:.45rem;font-weight:700">Tulis maksud anda:</label>
+    <textarea id="answer" placeholder="Pada pendapat saya, [istilah] bermaksud…"></textarea>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="reveal-btn" style="font-size:.85rem">👁 Dedahkan Maksud</button>
+      <button class="btn btn-ghost" id="coach-btn" style="font-size:.85rem">🤖 Coach Semak</button>
+      <button class="btn btn-ghost" id="next-btn" style="font-size:.85rem">→ Istilah Seterusnya</button>
+    </div>
+
+    <div class="reveal-box" id="reveal-box">
+      <h4>Maksud Rasmi</h4>
+      <div class="model" id="reveal-text"></div>
+      <div style="font-size:.82rem;color:var(--muted);margin-top:.45rem" id="reveal-template"></div>
+      <div class="self-check">
+        Adakah anda hampir betul?
+        <button class="yes" id="self-yes">✓ Ya</button>
+        <button class="no" id="self-no">✗ Tidak — ulang lagi</button>
+      </div>
+    </div>
+
+    <div class="coach-fb" id="coach-fb"></div>
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script src="../shared/coach.js"></script>
+<script src="../shared/content.js"></script>
+<script>
+const ALL_THEMES = ['tatabahasa', 'kosakata', 'peribahasa', 'kefahaman', 'penulisan'];
+let terms = [];
+let filtered = [];
+let idx = 0;
+let currentFilter = 'all';
+
+async function loadAll() {
+  const out = [];
+  for (const theme of ALL_THEMES) {
+    try {
+      const data = await window.MalayContent.loadTheme(theme);
+      Object.values(data.topics || {}).forEach(topic => {
+        (topic.glossary || []).forEach(g => {
+          out.push({ ...g, theme, topicId: topic.id, topicTitle: topic.title });
+        });
+      });
+    } catch (err) { console.warn(err); }
+  }
+  return out;
+}
+
+function shuffle(a) {
+  a = a.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function applyFilter() {
+  filtered = currentFilter === 'all' ? terms : terms.filter(t => t.theme === currentFilter);
+  idx = 0;
+  render();
+}
+
+function render() {
+  if (!filtered.length) {
+    document.getElementById('term').textContent = 'Tiada';
+    document.getElementById('topic-tag').textContent = '';
+    return;
+  }
+  const t = filtered[idx];
+  document.getElementById('term').textContent = t.term;
+  document.getElementById('topic-tag').textContent = t.topicTitle + ' · ' + t.theme;
+  document.getElementById('topic-tag').style.color = `var(--${t.theme})`;
+  const tplBox = document.getElementById('template');
+  if (t.template) {
+    tplBox.style.display = 'block';
+    tplBox.innerHTML = `<strong>Templat:</strong> ${t.template}`;
+  } else {
+    tplBox.style.display = 'none';
+  }
+  document.getElementById('answer').value = '';
+  document.getElementById('reveal-box').classList.remove('show');
+  document.getElementById('coach-fb').classList.remove('show');
+}
+
+document.getElementById('filter-bar').addEventListener('click', (e) => {
+  const chip = e.target.closest('.filter-chip');
+  if (!chip) return;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  currentFilter = chip.dataset.filter;
+  applyFilter();
+});
+
+document.getElementById('reveal-btn').addEventListener('click', () => {
+  const t = filtered[idx]; if (!t) return;
+  document.getElementById('reveal-text').textContent = t.definition;
+  document.getElementById('reveal-template').textContent = t.template || '';
+  document.getElementById('reveal-box').classList.add('show');
+});
+
+document.getElementById('self-yes').addEventListener('click', () => {
+  const t = filtered[idx]; if (!t) return;
+  if (typeof Progress !== 'undefined') Progress.recordFlashcard(t.topicId, t.term, true);
+  nextTerm();
+});
+
+document.getElementById('self-no').addEventListener('click', () => {
+  const t = filtered[idx]; if (!t) return;
+  if (typeof Progress !== 'undefined') Progress.recordFlashcard(t.topicId, t.term, false);
+  document.getElementById('answer').value = '';
+  document.getElementById('reveal-box').classList.remove('show');
+});
+
+document.getElementById('next-btn').addEventListener('click', nextTerm);
+function nextTerm() {
+  idx = (idx + 1) % filtered.length;
+  render();
+}
+
+document.getElementById('coach-btn').addEventListener('click', async () => {
+  const t = filtered[idx]; if (!t) return;
+  const ans = document.getElementById('answer').value.trim();
+  if (!ans) return alert('Tulis cubaan anda dahulu.');
+  if (typeof window.askGemini !== 'function') return alert('Coach memerlukan Gemini key. Buka hub dan klik "🤖 Set Up AI Quizzes".');
+  const fb = document.getElementById('coach-fb');
+  fb.classList.add('show');
+  fb.innerHTML = `<h4>Coach</h4><p><span class="loader"></span> Menyemak cubaan anda…</p>`;
+  const sys = (window.MalayCoach ? window.MalayCoach.VOICE : '') + ' Beri maklum balas RINGKAS (2-3 ayat) untuk cubaan pelajar mendefinisikan istilah. Sebut yang baik, kemudian satu cadangan. Jangan dedahkan definisi rasmi sepenuhnya.';
+  const prompt = `Istilah: "${t.term}"\nDefinisi rasmi: "${t.definition}"\n\nCubaan pelajar: "${ans}"\n\nBeri maklum balas ringkas dalam Bahasa Melayu: satu perkara baik, satu cadangan untuk diperbaiki. Tiada emoji, tiada "saya".`;
+  try {
+    const out = await window.askGemini({ system: sys, prompt, temperature: 0.4, maxTokens: 200, thinkingBudget: 0 });
+    fb.innerHTML = `<h4>Coach</h4><div style="white-space:pre-wrap">${out}</div>`;
+  } catch (err) {
+    fb.innerHTML = `<h4>Coach</h4><p style="color:#fca5a5">Ralat: ${err.message}</p>`;
+  }
+});
+
+(async function init() {
+  terms = shuffle(await loadAll());
+  filtered = terms;
+  if (!terms.length) {
+    document.getElementById('panel').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--muted)">Tiada istilah ditemui.</div>';
+    return;
+  }
+  render();
+})();
+</script>
+</body>
+</html>

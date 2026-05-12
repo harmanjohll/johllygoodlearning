@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Karangan &amp; Kefahaman Builder | PSLE Bahasa Melayu Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    .page-header h1 { font-size: 1.2rem; }
+    .page-header .meta { font-size: .76rem; color: var(--muted); }
+
+    main { max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .mode-tabs { display: flex; gap: .35rem; margin-bottom: 1.25rem; padding: .35rem; background: var(--surface); border-radius: 9px; max-width: 320px; }
+    .mode-tab { flex: 1; padding: .45rem .65rem; border-radius: 7px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: .85rem; font-weight: 700; transition: all .15s; }
+    .mode-tab.active { background: var(--accent); color: #0f172a; }
+
+    .section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+    .section h3 { font-size: .95rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .85rem; }
+    .section h2 { font-size: 1.1rem; margin-bottom: .65rem; }
+    .section .lead { font-size: .88rem; color: var(--muted); line-height: 1.6; margin-bottom: .85rem; }
+
+    .picker-row { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .picker-chip { padding: .45rem .8rem; border-radius: 99px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: .82rem; font-weight: 600; transition: all .15s; }
+    .picker-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .picker-chip.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+
+    .prompt-display { background: var(--surface); border-left: 3px solid var(--penulisan); padding: .85rem 1.1rem; border-radius: 7px; margin-bottom: 1rem; font-size: .92rem; color: var(--text); line-height: 1.6; min-height: 50px; }
+    .prompt-display .label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; display: block; margin-bottom: .35rem; }
+
+    textarea {
+      width: 100%; min-height: 220px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 9px;
+      padding: .85rem 1rem; font-family: 'Inter Tight', system-ui, sans-serif;
+      font-size: .92rem; color: var(--text); line-height: 1.55; resize: vertical;
+    }
+    textarea:focus { outline: none; border-color: var(--accent); }
+    .word-counter { font-size: .78rem; color: var(--muted); margin-top: .35rem; font-family: var(--font-mono, monospace); }
+    .word-counter.warn { color: #f59e0b; }
+    .word-counter.good { color: var(--tatabahasa); }
+
+    .actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1rem; }
+
+    .feedback {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 9px;
+      padding: 1rem 1.2rem; margin-top: 1rem;
+      font-size: .9rem; color: var(--text); line-height: 1.65;
+      display: none;
+    }
+    .feedback.show { display: block; }
+    .feedback.examiner { border-left: 3px solid var(--accent); }
+    .feedback.coach { border-left: 3px solid var(--peribahasa); }
+    .feedback h4 { font-size: .85rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .65rem; }
+    .feedback.coach h4 { color: var(--peribahasa); }
+    .feedback ul { margin: .5rem 0 .5rem 1.25rem; }
+    .feedback li { margin-bottom: .35rem; }
+
+    .coach-thread { display: none; }
+    .coach-thread.show { display: block; }
+    .coach-turn { padding: .85rem 1rem; border-radius: 9px; margin-bottom: .7rem; font-size: .9rem; line-height: 1.6; }
+    .coach-turn.you { background: var(--surface); border-left: 3px solid var(--accent); }
+    .coach-turn.coach { background: #1e183a; border-left: 3px solid var(--peribahasa); }
+    .coach-turn .who { font-size: .7rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 700; margin-bottom: .3rem; }
+
+    .info-banner { background: linear-gradient(135deg, #14302b 0%, #2d1a3a 100%); border: 1px solid var(--tatabahasa); border-radius: 10px; padding: .85rem 1.1rem; margin-bottom: 1.25rem; font-size: .82rem; color: var(--muted); line-height: 1.55; }
+    .info-banner strong { color: var(--text); }
+
+    .loader { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--muted); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: -3px; margin-right: .35rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .key-warn { display: none; background: #2a1400; border: 1px solid #f59e0b; border-radius: 9px; padding: .85rem 1.1rem; margin-bottom: 1rem; font-size: .85rem; color: #fcd34d; line-height: 1.55; }
+    .key-warn.show { display: block; }
+    .key-warn button { background: var(--accent); color: #0f172a; border: none; border-radius: 7px; padding: .35rem .8rem; font-weight: 700; cursor: pointer; margin-top: .5rem; font-size: .82rem; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1>📋 Karangan &amp; Kefahaman Builder</h1>
+    <div class="meta">Latih karangan atau kefahaman dengan dua mod: Pemeriksa (markah) atau Coach (probe sahaja)</div>
+  </div>
+</header>
+
+<main>
+  <div class="key-warn" id="key-warn">
+    ⚠️ <strong>API key Gemini diperlukan</strong> untuk mod Pemeriksa dan Coach. Tanpa key, anda masih boleh menggunakan halaman ini untuk berlatih menulis dengan rangka, tetapi maklum balas AI tidak akan tersedia.
+    <br><button onclick="showAISetup()">⚙️ Sediakan API Key</button>
+  </div>
+
+  <div class="info-banner">
+    <strong>Mod Pemeriksa</strong> menilai karangan/jawapan anda mengikut rubrik PSLE: kosa kata, tatabahasa, struktur, kemudian beri band anggaran dan ulasan ringkas.
+    <br><strong>Mod Coach</strong> mengajukan SATU soalan probe pada satu masa. Tidak mendedahkan jawapan model sehingga anda minta. Lebih sesuai untuk konsolidasi mendalam.
+  </div>
+
+  <!-- Tugasan tabs -->
+  <div class="picker-row">
+    <button class="picker-chip active" data-task="karangan-bertajuk">📝 Karangan Bertajuk</button>
+    <button class="picker-chip" data-task="kefahaman">📖 Kefahaman</button>
+  </div>
+
+  <!-- Karangan Bertajuk -->
+  <section class="section task-section" id="task-karangan-bertajuk">
+    <h3>Pilih Tajuk Karangan</h3>
+    <div class="picker-row" id="karangan-topic-picker"></div>
+    <div class="prompt-display" id="karangan-prompt">
+      <span class="label">TAJUK</span>
+      <span id="karangan-prompt-text">Sila pilih satu tajuk di atas.</span>
+    </div>
+
+    <h3 style="margin-top:1rem">Tulis Karangan Anda</h3>
+    <p class="lead">Tulis 150–250 patah perkataan. Ikut rangka 7-langkah: pengenalan beratmosfera → 2–3 perenggan isi → pengakhiran reflektif. Sertakan 1 peribahasa jika sesuai.</p>
+    <textarea id="karangan-draft" placeholder="Mulakan karangan anda di sini…"></textarea>
+    <div class="word-counter" id="karangan-counter">0 patah perkataan</div>
+
+    <div class="mode-tabs" style="margin-top:1rem">
+      <button class="mode-tab active" data-mode="examiner" data-target="karangan">Pemeriksa</button>
+      <button class="mode-tab" data-mode="coach" data-target="karangan">Coach</button>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="karangan-mark" style="font-size:.88rem">📊 Tanda Karangan</button>
+      <button class="btn btn-ghost" id="karangan-reveal" style="font-size:.88rem">👁 Lihat Karangan Model</button>
+      <button class="btn btn-ghost" id="karangan-reset" style="font-size:.88rem">↻ Set Semula</button>
+    </div>
+
+    <div class="feedback" id="karangan-feedback"></div>
+    <div class="coach-thread" id="karangan-coach-thread"></div>
+  </section>
+
+  <!-- Kefahaman -->
+  <section class="section task-section" id="task-kefahaman" style="display:none">
+    <h3>Pilih Petikan Kefahaman</h3>
+    <div class="picker-row" id="kefahaman-passage-picker"></div>
+
+    <div class="prompt-display" id="kefahaman-passage">
+      <span class="label">PETIKAN</span>
+      <div id="kefahaman-passage-text">Sila pilih satu petikan di atas.</div>
+    </div>
+
+    <div class="prompt-display" id="kefahaman-question" style="border-left-color:var(--kefahaman)">
+      <span class="label">SOALAN</span>
+      <div id="kefahaman-question-text">—</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:.45rem" id="kefahaman-question-meta"></div>
+    </div>
+
+    <h3>Tulis Jawapan Anda</h3>
+    <p class="lead">Format: <strong>Petik → Hubung → Terang</strong>. Petik bukti daripada petikan, kemudian terangkan mengapa ia menjawab soalan.</p>
+    <textarea id="kefahaman-answer" placeholder="Mulakan jawapan anda…" style="min-height:140px"></textarea>
+    <div class="word-counter" id="kefahaman-counter">0 patah perkataan</div>
+
+    <div class="mode-tabs" style="margin-top:1rem">
+      <button class="mode-tab active" data-mode="examiner" data-target="kefahaman">Pemeriksa</button>
+      <button class="mode-tab" data-mode="coach" data-target="kefahaman">Coach</button>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="kefahaman-mark" style="font-size:.88rem">📊 Tanda Jawapan</button>
+      <button class="btn btn-ghost" id="kefahaman-reveal" style="font-size:.88rem">👁 Lihat Jawapan Model</button>
+      <button class="btn btn-ghost" id="kefahaman-reset" style="font-size:.88rem">↻ Soalan Seterusnya</button>
+    </div>
+
+    <div class="feedback" id="kefahaman-feedback"></div>
+    <div class="coach-thread" id="kefahaman-coach-thread"></div>
+  </section>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script src="../shared/coach.js"></script>
+<script>
+// ── Topic / passage data ────────────────────────────────────────
+const KARANGAN_TOPICS = [
+  { id: 'tidak-terlupakan', title: 'Hari yang Tidak Terlupakan', model: 'Karangan model: Pagi Ahad yang cerah, keluarga saya ke Pulau Ubin. Ketika dalam bot, langit mendung dan hujan turun lebat. Kapten bot tenang dan tiba dengan selamat. Pengajaran: ketenangan dalam cabaran.' },
+  { id: 'pertolongan',      title: 'Pertolongan',                   model: 'Karangan model: Saya menolong seorang nenek yang terjatuh di tepi jalan. Walaupun terlewat ke sekolah, hati saya berasa lega kerana telah melakukan kebaikan. Peribahasa: "Tangan yang menghulur akan menerima kembali kebaikan."' },
+  { id: 'kejadian-pantai',  title: 'Kejadian di Pantai',            model: 'Karangan model: Semasa berkelah di Pantai Pasir Ris, kawan saya hampir lemas. Saya dan ayah bertindak cepat menyelamatkannya. Pengajaran: keselamatan diutamakan, kerjasama menyelamatkan nyawa.' },
+  { id: 'cita-cita',        title: 'Cita-cita Saya',                model: 'Karangan model: Cita-cita saya menjadi doktor untuk membantu orang yang sakit. Saya akan berusaha bersungguh-sungguh untuk mencapainya. Peribahasa: "Sedikit-sedikit, lama-lama menjadi bukit".' },
+  { id: 'kawan-baik',       title: 'Kawan Baik',                    model: 'Karangan model: Sahabat saya, Aiman, sentiasa membantu dalam segala keadaan. Seperti peribahasa "bagai aur dengan tebing", kami saling menyokong dalam segala-galanya.' },
+  { id: 'menghadapi-cabaran', title: 'Menghadapi Cabaran',          model: 'Karangan model: Dalam mempersiapkan diri untuk pertandingan matematik, saya menghadapi banyak cabaran. Dengan bantuan ibu dan guru, saya akhirnya berjaya. Pengajaran: ketabahan dan sokongan keluarga.' },
+];
+
+const KEFAHAMAN_PASSAGES = [
+  {
+    id: 'rashidah',
+    title: 'Puan Rashidah',
+    passage: 'Meskipun hujan turun dengan lebat, Puan Rashidah tetap keluar dari rumahnya. Dia memegang payungnya erat-erat dan melangkah ke kedai ubat yang terletak di hujung jalan. Wajahnya kelihatan cemas kerana suaminya sedang demam panas di rumah dan memerlukan ubat segera. Sampai di kedai, Puan Rashidah bergegas membeli ubat penurun demam. Tanpa menunggu, dia berjalan pulang dengan langkah yang cepat.',
+    questions: [
+      { text: 'Di manakah Puan Rashidah menuju?', type: 'tersurat', model: 'Puan Rashidah menuju ke kedai ubat yang terletak di hujung jalan.' },
+      { text: 'Apakah yang dapat anda rumuskan tentang sifat Puan Rashidah berdasarkan tindakannya?', type: 'tersirat', model: 'Puan Rashidah adalah seorang isteri yang sangat prihatin. Beliau sanggup keluar walaupun dalam keadaan hujan lebat untuk membeli ubat suaminya yang sakit. Tindakan ini menunjukkan tahap kasih sayang dan tanggungjawab yang tinggi terhadap pasangannya.' },
+      { text: 'Apakah maksud "erat-erat" dalam konteks petikan ini?', type: 'kosa kata', model: '"Erat-erat" bermaksud dengan kuat dan teguh. Dalam konteks petikan, Puan Rashidah memegang payungnya dengan kuat supaya payung tidak terbang ditiup angin ketika hujan lebat.' },
+    ],
+  },
+  {
+    id: 'sungai-singapura',
+    title: 'Sungai Singapura',
+    passage: 'Sungai Singapura yang membelah pusat bandar raya adalah lebih daripada sekadar saluran air. Dahulu, ia merupakan denyut nadi perdagangan apabila kapal-kapal kecil keluar masuk membawa barangan rempah dan sutera. Hari ini, walaupun fungsi perdagangannya telah berakhir, sungai ini telah dijadikan kawasan rekreasi yang disukai ramai. Restoran, kafe, dan pelancong mengisi tebing-tebingnya. Pihak berkuasa juga melaksanakan pelbagai inisiatif untuk menjaga kebersihan sungai supaya ekosistemnya kekal terpelihara.',
+    questions: [
+      { text: 'Apakah fungsi Sungai Singapura pada masa lalu?', type: 'tersurat', model: 'Pada masa lalu, Sungai Singapura merupakan denyut nadi perdagangan. Kapal-kapal kecil keluar masuk membawa barangan rempah dan sutera.' },
+      { text: 'Mengapakah pihak berkuasa melaksanakan inisiatif untuk menjaga kebersihan sungai?', type: 'tersirat', model: 'Pihak berkuasa melaksanakan inisiatif tersebut supaya ekosistem sungai kekal terpelihara. Ini juga penting kerana sungai kini berfungsi sebagai kawasan rekreasi yang disukai ramai — kebersihan yang dijaga membantu mengekalkan daya tarikan dan kesihatan kawasan.' },
+      { text: 'Apakah maksud "denyut nadi" dalam ayat kedua?', type: 'kosa kata', model: '"Denyut nadi" dalam ayat itu bermaksud pusat penting atau enjin utama. Sungai Singapura dahulu adalah enjin utama yang menggerakkan aktiviti perdagangan.' },
+    ],
+  },
+  {
+    id: 'ahmad',
+    title: 'Ahmad dan Belajar',
+    passage: 'Ahmad seorang pelajar Darjah 6 yang amat bersungguh-sungguh. Setiap malam, dia akan duduk di meja belajarnya sehingga larut, mengulang kaji setiap subjek satu per satu. Walaupun matanya sering mengantuk, dia akan menampar pipinya untuk menahan rasa mengantuk itu. Adiknya selalu bertanya mengapa Ahmad belajar sehingga begitu rupa. Dengan senyuman, Ahmad menjawab, "Saya mahu menjadi doktor suatu hari nanti. Untuk itu, saya mesti memulakannya dari sekarang."',
+    questions: [
+      { text: 'Apakah yang menunjukkan bahawa Ahmad adalah seorang pelajar yang rajin?', type: 'tersirat', model: 'Ahmad sanggup belajar sehingga larut malam walaupun badannya terasa penat dan matanya mengantuk. Beliau juga menampar pipinya untuk menahan rasa mengantuk. Hal ini menunjukkan bahawa dia sangat bersungguh-sungguh dalam pelajarannya dan tidak mudah berputus asa.' },
+      { text: 'Apakah cita-cita Ahmad?', type: 'tersurat', model: 'Cita-cita Ahmad adalah untuk menjadi seorang doktor suatu hari nanti.' },
+    ],
+  },
+];
+
+// ── State ──────────────────────────────────────────────────────
+const state = {
+  task: 'karangan-bertajuk',
+  karangan: { topic: null, mode: 'examiner', revealed: false, coach: [] },
+  kefahaman: { passage: null, qIdx: 0, mode: 'examiner', revealed: false, coach: [] },
+};
+
+// ── UI wiring ──────────────────────────────────────────────────
+function checkKey() {
+  const has = (typeof AIConfig !== 'undefined' && AIConfig.hasKey()) ||
+              (window.JglStorage && window.JglStorage.getGeminiKey && window.JglStorage.getGeminiKey());
+  document.getElementById('key-warn').classList.toggle('show', !has);
+  return !!has;
+}
+checkKey();
+document.addEventListener('jgl:gemini-key-changed', checkKey);
+
+// Task tabs
+document.querySelectorAll('.picker-chip[data-task]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.picker-chip[data-task]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    state.task = b.dataset.task;
+    document.querySelectorAll('.task-section').forEach(s => s.style.display = 'none');
+    document.getElementById('task-' + state.task).style.display = 'block';
+  });
+});
+
+// Mode tabs (Examiner / Coach)
+document.querySelectorAll('.mode-tab').forEach(b => {
+  b.addEventListener('click', () => {
+    const target = b.dataset.target;
+    document.querySelectorAll(`.mode-tab[data-target="${target}"]`).forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    state[target === 'karangan' ? 'karangan' : 'kefahaman'].mode = b.dataset.mode;
+  });
+});
+
+// ── Karangan picker ────────────────────────────────────────────
+const karPicker = document.getElementById('karangan-topic-picker');
+KARANGAN_TOPICS.forEach((t, i) => {
+  const chip = document.createElement('button');
+  chip.className = 'picker-chip' + (i === 0 ? ' active' : '');
+  chip.textContent = t.title;
+  chip.addEventListener('click', () => {
+    karPicker.querySelectorAll('.picker-chip').forEach(x => x.classList.remove('active'));
+    chip.classList.add('active');
+    state.karangan.topic = t;
+    document.getElementById('karangan-prompt-text').textContent = t.title;
+    document.getElementById('karangan-feedback').classList.remove('show');
+    document.getElementById('karangan-coach-thread').classList.remove('show');
+    document.getElementById('karangan-coach-thread').innerHTML = '';
+    state.karangan.coach = [];
+    state.karangan.revealed = false;
+  });
+  karPicker.appendChild(chip);
+});
+state.karangan.topic = KARANGAN_TOPICS[0];
+document.getElementById('karangan-prompt-text').textContent = KARANGAN_TOPICS[0].title;
+
+// ── Kefahaman picker ───────────────────────────────────────────
+const kefPicker = document.getElementById('kefahaman-passage-picker');
+KEFAHAMAN_PASSAGES.forEach((p, i) => {
+  const chip = document.createElement('button');
+  chip.className = 'picker-chip' + (i === 0 ? ' active' : '');
+  chip.textContent = p.title;
+  chip.addEventListener('click', () => {
+    kefPicker.querySelectorAll('.picker-chip').forEach(x => x.classList.remove('active'));
+    chip.classList.add('active');
+    state.kefahaman.passage = p;
+    state.kefahaman.qIdx = 0;
+    renderKefahaman();
+  });
+  kefPicker.appendChild(chip);
+});
+state.kefahaman.passage = KEFAHAMAN_PASSAGES[0];
+function renderKefahaman() {
+  const p = state.kefahaman.passage;
+  document.getElementById('kefahaman-passage-text').textContent = p.passage;
+  const q = p.questions[state.kefahaman.qIdx];
+  document.getElementById('kefahaman-question-text').textContent = q.text;
+  document.getElementById('kefahaman-question-meta').textContent = `Jenis: ${q.type}  ·  Soalan ${state.kefahaman.qIdx + 1} daripada ${p.questions.length}`;
+  document.getElementById('kefahaman-answer').value = '';
+  document.getElementById('kefahaman-feedback').classList.remove('show');
+  document.getElementById('kefahaman-coach-thread').classList.remove('show');
+  document.getElementById('kefahaman-coach-thread').innerHTML = '';
+  state.kefahaman.coach = [];
+  state.kefahaman.revealed = false;
+  updateCounter('kefahaman');
+}
+renderKefahaman();
+
+// ── Word counters ──────────────────────────────────────────────
+function countWords(s) { return (s.trim().match(/\S+/g) || []).length; }
+function updateCounter(target) {
+  const ta = document.getElementById(target + (target === 'karangan' ? '-draft' : '-answer'));
+  const ctr = document.getElementById(target + '-counter');
+  const n = countWords(ta.value);
+  ctr.textContent = `${n} patah perkataan`;
+  ctr.classList.remove('warn', 'good');
+  if (target === 'karangan') {
+    if (n < 150) ctr.classList.add('warn');
+    else if (n >= 180) ctr.classList.add('good');
+  } else {
+    if (n >= 25) ctr.classList.add('good');
+    else if (n > 0 && n < 10) ctr.classList.add('warn');
+  }
+}
+document.getElementById('karangan-draft').addEventListener('input', () => updateCounter('karangan'));
+document.getElementById('kefahaman-answer').addEventListener('input', () => updateCounter('kefahaman'));
+
+// ── Gemini wrappers ────────────────────────────────────────────
+async function callGemini(prompt, system) {
+  if (typeof window.askGemini !== 'function') throw new Error('Gemini wrapper unavailable.');
+  return window.askGemini({
+    system: system || (window.MalayCoach ? window.MalayCoach.VOICE : ''),
+    prompt,
+    temperature: 0.4,
+    maxTokens: 700,
+    thinkingBudget: 0,
+  });
+}
+
+// ── Karangan marking ──────────────────────────────────────────
+document.getElementById('karangan-mark').addEventListener('click', async () => {
+  if (!checkKey()) return;
+  const draft = document.getElementById('karangan-draft').value.trim();
+  if (!draft) return;
+  const topic = state.karangan.topic;
+  const fb = document.getElementById('karangan-feedback');
+  const mode = state.karangan.mode;
+
+  if (mode === 'examiner') {
+    fb.className = 'feedback show examiner';
+    fb.innerHTML = `<h4>Pemeriksa</h4><p><span class="loader"></span> Menanda karangan…</p>`;
+    const sys = 'Anda adalah pemeriksa Bahasa Melayu PSLE yang berpengalaman. Tanda karangan pelajar mengikut rubrik PSLE: kosa kata, tatabahasa (imbuhan, kata sendi, aspek), struktur (pengenalan, isi, pengakhiran), penggunaan peribahasa. Beri band anggaran AL1-AL4 dan 3-4 ulasan ringkas. Tiada emoji. Tiada hiperbola.';
+    const prompt = `Tajuk: "${topic.title}"\n\nKarangan pelajar (Darjah 6):\n${draft}\n\nBerikan:\n1. Band anggaran (AL1 cemerlang, AL2 baik, AL3 memuaskan, AL4 cukup)\n2. 3 perkara yang baik\n3. 3 perkara yang boleh diperbaiki dengan contoh konkrit\n4. Satu cadangan untuk perenggan seterusnya\n\nGunakan Bahasa Melayu formal. Maksimum 250 patah perkataan.`;
+    try {
+      const out = await callGemini(prompt, sys);
+      fb.innerHTML = `<h4>Pemeriksa — ulasan</h4><div style="white-space:pre-wrap">${escapeHtml(out)}</div>`;
+    } catch (err) {
+      fb.innerHTML = `<h4>Ralat</h4><p>${escapeHtml(err.message)}</p>`;
+    }
+  } else {
+    // Coach mode: append student draft, get one probe back
+    const thread = document.getElementById('karangan-coach-thread');
+    thread.classList.add('show');
+    addCoachTurn(thread, 'you', draft, 'karangan');
+    const probeHolder = addCoachTurn(thread, 'coach', '<span class="loader"></span> Coach sedang berfikir…', 'karangan');
+    const sys = (window.MalayCoach ? window.MalayCoach.VOICE : '') + ' Anda hanya berikan SATU soalan probe untuk membantu pelajar memperhalus karangan. Jangan dedahkan karangan model. Fokus pada satu kelemahan paling besar: kosa kata berulang, kekurangan imbuhan meN-, struktur perenggan, atau ketiadaan butiran deria.';
+    const history = state.karangan.coach.map(t => `[${t.role}] ${t.text}`).join('\n\n');
+    const prompt = `Tajuk karangan: "${topic.title}"\n\n${history}\n\n[student-latest-draft]:\n${draft}\n\nTugas: berikan SATU probe yang spesifik dan singkat (1-2 ayat) untuk membantu pelajar memperhalus karangan ini. Fokus satu aspek sahaja. Tiada emoji. Tiada "saya".`;
+    try {
+      const out = await callGemini(prompt, sys);
+      probeHolder.querySelector('.body').textContent = out.trim();
+      state.karangan.coach.push({ role: 'student', text: draft });
+      state.karangan.coach.push({ role: 'coach', text: out.trim() });
+    } catch (err) {
+      probeHolder.querySelector('.body').textContent = 'Ralat: ' + err.message;
+    }
+  }
+});
+
+document.getElementById('karangan-reveal').addEventListener('click', () => {
+  const t = state.karangan.topic;
+  const fb = document.getElementById('karangan-feedback');
+  fb.className = 'feedback show coach';
+  fb.innerHTML = `<h4>Karangan Model — Bandingkan</h4><p style="white-space:pre-wrap">${escapeHtml(t.model)}</p><p style="font-size:.78rem;color:var(--muted);margin-top:.65rem">Karangan model adalah panduan, bukan jawapan terbaik tunggal. Lihat <a href="../knowledge-base/Karangan_KB.md" style="color:var(--accent)">Karangan_KB.md</a> untuk karangan model penuh.</p>`;
+});
+
+document.getElementById('karangan-reset').addEventListener('click', () => {
+  document.getElementById('karangan-draft').value = '';
+  document.getElementById('karangan-feedback').classList.remove('show');
+  document.getElementById('karangan-coach-thread').classList.remove('show');
+  document.getElementById('karangan-coach-thread').innerHTML = '';
+  state.karangan.coach = [];
+  updateCounter('karangan');
+});
+
+// ── Kefahaman marking ─────────────────────────────────────────
+document.getElementById('kefahaman-mark').addEventListener('click', async () => {
+  if (!checkKey()) return;
+  const ans = document.getElementById('kefahaman-answer').value.trim();
+  if (!ans) return;
+  const p = state.kefahaman.passage;
+  const q = p.questions[state.kefahaman.qIdx];
+  const fb = document.getElementById('kefahaman-feedback');
+  const mode = state.kefahaman.mode;
+
+  if (mode === 'examiner') {
+    fb.className = 'feedback show examiner';
+    fb.innerHTML = `<h4>Pemeriksa</h4><p><span class="loader"></span> Menanda jawapan…</p>`;
+    const sys = 'Anda adalah pemeriksa Bahasa Melayu PSLE. Tanda jawapan kefahaman pelajar mengikut format Petik-Hubung-Terang. Periksa: (1) bukti dari teks, (2) penerangan yang menjawab soalan, (3) tatabahasa dan kosa kata. Beri markah anggaran daripada 2 atau 3 markah, dan 2-3 ulasan ringkas.';
+    const prompt = `Petikan:\n"${p.passage}"\n\nSoalan (${q.type}): ${q.text}\n\nJawapan pelajar:\n${ans}\n\nBerikan:\n1. Markah anggaran (0-3)\n2. Apa yang baik\n3. Apa yang boleh diperbaiki\n\nGunakan Bahasa Melayu formal. Maksimum 150 patah perkataan. Jangan dedahkan jawapan model.`;
+    try {
+      const out = await callGemini(prompt, sys);
+      fb.innerHTML = `<h4>Pemeriksa — ulasan</h4><div style="white-space:pre-wrap">${escapeHtml(out)}</div>`;
+    } catch (err) {
+      fb.innerHTML = `<h4>Ralat</h4><p>${escapeHtml(err.message)}</p>`;
+    }
+  } else {
+    const thread = document.getElementById('kefahaman-coach-thread');
+    thread.classList.add('show');
+    addCoachTurn(thread, 'you', ans, 'kefahaman');
+    const probeHolder = addCoachTurn(thread, 'coach', '<span class="loader"></span> Coach sedang berfikir…', 'kefahaman');
+    const sys = (window.MalayCoach ? window.MalayCoach.VOICE : '') + ' Beri SATU probe ringkas yang membantu pelajar menambah baik jawapan kefahaman. Jangan dedahkan jawapan model. Fokus pada: bukti dari teks (Petik), hubungan kepada soalan (Hubung), atau penerangan yang lengkap (Terang).';
+    const history = state.kefahaman.coach.map(t => `[${t.role}] ${t.text}`).join('\n\n');
+    const prompt = `Petikan: "${p.passage}"\n\nSoalan: ${q.text}\n\n${history}\n\n[student-latest-answer]: ${ans}\n\nBerikan SATU probe (1-2 ayat) supaya pelajar memperhalus jawapan. Tiada emoji.`;
+    try {
+      const out = await callGemini(prompt, sys);
+      probeHolder.querySelector('.body').textContent = out.trim();
+      state.kefahaman.coach.push({ role: 'student', text: ans });
+      state.kefahaman.coach.push({ role: 'coach', text: out.trim() });
+    } catch (err) {
+      probeHolder.querySelector('.body').textContent = 'Ralat: ' + err.message;
+    }
+  }
+});
+
+document.getElementById('kefahaman-reveal').addEventListener('click', () => {
+  const p = state.kefahaman.passage;
+  const q = p.questions[state.kefahaman.qIdx];
+  const fb = document.getElementById('kefahaman-feedback');
+  fb.className = 'feedback show coach';
+  fb.innerHTML = `<h4>Jawapan Model — Bandingkan</h4><p style="white-space:pre-wrap">${escapeHtml(q.model)}</p><p style="font-size:.78rem;color:var(--muted);margin-top:.65rem">Bandingkan struktur (Petik → Hubung → Terang), bukan perkataan demi perkataan.</p>`;
+});
+
+document.getElementById('kefahaman-reset').addEventListener('click', () => {
+  const p = state.kefahaman.passage;
+  state.kefahaman.qIdx = (state.kefahaman.qIdx + 1) % p.questions.length;
+  renderKefahaman();
+});
+
+// ── Helpers ────────────────────────────────────────────────────
+function addCoachTurn(thread, who, content, target) {
+  const turn = document.createElement('div');
+  turn.className = 'coach-turn ' + who;
+  const role = who === 'you' ? 'Pelajar' : 'Coach';
+  turn.innerHTML = `<div class="who">${role}</div><div class="body">${content}</div>`;
+  thread.appendChild(turn);
+  return turn;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+</script>
+</body>
+</html>

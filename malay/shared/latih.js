@@ -118,6 +118,84 @@
         { stem: 'Ibu membeli ___ kasut.', options: ['sebuah', 'seekor', 'sepasang', 'sehelai'], correct: 2, why: 'Berpasangan → sepasang.' },
       ],
     },
+
+    'kosa-kata': {
+      title: 'Pelbagaikan Kosa Kata',
+      intro: 'Pilih perkataan yang PALING tepat untuk slot karangan.',
+      items: [
+        { stem: 'Sinonim PALING formal untuk "gembira":', options: ['happy', 'sukacita', 'okay', 'fine'], correct: 1, why: 'Sukacita = formal Malay untuk "joyful/delighted".' },
+        { stem: 'Cuaca hari ini sangat ___ . Matahari menyengat kulit.', options: ['tenang', 'terik', 'lembap', 'sejuk'], correct: 1, why: 'Matahari menyengat → cuaca terik (sangat panas).' },
+        { stem: 'Ali mengulang kaji ___ untuk peperiksaan akhir tahun.', options: ['malas-malasan', 'bersungguh-sungguh', 'tergesa-gesa', 'sambil lewa'], correct: 1, why: 'Konteks positif → bersungguh-sungguh (formal, vivid).' },
+        { stem: 'Mendengar berita kemenangan, air matanya ___ kerana terharu.', options: ['kering', 'bergenang', 'hilang', 'meleleh'], correct: 1, why: 'Bergenang = welling up. Sesuai untuk klimaks emosi karangan.' },
+        { stem: 'Pilih perkataan untuk suasana TEGANG:', options: ['mencengkam', 'meriah', 'tenang', 'biasa'], correct: 0, why: 'Suasana mencengkam = atmosfera tegang. Sesuai untuk perenggan konflik karangan.' },
+        { stem: 'Suasana di pasar pada hari Sabtu sangat ___ .', options: ['sunyi sepi', 'penuh sesak', 'lapang', 'kosong'], correct: 1, why: 'Pasar hari Sabtu = ramai orang → penuh sesak.' },
+      ],
+    },
+
+    'sinonim-antonim': {
+      title: 'Pasangan Seerti & Berlawanan',
+      intro: 'Pilih sinonim atau antonim yang BETUL.',
+      items: [
+        { stem: 'Sinonim untuk "pandai":', options: ['bodoh', 'cerdik', 'malas', 'sedih'], correct: 1, why: 'Cerdik = sinonim biasa untuk pandai.' },
+        { stem: 'Antonim untuk "berani":', options: ['gagah', 'perkasa', 'takut', 'tinggi'], correct: 2, why: 'Berani ↔ takut (atau pengecut).' },
+        { stem: 'Sinonim PALING formal untuk "cantik":', options: ['cute', 'cantik je', 'jelita', 'biasa'], correct: 2, why: 'Jelita = sinonim literari untuk cantik. Sesuai karangan deskriptif.' },
+        { stem: 'Antonim langsung untuk "miskin":', options: ['kaya', 'sederhana', 'tinggi', 'sedih'], correct: 0, why: 'Miskin ↔ kaya (antonim langsung).' },
+        { stem: 'Sinonim untuk "penat":', options: ['rajin', 'letih', 'gembira', 'sedih'], correct: 1, why: 'Letih / lelah / lesu = sinonim penat.' },
+        { stem: 'Antonim untuk "rajin":', options: ['tekun', 'gigih', 'malas', 'pandai'], correct: 2, why: 'Rajin ↔ malas.' },
+      ],
+    },
+
+    'peribahasa': {
+      title: 'Pilih Peribahasa',
+      intro: 'Padankan peribahasa dengan maksud atau konteksnya.',
+      items: [
+        { stem: '"Bagai aur dengan tebing" bermaksud:', options: ['Bermusuh', 'Saling menyokong', 'Bercerai', 'Berbohong'], correct: 1, why: 'Aur (buluh) dan tebing saling menyokong = hubungan rapat yang saling menguatkan.' },
+        { stem: '"Sedikit-sedikit, lama-lama menjadi bukit" mengajarkan:', options: ['Bermalas-malasan', 'Usaha kecil yang konsisten menghasilkan kejayaan', 'Berputus asa', 'Bercerai-berai'], correct: 1, why: 'Akumulasi usaha kecil = kejayaan besar.' },
+        { stem: 'Konteks: "Ali bekerja keras bertahun-tahun sehingga akhirnya berjaya membuka kedainya sendiri." Peribahasa yang sesuai:', options: ['Sudah jatuh ditimpa tangga', 'Sedikit-sedikit, lama-lama menjadi bukit', 'Ada udang di sebalik batu', 'Hangat-hangat tahi ayam'], correct: 1, why: 'Usaha konsisten bertahun-tahun → peribahasa konsistensi.' },
+        { stem: '"Sudah jatuh ditimpa tangga" menggambarkan:', options: ['Pelajar yang rajin', 'Malang bertimpa-timpa', 'Kawan yang baik', 'Cuaca yang elok'], correct: 1, why: 'Kemalangan demi kemalangan (peribahasa untuk situasi malang yang berlapis).' },
+        { stem: '"Bersatu teguh, bercerai roboh" menekankan kepentingan:', options: ['Berpecah', 'Perpaduan dan kerjasama', 'Berdiam diri', 'Bermusuh'], correct: 1, why: 'Bersatu = kuat (teguh); bercerai = jatuh (roboh).' },
+        { stem: '"Air yang tenang jangan disangka tiada buaya" mengajar kita untuk:', options: ['Bermain air', 'Berhati-hati dengan orang yang nampak diam', 'Mencari buaya', 'Tinggal jauh dari sungai'], correct: 1, why: 'Air tenang boleh menyembunyikan bahaya. Berhati-hati terhadap orang/keadaan yang nampak aman.' },
+      ],
+    },
+
+    'simpulan-bahasa': {
+      title: 'Faham Simpulan Bahasa',
+      intro: 'Pilih makna simpulan bahasa.',
+      items: [
+        { stem: '"Buah hati" bermaksud:', options: ['buah-buahan', 'jantung sebenar', 'orang yang amat disayangi', 'taman'], correct: 2, why: 'Simpulan untuk kekasih atau anak yang amat disayangi.' },
+        { stem: '"Panjang tangan" bermaksud:', options: ['lengan panjang', 'suka menolong', 'suka mencuri', 'rajin'], correct: 2, why: 'Simpulan untuk sifat mencuri.' },
+        { stem: '"Naik darah" bermaksud:', options: ['sihat', 'menjadi marah', 'lapar', 'sejuk'], correct: 1, why: 'Simpulan untuk berasa marah/berang.' },
+        { stem: '"Tangan kanan" merujuk kepada:', options: ['tangan kanan fizikal', 'orang kepercayaan', 'kemenangan', 'pukulan'], correct: 1, why: 'Orang yang membantu dan boleh dipercayai sepenuhnya.' },
+        { stem: '"Mata duitan" menggambarkan sifat:', options: ['pemurah', 'rajin', 'tamakkan wang', 'penyabar'], correct: 2, why: 'Mata yang hanya melihat wang → sifat tamak material.' },
+        { stem: '"Berat tulang" menggambarkan:', options: ['badan kuat', 'sifat malas', 'tulang yang patah', 'berat badan'], correct: 1, why: 'Tulang berat → susah bergerak → simpulan untuk malas.' },
+      ],
+    },
+
+    'karangan': {
+      title: 'Struktur Karangan',
+      intro: 'Kenal pasti komponen karangan yang baik untuk PSLE.',
+      items: [
+        { stem: 'Berapakah patah perkataan MINIMUM untuk karangan PSLE?', options: ['50', '100', '150', '300'], correct: 2, why: 'Minimum 150 patah perkataan. Dicadangkan 180-250.' },
+        { stem: 'Pilih pengenalan TERBAIK:', options: ['Pada suatu hari saya pergi.', 'Pagi Sabtu yang cerah itu, saya menuju ke pantai dengan penuh keseronokan.', 'Hari ini hari menarik.', 'Saya pergi.'], correct: 1, why: 'Pengenalan beratmosfera: latar spesifik + watak + mood. "Pada suatu hari" = klise.' },
+        { stem: 'Berapa peribahasa sesuai dalam karangan PSLE?', options: ['0', '1 sahaja', 'Sebanyak mungkin', 'Sekurang-kurangnya 5'], correct: 1, why: '1 peribahasa yang sesuai = bonus. Lebih = risiko salah konteks.' },
+        { stem: 'Untuk karangan BERGAMBAR dengan 4 gambar, struktur:', options: ['1 perenggan untuk semua', '4 perenggan + pengenalan + pengakhiran', 'Tiada peraturan', '2 perenggan'], correct: 1, why: 'Satu perenggan per gambar + pengenalan + pengakhiran.' },
+        { stem: 'Pilih pengakhiran TERBAIK:', options: ['Itulah hari yang tidak dapat saya lupakan.', 'Sambil mengemas barang, saya menyedari betapa berharganya keluarga.', 'Saya pulang.', 'Habis.'], correct: 1, why: 'Pengakhiran reflektif = pertumbuhan watak melalui tindakan + pengajaran konkrit.' },
+        { stem: 'Format dialog yang BETUL:', options: ['"Tolong saya" jerit Aishah.', '"Tolong saya!" jerit Aishah.', 'Tolong saya jerit Aishah.', '"Tolong saya!,"jerit Aishah.'], correct: 1, why: 'Tanda seru di dalam tanda petik untuk seruan; titik penerangan SELEPAS tanda petik tutup.' },
+      ],
+    },
+
+    'kefahaman': {
+      title: 'Strategi Kefahaman',
+      intro: 'Pilih strategi atau jawapan kefahaman yang TEPAT.',
+      items: [
+        { stem: 'Soalan TERSURAT adalah:', options: ['Jawapan tidak ada dalam teks', 'Jawapan terus dalam teks', 'Soalan tentang pendapat', 'Soalan kosa kata'], correct: 1, why: 'Tersurat = literal = jawapan terus daripada petikan.' },
+        { stem: 'Untuk kosa kata dalam konteks, pilih definisi yang:', options: ['Umum (kamus)', 'Sesuai dengan konteks ayat', 'Mana-mana sinonim', 'Antonim'], correct: 1, why: 'Definisi mesti sesuai konteks petikan, bukan definisi am.' },
+        { stem: 'Strategi TRACE bermula dengan:', options: ['Salin petikan', 'Kenal pasti jenis teks', 'Jawapan dahulu', 'Cari kamus'], correct: 1, why: 'T = Text-type. Naratif / ekspositori / persuasif / prosedural.' },
+        { stem: 'Format jawapan yang DICADANGKAN:', options: ['Salin ayat penuh', 'Petik bukti + hubung + terang', 'Pendapat sahaja', 'Senarai pendek'], correct: 1, why: 'Quote → Link → Explain. Bukti dari teks + penerangan.' },
+        { stem: 'Petikan: "Hujan turun lebat, Puan Rashidah tetap keluar untuk membeli ubat suaminya." Inferens: dia adalah:', options: ['Pemalas', 'Prihatin & sayang suami', 'Marah', 'Takut'], correct: 1, why: 'Sanggup keluar dalam hujan untuk suami = sifat prihatin & kasih sayang.' },
+        { stem: 'Adakah kamus dibenarkan dalam Kertas 2 PSLE BM?', options: ['Ya', 'Tidak', 'Hanya elektronik', 'Hanya untuk dialog'], correct: 1, why: 'Tiada kamus dalam Kertas 2. (Kertas 1 boleh — kamus diluluskan SEAB.)' },
+      ],
+    },
   };
 
   // ── Widget mount ───────────────────────────────────────

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ulang Kaji | PSLE Bahasa Melayu Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .summary { background: linear-gradient(135deg, #1a2236 0%, #2d1a3a 100%); border: 1px solid var(--accent); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.75rem; display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center; }
+    .summary .num { font-size: 2.5rem; font-weight: 800; color: var(--accent); font-family: var(--font-mono, monospace); line-height: 1; }
+    .summary .lbl { font-size: .82rem; color: var(--muted); }
+    .summary .narrative { flex: 1; min-width: 220px; font-size: .9rem; color: var(--text); line-height: 1.55; }
+
+    .topic-row { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: .85rem 1.15rem; margin-bottom: .65rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .topic-row .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .topic-row .name { flex: 1; font-weight: 700; color: var(--text); font-size: .92rem; }
+    .topic-row .meta { font-size: .76rem; color: var(--muted); }
+    .topic-row .due { font-size: .76rem; padding: .15rem .55rem; border-radius: 99px; font-weight: 700; }
+    .topic-row .due.urgent { background: #2a1400; color: #fb923c; border: 1px solid #f97316; }
+    .topic-row .due.soon { background: #1a1a00; color: #fcd34d; border: 1px solid #f59e0b; }
+    .topic-row .due.fresh { background: #053b27; color: #6ee7b7; border: 1px solid var(--tatabahasa); }
+    .topic-row .start { padding: .35rem .85rem; font-size: .8rem; border-radius: 7px; background: var(--accent); color: #0f172a; font-weight: 700; text-decoration: none; }
+    .topic-row .start:hover { background: #7dd3fc; }
+
+    .section-h { font-size: 1rem; color: var(--text); margin: 1.5rem 0 .85rem; border-bottom: 1px solid var(--border); padding-bottom: .35rem; }
+    .empty { padding: 2rem 1rem; text-align: center; color: var(--muted); font-style: italic; }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">🔁 Ulang Kaji</h1>
+    <div style="font-size:.76rem;color:var(--muted)">Topik yang sudah lebih daripada 3 hari sejak ujian terakhir, mengikut ruang berjarak (spaced repetition).</div>
+  </div>
+</header>
+
+<main>
+  <div class="summary" id="summary">
+    <div>
+      <div class="num" id="due-count">0</div>
+      <div class="lbl">topik untuk diulang kaji</div>
+    </div>
+    <div class="narrative" id="narrative">
+      Bila anda menyelesaikan kuiz, topik ditandakan "fresh". Selepas 3-4 hari, ia menjadi "soon" (warna kuning). Selepas seminggu, "urgent" (warna jingga). Ulang kaji sebelum ia merosot dari ingatan jangka panjang anda — itulah sebabnya jadual berjarak amat berkesan.
+    </div>
+  </div>
+
+  <h2 class="section-h">Perlu Diulang Kaji Sekarang</h2>
+  <div id="urgent-list"></div>
+
+  <h2 class="section-h">Akan Datang (Tidak Lama Lagi)</h2>
+  <div id="soon-list"></div>
+
+  <h2 class="section-h">Baru Diulang (Tidak Perlu Sekarang)</h2>
+  <div id="fresh-list"></div>
+
+  <h2 class="section-h">Belum Cuba</h2>
+  <div id="never-list"></div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script>
+const TOPICS = [
+  { id: 'imbuhan', name: 'Imbuhan', theme: 'tatabahasa' },
+  { id: 'kata-nama', name: 'Kata Nama', theme: 'tatabahasa' },
+  { id: 'kata-kerja', name: 'Kata Kerja', theme: 'tatabahasa' },
+  { id: 'kata-adjektif', name: 'Kata Adjektif', theme: 'tatabahasa' },
+  { id: 'kata-hubung', name: 'Kata Hubung', theme: 'tatabahasa' },
+  { id: 'kata-sendi', name: 'Kata Sendi Nama', theme: 'tatabahasa' },
+  { id: 'kata-ganti-nama', name: 'Kata Ganti Nama', theme: 'tatabahasa' },
+  { id: 'penjodoh-bilangan', name: 'Penjodoh Bilangan', theme: 'tatabahasa' },
+  { id: 'kosa-kata', name: 'Kosa Kata', theme: 'kosakata' },
+  { id: 'sinonim-antonim', name: 'Sinonim & Antonim', theme: 'kosakata' },
+  { id: 'peribahasa', name: 'Peribahasa', theme: 'peribahasa' },
+  { id: 'simpulan-bahasa', name: 'Simpulan Bahasa', theme: 'peribahasa' },
+  { id: 'kefahaman', name: 'Kefahaman', theme: 'kefahaman' },
+  { id: 'karangan', name: 'Karangan', theme: 'penulisan' },
+];
+const THEME_COLOR = {
+  tatabahasa: 'var(--tatabahasa)', kosakata: 'var(--kosakata)',
+  peribahasa: 'var(--peribahasa)', kefahaman: 'var(--kefahaman)', penulisan: 'var(--penulisan)',
+};
+
+function daysSince(dateStr) {
+  if (!dateStr) return null;
+  return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+}
+
+function buckets() {
+  const out = { urgent: [], soon: [], fresh: [], never: [] };
+  TOPICS.forEach(t => {
+    const p = (typeof Progress !== 'undefined') ? Progress.get(t.id) : {};
+    const d = daysSince(p.lastQuizDate);
+    if (d == null) out.never.push({ ...t, days: null });
+    else if (d >= 7) out.urgent.push({ ...t, days: d });
+    else if (d >= 3) out.soon.push({ ...t, days: d });
+    else out.fresh.push({ ...t, days: d });
+  });
+  return out;
+}
+
+function row(t) {
+  const color = THEME_COLOR[t.theme];
+  let due = '';
+  let dueHtml = '';
+  if (t.days == null) { due = 'Belum cuba'; dueHtml = `<span class="due fresh">${due}</span>`; }
+  else if (t.days >= 7) { due = `${t.days} hari lalu`; dueHtml = `<span class="due urgent">${due}</span>`; }
+  else if (t.days >= 3) { due = `${t.days} hari lalu`; dueHtml = `<span class="due soon">${due}</span>`; }
+  else { due = t.days === 0 ? 'Hari ini' : `${t.days} hari lalu`; dueHtml = `<span class="due fresh">${due}</span>`; }
+  return `
+    <div class="topic-row">
+      <div class="dot" style="background:${color}"></div>
+      <div class="name">${t.name}</div>
+      ${dueHtml}
+      <a class="start" href="../topics/${t.id}/index.html">▶ Mula</a>
+    </div>
+  `;
+}
+
+const b = buckets();
+const $ = id => document.getElementById(id);
+$('urgent-list').innerHTML = b.urgent.length ? b.urgent.map(row).join('') : '<div class="empty">Tiada topik mendesak untuk diulang kaji. Bagus.</div>';
+$('soon-list').innerHTML   = b.soon.length   ? b.soon.map(row).join('')   : '<div class="empty">Tiada topik dalam senarai segera.</div>';
+$('fresh-list').innerHTML  = b.fresh.length  ? b.fresh.map(row).join('')  : '<div class="empty">Tiada topik yang baru diulang kaji.</div>';
+$('never-list').innerHTML  = b.never.length  ? b.never.map(row).join('')  : '<div class="empty">Anda telah cuba semua topik. Tahniah.</div>';
+
+const due = b.urgent.length + b.soon.length;
+$('due-count').textContent = due;
+if (due === 0) $('narrative').textContent = 'Semua topik sudah diulang baru-baru ini. Pilih topik baharu atau cuba latihan rentas-topik dalam Pentaksiran Sinoptik.';
+else if (due >= 5) $('narrative').textContent = `Anda ada ${due} topik untuk diulang kaji. Mulakan dengan dua topik yang paling lama lalu, kemudian rehat.`;
+</script>
+</body>
+</html>

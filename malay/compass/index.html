@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kompas | PSLE Bahasa Melayu Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+
+    .greeting { text-align: center; margin-bottom: 2rem; }
+    .greeting h2 { font-family: var(--font-display, serif); font-size: 1.7rem; font-weight: 800; color: var(--text); margin-bottom: .25rem; letter-spacing: -.015em; }
+    .greeting .sub { font-size: .9rem; color: var(--muted); }
+
+    .step { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem 1.6rem; margin-bottom: 1rem; }
+    .step .step-num { font-size: .72rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; margin-bottom: .35rem; }
+    .step h3 { font-size: 1.05rem; margin-bottom: .85rem; }
+
+    .mood-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: .5rem; }
+    .mood {
+      background: transparent; border: 1.5px solid var(--border); border-radius: 11px;
+      padding: .9rem .5rem; text-align: center; cursor: pointer;
+      transition: all .15s; user-select: none;
+    }
+    .mood:hover { border-color: var(--accent); }
+    .mood.selected { background: var(--surface); border-color: var(--accent); }
+    .mood-emoji { font-size: 1.5rem; line-height: 1; margin-bottom: .25rem; }
+    .mood-label { font-size: .76rem; font-weight: 700; color: var(--text); }
+
+    .proposal { background: var(--surface); border-left: 3px solid var(--tatabahasa); padding: 1rem 1.2rem; border-radius: 8px; font-size: .92rem; color: var(--text); line-height: 1.6; margin-top: .85rem; display: none; }
+    .proposal.show { display: block; }
+    .proposal h4 { font-size: .78rem; color: var(--tatabahasa); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .5rem; }
+
+    .intention {
+      display: grid; grid-template-columns: auto 1fr; gap: .5rem; align-items: center;
+      font-size: .92rem; color: var(--text); margin-top: .85rem;
+    }
+    .intention select, .intention input {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 7px;
+      padding: .4rem .65rem; font-family: inherit; font-size: .9rem; color: var(--text);
+    }
+    .intention .word { color: var(--muted); }
+
+    .session-summary { display: none; background: linear-gradient(135deg, #14302b 0%, #2d1a3a 100%); border: 1px solid var(--accent); border-radius: 12px; padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
+    .session-summary.show { display: block; }
+    .session-summary h3 { color: var(--accent); margin-bottom: .65rem; }
+    .session-summary p { color: var(--text); font-size: .92rem; line-height: 1.65; margin-bottom: 1rem; }
+    .session-summary .links { display: flex; gap: .55rem; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">🧭 Kompas</h1>
+    <div style="font-size:.76rem;color:var(--muted)">Daftar masuk → cadangan sesi → niat. Bermula dengan baik = sesi yang lebih bermakna.</div>
+  </div>
+</header>
+
+<main>
+  <div class="greeting">
+    <h2 id="greet">Selamat datang.</h2>
+    <p class="sub" id="streak-line">Belajar konsisten lebih kuat daripada belajar lama.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-num">Langkah 1</div>
+    <h3>Bagaimana perasaan anda untuk sesi ini?</h3>
+    <div class="mood-grid" id="mood-grid">
+      <div class="mood" data-score="1"><div class="mood-emoji">😴</div><div class="mood-label">Letih</div></div>
+      <div class="mood" data-score="2"><div class="mood-emoji">😔</div><div class="mood-label">Rendah</div></div>
+      <div class="mood" data-score="3"><div class="mood-emoji">😐</div><div class="mood-label">Biasa</div></div>
+      <div class="mood" data-score="4"><div class="mood-emoji">🙂</div><div class="mood-label">Baik</div></div>
+      <div class="mood" data-score="5"><div class="mood-emoji">🤩</div><div class="mood-label">Cergas</div></div>
+    </div>
+  </div>
+
+  <div class="step" id="step-proposal" style="display:none">
+    <div class="step-num">Langkah 2</div>
+    <h3>Cadangan sesi untuk anda</h3>
+    <div class="proposal show" id="proposal"></div>
+  </div>
+
+  <div class="step" id="step-intention" style="display:none">
+    <div class="step-num">Langkah 3</div>
+    <h3>Niat anda untuk sesi ini</h3>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.5;margin-bottom:.65rem">Niat yang spesifik berjaya dua kali lebih kerap daripada niat umum. Lengkapkan ayat di bawah:</p>
+    <div class="intention">
+      <span class="word">Dalam</span>
+      <select id="i-mins"><option>10</option><option selected>15</option><option>20</option><option>25</option><option>30</option></select>
+      <span class="word">minit saya akan</span>
+      <select id="i-action">
+        <option>buat latihan mudah</option>
+        <option>menyiapkan satu kuiz</option>
+        <option>mengulang kaji glosari</option>
+        <option>menulis perenggan karangan</option>
+        <option>mencuba pentaksiran sinoptik</option>
+        <option>membaca dan menjawab kefahaman</option>
+      </select>
+      <span class="word">tentang</span>
+      <select id="i-topic">
+        <option>imbuhan</option>
+        <option>kata nama</option>
+        <option>kata kerja</option>
+        <option>kata sendi</option>
+        <option>kata hubung</option>
+        <option>kosa kata</option>
+        <option>peribahasa</option>
+        <option>kefahaman</option>
+        <option>karangan</option>
+        <option>topik yang paling lama tidak diulang</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" id="commit-btn" style="margin-top:1.1rem;font-size:.88rem;width:100%">✓ Saya Bersedia. Mulakan Sesi.</button>
+  </div>
+
+  <div class="session-summary" id="session-summary">
+    <h3>Sesi anda dimulakan</h3>
+    <p id="commit-line"></p>
+    <div class="links">
+      <a class="btn btn-primary" id="quick-link" style="font-size:.85rem">→ Buka destinasi</a>
+      <a class="btn btn-ghost" href="../index.html" style="font-size:.85rem">← Kembali ke Hub</a>
+    </div>
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script>
+function timeBand() {
+  const h = new Date().getHours();
+  if (h < 5)  return ['Awal pagi.', 'Tidur terlebih dahulu jika sesuai.'];
+  if (h < 12) return ['Selamat pagi.', 'Pagi sesuai untuk menulis karangan.'];
+  if (h < 17) return ['Selamat tengah hari.', 'Tengah hari sesuai untuk kuiz tatabahasa.'];
+  if (h < 22) return ['Selamat petang.', 'Sesi pendek dengan kad kilas baik untuk waktu petang.'];
+  return ['Sudah lewat malam.', 'Sesi pendek 10 minit, kemudian tidur.'];
+}
+const [hi, sub] = timeBand();
+document.getElementById('greet').textContent = hi;
+document.getElementById('streak-line').textContent = sub;
+
+// Streak line
+try {
+  if (typeof Streak !== 'undefined') {
+    const s = Streak.get();
+    if (s.current > 0) {
+      document.getElementById('streak-line').textContent = `${s.current} hari berturut-turut. ${sub}`;
+    }
+  }
+} catch {}
+
+const PROPOSALS = {
+  1: { len: 10, mode: 'Lembut', text: 'Sesi <strong>10 minit</strong>. Pilih satu topik yang anda sudah biasa. Buka <strong>Latihan Mudah</strong> atau <strong>Kad Kilas</strong>. Kawal beban — yang penting muncul, bukan jumlah.', url: '../confidence/index.html', label: '🌱 Latihan Mudah' },
+  2: { len: 15, mode: 'Lembut', text: 'Sesi <strong>15 minit</strong>. Mood rendah hari ini? OK. Cuba 1 kuiz ringkas pada topik yang anda dah biasa. Bukan untuk skor tinggi — untuk pengulangan.', url: '../flashcards/index.html', label: '🃏 Kad Kilas' },
+  3: { len: 20, mode: 'Seimbang', text: 'Sesi <strong>20 minit</strong>. Pilih satu topik daripada Ulang Kaji yang sudah lama. Buat kuiz, semak jawapan yang terlepas.', url: '../review/index.html', label: '🔁 Ulang Kaji' },
+  4: { len: 25, mode: 'Cabaran', text: 'Sesi <strong>25 minit</strong>. Mood baik — cuba sesuatu yang lebih mencabar. <strong>Karangan Builder</strong> atau <strong>Pentaksiran Sinoptik</strong> pada paras P6.', url: '../structured/index.html', label: '📋 Karangan Builder' },
+  5: { len: 30, mode: 'Stretch', text: 'Sesi <strong>30 minit</strong>. Cergas — masa untuk mencabar diri. <strong>Pentaksiran Sinoptik</strong> 20 soalan dengan pemasa, atau karangan lengkap.', url: '../assess/index.html', label: '🧠 Pentaksiran Sinoptik' },
+};
+
+let chosenScore = null;
+document.querySelectorAll('.mood').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.mood').forEach(m => m.classList.remove('selected'));
+    el.classList.add('selected');
+    chosenScore = parseInt(el.dataset.score, 10);
+    const p = PROPOSALS[chosenScore];
+    document.getElementById('proposal').innerHTML = `<h4>${p.mode} · ${p.len} minit</h4>${p.text}`;
+    document.getElementById('step-proposal').style.display = 'block';
+    document.getElementById('step-intention').style.display = 'block';
+    // Pre-fill intention
+    document.getElementById('i-mins').value = p.len;
+    // Save mood to jgl.progress
+    if (window.JglStorage && window.JglStorage.update) {
+      window.JglStorage.update(p => {
+        p.wellbeing = p.wellbeing || { lastCheckInIso: null, recentMoodScores: [] };
+        p.wellbeing.lastCheckInIso = new Date().toISOString();
+        p.wellbeing.recentMoodScores = (p.wellbeing.recentMoodScores || []).concat(chosenScore).slice(-14);
+        return p;
+      });
+    }
+  });
+});
+
+document.getElementById('commit-btn').addEventListener('click', () => {
+  const m = document.getElementById('i-mins').value;
+  const a = document.getElementById('i-action').value;
+  const t = document.getElementById('i-topic').value;
+  document.getElementById('commit-line').innerHTML = `Niat: <em>"Dalam ${m} minit saya akan ${a} tentang ${t}."</em> Yang anda janjikan kepada diri ialah yang anda jadikan.`;
+  const proposal = PROPOSALS[chosenScore || 3];
+  document.getElementById('quick-link').href = proposal.url;
+  document.getElementById('quick-link').textContent = proposal.label;
+  document.getElementById('session-summary').classList.add('show');
+  // Save intention to jgl.progress sessions
+  if (window.JglStorage && window.JglStorage.update) {
+    window.JglStorage.update(p => {
+      p.sessions = p.sessions || [];
+      p.sessions.push({ startIso: new Date().toISOString(), endIso: null, mode: a, focus: t, intention: `${m} min`, completed: false });
+      p.sessions = p.sessions.slice(-30);
+      return p;
+    });
+  }
+  if (typeof Streak !== 'undefined') Streak.record();
+  document.getElementById('session-summary').scrollIntoView({ behavior: 'smooth' });
+});
+</script>
+</body>
+</html>
