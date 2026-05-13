@@ -180,7 +180,11 @@
 
     const drillContainer = el('drill-container');
     if (drillContainer) {
-      drillContainer.innerHTML = '<p style="color:var(--muted);font-size:.85rem;padding:1rem;">Drills for this topic land in a later phase.</p>';
+      if (typeof global.EnglishDrill !== 'undefined' && global.EnglishDrill.mount) {
+        global.EnglishDrill.mount(topicId, topic.title || topicId, Array.isArray(topic.drillItems) ? topic.drillItems : []);
+      } else {
+        drillContainer.innerHTML = '<p style="color:var(--muted);font-size:.85rem;padding:1rem;">Drills for this topic land in a later phase.</p>';
+      }
     }
 
     const mindmapHost = el('mindmap-host');
