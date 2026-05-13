@@ -125,6 +125,97 @@
       .overall-progress { flex-direction: column; }
       .overall-progress .progress-bar-wrap { width: 100%; }
     }
+
+    /* First-visit tour ───────────────────────────────────── */
+    .tour-overlay {
+      position: fixed; inset: 0; pointer-events: none;
+      z-index: 9990;
+      opacity: 0; transition: opacity .25s ease;
+    }
+    .tour-overlay.show { opacity: 1; pointer-events: auto; }
+    .tour-spot {
+      position: absolute;
+      border-radius: 12px;
+      box-shadow: 0 0 0 9999px rgba(8, 12, 25, 0.78);
+      outline: 3px solid var(--accent);
+      outline-offset: 4px;
+      transition: all .35s cubic-bezier(.4, 0, .2, 1);
+      pointer-events: none;
+    }
+    .tour-card {
+      position: absolute;
+      max-width: 360px;
+      background: var(--card);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 1rem 1.15rem 1.1rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      transition: all .35s cubic-bezier(.4, 0, .2, 1);
+      pointer-events: auto;
+    }
+    .tour-card .tc-step {
+      font-size: .65rem;
+      color: var(--accent);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: .4rem;
+    }
+    .tour-card h4 {
+      font-size: 1rem;
+      color: var(--text);
+      margin-bottom: .45rem;
+      font-weight: 800;
+    }
+    .tour-card p {
+      font-size: .82rem;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-bottom: .9rem;
+    }
+    .tour-card .tc-row {
+      display: flex; gap: .45rem; align-items: center; justify-content: space-between;
+    }
+    .tour-card .tc-skip {
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border); padding: .35rem .65rem;
+      border-radius: 7px; cursor: pointer; font-size: .72rem; font-weight: 600;
+    }
+    .tour-card .tc-skip:hover { color: var(--text); border-color: var(--border); }
+    .tour-card .tc-next {
+      background: var(--accent); color: #0f172a;
+      border: none; padding: .45rem 1rem;
+      border-radius: 7px; cursor: pointer; font-size: .8rem; font-weight: 800;
+    }
+    .tour-card .tc-back {
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border); padding: .35rem .65rem;
+      border-radius: 7px; cursor: pointer; font-size: .72rem; font-weight: 600;
+    }
+    .tour-card .tc-back:hover { color: var(--text); }
+    .tour-card .tc-progress {
+      display: flex; gap: .25rem; margin-top: .55rem; justify-content: center;
+    }
+    .tour-card .tc-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--border);
+    }
+    .tour-card .tc-dot.active { background: var(--accent); width: 18px; border-radius: 99px; }
+
+    .tour-card.centred {
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 420px;
+    }
+    .tour-card.centred .tc-skip { display: none; }
+
+    /* Re-launch button in the header row */
+    .tour-relaunch {
+      background: transparent; color: var(--muted);
+      border: 1px dashed var(--border); padding: .25rem .65rem;
+      border-radius: 7px; font-size: .72rem; cursor: pointer; font-weight: 600;
+    }
+    .tour-relaunch:hover { border-color: var(--accent); color: var(--accent); }
   </style>
 </head>
 <body>
@@ -141,7 +232,7 @@
       <div class="stat-pill">Penguasaan&nbsp;<span class="num-display" id="stat-pct">0%</span></div>
       <div class="stat-pill"><span class="num-display" id="stat-maps">0</span>&nbsp;Peta Minda</div>
     </div>
-    <div style="display:flex;gap:.75rem;justify-content:center;margin-top:1.25rem;flex-wrap:wrap">
+    <div id="tour-hero-buttons" style="display:flex;gap:.75rem;justify-content:center;margin-top:1.25rem;flex-wrap:wrap">
       <a href="confidence/index.html" class="btn btn-primary" style="font-size:.88rem">🌱 Latihan Mudah</a>
       <a href="assess/index.html"      class="btn btn-primary" style="font-size:.88rem">🧠 Pentaksiran Sinoptik</a>
       <a href="structured/index.html"  class="btn btn-primary" style="font-size:.88rem">📋 Karangan &amp; Kefahaman</a>
@@ -156,6 +247,7 @@
       <a href="psle-tips/index.html"   class="btn btn-ghost"   style="font-size:.88rem">📝 Petua PSLE</a>
       <a href="format/index.html"      class="btn btn-ghost"   style="font-size:.88rem">📄 Format Kertas</a>
       <a href="how-to-use/index.html"  class="btn btn-ghost"   style="font-size:.88rem">📖 How to Use</a>
+      <button class="tour-relaunch" id="tour-relaunch-btn" type="button">🎯 Tour Semula</button>
       <button class="btn btn-ghost" onclick="showAISetup()"    style="font-size:.88rem">🤖 Set Up AI Quizzes</button>
     </div>
   </div>
@@ -458,6 +550,167 @@ function renderStreak() {
   }
 }
 renderStreak();
+
+// ── First-visit tour ────────────────────────────────────────
+// Lightweight 6-step spotlight overlay. Auto-launches on first
+// visit (no `malay.tourSeen` key); also re-launchable via the
+// "🎯 Tour Semula" button next to "How to Use".
+const TOUR_STEPS = [
+  {
+    target: null,
+    title: 'Selamat datang ke PSLE Bahasa Melayu Studio',
+    body: 'Tur ringkas (6 langkah, < 1 minit) untuk mengenalkan bahagian penting laman ini. Tekan "Skip" bila-bila masa, atau "Tour Semula" untuk kembali nanti.',
+  },
+  {
+    target: '#tour-hero-buttons',
+    title: 'Pintu utama laman',
+    body: 'Baris ini adalah pintu utama: Latihan Mudah (warm-up), Karangan & Kefahaman (kertas 1 & 2), Bantuan Karangan + Pelan Karangan (vocab cloud + 6W planner), dan Mendengar (kertas 3 via suara pelayar).',
+  },
+  {
+    target: '.confidence-banner',
+    title: 'Mula dengan Latihan Mudah',
+    body: 'Tidak pasti dari mana hendak bermula? Klik "Latihan Mudah". Tiada masa, tiada tekanan — 6 soalan ringan untuk membina keyakinan dahulu, kemudian baru cuba kertas penuh.',
+  },
+  {
+    target: '.theme-section:first-of-type',
+    title: 'Lima tema PSLE',
+    body: 'Topik dikumpulkan dalam 5 tema: Tatabahasa, Kosa Kata, Peribahasa, Kefahaman, Penulisan. Setiap topik ada tab Pelajaran, Latih (widget interaktif), Kuiz, dan Peta Minda.',
+  },
+  {
+    target: '.overall-progress',
+    title: 'Rutin harian: Kompas → Cermin → Peta',
+    body: 'Kompas membuka setiap sesi (rancang 5 minit), Cermin memaparkan cerita kemajuan anda (bukan satu nombor mati), dan Peta Besar menunjukkan rangkaian semua topik. Ulang Kaji = kad yang perlu diingat semula hari ini.',
+  },
+  {
+    target: '#streak-widget',
+    title: 'Rentetan = tabiat, bukan markah',
+    body: 'Belajar setiap hari (walaupun 10 minit) lebih kuat daripada 3 jam sekali seminggu. Rentetan tidak menghukum — ia hanya menggambarkan tabiat. Bersedia? Klik "Habis Tour" untuk mula.',
+  },
+];
+
+const tourState = { idx: 0, mounted: false };
+
+function mountTourOverlay() {
+  if (tourState.mounted) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'tour-overlay';
+  overlay.id = 'tour-overlay';
+  overlay.innerHTML = `
+    <div class="tour-spot" id="tour-spot" style="display:none"></div>
+    <div class="tour-card" id="tour-card">
+      <div class="tc-step" id="tc-step">Langkah 1 / 6</div>
+      <h4 id="tc-title"></h4>
+      <p id="tc-body"></p>
+      <div class="tc-row">
+        <div style="display:flex;gap:.4rem">
+          <button class="tc-back" id="tc-back" type="button">← Kembali</button>
+          <button class="tc-skip" id="tc-skip" type="button">Tutup</button>
+        </div>
+        <button class="tc-next" id="tc-next" type="button">Seterusnya →</button>
+      </div>
+      <div class="tc-progress" id="tc-progress"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  document.getElementById('tc-next').addEventListener('click', () => stepTour(+1));
+  document.getElementById('tc-back').addEventListener('click', () => stepTour(-1));
+  document.getElementById('tc-skip').addEventListener('click', endTour);
+  window.addEventListener('resize', () => { if (tourState.mounted && document.getElementById('tour-overlay').classList.contains('show')) renderTourStep(); });
+  window.addEventListener('scroll', () => { if (tourState.mounted && document.getElementById('tour-overlay').classList.contains('show')) renderTourStep(); }, { passive: true });
+  tourState.mounted = true;
+}
+
+function startTour() {
+  mountTourOverlay();
+  tourState.idx = 0;
+  document.getElementById('tour-overlay').classList.add('show');
+  renderTourStep();
+}
+
+function stepTour(delta) {
+  tourState.idx += delta;
+  if (tourState.idx >= TOUR_STEPS.length) { endTour(); return; }
+  if (tourState.idx < 0) tourState.idx = 0;
+  renderTourStep();
+}
+
+function endTour() {
+  const ov = document.getElementById('tour-overlay');
+  if (ov) ov.classList.remove('show');
+  try { localStorage.setItem('malay.tourSeen', '1'); } catch {}
+}
+
+function renderTourStep() {
+  const step = TOUR_STEPS[tourState.idx];
+  const spot = document.getElementById('tour-spot');
+  const card = document.getElementById('tour-card');
+  document.getElementById('tc-step').textContent =
+    'Langkah ' + (tourState.idx + 1) + ' / ' + TOUR_STEPS.length;
+  document.getElementById('tc-title').textContent = step.title;
+  document.getElementById('tc-body').textContent = step.body;
+  document.getElementById('tc-back').style.visibility = tourState.idx === 0 ? 'hidden' : 'visible';
+  document.getElementById('tc-next').textContent =
+    tourState.idx === TOUR_STEPS.length - 1 ? '✓ Habis Tour' : 'Seterusnya →';
+
+  // Progress dots
+  const dots = document.getElementById('tc-progress');
+  dots.innerHTML = TOUR_STEPS.map((_, i) =>
+    `<div class="tc-dot${i === tourState.idx ? ' active' : ''}"></div>`).join('');
+
+  if (!step.target) {
+    // Centred card, no spotlight.
+    spot.style.display = 'none';
+    card.classList.add('centred');
+    card.style.left = '';
+    card.style.top  = '';
+    return;
+  }
+
+  const target = document.querySelector(step.target);
+  if (!target) {
+    // Target missing — fall back to centred.
+    spot.style.display = 'none';
+    card.classList.add('centred');
+    return;
+  }
+
+  // Scroll the target into view, then position spotlight + card.
+  target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // Defer measurement until after the smooth-scroll has had a moment.
+  setTimeout(() => {
+    const rect = target.getBoundingClientRect();
+    const pad = 6;
+    spot.style.display = 'block';
+    spot.style.left   = (rect.left - pad) + 'px';
+    spot.style.top    = (rect.top  - pad) + 'px';
+    spot.style.width  = (rect.width  + pad * 2) + 'px';
+    spot.style.height = (rect.height + pad * 2) + 'px';
+
+    card.classList.remove('centred');
+    // Place card below the spotlight if there's room, else above.
+    const cardW = 360;
+    const cardH = 220;
+    const margin = 16;
+    let left = rect.left + rect.width / 2 - cardW / 2;
+    left = Math.max(margin, Math.min(window.innerWidth - cardW - margin, left));
+    let top = rect.bottom + margin;
+    if (top + cardH > window.innerHeight - margin) {
+      top = Math.max(margin, rect.top - cardH - margin);
+    }
+    card.style.left = left + 'px';
+    card.style.top  = top  + 'px';
+  }, 220);
+}
+
+document.getElementById('tour-relaunch-btn').addEventListener('click', startTour);
+
+// Auto-launch on first ever visit.
+try {
+  if (!localStorage.getItem('malay.tourSeen')) {
+    // Wait for hub stats + streak to render so the first frame is correct.
+    setTimeout(startTour, 600);
+  }
+} catch {}
 </script>
 </body>
 </html>

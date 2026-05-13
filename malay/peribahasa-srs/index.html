@@ -88,6 +88,30 @@
     }
     .reveal-btn:hover { background: #7dd3fc; }
 
+    .first-hint {
+      background: linear-gradient(135deg, rgba(125, 211, 252, 0.08), rgba(167, 139, 250, 0.06));
+      border: 1px solid rgba(125, 211, 252, 0.35);
+      border-radius: 9px;
+      padding: .7rem .9rem;
+      margin-bottom: .85rem;
+      font-size: .82rem;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .first-hint .hint-label {
+      display: inline-block;
+      font-size: .62rem;
+      color: var(--accent);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: .3rem;
+    }
+    .first-hint .hint-body {
+      font-style: italic;
+      color: var(--muted);
+    }
+
     .done-state {
       background: linear-gradient(135deg, #14302b 0%, #1a2236 100%);
       border: 1px solid var(--tatabahasa);
@@ -317,7 +341,17 @@ function renderCard() {
 }
 
 function renderReveal() {
+  const c = state.current;
+  const prog = readTermProgress(c.id);
+  const isFirstAttempt = !prog.attempts || prog.attempts === 0;
+  const hintHtml = (isFirstAttempt && c.template)
+    ? `<div class="first-hint">
+         <div class="hint-label">💡 Petunjuk konteks (kad baharu)</div>
+         <div class="hint-body">${escapeHtml(c.template)}</div>
+       </div>`
+    : '';
   document.getElementById('reveal-area').innerHTML = `
+    ${hintHtml}
     <button class="reveal-btn" id="reveal-btn">👁 Tunjuk Maksud</button>
   `;
   document.getElementById('reveal-btn').addEventListener('click', () => {

@@ -38,6 +38,10 @@
     .cat-chip { padding: .4rem .85rem; border-radius: 99px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: .78rem; font-weight: 600; transition: all .15s; }
     .cat-chip:hover { border-color: var(--accent); color: var(--accent); }
     .cat-chip.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+    .cat-chip.fresh { color: var(--text); border-color: var(--peribahasa); }
+    .cat-chip.fresh.active { background: var(--peribahasa); border-color: var(--peribahasa); color: #0f172a; }
+    .cat-new-badge { color: var(--peribahasa); font-size: .55rem; margin-right: .3rem; vertical-align: middle; }
+    .cat-chip.active .cat-new-badge { color: #0f172a; }
 
     .section {
       background: var(--card); border: 1px solid var(--border);
@@ -89,6 +93,32 @@
     .suggest-chip:hover { border-color: var(--accent); color: var(--accent); }
     .suggest-chip.added { background: #053b27; border-color: var(--tatabahasa); color: #6ee7b7; }
 
+    .handoff-banner {
+      margin-top: .9rem; padding: .85rem 1rem;
+      background: linear-gradient(135deg, rgba(232, 121, 249, 0.08), rgba(125, 211, 252, 0.07));
+      border: 1px solid var(--peribahasa); border-radius: 9px;
+    }
+    .handoff-banner .hb-head {
+      font-size: .68rem; font-weight: 800; color: var(--peribahasa);
+      text-transform: uppercase; letter-spacing: .05em; margin-bottom: .35rem;
+    }
+    .handoff-banner .hb-body {
+      font-size: .82rem; color: var(--text); line-height: 1.55; margin-bottom: .5rem;
+    }
+    .handoff-banner .hb-terms {
+      display: flex; flex-wrap: wrap; gap: .3rem;
+    }
+    .handoff-banner .hb-term {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: .2rem .55rem; border-radius: 99px;
+      font-size: .72rem; color: var(--text);
+    }
+    .handoff-banner .hb-dismiss {
+      margin-top: .55rem; background: transparent; border: 1px solid var(--border);
+      color: var(--muted); padding: .25rem .65rem; font-size: .7rem;
+      border-radius: 7px; cursor: pointer;
+    }
+
     .pb-block {
       background: var(--surface); padding: .9rem 1.1rem;
       border-left: 3px solid var(--peribahasa); border-radius: 7px;
@@ -135,6 +165,44 @@
     .ai-card.show { display: block; }
     .loader { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--muted); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -2px; margin-right: .3rem; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    .print-only { display: none; }
+
+    @media print {
+      :root { color-scheme: light; }
+      body { background: white !important; color: black !important; padding: 0; font-size: 11pt; }
+      .page-header, .step-row, .why, .summary-actions, .handoff-banner,
+      .ai-card, .picker, #cat-blurb, .suggest, .openers, .closers,
+      #peribahasa-options { display: none !important; }
+      .section { background: transparent !important; border: none !important;
+        padding: 0 !important; margin: 0 0 .85rem !important; page-break-inside: avoid;
+        box-shadow: none !important; }
+      .section h3 { color: #000 !important; font-size: 12pt; margin: 0 0 .25rem;
+        border-bottom: 1px solid #333; padding-bottom: .15rem; }
+      .section .q-label { color: #333 !important; font-size: 8pt; }
+      .section .lead { display: none; }
+      .section input, .section textarea {
+        background: transparent !important; color: #000 !important;
+        border: none !important; border-bottom: 1px solid #999 !important;
+        padding: .2rem 0 !important; font-family: inherit; font-size: 11pt;
+        width: 100%; min-height: unset;
+      }
+      .section textarea { min-height: 3em; border: 1px solid #999 !important; padding: .35rem !important; }
+      .summary-card { background: transparent !important;
+        border: 2px solid #000 !important; border-radius: 0 !important;
+        padding: .75rem !important; margin-top: .85rem !important;
+        page-break-before: auto; page-break-inside: avoid; }
+      .summary-card h2 { color: #000 !important; font-size: 11pt; }
+      .summary-pre { background: transparent !important; color: #000 !important;
+        border: 1px solid #aaa !important; padding: .55rem !important;
+        max-height: none !important; font-size: 10pt; }
+      main { padding: 1.5rem 1rem !important; max-width: 100% !important; }
+      .print-only { display: block; }
+      .print-header { border-bottom: 2px solid #000; margin-bottom: 1rem; padding-bottom: .35rem; }
+      .print-header .pt { font-size: 14pt; font-weight: 800; }
+      .print-header .ps { font-size: 9pt; color: #555; }
+      a { color: inherit; text-decoration: none; }
+    }
   </style>
 </head>
 <body>
@@ -149,6 +217,10 @@
 </header>
 
 <main>
+  <div class="print-only print-header">
+    <div class="pt">Pelan Karangan PSLE Bahasa Melayu</div>
+    <div class="ps" id="print-meta">PSLE Bahasa Melayu Studio</div>
+  </div>
   <div class="why">
     <h2>Kenapa merancang dahulu?</h2>
     <p>Tanpa pelan, anda akan menulis 80 patah perkataan, terlupa apa yang nak tulis, kemudian mula semula. <strong>Dengan</strong> pelan 5-minit, anda tahu siapa, di mana, apa masalah, dan bagaimana selesai sebelum menulis ayat pertama. Lima minit merancang = 15 minit menyelamatkan kekeliruan.</p>
@@ -169,6 +241,7 @@
     <p class="lead">Pilih satu kategori. Cadangan vocab + peribahasa di bawah akan dikemas kini secara automatik.</p>
     <div class="picker" id="cat-picker"></div>
     <div id="cat-blurb" style="font-size:.85rem;color:var(--muted);line-height:1.55"></div>
+    <div id="handoff-banner" style="display:none"></div>
   </div>
 
   <!-- The 6 W's -->
@@ -254,6 +327,7 @@
     <div class="summary-pre" id="summary-pre">Mula mengisi kotak-kotak di atas — pelan anda akan dipaparkan di sini.</div>
     <div class="summary-actions">
       <button class="btn btn-primary" id="copy-btn" style="font-size:.85rem">📋 Salin Pelan</button>
+      <button class="btn btn-primary" id="print-btn" style="font-size:.85rem">🖨 Cetak / PDF</button>
       <button class="btn btn-ghost" id="save-btn" style="font-size:.85rem">💾 Simpan untuk Nanti</button>
       <button class="btn btn-ghost" id="load-btn" style="font-size:.85rem">📂 Muat Pelan Tersimpan</button>
       <button class="btn btn-ghost" id="clear-btn" style="font-size:.85rem">↺ Kosongkan</button>
@@ -364,17 +438,88 @@ const state = {
   selectedCloser: null,
 };
 
+function readPractice(catId) {
+  try {
+    const p = window.JglStorage && window.JglStorage.getProgress();
+    return p ? ((p.karanganPractice || {})[catId] || 0) : 0;
+  } catch { return 0; }
+}
+function bumpPractice(catId) {
+  if (!window.JglStorage) return;
+  window.JglStorage.update(p => {
+    p.karanganPractice = p.karanganPractice || {};
+    p.karanganPractice[catId] = (p.karanganPractice[catId] || 0) + 1;
+    return p;
+  });
+}
+function sortedCategories() {
+  return state.data.categories
+    .map((c, i) => ({ c, i, n: readPractice(c.id) }))
+    .sort((a, b) => a.n - b.n || a.i - b.i)
+    .map(x => x.c);
+}
+
 async function loadData() {
   const r = await fetch('../shared/content/karangan-clouds.json', { cache: 'no-cache' });
   if (!r.ok) throw new Error('karangan-clouds.json fetch failed');
   state.data = await r.json();
   buildCategoryPicker();
-  if (state.data.categories.length) selectCategory(state.data.categories[0].id);
+  // Honour URL hint when handed off from the cloud, else default
+  // to the first un-practiced category.
+  const urlCat = new URLSearchParams(window.location.search).get('cat');
+  const valid = urlCat && state.data.categories.find(c => c.id === urlCat);
+  if (valid) {
+    selectCategory(urlCat);
+  } else {
+    const ordered = sortedCategories();
+    if (ordered.length) selectCategory(ordered[0].id);
+  }
+  renderHandoffBanner();
+}
+
+function renderHandoffBanner() {
+  const banner = document.getElementById('handoff-banner');
+  if (!banner) return;
+  let handoff = null;
+  try { handoff = JSON.parse(localStorage.getItem('malay.karangan.handoff') || 'null'); } catch {}
+  if (!handoff || !Array.isArray(handoff.terms) || handoff.terms.length === 0) {
+    banner.style.display = 'none';
+    return;
+  }
+  // Only show if the handoff matches the currently-selected category, or
+  // ignore for very old handoffs (older than 1 hour).
+  const ageMs = Date.now() - new Date(handoff.sentIso || 0).getTime();
+  if (ageMs > 60 * 60 * 1000) {
+    localStorage.removeItem('malay.karangan.handoff');
+    banner.style.display = 'none';
+    return;
+  }
+  if (handoff.categoryId !== state.categoryId) {
+    banner.style.display = 'none';
+    return;
+  }
+  banner.className = 'handoff-banner';
+  banner.style.display = 'block';
+  banner.innerHTML = `
+    <div class="hb-head">📨 Dihantar dari Bantuan Karangan</div>
+    <div class="hb-body">Anda mengumpul perkataan ini di awan vocab. Selitkan ke dalam plot karangan anda di bawah:</div>
+    <div class="hb-terms">${handoff.terms.map(t => `<span class="hb-term">${escapeHtml(t)}</span>`).join('')}</div>
+    <button class="hb-dismiss" id="hb-dismiss-btn">Buang dari sini</button>
+  `;
+  document.getElementById('hb-dismiss-btn').onclick = () => {
+    localStorage.removeItem('malay.karangan.handoff');
+    banner.style.display = 'none';
+  };
 }
 
 function buildCategoryPicker() {
   const wrap = document.getElementById('cat-picker');
-  wrap.innerHTML = state.data.categories.map(c => `<button class="cat-chip" data-id="${c.id}">${escapeHtml(c.title)}</button>`).join('');
+  const ordered = sortedCategories();
+  wrap.innerHTML = ordered.map(c => {
+    const n = readPractice(c.id);
+    const badge = n === 0 ? '<span class="cat-new-badge" title="Belum diterokai">●</span>' : '';
+    return `<button class="cat-chip${n === 0 ? ' fresh' : ''}" data-id="${c.id}">${badge}${escapeHtml(c.title)}</button>`;
+  }).join('');
   wrap.querySelectorAll('.cat-chip').forEach(b => {
     b.addEventListener('click', () => selectCategory(b.dataset.id));
   });
@@ -393,6 +538,7 @@ function selectCategory(id) {
   state.selectedOpener = null;
   state.selectedCloser = null;
   updateSummary();
+  renderHandoffBanner();
 }
 
 function populateSuggestions(cat) {
@@ -547,6 +693,7 @@ document.getElementById('save-btn').addEventListener('click', () => {
     savedIso: new Date().toISOString(),
   };
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(plan)); } catch {}
+  if (state.categoryId) bumpPractice(state.categoryId);
   const btn = document.getElementById('save-btn');
   btn.textContent = '✓ Disimpan';
   setTimeout(() => btn.textContent = '💾 Simpan untuk Nanti', 1500);
@@ -587,6 +734,16 @@ document.getElementById('clear-btn').addEventListener('click', () => {
   document.querySelectorAll('.opener').forEach(el => el.classList.remove('picked'));
   document.querySelectorAll('.suggest-chip').forEach(b => b.classList.remove('added'));
   updateSummary();
+});
+
+document.getElementById('print-btn').addEventListener('click', () => {
+  const cat = state.categoryId && state.data.categories.find(c => c.id === state.categoryId);
+  const today = new Date().toLocaleDateString('ms-MY', { year: 'numeric', month: 'long', day: 'numeric' });
+  const meta = (cat ? cat.title + ' · ' : '') + today;
+  const el = document.getElementById('print-meta');
+  if (el) el.textContent = meta;
+  // Defer so the print-meta text paints before the print dialog opens.
+  setTimeout(() => window.print(), 50);
 });
 
 // AI Coach probe (optional)

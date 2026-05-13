@@ -90,6 +90,28 @@
     try { localStorage.setItem('malay.karangan.scratch', JSON.stringify(arr.slice(-50))); } catch {}
   }
 
+  function readPractice(catId) {
+    try {
+      const p = window.JglStorage.getProgress();
+      return ((p.karanganPractice || {})[catId]) || 0;
+    } catch { return 0; }
+  }
+  function bumpPractice(catId) {
+    if (!window.JglStorage) return;
+    window.JglStorage.update(p => {
+      p.karanganPractice = p.karanganPractice || {};
+      p.karanganPractice[catId] = (p.karanganPractice[catId] || 0) + 1;
+      return p;
+    });
+  }
+
+  function sortedCategories() {
+    return state.data.categories
+      .map((c, i) => ({ c, i, n: readPractice(c.id) }))
+      .sort((a, b) => a.n - b.n || a.i - b.i)
+      .map(x => x.c);
+  }
+
   // ── Data load ───────────────────────────────────────────
   async function loadData() {
     const r = await fetch('../shared/content/karangan-clouds.json', { cache: 'no-cache' });
@@ -347,6 +369,11 @@
         s.push(node.label);
         writeScratchpad(s);
         renderScratchpad();
+        // First add to this category in this session counts as deliberate practice.
+        if (!state.bumpedThisLoad) {
+          bumpPractice(state.categoryId);
+          state.bumpedThisLoad = true;
+        }
         showSide(node);
       }
     };
@@ -363,6 +390,7 @@
       <div class="scratch-head">
         <span class="scratch-count">${list.length} perkataan</span>
         <button id="scratch-copy" class="btn btn-ghost" style="font-size:.7rem">📋 Salin</button>
+        <button id="scratch-send" class="btn btn-primary" style="font-size:.7rem">📨 Hantar ke Pelan</button>
         <button id="scratch-clear" class="btn btn-ghost" style="font-size:.7rem">↺ Kosongkan</button>
       </div>
       <div class="scratch-list">
@@ -374,6 +402,17 @@
         document.getElementById('scratch-copy').textContent = '✓ Disalin';
         setTimeout(() => document.getElementById('scratch-copy').textContent = '📋 Salin', 1200);
       });
+    };
+    document.getElementById('scratch-send').onclick = () => {
+      // Persist a handoff blob the planner reads on load, then deep-link.
+      const handoff = {
+        categoryId: state.categoryId,
+        terms: list,
+        sentIso: new Date().toISOString(),
+      };
+      try { localStorage.setItem('malay.karangan.handoff', JSON.stringify(handoff)); } catch {}
+      const url = '../karangan-planner/index.html?cat=' + encodeURIComponent(state.categoryId) + '&from=cloud';
+      window.location.href = url;
     };
     document.getElementById('scratch-clear').onclick = () => {
       if (confirm('Kosongkan draf?')) { writeScratchpad([]); renderScratchpad(); }
@@ -391,9 +430,12 @@
   // ── Category picker ─────────────────────────────────────
   function buildPicker() {
     const wrap = document.getElementById('picker');
-    wrap.innerHTML = state.data.categories.map(c =>
-      `<button class="cat-chip" data-id="${c.id}">${escapeHtml(c.title)}</button>`
-    ).join('');
+    const ordered = sortedCategories();
+    wrap.innerHTML = ordered.map(c => {
+      const n = readPractice(c.id);
+      const badge = n === 0 ? '<span class="cat-new-badge" title="Belum diterokai">●</span>' : '';
+      return `<button class="cat-chip${n === 0 ? ' fresh' : ''}" data-id="${c.id}">${badge}${escapeHtml(c.title)}</button>`;
+    }).join('');
     wrap.querySelectorAll('.cat-chip').forEach(b => {
       b.addEventListener('click', () => selectCategory(b.dataset.id));
     });
@@ -404,6 +446,7 @@
     document.getElementById('cat-title').textContent = state.data.categories.find(c => c.id === catId).title;
     document.getElementById('cat-blurb').textContent = state.data.categories.find(c => c.id === catId).blurb || '';
     showSide(null);
+    state.bumpedThisLoad = false;
     buildGraph(catId);
     initSim();
     renderEdges();
@@ -466,8 +509,10 @@
     initZoom();
     bindButtons();
     renderScratchpad();
-    // Auto-pick first category
-    selectCategory(state.data.categories[0].id);
+    // Auto-pick the first category in practice-aware order so a new
+    // visitor lands on something un-explored.
+    const ordered = sortedCategories();
+    selectCategory(ordered[0].id);
 
     window.addEventListener('resize', () => {
       setViewport();
