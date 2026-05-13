@@ -213,22 +213,32 @@
     sel.exit().remove();
 
     const enter = sel.enter().append('g').attr('class', d => 'node ' + d.kind).attr('data-id', d => d.id);
-    enter.append('circle')
+    enter.append('circle');
+    enter.append('text').attr('text-anchor', 'middle');
+
+    // Merge enter + update so that switching category re-paints the
+    // centre node with the new label/colour. Without this, d3 treats
+    // the stable id `__category__` as an UPDATE and never re-runs the
+    // append/text calls, leaving the centre showing the FIRST chosen
+    // category forever.
+    const all = enter.merge(sel);
+    all.attr('class', d => 'node ' + d.kind).attr('data-id', d => d.id);
+
+    all.select('circle')
       .attr('r', nodeRadius)
       .attr('fill', d => d.kind === 'category' ? '#0d1a2e' : nodeColour(d))
       .attr('stroke', d => nodeColour(d))
       .attr('stroke-width', d => d.kind === 'category' ? 3 : 1.5);
-    enter.append('text')
-      .attr('text-anchor', 'middle')
+
+    all.select('text')
       .attr('dy', d => nodeRadius(d) + 12)
       .attr('font-size', d => d.kind === 'category' ? 15 : 11)
       .attr('font-weight', d => d.kind === 'category' ? 800 : 600)
       .text(d => d.label);
 
-    nodeG.selectAll('g.node')
-      .on('mouseenter', onHover)
-      .on('mouseleave', onHoverEnd)
-      .call(dragBehavior());
+    all.on('mouseenter', onHover)
+       .on('mouseleave', onHoverEnd)
+       .call(dragBehavior());
   }
 
   function dragBehavior() {
