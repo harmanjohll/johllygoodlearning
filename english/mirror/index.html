@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mirror | PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 1000px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .mirror-hero { text-align: center; margin-bottom: 2rem; padding: 1.5rem 1rem; }
+    .mirror-hero h1 { font-family: var(--font-display, serif); font-size: 1.7rem; font-weight: 800; letter-spacing: -.018em; margin-bottom: .35rem; }
+    .mirror-hero p { font-size: .92rem; color: var(--muted); max-width: 55ch; margin: 0 auto; line-height: 1.6; }
+
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .tile {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.25rem 1.4rem; position: relative;
+    }
+    .tile .lbl { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; margin-bottom: .35rem; }
+    .tile .num { font-family: var(--font-mono, monospace); font-size: 2.1rem; font-weight: 800; color: var(--text); line-height: 1; }
+    .tile .unit { font-size: .85rem; color: var(--muted); margin-left: .35rem; font-family: var(--font-body); }
+    .tile .narrative { font-size: .8rem; color: var(--muted); line-height: 1.5; margin-top: .55rem; }
+
+    .tile.consolidated .num { color: var(--grammar); }
+    .tile.edge .num { color: #f59e0b; }
+    .tile.time .num { color: var(--accent); }
+    .tile.effort .num { color: var(--oral); }
+
+    .section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem 1.5rem; margin-bottom: 1.25rem; }
+    .section h3 { font-size: .95rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .85rem; }
+    .section .sub { font-size: .8rem; color: var(--muted); margin-bottom: .85rem; line-height: 1.5; }
+
+    .theme-bar { display: flex; gap: .35rem; height: 32px; margin-bottom: .75rem; border-radius: 7px; overflow: hidden; background: var(--surface); }
+    .theme-seg { display: flex; align-items: center; justify-content: center; font-size: .68rem; font-weight: 700; color: rgba(15,23,42,.85); transition: width .3s; }
+    .theme-legend { display: flex; gap: .85rem; flex-wrap: wrap; font-size: .76rem; color: var(--muted); }
+    .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: .3rem; vertical-align: 1px; }
+
+    .heatmap-grid { display: grid; grid-template-columns: repeat(28, 1fr); gap: 3px; }
+    .heat-cell { aspect-ratio: 1; border-radius: 2px; background: var(--surface); }
+    .heat-cell.l1 { background: #14302b; }
+    .heat-cell.l2 { background: #16573d; }
+    .heat-cell.l3 { background: var(--grammar); }
+    .heat-cell.l4 { background: #6ee7b7; }
+    .heatmap-legend { display: flex; gap: .35rem; align-items: center; font-size: .7rem; color: var(--muted); margin-top: .5rem; }
+
+    .row { display: flex; align-items: center; gap: 1rem; padding: .55rem 0; border-bottom: 1px solid var(--border); }
+    .row:last-child { border-bottom: none; }
+    .row .name { flex: 1; font-weight: 600; color: var(--text); font-size: .87rem; }
+    .row .pct { font-family: var(--font-mono, monospace); color: var(--accent); font-size: .85rem; font-weight: 700; }
+    .row .bar { width: 100px; height: 6px; background: var(--surface); border-radius: 99px; overflow: hidden; }
+    .row .bar-fill { height: 100%; background: var(--grammar); }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">🪞 Mirror</h1>
+    <div style="font-size:.76rem;color:var(--muted)">An honest story about your progress. Not one percentage — four different indicators.</div>
+  </div>
+</header>
+
+<main>
+  <div class="mirror-hero">
+    <h1>What the Mirror Sees Today</h1>
+    <p id="mirror-tagline">The Mirror shows the real state. Four tiles below: what is consolidated, what is on the edge of memory, where your time has gone, and your effort separately from performance.</p>
+  </div>
+
+  <div class="tiles">
+    <div class="tile consolidated">
+      <div class="lbl">✓ Consolidated</div>
+      <div><span class="num" id="t-consolidated">0</span><span class="unit">topics</span></div>
+      <div class="narrative" id="n-consolidated">Topics with ≥70% on the last quiz.</div>
+    </div>
+    <div class="tile edge">
+      <div class="lbl">⚠ On the Edge</div>
+      <div><span class="num" id="t-edge">0</span><span class="unit">topics</span></div>
+      <div class="narrative" id="n-edge">Topics 3+ days ago — time to revisit before they slip.</div>
+    </div>
+    <div class="tile time">
+      <div class="lbl">⏱ Topics Touched</div>
+      <div><span class="num" id="t-visited">0</span><span class="unit">of 12</span></div>
+      <div class="narrative" id="n-visited">Unique topics you have opened.</div>
+    </div>
+    <div class="tile effort">
+      <div class="lbl">🔥 Today's Streak</div>
+      <div><span class="num" id="t-streak">0</span><span class="unit">days</span></div>
+      <div class="narrative" id="n-streak">Longest: <span id="streak-longest">0</span> days. Never miss twice.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Where your time has gone</h3>
+    <div class="sub" id="time-narrative">Based on the topics you have visited and quizzed.</div>
+    <div class="theme-bar" id="theme-bar"></div>
+    <div class="theme-legend" id="theme-legend"></div>
+  </div>
+
+  <div class="section">
+    <h3>Mastery by Topic</h3>
+    <div class="sub">This percentage combines: visits (10), drills (30), mind maps (20), and quiz scores (40).</div>
+    <div id="topic-list"></div>
+  </div>
+
+  <div class="section">
+    <h3>Effort over the Last 28 Days</h3>
+    <div class="sub">Each block = one day. Greener = more activity. Effort is a SEPARATE story from performance.</div>
+    <div class="heatmap-grid" id="heatmap"></div>
+    <div class="heatmap-legend">
+      Less
+      <span class="heat-cell" style="width:10px;height:10px;display:inline-block"></span>
+      <span class="heat-cell l1" style="width:10px;height:10px;display:inline-block"></span>
+      <span class="heat-cell l2" style="width:10px;height:10px;display:inline-block"></span>
+      <span class="heat-cell l3" style="width:10px;height:10px;display:inline-block"></span>
+      <span class="heat-cell l4" style="width:10px;height:10px;display:inline-block"></span>
+      More
+    </div>
+  </div>
+
+  <div style="font-size:.78rem;color:var(--muted);text-align:center;margin-top:2rem;line-height:1.6;max-width:55ch;margin-left:auto;margin-right:auto">
+    On a hard day, showing up is enough. On a good day, push yourself a little. Consistency beats intensity.
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script>
+const TOPICS = [
+  { id: 'composition',   name: 'Continuous Writing',         theme: 'composition' },
+  { id: 'situational',   name: 'Situational Writing',        theme: 'composition' },
+  { id: 'grammar',       name: 'Grammar Foundations',        theme: 'grammar' },
+  { id: 'vocab',         name: 'Vocabulary & Idioms',        theme: 'vocab' },
+  { id: 'visual-text',   name: 'Visual Text MCQ',            theme: 'comprehension' },
+  { id: 'cloze',         name: 'Comprehension Cloze',        theme: 'comprehension' },
+  { id: 'editing',       name: 'Editing',                    theme: 'comprehension' },
+  { id: 'synthesis',     name: 'Synthesis & Transformation', theme: 'comprehension' },
+  { id: 'comprehension', name: 'Comprehension OE',           theme: 'comprehension' },
+  { id: 'listening',     name: 'Listening Comprehension',    theme: 'oral' },
+  { id: 'oral-reading',  name: 'Reading Aloud',              theme: 'oral' },
+  { id: 'oral-sbc',      name: 'Stimulus-Based Conversation', theme: 'oral' },
+];
+const THEMES = ['composition', 'grammar', 'vocab', 'comprehension', 'oral'];
+const THEME_COLOR = { composition: '#fb7185', grammar: '#34d399', vocab: '#fbbf24', comprehension: '#60a5fa', oral: '#e879f9' };
+const THEME_LABEL = { composition: 'Composition', grammar: 'Grammar', vocab: 'Vocabulary', comprehension: 'Comprehension', oral: 'Oral & Listening' };
+
+function masteryFor(p) {
+  let s = 0;
+  if ((p.visitCount || 0) > 0) s += 10;
+  if (p.drillUsed) s += 30;
+  if (p.mindMapSaved) s += 20;
+  if (p.quizTotal > 0) s += Math.round((p.quizScore / p.quizTotal) * 40);
+  return Math.min(s, 100);
+}
+
+function daysSince(iso) {
+  if (!iso) return null;
+  return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+}
+
+const all = TOPICS.map(t => {
+  const p = (typeof Progress !== 'undefined') ? Progress.get(t.id) : {};
+  return { ...t, p, pct: masteryFor(p) };
+});
+
+let consolidated = 0, edge = 0, visited = 0;
+all.forEach(x => {
+  const d = daysSince(x.p.lastQuizDate);
+  if (x.p.quizTotal > 0 && (x.p.quizScore / x.p.quizTotal) >= 0.7) consolidated++;
+  if (d !== null && d >= 3) edge++;
+  if ((x.p.visitCount || 0) > 0) visited++;
+});
+
+document.getElementById('t-consolidated').textContent = consolidated;
+document.getElementById('t-edge').textContent = edge;
+document.getElementById('t-visited').textContent = visited;
+
+let streakCur = 0, streakLong = 0;
+try {
+  if (typeof Streak !== 'undefined') {
+    const s = Streak.get();
+    streakCur = s.current; streakLong = s.longest;
+  }
+} catch {}
+document.getElementById('t-streak').textContent = streakCur;
+document.getElementById('streak-longest').textContent = streakLong;
+
+let tagline = '';
+if (visited === 0) tagline = 'You have not started yet. Open one topic to begin your story.';
+else if (consolidated >= 8) tagline = `${consolidated} topics consolidated. You are in the AL1/AL2 zone. Keep going.`;
+else if (edge > consolidated) tagline = `${edge} topics on the edge of memory. Return to older topics before opening new ones.`;
+else tagline = `${visited} of 12 topics visited. Consistency matters — never miss twice.`;
+document.getElementById('mirror-tagline').textContent = tagline;
+
+const themeMastery = {};
+THEMES.forEach(th => themeMastery[th] = 0);
+all.forEach(x => themeMastery[x.theme] += x.pct);
+const totalMastery = Object.values(themeMastery).reduce((a,b)=>a+b, 0) || 1;
+const bar = document.getElementById('theme-bar');
+const legend = document.getElementById('theme-legend');
+let weakestTheme = THEMES[0], weakestVal = themeMastery[THEMES[0]];
+THEMES.forEach(th => {
+  if (themeMastery[th] < weakestVal) { weakestVal = themeMastery[th]; weakestTheme = th; }
+  const pct = (themeMastery[th] / totalMastery) * 100;
+  if (pct > 0) {
+    const seg = document.createElement('div');
+    seg.className = 'theme-seg';
+    seg.style.width = `${pct}%`;
+    seg.style.background = THEME_COLOR[th];
+    seg.textContent = pct >= 12 ? THEME_LABEL[th] : '';
+    bar.appendChild(seg);
+  }
+  const item = document.createElement('span');
+  item.innerHTML = `<span class="legend-dot" style="background:${THEME_COLOR[th]}"></span>${THEME_LABEL[th]}: ${Math.round(themeMastery[th])}`;
+  legend.appendChild(item);
+});
+document.getElementById('time-narrative').textContent = `Lowest mastery: ${THEME_LABEL[weakestTheme]}. Consider focusing there this week.`;
+
+const list = document.getElementById('topic-list');
+all.slice().sort((a, b) => b.pct - a.pct).forEach(x => {
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML = `
+    <span class="name">${x.name}</span>
+    <span class="bar"><span class="bar-fill" style="width:${x.pct}%;background:${THEME_COLOR[x.theme]}"></span></span>
+    <span class="pct">${x.pct}%</span>
+  `;
+  list.appendChild(row);
+});
+
+const meta = (function(){ try { return JSON.parse(localStorage.getItem('english_meta') || '{}'); } catch { return {}; } })();
+const activeDays = new Set(meta.activeDays || []);
+const hm = document.getElementById('heatmap');
+for (let i = 27; i >= 0; i--) {
+  const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+  const cell = document.createElement('div');
+  cell.className = 'heat-cell';
+  if (activeDays.has(d)) cell.classList.add('l3');
+  cell.title = d;
+  hm.appendChild(cell);
+}
+</script>
+</body>
+</html>

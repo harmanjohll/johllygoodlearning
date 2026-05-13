@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Composition &amp; Comprehension Builder | PSLE English Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .task-tabs { display: flex; gap: .35rem; margin-bottom: 1.25rem; padding: .35rem; background: var(--surface); border-radius: 9px; max-width: 420px; }
+    .task-tab { flex: 1; padding: .55rem .75rem; border-radius: 7px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: .85rem; font-weight: 700; transition: all .15s; }
+    .task-tab.active { background: var(--accent); color: #0f172a; }
+
+    .section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+    .section h3 { font-size: .95rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .85rem; }
+
+    .picker-row { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .picker-chip { padding: .45rem .8rem; border-radius: 99px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: .82rem; font-weight: 600; transition: all .15s; }
+    .picker-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .picker-chip.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+
+    .prompt-display { background: var(--surface); border-left: 3px solid var(--composition); padding: .85rem 1.1rem; border-radius: 7px; margin-bottom: 1rem; font-size: .92rem; color: var(--text); line-height: 1.6; }
+    .prompt-display .label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; display: block; margin-bottom: .35rem; }
+
+    .passage-box { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 1rem 1.2rem; margin-bottom: 1rem; font-size: .9rem; color: var(--text); line-height: 1.65; }
+
+    textarea {
+      width: 100%; min-height: 180px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 9px;
+      padding: .85rem 1rem; font-family: 'Inter Tight', system-ui, sans-serif;
+      font-size: .92rem; color: var(--text); line-height: 1.55; resize: vertical;
+    }
+    textarea:focus { outline: none; border-color: var(--accent); }
+    .word-counter { font-size: .78rem; color: var(--muted); margin-top: .35rem; font-family: var(--font-mono, monospace); }
+    .word-counter.warn { color: #f59e0b; }
+    .word-counter.good { color: var(--grammar); }
+
+    .actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1rem; }
+
+    .feedback {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 9px;
+      padding: 1rem 1.2rem; margin-top: 1rem;
+      font-size: .9rem; color: var(--text); line-height: 1.65;
+      display: none;
+      border-left: 3px solid var(--accent);
+    }
+    .feedback.show { display: block; }
+    .feedback h4 { color: var(--accent); font-size: .82rem; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .6rem; margin-top: 1rem; }
+    .feedback h4:first-child { margin-top: 0; }
+    .feedback ul { padding-left: 1.2rem; margin: .4rem 0; }
+    .feedback li { margin-bottom: .3rem; }
+    .feedback strong { color: var(--text); }
+
+    .key-warn {
+      background: rgba(251, 191, 36, .07); border: 1px solid rgba(251, 191, 36, .35);
+      border-radius: 9px; padding: .85rem 1.1rem;
+      font-size: .85rem; color: var(--text); line-height: 1.55;
+      display: none; margin-bottom: 1.25rem;
+    }
+    .key-warn.show { display: block; }
+    .key-warn .lbl { font-weight: 700; color: #fcd34d; }
+    .key-warn a { color: var(--accent); }
+
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--muted); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; margin-right: .4rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">📋 Composition &amp; Comprehension Builder</h1>
+    <div style="font-size:.76rem;color:var(--muted)">Write your draft, then get examiner-style feedback. AI is graded by Gemini against the 2025+ PSLE band descriptors.</div>
+  </div>
+  <span data-studio-settings-slot></span>
+</header>
+
+<main>
+  <div class="key-warn" id="key-warn">
+    <div class="lbl">⚠ AI feedback needs a Gemini API key.</div>
+    Click <a href="javascript:showAISetup()">Settings ↗</a> to add one. The same key unlocks AI features in /lab/ and /malay/ too.
+  </div>
+
+  <div class="task-tabs">
+    <button class="task-tab active" data-task="composition">✍️ Continuous Writing</button>
+    <button class="task-tab" data-task="comprehension">📚 Comprehension OE</button>
+  </div>
+
+  <!-- ── Composition task ───────────────────────────────── -->
+  <div id="task-composition" class="task-pane">
+
+    <div class="section">
+      <h3>Choose a topic</h3>
+      <div class="picker-row" id="composition-topic-picker"></div>
+      <div class="prompt-display">
+        <span class="label">Your prompt</span>
+        <span id="composition-prompt-text">Loading…</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Your draft</h3>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:.6rem;line-height:1.55">Aim for at least 150 words; target 200–300. Examiner mode marks against the Band 5 criteria from <code>Composition_Writing_Guide.md</code> and the three mentor essays in <code>ModelEssays_Annotated_KB.md</code>.</p>
+      <textarea id="composition-draft" placeholder="Start your composition here…"></textarea>
+      <div class="word-counter" id="composition-counter">0 words</div>
+      <div class="actions">
+        <button class="btn btn-primary" id="composition-submit">🧑‍🏫 Get Examiner Feedback</button>
+        <button class="btn btn-ghost" id="composition-clear">Clear</button>
+      </div>
+      <div class="feedback" id="composition-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ── Comprehension task ─────────────────────────────── -->
+  <div id="task-comprehension" class="task-pane" style="display:none">
+
+    <div class="section">
+      <h3>Choose a passage</h3>
+      <div class="picker-row" id="comprehension-passage-picker"></div>
+      <div class="passage-box" id="comprehension-passage-text">Loading…</div>
+      <h3 style="margin-top:1.25rem;">The question</h3>
+      <div class="prompt-display">
+        <span class="label" id="comprehension-question-meta">Question 1 of 3 · Inferential · 2 marks</span>
+        <span id="comprehension-question-text">Loading…</span>
+      </div>
+      <div class="picker-row" id="comprehension-question-nav" style="margin-bottom:0;"></div>
+    </div>
+
+    <div class="section">
+      <h3>Your answer</h3>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:.6rem;line-height:1.55">Use the <strong>RACE framework</strong> for 2+ mark questions: Restate the question, Answer directly, Cite an exact quote, Explain how it supports your answer.</p>
+      <textarea id="comprehension-answer" placeholder="Write your answer here…" style="min-height:140px;"></textarea>
+      <div class="word-counter" id="comprehension-counter">0 words</div>
+      <div class="actions">
+        <button class="btn btn-primary" id="comprehension-submit">🧑‍🏫 Get Examiner Feedback</button>
+        <button class="btn btn-ghost" id="comprehension-clear">Clear</button>
+      </div>
+      <div class="feedback" id="comprehension-feedback"></div>
+    </div>
+  </div>
+
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script src="../shared/coach.js"></script>
+<script src="../shared/streak.js"></script>
+<script src="../shared/lab.js"></script>
+<script src="../shared/pomodoro.js"></script>
+<script>
+// ── Topic + passage banks ────────────────────────────────
+const COMPOSITION_TOPICS = [
+  { id: 'difficult-choice',  title: 'A Difficult Choice',           note: 'Write a story about a time when you had to make a difficult choice.' },
+  { id: 'unexpected-friend', title: 'An Unexpected Friendship',     note: 'Write a story in which an unexpected friendship changes someone\'s life.' },
+  { id: 'note-on-door',      title: 'The Note on the Door',         note: 'Write a story that begins with: "The moment I saw the note on the door, I knew something was wrong."' },
+  { id: 'bravest-thing',     title: 'The Bravest Thing',            note: 'Write about a time when you, or someone you know, did the bravest thing.' },
+  { id: 'never-give-up',     title: 'Never Give Up',                note: 'Write a story that shows the value of perseverance.' },
+];
+
+const COMPREHENSION_PASSAGES = [
+  {
+    id: 'marcus-letter',
+    title: 'The Letter (Narrative)',
+    passage: 'Marcus stared at the envelope in his hands for a long time. It bore his late grandfather\'s familiar, slanting handwriting on the front, and the postmark was three weeks old — somehow lost in the post, returning to him now, weeks after the funeral. His knees buckled beneath him and his vision blurred with tears. He had not expected this. The kitchen, which had been bright with morning sun a moment ago, felt suddenly cavernous and still. He sank into a chair and turned the envelope over and over in his fingers, afraid to open it, afraid not to. Outside, a bird sang its bright, two-note song, oblivious to him.',
+    questions: [
+      { text: 'How did Marcus feel when he saw the envelope? Support your answer with evidence from the text. (2 marks)', type: 'Inferential', model: 'Marcus felt devastated when he saw the envelope. This is shown when the text states "his knees buckled beneath him and his vision blurred with tears", suggesting that seeing his late grandfather\'s handwriting was so overwhelming that his body could not cope with the grief.' },
+      { text: 'What does the phrase "afraid to open it, afraid not to" suggest about Marcus\'s state of mind? (2 marks)', type: 'Language use', model: 'The repetition of "afraid" emphasises that Marcus is caught in a painful dilemma. He fears what the letter might contain, yet he equally fears never reading it. The phrase creates a sense of paralysis, showing how grief has frozen his decision-making.' },
+      { text: 'Why does the writer describe the bird\'s song as "oblivious to him"? (2 marks)', type: 'Author\'s craft', model: 'The writer uses the contrast between the cheerful bird and Marcus\'s grief to highlight how the world continues indifferently while Marcus suffers. This deepens our sense of his isolation in this moment — his loss is private; the world cannot share it.' },
+    ],
+  },
+  {
+    id: 'cyclist-priya',
+    title: 'The Cyclist (Narrative)',
+    passage: 'Priya had never been the brave one. At school, she had once fainted at the sight of a paper cut, and her friends teased her about it gently for weeks. So when the cycling accident happened — when Ethan went over the handlebars at the bottom of the steep slope — even she was surprised by what she did next. Without a moment\'s hesitation, she dropped to her knees beside him, stripped off her cardigan, and pressed it firmly against the wound in his arm. Her own hands trembled. Tears were falling silently down her face. But she did not let go for twelve straight minutes, until the ambulance arrived. Later, the paramedic told her mother that her quick, clear-headed action had likely prevented serious blood loss.',
+    questions: [
+      { text: 'What does the writer suggest about Priya\'s character at the start of the passage? (2 marks)', type: 'Inferential', model: 'The writer suggests that Priya is timid and squeamish. The detail that she "fainted at the sight of a paper cut" implies she is sensitive to even minor injuries, and the description of her friends teasing her "gently" implies this was a known trait of hers.' },
+      { text: 'Why is "even she was surprised by what she did next" an important sentence in the passage? (2 marks)', type: 'Author\'s craft', model: 'This sentence creates a deliberate contrast between who Priya thought she was and what she was actually capable of. It also builds suspense, making the reader want to know what extraordinary action this normally timid character took.' },
+      { text: 'Do you agree that Priya was brave? Give reasons for your answer, referring to the text. (3 marks)', type: 'Personal response', model: 'Yes, I agree that Priya was brave. Although the text says "her own hands trembled" and "tears were falling silently down her face", she still held the cardigan to the wound for "twelve straight minutes" until help arrived. Real bravery is not the absence of fear; it is doing what is needed in spite of it. Priya was terrified and acted anyway — that is the definition of courage.' },
+    ],
+  },
+];
+
+// ── State ────────────────────────────────────────────────
+const state = {
+  task: 'composition',
+  composition: { topic: null },
+  comprehension: { passage: null, qIdx: 0 },
+};
+
+// ── Key check ────────────────────────────────────────────
+function checkKey() {
+  const has = (typeof AIConfig !== 'undefined' && AIConfig.hasKey()) ||
+              (window.JglStorage && window.JglStorage.getGeminiKey && window.JglStorage.getGeminiKey());
+  document.getElementById('key-warn').classList.toggle('show', !has);
+  return !!has;
+}
+checkKey();
+document.addEventListener('jgl:gemini-key-changed', checkKey);
+
+// ── Task tabs ────────────────────────────────────────────
+document.querySelectorAll('.task-tab').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.task-tab').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    state.task = b.dataset.task;
+    document.querySelectorAll('.task-pane').forEach(p => p.style.display = 'none');
+    document.getElementById('task-' + state.task).style.display = 'block';
+  });
+});
+
+// ── Composition picker ───────────────────────────────────
+const compPicker = document.getElementById('composition-topic-picker');
+COMPOSITION_TOPICS.forEach((t, i) => {
+  const chip = document.createElement('button');
+  chip.className = 'picker-chip' + (i === 0 ? ' active' : '');
+  chip.textContent = t.title;
+  chip.addEventListener('click', () => {
+    compPicker.querySelectorAll('.picker-chip').forEach(x => x.classList.remove('active'));
+    chip.classList.add('active');
+    state.composition.topic = t;
+    document.getElementById('composition-prompt-text').textContent = t.note;
+    document.getElementById('composition-feedback').classList.remove('show');
+  });
+  compPicker.appendChild(chip);
+});
+state.composition.topic = COMPOSITION_TOPICS[0];
+document.getElementById('composition-prompt-text').textContent = COMPOSITION_TOPICS[0].note;
+
+// ── Comprehension picker ─────────────────────────────────
+const compreh = document.getElementById('comprehension-passage-picker');
+COMPREHENSION_PASSAGES.forEach((p, i) => {
+  const chip = document.createElement('button');
+  chip.className = 'picker-chip' + (i === 0 ? ' active' : '');
+  chip.textContent = p.title;
+  chip.addEventListener('click', () => {
+    compreh.querySelectorAll('.picker-chip').forEach(x => x.classList.remove('active'));
+    chip.classList.add('active');
+    state.comprehension.passage = p;
+    state.comprehension.qIdx = 0;
+    renderComprehension();
+  });
+  compreh.appendChild(chip);
+});
+state.comprehension.passage = COMPREHENSION_PASSAGES[0];
+
+function renderComprehension() {
+  const p = state.comprehension.passage;
+  document.getElementById('comprehension-passage-text').textContent = p.passage;
+  const q = p.questions[state.comprehension.qIdx];
+  document.getElementById('comprehension-question-text').textContent = q.text;
+  document.getElementById('comprehension-question-meta').textContent = `Question ${state.comprehension.qIdx + 1} of ${p.questions.length} · ${q.type}`;
+  // Question nav chips
+  const nav = document.getElementById('comprehension-question-nav');
+  nav.innerHTML = '';
+  p.questions.forEach((_, idx) => {
+    const chip = document.createElement('button');
+    chip.className = 'picker-chip' + (idx === state.comprehension.qIdx ? ' active' : '');
+    chip.textContent = 'Q' + (idx + 1);
+    chip.addEventListener('click', () => { state.comprehension.qIdx = idx; renderComprehension(); });
+    nav.appendChild(chip);
+  });
+  document.getElementById('comprehension-answer').value = '';
+  document.getElementById('comprehension-feedback').classList.remove('show');
+  updateCounter('comprehension');
+}
+renderComprehension();
+
+// ── Word counters ────────────────────────────────────────
+function countWords(s) { return (s.trim().match(/\S+/g) || []).length; }
+function updateCounter(target) {
+  const ta = document.getElementById(target + (target === 'composition' ? '-draft' : '-answer'));
+  const ctr = document.getElementById(target + '-counter');
+  const n = countWords(ta.value);
+  ctr.textContent = `${n} word${n === 1 ? '' : 's'}`;
+  ctr.classList.remove('warn', 'good');
+  if (target === 'composition') {
+    if (n < 150) ctr.classList.add('warn');
+    else if (n >= 200) ctr.classList.add('good');
+  } else {
+    if (n >= 25) ctr.classList.add('good');
+    else if (n > 0 && n < 10) ctr.classList.add('warn');
+  }
+}
+document.getElementById('composition-draft').addEventListener('input', () => updateCounter('composition'));
+document.getElementById('comprehension-answer').addEventListener('input', () => updateCounter('comprehension'));
+
+// ── Clear buttons ────────────────────────────────────────
+document.getElementById('composition-clear').addEventListener('click', () => {
+  document.getElementById('composition-draft').value = '';
+  document.getElementById('composition-feedback').classList.remove('show');
+  updateCounter('composition');
+});
+document.getElementById('comprehension-clear').addEventListener('click', () => {
+  document.getElementById('comprehension-answer').value = '';
+  document.getElementById('comprehension-feedback').classList.remove('show');
+  updateCounter('comprehension');
+});
+
+// ── Examiner prompts ─────────────────────────────────────
+function compositionExaminerPrompt(topic, draft) {
+  return `You are an experienced PSLE English Language examiner marking a Primary 6 Continuous Writing draft against the Singapore SEAB 2025+ rubric.
+
+The topic was: "${topic.note}"
+
+Student draft (${countWords(draft)} words):
+"""
+${draft}
+"""
+
+Mark and respond in clear sections:
+
+1. CONTENT BAND (out of 18) — Band number with one-line justification. Reward: relevance, sensory and emotional detail, climax development, reflective ending.
+2. LANGUAGE & ORGANISATION BAND (out of 18) — Band number with one-line justification. Reward: vocabulary range, varied sentence structures, paragraphing, accurate grammar.
+3. ESTIMATED TOTAL (out of 36).
+4. THREE STRENGTHS — bullet points. Be specific: quote short phrases from the draft.
+5. THREE GROWTH POINTS — bullet points. Each one names the issue AND gives a concrete improvement. Anchor in PSLE-specific craft: F.A.S.T. show-don't-tell, R.E.F. ending, Weather Contrast / Flashback technique, paragraph rhythm, idiom precision, banned phrases like "I learnt a valuable lesson".
+6. ONE SENTENCE TO REWRITE — pick the single flattest "telling" sentence in the draft and suggest a "showing" version using F.A.S.T.
+
+Be honest. Be specific. Use plain text only — no markdown headers, no asterisks. Each section starts with the LABEL in CAPITALS followed by a colon.`;
+}
+
+function comprehensionExaminerPrompt(passage, question, answer) {
+  return `You are an experienced PSLE English Language examiner marking a Primary 6 Comprehension Open-Ended answer against the Singapore SEAB rubric.
+
+PASSAGE:
+"""
+${passage.passage}
+"""
+
+QUESTION (${question.type}): ${question.text}
+
+MODEL ANSWER (for your reference only — do NOT show this to the student):
+"""
+${question.model}
+"""
+
+STUDENT ANSWER (${countWords(answer)} words):
+"""
+${answer}
+"""
+
+Mark and respond in clear sections:
+
+1. MARKS — How many of the available marks would you award? (state X / Y).
+2. RACE CHECK — For each letter (Restate / Answer / Cite / Explain), say whether the student did it well, partially, or missed.
+3. ONE STRENGTH — bullet, specific.
+4. TWO GROWTH POINTS — bullets. Each names the issue AND gives a concrete fix.
+5. NEXT STEP — one sentence: what is the single most important thing the student should do differently next time?
+
+DO NOT reveal the model answer unless the student explicitly asks. Be honest. Be specific. Use plain text only — no markdown headers, no asterisks. Each section starts with the LABEL in CAPITALS followed by a colon.`;
+}
+
+// ── Gemini wrapper ───────────────────────────────────────
+async function callGemini(prompt) {
+  if (typeof window.askGemini !== 'function') throw new Error('Gemini wrapper unavailable.');
+  return window.askGemini({
+    system: window.EnglishCoach ? window.EnglishCoach.VOICE : '',
+    prompt,
+    temperature: 0.3,
+    maxTokens: 900,
+    thinkingBudget: 0,
+  });
+}
+
+function renderFeedback(targetEl, text) {
+  // Convert "LABEL: body" lines into <h4>LABEL</h4> blocks + body text.
+  // Very simple parser — splits on capitalized labels followed by colon at start of line.
+  const lines = text.split('\n');
+  let html = '';
+  let inList = false;
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) { if (inList) { html += '</ul>'; inList = false; } html += ''; continue; }
+    const labelMatch = line.match(/^([A-Z][A-Z &/0-9-]+?):\s*(.*)$/);
+    if (labelMatch) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<h4>${labelMatch[1].trim()}</h4>`;
+      if (labelMatch[2]) html += `<p>${escapeHtml(labelMatch[2])}</p>`;
+    } else if (line.match(/^[-*•]\s+/)) {
+      if (!inList) { html += '<ul>'; inList = true; }
+      html += `<li>${escapeHtml(line.replace(/^[-*•]\s+/, ''))}</li>`;
+    } else {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += `<p>${escapeHtml(line)}</p>`;
+    }
+  }
+  if (inList) html += '</ul>';
+  targetEl.innerHTML = html || `<p>${escapeHtml(text)}</p>`;
+  targetEl.classList.add('show');
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// ── Submit handlers ──────────────────────────────────────
+document.getElementById('composition-submit').addEventListener('click', async () => {
+  const draft = document.getElementById('composition-draft').value.trim();
+  if (!draft) { showToast('Write your draft first.'); return; }
+  if (!checkKey()) return;
+  const btn = document.getElementById('composition-submit');
+  const fb = document.getElementById('composition-feedback');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Marking your draft…';
+  fb.classList.remove('show');
+  try {
+    const text = await callGemini(compositionExaminerPrompt(state.composition.topic, draft));
+    renderFeedback(fb, text);
+    if (typeof Streak !== 'undefined') Streak.record();
+    if (window.EnglishStreak && typeof window.EnglishStreak.record === 'function') { try { window.EnglishStreak.record(); } catch {} }
+    if (typeof Progress !== 'undefined') Progress.recordVisit('composition');
+  } catch (err) {
+    fb.innerHTML = `<h4>Could not get feedback</h4><p>${escapeHtml(err.message)}</p>`;
+    if (err.code === 'NO_KEY') fb.innerHTML += '<p><button class="btn btn-ghost" onclick="showAISetup()">⚙️ Set up API key</button></p>';
+    fb.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🧑‍🏫 Get Examiner Feedback';
+  }
+});
+
+document.getElementById('comprehension-submit').addEventListener('click', async () => {
+  const answer = document.getElementById('comprehension-answer').value.trim();
+  if (!answer) { showToast('Write your answer first.'); return; }
+  if (!checkKey()) return;
+  const btn = document.getElementById('comprehension-submit');
+  const fb = document.getElementById('comprehension-feedback');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Marking your answer…';
+  fb.classList.remove('show');
+  try {
+    const q = state.comprehension.passage.questions[state.comprehension.qIdx];
+    const text = await callGemini(comprehensionExaminerPrompt(state.comprehension.passage, q, answer));
+    renderFeedback(fb, text);
+    if (typeof Streak !== 'undefined') Streak.record();
+    if (window.EnglishStreak && typeof window.EnglishStreak.record === 'function') { try { window.EnglishStreak.record(); } catch {} }
+    if (typeof Progress !== 'undefined') Progress.recordVisit('comprehension');
+  } catch (err) {
+    fb.innerHTML = `<h4>Could not get feedback</h4><p>${escapeHtml(err.message)}</p>`;
+    if (err.code === 'NO_KEY') fb.innerHTML += '<p><button class="btn btn-ghost" onclick="showAISetup()">⚙️ Set up API key</button></p>';
+    fb.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🧑‍🏫 Get Examiner Feedback';
+  }
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compass | PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+
+    .greeting { text-align: center; margin-bottom: 2rem; }
+    .greeting h2 { font-family: var(--font-display, serif); font-size: 1.7rem; font-weight: 800; color: var(--text); margin-bottom: .25rem; letter-spacing: -.015em; }
+    .greeting .sub { font-size: .9rem; color: var(--muted); }
+
+    .step { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem 1.6rem; margin-bottom: 1rem; }
+    .step .step-num { font-size: .72rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; margin-bottom: .35rem; }
+    .step h3 { font-size: 1.05rem; margin-bottom: .85rem; }
+
+    .mood-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: .5rem; }
+    .mood {
+      background: transparent; border: 1.5px solid var(--border); border-radius: 11px;
+      padding: .9rem .5rem; text-align: center; cursor: pointer;
+      transition: all .15s; user-select: none;
+    }
+    .mood:hover { border-color: var(--accent); }
+    .mood.selected { background: var(--surface); border-color: var(--accent); }
+    .mood-emoji { font-size: 1.5rem; line-height: 1; margin-bottom: .25rem; }
+    .mood-label { font-size: .76rem; font-weight: 700; color: var(--text); }
+
+    .proposal { background: var(--surface); border-left: 3px solid var(--grammar); padding: 1rem 1.2rem; border-radius: 8px; font-size: .92rem; color: var(--text); line-height: 1.6; margin-top: .85rem; display: none; }
+    .proposal.show { display: block; }
+    .proposal h4 { font-size: .78rem; color: var(--grammar); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .5rem; }
+
+    .intention {
+      display: grid; grid-template-columns: auto 1fr; gap: .5rem; align-items: center;
+      font-size: .92rem; color: var(--text); margin-top: .85rem;
+    }
+    .intention select, .intention input {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 7px;
+      padding: .4rem .65rem; font-family: inherit; font-size: .9rem; color: var(--text);
+    }
+    .intention .word { color: var(--muted); }
+
+    .session-summary { display: none; background: linear-gradient(135deg, #14302b 0%, #2d1a3a 100%); border: 1px solid var(--accent); border-radius: 12px; padding: 1.25rem 1.5rem; margin-top: 1.5rem; }
+    .session-summary.show { display: block; }
+    .session-summary h3 { color: var(--accent); margin-bottom: .65rem; }
+    .session-summary p { color: var(--text); font-size: .92rem; line-height: 1.65; margin-bottom: 1rem; }
+    .session-summary .links { display: flex; gap: .55rem; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">🧭 Compass</h1>
+    <div style="font-size:.76rem;color:var(--muted)">Check in → session proposal → intention. Starting well = a more meaningful session.</div>
+  </div>
+</header>
+
+<main>
+  <div class="greeting">
+    <h2 id="greet">Welcome.</h2>
+    <p class="sub" id="streak-line">Consistent practice beats long sessions.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-num">Step 1</div>
+    <h3>How are you feeling about studying right now?</h3>
+    <div class="mood-grid" id="mood-grid">
+      <div class="mood" data-score="1"><div class="mood-emoji">😴</div><div class="mood-label">Drained</div></div>
+      <div class="mood" data-score="2"><div class="mood-emoji">😔</div><div class="mood-label">Low</div></div>
+      <div class="mood" data-score="3"><div class="mood-emoji">😐</div><div class="mood-label">OK</div></div>
+      <div class="mood" data-score="4"><div class="mood-emoji">🙂</div><div class="mood-label">Good</div></div>
+      <div class="mood" data-score="5"><div class="mood-emoji">🤩</div><div class="mood-label">Strong</div></div>
+    </div>
+  </div>
+
+  <div class="step" id="step-proposal" style="display:none">
+    <div class="step-num">Step 2</div>
+    <h3>Session proposal</h3>
+    <div class="proposal show" id="proposal"></div>
+  </div>
+
+  <div class="step" id="step-intention" style="display:none">
+    <div class="step-num">Step 3</div>
+    <h3>Your intention for this session</h3>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.5;margin-bottom:.65rem">Specific intentions succeed roughly twice as often as vague ones. Fill in the sentence below:</p>
+    <div class="intention">
+      <span class="word">In the next</span>
+      <select id="i-mins"><option>10</option><option selected>15</option><option>20</option><option>25</option><option>30</option></select>
+      <span class="word">minutes I will</span>
+      <select id="i-action">
+        <option>review my idioms</option>
+        <option>complete one quiz</option>
+        <option>review the glossary</option>
+        <option>write one composition paragraph</option>
+        <option>practise a reading aloud passage</option>
+        <option>read and answer comprehension</option>
+        <option>drill collocations</option>
+        <option>do a synthesis &amp; transformation set</option>
+      </select>
+      <span class="word">on</span>
+      <select id="i-topic">
+        <option>Continuous Writing</option>
+        <option>Situational Writing</option>
+        <option>Grammar</option>
+        <option>Vocabulary &amp; Idioms</option>
+        <option>Visual Text</option>
+        <option>Comprehension Cloze</option>
+        <option>Editing</option>
+        <option>Synthesis &amp; Transformation</option>
+        <option>Comprehension OE</option>
+        <option>Listening</option>
+        <option>Reading Aloud</option>
+        <option>Stimulus-Based Conversation</option>
+        <option>whichever topic I have been neglecting most</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" id="commit-btn" style="margin-top:1.1rem;font-size:.88rem;width:100%">✓ I am ready. Start the session.</button>
+  </div>
+
+  <div class="session-summary" id="session-summary">
+    <h3>Session started</h3>
+    <p id="commit-line"></p>
+    <div class="links">
+      <a class="btn btn-primary" id="quick-link" style="font-size:.85rem">→ Open destination</a>
+      <a class="btn btn-ghost" href="../index.html" style="font-size:.85rem">← Back to Hub</a>
+    </div>
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/streak.js"></script>
+<script src="../shared/pomodoro.js"></script>
+<script>
+function timeBand() {
+  const h = new Date().getHours();
+  if (h < 5)  return ['Very early.', 'Consider sleeping first if you can.'];
+  if (h < 12) return ['Good morning.', 'Mornings are good for writing compositions.'];
+  if (h < 17) return ['Good afternoon.', 'Afternoons are good for grammar quizzes.'];
+  if (h < 22) return ['Good evening.', 'A short session with flashcards works well in the evening.'];
+  return ['It is late.', 'A short 10-minute session, then sleep.'];
+}
+const [hi, sub] = timeBand();
+document.getElementById('greet').textContent = hi;
+document.getElementById('streak-line').textContent = sub;
+
+try {
+  if (typeof Streak !== 'undefined') {
+    const s = Streak.get();
+    if (s.current > 0) {
+      document.getElementById('streak-line').textContent = `${s.current}-day streak. ${sub}`;
+    }
+  }
+} catch {}
+
+const PROPOSALS = {
+  1: { len: 10, mode: 'Gentle', text: 'A <strong>10-minute session</strong>. Pick a topic you already know well. Open the <strong>Vocab topic</strong> or <strong>Idioms SRS</strong>. Keep the load light — what matters is showing up, not the volume.', url: '../idioms-srs/index.html', label: '🔁 Idioms SRS' },
+  2: { len: 15, mode: 'Gentle', text: 'A <strong>15-minute session</strong>. Feeling low today? That is OK. Try one short quiz on a familiar topic — not for high scores, just for repetition.', url: '../topics/vocab/index.html', label: '📝 Vocab Quiz' },
+  3: { len: 20, mode: 'Balanced', text: 'A <strong>20-minute session</strong>. Pick a topic from the review queue. Take a quiz; review missed answers carefully.', url: '../mirror/index.html', label: '🪞 Open Mirror' },
+  4: { len: 25, mode: 'Challenge', text: 'A <strong>25-minute session</strong>. Mood is good — try something more challenging. Open <strong>Continuous Writing</strong> or <strong>Comprehension OE</strong> at P6 level.', url: '../topics/composition/index.html', label: '✍️ Continuous Writing' },
+  5: { len: 30, mode: 'Stretch', text: 'A <strong>30-minute session</strong>. Strong mood — time to push yourself. Try the <strong>Synthesis &amp; Transformation</strong> drill or a full Continuous Writing piece.', url: '../topics/synthesis/index.html', label: '🔄 Synthesis &amp; Transformation' },
+};
+
+let chosenScore = null;
+document.querySelectorAll('.mood').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.mood').forEach(m => m.classList.remove('selected'));
+    el.classList.add('selected');
+    chosenScore = parseInt(el.dataset.score, 10);
+    const p = PROPOSALS[chosenScore];
+    document.getElementById('proposal').innerHTML = `<h4>${p.mode} · ${p.len} minutes</h4>${p.text}`;
+    document.getElementById('step-proposal').style.display = 'block';
+    document.getElementById('step-intention').style.display = 'block';
+    document.getElementById('i-mins').value = p.len;
+    if (window.JglStorage && window.JglStorage.update) {
+      window.JglStorage.update(p => {
+        p.wellbeing = p.wellbeing || { lastCheckInIso: null, recentMoodScores: [] };
+        p.wellbeing.lastCheckInIso = new Date().toISOString();
+        p.wellbeing.recentMoodScores = (p.wellbeing.recentMoodScores || []).concat(chosenScore).slice(-14);
+        return p;
+      });
+    }
+  });
+});
+
+document.getElementById('commit-btn').addEventListener('click', () => {
+  const m = document.getElementById('i-mins').value;
+  const a = document.getElementById('i-action').value;
+  const t = document.getElementById('i-topic').value;
+  document.getElementById('commit-line').innerHTML = `Intention: <em>"In the next ${m} minutes I will ${a} on ${t}."</em> What you promise yourself is what you become.`;
+  const proposal = PROPOSALS[chosenScore || 3];
+  // Pass the chosen minutes via ?pomo so the destination auto-starts the timer.
+  const sep = proposal.url.includes('?') ? '&' : '?';
+  document.getElementById('quick-link').href = proposal.url + sep + 'pomo=' + encodeURIComponent(m);
+  document.getElementById('quick-link').innerHTML = proposal.label;
+  document.getElementById('session-summary').classList.add('show');
+  // Also mount the pomodoro on this page so the student can see it ticking while reviewing the summary.
+  if (window.JglPomodoro && !window.JglPomodoro.isActive()) window.JglPomodoro.mount(parseInt(m, 10));
+  if (window.JglStorage && window.JglStorage.update) {
+    window.JglStorage.update(p => {
+      p.sessions = p.sessions || [];
+      p.sessions.push({ startIso: new Date().toISOString(), endIso: null, mode: a, focus: t, intention: `${m} min`, completed: false });
+      p.sessions = p.sessions.slice(-30);
+      return p;
+    });
+  }
+  if (typeof Streak !== 'undefined') Streak.record();
+  if (window.EnglishStreak && typeof window.EnglishStreak.record === 'function') { try { window.EnglishStreak.record(); } catch {} }
+  document.getElementById('session-summary').scrollIntoView({ behavior: 'smooth' });
+});
+</script>
+</body>
+</html>
