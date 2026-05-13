@@ -138,6 +138,7 @@
 <script src="../shared.js"></script>
 <script src="../shared/storage.js"></script>
 <script src="../shared/streak.js"></script>
+<script src="../shared/pomodoro.js"></script>
 <script>
 function timeBand() {
   const h = new Date().getHours();
@@ -196,9 +197,13 @@ document.getElementById('commit-btn').addEventListener('click', () => {
   const t = document.getElementById('i-topic').value;
   document.getElementById('commit-line').innerHTML = `Intention: <em>"In the next ${m} minutes I will ${a} on ${t}."</em> What you promise yourself is what you become.`;
   const proposal = PROPOSALS[chosenScore || 3];
-  document.getElementById('quick-link').href = proposal.url;
+  // Pass the chosen minutes via ?pomo so the destination auto-starts the timer.
+  const sep = proposal.url.includes('?') ? '&' : '?';
+  document.getElementById('quick-link').href = proposal.url + sep + 'pomo=' + encodeURIComponent(m);
   document.getElementById('quick-link').innerHTML = proposal.label;
   document.getElementById('session-summary').classList.add('show');
+  // Also mount the pomodoro on this page so the student can see it ticking while reviewing the summary.
+  if (window.JglPomodoro && !window.JglPomodoro.isActive()) window.JglPomodoro.mount(parseInt(m, 10));
   if (window.JglStorage && window.JglStorage.update) {
     window.JglStorage.update(p => {
       p.sessions = p.sessions || [];

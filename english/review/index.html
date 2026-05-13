@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review Queue | PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 900px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .summary { background: linear-gradient(135deg, #1a2236 0%, #2d1a3a 100%); border: 1px solid var(--accent); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.75rem; display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center; }
+    .summary .num { font-size: 2.5rem; font-weight: 800; color: var(--accent); font-family: var(--font-mono, monospace); line-height: 1; }
+    .summary .lbl { font-size: .82rem; color: var(--muted); }
+    .summary .narrative { flex: 1; min-width: 220px; font-size: .9rem; color: var(--text); line-height: 1.55; }
+
+    .topic-row { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: .85rem 1.15rem; margin-bottom: .65rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .topic-row .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .topic-row .name { flex: 1; font-weight: 700; color: var(--text); font-size: .92rem; }
+    .topic-row .meta { font-size: .76rem; color: var(--muted); }
+    .topic-row .due { font-size: .76rem; padding: .15rem .55rem; border-radius: 99px; font-weight: 700; }
+    .topic-row .due.urgent { background: #2a1400; color: #fb923c; border: 1px solid #f97316; }
+    .topic-row .due.soon { background: #1a1a00; color: #fcd34d; border: 1px solid #f59e0b; }
+    .topic-row .due.fresh { background: #053b27; color: #6ee7b7; border: 1px solid var(--grammar); }
+    .topic-row .start { padding: .35rem .85rem; font-size: .8rem; border-radius: 7px; background: var(--accent); color: #0f172a; font-weight: 700; text-decoration: none; }
+    .topic-row .start:hover { background: #7dd3fc; }
+
+    .section-h { font-size: 1rem; color: var(--text); margin: 1.5rem 0 .85rem; border-bottom: 1px solid var(--border); padding-bottom: .35rem; }
+    .empty { padding: 2rem 1rem; text-align: center; color: var(--muted); font-style: italic; }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">🔁 Review Queue</h1>
+    <div style="font-size:.76rem;color:var(--muted)">Topics where more than 3 days have passed since the last quiz, sorted by urgency (spaced repetition).</div>
+  </div>
+</header>
+
+<main>
+  <div class="summary" id="summary">
+    <div>
+      <div class="num" id="due-count">0</div>
+      <div class="lbl">topics to review</div>
+    </div>
+    <div class="narrative" id="narrative">
+      When you finish a quiz, the topic is marked "fresh". After 3–4 days it becomes "soon" (yellow). After a week it becomes "urgent" (orange). Review before it slips from long-term memory — that is why spaced repetition is so effective.
+    </div>
+  </div>
+
+  <h2 class="section-h">Needs review now</h2>
+  <div id="urgent-list"></div>
+
+  <h2 class="section-h">Coming up soon</h2>
+  <div id="soon-list"></div>
+
+  <h2 class="section-h">Recently reviewed (no action needed)</h2>
+  <div id="fresh-list"></div>
+
+  <h2 class="section-h">Not yet tried</h2>
+  <div id="never-list"></div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script>
+const TOPICS = [
+  { id: 'composition',   name: 'Continuous Writing',         theme: 'composition' },
+  { id: 'situational',   name: 'Situational Writing',        theme: 'composition' },
+  { id: 'grammar',       name: 'Grammar Foundations',        theme: 'grammar' },
+  { id: 'vocab',         name: 'Vocabulary & Idioms',        theme: 'vocab' },
+  { id: 'visual-text',   name: 'Visual Text MCQ',            theme: 'comprehension' },
+  { id: 'cloze',         name: 'Comprehension Cloze',        theme: 'comprehension' },
+  { id: 'editing',       name: 'Editing',                    theme: 'comprehension' },
+  { id: 'synthesis',     name: 'Synthesis & Transformation', theme: 'comprehension' },
+  { id: 'comprehension', name: 'Comprehension OE',           theme: 'comprehension' },
+  { id: 'listening',     name: 'Listening Comprehension',    theme: 'oral' },
+  { id: 'oral-reading',  name: 'Reading Aloud',              theme: 'oral' },
+  { id: 'oral-sbc',      name: 'Stimulus-Based Conversation', theme: 'oral' },
+];
+const THEME_COLOR = {
+  composition: 'var(--composition)', grammar: 'var(--grammar)',
+  vocab: 'var(--vocab)', comprehension: 'var(--comprehension)', oral: 'var(--oral)',
+};
+
+function daysSince(dateStr) {
+  if (!dateStr) return null;
+  return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+}
+
+function buckets() {
+  const out = { urgent: [], soon: [], fresh: [], never: [] };
+  TOPICS.forEach(t => {
+    const p = (typeof Progress !== 'undefined') ? Progress.get(t.id) : {};
+    const d = daysSince(p.lastQuizDate);
+    if (d == null) out.never.push({ ...t, days: null });
+    else if (d >= 7) out.urgent.push({ ...t, days: d });
+    else if (d >= 3) out.soon.push({ ...t, days: d });
+    else out.fresh.push({ ...t, days: d });
+  });
+  return out;
+}
+
+function row(t) {
+  const color = THEME_COLOR[t.theme];
+  let due = '';
+  let dueHtml = '';
+  if (t.days == null) { due = 'Not yet tried'; dueHtml = `<span class="due fresh">${due}</span>`; }
+  else if (t.days >= 7) { due = `${t.days} days ago`; dueHtml = `<span class="due urgent">${due}</span>`; }
+  else if (t.days >= 3) { due = `${t.days} days ago`; dueHtml = `<span class="due soon">${due}</span>`; }
+  else { due = t.days === 0 ? 'Today' : `${t.days} day${t.days === 1 ? '' : 's'} ago`; dueHtml = `<span class="due fresh">${due}</span>`; }
+  return `
+    <div class="topic-row">
+      <div class="dot" style="background:${color}"></div>
+      <div class="name">${t.name}</div>
+      ${dueHtml}
+      <a class="start" href="../topics/${t.id}/index.html">▶ Start</a>
+    </div>
+  `;
+}
+
+const b = buckets();
+const $ = id => document.getElementById(id);
+$('urgent-list').innerHTML = b.urgent.length ? b.urgent.map(row).join('') : '<div class="empty">No urgent topics to review. Nice work.</div>';
+$('soon-list').innerHTML   = b.soon.length   ? b.soon.map(row).join('')   : '<div class="empty">No topics coming up soon.</div>';
+$('fresh-list').innerHTML  = b.fresh.length  ? b.fresh.map(row).join('')  : '<div class="empty">No topics reviewed in the last 3 days.</div>';
+$('never-list').innerHTML  = b.never.length  ? b.never.map(row).join('')  : '<div class="empty">You have tried all topics. Well done.</div>';
+
+const due = b.urgent.length + b.soon.length;
+$('due-count').textContent = due;
+if (due === 0) $('narrative').textContent = 'All topics have been reviewed recently. Pick a new topic, or try a cross-topic exercise like the Composition Builder.';
+else if (due >= 5) $('narrative').textContent = `You have ${due} topics to review. Start with the two oldest, then take a break.`;
+</script>
+</body>
+</html>
