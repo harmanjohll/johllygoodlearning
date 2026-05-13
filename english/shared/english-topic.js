@@ -82,6 +82,47 @@
     `;
   }
 
+  // Common traps — each item is {wrong, fix, why}. Renders as
+  // amber-flagged before/after pairs so the trap is visible at a
+  // glance. Used when a topic's JSON includes a `commonTraps` array.
+  function renderCommonTraps(topic) {
+    const host = el('common-traps');
+    if (!host) return;
+    const traps = Array.isArray(topic.commonTraps) ? topic.commonTraps : [];
+    if (!traps.length) { host.innerHTML = ''; return; }
+    host.innerHTML = `
+      <h4 style="color:#fbbf24;margin-top:1.5rem;">⚠ Common traps</h4>
+      <div style="display:flex;flex-direction:column;gap:.7rem;">
+        ${traps.map(t => `
+          <div style="background:rgba(251,191,36,.06);border-left:3px solid rgba(251,191,36,.55);border-radius:0 8px 8px 0;padding:.65rem .9rem;">
+            <div style="font-size:.78rem;color:#fbbf24;font-style:italic;font-weight:600;line-height:1.45;">Wrong: ${t.wrong}</div>
+            <div style="font-size:.85rem;color:var(--text);margin-top:.3rem;line-height:1.5;"><strong>Fix:</strong> ${t.fix}</div>
+            ${t.why ? `<div style="font-size:.78rem;color:var(--muted);margin-top:.25rem;line-height:1.45;">${t.why}</div>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // Mastery checkpoints — concrete signs the student has nailed the
+  // topic. Builds confidence by showing the destination, not just
+  // the journey. Renders as a green-tinted checklist.
+  function renderMasteryCheckpoints(topic) {
+    const host = el('mastery-checkpoints');
+    if (!host) return;
+    const items = Array.isArray(topic.masteryCheckpoints) ? topic.masteryCheckpoints : [];
+    if (!items.length) { host.innerHTML = ''; return; }
+    host.innerHTML = `
+      <h4 style="color:var(--grammar);margin-top:1.5rem;">✓ Mastery checkpoints</h4>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:.6rem;line-height:1.5;">When you can do all of these without thinking, this topic is locked in.</p>
+      <ul style="padding-left:1.2rem;list-style:none;">
+        ${items.map(m => `<li style="margin-bottom:.45rem;font-size:.88rem;line-height:1.55;position:relative;padding-left:1.2rem;">
+          <span style="position:absolute;left:0;color:var(--grammar);font-weight:700;">□</span>${m}
+        </li>`).join('')}
+      </ul>
+    `;
+  }
+
   function setTopicHeader(topic, topicId) {
     const titleEl = el('topic-title');
     const blurbEl = el('topic-blurb');
@@ -120,6 +161,8 @@
     renderKeyQuestions(topic);
     renderGlossary(topic);
     renderLearn(topic);
+    renderCommonTraps(topic);
+    renderMasteryCheckpoints(topic);
     renderSummary(topic);
     renderPSLEPrompts(topic);
 
