@@ -77,10 +77,10 @@ This guide provides a structured revision plan from now through the PSLE 2026 ex
 |-----|---------|------|-------|
 | Monday | Paper 2 Booklet A (timed) | 25 min | Grammar Cloze + Vocab MCQ |
 | Tuesday | Comprehension practice (timed) | 40 min | 1 passage + Visual Text |
-| Wednesday | Composition (timed) | 70 min | Part 2 only; use timer strictly |
+| Wednesday | Composition (timed) | 40 min | Part 2 only; use timer strictly |
 | Thursday | Editing + Cloze drill | 25 min | Target specific error types |
 | Friday | Oral practice | 20 min | Conversation + reading aloud |
-| Saturday | Full Paper 1 OR Paper 2 (timed) | 110 min | Alternate weekly |
+| Saturday | Full Paper 1 (70 min) OR Paper 2 (110 min), timed | varies | Alternate weekly |
 | Sunday | Mark and review | 30 min | Error log; identify pattern |
 
 **Total weekly time: approximately 5.5 hours**
@@ -97,11 +97,12 @@ This guide provides a structured revision plan from now through the PSLE 2026 ex
 
 ## How to Run a Timed Practice Session (Harman's Guide)
 
-**For Paper 1 (Writing):**
-1. Set a 30-minute timer for Part 1 (Situational Writing)
-2. Set a 70-minute timer for Part 2 (Continuous Writing)
-3. No dictionary allowed; no looking at notes
-4. After: use the rubric in Composition_Writing_Guide to mark
+**For Paper 1 (Writing) — 50 marks, 1 hour 10 minutes total:**
+1. Set a 25-minute timer for Part 1 (Situational Writing, 14 marks)
+2. Set a 40-minute timer for Part 2 (Continuous Writing, 36 marks)
+3. Leave ~5 minutes for checking
+4. No dictionary allowed; no looking at notes
+5. After: use the rubric in Composition_Writing_Guide to mark
 
 **For Paper 2 (Language Use & Comprehension):**
 1. Print a past year paper or use one from Popular
@@ -120,7 +121,7 @@ This guide provides a structured revision plan from now through the PSLE 2026 ex
 |-----|---------|------|
 | Monday | Full Paper 2 under exam conditions | 110 min |
 | Tuesday | Review Paper 2; drill 2–3 weak question types | 40 min |
-| Wednesday | Full Paper 1 under exam conditions | 110 min |
+| Wednesday | Full Paper 1 under exam conditions | 70 min |
 | Thursday | Review Paper 1; rewrite weak composition paragraph | 40 min |
 | Friday | Oral practice — full simulated oral | 15 min |
 | Saturday | Rest / light review only | — |

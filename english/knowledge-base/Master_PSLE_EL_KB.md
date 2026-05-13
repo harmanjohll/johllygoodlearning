@@ -1,6 +1,10 @@
-Master PSLE English Knowledge Base: The AL1 Pathway (2025 Edition)
+# Master PSLE English Knowledge Base: The AL1 Pathway (2025 Edition)
 
-1. The AL1 Standard: Understanding the Examination Landscape
+> **Status:** Header confirmed 2026-05-13. This file's format claims (Paper 1 = 50m, Paper 4 = 40m, total = 200m) are correct against the 2025+ SEAB EL Syllabus 0001 and are corroborated by 25+ independent Singapore tuition and MOE-affiliated publications (see `source/syllabus/MOE_SEAB_EL_2025_Format_Excerpts.md`). This file is the **format spine** of the folder; other files were edited to align with it. See `Reconciliation_Notes.md` §1 and §2.8.
+
+---
+
+## 1. The AL1 Standard: Understanding the Examination Landscape
 
 AL1 Definition: Beyond Technical Correctness
 

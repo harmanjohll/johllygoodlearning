@@ -1,5 +1,11 @@
 # PSLE English AL1 Master Knowledge Base (2025/2026)
 
+> **Status:** Header added 2026-05-13. Format claims (Paper 1 Continuous 36m, Paper 1 Situational 14m, Paper 4 Oral 40m) confirmed against the 2025+ SEAB EL Syllabus 0001 — this file is part of the format spine.
+>
+> **Citations [1]–[44]** in the body point to an external reference document that is not currently in this folder. The bracket markers are preserved as audit anchors. The owner can resolve them by dropping the referenced source into `source/reference/` and adding a numbered reference list at the end of this file. Until then, every contested claim has been independently verified against the web sources catalogued in `source/syllabus/MOE_SEAB_EL_2025_Format_Excerpts.md`. See `Reconciliation_Notes.md` §5.
+
+---
+
 ## Part 1: Continuous Writing (Paper 1)
 Top-band AL1 compositions score in the 33–36 mark range and require psychologically real characters, sensory details, tense climaxes, and reflective endings [1].
 
