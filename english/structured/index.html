@@ -93,6 +93,17 @@
     <button class="task-tab" data-task="comprehension">📚 Comprehension OE</button>
   </div>
 
+  <div class="mode-tabs" style="display:flex;gap:.35rem;margin-bottom:1.25rem;padding:.35rem;background:var(--surface);border-radius:9px;max-width:320px;">
+    <button class="mode-tab active" data-mode="examiner" style="flex:1;padding:.45rem .65rem;border-radius:7px;border:none;background:var(--accent);color:#0f172a;cursor:pointer;font-size:.85rem;font-weight:700;">🧑‍🏫 Examiner</button>
+    <button class="mode-tab" data-mode="coach" style="flex:1;padding:.45rem .65rem;border-radius:7px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:.85rem;font-weight:700;">🧭 Coach</button>
+  </div>
+  <p id="mode-hint" style="font-size:.82rem;color:var(--muted);margin:-.75rem 0 1rem;line-height:1.55;">
+    <strong style="color:var(--text);">Examiner</strong> marks your draft against the SEAB band descriptors. <strong style="color:var(--text);">Coach</strong> never reveals the model — it asks probing questions so you discover the gap yourself.
+  </p>
+
+  <!-- Coach dialogue thread (shared across both tasks) -->
+  <div id="coach-thread" class="feedback" style="border-left-color:var(--oral);"></div>
+
   <!-- ── Composition task ───────────────────────────────── -->
   <div id="task-composition" class="task-pane">
 
@@ -191,8 +202,10 @@ const COMPREHENSION_PASSAGES = [
 // ── State ────────────────────────────────────────────────
 const state = {
   task: 'composition',
+  mode: 'examiner',
   composition: { topic: null },
   comprehension: { passage: null, qIdx: 0 },
+  coach: { turns: [] },   // {role:'student'|'coach', text}
 };
 
 // ── Key check ────────────────────────────────────────────
@@ -213,8 +226,74 @@ document.querySelectorAll('.task-tab').forEach(b => {
     state.task = b.dataset.task;
     document.querySelectorAll('.task-pane').forEach(p => p.style.display = 'none');
     document.getElementById('task-' + state.task).style.display = 'block';
+    // Reset coach thread when switching tasks
+    state.coach.turns = [];
+    renderCoachThread();
   });
 });
+
+// ── Mode tabs (Examiner / Coach) ────────────────────────
+document.querySelectorAll('.mode-tab').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.mode-tab').forEach(x => {
+      x.classList.remove('active');
+      x.style.background = 'transparent';
+      x.style.color = 'var(--muted)';
+    });
+    b.classList.add('active');
+    b.style.background = b.dataset.mode === 'examiner' ? 'var(--accent)' : 'var(--oral)';
+    b.style.color = '#0f172a';
+    state.mode = b.dataset.mode;
+    // Update button labels
+    document.querySelectorAll('#composition-submit, #comprehension-submit').forEach(btn => {
+      btn.innerHTML = state.mode === 'examiner' ? '🧑‍🏫 Get Examiner Feedback' : '🧭 Ask the Coach';
+    });
+    // Reset coach thread when switching modes
+    state.coach.turns = [];
+    renderCoachThread();
+  });
+});
+
+function renderCoachThread() {
+  const thread = document.getElementById('coach-thread');
+  if (state.coach.turns.length === 0) {
+    thread.classList.remove('show');
+    thread.innerHTML = '';
+    return;
+  }
+  thread.classList.add('show');
+  thread.innerHTML = '<h4>Coach dialogue</h4>' +
+    state.coach.turns.map(t => {
+      const colour = t.role === 'coach' ? 'var(--oral)' : 'var(--text)';
+      const label = t.role === 'coach' ? '🧭 Coach' : '✍️ You';
+      return `<div style="margin-bottom:.7rem;padding:.55rem .8rem;background:${t.role === 'coach' ? 'rgba(232,121,249,0.07)' : 'rgba(56,189,248,0.05)'};border-radius:7px;">
+        <div style="font-size:.7rem;font-weight:700;color:${colour};text-transform:uppercase;letter-spacing:.05em;margin-bottom:.25rem;">${label}</div>
+        <div style="font-size:.88rem;line-height:1.55;">${escapeHtml(t.text)}</div>
+      </div>`;
+    }).join('') +
+    `<div style="margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+      <button class="btn btn-ghost" id="coach-nailed-btn" style="font-size:.78rem;">✓ I have nailed this — show the model</button>
+    </div>`;
+  const nailed = document.getElementById('coach-nailed-btn');
+  if (nailed) nailed.addEventListener('click', showModelAnswer);
+}
+
+function showModelAnswer() {
+  let modelText = '';
+  if (state.task === 'composition') {
+    modelText = `<strong>Topic:</strong> "${state.composition.topic.note}"<br><br><em>No single model answer is shown for Continuous Writing — refer to the three Band-5 mentor essays in <code>ModelEssays_Annotated_KB.md</code> for fully annotated examples.</em>`;
+  } else {
+    const q = state.comprehension.passage.questions[state.comprehension.qIdx];
+    modelText = `<strong>Model answer:</strong><br>${escapeHtml(q.model)}`;
+  }
+  const thread = document.getElementById('coach-thread');
+  const modelDiv = document.createElement('div');
+  modelDiv.style.cssText = 'margin-top:.85rem;padding:.85rem 1rem;background:rgba(52,211,153,0.06);border-left:3px solid var(--grammar);border-radius:7px;';
+  modelDiv.innerHTML = `<div style="font-size:.7rem;font-weight:700;color:var(--grammar);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.35rem;">📋 MODEL (use to calibrate, not copy)</div><div style="font-size:.88rem;line-height:1.65;">${modelText}</div>`;
+  thread.appendChild(modelDiv);
+  const nailed = document.getElementById('coach-nailed-btn');
+  if (nailed) nailed.remove();
+}
 
 // ── Composition picker ───────────────────────────────────
 const compPicker = document.getElementById('composition-topic-picker');
@@ -358,6 +437,63 @@ Mark and respond in clear sections:
 DO NOT reveal the model answer unless the student explicitly asks. Be honest. Be specific. Use plain text only — no markdown headers, no asterisks. Each section starts with the LABEL in CAPITALS followed by a colon.`;
 }
 
+// ── Coach prompts (probing, never reveal model) ──────────
+function compositionCoachPrompt(topic, draft, turns) {
+  const history = turns.map(t => `${t.role === 'coach' ? 'COACH' : 'STUDENT'}: ${t.text}`).join('\n\n');
+  return `You are a PSLE English Coach helping a Primary 6 student improve a Continuous Writing draft. The Coach voice:
+- Warm and professional. Not a friend; not a cheerleader.
+- Two to four sentences. ONE probing question per turn.
+- Praise strategy or technique specifically — never "good job".
+- Mirror fuzzy/flat lines back; ask which F.A.S.T. dimension they could push.
+- NEVER reveal a model answer or rewrite their sentence. Probe so they discover the gap themselves.
+- No emoji, no hyphens or em dashes, no "I feel" statements.
+
+TOPIC: "${topic.note}"
+
+STUDENT DRAFT (${countWords(draft)} words):
+"""
+${draft}
+"""
+
+PRIOR DIALOGUE (oldest first):
+${history || '(no prior turns — this is your first probe)'}
+
+Now produce ONE next Coach turn. Two to four sentences. End with exactly ONE probing question. No labels, no preamble.`;
+}
+
+function comprehensionCoachPrompt(passage, question, answer, turns) {
+  const history = turns.map(t => `${t.role === 'coach' ? 'COACH' : 'STUDENT'}: ${t.text}`).join('\n\n');
+  return `You are a PSLE English Coach helping a Primary 6 student improve a Comprehension OE answer. The Coach voice:
+- Warm and professional. Two to four sentences per turn.
+- ONE probing question per turn.
+- Anchor probes in the RACE framework (Restate / Answer / Cite / Explain).
+- NEVER reveal the model answer or rewrite their sentence. Probe so they find the gap themselves.
+- If the student attempts a quote, ask them to check whether it is exact and whether it really supports their inference.
+- No emoji, no hyphens or em dashes.
+
+PASSAGE:
+"""
+${passage.passage}
+"""
+
+QUESTION (${question.type}): ${question.text}
+
+MODEL ANSWER (for your private calibration — DO NOT reveal):
+"""
+${question.model}
+"""
+
+STUDENT ANSWER (${countWords(answer)} words):
+"""
+${answer}
+"""
+
+PRIOR DIALOGUE (oldest first):
+${history || '(no prior turns — this is your first probe)'}
+
+Now produce ONE next Coach turn. Two to four sentences. End with exactly ONE probing question. No labels, no preamble.`;
+}
+
 // ── Gemini wrapper ───────────────────────────────────────
 async function callGemini(prompt) {
   if (typeof window.askGemini !== 'function') throw new Error('Gemini wrapper unavailable.');
@@ -409,11 +545,24 @@ document.getElementById('composition-submit').addEventListener('click', async ()
   const btn = document.getElementById('composition-submit');
   const fb = document.getElementById('composition-feedback');
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Marking your draft…';
-  fb.classList.remove('show');
+  const isCoach = state.mode === 'coach';
+  btn.innerHTML = '<span class="spinner"></span>' + (isCoach ? 'Coach is thinking…' : 'Marking your draft…');
+  if (!isCoach) fb.classList.remove('show');
   try {
-    const text = await callGemini(compositionExaminerPrompt(state.composition.topic, draft));
-    renderFeedback(fb, text);
+    if (isCoach) {
+      // Add the latest draft as student turn (overwrite first turn each time).
+      if (state.coach.turns.length === 0 || state.coach.turns[state.coach.turns.length - 1].role !== 'student') {
+        state.coach.turns.push({ role: 'student', text: draft.slice(0, 800) });
+      } else {
+        state.coach.turns[state.coach.turns.length - 1].text = draft.slice(0, 800);
+      }
+      const coachText = await callGemini(compositionCoachPrompt(state.composition.topic, draft, state.coach.turns));
+      state.coach.turns.push({ role: 'coach', text: coachText.trim() });
+      renderCoachThread();
+    } else {
+      const text = await callGemini(compositionExaminerPrompt(state.composition.topic, draft));
+      renderFeedback(fb, text);
+    }
     if (typeof Streak !== 'undefined') Streak.record();
     if (window.EnglishStreak && typeof window.EnglishStreak.record === 'function') { try { window.EnglishStreak.record(); } catch {} }
     if (typeof Progress !== 'undefined') Progress.recordVisit('composition');
@@ -423,7 +572,7 @@ document.getElementById('composition-submit').addEventListener('click', async ()
     fb.classList.add('show');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '🧑‍🏫 Get Examiner Feedback';
+    btn.innerHTML = isCoach ? '🧭 Ask the Coach' : '🧑‍🏫 Get Examiner Feedback';
   }
 });
 
@@ -434,12 +583,24 @@ document.getElementById('comprehension-submit').addEventListener('click', async 
   const btn = document.getElementById('comprehension-submit');
   const fb = document.getElementById('comprehension-feedback');
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Marking your answer…';
-  fb.classList.remove('show');
+  const isCoach = state.mode === 'coach';
+  btn.innerHTML = '<span class="spinner"></span>' + (isCoach ? 'Coach is thinking…' : 'Marking your answer…');
+  if (!isCoach) fb.classList.remove('show');
   try {
     const q = state.comprehension.passage.questions[state.comprehension.qIdx];
-    const text = await callGemini(comprehensionExaminerPrompt(state.comprehension.passage, q, answer));
-    renderFeedback(fb, text);
+    if (isCoach) {
+      if (state.coach.turns.length === 0 || state.coach.turns[state.coach.turns.length - 1].role !== 'student') {
+        state.coach.turns.push({ role: 'student', text: answer.slice(0, 800) });
+      } else {
+        state.coach.turns[state.coach.turns.length - 1].text = answer.slice(0, 800);
+      }
+      const coachText = await callGemini(comprehensionCoachPrompt(state.comprehension.passage, q, answer, state.coach.turns));
+      state.coach.turns.push({ role: 'coach', text: coachText.trim() });
+      renderCoachThread();
+    } else {
+      const text = await callGemini(comprehensionExaminerPrompt(state.comprehension.passage, q, answer));
+      renderFeedback(fb, text);
+    }
     if (typeof Streak !== 'undefined') Streak.record();
     if (window.EnglishStreak && typeof window.EnglishStreak.record === 'function') { try { window.EnglishStreak.record(); } catch {} }
     if (typeof Progress !== 'undefined') Progress.recordVisit('comprehension');
@@ -449,7 +610,7 @@ document.getElementById('comprehension-submit').addEventListener('click', async 
     fb.classList.add('show');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '🧑‍🏫 Get Examiner Feedback';
+    btn.innerHTML = isCoach ? '🧭 Ask the Coach' : '🧑‍🏫 Get Examiner Feedback';
   }
 });
 
