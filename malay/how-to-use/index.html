@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Use This Studio | PSLE Bahasa Melayu</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 820px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; font-size: .95rem; line-height: 1.7; }
+
+    .hero {
+      background: linear-gradient(135deg, #14302b 0%, #1a2236 50%, #2d1a3a 100%);
+      border: 1px solid var(--accent);
+      border-radius: 14px;
+      padding: 1.75rem 1.85rem;
+      margin-bottom: 2rem;
+    }
+    .hero h1 { font-family: var(--font-display, serif); font-size: 1.85rem; letter-spacing: -.018em; margin-bottom: .5rem; }
+    .hero p { font-size: 1rem; color: var(--text); margin: 0; line-height: 1.65; }
+
+    h2 {
+      font-family: var(--font-display, serif);
+      font-size: 1.45rem; font-weight: 800; letter-spacing: -.015em;
+      margin: 2.5rem 0 .75rem;
+      color: var(--accent);
+    }
+    h3 {
+      font-size: 1.05rem; font-weight: 700;
+      margin: 1.5rem 0 .5rem;
+      color: var(--text);
+    }
+    p, li { color: var(--text); }
+    p strong, li strong { color: var(--text); }
+    p em { color: var(--muted); }
+
+    a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+
+    code, kbd {
+      background: var(--surface); padding: .12rem .35rem;
+      border-radius: 4px;
+      font-family: 'IBM Plex Mono', 'SF Mono', monospace;
+      font-size: .85em; color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    ul, ol { padding-left: 1.4rem; margin-bottom: 1rem; }
+    ul li, ol li { margin-bottom: .35rem; line-height: 1.65; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 11px; padding: 1.1rem 1.3rem; margin: 1rem 0;
+    }
+
+    .mode-row {
+      display: grid; grid-template-columns: auto 1fr;
+      gap: .85rem 1rem;
+      align-items: start;
+      padding: .85rem 0;
+      border-bottom: 1px dotted var(--border);
+    }
+    .mode-row:last-child { border-bottom: none; }
+    .mode-icon {
+      font-size: 1.55rem; line-height: 1;
+      flex-shrink: 0;
+      width: 2.2rem; text-align: center;
+    }
+    .mode-row .mode-name { font-weight: 700; color: var(--text); }
+    .mode-row .mode-name a { color: var(--accent); }
+    .mode-row .mode-desc { font-size: .87rem; color: var(--muted); margin-top: .15rem; line-height: 1.55; }
+    .mode-row .mode-when { font-size: .8rem; color: var(--text); margin-top: .35rem; font-style: italic; }
+
+    .theme-row {
+      display: flex; align-items: flex-start; gap: 1rem;
+      padding: .85rem 0;
+      border-bottom: 1px dotted var(--border);
+    }
+    .theme-row:last-child { border-bottom: none; }
+    .theme-dot {
+      width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+      margin-top: .35rem;
+    }
+    .theme-row .theme-name { font-weight: 800; color: var(--text); }
+    .theme-row .theme-desc { font-size: .87rem; color: var(--muted); margin-top: .25rem; }
+
+    .routine-day {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      border-radius: 7px;
+      padding: .65rem 1rem;
+      margin-bottom: .5rem;
+      font-size: .88rem;
+    }
+    .routine-day strong { color: var(--accent); display: inline-block; min-width: 6rem; }
+
+    .quick-start {
+      background: linear-gradient(135deg, #14302b 0%, #1a2236 100%);
+      border: 1px solid var(--tatabahasa);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .quick-start h3 { color: var(--tatabahasa); margin-top: 0; }
+    .quick-start ol { margin-bottom: 0; }
+
+    .tip {
+      background: #1a2a3a;
+      border-left: 3px solid var(--kefahaman);
+      border-radius: 7px;
+      padding: .65rem 1rem;
+      font-size: .88rem;
+      margin: .75rem 0;
+    }
+    .tip strong { color: var(--kefahaman); }
+
+    .warn {
+      background: #2a1400;
+      border-left: 3px solid #f59e0b;
+      border-radius: 7px;
+      padding: .65rem 1rem;
+      font-size: .88rem;
+      margin: .75rem 0;
+    }
+    .warn strong { color: #fcd34d; }
+
+    .toc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .toc-title { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 800; margin-bottom: .55rem; }
+    .toc ol { padding-left: 1.25rem; margin: 0; }
+    .toc li { margin-bottom: .25rem; font-size: .88rem; }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">📖 How to Use This Studio</h1>
+    <div style="font-size:.76rem;color:var(--muted)">A guide to every part of PSLE Bahasa Melayu Studio — written in English so a parent or non-native learner can navigate the whole site.</div>
+  </div>
+</header>
+
+<main>
+
+<div class="hero">
+  <h1>Welcome to PSLE Bahasa Melayu Studio</h1>
+  <p>This is your one-stop site to prepare for PSLE Bahasa Melayu. It covers all five strands of the syllabus — grammar, vocabulary, proverbs, comprehension, and composition — through fourteen topic pages and around twenty interactive modes. Everything runs in your browser. No login. No tracking. All your progress stays on your own device.</p>
+</div>
+
+<div class="toc">
+  <div class="toc-title">On this page</div>
+  <ol>
+    <li><a href="#what-is-psle">What is PSLE Bahasa Melayu?</a></li>
+    <li><a href="#how-studio">How the Studio is organised</a></li>
+    <li><a href="#themes">The five themes</a></li>
+    <li><a href="#topics">The fourteen topics</a></li>
+    <li><a href="#modes">Every mode, what it does, and when to use it</a></li>
+    <li><a href="#routine">A recommended weekly routine</a></li>
+    <li><a href="#non-native">Tips if Malay is not your first language</a></li>
+    <li><a href="#ai-key">Setting up the optional AI key</a></li>
+    <li><a href="#privacy">Progress, privacy, and your data</a></li>
+    <li><a href="#quick-start">First-week quick start</a></li>
+  </ol>
+</div>
+
+<!-- ── Section 1 ── -->
+<h2 id="what-is-psle">1 · What is PSLE Bahasa Melayu?</h2>
+
+<p>The Primary School Leaving Examination (PSLE) Bahasa Melayu is the standard Malay-language paper sat by Primary 6 students in Singapore. It is graded by Achievement Level (AL), with AL1 being the highest. The whole exam is <strong>200 marks</strong>, spread across four papers:</p>
+
+<div class="card">
+  <ul style="margin:0">
+    <li><strong>Paper 1 — Karangan (Composition).</strong> 40 marks · 50 minutes · pick 1 of 2 topics · minimum 150 words.</li>
+    <li><strong>Paper 2 — Tatabahasa &amp; Kefahaman (Grammar &amp; Comprehension).</strong> 90 marks · 1 hour 50 minutes · Booklet A (50 marks of MCQ) + Booklet B (40 marks of dialogue completion and reading comprehension).</li>
+    <li><strong>Paper 3 — Mendengar (Listening).</strong> 20 marks · about 30 minutes · MCQ based on audio passages.</li>
+    <li><strong>Paper 4 — Lisan (Oral).</strong> 50 marks · about 10 minutes · held separately in August. Reading aloud + stimulus-based conversation.</li>
+  </ul>
+</div>
+
+<p>For a deeper breakdown with weightages and priority ranking, see <a href="../format/index.html">Format Kertas</a>.</p>
+
+<!-- ── Section 2 ── -->
+<h2 id="how-studio">2 · How the Studio is organised</h2>
+
+<p>Everything in this Studio sits in three layers:</p>
+
+<ol>
+  <li><strong>The Hub</strong> (the home page, the rocket icon you see when you open the site). From there, every other part of the Studio is one click away.</li>
+  <li><strong>Five themes.</strong> The PSLE syllabus is grouped under five strands. Each theme has a coloured dot and a set of topic cards.</li>
+  <li><strong>Fourteen topics.</strong> Each topic is a focused page with four tabs: Pelajaran (Learn), Latih (Drill), Kuiz (Quiz), Peta Minda (Mind Map). The topic is where the real learning happens.</li>
+</ol>
+
+<p>Around the topics, there are about <strong>20 cross-topic modes</strong> — places like the Compass (session opener), the Mega Map (whole-domain view), Karangan Builder (essay practice), Mendengar (listening practice), and so on. Each mode is described below in section 5.</p>
+
+<!-- ── Section 3 ── -->
+<h2 id="themes">3 · The five themes</h2>
+
+<div class="card">
+  <div class="theme-row">
+    <div class="theme-dot" style="background:var(--tatabahasa)"></div>
+    <div>
+      <div class="theme-name">Tatabahasa · Grammar</div>
+      <div class="theme-desc">Eight topic pages cover all the grammar tested in Paper 2 Booklet A: Imbuhan (affixes), Kata Nama (nouns), Kata Kerja (verbs), Kata Adjektif (adjectives), Kata Hubung (conjunctions), Kata Sendi Nama (prepositions), Kata Ganti Nama (pronouns), and Penjodoh Bilangan (numerical classifiers). The single biggest scoring area in the exam.</div>
+    </div>
+  </div>
+  <div class="theme-row">
+    <div class="theme-dot" style="background:var(--kosakata)"></div>
+    <div>
+      <div class="theme-name">Kosa Kata · Vocabulary</div>
+      <div class="theme-desc">Two topics: a thematic vocabulary bank (~80 essential P6 words grouped by emotion, character, setting, action) and a synonyms-and-antonyms reference. Vocabulary is the single biggest lever for composition scores.</div>
+    </div>
+  </div>
+  <div class="theme-row">
+    <div class="theme-dot" style="background:var(--peribahasa)"></div>
+    <div>
+      <div class="theme-name">Peribahasa · Proverbs &amp; Idioms</div>
+      <div class="theme-desc">Two topics covering 50 essential PSLE peribahasa (proverbs) and 25 common simpulan bahasa (idioms). About five MCQ marks in Paper 2A; also a bonus in composition when used correctly.</div>
+    </div>
+  </div>
+  <div class="theme-row">
+    <div class="theme-dot" style="background:var(--kefahaman)"></div>
+    <div>
+      <div class="theme-name">Kefahaman · Comprehension</div>
+      <div class="theme-desc">Reading-comprehension strategy: text types (narrative, expository), question types (literal, inference, vocabulary-in-context, personal response), and the answer format (Quote → Link → Explain). Covers Paper 2 Booklet B.</div>
+    </div>
+  </div>
+  <div class="theme-row">
+    <div class="theme-dot" style="background:var(--penulisan)"></div>
+    <div>
+      <div class="theme-name">Penulisan · Composition</div>
+      <div class="theme-desc">Karangan strategy: two question types (topic-based and picture-based), the 7-step writing process, scoring rubric anchors, dialogue format, and atmospheric opener / reflective closer templates. Paper 1.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 4 ── -->
+<h2 id="topics">4 · The fourteen topics</h2>
+
+<p>Each topic page is structured identically so the student always knows what to expect:</p>
+
+<div class="card">
+  <ul>
+    <li><strong>Pelajaran (Learn).</strong> Key questions, a short prose explanation, the glossary, a summary, and PSLE-specific tips. This is the "read" tab.</li>
+    <li><strong>Latih (Drill).</strong> A six-card warm-up drill calibrated to ~85% success. The point is to build confidence, not to test you.</li>
+    <li><strong>Kuiz (Quiz).</strong> Twelve MCQs in three difficulty tiers. Switch on the AI Quiz toggle to get fresh, adaptive questions from Gemini (after setting up your key).</li>
+    <li><strong>Peta Minda (Mind Map).</strong> A seeded mind map you can extend. Drag nodes, add your own, save the map. Each topic seed has 15–30 nodes already laid out.</li>
+  </ul>
+</div>
+
+<p>To open a topic, click any card in the theme grid on the hub. Twelve topics are ready end-to-end; <em>kefahaman</em> and <em>karangan</em> are the two essay-focused ones and link to specialised tools rather than a standard quiz.</p>
+
+<!-- ── Section 5 ── -->
+<h2 id="modes">5 · Every mode, what it does, and when to use it</h2>
+
+<p>The hub shows a row of mode buttons. Here is every one in plain English, with when you would reach for it.</p>
+
+<div class="card">
+
+  <div class="mode-row">
+    <div class="mode-icon">🧭</div>
+    <div>
+      <div class="mode-name"><a href="../compass/index.html">Compass</a> — session opener</div>
+      <div class="mode-desc">Greets you, asks how you are feeling on a 5-point scale, then proposes a session length (10–30 min) and a focus.</div>
+      <div class="mode-when">Use when: starting any study session, especially if you don't know where to begin.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">🪞</div>
+    <div>
+      <div class="mode-name"><a href="../mirror/index.html">Mirror</a> — progress dashboard</div>
+      <div class="mode-desc">Four tiles: how many topics you have consolidated, which are at the edge of memory, where your time is going, and your effort over the last 28 days.</div>
+      <div class="mode-when">Use when: weekly, to check what to focus on next.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">🗺</div>
+    <div>
+      <div class="mode-name"><a href="../map/index.html">Peta Besar</a> — mega concept map</div>
+      <div class="mode-desc">The whole PSLE Bahasa Melayu domain rendered as a force-directed graph. Themes in the centre, topics radiating out, concepts on the outer ring. Topics brighten as you master them (mastery colour ramp). Drag any node to reorganise — positions persist.</div>
+      <div class="mode-when">Use when: you want a bird's-eye view, or to find which concept connects to which topic.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">🌱</div>
+    <div>
+      <div class="mode-name"><a href="../confidence/index.html">Latihan Mudah</a> — easy warm-up drills</div>
+      <div class="mode-desc">A landing page where you pick a topic and run its six-card warm-up. Same as the Latih tab inside the topic, but cross-topic — good for shuffling.</div>
+      <div class="mode-when">Use when: tired or unsure where to start. Low-stakes, high-success.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">🧠</div>
+    <div>
+      <div class="mode-name"><a href="../assess/index.html">Pentaksiran Sinoptik</a> — cross-topic AI quiz</div>
+      <div class="mode-desc">10/20/30 questions across one theme or all themes. Optional 60-second-per-question timer (paper-style pressure). Per-theme breakdown at the end.</div>
+      <div class="mode-when">Use when: you have time for a full session and want to know your weakest theme.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">📋</div>
+    <div>
+      <div class="mode-name"><a href="../structured/index.html">Karangan &amp; Kefahaman Builder</a></div>
+      <div class="mode-desc">For composition: pick a topic, draft, then choose Pemeriksa (AI examiner marks against the rubric and gives a band), Coach (AI asks one probing question at a time, never reveals the model), or Anotasi (AI underlines each sentence with the issue type — affix error, kata sendi confusion, register, klise, etc.). For comprehension: pick a passage, answer questions, get marked or coached.</div>
+      <div class="mode-when">Use when: you actually want to write or answer something and get feedback.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">🧠</div>
+    <div>
+      <div class="mode-name"><a href="../karangan-cloud/index.html">Bantuan Karangan</a> — vocab cloud per category</div>
+      <div class="mode-desc">For each of ten karangan categories (Hari yang Tidak Terlupakan, Pertolongan, Kemalangan, etc.), a cluster of recommended kata kerja, sifat, latar, penghubung, peribahasa, and simpulan bahasa. Click any item to see other categories where it fits, or "Tambah ke draf" to save it to your vocabulary scratchpad.</div>
+      <div class="mode-when">Use when: you have a karangan topic but don't know which words to use.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">🗂</div>
+    <div>
+      <div class="mode-name"><a href="../karangan-planner/index.html">Pelan Karangan</a> — planning aid</div>
+      <div class="mode-desc">A guided 6-W form: Who, Where, When, What conflict, How resolved, What lesson. Fills the 5-minute planning step in the 7-step writing process. Suggests vocab + peribahasa + opener + closer based on the category you pick. Outputs a copyable plan you can take into the Builder.</div>
+      <div class="mode-when">Use when: you have 5 minutes before writing a karangan — this is the difference between a confused 80-word draft and a confident 200-word essay.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">✍️</div>
+    <div>
+      <div class="mode-name"><a href="../explain/index.html">Jelaskan Semula</a> — Feynman technique</div>
+      <div class="mode-desc">Pick a concept (peribahasa, grammar rule, vocab term). Explain it in your own words as if teaching an 8-year-old. The AI Coach returns Strengths, Gaps, and the Key Term you should have used.</div>
+      <div class="mode-when">Use when: you "think" you know something but haven't said it out loud. If you can explain it simply, you understand it.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">🃏</div>
+    <div>
+      <div class="mode-name"><a href="../flashcards/index.html">Kad Kilas</a> — flashcards</div>
+      <div class="mode-desc">Universal deck across all glossaries (224 terms). Filter by theme. Click to flip, mark Known or Again. Best for quick consolidation.</div>
+      <div class="mode-when">Use when: 10 spare minutes; commuting; tired but want to study.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">🔁</div>
+    <div>
+      <div class="mode-name"><a href="../peribahasa-srs/index.html">Peribahasa SRS</a> — spaced repetition for proverbs</div>
+      <div class="mode-desc">Dedicated SM-2 spaced-repetition deck for the 50 peribahasa. Self-grade each card 1–4; the algorithm decides when to surface each one again (1 day, 3 days, a week, a month).</div>
+      <div class="mode-when">Use when: daily 5–10 minute "due cards" routine. Peribahasa is the highest-frequency Paper 2A content.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">📖</div>
+    <div>
+      <div class="mode-name"><a href="../vocab/index.html">Latihan Kosa Kata</a> — definition gym</div>
+      <div class="mode-desc">A vocab term appears; you write your own definition; then reveal the official one. Optional AI Coach check.</div>
+      <div class="mode-when">Use when: you want active recall practice (stronger than passive reading).</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">🎧</div>
+    <div>
+      <div class="mode-name"><a href="../listen/index.html">Mendengar (Paper 3)</a> — listening practice</div>
+      <div class="mode-desc">Eight short Malay passages read aloud by the browser's speech synthesiser. Two plays max per passage (PSLE rule), then 4-question MCQ.</div>
+      <div class="mode-when">Use when: training your ear. Works best in browsers with a Malay or Indonesian voice (Chrome, Edge).</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">🔑</div>
+    <div>
+      <div class="mode-name"><a href="../commands/index.html">Kata Arahan</a> — command words</div>
+      <div class="mode-desc">Reference card for the eight command words Paper 2 uses: jelaskan, huraikan, banding-bezakan, beri pendapat, ringkaskan, cadangkan, senaraikan, apakah maksud. Each one shows the expected answer structure.</div>
+      <div class="mode-when">Use when: you don't know what shape your answer should take.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">📝</div>
+    <div>
+      <div class="mode-name"><a href="../psle-tips/index.html">Petua PSLE</a> — exam tips</div>
+      <div class="mode-desc">Per-paper tips (K1 / K2 / K3 / K4), plus a "week before" and "day of" checklist.</div>
+      <div class="mode-when">Use when: in the final week of preparation.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">📄</div>
+    <div>
+      <div class="mode-name"><a href="../format/index.html">Format Kertas</a> — paper structure</div>
+      <div class="mode-desc">Full breakdown of all four PSLE papers, marks, weightages, priority ranking, and which theme maps to which paper.</div>
+      <div class="mode-when">Use when: you want to understand the exam layout.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">🔁</div>
+    <div>
+      <div class="mode-name"><a href="../review/index.html">Ulang Kaji</a> — spaced-repetition queue</div>
+      <div class="mode-desc">Surfaces topics whose last quiz date was more than 3 days ago (urgent if &gt; 7 days). Prevents you from cramming new content while forgetting old.</div>
+      <div class="mode-when">Use when: deciding what to study today.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">💙</div>
+    <div>
+      <div class="mode-name"><a href="../emotions/index.html">Emosi &amp; Kesejahteraan</a> — wellbeing check-in</div>
+      <div class="mode-desc">Mood scale (1–5) with Malay emotion vocabulary, plus an optional written reflection. The site uses your mood to suggest the right session length.</div>
+      <div class="mode-when">Use when: feeling overwhelmed or unsure. Showing up matters more than how you feel.</div>
+    </div>
+  </div>
+
+  <div class="mode-row">
+    <div class="mode-icon">🤖</div>
+    <div>
+      <div class="mode-name">Set Up AI Quizzes (button on the hub)</div>
+      <div class="mode-desc">A modal that asks for a free Google Gemini API key. Once entered, every mode that uses AI (Coach, Examiner, Annotator, Synoptic, Explain-It-Back) becomes much better. The key stays on your device, never sent anywhere else.</div>
+      <div class="mode-when">Use when: starting out. Free key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com/app/apikey</a>.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Section 6 ── -->
+<h2 id="routine">6 · A recommended weekly routine</h2>
+
+<p>You do not have to use every mode. The most effective routine for a P6 student is around 30–45 minutes a day, six days a week:</p>
+
+<div class="card">
+  <div class="routine-day"><strong>Monday</strong> Compass · then one Tatabahasa topic (Pelajaran → Latih → Kuiz)</div>
+  <div class="routine-day"><strong>Tuesday</strong> Peribahasa SRS (10 cards) · then 10 flashcards on Tatabahasa</div>
+  <div class="routine-day"><strong>Wednesday</strong> Pelan Karangan (5 min) → write one karangan in the Builder → run Anotasi</div>
+  <div class="routine-day"><strong>Thursday</strong> Kefahaman Builder · one passage with Coach mode</div>
+  <div class="routine-day"><strong>Friday</strong> Mendengar (Paper 3) · two passages</div>
+  <div class="routine-day"><strong>Saturday</strong> Synoptic Assess (20 questions, all themes, timer on)</div>
+  <div class="routine-day"><strong>Sunday</strong> Rest day. Read a Berita Harian article in Malay if you feel like it. No quiz.</div>
+</div>
+
+<div class="tip"><strong>Why rest day matters:</strong> memory consolidation happens during sleep, not study. A rest day is not breaking the streak — it is part of the streak.</div>
+
+<!-- ── Section 7 ── -->
+<h2 id="non-native">7 · Tips if Malay is not your first language</h2>
+
+<p>This site is designed especially for learners whose home language is English (or another language that is not Malay). Some tips:</p>
+
+<ul>
+  <li><strong>Hover any underlined glossary term</strong> on any page — a popover shows the term, its definition, and the topic it belongs to. (Bilingual hover popover, indexed across 224 terms.)</li>
+  <li><strong>Start with Bantuan Karangan, not the Builder.</strong> Build a stash of vocabulary words for one category first, then write the karangan. Vocabulary scarcity is the single biggest non-native-learner block.</li>
+  <li><strong>Use the Pelan Karangan tool</strong> before writing. Five minutes of planning saves fifteen minutes of confusion.</li>
+  <li><strong>Read aloud whatever you write.</strong> The mouth catches errors the eye misses.</li>
+  <li><strong>Watch Berita Harian Singapore</strong> (online news) for one minute a day. Your ear will train itself.</li>
+  <li><strong>Stick to formal register</strong> in karangan: <code>saya</code>, <code>anda</code>, <code>beliau</code>. Avoid <code>aku</code>, <code>kau</code>, <code>awak</code>, <code>tu</code>, <code>ni</code>.</li>
+  <li><strong>One peribahasa per karangan is enough</strong> — and only if you are 100% sure of its meaning. Wrong peribahasa reduces marks.</li>
+</ul>
+
+<div class="tip"><strong>If you only do one thing daily:</strong> 10 cards on Peribahasa SRS. Peribahasa is the highest-frequency Paper 2A content and the highest-leverage bonus in Paper 1.</div>
+
+<!-- ── Section 8 ── -->
+<h2 id="ai-key">8 · Setting up the optional AI key</h2>
+
+<p>Several modes (Coach, Examiner, Annotator, Synoptic, Explain-It-Back) become much more useful with a free Google Gemini API key. Without one, you can still use every mode — they fall back to static content or regex-based feedback.</p>
+
+<ol>
+  <li>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com/app/apikey</a> and sign in with any Google account.</li>
+  <li>Click <strong>"Get API key"</strong>, then <strong>"Create API key"</strong> in a new project.</li>
+  <li>Copy the key — it starts with <code>AIza</code>.</li>
+  <li>Back on the hub, click <strong>"🤖 Set Up AI Quizzes"</strong> and paste your key. Click <strong>Test</strong>, then <strong>Save</strong>.</li>
+</ol>
+
+<div class="warn"><strong>Privacy:</strong> the key is stored only in your browser's local storage. It is never sent to any server other than Google's directly. The same key works on the Science Studio at this domain.</div>
+
+<p>The free tier gives you hundreds of AI requests per day. No credit card needed.</p>
+
+<!-- ── Section 9 ── -->
+<h2 id="privacy">9 · Progress, privacy, and your data</h2>
+
+<p>This Studio has <strong>no server</strong>. Everything — your quiz scores, mind maps, mood entries, karangan plans, SRS schedules — is stored in your browser's <code>localStorage</code> under keys named <code>malay_progress</code>, <code>malay_meta</code>, <code>jgl.progress</code>, and similar. If you clear your browser data, this is wiped.</p>
+
+<p>If you want to save a backup, open your browser's developer tools (F12), go to Application → Local Storage, find the keys starting with <code>malay_</code> or <code>jgl.</code>, and copy them.</p>
+
+<p>The Gemini AI calls go directly from your browser to Google. We never see them.</p>
+
+<!-- ── Section 10 ── -->
+<h2 id="quick-start">10 · First-week quick start</h2>
+
+<div class="quick-start">
+  <h3>If you only have one week before an important practice exam:</h3>
+  <ol>
+    <li><strong>Day 1.</strong> Open the hub. Click <strong>Compass</strong>, do the mood check, accept its session proposal. Run one Tatabahasa topic end-to-end (Pelajaran → Latih → Kuiz).</li>
+    <li><strong>Day 2.</strong> <strong>Peribahasa SRS</strong> for 15 minutes (the deck starts new — first session covers ~10 cards).</li>
+    <li><strong>Day 3.</strong> <strong>Pelan Karangan</strong> for the topic "Hari yang Tidak Terlupakan." Fill all 6 boxes. Copy plan. Open <strong>Karangan &amp; Kefahaman Builder</strong>. Write 150 words. Run <strong>Anotasi</strong>.</li>
+    <li><strong>Day 4.</strong> <strong>Mendengar</strong> — try one passage. Then <strong>Kefahaman Builder</strong> — try one passage on Coach mode.</li>
+    <li><strong>Day 5.</strong> <strong>Synoptic Assess</strong> — 20 questions, all themes, timer ON. Note your weakest theme.</li>
+    <li><strong>Day 6.</strong> Open the topic in your weakest theme. Pelajaran → Kuiz. Then <strong>Peribahasa SRS</strong> due cards.</li>
+    <li><strong>Day 7.</strong> Rest day. Read the <a href="../psle-tips/index.html">Petua PSLE</a> page once. Sleep 8 hours.</li>
+  </ol>
+</div>
+
+<p>By Day 8 you will have touched every important paper, every important strand, and every important tool in the Studio.</p>
+
+<hr style="margin:2.5rem 0;border:none;border-top:1px dashed var(--border)">
+
+<p style="color:var(--muted);font-size:.82rem;line-height:1.7">
+  <em>Selamat belajar.</em> If something on this site does not make sense — even a single button — that is a bug we want to fix. Tell whoever set up this site for you.
+</p>
+
+</main>
+</body>
+</html>

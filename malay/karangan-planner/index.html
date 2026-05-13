@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pelan Karangan | PSLE Bahasa Melayu Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 880px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .why {
+      background: linear-gradient(135deg, #14302b 0%, #2d1a3a 100%);
+      border: 1px solid var(--tatabahasa);
+      border-radius: 12px;
+      padding: 1.15rem 1.4rem; margin-bottom: 1.5rem;
+    }
+    .why h2 { font-size: 1.1rem; color: var(--tatabahasa); margin-bottom: .35rem; }
+    .why p { font-size: .88rem; color: var(--text); line-height: 1.6; }
+
+    .step-row {
+      display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: 1.25rem;
+    }
+    .step-pill {
+      padding: .35rem .65rem; border-radius: 7px;
+      background: var(--card); border: 1px solid var(--border);
+      font-size: .72rem; color: var(--muted); font-weight: 700;
+    }
+    .step-pill.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+    .step-pill .num { display: inline-block; min-width: 1.1em; opacity: .7; margin-right: .15rem; }
+
+    .picker { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .cat-chip { padding: .4rem .85rem; border-radius: 99px; border: 1.5px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: .78rem; font-weight: 600; transition: all .15s; }
+    .cat-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .cat-chip.active { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+
+    .section {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.2rem 1.4rem; margin-bottom: 1rem;
+    }
+    .section h3 {
+      font-size: .95rem; color: var(--accent);
+      text-transform: uppercase; letter-spacing: .04em; margin-bottom: .25rem;
+    }
+    .section .lead {
+      font-size: .82rem; color: var(--muted);
+      line-height: 1.55; margin-bottom: .85rem;
+    }
+    .section.q { border-left: 4px solid var(--penulisan); }
+    .q-label {
+      display: inline-block; padding: .2rem .55rem;
+      background: var(--penulisan); color: #1a0a14;
+      border-radius: 6px;
+      font-size: .65rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .05em;
+      margin-bottom: .55rem;
+    }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: .65rem .85rem;
+      font-family: inherit; color: var(--text);
+      font-size: .9rem; line-height: 1.55;
+    }
+    textarea { min-height: 60px; resize: vertical; }
+    textarea:focus, input[type="text"]:focus { outline: none; border-color: var(--accent); }
+
+    .suggest {
+      margin-top: .5rem;
+      display: flex; flex-wrap: wrap; gap: .25rem;
+    }
+    .suggest-label {
+      width: 100%; font-size: .7rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .04em;
+      font-weight: 700; margin-bottom: .25rem;
+    }
+    .suggest-chip {
+      display: inline-block; padding: .18rem .55rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 99px; font-size: .72rem; color: var(--text);
+      cursor: pointer; transition: all .12s;
+    }
+    .suggest-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .suggest-chip.added { background: #053b27; border-color: var(--tatabahasa); color: #6ee7b7; }
+
+    .pb-block {
+      background: var(--surface); padding: .9rem 1.1rem;
+      border-left: 3px solid var(--peribahasa); border-radius: 7px;
+      font-size: .86rem; color: var(--text); line-height: 1.6;
+      margin-top: .85rem;
+    }
+    .pb-block .pb-title {
+      font-family: var(--font-display, serif); font-weight: 800;
+      color: var(--peribahasa); margin-bottom: .25rem;
+    }
+
+    .openers, .closers {
+      display: flex; flex-direction: column; gap: .35rem; margin-top: .5rem;
+    }
+    .opener {
+      background: var(--surface); padding: .55rem .8rem;
+      border-radius: 7px; font-size: .82rem; color: var(--text);
+      line-height: 1.5; cursor: pointer;
+      border: 1px solid var(--border);
+    }
+    .opener:hover { border-color: var(--accent); }
+    .opener.picked { background: #1a2236; border-color: var(--accent); color: var(--accent); }
+
+    .summary-card {
+      background: linear-gradient(135deg, #1a2236 0%, #2d1a3a 100%);
+      border: 1.5px solid var(--accent);
+      border-radius: 12px;
+      padding: 1.3rem 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .summary-card h2 { font-size: 1.1rem; color: var(--accent); margin-bottom: .65rem; }
+    .summary-pre {
+      background: rgba(0,0,0,.3);
+      padding: 1rem 1.15rem;
+      border-radius: 8px;
+      font-family: var(--font-mono, monospace);
+      font-size: .82rem; color: var(--text); line-height: 1.65;
+      white-space: pre-wrap;
+      max-height: 320px; overflow-y: auto;
+    }
+    .summary-actions { display: flex; gap: .55rem; margin-top: .85rem; flex-wrap: wrap; }
+
+    .ai-card { background: var(--card); border: 1px dashed var(--border); border-radius: 10px; padding: 1rem 1.2rem; margin-top: 1rem; font-size: .85rem; color: var(--text); line-height: 1.6; }
+    .ai-card.show { display: block; }
+    .loader { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--muted); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -2px; margin-right: .3rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">🗂 Pelan Karangan</h1>
+    <div style="font-size:.76rem;color:var(--muted)">5 minit merancang menyelamatkan 15 minit kekeliruan. Isi 6 kotak di bawah, kemudian salin pelan anda.</div>
+  </div>
+  <a href="karangan-cloud/index.html" class="btn btn-ghost" style="font-size:.72rem;display:none">🧠 Buka Cloud</a>
+  <a href="../structured/index.html" class="btn btn-ghost" style="font-size:.72rem">📋 Buka Karangan Builder</a>
+</header>
+
+<main>
+  <div class="why">
+    <h2>Kenapa merancang dahulu?</h2>
+    <p>Tanpa pelan, anda akan menulis 80 patah perkataan, terlupa apa yang nak tulis, kemudian mula semula. <strong>Dengan</strong> pelan 5-minit, anda tahu siapa, di mana, apa masalah, dan bagaimana selesai sebelum menulis ayat pertama. Lima minit merancang = 15 minit menyelamatkan kekeliruan.</p>
+  </div>
+
+  <div class="step-row" aria-label="7 langkah karangan PSLE">
+    <span class="step-pill"><span class="num">1</span> Pilih soalan</span>
+    <span class="step-pill active"><span class="num">2</span> Rancang</span>
+    <span class="step-pill"><span class="num">3</span> Pengenalan</span>
+    <span class="step-pill"><span class="num">4</span> Plot</span>
+    <span class="step-pill"><span class="num">5</span> Peribahasa</span>
+    <span class="step-pill"><span class="num">6</span> Pengakhiran</span>
+    <span class="step-pill"><span class="num">7</span> Semak</span>
+  </div>
+
+  <div class="section">
+    <h3>Langkah 1 · Pilih Kategori Karangan</h3>
+    <p class="lead">Pilih satu kategori. Cadangan vocab + peribahasa di bawah akan dikemas kini secara automatik.</p>
+    <div class="picker" id="cat-picker"></div>
+    <div id="cat-blurb" style="font-size:.85rem;color:var(--muted);line-height:1.55"></div>
+  </div>
+
+  <!-- The 6 W's -->
+  <div class="section q">
+    <span class="q-label">SIAPA · WHO</span>
+    <h3>Watak Utama &amp; Watak Sokongan</h3>
+    <p class="lead">Beri nama (Malay) kepada watak utama. Berapa orang ahli dalam cerita?</p>
+    <input type="text" id="q-who" placeholder="Contoh: Ahmad (saya), adik perempuan Aishah, ayah, ibu, kawan Razif…">
+    <div class="suggest" id="suggest-who"></div>
+  </div>
+
+  <div class="section q">
+    <span class="q-label">DI MANA · WHERE</span>
+    <h3>Latar Tempat</h3>
+    <p class="lead">Satu tempat khusus, bukan generik. "Pantai Pasir Ris" lebih baik daripada "pantai".</p>
+    <input type="text" id="q-where" placeholder="Contoh: Pulau Ubin · jeti Changi Point · padang sekolah · jalan raya Lebuh Pudu…">
+    <div class="suggest" id="suggest-where"></div>
+  </div>
+
+  <div class="section q">
+    <span class="q-label">BILA · WHEN</span>
+    <h3>Latar Masa &amp; Suasana</h3>
+    <p class="lead">Pagi atau petang? Cuaca? Suasana mood awal cerita?</p>
+    <input type="text" id="q-when" placeholder="Contoh: Pagi Sabtu yang cerah · Petang yang mendung · Suasana meriah · Suasana tegang…">
+    <div class="suggest" id="suggest-when"></div>
+  </div>
+
+  <div class="section q">
+    <span class="q-label">APA MASALAH · WHAT CONFLICT</span>
+    <h3>Konflik atau Peristiwa Utama</h3>
+    <p class="lead">Apa yang berlaku yang menjadikan hari ini istimewa? Setiap karangan naratif perlu satu titik perubahan.</p>
+    <textarea id="q-what" placeholder="Contoh: Semasa berenang di pantai, kawan saya hampir lemas dan saya perlu menyelamatkannya…"></textarea>
+    <div class="suggest" id="suggest-what"></div>
+  </div>
+
+  <div class="section q">
+    <span class="q-label">BAGAIMANA SELESAI · HOW RESOLVED</span>
+    <h3>Resolusi</h3>
+    <p class="lead">Bagaimanakah konflik diselesaikan? Yang menyelamatkan, yang membantu, yang berubah?</p>
+    <textarea id="q-how" placeholder="Contoh: Saya menjerit memanggil bantuan dan bersama abang menyelamatkan kawan saya. Doktor mengesahkan dia selamat…"></textarea>
+    <div class="suggest" id="suggest-how"></div>
+  </div>
+
+  <div class="section q">
+    <span class="q-label">APA PENGAJARAN · LESSON</span>
+    <h3>Pengajaran / Mesej</h3>
+    <p class="lead">Apa yang watak utama (atau pembaca) belajar daripada cerita ini? Tulis dalam satu ayat reflektif.</p>
+    <textarea id="q-moral" placeholder="Contoh: Pengalaman itu mengajar saya betapa pentingnya berhati-hati dan kepentingan kerjasama dalam keadaan kecemasan…"></textarea>
+  </div>
+
+  <!-- Peribahasa selection -->
+  <div class="section">
+    <h3>Pilih Peribahasa (Pilihan)</h3>
+    <p class="lead">Maksimum 1-2 peribahasa yang sesuai dengan kategori anda. Pilih yang anda yakin maksudnya.</p>
+    <div id="peribahasa-options"></div>
+  </div>
+
+  <!-- Pengenalan -->
+  <div class="section">
+    <h3>Cadangan Pengenalan</h3>
+    <p class="lead">Pilih satu sebagai inspirasi (atau cipta sendiri). JANGAN tulis "Pada suatu hari…".</p>
+    <div class="openers" id="openers"></div>
+  </div>
+
+  <!-- Pengakhiran -->
+  <div class="section">
+    <h3>Cadangan Pengakhiran</h3>
+    <p class="lead">Pengakhiran reflektif menunjukkan pertumbuhan watak melalui tindakan, BUKAN klise "Itulah hari yang…".</p>
+    <div class="closers" id="closers"></div>
+  </div>
+
+  <!-- AI Coach (optional) -->
+  <div class="section">
+    <h3>Coach AI (Pilihan)</h3>
+    <p class="lead">Mahukan probe daripada Coach untuk memantapkan pelan? Coach akan menanyakan SATU soalan ke arah kekuatan plot anda. Memerlukan API key Gemini.</p>
+    <button class="btn btn-primary" id="ai-probe-btn" style="font-size:.85rem">🤖 Minta Coach Probe</button>
+    <div class="ai-card" id="ai-card" style="display:none"></div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-card">
+    <h2>📝 Rangka Karangan Anda</h2>
+    <div class="summary-pre" id="summary-pre">Mula mengisi kotak-kotak di atas — pelan anda akan dipaparkan di sini.</div>
+    <div class="summary-actions">
+      <button class="btn btn-primary" id="copy-btn" style="font-size:.85rem">📋 Salin Pelan</button>
+      <button class="btn btn-ghost" id="save-btn" style="font-size:.85rem">💾 Simpan untuk Nanti</button>
+      <button class="btn btn-ghost" id="load-btn" style="font-size:.85rem">📂 Muat Pelan Tersimpan</button>
+      <button class="btn btn-ghost" id="clear-btn" style="font-size:.85rem">↺ Kosongkan</button>
+      <a class="btn btn-ghost" href="../structured/index.html" style="font-size:.85rem;text-decoration:none">📋 Buka Karangan Builder →</a>
+    </div>
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script src="../shared/coach.js"></script>
+<script>
+const STORAGE_KEY = 'malay.karangan.plan';
+
+const OPENERS_BY_CAT = {
+  'tidak-terlupakan': [
+    'Pagi yang cerah itu, [siapa] menuju ke [tempat] dengan hati yang penuh keterujaan.',
+    'Hari yang [bila] itu menandakan pengalaman yang tidak akan saya lupakan seumur hidup.',
+  ],
+  'pertolongan': [
+    'Pada petang yang mendung itu, saya tidak menyangka akan terlibat dalam satu kejadian yang menguji jiwa kemanusiaan saya.',
+    'Sekali pandang sahaja, saya tahu orang tua itu memerlukan pertolongan.',
+  ],
+  'kejadian-tempat': [
+    'Suasana di [tempat] kelihatan biasa pada pagi itu — sehinggalah satu peristiwa mengubah segalanya.',
+    'Tiada siapa yang menyangka bahawa hari itu akan menjadi hari yang penuh dengan kejadian yang menggemparkan.',
+  ],
+  'cita-cita': [
+    'Sejak kecil lagi, saya membawa satu impian dalam hati: untuk menjadi [profesion].',
+    'Apabila ditanya tentang cita-cita, jawapan saya sentiasa sama, tidak pernah berubah.',
+  ],
+  'hari-jadi': [
+    'Pagi itu menandakan permulaan hari jadi saya yang ke-[umur] — dan ia bermula dengan satu kejutan yang tidak disangka.',
+    'Saya pasti tidak akan melupakan hari jadi tahun ini sehingga ke hujung hayat.',
+  ],
+  'menghadapi-cabaran': [
+    'Tidak ada perjalanan yang lurus menuju kejayaan, dan saya belajar pengajaran itu dengan susah payah.',
+    'Apabila guru mengumumkan pertandingan itu, hati saya berdegup tetapi tekad saya kuat.',
+  ],
+  'kawan-baik': [
+    'Sejak Darjah 1 lagi, [nama kawan] dan saya tidak pernah berpisah.',
+    'Tidak ramai orang dianugerahi sahabat sejati. Bagi saya, [nama kawan] adalah anugerah itu.',
+  ],
+  'kemalangan': [
+    'Pada petang yang sibuk itu, tiada siapa yang menyangka kemalangan akan berlaku.',
+    'Bunyi enjin kereta yang mengeluh kuat tiba-tiba dipecahkan oleh bunyi yang mengejutkan semua orang.',
+  ],
+  'berlaku-jujur': [
+    'Hati saya berperang antara dua pilihan — berdiam diri atau berlaku jujur.',
+    'Apabila cikgu menyebut tentang dompet yang hilang itu, saya tahu saya tidak boleh berdiam diri.',
+  ],
+  'pengalaman-pertama': [
+    'Buat pertama kali dalam hidup, saya akan menempuh pengalaman yang menggoncang seluruh keberanian saya.',
+    'Pagi itu, saya bangun dengan satu perasaan yang sukar diterangkan — campuran teruja dan cemas.',
+  ],
+};
+
+const CLOSERS_BY_CAT = {
+  'tidak-terlupakan': [
+    'Sambil mengemas barang pulang, saya menyedari bahawa kebahagiaan yang sebenar terletak pada saat-saat sederhana bersama orang yang disayangi.',
+    'Dalam perjalanan pulang, hati saya masih dipenuhi rasa terharu — dan saya berjanji akan menghargai setiap pengalaman seperti ini sehingga akhir hayat.',
+  ],
+  'pertolongan': [
+    'Ketika kami berpisah, hati saya berasa lega dan bangga — bukan kerana pujian, tetapi kerana saya telah melakukan apa yang sepatutnya.',
+    'Pengalaman ini mengajar saya bahawa setiap tangan yang menghulur akan sentiasa menerima kembali dalam bentuk yang lain.',
+  ],
+  'kejadian-tempat': [
+    'Walaupun beberapa hari telah berlalu, kejadian itu masih segar dalam ingatan saya — sebagai peringatan agar sentiasa berwaspada.',
+    'Sejak peristiwa itu, saya sentiasa berhati-hati ketika berada di tempat awam.',
+  ],
+  'cita-cita': [
+    'Walaupun jalan menuju cita-cita itu masih panjang, saya bertekad untuk berusaha sebaik mungkin setiap hari, sedikit demi sedikit.',
+    'Tutur kata datuk masih bergema di telinga saya: bahawa kejayaan adalah hasil daripada usaha yang konsisten, bukan tergesa-gesa.',
+  ],
+  'hari-jadi': [
+    'Sambil meniup lilin terakhir, saya berdoa agar setiap tahun yang mendatang akan membawa kebahagiaan seperti malam ini.',
+    'Kebahagiaan terbesar bukanlah hadiah, tetapi kehadiran orang-orang yang saya sayangi di sekeliling saya pada malam itu.',
+  ],
+  'menghadapi-cabaran': [
+    'Walaupun keputusan akhir bukan apa yang saya harapkan, saya keluar daripada cabaran itu menjadi insan yang lebih kuat dan bijaksana.',
+    'Pengalaman itu mengajar saya bahawa setiap rintangan adalah peluang untuk membesar.',
+  ],
+  'kawan-baik': [
+    'Sambil melihat foto kami yang tergantung di dinding, saya bersyukur kerana mempunyai sahabat seperti [nama] — bagai aur dengan tebing dalam hidup saya.',
+    'Persahabatan yang tulen seperti ini adalah harta yang tidak ternilai harganya.',
+  ],
+  'kemalangan': [
+    'Sebelum balik ke rumah, saya menatap jalan raya yang sama dengan perasaan yang sangat berbeza — penuh kesyukuran kerana selamat dan penuh keinsafan tentang kepentingan keselamatan.',
+    'Pengalaman ngeri itu tetap menjadi peringatan agar saya sentiasa berhati-hati di mana sahaja saya berada.',
+  ],
+  'berlaku-jujur': [
+    'Apabila cikgu memuji tindakan saya, saya menyedari bahawa nilai kejujuran jauh lebih berharga daripada apa-apa hadiah material.',
+    'Sejak hari itu, saya bertekad untuk sentiasa memilih jalan yang benar, walaupun ia jalan yang sukar.',
+  ],
+  'pengalaman-pertama': [
+    'Kini, apabila terkenang kembali, saya tersenyum kerana satu pengalaman pertama yang menakutkan itu telah membuka pintu kepada cinta baharu dalam hidup saya.',
+    'Pengalaman pertama itu mengajar saya bahawa keberanian bukanlah ketiadaan rasa takut, tetapi tindakan walaupun berasa takut.',
+  ],
+};
+
+const state = {
+  data: null,
+  categoryId: null,
+  addedSuggestions: { who: [], where: [], when: [], what: [], how: [] },
+  selectedPeribahasa: null,
+  selectedOpener: null,
+  selectedCloser: null,
+};
+
+async function loadData() {
+  const r = await fetch('../shared/content/karangan-clouds.json', { cache: 'no-cache' });
+  if (!r.ok) throw new Error('karangan-clouds.json fetch failed');
+  state.data = await r.json();
+  buildCategoryPicker();
+  if (state.data.categories.length) selectCategory(state.data.categories[0].id);
+}
+
+function buildCategoryPicker() {
+  const wrap = document.getElementById('cat-picker');
+  wrap.innerHTML = state.data.categories.map(c => `<button class="cat-chip" data-id="${c.id}">${escapeHtml(c.title)}</button>`).join('');
+  wrap.querySelectorAll('.cat-chip').forEach(b => {
+    b.addEventListener('click', () => selectCategory(b.dataset.id));
+  });
+}
+
+function selectCategory(id) {
+  state.categoryId = id;
+  document.querySelectorAll('.cat-chip').forEach(b => b.classList.toggle('active', b.dataset.id === id));
+  const cat = state.data.categories.find(c => c.id === id);
+  document.getElementById('cat-blurb').textContent = cat.blurb || '';
+  populateSuggestions(cat);
+  populatePeribahasa(cat);
+  populateOpenersClosers(id);
+  state.addedSuggestions = { who: [], where: [], when: [], what: [], how: [] };
+  state.selectedPeribahasa = null;
+  state.selectedOpener = null;
+  state.selectedCloser = null;
+  updateSummary();
+}
+
+function populateSuggestions(cat) {
+  const sifat = cat.layers.sifat || [];
+  const latar = cat.layers.latar || [];
+  const kk    = cat.layers.kata_kerja || [];
+  const hub   = cat.layers.penghubung || [];
+
+  setSuggestChips('suggest-who',   'Sifat watak (klik untuk tambah ke kotak Siapa):', sifat.slice(0, 8), 'who');
+  setSuggestChips('suggest-where', 'Frasa latar tempat (klik untuk tambah):',         latar.slice(0, 5), 'where');
+  setSuggestChips('suggest-when',  'Kata penghubung masa (klik untuk tambah):',       hub.slice(0, 5),   'when');
+  setSuggestChips('suggest-what',  'Kata kerja aksi (klik untuk tambah):',            kk.slice(0, 8),    'what');
+  setSuggestChips('suggest-how',   'Kata kerja resolusi (klik untuk tambah):',        kk.slice(0, 8),    'how');
+}
+
+function setSuggestChips(slotId, label, items, qKey) {
+  const slot = document.getElementById(slotId);
+  if (!items.length) { slot.innerHTML = ''; return; }
+  slot.innerHTML = `<div class="suggest-label">${escapeHtml(label)}</div>` +
+    items.map(t => `<button class="suggest-chip" data-q="${qKey}" data-term="${escapeHtml(t)}">+ ${escapeHtml(t)}</button>`).join('');
+  slot.querySelectorAll('.suggest-chip').forEach(b => {
+    b.addEventListener('click', () => {
+      const term = b.dataset.term;
+      const q = b.dataset.q;
+      const input = document.getElementById('q-' + q);
+      const cur = input.value.trim();
+      const sep = cur ? (cur.endsWith(',') || cur.endsWith('.') ? ' ' : ', ') : '';
+      input.value = cur + sep + term;
+      b.classList.add('added');
+      input.dispatchEvent(new Event('input'));
+    });
+  });
+}
+
+function populatePeribahasa(cat) {
+  const wrap = document.getElementById('peribahasa-options');
+  const pb = cat.layers.peribahasa || [];
+  if (!pb.length) {
+    wrap.innerHTML = '<div style="font-size:.78rem;color:var(--muted);font-style:italic">Tiada peribahasa khas untuk kategori ini.</div>';
+    return;
+  }
+  wrap.innerHTML = pb.map((p, i) => `
+    <label class="pb-block" style="display:block;cursor:pointer">
+      <input type="radio" name="pb" value="${escapeHtml(p)}" style="margin-right:.4rem">
+      <span class="pb-title">${escapeHtml(p)}</span>
+    </label>
+  `).join('');
+  // "none" option
+  wrap.innerHTML += `<label class="pb-block" style="display:block;cursor:pointer;border-left-color:var(--border)">
+    <input type="radio" name="pb" value="" style="margin-right:.4rem">
+    <span class="pb-title" style="color:var(--muted)">— Tiada peribahasa —</span>
+  </label>`;
+  wrap.querySelectorAll('input[name="pb"]').forEach(r => {
+    r.addEventListener('change', () => {
+      state.selectedPeribahasa = r.value || null;
+      updateSummary();
+    });
+  });
+}
+
+function populateOpenersClosers(catId) {
+  const opn = OPENERS_BY_CAT[catId] || [];
+  const cls = CLOSERS_BY_CAT[catId] || [];
+  const opnWrap = document.getElementById('openers');
+  const clsWrap = document.getElementById('closers');
+  opnWrap.innerHTML = opn.map((s, i) => `<div class="opener" data-i="${i}">${escapeHtml(s)}</div>`).join('');
+  clsWrap.innerHTML = cls.map((s, i) => `<div class="opener" data-i="${i}">${escapeHtml(s)}</div>`).join('');
+  opnWrap.querySelectorAll('.opener').forEach(el => {
+    el.addEventListener('click', () => {
+      opnWrap.querySelectorAll('.opener').forEach(x => x.classList.remove('picked'));
+      el.classList.add('picked');
+      state.selectedOpener = el.textContent;
+      updateSummary();
+    });
+  });
+  clsWrap.querySelectorAll('.opener').forEach(el => {
+    el.addEventListener('click', () => {
+      clsWrap.querySelectorAll('.opener').forEach(x => x.classList.remove('picked'));
+      el.classList.add('picked');
+      state.selectedCloser = el.textContent;
+      updateSummary();
+    });
+  });
+}
+
+function updateSummary() {
+  const cat = state.data.categories.find(c => c.id === state.categoryId);
+  const who   = document.getElementById('q-who').value.trim();
+  const where = document.getElementById('q-where').value.trim();
+  const when_ = document.getElementById('q-when').value.trim();
+  const what  = document.getElementById('q-what').value.trim();
+  const how   = document.getElementById('q-how').value.trim();
+  const moral = document.getElementById('q-moral').value.trim();
+
+  let text = `═══════════════════════════════════
+   RANGKA KARANGAN — ${cat ? cat.title : '—'}
+═══════════════════════════════════
+
+WATAK (Siapa):
+${who || '(belum diisi)'}
+
+LATAR TEMPAT (Di mana):
+${where || '(belum diisi)'}
+
+LATAR MASA & SUASANA (Bila):
+${when_ || '(belum diisi)'}
+
+KONFLIK / PERISTIWA UTAMA (Apa):
+${what || '(belum diisi)'}
+
+RESOLUSI (Bagaimana selesai):
+${how || '(belum diisi)'}
+
+PENGAJARAN (Apa pengajaran):
+${moral || '(belum diisi)'}
+
+${state.selectedPeribahasa ? `\nPERIBAHASA TERPILIH:\n  "${state.selectedPeribahasa}"\n` : ''}
+${state.selectedOpener ? `PENGENALAN (cadangan):\n  ${state.selectedOpener}\n` : ''}
+${state.selectedCloser ? `PENGAKHIRAN (cadangan):\n  ${state.selectedCloser}\n` : ''}
+───────────────────────────────────
+Petua: salin rangka ini, kemudian buka Karangan Builder
+(/structured/) untuk menulis perenggan demi perenggan.`;
+  document.getElementById('summary-pre').textContent = text;
+}
+
+// Live update on every input
+['q-who','q-where','q-when','q-what','q-how','q-moral'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateSummary);
+});
+
+document.getElementById('copy-btn').addEventListener('click', () => {
+  const text = document.getElementById('summary-pre').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ Disalin';
+    setTimeout(() => btn.textContent = '📋 Salin Pelan', 1500);
+  });
+});
+
+document.getElementById('save-btn').addEventListener('click', () => {
+  const plan = {
+    categoryId: state.categoryId,
+    who:   document.getElementById('q-who').value,
+    where: document.getElementById('q-where').value,
+    when:  document.getElementById('q-when').value,
+    what:  document.getElementById('q-what').value,
+    how:   document.getElementById('q-how').value,
+    moral: document.getElementById('q-moral').value,
+    peribahasa: state.selectedPeribahasa,
+    opener: state.selectedOpener,
+    closer: state.selectedCloser,
+    savedIso: new Date().toISOString(),
+  };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(plan)); } catch {}
+  const btn = document.getElementById('save-btn');
+  btn.textContent = '✓ Disimpan';
+  setTimeout(() => btn.textContent = '💾 Simpan untuk Nanti', 1500);
+});
+
+document.getElementById('load-btn').addEventListener('click', () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) { alert('Tiada pelan tersimpan.'); return; }
+    const p = JSON.parse(raw);
+    if (p.categoryId && state.data.categories.find(c => c.id === p.categoryId)) {
+      selectCategory(p.categoryId);
+    }
+    document.getElementById('q-who').value   = p.who || '';
+    document.getElementById('q-where').value = p.where || '';
+    document.getElementById('q-when').value  = p.when || '';
+    document.getElementById('q-what').value  = p.what || '';
+    document.getElementById('q-how').value   = p.how || '';
+    document.getElementById('q-moral').value = p.moral || '';
+    state.selectedPeribahasa = p.peribahasa || null;
+    if (p.peribahasa) {
+      const r = document.querySelector(`input[name="pb"][value="${CSS.escape(p.peribahasa)}"]`);
+      if (r) r.checked = true;
+    }
+    updateSummary();
+  } catch (err) { alert('Tidak dapat memuat: ' + err.message); }
+});
+
+document.getElementById('clear-btn').addEventListener('click', () => {
+  if (!confirm('Kosongkan semua kotak?')) return;
+  ['q-who','q-where','q-when','q-what','q-how','q-moral'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  state.selectedPeribahasa = null;
+  state.selectedOpener = null;
+  state.selectedCloser = null;
+  document.querySelectorAll('input[name="pb"]').forEach(r => r.checked = false);
+  document.querySelectorAll('.opener').forEach(el => el.classList.remove('picked'));
+  document.querySelectorAll('.suggest-chip').forEach(b => b.classList.remove('added'));
+  updateSummary();
+});
+
+// AI Coach probe (optional)
+document.getElementById('ai-probe-btn').addEventListener('click', async () => {
+  const card = document.getElementById('ai-card');
+  card.style.display = 'block';
+  if (typeof window.askGemini !== 'function') {
+    card.innerHTML = '⚠️ Coach memerlukan API key Gemini. Buka hub → "🤖 Set Up AI Quizzes".';
+    return;
+  }
+  card.innerHTML = '<span class="loader"></span> Coach sedang membaca pelan anda…';
+  const cat = state.data.categories.find(c => c.id === state.categoryId);
+  const plan = `Kategori: ${cat.title}
+Watak: ${document.getElementById('q-who').value || '(belum)'}
+Tempat: ${document.getElementById('q-where').value || '(belum)'}
+Masa: ${document.getElementById('q-when').value || '(belum)'}
+Masalah: ${document.getElementById('q-what').value || '(belum)'}
+Resolusi: ${document.getElementById('q-how').value || '(belum)'}
+Pengajaran: ${document.getElementById('q-moral').value || '(belum)'}`;
+  const sys = (window.MalayCoach ? window.MalayCoach.VOICE : '') + ' Beri SATU soalan probe yang sangat spesifik (1-2 ayat) untuk mengukuhkan pelan karangan ini. Fokus pada kelemahan paling besar: butiran watak, latar yang generik, konflik yang tidak jelas, atau pengajaran yang klise. Tiada emoji.';
+  const prompt = `Pelan karangan pelajar Darjah 6:\n\n${plan}\n\nApakah SATU soalan probe yang akan memantapkan plot ini? Jawab dalam Bahasa Melayu formal.`;
+  try {
+    const out = await window.askGemini({ system: sys, prompt, temperature: 0.5, maxTokens: 220, thinkingBudget: 0 });
+    card.innerHTML = `<strong style="color:var(--peribahasa)">Coach:</strong> ${escapeHtml(out)}`;
+  } catch (err) {
+    card.innerHTML = `<span style="color:#fca5a5">Ralat: ${escapeHtml(err.message)}</span>`;
+  }
+});
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+loadData().catch(err => {
+  document.querySelector('main').innerHTML = '<p style="color:#fca5a5;padding:2rem">Ralat: ' + escapeHtml(err.message) + '</p>';
+});
+</script>
+</body>
+</html>
