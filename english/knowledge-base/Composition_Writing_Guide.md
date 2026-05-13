@@ -685,4 +685,90 @@ These small but important conventions show up in the marking and are often misse
 
 ---
 
+## Mentor exemplars
+
+Three Band-5 mentor texts are stored in full at `source/reference/Mentor_Texts.md`. Each one models a different structural technique. They are the calibration target for AL1 Continuous Writing. Full paragraph-by-paragraph annotations live in `ModelEssays_Annotated_KB.md`.
+
+### Mentor text inventory
+
+| # | Title | Structural technique | Themes | Use as a model for |
+|---|---|---|---|---|
+| 1 | *A Day I Will Never Forget* | **Weather Contrast** — bright sunshine mirrors guilt, eventual relief | Honesty, friendship, restitution | Topics about a difficult choice, a mistake, an apology, a friendship under strain |
+| 2 | *The Bravest Thing* | **Flashback** — opens in hospital, flashes back to the incident, returns to present | Courage, quiet heroism, peer responsibility | Topics about an accident, an unexpected hero, a difficult moment, learning from someone |
+| 3 | *Never Give Up* | **Weather Contrast** — ash-grey sky mirrors anxiety; cleared sky mirrors resolve | Perseverance, self-doubt, hard-won victory | Topics about competition, sacrifice, doubt, a goal achieved |
+
+### Three exemplary openings (from the mentor texts)
+
+These openings are themselves teachable templates. Each one **avoids the generic "It was a bright sunny day…"** trap. Each opens with either a vivid sensory anchor or a deliberate inner-mood contrast.
+
+**Opening 1 — Weather Contrast with sensory anchors (MT1):**
+
+> *The sun blazed down from a cloudless sky that Saturday morning, drenching the streets in golden warmth. Somewhere overhead, a mynah bird trilled its cheerful, two-note call. The air smelled faintly of freshly cut grass, and the pavement shimmered with a honeyed light that made the whole world look new. It was, by every measure, a perfect morning. Yet as I sat hunched in the back of my father's car, my hands knotted in my lap, my heart was a cold and leaden thing in my chest.*
+
+**Opening 2 — Flashback / in medias res (MT2):**
+
+> *The first thing I noticed when I regained consciousness was the smell — antiseptic, sharp and clinical, cutting through the fog in my mind like a blade. White ceiling tiles swam into focus above me. The steady, metronome beeping of a heart monitor filled the sterile room.*
+
+**Opening 3 — Weather as foreshadowing (MT3):**
+
+> *The sky on the morning of the Inter-School Mathematics Olympiad was the colour of ash. A thick, unbroken grey pressed down over the city like the lid of a pot, swallowing the horizon, muffling sound, draining colour from the streets below.*
+
+### Three exemplary climax beats
+
+Each is **slowed down**, with body reaction + inner monologue + dialogue interleaved. Notice that none of them rushes through the climax in a single sentence — all linger.
+
+**Climax beat 1 — confession scene (MT1):**
+
+> *The words struck me like a physical blow. I felt the blood drain from my face. My legs buckled; I sat down heavily in the wet sand, the cool water soaking through my shorts. Around me, the world continued in its brilliant, indifferent brightness — waves crashing, children laughing, seagulls wheeling — but all of it seemed impossibly far away, as though I were watching it through thick glass.*
+
+**Climax beat 2 — accident reveal (MT2):**
+
+> *From somewhere below and ahead of me, I heard Priya scream my name — she had seen what was coming before I had. The sound cut off as the corner rushed up and consumed me. The impact, when it came, was a white-hot explosion of pain that obliterated all conscious thought.*
+
+**Climax beat 3 — exam-hall panic and resolve (MT3):**
+
+> *My heartbeat became a roar in my ears. It is over, whispered a voice from some dark corner of my mind — low, insistent, and utterly persuasive. You don't belong here. You never did. For one horrible, vertiginous moment, I almost believed it. My vision blurred. My pencil hand trembled against the desk. The fluorescent lights above me seemed to pulse and brighten. And then — from somewhere very far away, or perhaps very deep inside — I heard Mrs Tan's voice, clear as a struck bell: You never give up.*
+
+### Three reflective endings (R.E.F. landed)
+
+Each ending **circles back to the opening image** (weather, sensory cue, or scene), and reflects with **a specific image** rather than a generic moral.
+
+**Ending 1 — sun returns, lesson grounded in an image (MT1):**
+
+> *Today, the sun still shines over Singapore. But its warmth feels different to me now — lighter, truer, untainted by guilt. Jake and I are friends again, the slow way, the real way. The Messi card sits in his collection once more. I learnt, on that brilliant, turbulent Saturday, that courage is not the absence of fear. It is the choice to do what is right in spite of it. The weather had been dazzling all day. But it was only when I finally told the truth that I truly felt its warmth on my face.*
+
+**Ending 2 — what bravery actually looks like (MT2):**
+
+> *Sometimes, bravery is a quiet, bookish girl pressing a cardigan against a wound and refusing to let go — terrified to her core, and doing it anyway, because someone needed her to.*
+
+**Ending 3 — sky clears, the pencil-and-storm image (MT3):**
+
+> *The Olympiad taught me more than any theorem or formula could have. It taught me that the voice which says you cannot is almost always lying. It taught me that persistence, applied with patience and a pencil, can unlock even the most impenetrable door. And it taught me that the truest measure of strength is not whether you face the storm without fear — it is whether you keep moving when the storm is at its very worst, and the pencil is all you have.*
+
+### Mentor-text power vocabulary banks
+
+Lifted verbatim from `Mentor_Texts.md` §"Power Vocabulary". Drill these to active use.
+
+| Category | High-impact words |
+|---|---|
+| Sad (instead of *sad*) | desolate, crestfallen, bereft, hollow, leaden |
+| Happy (instead of *happy*) | elated, exhilarated, jubilant, euphoric |
+| Afraid (instead of *scared*) | apprehensive, gripped by dread, vertiginous, unnerved |
+| Embarrassed/guilty | mortified, consumed with shame, humbled |
+| Angry | seething, incensed, livid |
+| Physical fear cues | heart hammered against my ribs, a cold dread crept up my spine, knees buckled, throat constricted, palms slick with perspiration, breath came in shallow ragged gasps |
+| Movement verbs | strode, lurched, stumbled, dragged, crept, bolted, slipped |
+| Speech verbs | rasped, choked, murmured, breathed, snapped, whispered, cried out |
+| Looking verbs | scrutinised, peered, gazed, squinted, stared wide-eyed |
+
+### Transition phrases (mentor-text inventory)
+
+For the dedicated bank see `Connectors_KB.md`. The mentor texts add the following AL1-flavoured transitions that work especially well in narrative writing:
+
+- **Time:** *As the minutes dragged by… / Shortly afterwards… / Before long… / No sooner had X than Y… / In the days that followed… / All at once… / In an instant… / That very evening…*
+- **Tension:** *To my horror… / Without warning… / In a heartbeat… / Just as I thought it was over… / At that very moment… / Then, without a sound… / Before I could react…*
+- **Reflection (for endings):** *Looking back… / In hindsight… / To this day… / From that day forward… / It was only when X that I truly understood… / I realised, perhaps for the first time, that…*
+
+---
+
 *End of Composition Writing Guide*

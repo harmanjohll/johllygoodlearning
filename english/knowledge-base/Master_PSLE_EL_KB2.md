@@ -3,6 +3,8 @@
 > **Status:** Header added 2026-05-13. Format claims (Paper 1 Continuous 36m, Paper 1 Situational 14m, Paper 4 Oral 40m) confirmed against the 2025+ SEAB EL Syllabus 0001 — this file is part of the format spine.
 >
 > **Citations [1]–[44]** in the body point to an external reference document that is not currently in this folder. The bracket markers are preserved as audit anchors. The owner can resolve them by dropping the referenced source into `source/reference/` and adding a numbered reference list at the end of this file. Until then, every contested claim has been independently verified against the web sources catalogued in `source/syllabus/MOE_SEAB_EL_2025_Format_Excerpts.md`. See `Reconciliation_Notes.md` §5.
+>
+> **See also:** The C.O.R.E. / S.T.E.P. / P.E.A.K. / E.A.S.E. / R.E.F. acronym chain below is illustrated in full by three annotated mentor essays in `ModelEssays_Annotated_KB.md`. Each stage tag (Introduction, Rising Action, Climax, Falling Action, Conclusion) in those essays maps directly onto one of the acronyms here.
 
 ---
 

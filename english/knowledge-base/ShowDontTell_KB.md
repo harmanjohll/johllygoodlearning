@@ -195,10 +195,78 @@ For a tutoring app or workbook:
 
 ---
 
+## §14 — Mentor-text upgrades (from `source/reference/Mentor_Texts.md`, 2026-05-13)
+
+Three Band-5 model essays were uploaded by the owner on 2026-05-13. Below are the "showing" lines lifted from those essays, paired against the equivalent "telling" formulations a P6 student would default to. These are stronger and more PSLE-specific than the generic examples in §1–§10; use them as the calibration target.
+
+### Guilt, dread, internal storm (from Mentor Text 1, *"A Day I Will Never Forget"*)
+
+| Telling (AL2) | Showing (Mentor Text 1, AL1+) |
+|---|---|
+| I felt guilty. | *"My hands were knotted in my lap, my heart was a cold and leaden thing in my chest. The weather might have been gloriously bright, but a storm — silent, merciless — had been raging inside me for three days."* |
+| I felt sick when I realised. | *"My stomach had lurched with a dread so acute it was almost physical."* |
+| The lie was eating me up. | *"The lie of silence was eating me alive, slowly and thoroughly, the way rust devours iron."* |
+| I felt out of place at the beach. | *"To everyone around me, it was paradise. To me, it felt like wading through fog. My feet dragged against the pavement. A familiar heaviness pressed behind my eyes."* |
+| I felt very afraid when he called. | *"With shaking fingers, I answered… My heart lurched into my throat. I stood motionless as the waves lapped softly around my ankles."* |
+| The truth hit me hard. | *"The words struck me like a physical blow. I felt the blood drain from my face. My legs buckled; I sat down heavily in the wet sand."* |
+| I felt small and unreachable. | *"All of it seemed impossibly far away, as though I were watching it through thick glass."* |
+| He looked at me differently. | *"There was something in his eyes that had not been there before — a cautious, considering respect that felt, to me, more valuable than easy forgiveness."* |
+
+### Hospital waking, calm under crisis (from Mentor Text 2, *"The Bravest Thing"*)
+
+| Telling | Showing (Mentor Text 2) |
+|---|---|
+| I woke up in hospital. | *"The first thing I noticed when I regained consciousness was the smell — antiseptic, sharp and clinical, cutting through the fog in my mind like a blade. White ceiling tiles swam into focus above me. The steady, metronome beeping of a heart monitor filled the sterile room."* |
+| My mum was relieved. | *"The relief in her voice was so profound and raw that it almost undid me."* |
+| I was tired and sore. | *"My whole body felt as though it had been wrung out like a wet cloth."* |
+| I felt nervous about the slope. | *"I felt a flicker of unease, cool and instinctive, at the base of my stomach."* |
+| I was scared before going down. | *"At the top of the slope, the full severity of the incline became apparent — a long, smooth ribbon of concrete that plunged steeply and curved sharply at the bottom into a blind corner lined with concrete bollards."* (showing fear through what the eye notices) |
+| I crashed and blacked out. | *"The impact, when it came, was a white-hot explosion of pain that obliterated all conscious thought. I was dimly aware of tumbling — of concrete scraping against skin, of the bicycle clattering violently away from me — and then everything went very still and very dark."* |
+| Priya was scared but did the right thing. | *"She had spoken to me in a calm, steady voice throughout, even as her own tears fell silently and continuously down her cheeks."* |
+| She admitted she was scared. | *"'I was absolutely terrified,' she admitted quietly. 'That,' I told her, 'is exactly what makes it brave.'"* |
+
+### Exam-hall anxiety and resolve (from Mentor Text 3, *"Never Give Up"*)
+
+| Telling | Showing (Mentor Text 3) |
+|---|---|
+| The weather was grey and gloomy. | *"The sky on the morning of the Inter-School Mathematics Olympiad was the colour of ash. A thick, unbroken grey pressed down over the city like the lid of a pot, swallowing the horizon, muffling sound, draining colour from the streets below."* |
+| I felt convinced I would fail. | *"I felt, with a desolate certainty, that the weather had arranged itself in perfect sympathy with how I felt: hollow, leaden, and utterly convinced that I was about to fail."* |
+| Maths is hard for me. | *"While my classmates seemed to absorb formulae and theorems the way a sponge absorbs water — effortlessly, naturally, leaving no residue of doubt — I had always had to fight for every mark."* |
+| The exam hall was intimidating. | *"The hall was immense — cool, white-walled, its fluorescent lights humming with a faint, colourless persistence above rows of bare tables."* |
+| I panicked at the first question. | *"My heartbeat became a roar in my ears. It is over, whispered a voice from some dark corner of my mind — low, insistent, and utterly persuasive. You don't belong here. You never did."* |
+| I worked very hard. | *"Slowly, torturously, as if I were tunnelling through solid rock with my bare hands, I worked my way through the paper… Perspiration beaded at my temples despite the cool hum of the air-conditioning above me."* |
+| I felt happy and proud when I saw the result. | *"They were something more complicated than either: the tears of someone who had doubted herself completely, had nearly surrendered to that doubt in the most critical moment, and had discovered — in the silence between the roaring and the pencil touching the page — that she was stronger than she had believed."* |
+| The sky cleared and matched my mood. | *"The oppressive, ash-grey ceiling of the morning had dissolved entirely, replaced by a deep, luminous blue — the particular, washed blue that exists only after a long grey spell has finally broken… The weather, it seemed, had finally caught up with how I felt."* |
+
+### Singapore-specific sensory cues to mine
+
+The mentor texts use these recognisably-Singaporean sensory anchors. Reuse them when the topic permits:
+
+- *mynah bird's two-note call*
+- *salt-tang of the sea*
+- *roller-coaster screams from Sentosa*
+- *angsana trees lining the school driveway*
+- *the smell of freshly cut grass*
+- *ang pow money* (as the source of the protagonist's savings)
+- *void-deck quiet at dusk* (implied)
+- *fluorescent lights humming above exam-hall tables*
+
+### Mentor-craft note — emotion through environment
+
+The richest "show, don't tell" technique in the mentor texts is **environment-as-emotion-mirror**, used through the Weather Contrast pattern:
+
+- *bright sunshine* mirroring inner *guilt* (MT1)
+- *ash-grey sky* mirroring inner *dread* (MT3)
+- *afternoon light soft and golden* in the recovery hospital scene (MT2)
+
+When a student writes *"the sun was out"*, push them to ask: *what is your character's emotion right now, and how can the weather either match or ironically contrast it?* This single move tends to lift Continuous Writing one band.
+
+---
+
 ## Open follow-ups
 
-- [ ] Add ≥5 paired examples for each of the emotions once the owner's exemplar materials land in `source/reference/exemplars/`.
-- [ ] Build a "Singapore-flavoured" sub-section using sensory cues familiar to a P6 student (hawker centre, MRT, void deck, recess line, library, swim class).
+- [x] ~~Add ≥5 paired examples for each of the emotions once the owner's exemplar materials land in `source/reference/exemplars/`.~~ **First batch landed 2026-05-13 — see §14.**
+- [ ] Build a "Singapore-flavoured" sub-section using sensory cues familiar to a P6 student (hawker centre, MRT, void deck, recess line, library, swim class). Partly seeded by §14's mentor-text cues.
 - [ ] Cross-reference each pair to the F.A.S.T. dimension (Face / Action / Speech / Thought) for the future Annotator.
 
 *End of Show, Don't Tell — Paired Examples Library.*

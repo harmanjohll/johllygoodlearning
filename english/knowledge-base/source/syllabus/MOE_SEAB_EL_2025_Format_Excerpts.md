@@ -1,7 +1,7 @@
 # MOE / SEAB PSLE English Language — 2025+ Format (Excerpts and Citations)
 
 > **Authored:** 2026-05-13 (this branch).
-> **Status:** Compiled from publicly available web summaries of the SEAB PSLE EL Syllabus 0001 (implemented from Year of Examination 2025), confirmed across multiple independent Singapore tuition-centre publications and one MOE-hosted parent-engagement PDF. The canonical SEAB PDF could not be fetched in-session (WebFetch returned HTTP 403 against `seab.gov.sg`); the owner should download the PDF directly into this folder when network permits, and any discrepancy between this excerpt and the SEAB PDF must be resolved in favour of the SEAB PDF.
+> **Verified:** 2026-05-13 against the canonical SEAB PDF `0001_y25_sy.pdf` (now present in this folder). The PDF confirms every paper-level mark allocation, time, weighting, and component count in the table below. Three items remain "indicative — PDF does not specify" and are clearly flagged: the Editing 10-mark grammar/spelling split, the Continuous Writing sub-band split, and the formal naming of "Article" as a Situational Writing genre (the PDF says "*e.g.*, letter, email, report"). Marking rubrics and band descriptors are not in this format-and-objectives document; they would live in a separate SEAB marking scheme not yet in this folder.
 
 ---
 
@@ -79,28 +79,36 @@
 ## Paper 3 — Listening Comprehension (20 marks)
 
 - 20 MCQ items, 1 mark each.
-- Audio types: conversations, announcements, instructions, narratives, short talks.
+- Audio text types per the SEAB PDF: texts that **recount, entertain, instruct, describe, inform, explain, respond, argue, evaluate and/or persuade**.
+- **Each text is read TWICE.** (Confirmed in the SEAB PDF; this corrects the earlier indicative "once or twice".)
+- **Graphic representations** are provided for the **first seven items**.
+- Time is given for candidates to read the questions before the first reading of each text.
 - Played by examiner; students answer on a separate answer sheet.
 
 ---
 
 ## Paper 4 — Oral Communication (40 marks) — 2025 reforms
 
+### Paper 4 overall
+
+- Total duration: about 10 minutes per candidate, plus **5 minutes preparation time**.
+- The SEAB PDF (Paper 4 description) explicitly states: *"This paper comprises two parts which are not linked thematically."* This confirms the 2025 reform.
+
 ### Reading Aloud — 15 marks
 
-- Read a ~150-word passage aloud to the examiner.
-- Preparation time: ~10 minutes.
+- Read a passage aloud to the examiner. The SEAB PDF format table records this as **1 passage** (the "~150-word" figure comes from open-web evidence; the PDF gives no exact word count).
+- **Preparation time: 5 minutes** (per the SEAB PDF, Paper 4 duration column).
 - **New in 2025:** a short **preamble** precedes the passage, framing purpose / audience / context.
 - **PACT framework** (Purpose, Audience, Context, Tone) is the recommended student approach.
-- Marking strands: pronunciation, fluency & pace, expression & stress (proportions adjusted upward from the pre-2025 10-mark version).
+- Marking strands per SEAB AO1 for Paper 4: *"read aloud fluently and expressively with clear and accurate pronunciation to suit purpose, audience and context."* Sub-strands (pronunciation / fluency & pace / expression & stress) are open-web inference; not in the PDF.
 
 ### Stimulus-Based Conversation (SBC) — 25 marks
 
-- Respond to questions about a visual stimulus.
+- Respond to questions about a **photo stimulus** (PDF format table: "1 photo stimulus").
 - **New in 2025:** stimuli are **real-life photographs**, not drawings or static posters.
-- Reading Aloud and SBC are **no longer thematically linked**: the passage and the picture are independent.
-- Marking strands: communication of ideas, vocabulary, language accuracy (proportions adjusted upward from the pre-2025 20-mark version).
-- Conversation duration: ~5–7 minutes.
+- Reading Aloud and SBC are **not linked thematically** (PDF, Paper 4 description).
+- Marking strands per SEAB AO2 and AO3 for Paper 4: *"express personal opinions, ideas and experiences clearly and appropriately to engage the listener"* and *"speak fluently, with clear pronunciation and grammatical accuracy, using a range of appropriate vocabulary and structures."*
+- Examination time: about 5 minutes (per PDF duration column).
 
 ---
 
@@ -165,7 +173,18 @@ These web summaries informed this excerpt. None of them are the canonical SEAB P
 
 ## Open follow-ups
 
-- [ ] Download `0001_y25_sy.pdf` from SEAB into this folder when network access permits.
-- [ ] Verify the exact split of the 10 Editing marks (grammar vs spelling) against the SEAB PDF.
-- [ ] Verify the exact band cut-points for Paper 1 Situational and Continuous Writing rubrics.
-- [ ] Confirm whether the 2025+ syllabus formally names the **Article** as a Situational Writing genre (the web evidence is strong but the SEAB PDF should be checked).
+- [x] ~~Download `0001_y25_sy.pdf` from SEAB into this folder when network access permits.~~ **Done 2026-05-13** — PDF is in `source/syllabus/`.
+- [ ] **Indicative, PDF does not specify:** the exact split of the 10 Editing marks (grammar vs spelling). The PDF heading reads "Editing for Spelling and Grammar" but provides no sub-mark breakdown. The current 5/5 working assumption is from open-web sources, not the PDF.
+- [ ] **Not in this PDF:** band cut-points and sub-band splits for Paper 1 Situational and Continuous Writing. These would live in a SEAB marking scheme not yet in this folder. Owner action: source the marking scheme if available.
+- [ ] **Indicative, PDF does not formally name "Article":** the PDF's Paper 1 description says *"e.g., letter, email, report"*. The "Article writing" claim in the open-web evidence is plausible but unconfirmed by this PDF. Treat Article as a genre to teach but not to over-emphasise until a sample paper confirms it.
+
+## What this PDF does NOT contain
+
+For transparency, so future contributors know where the format spine ends:
+
+- Marking rubrics or band descriptors for any paper.
+- Sub-mark breakdowns within components (e.g., the 14 Situational Writing marks are not split into Task Fulfilment / Language & Organisation here).
+- Sample paper(s) or specimen items.
+- Allowed and disallowed text-type variations within Situational Writing.
+
+These would come from a separate SEAB marking scheme or specimen-paper document, which is not yet in `source/`.
