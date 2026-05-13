@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PSLE English Studio — Aim for AL1</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .hub-shell { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+  .hub-hero {
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .hub-hero-text { flex: 1; min-width: 280px; }
+  .hub-hero h1 {
+    font-size: 2.2rem;
+    background: linear-gradient(135deg, var(--composition), var(--comprehension));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: .35rem;
+  }
+  .hub-hero-sub {
+    color: var(--muted);
+    font-size: .95rem;
+    line-height: 1.6;
+    max-width: 640px;
+  }
+  .hub-hero-actions {
+    display: flex; gap: .5rem; flex-wrap: wrap;
+  }
+
+  .hub-stats {
+    display: flex; gap: .75rem; flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .hub-stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .6rem 1rem;
+    font-size: .82rem;
+  }
+  .hub-stat-num { color: var(--accent); font-weight: 700; font-family: var(--font-mono); }
+
+  .hub-streak {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .hub-streak-fire { font-size: 1.5rem; }
+  .hub-streak-text { flex: 1; font-size: .88rem; color: var(--muted); }
+  .hub-streak-text strong { color: var(--text); }
+
+  .hub-cta-row {
+    display: flex; gap: .6rem; flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  .hub-cta {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .7rem 1rem;
+    color: var(--text);
+    text-decoration: none;
+    font-size: .85rem;
+    font-weight: 600;
+    transition: all .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+  }
+  .hub-cta:hover { border-color: var(--accent); color: var(--accent); }
+  .hub-cta-primary {
+    background: var(--accent);
+    color: #0f172a;
+    border-color: var(--accent);
+  }
+  .hub-cta-primary:hover { background: #7dd3fc; color: #0f172a; }
+
+  .topic-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    transition: all .15s;
+    position: relative;
+    min-height: 130px;
+  }
+  .topic-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,.3);
+  }
+  .topic-card-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+  .topic-card-title { font-weight: 700; font-size: .95rem; color: var(--text); }
+  .topic-card-blurb { font-size: .8rem; color: var(--muted); line-height: 1.5; flex: 1; }
+  .topic-card-foot { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+  .topic-card-mastery {
+    font-family: var(--font-mono);
+    font-size: .72rem;
+    color: var(--muted);
+  }
+  .topic-card-marks {
+    font-size: .7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    font-weight: 700;
+  }
+
+  .footer-note {
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    font-size: .78rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  .footer-note a { color: var(--accent); text-decoration: none; }
+  .footer-note a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+  <div class="hub-shell">
+
+    <header class="hub-hero">
+      <div class="hub-hero-text">
+        <h1>PSLE English Studio</h1>
+        <p class="hub-hero-sub">A learning studio for a Primary 6 student in Singapore aiming for <strong>AL1 in PSLE English</strong>. Built to mirror the Science and Malay Studios. Everything stays in your browser.</p>
+      </div>
+      <div class="hub-hero-actions" data-studio-settings-slot></div>
+    </header>
+
+    <div class="hub-stats">
+      <div class="hub-stat"><span class="hub-stat-num" id="stat-topics">0</span> topics</div>
+      <div class="hub-stat"><span class="hub-stat-num" id="stat-mastery">0%</span> overall mastery</div>
+      <div class="hub-stat"><span class="hub-stat-num" id="stat-streak">0</span> day streak</div>
+      <div class="hub-stat">200 marks · 4 papers</div>
+    </div>
+
+    <div class="hub-streak">
+      <div class="hub-streak-fire" id="streak-fire">🌱</div>
+      <div class="hub-streak-text" id="streak-text">Open a topic to start your streak. Showing up every day is the AL1 habit.</div>
+    </div>
+
+    <div class="hub-cta-row">
+      <a class="hub-cta hub-cta-primary" href="how-to-use/">📖 How to use this</a>
+      <a class="hub-cta" href="format/">📋 PSLE Format (200 marks)</a>
+      <a class="hub-cta" href="topics/composition/">✍️ Continuous Writing</a>
+      <a class="hub-cta" href="topics/comprehension/">📚 Comprehension OE</a>
+      <a class="hub-cta" href="topics/oral-sbc/">🗣 Oral SBC</a>
+    </div>
+
+    <div id="topic-grid"></div>
+
+    <div class="footer-note">
+      <p>Built to sit alongside <a href="../lab/">/lab/ (Science)</a> and <a href="../malay/">/malay/ (Bahasa Melayu)</a>. Your Gemini API key, study streak, and effort minutes are shared across all three. Per-paper drills, model answers, and full Coach mode land in subsequent phases per <a href="../docs/english-architecture.md">docs/english-architecture.md</a>.</p>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script src="shared/storage.js"></script>
+  <script src="shared/gemini.js"></script>
+  <script src="shared/coach.js"></script>
+  <script src="shared/content.js"></script>
+  <script src="shared/streak.js"></script>
+  <script src="shared/spaced.js"></script>
+  <script src="shared/lab.js"></script>
+
+  <script>
+    // Topic catalogue. Each entry is a card on the hub. The 'ready' flag
+    // hides cards still under construction. Mastery is per-topic via
+    // window.Progress.masteryPct().
+    const TOPICS = [
+      // ── Paper 1: Composition (50 marks) ───────────────
+      { id:'composition', name:'Continuous Writing',     marks:'P1 · 36m', theme:'composition',   blurb:'Narrative craft, F.A.S.T. characters, R.E.F. endings, Weather Contrast, Flashback.', ready:true },
+      { id:'situational', name:'Situational Writing',    marks:'P1 · 14m', theme:'composition',   blurb:'7 genres, 6 content points (1 underlined critical-thinking). Register matched to audience.', ready:false },
+
+      // ── Paper 2: Language Use & Comprehension (90 marks) ─
+      { id:'grammar',       name:'Grammar Foundations',   marks:'P2 · 20m', theme:'grammar',       blurb:'Tenses, SVA, articles, prepositions, pronouns, conjunctions. MCQ + Cloze.', ready:false },
+      { id:'vocab',         name:'Vocabulary & Idioms',   marks:'P2 · 10m', theme:'vocab',         blurb:'170+ collocations, 80+ idioms (frequency-tagged), connectors.', ready:false },
+      { id:'visual-text',   name:'Visual Text MCQ',       marks:'P2 · 5m',  theme:'comprehension', blurb:'Posters, infographics, ads. Literal / inferential / language / purpose.', ready:false },
+      { id:'cloze',         name:'Comprehension Cloze',   marks:'P2 · 15m', theme:'comprehension', blurb:'15 blanks. Grammar + context + collocation clues.', ready:false },
+      { id:'editing',       name:'Editing',               marks:'P2 · 10m', theme:'comprehension', blurb:'10 lines. Spelling + grammar errors. Spell the correction perfectly.', ready:false },
+      { id:'synthesis',     name:'Synthesis & Transformation', marks:'P2 · 10m', theme:'comprehension', blurb:'5 items × 2m. Combine or transform; preserve meaning exactly.', ready:false },
+      { id:'comprehension', name:'Comprehension OE',      marks:'P2 · 20m', theme:'comprehension', blurb:'One passage (narrative or non-narrative). RACE on every 2+ mark question.', ready:true },
+
+      // ── Paper 3: Listening (20 marks) ──────────────────
+      { id:'listening',     name:'Listening Comprehension', marks:'P3 · 20m', theme:'oral',         blurb:'20 MCQ. Audio read twice. First 7 items have graphics.', ready:false },
+
+      // ── Paper 4: Oral (40 marks) ───────────────────────
+      { id:'oral-reading',  name:'Reading Aloud',          marks:'P4 · 15m', theme:'oral',          blurb:'New 2025 preamble. PACT for tone, REAP for delivery.', ready:false },
+      { id:'oral-sbc',      name:'Stimulus-Based Conversation', marks:'P4 · 25m', theme:'oral',     blurb:'Real-life photo. Q1 observe-infer, Q2 PEEL/OREO, Q3 VBP.', ready:true },
+    ];
+
+    // Theme metadata for the section headers.
+    const THEMES = {
+      composition:   { label: 'Paper 1 · Writing',                   color: 'var(--composition)' },
+      grammar:       { label: 'Paper 2 · Grammar',                   color: 'var(--grammar)'      },
+      vocab:         { label: 'Paper 2 · Vocabulary',                color: 'var(--vocab)'        },
+      comprehension: { label: 'Paper 2 · Comprehension',             color: 'var(--comprehension)' },
+      oral:          { label: 'Papers 3 & 4 · Listening + Oral',     color: 'var(--oral)'         },
+    };
+
+    function buildHub() {
+      const grid = document.getElementById('topic-grid');
+      const grouped = {};
+      TOPICS.forEach(t => { (grouped[t.theme] = grouped[t.theme] || []).push(t); });
+
+      const themeOrder = ['composition', 'grammar', 'vocab', 'comprehension', 'oral'];
+      grid.innerHTML = themeOrder.map(themeId => {
+        const themeTopics = grouped[themeId] || [];
+        if (!themeTopics.length) return '';
+        const theme = THEMES[themeId];
+        return `
+          <div class="topic-theme-group">
+            <div class="topic-theme-label">
+              <span class="topic-theme-dot" style="background:${theme.color}"></span>
+              ${theme.label}
+            </div>
+            <div class="topic-theme-grid">
+              ${themeTopics.map(t => renderCard(t)).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCard(t) {
+      const mastery = Progress.masteryPct(t.id);
+      const masteryStr = mastery > 0 ? `${mastery}% mastery` : (t.ready ? 'New' : 'Coming soon');
+      const url = t.ready ? `topics/${t.id}/` : '#';
+      const clickGuard = t.ready ? '' : 'onclick="event.preventDefault(); window.showToast(\'This topic page lands in a later phase.\');"';
+      return `
+        <a class="topic-card" href="${url}" ${clickGuard}>
+          <div class="topic-card-head">
+            <div class="topic-card-title">${t.name}</div>
+            <span class="badge badge-${t.theme}">${t.marks}</span>
+          </div>
+          <div class="topic-card-blurb">${t.blurb}</div>
+          <div class="topic-card-foot">
+            <span class="topic-card-mastery">${masteryStr}</span>
+            <span class="topic-card-marks">${t.ready ? '→' : '·'}</span>
+          </div>
+        </a>
+      `;
+    }
+
+    function updateStats() {
+      const readyTopics = TOPICS.filter(t => t.ready);
+      const allMastery = TOPICS.reduce((sum, t) => sum + Progress.masteryPct(t.id), 0);
+      const avgMastery = TOPICS.length ? Math.round(allMastery / TOPICS.length) : 0;
+      document.getElementById('stat-topics').textContent = TOPICS.length;
+      document.getElementById('stat-mastery').textContent = avgMastery + '%';
+
+      const streak = Streak.get();
+      document.getElementById('stat-streak').textContent = streak.current;
+      const fire = document.getElementById('streak-fire');
+      const text = document.getElementById('streak-text');
+      if (streak.current >= 3) {
+        fire.textContent = '🔥';
+        text.innerHTML = `<strong>${streak.current}-day streak.</strong> Longest: ${streak.longest} days. Showing up beats catching up.`;
+      } else if (streak.current >= 1) {
+        fire.textContent = '✨';
+        text.innerHTML = `<strong>Day ${streak.current}.</strong> Keep going — never miss two days in a row.`;
+      } else {
+        fire.textContent = '🌱';
+        text.innerHTML = 'Open a topic to start your streak. Showing up every day is the AL1 habit.';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      buildHub();
+      updateStats();
+    });
+  </script>
+</body>
+</html>
