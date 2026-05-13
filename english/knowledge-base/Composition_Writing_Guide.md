@@ -1,21 +1,23 @@
 # Composition Writing Guide
 ### PSLE English Language — Primary 6 | PRIORITY DOCUMENT
 
+> **Status:** Updated 2026-05-13 against the 2025+ SEAB EL Syllabus 0001. Paper 1 is now **50 marks** in **1 hour 10 minutes** (Situational 14 + Continuous 36). See `Reconciliation_Notes.md` §2.3.
+
 ---
 
 ## Overview
 
-Paper 1 is worth 70 marks and takes 1 hour 50 minutes. It has two parts:
+Paper 1 is worth **50 marks** and takes **1 hour 10 minutes**. It has two parts:
 
 | Part | Task | Marks | Suggested Time |
 |------|------|-------|---------------|
-| Part 1 | Situational Writing | 30 | 30 minutes |
-| Part 2 | Continuous Writing | 40 | 70 minutes |
-| Checking | — | — | 10 minutes |
+| Part 1 | Situational Writing | 14 | ~25 minutes |
+| Part 2 | Continuous Writing | 36 | ~40 minutes |
+| Checking | — | — | ~5 minutes |
 
 ---
 
-# PART 1: SITUATIONAL WRITING (30 marks)
+# PART 1: SITUATIONAL WRITING (14 marks)
 
 ---
 
@@ -23,10 +25,13 @@ Paper 1 is worth 70 marks and takes 1 hour 50 minutes. It has two parts:
 
 You are given a SITUATION and asked to write a functional piece of writing. You must:
 1. Use the correct FORMAT for the text type
-2. ADDRESS all the bullet points given in the task
+2. ADDRESS all the bullet points given in the task (there are **six** content points)
 3. Use the correct REGISTER (formal or informal tone)
+4. **Invent the "critical-thinking" point** — one of the six content points is underlined, and its information is NOT in the stimulus. You must generate a specific, realistic detail of your own.
 
-**Key principle:** If you miss even ONE bullet point, you lose approximately 3–5 marks immediately.
+**Key principle:** If you miss even ONE bullet point, you lose marks immediately. Missing the underlined critical-thinking point usually costs 2–3 marks because it tests independent reasoning, not just task fulfilment.
+
+> **The critical-thinking point — worked example.** A task asks you to write to the principal sharing about a recycling programme. Five points are in the stimulus poster. The sixth is underlined: *"the impact of the programme on the school."* The poster does NOT tell you the impact. You must invent a specific, realistic detail — e.g., *"we reduced our weekly waste by 32 kg"* or *"two classes have started a compost garden using the food scraps"*. Avoid vague claims like *"it is good for the environment"*.
 
 ---
 
@@ -227,12 +232,22 @@ NOTICE
 
 | Criteria | Marks | Key Considerations |
 |----------|-------|-------------------|
-| Task Achievement | 12 | All bullet points addressed; purpose fulfilled |
-| Language | 12 | Grammar, vocabulary, sentence structure |
-| Format & Register | 6 | Correct layout; appropriate formality |
-| **Total** | **30** | |
+| Task Fulfilment | 6 | All **six** content points addressed (including the underlined critical-thinking point); purpose, audience, context all clear |
+| Language & Organisation | 8 | Grammar, vocabulary, format conventions (salutation, sign-off, heading), register matched to audience, ideas well-linked and sequenced |
+| **Total** | **14** | |
 
-> **What examiners look for:** Missing a bullet point is the single biggest reason students score below 20. Read the task VERY carefully. Tick off each bullet point as you write it.
+> **What examiners look for:** Missing a content point is the single biggest reason students drop below the top band. Read the task VERY carefully. Tick off each of the six points as you write it. The underlined critical-thinking point is the one most often skipped — it deserves a separate tick.
+
+### The 10-Minute Formula (P.A.C.W. + content-point checklist)
+
+Before writing, lock these four dimensions:
+
+1. **Purpose** — what specific action do you want the reader to take?
+2. **Audience** — who is receiving this, and what are their hidden concerns?
+3. **Context** — formal, sensitive, celebratory, urgent?
+4. **Writer persona** — what role are you adopting (student leader, concerned resident, friend)?
+
+Then number all six content points in the stimulus, identify which one is underlined, and decide on format conventions before drafting.
 
 ---
 
@@ -307,29 +322,26 @@ Before submitting, check:
 
 ---
 
-# PART 2: CONTINUOUS WRITING (40 marks)
+# PART 2: CONTINUOUS WRITING (36 marks)
 
 ---
 
 ## Overview
 
-You choose ONE from:
-- 3 topic titles (write a story, narrative, or recount)
-- 1 picture prompt (write a story inspired by the picture)
+You are given **three topic options, each accompanied by a picture**. Choose ONE and write a narrative composition.
 
-**Word count:** 150–300 words
-**Advice:** Aim for 200–250 words. Quality matters more than length.
+**Word count:** at least 150 words; target 200–300.
+**Advice:** Quality matters more than length. A well-crafted 220-word piece beats a rambling 290-word one.
 
 ---
 
 ## Marks Breakdown
 
-| Criteria | Marks | What Is Assessed |
-|----------|-------|-----------------|
-| Content | 20 | Ideas, relevance, development, vivid details, interest |
-| Language | 15 | Vocabulary range, grammar accuracy, style, sentence variety |
-| Organisation | 5 | Paragraphing, opening, ending, overall flow |
-| **Total** | **40** | |
+| Criteria | Indicative Marks | What Is Assessed |
+|----------|------------------|-----------------|
+| Content | ~18 | Ideas, relevance, development, sensory and emotional depth, interest |
+| Language & Organisation | ~18 | Vocabulary range, grammar accuracy, sentence variety, paragraphing, opening, reflective ending |
+| **Total** | **36** | (Sub-band split to be verified against SEAB PDF) |
 
 ---
 
@@ -635,34 +647,41 @@ Walking home that evening, my pockets were no heavier than before, and I still d
 
 ## Marking Rubric Summary (For Harman to Use)
 
-### Content (20 marks)
+> Sub-band splits are indicative for the 2025+ syllabus and will be re-calibrated when the SEAB PDF lands in `source/syllabus/`. Continuous Writing is 36 marks total (~18 Content + ~18 Language & Organisation).
+
+### Content (~18 marks)
 
 | Score | Description |
 |-------|-------------|
-| 17–20 | Engaging, well-developed, vivid details, relevant throughout, original ideas |
-| 13–16 | Generally relevant, some development, interesting moments but uneven |
-| 9–12 | Adequate ideas, limited development, some irrelevant parts |
-| 5–8 | Thin ideas, mostly telling not showing, largely undeveloped |
+| 16–18 | Engaging, well-developed, vivid sensory and emotional detail, relevant throughout, original ideas; clear high-tension climax and reflective ending |
+| 13–15 | Generally relevant, some development, interesting moments but uneven; climax present but underdeveloped |
+| 9–12 | Adequate ideas, limited development, some irrelevant parts; mostly tells rather than shows |
+| 5–8 | Thin ideas, largely undeveloped; no climax or rushed ending |
 | 1–4 | Very little relevant content, minimal attempt |
 
-### Language (15 marks)
+### Language & Organisation (~18 marks)
 
 | Score | Description |
 |-------|-------------|
-| 13–15 | Wide range of vocabulary and structures, varied sentences, very few errors |
-| 10–12 | Good range, some variety, occasional errors that do not impede meaning |
-| 7–9 | Limited range, mostly simple structures, errors present |
-| 4–6 | Very limited vocabulary, frequent errors that sometimes impede meaning |
-| 1–3 | Severely limited, pervasive errors, meaning often unclear |
+| 16–18 | Wide range of vocabulary and structures, deliberate sentence variety, very few errors; clear paragraphing; excellent opening and reflective ending; ideas flow logically |
+| 13–15 | Good range, some variety, occasional errors that do not impede meaning; mostly clear paragraphing |
+| 9–12 | Limited range, mostly simple structures, errors present; some paragraphing |
+| 5–8 | Very limited vocabulary, frequent errors that sometimes impede meaning; weak paragraphing |
+| 1–4 | Severely limited, pervasive errors, meaning often unclear |
 
-### Organisation (5 marks)
+---
 
-| Score | Description |
-|-------|-------------|
-| 5 | Clear paragraphing, excellent opening and ending, ideas flow logically |
-| 4 | Mostly clear paragraphing, good opening or ending |
-| 3 | Some paragraphing, opening or ending adequate |
-| 1–2 | Poor or no paragraphing, no clear structure |
+## Mechanics worth automating
+
+These small but important conventions show up in the marking and are often missed. Make them automatic.
+
+- **Numbers under ten — spell them out.** Use *first, second, fifth, ten* rather than *1st, 2nd, 5th, 10*. Saves spelling-style penalties.
+- **Onomatopoeia — no inverted commas needed.** Sound words like *Thwack!*, *Piak!*, *Whoosh!* stand alone without quote marks; they do not need to be treated as dialogue.
+- **Dialogue tags — open and close cleanly.** *"I'm coming!"* he shouted. (full stop / comma INSIDE the closing quote; verb after a comma if it precedes; capitalised if it starts the sentence.)
+- **Banned phrases.** Avoid *"I learnt a valuable lesson"*, *"That was the best/worst day of my life"*, *"It was a day I would never forget"*, *"Little did I know…"*. Replace with a specific reflective image: *"As I rinsed the chlorine from my hair, the memory of his outstretched hand stayed with me."*
+- **Paragraph opening connectors — vary them.** Not every paragraph starts with *Then* or *After that*. Use *That evening*, *Three weeks later*, *Without thinking*, *Before I could answer*.
+
+(See `Connectors_KB.md` for the full connector bank.)
 
 ---
 

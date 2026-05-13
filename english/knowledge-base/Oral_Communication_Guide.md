@@ -1,32 +1,58 @@
 # Oral Communication Guide
 ### PSLE English Language — Paper 4
 
+> **Status:** Updated 2026-05-13 against the 2025+ SEAB EL Syllabus 0001. Paper 4 is now **40 marks** (Reading Aloud 15 + SBC 25). A **preamble** now precedes the Reading Aloud passage. SBC stimuli are **real-life photographs**, no longer drawings/posters, and SBC is **no longer thematically linked** to the Reading Aloud passage. See `Reconciliation_Notes.md` §2.4.
+
 ---
 
 ## Overview
 
-Paper 4 is conducted during July/August, before the written exams. It is worth 30 marks.
+Paper 4 is conducted during July/August, before the written exams. It is worth **40 marks**.
 
 | Component | Marks | Duration |
 |-----------|-------|---------|
-| Reading Aloud | 10 | ~2 minutes |
-| Stimulus-Based Conversation | 20 | ~5–7 minutes |
-| **Total** | **30** | ~10 minutes per student |
+| Reading Aloud | 15 | ~2 minutes |
+| Stimulus-Based Conversation | 25 | ~5–7 minutes |
+| **Total** | **40** | ~10 minutes per student |
 
 ---
 
-## COMPONENT 1: READING ALOUD (10 marks)
+## COMPONENT 1: READING ALOUD (15 marks)
 
 ### What Happens
-You receive a passage of approximately 150 words. You have about 10 minutes to prepare before reading it aloud to the examiner(s).
+You receive a passage of approximately 150 words, **preceded by a short preamble** (introduced in the 2025 syllabus). The preamble frames the passage — who is speaking, to whom, for what purpose. You have about 10 minutes to prepare before reading it aloud to the examiner(s).
 
 ### What Is Assessed
 
-| Criterion | Marks | What to Do |
-|-----------|-------|-----------|
-| Pronunciation | 4 | Say words correctly; stress the right syllable |
-| Fluency & Pace | 3 | Read at a natural speed; do not rush or drag |
-| Expression & Stress | 3 | Use your voice to convey meaning and emotion |
+| Criterion | Indicative Marks | What to Do |
+|-----------|------------------|-----------|
+| Pronunciation | ~6 | Say words correctly; stress the right syllable; clean "-ed", "-s", "-th" endings |
+| Fluency & Pace | ~4–5 | Read at a natural speed; do not rush or drag; vary pace for excitement vs reflection |
+| Expression & Stress | ~4–5 | Use your voice to convey meaning and the tone signalled by the preamble |
+
+> Sub-mark allocations are indicative; verify against the SEAB PDF when available.
+
+---
+
+### Two complementary frameworks — PACT (interpret the preamble) and REAP (deliver the reading)
+
+**Step 1 — PACT** decodes the preamble. Before you even look at the passage proper, the preamble tells you who is speaking and why.
+
+| Letter | Meaning | Ask yourself |
+|---|---|---|
+| **P**urpose | Why is this being said? | To inform? Persuade? Inspire? Warn? Console? |
+| **A**udience | Who is listening? | Children? Adults? Authority figure? Peers? |
+| **C**ontext | What situation? | Earth Day rally? Personal recount? News bulletin? Letter to a friend? |
+| **T**one | What feeling? | Hopeful, urgent, warm, sombre, playful, reverent? |
+
+**Step 2 — REAP** delivers the reading once you know the tone.
+
+| Letter | Meaning | What to Do |
+|---|---|---|
+| **R**hythm | Pause at commas and full stops; group words into sense-units, not word-by-word |
+| **E**xpression | Vary pitch to match emotion; rise on questions; emphasise the right word in each sentence |
+| **A**rticulation | Pronounce every syllable; especially the endings *-ed*, *-s*, *-th*, *-ing* |
+| **P**ace | Slow for important / dramatic moments; faster for action; never monotone |
 
 ---
 
@@ -76,50 +102,91 @@ You receive a passage of approximately 150 words. You have about 10 minutes to p
 
 ---
 
-## COMPONENT 2: STIMULUS-BASED CONVERSATION (20 marks)
+## COMPONENT 2: STIMULUS-BASED CONVERSATION (25 marks)
 
 ### What Happens
-You are shown a picture or a short video clip. The examiner asks you questions about it. The conversation lasts about 5–7 minutes.
+You are shown a **real-life photograph** (introduced in 2025; the older drawings/posters are gone). The examiner asks you a typical arc of three questions about it: Q1 observation + inference, Q2 personal experience, Q3 critical opinion. The conversation lasts about 5–7 minutes. **Reading Aloud and SBC are no longer thematically linked** — the photograph is independent of the reading passage.
 
 ### What Is Assessed
 
-| Criterion | Marks | What Examiners Look For |
-|-----------|-------|------------------------|
-| Communication of Ideas | 8 | Relevant, developed responses; opinions with reasons |
-| Vocabulary | 6 | Range and accuracy of words used |
-| Language Accuracy | 6 | Grammar, sentence structure, tense |
+| Criterion | Indicative Marks | What Examiners Look For |
+|-----------|------------------|------------------------|
+| Communication of Ideas | ~10 | Relevant, developed responses; observe THEN infer; opinions backed with reasons and examples |
+| Vocabulary | ~7–8 | Range and accuracy of words; precise verbs and adjectives; avoidance of vague nouns ("thing", "stuff") |
+| Language Accuracy | ~7–8 | Grammar, sentence structure, tense consistency, subject-verb agreement |
+
+> Sub-mark allocations are indicative; verify against the SEAB PDF when available.
 
 ---
 
-### The PEEL Framework for Every Response
+### One framework per question type (layered, not competing)
 
-Give structured, extended answers using PEEL:
+The three SBC question types each have a canonical scaffold. Do not try to use PEEL for everything.
+
+#### Q1 — Observation + Inference
+
+Two-step pattern:
+1. **Describe** what is literally visible (objects, people, expressions, posture, environment).
+2. **Infer** what it suggests about the situation, the people's feelings, or the wider issue.
+
+**Example.** Photo of two friends sharing earphones at a bus stop.
+- Describe: *"In the photograph, two students are sitting on a bus-stop bench, sharing a pair of earphones."*
+- Infer: *"They are leaning in closely, which suggests they enjoy each other's company and that music is something they actively connect over, not just consume alone."*
+
+#### Q2 — Personal Experience → **PEEL** (primary) or **OREO** (alternative)
+
+Use **PEEL** by default. **OREO** is an alternative scaffold to switch to if you have a strong personal opinion ready to go.
+
+**PEEL**
 
 | Letter | Meaning | What to Say |
 |--------|---------|-------------|
 | P | Point | State your main point/opinion clearly |
-| E | Elaborate | Explain your point in more detail |
-| E | Example | Give a specific example (from the picture OR from real life) |
-| L | Link | Link back to the question or add a broader connection |
+| E | Evidence / Elaborate | Explain your point with detail |
+| E | Example | Give a specific example (from real life) |
+| L | Link | Link back to the question or to a broader connection |
 
-**Example:**
-Question: "Do you think young people today spend too much time on their mobile phones?"
+**OREO**
+
+| Letter | Meaning | What to Say |
+|--------|---------|-------------|
+| O | Opinion | State your view |
+| R | Reason | Why you hold it |
+| E | Example | A concrete personal anecdote |
+| O | Opinion | Restate the view, slightly evolved |
+
+**Example.** Question: "Do you think young people today spend too much time on their mobile phones?"
 
 Weak answer: "Yes, I think so."
 
 PEEL answer: "Yes, I believe many young people today spend too much time on their mobile phones. This is because smartphones offer constant entertainment and social connection, making it very easy to lose track of time. For example, I have friends who spend hours scrolling through videos online even when there are other tasks to complete. This concerns me because excessive phone use can affect both academic performance and physical health."
 
+#### Q3 — Critical Opinion → **VBP** (Validate / Bridge / Persuade)
+
+This is the highest-scoring question if handled well. It rewards intellectual honesty.
+
+| Letter | Meaning | What to Say |
+|---|---|---|
+| **V**alidate | Acknowledge the opposing view genuinely | *"I can understand why some people feel that technology is mostly a distraction from real learning..."* |
+| **B**ridge | Transition to your view without dismissing theirs | *"However, when we consider the intention behind its use..."* |
+| **P**ersuade | Make your case with a specific example or reason | *"...digital tools can deepen learning, like when I used an app to track my Mandarin vocabulary and saw real improvement within a month."* |
+
+> **The "Hidden Need" lens.** Every Q3 hides a deeper concern. A question about "screen time" is really about the nature of childhood and responsibility. A question about "kindness" is really about what kind of society we are building. Naming the hidden need (briefly) signals maturity to the examiner.
+
 ---
 
-### How to Read a Stimulus Picture
+### How to Read a Stimulus Photograph (the 30-second observe-infer drill)
 
-When you see the picture, spend 30 seconds observing:
+When you see the photograph, spend 30 seconds:
 
-1. **Who is in the picture?** (People, age group, expressions)
-2. **Where is the setting?** (Indoor/outdoor, specific place)
-3. **What is happening?** (Main action or activity)
-4. **What mood/atmosphere does it convey?** (Happy, tense, busy, peaceful)
-5. **What issues or themes does it relate to?** (Technology, environment, community, health)
+1. **Who is in the photograph?** (People, age group, **expressions**, **posture**, where their eyes are looking)
+2. **Where is the setting?** (Indoor/outdoor, specific place, time of day if visible)
+3. **What is happening?** (Main action, AND the smaller actions in the background)
+4. **What mood/atmosphere does it convey?** (Happy, tense, busy, peaceful, contemplative)
+5. **What issues or themes does it relate to?** (Technology, environment, community, family, health, education)
+6. **What is NOT in the photograph but implied?** (Time pressure? A relationship between the people? An absent third person?)
+
+That sixth question separates AL1 answers from AL2 answers in Q1. Real-life photographs reward inference over description.
 
 ---
 

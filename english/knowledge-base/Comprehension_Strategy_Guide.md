@@ -1,19 +1,28 @@
 # Comprehension Strategy Guide
 ### PSLE English Language — Primary 6 | PRIORITY DOCUMENT
 
+> **Status:** Restructured 2026-05-13 against the 2025+ SEAB EL Syllabus 0001. Paper 2 totals **90 marks** (Booklet A 25 + Booklet B 65). Notable changes: **Visual Text moved to Booklet A as 5-mark MCQ** (not 10-mark OE); **Editing is now 10 marks** (not 12); **Comprehension OE is ONE passage of 20 marks** (not two passages of 15 each — the genre rotates between years, narrative or non-narrative); **Synthesis & Transformation 10 marks** is part of Booklet B. See `Reconciliation_Notes.md` §2.5.
+
 ---
 
-## Overview
+## Overview — All of Paper 2 (90 marks)
 
-Paper 2 Booklet B contains five comprehension components worth a combined 67 marks. This guide gives you a step-by-step strategy for every component.
+This guide covers the comprehension and language-use components across both booklets.
 
-| Component | Marks | Type |
-|-----------|-------|------|
-| Visual Text Comprehension | 10 | Short/medium open-ended |
-| Comprehension Cloze | 15 | Fill-in-blank (one word each) |
-| Editing for Spelling & Grammar | 12 | Identify + correct errors |
-| Narrative Comprehension | 15 | Open-ended passage questions |
-| Non-Narrative Comprehension | 15 | Open-ended passage questions |
+| Booklet | Component | Marks | Type |
+|---|---|---|---|
+| A | Grammar MCQ | 10 | MCQ |
+| A | Vocabulary MCQ | 5 | MCQ |
+| A | Vocabulary Cloze | 5 | MCQ best-fit |
+| A | **Visual Text Comprehension** | **5** | **MCQ** (moved here from Booklet B; reduced from 10m to 5m) |
+| B | Grammar Cloze | 10 | Open response, 1 word per blank |
+| B | Editing for Grammar & Spelling | 10 | Identify + correct errors |
+| B | Comprehension Cloze | 15 | Fill-in-blank (one word each) |
+| B | **Synthesis & Transformation** | **10** | **5 items × 2 marks** (sentence rewriting) |
+| B | Comprehension Open-Ended | 20 | **One passage** (narrative *or* non-narrative, 500–600 words), ~10 questions |
+| | **Paper 2 total** | **90** | |
+
+> This guide focuses on the comprehension components: Visual Text, Comprehension Cloze, Editing, Comprehension OE, and Synthesis & Transformation. For Grammar MCQ, Vocabulary MCQ, and Vocabulary Cloze, see `Grammar_Complete_Reference.md` and `Vocabulary_Idioms_Bank.md`.
 
 ---
 
@@ -46,19 +55,22 @@ RACE is the single most important strategy for open-ended comprehension question
 
 ---
 
-## COMPONENT 1: VISUAL TEXT COMPREHENSION (10 marks)
+## COMPONENT 1: VISUAL TEXT COMPREHENSION (5 marks, Booklet A, MCQ)
+
+> **Format change in 2025:** Visual Text moved from Booklet B (10-mark open-ended) to Booklet A as **5 MCQ items × 1 mark**. Same skills, MCQ format. The strategies below now produce MCQ-elimination thinking rather than written answers.
 
 ### What Is Visual Text?
 A non-prose text like a poster, infographic, advertisement, brochure, or webpage screenshot. The text uses a combination of images, headings, bullet points, and short paragraphs.
 
 ### What It Tests
-- Can you find specific information from a visual layout?
-- Can you make inferences from what you see?
-- Can you explain the effect of language choices?
+- Can you find specific information from a visual layout? (literal MCQ)
+- Can you make inferences from what you see? (inferential MCQ)
+- Can you explain the effect of language choices? (language-use MCQ)
+- Can you identify the overall purpose / audience? (purpose MCQ)
 
 ### Step-by-Step Strategy
 
-**Step 1: Read everything on the visual (2 minutes)**
+**Step 1: Read everything on the visual (1–2 minutes)**
 - Read ALL text: headings, subheadings, captions, small print, labels, slogans
 - Note the purpose: Is it persuading? Informing? Warning? Announcing?
 - Note the audience: Is it for children? Parents? The public?
@@ -68,43 +80,43 @@ A non-prose text like a poster, infographic, advertisement, brochure, or webpage
 - What information is in each section?
 - What does the image/graphic contribute?
 
-**Step 3: Read each question and underline key words**
-- "According to the text" → literal question, find exact words
-- "Why does the writer..." → language use question, think about effect
-- "What can you infer..." → inferential question, read between lines
+**Step 3: Read each MCQ stem and underline key words**
+- "According to the text" → literal: find the matching word/phrase
+- "Why does the writer..." → language-use: think about effect on reader
+- "What can you infer..." → inferential: think about what is implied, not stated
+- "What is the main purpose..." → purpose: persuade / inform / warn / instruct
 
-**Step 4: Answer with RACE for 2+ mark questions**
+**Step 4: MCQ elimination**
+- Cross out clearly wrong options.
+- Of the remaining two, pick the one most specifically supported by the visual.
+- Beware "almost right" distractors that change ONE detail (e.g., "two activities" when the visual lists three).
 
-### Question Types and How to Answer
+### Question Types
 
-**Type 1: Literal — Find the Information (1 mark)**
-- Question: "According to the poster, what are two activities offered at the carnival?"
-- Strategy: Find the exact section, copy the information accurately
-- Answer: "According to the poster, the two activities offered at the carnival are rock climbing and pottery making."
+**Type 1: Literal — Find the Information**
+- Stem: "According to the poster, the carnival is held in which two locations?"
+- Strategy: Find the exact section; compare options against the text word-for-word; eliminate options that change a number, name, or date.
 
-**Type 2: Inferential — What Does This Suggest? (2 marks)**
-- Question: "What can you infer about the target audience of this brochure?"
+**Type 2: Inferential — What Does This Suggest?**
+- Stem: "What can you infer about the target audience of this brochure?"
 - Strategy: Look at language level, images, content, and tone — who would this appeal to?
-- Answer: "The brochure targets young children and their parents. This can be inferred from the use of bright colours, cartoon characters, and simple vocabulary such as 'fun' and 'easy', which are designed to appeal to young readers and reassure parents."
 
-**Type 3: Language Use — Why This Word/Phrase? (2 marks)**
-- Question: "The advertisement uses the phrase 'Don't miss out!' What effect does this have on the reader?"
-- Strategy: Think about what feeling or reaction the writer WANTS to create
-- Answer: "The phrase 'Don't miss out!' creates a sense of urgency and fear of missing something valuable. This encourages the reader to act quickly, which is the advertiser's goal of driving immediate purchases."
+**Type 3: Language Use — Why This Word/Phrase?**
+- Stem: "The advertisement uses the phrase 'Don't miss out!' What effect does this have on the reader?"
+- Strategy: Think about the feeling or reaction the writer WANTS to create (urgency, reassurance, excitement, fear).
 
-**Type 4: Purpose — Why Was This Made? (2 marks)**
-- Question: "What is the purpose of this infographic?"
-- Strategy: Look at the overall message — is it to persuade, inform, warn, or instruct?
-- Answer: "The purpose of the infographic is to persuade the public to reduce plastic use. This is shown by the alarming statistics presented and the call-to-action at the bottom: 'Make the change today.'"
+**Type 4: Purpose — Why Was This Made?**
+- Stem: "What is the main purpose of this infographic?"
+- Strategy: Look at the overall message — persuade, inform, warn, instruct.
 
 ### Visual Text Common Pitfalls
 
 | Pitfall | How to Avoid |
 |---------|-------------|
 | Only reading the main heading | Read ALL text including small print and captions |
-| Vague answers ("to tell people about something") | Be specific about WHAT and WHY |
-| Not explaining language effect | Always say what feeling/reaction the technique creates |
-| Not using text evidence | Quote specific words or phrases from the visual |
+| Falling for "almost right" distractors | Compare each option word-for-word against the visual |
+| Confusing audience with purpose | Audience = who reads it; Purpose = what it tries to do |
+| Picking the option that "sounds best" | Pick the option most specifically supported by visible evidence |
 
 ---
 
@@ -171,11 +183,11 @@ Skip difficult blanks. Get the easy ones first.
 
 ---
 
-## COMPONENT 3: EDITING FOR SPELLING AND GRAMMAR (12 marks)
+## COMPONENT 3: EDITING FOR SPELLING AND GRAMMAR (10 marks)
 
 ### Format
 - A passage of about 20–25 lines
-- 12 lines contain errors (6 spelling, 6 grammar)
+- 10 lines contain errors (indicative split: 5 spelling, 5 grammar — verify against SEAB PDF)
 - Some lines have no error
 - Task: Identify the wrong word and write the correct word
 
@@ -251,13 +263,26 @@ Read each line carefully, watching for:
 
 ---
 
-## COMPONENT 4 & 5: COMPREHENSION PASSAGES (30 marks total)
+## COMPONENT 4: COMPREHENSION OPEN-ENDED (20 marks)
 
-### Component 4: Narrative (15 marks)
+> **Format change in 2025:** Booklet B has **ONE** comprehension passage (not two). The passage is **either narrative or non-narrative**; the genre rotates between years. ~10 questions, 20 marks total. The full taxonomy of question types below applies regardless of genre.
+
+### Passage Type — Narrative
 A story or creative non-fiction passage. Tests your ability to understand character, plot, emotion, and language.
 
-### Component 5: Non-Narrative (15 marks)
+### Passage Type — Non-Narrative
 An informational, explanatory, or argumentative passage. Tests your ability to understand facts, opinions, arguments, and how information is organised.
+
+### Recognising which genre you have
+
+| Cue | Narrative | Non-Narrative |
+|---|---|---|
+| First paragraph opens with… | A character, a scene, a feeling | A claim, a fact, a question |
+| Tense | Mostly past simple | Mostly present simple |
+| Dialogue | Common | Rare |
+| Imagery and figurative language | Heavy | Limited |
+| Structure | Story arc | Argument or information flow |
+| Likely question slant | Character, emotion, language craft | Author's argument, text organisation, evaluative |
 
 ---
 
@@ -400,19 +425,73 @@ An informational, explanatory, or argumentative passage. Tests your ability to u
 
 ---
 
-## Time Management for Paper 2
+---
+
+## COMPONENT 5: SYNTHESIS & TRANSFORMATION (10 marks)
+
+> **5 items × 2 marks each.** New entry in this guide (the older 215-mark spec implied S&T was absent; it is not). Each item asks you to combine and/or transform sentences while preserving the original meaning.
+
+A dedicated KB (`SynthesisTransformation_KB.md`) will catalogue the ~25–30 recurring patterns with worked examples. The most common patterns at PSLE level are:
+
+| Pattern | Example transformation |
+|---|---|
+| Conjunctions (combine into one) | *He was tired. He kept working.* → *Although he was tired, he kept working.* |
+| Relative clauses | *The boy is my brother. He is wearing a red cap.* → *The boy who is wearing a red cap is my brother.* |
+| If-conditionals | *Eat your vegetables, or you won't grow tall.* → *If you don't eat your vegetables, you won't grow tall.* |
+| Direct ↔ Reported speech | *"I am late," she said.* → *She said that she was late.* |
+| Active ↔ Passive | *The dog chased the cat.* → *The cat was chased by the dog.* |
+| Too…to ↔ So…that | *He was too tired to walk.* → *He was so tired that he could not walk.* |
+| Inversion (Hardly / No sooner / Scarcely) | *As soon as the bell rang, the students rushed out.* → *Hardly had the bell rung when the students rushed out.* |
+| Despite / Although | *Although it was raining, the match continued.* → *Despite the rain, the match continued.* |
+
+### Three rules every S&T answer must follow
+
+1. **Original meaning preserved.** Do not add new information; do not change the meaning by softening or strengthening claims.
+2. **Grammar perfect.** No tense slip, no SVA error, no article error. One grammar error in an S&T item often costs the full 2 marks.
+3. **Use the given word / starter exactly as instructed.** If the prompt says "Begin: Hardly had…", your sentence must start exactly with *Hardly had*.
+
+### Common S&T pitfalls
+
+| Pitfall | Fix |
+|---|---|
+| Adding extra information | Translate, do not expand. |
+| Tense shift in reported speech | *am → was*, *is → was*, *will → would*, *can → could*, *have → had*. |
+| Pronoun shift in reported speech | *"I am tired," he said.* → *He said that he was tired.* (not *I was tired*) |
+| Missing the word "by" in passive | *The cake was eaten by Tom.* |
+| Wrong article after inversion | *Hardly had **the** bell rung…* (not *a bell rung*) |
+| Comma splice in despite/although | After *Despite*, follow with a noun phrase, not a clause. *Despite the rain* ✓ / *Despite it was raining* ✗ |
+
+---
+
+## Time Management for Paper 2 (1 hour 50 minutes, 90 marks)
+
+### Booklet A — 25 minutes (25 marks)
 
 | Section | Suggested Time |
 |---------|---------------|
-| Booklet A — Grammar Cloze | 12 minutes |
-| Booklet A — Vocabulary MCQ | 15 minutes |
-| Visual Text | 15 minutes |
+| Grammar MCQ | 8 minutes |
+| Vocabulary MCQ | 5 minutes |
+| Vocabulary Cloze | 6 minutes |
+| Visual Text Comprehension | 6 minutes |
+| **Booklet A subtotal** | **25 minutes** |
+
+### Booklet B — 80 minutes (65 marks)
+
+| Section | Suggested Time |
+|---------|---------------|
+| Grammar Cloze | 12 minutes |
+| Editing | 12 minutes |
 | Comprehension Cloze | 18 minutes |
-| Editing | 15 minutes |
-| Narrative Comprehension | 20 minutes |
-| Non-Narrative Comprehension | 20 minutes |
-| Review/Checking | 5 minutes |
-| **Total** | **120 minutes** |
+| Synthesis & Transformation | 13 minutes |
+| Comprehension Open-Ended (one passage, 20m) | 25 minutes |
+| **Booklet B subtotal** | **80 minutes** |
+
+### Review / Checking — 5 minutes
+
+| | |
+|---|---|
+| Review weak answers, especially S&T and Cloze | 5 minutes |
+| **Total** | **110 minutes** |
 
 ---
 
