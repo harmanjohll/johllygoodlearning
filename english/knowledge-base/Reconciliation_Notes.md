@@ -55,11 +55,37 @@ The plan's default ("SEAB_Official as the spine, edit Master_KB to match") inver
 
 The plan's principle ("align with the actual SEAB 2025+ syllabus") is preserved; only the *direction* of correction inverts.
 
-### §1.4 Open follow-up
+### §1.4 PDF verification (2026-05-13, resolved)
 
-- [ ] Download the canonical SEAB PDF (`0001_y25_sy.pdf`) into `source/syllabus/` when network permits (the SEAB site returned HTTP 403 from this environment).
-- [ ] Confirm Editing 10m split (grammar vs spelling) against the SEAB PDF.
-- [ ] Confirm the SEAB band cut-points for the Situational and Continuous Writing rubrics.
+The owner uploaded `0001_y25_sy.pdf` (142,810 bytes) to `source/syllabus/` and `Mentor_Texts.md` to `source/reference/`. The SEAB PDF was extracted with `pdftotext` and read end-to-end.
+
+**Confirmed by the PDF:**
+- Paper 1 = 50m (Sit 14 + Cont 36), 1h 10min, 25% ✓
+- Paper 2 = 90m, 1h 50min, 45% ✓
+  - Booklet A (25m): Grammar MCQ 10 (10 items), Vocab MCQ 5 (5), Vocab Cloze 5 (5), Visual Text 5 (5)
+  - Booklet B (65m): Grammar Cloze 10 (10 OE), Editing for Spelling and Grammar 10 (10 OE), Comprehension Cloze 15 (15), Synthesis/Transformation 10 (5 OE), Comprehension OE 20 (10 OE — **one passage**)
+- Paper 3 = 20m, 20 MCQ, ~35min, 10% ✓
+- Paper 4 = 40m (Reading Aloud 15 + SBC 25), 10min + 5min prep, 20% ✓
+- **Paper 4 explicitly:** *"This paper comprises two parts which are not linked thematically."* ✓ (confirms the 2025 reform)
+- **Paper 3 detail (NEW from PDF, was uncertain in earlier excerpts):**
+  - Each audio text is read **twice** (not "once or twice").
+  - **First seven items** are accompanied by graphic representations.
+  - Audio text types per PDF: texts that *recount, entertain, instruct, describe, inform, explain, respond, argue, evaluate and/or persuade*.
+- Total: 200 marks ✓
+
+**NOT in this PDF (so still indicative downstream):**
+
+1. **Editing 10-mark split (grammar vs spelling).** PDF heading reads *"Editing for Spelling and Grammar"* but provides no sub-mark breakdown. 5/5 remains a working assumption from open-web evidence.
+2. **Continuous Writing sub-band split** (Content vs Language & Organisation). No rubric in the PDF.
+3. **Article writing as a named Situational Writing genre.** PDF says *"e.g., letter, email, report"* — does not formally include "article". The open-web evidence for Article writing is suggestive but the PDF does not confirm it. Treat Article as a plausible genre but flag the uncertainty in any teaching materials.
+4. **All band cut-points and marking rubrics.** Not in this document. Would live in a separate SEAB marking scheme.
+
+### §1.5 What changed downstream after PDF verification
+
+- `MOE_SEAB_EL_2025_Format_Excerpts.md` Status header updated to "verified 2026-05-13".
+- §"Open follow-ups" in the Excerpts: 1 item closed (PDF downloaded); 3 items reframed as "Not in this PDF / indicative".
+- `Listening_Comprehension_Guide.md` updated: each audio read **twice**; first 7 items have graphic representations; full list of audio text types from the PDF added.
+- `Composition_Writing_Guide.md` and `SEAB_Official_EL_Format_Syllabus_2026.md`: Article writing is now flagged as "open-web evidence, not confirmed in the SEAB PDF format document" rather than a definitive 2025-new genre.
 
 ---
 
@@ -200,12 +226,11 @@ The bracketed citations [1]–[44] in Master_KB2 reference an external document 
 
 ---
 
-## §7 — Open items for the owner
+## §7 — Open items for the owner (updated 2026-05-13)
 
-Listed once here so they do not get lost downstream:
-
-1. Download `0001_y25_sy.pdf` from SEAB into `source/syllabus/` when network permits.
-2. Confirm Editing 10m split (grammar vs spelling) against the SEAB PDF — current guides assume 5/5 but this is a placeholder.
-3. Confirm Continuous Writing sub-band split (Content / Language / Organisation breakdown of the 36 marks) against the SEAB PDF.
+1. ~~Download `0001_y25_sy.pdf` from SEAB into `source/syllabus/`.~~ **Done.**
+2. **Source a SEAB marking scheme** for Editing split, Continuous Writing sub-band split, and Situational Writing band descriptors. The format-and-objectives PDF does not contain these; only a separate marking scheme will. Until then, sub-mark splits remain indicative (working: Editing 5/5, Continuous ~18 Content / ~18 Lang & Org).
+3. **Confirm whether Article writing is a 2025-new Situational genre.** The SEAB PDF says *"e.g., letter, email, report"* — no formal mention of Article. The strong open-web claim is suggestive but unconfirmed. A sample 2025 or 2026 paper would resolve this.
 4. Supply the source for the [1]–[44] reference list in `Master_PSLE_EL_KB2.md` if available, so citations can be resolved.
 5. Decide whether to publish or keep private `source/papers/` content once past PSLE EL papers are sourced.
+6. **New (from 2026-05-13 session):** Mentor_Texts.md has been uploaded to `source/reference/`. Content has been folded into `ShowDontTell_KB.md` (paired examples), `Composition_Writing_Guide.md` (Mentor exemplars section), and a new `ModelEssays_Annotated_KB.md`. The mentor texts themselves remain canonical in `source/reference/Mentor_Texts.md`.

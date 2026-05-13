@@ -1,6 +1,8 @@
 # Master PSLE English Knowledge Base: The AL1 Pathway (2025 Edition)
 
 > **Status:** Header confirmed 2026-05-13. This file's format claims (Paper 1 = 50m, Paper 4 = 40m, total = 200m) are correct against the 2025+ SEAB EL Syllabus 0001 and are corroborated by 25+ independent Singapore tuition and MOE-affiliated publications (see `source/syllabus/MOE_SEAB_EL_2025_Format_Excerpts.md`). This file is the **format spine** of the folder; other files were edited to align with it. See `Reconciliation_Notes.md` §1 and §2.8.
+>
+> **See also:** Three fully annotated Band-5 mentor essays — opening hooks, climax beats, reflective endings — live in `ModelEssays_Annotated_KB.md`. The Show-Don't-Tell §14 (`ShowDontTell_KB.md`) contains paired lines lifted from those mentor texts. Together these are the calibration target for the F.A.S.T. lens, the R.E.F. ending, and the Story Mountain arc described below.
 
 ---
 

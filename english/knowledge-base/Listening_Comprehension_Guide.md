@@ -1,7 +1,7 @@
 # Listening Comprehension Guide
 ### PSLE English Language — Paper 3
 
-> **Status:** Reviewed 2026-05-13 against the 2025+ SEAB EL Syllabus 0001. Paper 3 structure is **unchanged** by the 2025 revision (20 marks, 20 MCQ items, ~35 minutes). See `Reconciliation_Notes.md` §2.6.
+> **Status:** Verified 2026-05-13 against the canonical SEAB EL Syllabus PDF (`source/syllabus/0001_y25_sy.pdf`). Paper 3 structure unchanged by the 2025 revision (20 marks, 20 MCQ items, ~35 minutes). Two facts added from the PDF: **each audio text is read twice**, and **the first seven items are accompanied by graphic representations**. See `Reconciliation_Notes.md` §1.4 and §2.6.
 
 ---
 
@@ -15,8 +15,9 @@ Paper 3 is conducted in October, in the examination hall. Audio is played throug
 | Duration | Approximately 35 minutes |
 | Number of questions | 20 (1 mark each) |
 | Format | MCQ |
-| Can you replay audio? | NO — you listen once (or twice for some clips) |
-| Text types heard | Conversations, announcements, instructions, narratives, short talks |
+| Audio playback | **Each text is read TWICE.** (Time is given before the first reading to read the question.) |
+| Graphic items | **The first 7 items** are accompanied by graphic representations (charts, maps, picture sets). Items 8–20 are audio only. |
+| Audio text types per SEAB | Texts that recount, entertain, instruct, describe, inform, explain, respond, argue, evaluate, and/or persuade. |
 
 ---
 
