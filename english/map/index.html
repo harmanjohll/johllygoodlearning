@@ -164,6 +164,12 @@
       <span class="lg-comprehension">Comprehension</span>
       <span class="lg-oral">Oral &amp; Listening</span>
     </div>
+    <div style="display:inline-flex;gap:.45rem;align-items:center;font-size:.65rem;color:var(--muted);">
+      <span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#0d1a2e;border:1.6px solid var(--composition);"></span>
+      <span>0%</span>
+      <span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--composition);border:1.6px solid var(--composition);"></span>
+      <span>100% mastery</span>
+    </div>
     <span class="spacer"></span>
     <input id="search" class="search" type="search" placeholder="Search (press /)" aria-label="Search the map">
     <button id="unpin-btn" class="btn btn-ghost" style="font-size:.7rem" title="Release all pinned nodes">Unpin all</button>
@@ -223,10 +229,20 @@ function renderFocus(node) {
   const tk = node.kind === 'theme' ? 'Theme' : node.kind === 'topic' ? 'Topic' : 'Concept';
   let body = node.tagline || node.blurb || '';
   let link = '';
+  let masteryBlock = '';
   if (node.kind === 'topic' && node.link) {
     link = `<a class="deeplink" href="${node.link}">Open ${escapeHtml(node.label)} →</a>`;
   }
-  focusCard.innerHTML = `<div class="fk">${tk}</div><div class="fl">${escapeHtml(node.label)}</div>${body ? '<div class="ft">' + escapeHtml(body) + '</div>' : ''}${link}`;
+  // Show mastery for topics; show theme-average mastery for themes.
+  if (node.kind === 'topic' && typeof Progress !== 'undefined' && Progress.masteryPct) {
+    const pct = Progress.masteryPct(node.id) || 0;
+    const colour = pct >= 70 ? 'var(--grammar)' : pct >= 35 ? 'var(--vocab)' : 'var(--muted)';
+    masteryBlock = `<div style="margin-top:.6rem;font-size:.78rem;color:var(--muted);">
+      <strong style="color:${colour};font-family:var(--font-mono);">${pct}%</strong> mastery
+      <div class="progress-bar-wrap" style="margin-top:.3rem;max-width:180px;"><div class="progress-bar-fill" style="width:${pct}%;background:${colour};"></div></div>
+    </div>`;
+  }
+  focusCard.innerHTML = `<div class="fk">${tk}</div><div class="fl">${escapeHtml(node.label)}</div>${body ? '<div class="ft">' + escapeHtml(body) + '</div>' : ''}${masteryBlock}${link}`;
 
   let probeText = '';
   if (node.kind === 'theme') {

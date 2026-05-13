@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mentor Essays — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 920px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .mentor-hero { margin-bottom: 1.5rem; }
+    .mentor-hero h1 { font-family: var(--font-display, serif); font-size: 1.8rem; margin-bottom: .25rem; }
+    .mentor-hero p { color: var(--muted); font-size: .92rem; line-height: 1.6; }
+
+    .essay-tabs { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .essay-tab { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: .85rem 1.1rem; cursor: pointer; flex: 1; min-width: 200px; text-align: left; transition: all .15s; }
+    .essay-tab:hover { border-color: var(--accent); }
+    .essay-tab.active { border-color: var(--composition); background: var(--surface); }
+    .essay-tab .num { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-weight: 700; }
+    .essay-tab .title { font-size: 1rem; font-weight: 700; color: var(--text); margin-top: .2rem; line-height: 1.3; }
+    .essay-tab .tag { display: inline-block; margin-top: .4rem; font-size: .72rem; padding: .2rem .55rem; border-radius: 99px; background: rgba(251,113,133,.08); color: var(--composition); border: 1px solid rgba(251,113,133,.35); font-weight: 700; }
+
+    .toggle-row { display: flex; gap: .5rem; align-items: center; margin-bottom: 1rem; font-size: .85rem; color: var(--muted); flex-wrap: wrap; }
+    .toggle-row label { display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; padding: .35rem .75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 7px; }
+    .toggle-row input { accent-color: var(--accent); }
+
+    .stage { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+    .stage h2 { font-size: 1.05rem; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .35rem; }
+    .stage .stage-note { font-size: .8rem; color: var(--muted); font-style: italic; margin-bottom: 1rem; }
+    .stage .essay-text { font-size: .95rem; line-height: 1.85; color: var(--text); }
+    .stage .essay-text p { color: var(--text); margin-bottom: 1rem; }
+
+    .annot {
+      background: rgba(56,189,248,.06);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 9px 9px 0;
+      padding: .65rem .9rem;
+      margin: .6rem 0 1rem;
+      font-size: .85rem;
+      line-height: 1.55;
+      color: var(--text);
+      display: none;
+    }
+    .annot.show { display: block; }
+    .annot .a-label {
+      display: inline-block;
+      font-size: .62rem;
+      color: var(--accent);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: .3rem;
+    }
+    .annot .a-quote { font-style: italic; color: var(--muted); margin-bottom: .3rem; }
+    .annot .a-why { color: var(--text); }
+    .annot .a-tag {
+      display: inline-block;
+      font-size: .68rem;
+      padding: .12rem .5rem;
+      border-radius: 99px;
+      margin-right: .35rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .technique-banner {
+      background: linear-gradient(135deg, rgba(251,113,133,.08), rgba(96,165,250,.05));
+      border: 1px solid var(--composition);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .technique-banner h3 { color: var(--composition); font-size: .95rem; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .35rem; }
+    .technique-banner p { color: var(--text); font-size: .9rem; line-height: 1.65; margin: 0; }
+
+    .closer-cta {
+      background: linear-gradient(135deg, #14302b 0%, #1e1835 100%);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 2rem;
+      text-align: center;
+    }
+    .closer-cta h3 { color: var(--accent); margin-bottom: .35rem; }
+    .closer-cta p { color: var(--text); font-size: .9rem; margin-bottom: .9rem; line-height: 1.65; }
+    .closer-cta .btn { font-size: .85rem; }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">📖 Mentor Essays</h1>
+    <div style="font-size:.76rem;color:var(--muted)">Three Band-5 Continuous Writing exemplars, annotated beat-by-beat. The calibration target for AL1.</div>
+  </div>
+</header>
+
+<main>
+  <div class="mentor-hero">
+    <h1>Read like an AL1 writer, then write like one.</h1>
+    <p>These three essays were authored to the highest standard expected at PSLE Continuous Writing. Each models a different structural technique. Toggle the <strong>AL1 craft notes</strong> to see what each beat is doing and why it works.</p>
+  </div>
+
+  <div class="essay-tabs" id="essay-tabs"></div>
+
+  <div class="toggle-row">
+    <label><input type="checkbox" id="show-annot" checked> Show AL1 craft notes</label>
+    <label><input type="checkbox" id="font-large"> Larger text</label>
+  </div>
+
+  <div id="essay-body"></div>
+
+  <div class="closer-cta">
+    <h3>Ready to apply this?</h3>
+    <p>Pick a Continuous Writing topic and draft. The Composition Builder will mark your draft against these mentor texts as the standard.</p>
+    <a class="btn btn-primary" href="../structured/">📋 Open the Composition Builder →</a>
+    <a class="btn btn-ghost" href="../topics/composition/">→ Composition topic</a>
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/lab.js"></script>
+<script>
+// ── Mentor essay data with beat-by-beat annotations ─────
+// Lifted verbatim from source/reference/Mentor_Texts.md and
+// /english/knowledge-base/ModelEssays_Annotated_KB.md. The
+// essays themselves are not edited; only the annotations are
+// surfaced here as inline callouts.
+
+const ESSAYS = [
+  {
+    id: 'mt1',
+    title: 'A Day I Will Never Forget',
+    technique: 'Weather Contrast',
+    techniqueNote: 'Bright sunshine outside ironically contrasts with the narrator\'s inner guilt and storm. The contrast holds across the whole arc — same external weather, transformed internal state.',
+    theme: 'Honesty / friendship / restitution',
+    stages: [
+      {
+        title: 'Introduction',
+        note: 'Opens with the technique — sun blazing outside, storm raging inside.',
+        beats: [
+          {
+            text: 'The sun blazed down from a cloudless sky that Saturday morning, drenching the streets in golden warmth. Somewhere overhead, a mynah bird trilled its cheerful, two-note call. The air smelled faintly of freshly cut grass, and the pavement shimmered with a honeyed light that made the whole world look new.',
+            annotations: [
+              { tag: 'Setting', label: 'Specific sensory anchor', quote: '"mynah bird … freshly cut grass … honeyed light"', why: 'Three senses (sight, sound, smell) in three sentences. No "It was a bright sunny day". The mynah bird is recognisably Singaporean.' }
+            ]
+          },
+          {
+            text: 'It was, by every measure, a perfect morning. Yet as I sat hunched in the back of my father\'s car, my hands knotted in my lap, my heart was a cold and leaden thing in my chest. The weather might have been gloriously bright, but a storm — silent, merciless — had been raging inside me for three days.',
+            annotations: [
+              { tag: 'F.A.S.T. — Actions', label: 'Body shows anxiety', quote: '"hands knotted in my lap"', why: 'The body does the work — no "I was anxious" naming. F.A.S.T. lens applied.' },
+              { tag: 'Metaphor', label: 'Weather Contrast pivot named', quote: '"a storm — silent, merciless — had been raging inside me"', why: 'The signal sentence. Tells the examiner exactly which technique the essay will use.' }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Rising Action',
+        note: 'The mistake, the silence, the lie eating the narrator alive.',
+        beats: [
+          {
+            text: 'My name is Ethan, and I had made a terrible mistake.',
+            annotations: [
+              { tag: 'Hook', label: 'Direct admission as forward pull', quote: '"My name is Ethan, and I had made a terrible mistake."', why: 'Strong single-line second paragraph. Creates immediate momentum.' }
+            ]
+          },
+          {
+            text: 'It had begun four days earlier, when I had borrowed my best friend\'s, Jake\'s, prized football trading card collection without asking. The collection was Jake\'s most treasured possession — assembled over three years, comprising dozens of rare cards, and anchored by a limited-edition Lionel Messi card that his late grandfather had given him on his seventh birthday. I had only wanted to show the cards to some classmates. I had told myself I would return them before the end of recess. I had been certain nothing could go wrong.',
+            annotations: [
+              { tag: 'Anaphora', label: 'Stacked "I had…" + dramatic irony', quote: '"I had only wanted… I had told myself… I had been certain…"', why: 'Repetition of "I had" builds the narrator\'s flawed reasoning. The reader knows the next line will undermine it.' }
+            ]
+          },
+          {
+            text: 'I had been wrong.',
+            annotations: [
+              { tag: 'Rhythm', label: 'Single-sentence paragraph', quote: '"I had been wrong."', why: 'Shortest possible line lands the inevitability. Sentence-length variation as craft.' }
+            ]
+          },
+          {
+            text: 'In my haste, I had left the collection on my desk when the bell rang. By the following morning, every single card had vanished. I had searched frantically — inside my desk, along the windowsills, under every chair — but the collection was gone as completely as though it had never existed. My stomach had lurched with a dread so acute it was almost physical.',
+            annotations: [
+              { tag: 'Tricolon', label: 'Three search locations', quote: '"inside my desk, along the windowsills, under every chair"', why: 'Tricolon creates the sense of thorough, panicked effort.' },
+              { tag: 'F.A.S.T. — Thoughts', label: 'Dread mapped to physical sensation', quote: '"dread so acute it was almost physical"', why: 'Show-don\'t-tell of internal state through near-physical metaphor.' }
+            ]
+          },
+          {
+            text: 'For three days since, I had said nothing to Jake. I had answered his cheerful texts with single-word replies. I had avoided his gaze at school. I had told myself, each morning, that I would confess — and each evening, I had convinced myself to wait one more day. The lie of silence was eating me alive, slowly and thoroughly, the way rust devours iron.',
+            annotations: [
+              { tag: 'Cataloguing', label: 'Five small actions stack', quote: '"single-word replies … avoided his gaze … told myself … convinced myself …"', why: 'Five actions dramatise three days of avoidance. No "I was guilty" named.' },
+              { tag: 'Simile', label: 'Sustained metaphor', quote: '"the way rust devours iron"', why: 'One vivid simile per paragraph is AL1 dosage. Sustains the cold-metal motif from the introduction\'s "cold and leaden heart".' }
+            ]
+          },
+          {
+            text: 'At Sentosa, the holiday crowds surged around us — laughter, the salt-tang of the sea, the distant screaming of roller-coaster riders. My sister squealed with delight, tugging at my father\'s sleeve. The beach glittered before us, its sand pale gold, its water sparkling. To everyone around me, it was paradise. To me, it felt like wading through fog. My feet dragged against the pavement. A familiar heaviness pressed behind my eyes.',
+            annotations: [
+              { tag: 'Multi-sense painting', label: 'Three external happiness cues', quote: '"laughter, the salt-tang of the sea, the distant screaming of roller-coaster riders"', why: 'Joyful crowd painted in detail to make the internal contrast hurt.' },
+              { tag: 'Contrast', label: 'One sentence each: external, internal, bodily', quote: '"To everyone around me, it was paradise. To me, it felt like wading through fog. My feet dragged…"', why: 'Three sentences land the entire Weather Contrast technique in miniature.' }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Climax',
+        note: 'The phone call. The confession. The longest silence of his life.',
+        beats: [
+          {
+            text: 'It was at the water\'s edge that my phone rang.',
+            annotations: [
+              { tag: 'Pacing', label: 'Cleft sentence slows the rhythm', quote: '"It was at the water\'s edge that my phone rang."', why: 'Throws emphasis on the setting. The narrator will literally sit in this wet sand four paragraphs later.' }
+            ]
+          },
+          {
+            text: 'Jake\'s name blazed on the screen. My heart lurched into my throat. I stood motionless as the waves lapped softly around my ankles, children shrieking with laughter on either side of me, the whole bright, beautiful world carrying on as though nothing was wrong. With shaking fingers, I answered.',
+            annotations: [
+              { tag: 'F.A.S.T. — Face/Body', label: 'Three layered sensations', quote: '"heart lurched … stood motionless … shaking fingers"', why: 'Body, stillness, world-indifference — the Weather Contrast climax in one paragraph.' }
+            ]
+          },
+          {
+            text: '"Ethan." Jake\'s voice was quiet — dangerously quiet. "I went back to school this morning to look for my cards. The cleaner told me she found a stack of cards on a desk two days ago and threw them away with the rubbish." A pause. Then, very carefully: "And then I ran into Wei Xiang. He said you were showing everyone some amazing cards last week. Rare ones. A Messi." Another pause, longer this time, stretched like a wire pulled taut. "My grandfather\'s Messi card is gone. Did you take my collection?"',
+            annotations: [
+              { tag: 'Dialogue craft', label: 'Layered exposition through dialogue', quote: '"The cleaner told me … And then I ran into Wei Xiang … My grandfather\'s Messi card is gone."', why: 'Three pieces of evidence revealed in dialogue, with pauses. The narrator is being painted into a corner in real time.' },
+              { tag: 'Simile', label: 'Tension imagery', quote: '"stretched like a wire pulled taut"', why: 'One simile, precisely matching emotional tension.' }
+            ]
+          },
+          {
+            text: 'The words struck me like a physical blow. I felt the blood drain from my face. My legs buckled; I sat down heavily in the wet sand, the cool water soaking through my shorts. Around me, the world continued in its brilliant, indifferent brightness — waves crashing, children laughing, seagulls wheeling — but all of it seemed impossibly far away, as though I were watching it through thick glass.',
+            annotations: [
+              { tag: 'F.A.S.T. — Face + Actions', label: 'Stacked physical reactions', quote: '"blood drain from my face … legs buckled … sat down heavily in the wet sand"', why: 'Three body reactions in three sentences. The show-don\'t-tell master move.' },
+              { tag: 'Dissociation simile', label: 'Internal removal from setting', quote: '"as though I were watching it through thick glass"', why: 'Conveys emotional dissociation without naming it. AL1 register.' }
+            ]
+          },
+          {
+            text: 'Instead, I pressed my free hand against my eyes and said the only thing that mattered.\n\n"Yes," I whispered. My voice cracked on the word. "I took them. Without asking. I left them on my desk and they\'re gone because of me. I\'m so sorry, Jake. I\'m so, so sorry."',
+            annotations: [
+              { tag: 'Speech', label: 'Confession scene', quote: '"My voice cracked on the word. … I\'m so, so sorry."', why: 'Voice-cracking detail + repetition of "so, so sorry" (rhythm of speech) carry the emotional weight.' }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Falling Action',
+        note: 'Father\'s steady presence. The cost of the replacement. The cautious respect.',
+        beats: [
+          {
+            text: 'When Jake finally spoke, his voice was thick with an emotion I could not quite name — anger, grief, something else beneath both. He did not shout. He simply said, "I need some time," and ended the call.',
+            annotations: [
+              { tag: 'Naming-the-unnamed', label: 'Emotional honesty', quote: '"an emotion I could not quite name"', why: 'Narrator\'s inability to label is more honest than slapping a label on it. AL1 over AL2.' }
+            ]
+          },
+          {
+            text: 'I stayed where I was for a long moment, staring out at the glittering sea. My father found me there shortly afterwards. He sat down beside me in the wet sand without a word, his presence steady and unhurried. Haltingly, through a blur of tears, I told him everything — the borrowed cards, the carelessness, the silence, and the confession I had finally, belatedly made.',
+            annotations: [
+              { tag: 'Presence', label: 'Father comforts by proximity', quote: '"He sat down beside me in the wet sand without a word"', why: 'Adult comfort shown through physical proximity, not advice. The wet sand callback continues the motif.' }
+            ]
+          },
+          {
+            text: '"You cannot undo what happened," he said at last, his voice gentle. "But you can decide what you do next. A true friend does not disappear when things go wrong. He stays, and he makes it right."',
+            annotations: [
+              { tag: 'Mentor aphorism', label: 'Theme delivered through dialogue', quote: '"A true friend does not disappear when things go wrong. He stays, and he makes it right."', why: 'The thematic statement lands in dialogue, not narration. Best practice for AL1.' }
+            ]
+          },
+          {
+            text: 'That evening, I searched online for a replacement Messi card. The price was steep — every dollar I had saved over two years, in ang pow money and birthday gifts, would barely cover it. I did not hesitate. I placed the order.',
+            annotations: [
+              { tag: 'Singapore-flavour', label: 'Authentic local detail', quote: '"ang pow money"', why: 'Specific local detail signals real childhood, not generic boy-with-savings.' }
+            ]
+          },
+          {
+            text: 'He accepted the card. He did not immediately forgive me, and I did not ask him to. But when he looked at me, there was something in his eyes that had not been there before — a cautious, considering respect that felt, to me, more valuable than easy forgiveness.',
+            annotations: [
+              { tag: 'Refusal of cheap resolution', label: 'AL1 nuance', quote: '"a cautious, considering respect … more valuable than easy forgiveness"', why: 'The narrator refuses the "happily forgiven" cliché. AL1 endings reward complexity.' }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Conclusion (R.E.F.)',
+        note: 'Same sun, transformed meaning. Truth = warmth on the face.',
+        beats: [
+          {
+            text: 'Today, the sun still shines over Singapore. But its warmth feels different to me now — lighter, truer, untainted by guilt. Jake and I are friends again, the slow way, the real way. The Messi card sits in his collection once more.',
+            annotations: [
+              { tag: 'Weather Contrast closer', label: 'Same sun, transformed meaning', quote: '"its warmth feels different to me now — lighter, truer, untainted by guilt"', why: 'Closes the technique opened in paragraph 1. Same external, transformed internal.' },
+              { tag: 'Refusal of cliché', label: 'Slow recovery, not magic', quote: '"the slow way, the real way"', why: 'Avoids "everything went back to normal". Honesty about how repair actually works.' }
+            ]
+          },
+          {
+            text: 'I learnt, on that brilliant, turbulent Saturday, that courage is not the absence of fear. It is the choice to do what is right in spite of it. The weather had been dazzling all day. But it was only when I finally told the truth that I truly felt its warmth on my face.',
+            annotations: [
+              { tag: 'R.E.F. Reflection', label: 'Definition, not moral', quote: '"courage is not the absence of fear. It is the choice to do what is right in spite of it."', why: 'The reflection is a definition, not "I learnt a valuable lesson". AL1 R.E.F.' },
+              { tag: 'Closing image', label: 'Sensory-anchored final line', quote: '"it was only when I finally told the truth that I truly felt its warmth on my face"', why: 'Final sentence is a physical image (warmth on face) tied to emotional resolution (truth).' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'mt2',
+    title: 'The Bravest Thing',
+    technique: 'Flashback',
+    techniqueNote: 'Opens in the hospital (present), flashes back to the cycling accident (past), returns to the present in falling action. The POV pivots when the narrator goes unconscious — friends become the eyes that show heroism.',
+    theme: 'Courage / quiet heroism / peer responsibility',
+    stages: [
+      {
+        title: 'Introduction (Present)',
+        note: 'Wake in hospital. Smell first, then sight. Mother\'s knuckles bone-white.',
+        beats: [
+          {
+            text: 'The first thing I noticed when I regained consciousness was the smell — antiseptic, sharp and clinical, cutting through the fog in my mind like a blade. White ceiling tiles swam into focus above me. The steady, metronome beeping of a heart monitor filled the sterile room. I blinked, disorientated, and gradually became aware of warmth around my right hand — my mother\'s fingers, laced through mine, her knuckles bone-white.',
+            annotations: [
+              { tag: 'Sense-first opening', label: 'In medias res', quote: '"The first thing I noticed … was the smell — antiseptic, sharp and clinical"', why: 'Opens with smell, not sight. The reader is in the moment before they know where they are. AL1 hook.' },
+              { tag: 'F.A.S.T. — Face (mother\'s)', label: 'Show-don\'t-tell of fear', quote: '"her knuckles bone-white"', why: 'Without naming the mother\'s fear, the knuckle detail says it. Narrator hasn\'t seen her face yet — only the hand.' }
+            ]
+          },
+          {
+            text: '"He\'s awake," she breathed, and the relief in her voice was so profound and raw that it almost undid me.',
+            annotations: [
+              { tag: 'Speech + Reaction', label: 'Two-word dialogue carries the moment', quote: '"\'He\'s awake,\' she breathed"', why: 'Two-word dialogue + narrator\'s reaction to mother\'s relief. The emotion is reflected, not stated.' }
+            ]
+          },
+          {
+            text: 'It was only then, as consciousness fully returned and the events of that afternoon came rushing back in vivid, terrible fragments, that I understood what had truly happened — and how close everything had come to ending in catastrophe.',
+            annotations: [
+              { tag: 'Flashback signal', label: 'Pivot to past', quote: '"the events of that afternoon came rushing back in vivid, terrible fragments"', why: 'Tells the reader the next paragraph will be in the past. Setup for the technique.' }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Rising Action (Flashback)',
+        note: 'Tuesday in June. Cycling ritual. Darren\'s suggestion. The flicker of unease.',
+        beats: [
+          {
+            text: 'Let me take you back to the afternoon that put me in that hospital bed. It was a Tuesday in June, the last week of the school holidays — one of those blazing, breathless afternoons when the tarmac shimmers and the air carries the faint taste of heat.',
+            annotations: [
+              { tag: 'Flashback signal phrase', label: 'Clean transition', quote: '"Let me take you back to the afternoon …"', why: 'Unambiguous. The reader knows what frame they are in.' },
+              { tag: 'Multi-sense weather', label: 'Touch + taste', quote: '"tarmac shimmers … faint taste of heat"', why: 'Two non-visual senses (touch, taste) in one sentence — high-yield AL1 sensory variety.' }
+            ]
+          },
+          {
+            text: 'There were four of us: Darren, quiet bookish Priya, easygoing Wei Han and me. We had cycled the same shaded circuit a dozen times, weaving along the paths that skirted the reservoir. It was familiar, comfortable, entirely safe. Then Darren had suggested something new.',
+            annotations: [
+              { tag: 'Trait seed', label: 'Setup for trait reversal', quote: '"quiet bookish Priya"', why: 'One-adjective characterisation. "Quiet bookish" Priya is a deliberate seed — the climax depends on it.' }
+            ]
+          },
+          {
+            text: 'I felt a flicker of unease, cool and instinctive, at the base of my stomach. The slope at the far end was steep — far steeper than anything we had attempted, descending sharply towards a blind corner lined with concrete bollards.',
+            annotations: [
+              { tag: 'Body-as-instinct', label: 'Pre-conscious warning', quote: '"a flicker of unease, cool and instinctive, at the base of my stomach"', why: 'AL1 always trusts the body. The warning sign is located in physical sensation before any conscious thought.' }
+            ]
+          },
+          {
+            text: 'Something in me bristled. I should have stood my ground. I should have said, firmly and without embarrassment, that I was not comfortable. Instead, I swallowed my misgivings, told myself I was being ridiculous, and followed.',
+            annotations: [
+              { tag: 'Triple regret-anaphora', label: '"I should have…" × 3 + Instead', quote: '"I should have stood … I should have said … Instead, I swallowed …"', why: 'Three "I should haves" before the "Instead" — classic structural move that names the regret retrospectively.' }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Climax (Flashback)',
+        note: 'The crash. POV pivot. Priya\'s twelve minutes.',
+        beats: [
+          {
+            text: 'From somewhere below and ahead of me, I heard Priya scream my name — she had seen what was coming before I had. The sound cut off as the corner rushed up and consumed me. The impact, when it came, was a white-hot explosion of pain that obliterated all conscious thought.',
+            annotations: [
+              { tag: 'Sensory climax', label: 'Sound + dramatic irony', quote: '"I heard Priya scream my name — she had seen what was coming before I had"', why: 'The reader senses what\'s coming through Priya\'s scream before the narrator does.' }
+            ]
+          },
+          {
+            text: 'What happened next, I did not witness. I learned it later, piece by piece, from the tearful accounts of my friends.',
+            annotations: [
+              { tag: 'POV pivot', label: 'Camera handed to friends', quote: '"What happened next, I did not witness. I learned it later …"', why: 'Structural move that makes Priya\'s heroism visible — the narrator was unconscious. AL1 narration trick.' }
+            ]
+          },
+          {
+            text: 'Darren had reached me first. His face had gone the colour of old chalk, his hands shaking uncontrollably. Wei Han had already dialled the emergency number, his voice high and frantic as he relayed our location. But it was Priya — quiet, gentle, bookish Priya, who had once fainted at the sight of a paper cut — who had done the extraordinary thing.',
+            annotations: [
+              { tag: 'Trait reversal payoff', label: 'Setup pays off', quote: '"quiet, gentle, bookish Priya, who had once fainted at the sight of a paper cut — who had done the extraordinary thing"', why: 'The trait planted in Rising Action explodes at climax. Maximum dramatic lift.' }
+            ]
+          },
+          {
+            text: 'Without hesitation, without anyone telling her to, she had knelt beside me in the gravel, stripped off her cardigan, and pressed it firmly against the deep gash that had opened along my left forearm. She had held that pressure — unwavering, deliberate — for the entire twelve minutes it took the ambulance to arrive. She had spoken to me in a calm, steady voice throughout, even as her own tears fell silently and continuously down her cheeks.',
+            annotations: [
+              { tag: 'Action chain', label: 'Five distinct actions', quote: '"knelt … stripped … pressed … held … spoken"', why: 'AL1 climaxes don\'t skip steps. Five actions render the heroism fully.' },
+              { tag: 'F.A.S.T. — Face', label: 'Cost shown externally', quote: '"her own tears fell silently and continuously down her cheeks"', why: 'Priya is terrified; the tears reveal it. She acts anyway. The thematic statement is implicit here.' }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Falling Action (Return to Present)',
+        note: 'Discharge. Priya outside the ward. The exchange.',
+        beats: [
+          {
+            text: 'I spent two days in the hospital. The gash on my arm required fourteen stitches. My pride required considerably more than that.',
+            annotations: [
+              { tag: 'Dry parallel', label: 'Tonal break with humour', quote: '"The gash on my arm required fourteen stitches. My pride required considerably more than that."', why: 'Body-injury-and-pride parallel is a one-line laugh that earns reader trust before the serious final beat.' }
+            ]
+          },
+          {
+            text: '"You were very brave," I told her.\n\nShe shook her head firmly, looking almost offended by the suggestion. "You were the one who went down the slope."\n\n"No," I said. "I mean what you did after. What you did when it mattered. That was real bravery."\n\nShe looked away, blinking rapidly, jaw set. "I was absolutely terrified," she admitted quietly.\n\n"That," I told her, "is exactly what makes it brave."',
+            annotations: [
+              { tag: 'Theme through dialogue', label: 'Six-line exchange', quote: '"I was absolutely terrified … That is exactly what makes it brave."', why: 'The whole thematic statement delivered in dialogue. AL1\'s preferred way to land a moral — let characters say it.' }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Conclusion (Present, R.E.F.)',
+        note: 'Scar barely visible. Bravery as a portrait, not a sentence.',
+        beats: [
+          {
+            text: 'I am fully recovered now. The scar on my forearm has faded to a thin, silver-white line — barely visible unless you know to look for it. Darren no longer suggests reckless adventures. Wei Han has taken a first-aid course. I have had my bicycle brakes replaced.',
+            annotations: [
+              { tag: 'Closing image', label: 'Quiet scar', quote: '"a thin, silver-white line — barely visible unless you know to look for it"', why: 'The scar as a quiet artefact. "Barely visible unless you know" is also thematic — bravery is similarly unobtrusive.' },
+              { tag: 'Tricolon', label: 'Three practical consequences', quote: '"Darren no longer suggests … Wei Han has taken … I have had …"', why: 'Three small actions show that the narrator and friends changed. Not "we learnt a lesson".' }
+            ]
+          },
+          {
+            text: 'But the lesson that has stayed with me most powerfully is not the one about slope safety, or checking equipment, or listening to that cool, instinctive flicker of unease in your stomach. It is a lesson about courage — specifically, that bravery does not announce itself with fanfare. It does not always wear a hero\'s cape or carry a trophy. Sometimes, bravery is a quiet, bookish girl pressing a cardigan against a wound and refusing to let go — terrified to her core, and doing it anyway, because someone needed her to.',
+            annotations: [
+              { tag: 'Refusal of obvious moral', label: 'Names + discards three options first', quote: '"not the one about slope safety, or checking equipment, or listening to that … flicker of unease"', why: 'The narrator names obvious morals before delivering the real one. AL1 craft.' },
+              { tag: 'R.E.F. as portrait', label: 'Image, not sentence-moral', quote: '"Sometimes, bravery is a quiet, bookish girl pressing a cardigan against a wound and refusing to let go — terrified to her core, and doing it anyway"', why: 'The reflection is not a definition — it is a portrait. Priya\'s specific action defines bravery.' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'mt3',
+    title: 'Never Give Up',
+    technique: 'Weather Contrast (high difficulty)',
+    techniqueNote: 'Ash-grey sky mirrors inner anxiety; cleared blue sky mirrors hard-won resolve. Same external sky, transformed inner state. Mrs Tan\'s seed-phrase "You never give up" is Chekhov\'s gun — fires at the climax.',
+    theme: 'Perseverance / self-doubt / hard-won victory',
+    stages: [
+      {
+        title: 'Introduction',
+        note: 'Olympiad morning. Sky the colour of ash. Hollow, leaden, convinced of failure.',
+        beats: [
+          {
+            text: 'The sky on the morning of the Inter-School Mathematics Olympiad was the colour of ash. A thick, unbroken grey pressed down over the city like the lid of a pot, swallowing the horizon, muffling sound, draining colour from the streets below. Not a single bird sang. Not a breath of wind stirred the angsana trees lining the school driveway. The world seemed to be holding its breath — waiting, tense, for something to give way.',
+            annotations: [
+              { tag: 'Weather-as-mood', label: 'One image, one colour', quote: '"the colour of ash"', why: 'Avoids cliché. "Ash" connotes burning + death + grey — multi-association.' },
+              { tag: 'Personification', label: 'Three verbs personify the sky', quote: '"swallowing the horizon, muffling sound, draining colour"', why: 'Three verbs working hard — AL1 rewards verbs that don\'t just describe but enact.' },
+              { tag: 'Negative space', label: 'Two "Nots" dramatise stillness', quote: '"Not a single bird sang. Not a breath of wind stirred …"', why: 'Absence dramatises stillness. Singapore-specific anchor ("angsana trees").' }
+            ]
+          },
+          {
+            text: 'Standing at the school gates with my sharpened pencils and my entry pass clutched against my chest, I felt, with a desolate certainty, that the weather had arranged itself in perfect sympathy with how I felt: hollow, leaden, and utterly convinced that I was about to fail.',
+            annotations: [
+              { tag: 'Weather Contrast pivot', label: 'Technique named', quote: '"the weather had arranged itself in perfect sympathy with how I felt: hollow, leaden, and utterly convinced that I was about to fail"', why: 'Names the technique. "Hollow, leaden" echoes the recurring AL1 emotion register across mentor texts.' }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Rising Action',
+        note: 'Zara\'s struggle. Mrs Tan\'s six words. Months of sacrifice.',
+        beats: [
+          {
+            text: 'My name is Zara, and mathematics had never come easily to me. While my classmates seemed to absorb formulae and theorems the way a sponge absorbs water — effortlessly, naturally, leaving no residue of doubt — I had always had to fight for every mark.',
+            annotations: [
+              { tag: 'Simile', label: 'Concrete comparison', quote: '"the way a sponge absorbs water — effortlessly, naturally, leaving no residue of doubt"', why: 'Instead of abstract claim "they were naturally good", a concrete image carries the contrast.' }
+            ]
+          },
+          {
+            text: '"Me?" I had whispered.\n\n"You," she had said, with a certainty that brooked no argument. "You have something the other students don\'t, Zara. You never give up."',
+            annotations: [
+              { tag: 'Two-word dialogue', label: 'Stripped to essentials', quote: '"\'Me?\' … \'You,\'"', why: 'The teacher\'s certainty lives in the period after "You,". Sentence rhythm carries character.' },
+              { tag: 'Chekhov\'s gun', label: 'Title appears in dialogue', quote: '"You never give up."', why: 'The title (Never Give Up) appears as dialogue. The phrase will return at the climax — set up here.' }
+            ]
+          },
+          {
+            text: 'Weekends surrendered to past-year Olympiad papers while my friends sent cheerful messages from the swimming pool. School holidays spent not at the beach or the cinema, but at the kitchen table, pencil in hand, surrounded by the wreckage of completed worksheets.',
+            annotations: [
+              { tag: 'Tricolon of sacrifices', label: 'Specific, image-grounded', quote: '"weekends … messages from the swimming pool. School holidays … kitchen table, pencil in hand"', why: 'Three sacrifices, each in image. Avoids generic "I studied hard".' }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Climax',
+        note: 'First question unreadable. Voice of doubt. Mrs Tan returns. Pencil to paper.',
+        beats: [
+          {
+            text: 'My heartbeat became a roar in my ears. It is over, whispered a voice from some dark corner of my mind — low, insistent, and utterly persuasive. You don\'t belong here. You never did.',
+            annotations: [
+              { tag: 'Italicised internal voice', label: 'Doubt as character', quote: '"It is over … You don\'t belong here. You never did."', why: 'The dark voice gets its own typography. The reader hears the doubt as the narrator hears it.' }
+            ]
+          },
+          {
+            text: 'For one horrible, vertiginous moment, I almost believed it. My vision blurred. My pencil hand trembled against the desk. The fluorescent lights above me seemed to pulse and brighten.',
+            annotations: [
+              { tag: 'Three-body-reaction', label: 'Show-don\'t-tell of panic', quote: '"vision blurred … pencil hand trembled … lights … pulse and brighten"', why: 'Same technique as Mentor Essay 1\'s confession scene. Mentor texts share a technique stack.' }
+            ]
+          },
+          {
+            text: 'And then — from somewhere very far away, or perhaps very deep inside — I heard Mrs Tan\'s voice, clear as a struck bell: You never give up.',
+            annotations: [
+              { tag: 'Chekhov\'s gun fired', label: 'Seed returns at crisis', quote: '"I heard Mrs Tan\'s voice, clear as a struck bell: You never give up."', why: 'The thematic dialogue returns at the moment of crisis. The italicised line lands as both memory and decision.' }
+            ]
+          },
+          {
+            text: 'I pressed my pencil to the paper.',
+            annotations: [
+              { tag: 'Single-sentence paragraph', label: 'Story hinge', quote: '"I pressed my pencil to the paper."', why: 'One sentence. One action. Rhythm break. The story\'s pivot.' }
+            ]
+          },
+          {
+            text: 'Slowly, torturously, as if I were tunnelling through solid rock with my bare hands, I worked my way through the paper. My workings were careful, methodical, checked and rechecked. Perspiration beaded at my temples despite the cool hum of the air-conditioning above me.',
+            annotations: [
+              { tag: 'Simile', label: 'Effort as physical image', quote: '"as if I were tunnelling through solid rock with my bare hands"', why: 'Effort conveyed through one precise physical image, not "I worked very hard".' }
+            ]
+          },
+          {
+            text: '"Time," said the invigilator.\n\nI set my pencil down with three seconds remaining.',
+            annotations: [
+              { tag: 'Specific detail', label: 'Three seconds, not "just in time"', quote: '"three seconds remaining"', why: 'The specific number makes the moment real. Avoids vague "just in time".' }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Falling Action',
+        note: 'Silver Medal. Tears of someone who had nearly surrendered to doubt.',
+        beats: [
+          {
+            text: 'I stood very still for a long moment, staring at the words. Then, without warning or permission, my eyes filled with tears. Not tears of disappointment — I had exceeded every expectation I had held for myself. Not purely tears of joy, either, though joy was certainly there, spreading through my chest like warmth from a lamp.',
+            annotations: [
+              { tag: 'Anaphora of negation', label: 'Names + rejects easy emotions', quote: '"Not tears of disappointment … Not purely tears of joy, either"', why: 'The narrator refuses the easy emotion. Names two before defining the real one.' }
+            ]
+          },
+          {
+            text: 'They were something more complicated than either: the tears of someone who had doubted herself completely, had nearly surrendered to that doubt in the most critical moment, and had discovered — in the silence between the roaring and the pencil touching the page — that she was stronger than she had believed.',
+            annotations: [
+              { tag: 'Long-sentence R.E.F. preview', label: 'Climax callback', quote: '"in the silence between the roaring and the pencil touching the page"', why: 'One long breath-like sentence. The dash-clause is the structural callback to the climax.' }
+            ]
+          }
+        ]
+      },
+      {
+        title: 'Conclusion (R.E.F.)',
+        note: 'Sky cleared. Storm-and-pencil image. The lesson about persistence.',
+        beats: [
+          {
+            text: 'Outside, as I walked to the school bus that afternoon, I noticed that the sky had changed. The oppressive, ash-grey ceiling of the morning had dissolved entirely, replaced by a deep, luminous blue — the particular, washed blue that exists only after a long grey spell has finally broken.',
+            annotations: [
+              { tag: 'Weather Contrast closer', label: 'Sky transformed', quote: '"the ash-grey ceiling of the morning had dissolved entirely, replaced by a deep, luminous blue"', why: 'Closes the opening — same sky, transformed. The "washed blue that exists only after a long grey spell" is uniquely specific.' }
+            ]
+          },
+          {
+            text: 'I stood on the pavement for a moment, my face turned up to the sky, and smiled. The weather, it seemed, had finally caught up with how I felt.',
+            annotations: [
+              { tag: 'Pivot phrase', label: 'Quiet closing turn', quote: '"The weather, it seemed, had finally caught up with how I felt."', why: 'Gentle phrasing — "caught up with" — gives agency to the narrator, not the world.' }
+            ]
+          },
+          {
+            text: 'The Olympiad taught me more than any theorem or formula could have. It taught me that the voice which says you cannot is almost always lying. It taught me that persistence, applied with patience and a pencil, can unlock even the most impenetrable door. And it taught me that the truest measure of strength is not whether you face the storm without fear — it is whether you keep moving when the storm is at its very worst, and the pencil is all you have.',
+            annotations: [
+              { tag: 'R.E.F. final', label: 'Anaphora + storm-pencil motif', quote: '"It taught me … It taught me … it taught me …"', why: 'Anaphora drives the threefold reflection. The final line returns to the storm-and-pencil motif from the climax, landing the closing image.' }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+];
+
+// ── Render ───────────────────────────────────────────────
+let activeId = ESSAYS[0].id;
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+function renderTabs() {
+  const host = document.getElementById('essay-tabs');
+  host.innerHTML = ESSAYS.map((e, i) => `
+    <button class="essay-tab ${e.id === activeId ? 'active' : ''}" data-id="${e.id}">
+      <div class="num">Mentor Text ${i + 1}</div>
+      <div class="title">${esc(e.title)}</div>
+      <div class="tag">${esc(e.technique)}</div>
+    </button>
+  `).join('');
+  host.querySelectorAll('.essay-tab').forEach(btn => {
+    btn.addEventListener('click', () => { activeId = btn.dataset.id; renderTabs(); renderBody(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  });
+}
+
+function renderBody() {
+  const essay = ESSAYS.find(e => e.id === activeId);
+  if (!essay) return;
+  const host = document.getElementById('essay-body');
+  const showAnnot = document.getElementById('show-annot')?.checked !== false;
+
+  host.innerHTML = `
+    <div class="technique-banner">
+      <h3>Technique: ${esc(essay.technique)}</h3>
+      <p>${esc(essay.techniqueNote)}</p>
+      <p style="margin-top:.4rem;font-size:.82rem;color:var(--muted);"><strong>Theme:</strong> ${esc(essay.theme)}</p>
+    </div>
+    ${essay.stages.map(stage => `
+      <div class="stage">
+        <h2>${esc(stage.title)}</h2>
+        <div class="stage-note">${esc(stage.note)}</div>
+        <div class="essay-text">
+          ${stage.beats.map(beat => `
+            <p>${esc(beat.text).replace(/\n\n/g, '</p><p>')}</p>
+            ${(beat.annotations || []).map(a => `
+              <div class="annot ${showAnnot ? 'show' : ''}">
+                <div class="a-label">
+                  <span class="a-tag">${esc(a.tag)}</span>
+                  ${esc(a.label)}
+                </div>
+                <div class="a-quote">${esc(a.quote)}</div>
+                <div class="a-why">${esc(a.why)}</div>
+              </div>
+            `).join('')}
+          `).join('')}
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+document.getElementById('show-annot').addEventListener('change', renderBody);
+document.getElementById('font-large').addEventListener('change', (e) => {
+  document.querySelectorAll('.essay-text').forEach(el => {
+    el.style.fontSize = e.target.checked ? '1.08rem' : '';
+  });
+});
+
+if (typeof Progress !== 'undefined' && Progress.recordVisit) Progress.recordVisit('composition');
+
+renderTabs();
+renderBody();
+</script>
+</body>
+</html>
