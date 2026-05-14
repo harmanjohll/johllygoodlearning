@@ -107,6 +107,19 @@
     No Gemini API key. You can still draft answers; AI marking and the scorecard need a key.
   </div>
 
+  <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+    <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
+    <span style="font-size:.84rem;color:var(--muted);">One curated passage. Want a fresh one?</span>
+    <span style="flex:1;"></span>
+    <select id="gen-style" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.82rem;font-family:inherit;">
+      <option value="Narrative">Narrative</option>
+      <option value="Non-narrative (informative)">Non-narrative (informative)</option>
+    </select>
+    <button class="btn btn-primary" id="btn-generate" style="font-size:.78rem;padding:.35rem .85rem;">+ Generate new passage</button>
+    <button class="btn btn-secondary" id="btn-clear-generated" style="font-size:.78rem;padding:.35rem .85rem;display:none;">Reset to curated</button>
+  </div>
+  <div id="gen-status" style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem;min-height:1rem;"></div>
+
   <div id="start-pane">
     <div class="start-card">
       <h2>Ready?</h2>
@@ -144,7 +157,7 @@
 <script>
 const QUIZ_MS = 18 * 60 * 1000;
 
-const PASSAGE = {
+let PASSAGE = {
   title: 'The lift that stopped on the seventh floor',
   body:
 "The lift stopped on the seventh floor. Mei stepped out into the corridor and froze. The door to her flat was ajar, the metal grille pushed back just enough for a hand to slip through. Her father always, ALWAYS, double-locked when he left for work. She listened. There was no sound from inside, only the faint hum of someone else's television seeping through the wall.\n\n" +
@@ -153,7 +166,7 @@ const PASSAGE = {
 "Aunty Geraldine opened the door in seconds, a kettle still in her other hand. \"Mei?\" she said. \"You're early today.\" Mei tried to speak but the words queued up somewhere behind her teeth and would not move. Aunty Geraldine set the kettle down. \"Show me,\" she said. That was all. They climbed the stairs together, Aunty Geraldine first, Mei behind her, both of them quiet in the way of people who are listening very, very hard.",
 };
 
-const QUESTIONS = [
+let QUESTIONS = [
   { cmd: 'Describe', marks: 2,
     stem: "What did Mei notice that made her freeze when she stepped out of the lift?",
     rubric: "TWO observations expected. Door ajar (1m); metal grille pushed back / father always double-locks (1m). Direct lift without explanation = max 1m." },
@@ -324,6 +337,106 @@ function escapeHTML(s) {
 }
 
 init();
+
+// ── AI passage generator ────────────────────────────────────
+const GEN_CACHE_KEY = 'jgl.english.compoe.generated';
+const CURATED = { passage: JSON.parse(JSON.stringify(PASSAGE)), questions: JSON.parse(JSON.stringify(QUESTIONS)) };
+
+function loadGenerated() {
+  try { return JSON.parse(localStorage.getItem(GEN_CACHE_KEY) || 'null'); } catch { return null; }
+}
+function saveGenerated(o) { try { localStorage.setItem(GEN_CACHE_KEY, JSON.stringify(o)); } catch {} }
+
+(function rehydrate() {
+  const cached = loadGenerated();
+  if (cached && cached.passage && Array.isArray(cached.questions)) {
+    PASSAGE = cached.passage;
+    QUESTIONS = cached.questions;
+    document.getElementById('btn-clear-generated').style.display = 'inline-block';
+    document.getElementById('gen-status').textContent = 'Showing AI-generated passage from your last session.';
+  }
+})();
+
+document.getElementById('btn-generate').addEventListener('click', async () => {
+  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  if (!k) {
+    document.getElementById('gen-status').textContent = 'No Gemini key set. Open How-to-use to add one.';
+    return;
+  }
+  const style = document.getElementById('gen-style').value;
+  document.getElementById('gen-status').textContent = 'Generating a fresh passage and five questions…';
+  document.getElementById('btn-generate').disabled = true;
+  try {
+    const { passage, questions } = await generateComp(style);
+    PASSAGE = passage;
+    QUESTIONS = questions;
+    saveGenerated({ passage, questions });
+    document.getElementById('btn-clear-generated').style.display = 'inline-block';
+    document.getElementById('gen-status').textContent = 'Fresh passage ready. Start the sprint to begin.';
+    // If the student is in the middle of the quiz, re-render so the new passage shows
+    if (state.startedAt) { state.submitted = false; renderPassage(); renderQuestions(); }
+  } catch (e) {
+    document.getElementById('gen-status').textContent = 'Generator error: ' + (e?.message || e);
+  } finally {
+    document.getElementById('btn-generate').disabled = false;
+  }
+});
+
+document.getElementById('btn-clear-generated').addEventListener('click', () => {
+  if (!confirm('Reset back to the curated passage? The generated version will be cleared.')) return;
+  saveGenerated(null);
+  PASSAGE = JSON.parse(JSON.stringify(CURATED.passage));
+  QUESTIONS = JSON.parse(JSON.stringify(CURATED.questions));
+  document.getElementById('btn-clear-generated').style.display = 'none';
+  document.getElementById('gen-status').textContent = '';
+});
+
+async function generateComp(style) {
+  const sys = 'You are a PSLE English Paper 2 Comprehension Open-Ended item writer. Output VALID JSON ONLY — no markdown, no commentary. Write at Primary 6 level in clean Standard English. Singapore-natural settings.';
+  const prompt = `Generate ONE comprehension item set.
+
+Style: ${style} (${style.startsWith('Narrative') ? 'a short story, ~250-350 words, with a clear emotional beat and at least one moment of inference' : 'an informative passage, ~250-350 words, with at least one cause-effect chain and at least one comparison'}).
+
+Output JSON with EXACTLY these fields:
+{
+  "passage": {
+    "title": "<4-7 word title>",
+    "body": "<the full passage, 250-350 words, clean Standard English>"
+  },
+  "questions": [
+    { "cmd": "Describe", "marks": 2, "stem": "<question>", "rubric": "<marking rubric, 1-2 sentences, do NOT reveal in output to student but include here for the AI marker>" },
+    { "cmd": "Explain",  "marks": 2, "stem": "<question>", "rubric": "<rubric>" },
+    { "cmd": "Infer",    "marks": 3, "stem": "<question>", "rubric": "<rubric>" },
+    { "cmd": "Suggest",  "marks": 2, "stem": "<question>", "rubric": "<rubric>" },
+    { "cmd": "Compare",  "marks": 3, "stem": "<question>", "rubric": "<rubric>" }
+  ]
+}
+
+Constraints:
+- Each question MUST be answerable from the passage (no outside knowledge).
+- "Infer" must require reading between the lines, not literal lifting.
+- "Compare" must point at TWO things in the passage to compare.
+- Total marks = 12. Stems must use the command word at the start: "Describe...", "Explain...", "Infer...", "Suggest...", "Compare...".
+- Avoid topics requiring outside knowledge (current events, branded products, specific people).`;
+
+  const json = await window.askGemini({
+    system: sys, prompt,
+    temperature: 0.7, maxTokens: 2200, thinkingBudget: 0,
+    responseMimeType: 'application/json', asJson: true,
+  });
+  if (!json || !json.passage || !json.passage.body || !Array.isArray(json.questions)) {
+    throw new Error('Generator returned an unexpected shape.');
+  }
+  return {
+    passage: { title: json.passage.title || 'AI-generated passage', body: json.passage.body },
+    questions: json.questions.map(q => ({
+      cmd: q.cmd || 'Describe',
+      marks: typeof q.marks === 'number' ? q.marks : 2,
+      stem: q.stem || '',
+      rubric: q.rubric || '',
+    })),
+  };
+}
 </script>
 </body>
 </html>

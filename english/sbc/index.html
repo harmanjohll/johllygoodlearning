@@ -90,6 +90,25 @@
     No Gemini API key. You can still draft answers; the AI Coach feedback per question needs a key.
   </div>
 
+  <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+    <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
+    <span style="font-size:.84rem;color:var(--muted);">Eight curated stimuli. Want a fresh scene on a theme?</span>
+    <span style="flex:1;"></span>
+    <select id="gen-theme" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.82rem;font-family:inherit;">
+      <option>School life</option>
+      <option>Family / technology</option>
+      <option>Health / community</option>
+      <option>Civic life</option>
+      <option>Friendship / inclusion</option>
+      <option>Transport / consideration</option>
+      <option>Environment</option>
+      <option>Intergenerational</option>
+    </select>
+    <button class="btn btn-primary" id="btn-generate" style="font-size:.78rem;padding:.35rem .85rem;">+ Generate new stimulus</button>
+    <button class="btn btn-secondary" id="btn-clear-generated" style="font-size:.78rem;padding:.35rem .85rem;display:none;">Clear generated</button>
+  </div>
+  <div id="gen-status" style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem;min-height:1rem;"></div>
+
   <div class="stimulus-grid" id="stim-grid"></div>
 
   <div class="work-pane" id="work-pane"></div>
@@ -105,7 +124,7 @@ const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStor
 if (!key) document.getElementById('key-warn').style.display = 'block';
 
 // ── Stimuli (described scenes; no embedded images) ────────
-const STIMULI = [
+let STIMULI = [
   {
     id: 'recycling-bin',
     title: 'Overflowing recycling bin at a void deck',
@@ -330,24 +349,29 @@ function dayOfYear() {
   return Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
 }
 
-const todayId = STIMULI[dayOfYear() % STIMULI.length].id;
+let todayId = STIMULI[dayOfYear() % STIMULI.length].id;
 const grid = document.getElementById('stim-grid');
 let activeStimulusId = null;
 
-STIMULI.forEach((s, idx) => {
-  const card = document.createElement('div');
-  card.className = 'stim-card' + (s.id === todayId ? ' today' : '');
-  card.dataset.id = s.id;
-  card.innerHTML = `
-    ${s.id === todayId ? '<span class="today-tag">★ Today\'s pick</span>' : ''}
-    <div class="stim-num">Stimulus ${idx + 1}</div>
-    <div class="stim-title">${s.title}</div>
-    <div class="stim-theme">${s.theme}</div>
-    <div class="stim-desc">${s.desc}</div>
-  `;
-  card.addEventListener('click', () => selectStimulus(s.id));
-  grid.appendChild(card);
-});
+function renderGrid() {
+  grid.innerHTML = '';
+  STIMULI.forEach((s, idx) => {
+    const card = document.createElement('div');
+    card.className = 'stim-card' + (s.id === todayId ? ' today' : '') + (s._generated ? ' generated' : '');
+    card.dataset.id = s.id;
+    card.innerHTML = `
+      ${s.id === todayId ? '<span class="today-tag">★ Today\'s pick</span>' : ''}
+      ${s._generated ? '<span class="today-tag" style="color:#a78bfa;">✨ AI-generated</span>' : ''}
+      <div class="stim-num">Stimulus ${idx + 1}</div>
+      <div class="stim-title">${s.title}</div>
+      <div class="stim-theme">${s.theme}</div>
+      <div class="stim-desc">${s.desc}</div>
+    `;
+    card.addEventListener('click', () => selectStimulus(s.id));
+    grid.appendChild(card);
+  });
+}
+renderGrid();
 
 function selectStimulus(id) {
   activeStimulusId = id;
@@ -424,6 +448,109 @@ async function askAI(stim, qIdx, mode, blockEl) {
 }
 
 if (typeof Progress !== 'undefined' && Progress.recordVisit) Progress.recordVisit(TOPIC);
+
+// ── AI stimulus generator ──────────────────────────────────
+const GEN_CACHE_KEY = 'jgl.english.sbc.generated';
+const CURATED_COUNT = STIMULI.length;
+
+function loadGeneratedCache() {
+  try { return JSON.parse(localStorage.getItem(GEN_CACHE_KEY) || '[]'); } catch { return []; }
+}
+function saveGeneratedCache(arr) { try { localStorage.setItem(GEN_CACHE_KEY, JSON.stringify(arr.slice(-10))); } catch {} }
+
+(function rehydrate() {
+  const cached = loadGeneratedCache();
+  if (cached.length) {
+    STIMULI = STIMULI.concat(cached);
+    document.getElementById('btn-clear-generated').style.display = 'inline-block';
+    renderGrid();
+  }
+})();
+
+document.getElementById('btn-generate').addEventListener('click', async () => {
+  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  if (!k) {
+    document.getElementById('gen-status').textContent = 'No Gemini key set. Open How-to-use to add one.';
+    return;
+  }
+  const theme = document.getElementById('gen-theme').value;
+  document.getElementById('gen-status').textContent = `Generating a fresh ${theme.toLowerCase()} stimulus and three PEEL questions…`;
+  document.getElementById('btn-generate').disabled = true;
+  try {
+    const stim = await generateStimulus(theme);
+    STIMULI.push(stim);
+    const cached = loadGeneratedCache();
+    cached.push(stim);
+    saveGeneratedCache(cached);
+    document.getElementById('btn-clear-generated').style.display = 'inline-block';
+    document.getElementById('gen-status').textContent = `New stimulus ready: "${stim.title}".`;
+    renderGrid();
+    selectStimulus(stim.id);
+  } catch (e) {
+    document.getElementById('gen-status').textContent = 'Generator error: ' + (e?.message || e);
+  } finally {
+    document.getElementById('btn-generate').disabled = false;
+  }
+});
+
+document.getElementById('btn-clear-generated').addEventListener('click', () => {
+  if (!confirm('Remove all AI-generated stimuli? The eight curated ones stay.')) return;
+  saveGeneratedCache([]);
+  STIMULI = STIMULI.slice(0, CURATED_COUNT);
+  todayId = STIMULI[dayOfYear() % STIMULI.length].id;
+  document.getElementById('btn-clear-generated').style.display = 'none';
+  document.getElementById('gen-status').textContent = '';
+  renderGrid();
+  selectStimulus(todayId);
+});
+
+async function generateStimulus(theme) {
+  const sys = 'You are a PSLE English Paper 4 Stimulus-Based Conversation item writer. Output VALID JSON ONLY — no markdown, no commentary. Write at Primary 6 level in Singapore-natural settings. Describe the scene in calibrated detail so the student can imagine it without a copyrighted image.';
+  const prompt = `Generate ONE SBC stimulus on the theme: "${theme}".
+
+Output JSON with EXACTLY these fields:
+{
+  "id": "gen-${Date.now()}",
+  "title": "<short scene title, 4-8 words>",
+  "theme": "${theme}",
+  "desc": "<one-sentence summary for the picker card, ~25 words>",
+  "scene": "<detailed scene description, 70-120 words, including: people, setting, time of day, key visual detail or contrast>",
+  "questions": [
+    { "kind": "Factual / Observation", "stem": "<a question that asks the student to describe what they see>", "hint": "<one-line hint about how to answer well>", "model": "<a 2-4 sentence model answer in Primary 6 register>" },
+    { "kind": "Opinion / Stance", "stem": "<a question that asks for the student's stance with reasoning>", "hint": "<PEEL hint>", "model": "<a 3-4 sentence PEEL model answer>" },
+    { "kind": "Hypothetical / Extension", "stem": "<a question that pushes the student to propose or imagine>", "hint": "<specificity hint>", "model": "<a 3-4 sentence specific model answer>" }
+  ]
+}
+
+Constraints:
+- Singapore-natural setting (HDB, MRT, hawker centre, school, void deck, park).
+- Realistic details only. No fantasy, no copyrighted brands.
+- Each "model" must use PEEL where it applies (Point, Example, Explanation, Link) and avoid clichés.
+- No emoji in any field.`;
+
+  const json = await window.askGemini({
+    system: sys, prompt,
+    temperature: 0.7, maxTokens: 1500, thinkingBudget: 0,
+    responseMimeType: 'application/json', asJson: true,
+  });
+  if (!json || !json.scene || !Array.isArray(json.questions)) {
+    throw new Error('Generator returned an unexpected shape.');
+  }
+  return {
+    id:    json.id    || ('gen-' + Date.now()),
+    title: json.title || 'AI-generated stimulus',
+    theme: json.theme || theme,
+    desc:  json.desc  || '',
+    scene: json.scene,
+    questions: json.questions.map(q => ({
+      kind:  q.kind  || 'Observation',
+      stem:  q.stem  || '?',
+      hint:  q.hint  || '',
+      model: q.model || '',
+    })),
+    _generated: true,
+  };
+}
 
 // Auto-load today's stimulus
 selectStimulus(todayId);

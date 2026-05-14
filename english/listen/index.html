@@ -68,6 +68,21 @@
     <strong>Audio note:</strong> Your browser does not support text-to-speech, or your speaker is muted. The passage transcript will still appear below.
   </div>
 
+  <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+    <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
+    <span style="font-size:.84rem;color:var(--muted);">Three curated passages below. Want a fresh one in a chosen style?</span>
+    <span style="flex:1;"></span>
+    <select id="gen-type" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.82rem;font-family:inherit;">
+      <option value="Announcement">Announcement</option>
+      <option value="Conversation">Conversation</option>
+      <option value="Narrative recount">Narrative recount</option>
+      <option value="News report">News report</option>
+    </select>
+    <button class="btn btn-primary" id="btn-generate" style="font-size:.78rem;padding:.35rem .85rem;">+ Generate new passage</button>
+    <button class="btn btn-secondary" id="btn-clear-generated" style="font-size:.78rem;padding:.35rem .85rem;display:none;">Reset to curated</button>
+  </div>
+  <div id="gen-status" style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem;min-height:1rem;"></div>
+
   <div id="passage-host"></div>
 
   <div id="done-host"></div>
@@ -75,10 +90,11 @@
 
 <script src="../shared.js"></script>
 <script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
 <script src="../shared/streak.js"></script>
 <script>
-// ── Listening passages (3 with MCQ) ──────────────────────
-const PASSAGES = [
+// ── Listening passages (3 curated + AI-generated extras) ────
+let PASSAGES = [
   {
     id: 'p1',
     title: 'Announcement at the school assembly',
@@ -380,6 +396,119 @@ renderPassage();
 
 // Mark visit
 if (typeof Progress !== 'undefined' && Progress.recordVisit) Progress.recordVisit('listening');
+
+// ── AI passage generator ────────────────────────────────────
+const GEN_CACHE_KEY = 'jgl.english.listen.generated';
+const CURATED_COUNT = PASSAGES.length;
+
+function loadGeneratedCache() {
+  try { return JSON.parse(localStorage.getItem(GEN_CACHE_KEY) || '[]'); } catch { return []; }
+}
+function saveGeneratedCache(arr) {
+  try { localStorage.setItem(GEN_CACHE_KEY, JSON.stringify(arr.slice(-10))); } catch {}
+}
+
+// Rehydrate any cached generated passages on load
+(function rehydrate() {
+  const cached = loadGeneratedCache();
+  if (cached.length) {
+    PASSAGES = PASSAGES.concat(cached);
+    document.getElementById('btn-clear-generated').style.display = 'inline-block';
+    state.pidx = PASSAGES.length - cached.length;
+    renderPassage();
+  }
+})();
+
+document.getElementById('btn-generate').addEventListener('click', async () => {
+  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  if (!k) {
+    document.getElementById('gen-status').textContent = 'No Gemini key set. Open How-to-use to add one.';
+    return;
+  }
+  const type = document.getElementById('gen-type').value;
+  const status = document.getElementById('gen-status');
+  status.textContent = `Generating a fresh ${type.toLowerCase()} passage…`;
+  document.getElementById('btn-generate').disabled = true;
+  try {
+    const passage = await generatePassage(type);
+    PASSAGES.push(passage);
+    const cached = loadGeneratedCache();
+    cached.push(passage);
+    saveGeneratedCache(cached);
+    status.textContent = `Fresh passage added (${type}). It is now Passage ${PASSAGES.length} of ${PASSAGES.length}.`;
+    state.pidx = PASSAGES.length - 1;
+    state.score = 0; state.total = 0;
+    renderPassage();
+    document.getElementById('btn-clear-generated').style.display = 'inline-block';
+  } catch (e) {
+    status.textContent = 'Generator error: ' + (e?.message || e);
+  } finally {
+    document.getElementById('btn-generate').disabled = false;
+  }
+});
+
+document.getElementById('btn-clear-generated').addEventListener('click', () => {
+  if (!confirm('Reset back to the three curated passages? Generated extras will be cleared.')) return;
+  saveGeneratedCache([]);
+  PASSAGES = PASSAGES.slice(0, CURATED_COUNT);
+  state.pidx = 0; state.score = 0; state.total = 0;
+  document.getElementById('btn-clear-generated').style.display = 'none';
+  document.getElementById('gen-status').textContent = '';
+  renderPassage();
+});
+
+async function generatePassage(type) {
+  const id = 'gen-' + Date.now();
+  const typeBlurb = {
+    'Announcement':       'a school-PA-style announcement (teacher addressing the school)',
+    'Conversation':       'a two-person conversation between Primary-school-aged students (use names like Aisha, Daniel, Wei Ming)',
+    'Narrative recount':  'a first-person past-tense recount (a Primary 6 student recalling one specific event)',
+    'News report':        'a short news bulletin (calm formal register, third-person)',
+  }[type] || 'a short spoken passage';
+
+  const sys = 'You are a PSLE English Paper 3 Listening Comprehension item writer. Output VALID JSON ONLY — no markdown, no commentary. The passage must be appropriate for a Primary 6 student in Singapore, around 120-180 words, natural to read aloud at conversational pace, in clean Standard English with no slang.';
+  const prompt = `Generate ONE listening passage of type: ${typeBlurb}.
+
+Output JSON with EXACTLY these fields (no others):
+{
+  "title": "<short descriptive title, 4-7 words>",
+  "type": "${type}",
+  "intro": "<one-sentence orientation for the student, naming what to listen for>",
+  "audio": "<the spoken passage, 120-180 words, clean Standard English>",
+  "questions": [
+    { "stem": "<question 1>", "options": ["<A>", "<B>", "<C>", "<D>"], "correct": <0-3>, "explain": "<one-sentence why>" },
+    { "stem": "<question 2>", "options": ["<A>", "<B>", "<C>", "<D>"], "correct": <0-3>, "explain": "<one-sentence why>" },
+    { "stem": "<question 3>", "options": ["<A>", "<B>", "<C>", "<D>"], "correct": <0-3>, "explain": "<one-sentence why>" }
+  ]
+}
+
+Constraints:
+- "audio" must be ONE coherent passage, NOT bullet points.
+- Each question tests one of: literal detail, inference, or main idea.
+- "correct" is a 0-based integer index.
+- Avoid topics requiring outside knowledge (current events, branded products, specific people).
+- Use Singapore-natural settings (school, hawker centre, MRT, void deck, library) where possible.`;
+
+  const json = await window.askGemini({
+    system: sys, prompt,
+    temperature: 0.7, maxTokens: 1200, thinkingBudget: 0,
+    responseMimeType: 'application/json', asJson: true,
+  });
+  if (!json || typeof json.audio !== 'string' || !Array.isArray(json.questions)) {
+    throw new Error('Generator returned an unexpected shape.');
+  }
+  return {
+    id, type, title: json.title || 'AI-generated passage',
+    intro: json.intro || '', audio: json.audio,
+    questions: json.questions.map(q => ({
+      stem: q.stem || '?',
+      options: Array.isArray(q.options) ? q.options.slice(0, 4) : ['A','B','C','D'],
+      correct: typeof q.correct === 'number' ? q.correct : 0,
+      explain: q.explain || '',
+    })),
+    _generated: true,
+  };
+}
 </script>
 </body>
 </html>
