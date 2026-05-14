@@ -58,6 +58,10 @@ SCRIPTS=(
   "src/malay/malay-render.js"
   "src/data/mega-map.js"
   "src/data/threads.js"
+  "src/data/iotd.js"
+  "src/data/qotd.js"
+  "src/data/strategies.js"
+  "src/core/metacognition.js"
   "src/challenges/star-trials.js"
   "src/challenges/escape-rooms.js"
   "src/core/interactive-sims.js"
@@ -68,6 +72,10 @@ SCRIPTS=(
   "src/ui/garden-island.js"
   "src/ui/home.js"
   "src/ui/mega-map.js"
+  "src/ui/compass.js"
+  "src/ui/mirror.js"
+  "src/ui/pomodoro.js"
+  "src/ui/parent-digest.js"
   "src/ui/navigation.js"
 )
 

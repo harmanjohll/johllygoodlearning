@@ -7,11 +7,12 @@ const WORD_TREE = {
   phonics:  { id:'phonics',  name:'Phonics & CVC',      icon:'\uD83D\uDD24', grade:'P1 Foundation', deps:[],           desc:'Sound out CVC words' },
   sight:    { id:'sight',    name:'Sight Words',         icon:'\uD83D\uDC41\uFE0F', grade:'P1 Foundation', deps:[],           desc:'Read high-frequency words' },
   spell:    { id:'spell',    name:'Spelling Bee',        icon:'\uD83D\uDC1D', grade:'P1 Foundation', deps:['phonics'],  desc:'Spell CVC words with pictures' },
+  punct:    { id:'punct',    name:'Punctuation Power',   icon:'\u2755',       grade:'P1 Foundation', deps:[],            desc:'Full stops, question marks, commas, more' },
 
   // === P2 Expansion (EL) ===
-  grammar:  { id:'grammar',  name:'Grammar Garden',      icon:'\uD83C\uDF3B', grade:'P2 Expansion',  deps:['sight'],           desc:'Nouns, verbs, adjectives' },
+  grammar:  { id:'grammar',  name:'Grammar Garden',      icon:'\uD83C\uDF3B', grade:'P2 Expansion',  deps:['sight'],           desc:'Nouns, verbs, adjectives, pronouns, plurals' },
   vocab:    { id:'vocab',    name:'Vocabulary Vault',     icon:'\uD83D\uDCDA', grade:'P2 Expansion',  deps:['sight'],           desc:'Learn new word meanings' },
-  sentence: { id:'sentence', name:'Sentence Builder',     icon:'\uD83D\uDD28', grade:'P2 Expansion',  deps:['grammar'],         desc:'Build correct sentences' },
+  sentence: { id:'sentence', name:'Sentence Builder',     icon:'\uD83D\uDD28', grade:'P2 Expansion',  deps:['grammar','punct'], desc:'Build correct sentences' },
 
   // === P3 Deepening (EL) ===
   comprehension: { id:'comprehension', name:'Reading Comprehension', icon:'\uD83D\uDCD6', grade:'P3 Deepening', deps:['vocab','sentence'], desc:'Read passages and answer questions' },

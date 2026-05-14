@@ -40,6 +40,18 @@ function showScreen(screenId) {
   if (screenId === 'mega-map' && typeof renderMegaMap === 'function') {
     renderMegaMap();
   }
+  if (screenId === 'compass' && typeof renderCompass === 'function') {
+    renderCompass();
+  }
+  if (screenId === 'mirror' && typeof renderMirror === 'function') {
+    renderMirror();
+  }
+  if (screenId === 'strategies' && typeof renderStrategyLibrary === 'function') {
+    renderStrategyLibrary();
+  }
+  if (screenId === 'parent-digest' && typeof renderParentDigest === 'function') {
+    renderParentDigest();
+  }
   if (screenId === 'garden') {
     if (typeof renderGardenIsland === 'function') renderGardenIsland();
     renderGarden();
@@ -187,7 +199,13 @@ function openSkillView(skillId, worldType) {
         '<button class="lesson-btn lesson-btn-done" id="start-quiz-btn">Start Quiz →</button>' +
         '</div>';
       document.getElementById('start-quiz-btn').onclick = function() {
-        startGame(skillId, worldType);
+        if (typeof metaConfidenceBefore === 'function') {
+          metaConfidenceBefore(skillId, function() {
+            startGame(skillId, worldType);
+          });
+        } else {
+          startGame(skillId, worldType);
+        }
       };
     }
   }
@@ -321,6 +339,9 @@ function endGame() {
   }
   if (typeof lumiReactTo === 'function') {
     lumiReactTo('quizComplete', { pct: pct });
+  }
+  if (typeof metaReflectAfter === 'function') {
+    metaReflectAfter(currentGame.skillId);
   }
 
   const overlay = document.getElementById('feedback-overlay');
