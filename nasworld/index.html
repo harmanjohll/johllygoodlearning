@@ -643,6 +643,136 @@ body {
   color: var(--text-dim); cursor: pointer; font-size: 12px;
 }
 
+/* === STASHA AVATAR === */
+.world-card.stasha .world-card-icon { animation: float 4s ease-in-out infinite; }
+.stasha-shell { max-width: 720px; margin: 8px auto; padding: 12px; text-align: center; }
+.stasha-stage {
+  position: relative;
+  width: 100%; aspect-ratio: 1 / 1;
+  max-width: 480px; margin: 0 auto;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 2px solid rgba(255,215,0,0.25);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.5s;
+}
+.stasha-stage.bg-bedroom    { background: linear-gradient(180deg, #fce4f1 0%, #f5d6e8 60%, #ecc2dc 100%); }
+.stasha-stage.bg-garden-bg  { background: linear-gradient(180deg, #d4f1c8 0%, #a8e88a 60%, #82d058 100%); }
+.stasha-stage.bg-castle-bg  { background: linear-gradient(180deg, #e6d3ff 0%, #c8a8ff 60%, #9d7be0 100%); }
+.stasha-stage.bg-space-bg   { background: radial-gradient(ellipse at 30% 30%, #2f2370, #0f0b2e 70%); }
+.stasha-stage.bg-hawker-bg  { background: linear-gradient(180deg, #fff4d6 0%, #ffd166 70%, #ef9d4d 100%); }
+.stasha-stage.bg-library-bg { background: linear-gradient(180deg, #4e3b66 0%, #2a1f3d 100%); }
+.stasha-stage.bg-beach-bg   { background: linear-gradient(180deg, #c8e9ff 0%, #ffe0a0 60%, #f4c989 100%); }
+.stasha-stage.bg-meadow-bg  { background: linear-gradient(180deg, #1a1147 0%, #5d3aa3 50%, #c886e0 100%); }
+
+#stasha-canvas {
+  display: block; max-width: 100%; max-height: 100%;
+  background: transparent;
+  position: relative; z-index: 2;
+}
+.stasha-fallback {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: var(--text-primary); padding: 20px; text-align: center; z-index: 1;
+}
+.stasha-fallback.hidden { display: none; }
+.stasha-fallback-emoji { font-size: 110px; animation: float 4s ease-in-out infinite; }
+.stasha-fallback-name { font-family: var(--font-display); font-size: 24px; color: var(--gold); margin: 6px 0; }
+.stasha-fallback-note { font-size: 12px; color: var(--text-secondary); max-width: 240px; }
+
+/* === STASHA OVERLAY ITEMS === */
+.stasha-aura {
+  position: absolute; inset: 8%; border-radius: 50%;
+  pointer-events: none; z-index: 0;
+}
+.stasha-aura.aura-soft-sparkle   { box-shadow: 0 0 90px 30px rgba(255,215,0,0.25) inset, 0 0 60px rgba(255,215,0,0.12); }
+.stasha-aura.aura-pink-hearts    { box-shadow: 0 0 120px 30px rgba(255,123,219,0.35) inset; animation: float 5s ease-in-out infinite; }
+.stasha-aura.aura-rainbow-aura   { box-shadow: 0 0 100px 40px rgba(123,179,255,0.25) inset, 0 0 80px rgba(255,123,219,0.2); }
+.stasha-aura.aura-gold-stars     { box-shadow: 0 0 130px 40px rgba(255,215,0,0.5) inset; animation: pulse-glow 3s ease-in-out infinite; }
+.stasha-aura.aura-supernova-aura { box-shadow: 0 0 160px 50px rgba(255,215,0,0.65) inset, 0 0 100px rgba(255,123,219,0.4); animation: pulse-glow 2s ease-in-out infinite; }
+.stasha-aura.aura-galaxy-aura    { box-shadow: 0 0 180px 60px rgba(181,123,255,0.5) inset, 0 0 120px rgba(123,179,255,0.4), 0 0 80px rgba(255,123,219,0.3); animation: pulse-glow 4s ease-in-out infinite; }
+
+.stasha-overlay-item {
+  position: absolute; pointer-events: none; font-size: 48px;
+  z-index: 5; transition: transform 0.3s;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+.stasha-hair   { top: 8%;  left: 50%; transform: translateX(-50%); }
+.stasha-outfit { bottom: 30%; left: 50%; transform: translateX(-50%); font-size: 38px; opacity: 0.85; }
+.stasha-pet    { bottom: 8%; right: 8%; font-size: 44px; animation: float 3s ease-in-out infinite; }
+
+.stasha-name { font-family: var(--font-display); font-size: 26px; color: var(--gold); margin: 14px 0 4px; }
+.stasha-bio { font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; }
+.stasha-actions { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+
+.stasha-inv {
+  background: rgba(37,27,94,0.5); border: 1px solid rgba(181,123,255,0.2);
+  border-radius: var(--radius-lg); padding: 16px; text-align: left;
+}
+.stasha-inv-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+.stasha-inv-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.stasha-inv-chip {
+  background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.25);
+  color: var(--text-primary); padding: 4px 10px; border-radius: 999px;
+  font-size: 12px;
+}
+.stasha-inv-chip.locked { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: var(--text-dim); }
+
+/* === WARDROBE === */
+.wardrobe-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 10px 0; padding: 12px 16px;
+  background: rgba(37,27,94,0.6); border: 1px solid rgba(255,215,0,0.2);
+  border-radius: var(--radius-lg);
+}
+.wardrobe-header h2 { font-family: var(--font-display); color: var(--gold); margin: 0; }
+.wardrobe-balance { font-family: var(--font-display); font-size: 20px; color: var(--gold); font-weight: 700; }
+.wardrobe-intro { text-align: center; font-size: 13px; color: var(--text-secondary); margin: 0 0 14px; padding: 0 16px; }
+.wardrobe-tabs {
+  display: flex; gap: 6px; overflow-x: auto; padding: 6px;
+  margin-bottom: 14px;
+}
+.wardrobe-tab {
+  background: rgba(37,27,94,0.5); border: 1px solid rgba(181,123,255,0.2);
+  color: var(--text-primary); padding: 8px 14px; border-radius: 999px;
+  font-family: var(--font-body); font-size: 13px; cursor: pointer;
+  flex-shrink: 0; transition: all .2s;
+}
+.wardrobe-tab.active { background: rgba(255,215,0,0.18); border-color: var(--gold); color: var(--gold); }
+.wardrobe-tab:hover { transform: translateY(-2px); }
+
+.wardrobe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.wardrobe-item {
+  background: rgba(37,27,94,0.5); border: 2px solid rgba(181,123,255,0.2);
+  border-radius: var(--radius-lg); padding: 14px 10px;
+  text-align: center; cursor: pointer; transition: all .25s;
+  position: relative;
+}
+.wardrobe-item:hover { transform: translateY(-3px); border-color: rgba(255,215,0,0.5); }
+.wardrobe-item.locked { opacity: 0.5; cursor: not-allowed; }
+.wardrobe-item.locked:hover { transform: none; border-color: rgba(181,123,255,0.2); }
+.wardrobe-item.owned { border-color: rgba(255,215,0,0.35); background: rgba(255,215,0,0.06); }
+.wardrobe-item.equipped { border-color: var(--gold); box-shadow: 0 0 24px rgba(255,215,0,0.3); }
+.wardrobe-emoji { font-size: 40px; margin-bottom: 4px; }
+.wardrobe-name { font-weight: 700; font-size: 13px; color: var(--text-primary); margin-bottom: 2px; }
+.wardrobe-desc { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; min-height: 28px; line-height: 1.3; }
+.wardrobe-btn {
+  background: rgba(255,215,0,0.18); border: 1px solid rgba(255,215,0,0.4);
+  color: var(--gold); padding: 6px 10px; border-radius: 10px;
+  font-family: var(--font-body); font-size: 12px; cursor: pointer; width: 100%;
+}
+.wardrobe-btn:hover { background: rgba(255,215,0,0.32); }
+.wardrobe-badge {
+  display: inline-block; padding: 4px 10px;
+  border-radius: 10px; font-size: 11px; font-weight: 600;
+}
+.wardrobe-badge.equipped { background: rgba(74,222,128,0.18); color: var(--success); border: 1px solid rgba(74,222,128,0.3); }
+.wardrobe-badge.locked { background: rgba(0,0,0,0.25); color: var(--text-dim); border: 1px solid rgba(255,255,255,0.08); font-size: 10px; }
+
 /* === ACTIVITY SELECTION === */
 .activity-header {
   text-align: center;
@@ -2771,6 +2901,12 @@ body {
           <div class="world-card-title">Smart Tricks</div>
           <div class="world-card-desc">10 tricks the cleverest learners use. Try one a week.</div>
         </div>
+
+        <div class="world-card stasha" onclick="showScreen('stasha')">
+          <span class="world-card-icon">&#128091;</span>
+          <div class="world-card-title">Meet Stasha</div>
+          <div class="world-card-desc">Your 3D avatar. Dress her up — earn outfits with stars and streaks.</div>
+        </div>
         <div class="world-card garden" onclick="showScreen('garden')">
           <span class="world-card-icon">&#127800;</span>
           <div class="world-card-title">My Garden</div>
@@ -2876,6 +3012,16 @@ body {
       <div id="parent-digest-content"></div>
     </div>
 
+    <!-- STASHA AVATAR SCREEN -->
+    <div class="screen" id="screen-stasha">
+      <div id="stasha-content"></div>
+    </div>
+
+    <!-- WARDROBE SCREEN -->
+    <div class="screen" id="screen-wardrobe">
+      <div id="wardrobe-content"></div>
+    </div>
+
     <!-- SKILL VIEW SCREEN (Learn / Explore / Quiz tabs) -->
     <div class="screen" id="screen-skill-view">
       <div class="game-area" id="skill-view-content"></div>
@@ -2946,6 +3092,154 @@ body {
   <div class="feedback-card" id="feedback-card"></div>
 </div>
 
+<!-- 3D AVATAR (Three.js + three-vrm, CDN-loaded as ES modules).
+     Falls back to a 2D portrait if these fail to load. -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+    "@pixiv/three-vrm": "https://unpkg.com/@pixiv/three-vrm@2.1.0/lib/three-vrm.module.js"
+  }
+}
+</script>
+<script type="module">
+  try {
+    const THREE = await import('three');
+    const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+    const { VRMLoaderPlugin, VRMUtils } = await import('@pixiv/three-vrm');
+
+    let renderer, scene, camera, vrm, clock, currentCanvas;
+    let blinkAccum = 2, expressionTimer = 0;
+    let waveActive = false, waveTimer = 0;
+
+    async function init(canvas) {
+      if (currentCanvas === canvas && vrm) return;
+      currentCanvas = canvas;
+
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(28, 1, 0.1, 20);
+      camera.position.set(0, 1.3, 1.4);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+      const dir = new THREE.DirectionalLight(0xffffff, 0.55);
+      dir.position.set(0.6, 1.6, 1.0);
+      scene.add(dir);
+
+      const resize = () => {
+        const stage = canvas.parentElement;
+        const rect = stage.getBoundingClientRect();
+        const size = Math.min(rect.width, rect.height);
+        renderer.setSize(size, size, false);
+        canvas.style.width = size + 'px';
+        canvas.style.height = size + 'px';
+        camera.aspect = 1;
+        camera.updateProjectionMatrix();
+      };
+      resize();
+      window.addEventListener('resize', resize);
+
+      const loader = new GLTFLoader();
+      loader.register((parser) => new VRMLoaderPlugin(parser));
+
+      await new Promise((resolve, reject) => {
+        loader.load('assets/stasha.vrm', (gltf) => {
+          vrm = gltf.userData.vrm;
+          if (!vrm) { reject(new Error('No VRM in file')); return; }
+          try { VRMUtils.removeUnnecessaryVertices(gltf.scene); } catch(_) {}
+          try { VRMUtils.removeUnnecessaryJoints(gltf.scene); } catch(_) {}
+          try { VRMUtils.rotateVRM0(vrm); } catch(_) {}
+          scene.add(vrm.scene);
+          // Frame on the head
+          const head = vrm.humanoid?.getBoneNode('head');
+          if (head) {
+            const pos = new THREE.Vector3();
+            head.getWorldPosition(pos);
+            camera.position.set(pos.x, pos.y - 0.05, pos.z + 0.78);
+            camera.lookAt(pos.x, pos.y - 0.04, pos.z);
+          }
+          clock = new THREE.Clock();
+          tick();
+          resolve();
+        }, undefined, reject);
+      });
+    }
+
+    function tick() {
+      if (!renderer || !vrm) return;
+      requestAnimationFrame(tick);
+      const dt = clock.getDelta();
+
+      // Breathing
+      const chest = vrm.humanoid?.getBoneNode('chest') || vrm.humanoid?.getBoneNode('spine');
+      if (chest) chest.rotation.x = Math.sin(clock.elapsedTime * 1.4) * 0.018;
+
+      // Blink
+      blinkAccum -= dt;
+      if (blinkAccum <= 0 && vrm.expressionManager) {
+        const blinkName = vrm.expressionManager.getExpression?.('blink') ? 'blink' :
+          (vrm.expressionManager.getExpression?.('Blink') ? 'Blink' : 'blink');
+        try { vrm.expressionManager.setValue(blinkName, 1); } catch(_) {}
+        setTimeout(() => {
+          try { vrm.expressionManager.setValue(blinkName, 0); } catch(_) {}
+        }, 120);
+        blinkAccum = 2 + Math.random() * 3;
+      }
+
+      // Wave animation
+      if (waveActive) {
+        waveTimer += dt;
+        const arm = vrm.humanoid?.getBoneNode('rightUpperArm');
+        const fore = vrm.humanoid?.getBoneNode('rightLowerArm');
+        if (arm) arm.rotation.z = -Math.PI * 0.55 + Math.sin(waveTimer * 8) * 0.25;
+        if (fore) fore.rotation.z = -0.4;
+        if (waveTimer > 1.6) {
+          waveActive = false;
+          if (arm) arm.rotation.z = 0;
+          if (fore) fore.rotation.z = 0;
+        }
+      }
+
+      // Expression reset
+      if (expressionTimer > 0) {
+        expressionTimer -= dt;
+        if (expressionTimer <= 0 && vrm.expressionManager) {
+          ['happy','sad','surprised','relaxed','angry'].forEach(e => {
+            try { vrm.expressionManager.setValue(e, 0); } catch(_) {}
+          });
+        }
+      }
+
+      vrm.update(dt);
+      renderer.render(scene, camera);
+    }
+
+    function react(kind) {
+      if (!vrm || !vrm.expressionManager) return;
+      const map = { happy:'happy', sad:'sad', surprised:'surprised', celebrate:'happy' };
+      const exp = map[kind];
+      if (exp) {
+        ['happy','sad','surprised','relaxed','angry'].forEach(e => {
+          try { vrm.expressionManager.setValue(e, 0); } catch(_) {}
+        });
+        try { vrm.expressionManager.setValue(exp, 1); } catch(_) {}
+        expressionTimer = 2.5;
+      }
+      if (kind === 'wave' || kind === 'celebrate') {
+        waveActive = true; waveTimer = 0;
+      }
+    }
+
+    window.__stasha3D = { init, react };
+  } catch (e) {
+    console.warn('Stasha 3D module failed to load — using 2D fallback.', e);
+  }
+</script>
+
 <!-- SCRIPTS (loaded in dependency order) -->
 <script src="src/core/utils.js"></script>
 <script src="src/data/encouragements.js"></script>
@@ -2985,6 +3279,9 @@ body {
 <script src="src/data/qotd.js"></script>
 <script src="src/data/strategies.js"></script>
 <script src="src/core/metacognition.js"></script>
+<script src="src/avatar/wardrobe-data.js"></script>
+<script src="src/avatar/wardrobe.js"></script>
+<script src="src/avatar/stasha.js"></script>
 <script src="src/challenges/star-trials.js"></script>
 <script src="src/challenges/escape-rooms.js"></script>
 <script src="src/core/interactive-sims.js"></script>

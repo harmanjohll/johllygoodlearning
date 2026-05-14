@@ -643,6 +643,136 @@ body {
   color: var(--text-dim); cursor: pointer; font-size: 12px;
 }
 
+/* === STASHA AVATAR === */
+.world-card.stasha .world-card-icon { animation: float 4s ease-in-out infinite; }
+.stasha-shell { max-width: 720px; margin: 8px auto; padding: 12px; text-align: center; }
+.stasha-stage {
+  position: relative;
+  width: 100%; aspect-ratio: 1 / 1;
+  max-width: 480px; margin: 0 auto;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 2px solid rgba(255,215,0,0.25);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.5s;
+}
+.stasha-stage.bg-bedroom    { background: linear-gradient(180deg, #fce4f1 0%, #f5d6e8 60%, #ecc2dc 100%); }
+.stasha-stage.bg-garden-bg  { background: linear-gradient(180deg, #d4f1c8 0%, #a8e88a 60%, #82d058 100%); }
+.stasha-stage.bg-castle-bg  { background: linear-gradient(180deg, #e6d3ff 0%, #c8a8ff 60%, #9d7be0 100%); }
+.stasha-stage.bg-space-bg   { background: radial-gradient(ellipse at 30% 30%, #2f2370, #0f0b2e 70%); }
+.stasha-stage.bg-hawker-bg  { background: linear-gradient(180deg, #fff4d6 0%, #ffd166 70%, #ef9d4d 100%); }
+.stasha-stage.bg-library-bg { background: linear-gradient(180deg, #4e3b66 0%, #2a1f3d 100%); }
+.stasha-stage.bg-beach-bg   { background: linear-gradient(180deg, #c8e9ff 0%, #ffe0a0 60%, #f4c989 100%); }
+.stasha-stage.bg-meadow-bg  { background: linear-gradient(180deg, #1a1147 0%, #5d3aa3 50%, #c886e0 100%); }
+
+#stasha-canvas {
+  display: block; max-width: 100%; max-height: 100%;
+  background: transparent;
+  position: relative; z-index: 2;
+}
+.stasha-fallback {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: var(--text-primary); padding: 20px; text-align: center; z-index: 1;
+}
+.stasha-fallback.hidden { display: none; }
+.stasha-fallback-emoji { font-size: 110px; animation: float 4s ease-in-out infinite; }
+.stasha-fallback-name { font-family: var(--font-display); font-size: 24px; color: var(--gold); margin: 6px 0; }
+.stasha-fallback-note { font-size: 12px; color: var(--text-secondary); max-width: 240px; }
+
+/* === STASHA OVERLAY ITEMS === */
+.stasha-aura {
+  position: absolute; inset: 8%; border-radius: 50%;
+  pointer-events: none; z-index: 0;
+}
+.stasha-aura.aura-soft-sparkle   { box-shadow: 0 0 90px 30px rgba(255,215,0,0.25) inset, 0 0 60px rgba(255,215,0,0.12); }
+.stasha-aura.aura-pink-hearts    { box-shadow: 0 0 120px 30px rgba(255,123,219,0.35) inset; animation: float 5s ease-in-out infinite; }
+.stasha-aura.aura-rainbow-aura   { box-shadow: 0 0 100px 40px rgba(123,179,255,0.25) inset, 0 0 80px rgba(255,123,219,0.2); }
+.stasha-aura.aura-gold-stars     { box-shadow: 0 0 130px 40px rgba(255,215,0,0.5) inset; animation: pulse-glow 3s ease-in-out infinite; }
+.stasha-aura.aura-supernova-aura { box-shadow: 0 0 160px 50px rgba(255,215,0,0.65) inset, 0 0 100px rgba(255,123,219,0.4); animation: pulse-glow 2s ease-in-out infinite; }
+.stasha-aura.aura-galaxy-aura    { box-shadow: 0 0 180px 60px rgba(181,123,255,0.5) inset, 0 0 120px rgba(123,179,255,0.4), 0 0 80px rgba(255,123,219,0.3); animation: pulse-glow 4s ease-in-out infinite; }
+
+.stasha-overlay-item {
+  position: absolute; pointer-events: none; font-size: 48px;
+  z-index: 5; transition: transform 0.3s;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+.stasha-hair   { top: 8%;  left: 50%; transform: translateX(-50%); }
+.stasha-outfit { bottom: 30%; left: 50%; transform: translateX(-50%); font-size: 38px; opacity: 0.85; }
+.stasha-pet    { bottom: 8%; right: 8%; font-size: 44px; animation: float 3s ease-in-out infinite; }
+
+.stasha-name { font-family: var(--font-display); font-size: 26px; color: var(--gold); margin: 14px 0 4px; }
+.stasha-bio { font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; }
+.stasha-actions { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+
+.stasha-inv {
+  background: rgba(37,27,94,0.5); border: 1px solid rgba(181,123,255,0.2);
+  border-radius: var(--radius-lg); padding: 16px; text-align: left;
+}
+.stasha-inv-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+.stasha-inv-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.stasha-inv-chip {
+  background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.25);
+  color: var(--text-primary); padding: 4px 10px; border-radius: 999px;
+  font-size: 12px;
+}
+.stasha-inv-chip.locked { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: var(--text-dim); }
+
+/* === WARDROBE === */
+.wardrobe-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 10px 0; padding: 12px 16px;
+  background: rgba(37,27,94,0.6); border: 1px solid rgba(255,215,0,0.2);
+  border-radius: var(--radius-lg);
+}
+.wardrobe-header h2 { font-family: var(--font-display); color: var(--gold); margin: 0; }
+.wardrobe-balance { font-family: var(--font-display); font-size: 20px; color: var(--gold); font-weight: 700; }
+.wardrobe-intro { text-align: center; font-size: 13px; color: var(--text-secondary); margin: 0 0 14px; padding: 0 16px; }
+.wardrobe-tabs {
+  display: flex; gap: 6px; overflow-x: auto; padding: 6px;
+  margin-bottom: 14px;
+}
+.wardrobe-tab {
+  background: rgba(37,27,94,0.5); border: 1px solid rgba(181,123,255,0.2);
+  color: var(--text-primary); padding: 8px 14px; border-radius: 999px;
+  font-family: var(--font-body); font-size: 13px; cursor: pointer;
+  flex-shrink: 0; transition: all .2s;
+}
+.wardrobe-tab.active { background: rgba(255,215,0,0.18); border-color: var(--gold); color: var(--gold); }
+.wardrobe-tab:hover { transform: translateY(-2px); }
+
+.wardrobe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.wardrobe-item {
+  background: rgba(37,27,94,0.5); border: 2px solid rgba(181,123,255,0.2);
+  border-radius: var(--radius-lg); padding: 14px 10px;
+  text-align: center; cursor: pointer; transition: all .25s;
+  position: relative;
+}
+.wardrobe-item:hover { transform: translateY(-3px); border-color: rgba(255,215,0,0.5); }
+.wardrobe-item.locked { opacity: 0.5; cursor: not-allowed; }
+.wardrobe-item.locked:hover { transform: none; border-color: rgba(181,123,255,0.2); }
+.wardrobe-item.owned { border-color: rgba(255,215,0,0.35); background: rgba(255,215,0,0.06); }
+.wardrobe-item.equipped { border-color: var(--gold); box-shadow: 0 0 24px rgba(255,215,0,0.3); }
+.wardrobe-emoji { font-size: 40px; margin-bottom: 4px; }
+.wardrobe-name { font-weight: 700; font-size: 13px; color: var(--text-primary); margin-bottom: 2px; }
+.wardrobe-desc { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; min-height: 28px; line-height: 1.3; }
+.wardrobe-btn {
+  background: rgba(255,215,0,0.18); border: 1px solid rgba(255,215,0,0.4);
+  color: var(--gold); padding: 6px 10px; border-radius: 10px;
+  font-family: var(--font-body); font-size: 12px; cursor: pointer; width: 100%;
+}
+.wardrobe-btn:hover { background: rgba(255,215,0,0.32); }
+.wardrobe-badge {
+  display: inline-block; padding: 4px 10px;
+  border-radius: 10px; font-size: 11px; font-weight: 600;
+}
+.wardrobe-badge.equipped { background: rgba(74,222,128,0.18); color: var(--success); border: 1px solid rgba(74,222,128,0.3); }
+.wardrobe-badge.locked { background: rgba(0,0,0,0.25); color: var(--text-dim); border: 1px solid rgba(255,255,255,0.08); font-size: 10px; }
+
 /* === ACTIVITY SELECTION === */
 .activity-header {
   text-align: center;
@@ -2771,6 +2901,12 @@ body {
           <div class="world-card-title">Smart Tricks</div>
           <div class="world-card-desc">10 tricks the cleverest learners use. Try one a week.</div>
         </div>
+
+        <div class="world-card stasha" onclick="showScreen('stasha')">
+          <span class="world-card-icon">&#128091;</span>
+          <div class="world-card-title">Meet Stasha</div>
+          <div class="world-card-desc">Your 3D avatar. Dress her up — earn outfits with stars and streaks.</div>
+        </div>
         <div class="world-card garden" onclick="showScreen('garden')">
           <span class="world-card-icon">&#127800;</span>
           <div class="world-card-title">My Garden</div>
@@ -2876,6 +3012,16 @@ body {
       <div id="parent-digest-content"></div>
     </div>
 
+    <!-- STASHA AVATAR SCREEN -->
+    <div class="screen" id="screen-stasha">
+      <div id="stasha-content"></div>
+    </div>
+
+    <!-- WARDROBE SCREEN -->
+    <div class="screen" id="screen-wardrobe">
+      <div id="wardrobe-content"></div>
+    </div>
+
     <!-- SKILL VIEW SCREEN (Learn / Explore / Quiz tabs) -->
     <div class="screen" id="screen-skill-view">
       <div class="game-area" id="skill-view-content"></div>
@@ -2945,6 +3091,154 @@ body {
 <div class="feedback-overlay hidden" id="feedback-overlay" onclick="closeFeedback(event)">
   <div class="feedback-card" id="feedback-card"></div>
 </div>
+
+<!-- 3D AVATAR (Three.js + three-vrm, CDN-loaded as ES modules).
+     Falls back to a 2D portrait if these fail to load. -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+    "@pixiv/three-vrm": "https://unpkg.com/@pixiv/three-vrm@2.1.0/lib/three-vrm.module.js"
+  }
+}
+</script>
+<script type="module">
+  try {
+    const THREE = await import('three');
+    const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+    const { VRMLoaderPlugin, VRMUtils } = await import('@pixiv/three-vrm');
+
+    let renderer, scene, camera, vrm, clock, currentCanvas;
+    let blinkAccum = 2, expressionTimer = 0;
+    let waveActive = false, waveTimer = 0;
+
+    async function init(canvas) {
+      if (currentCanvas === canvas && vrm) return;
+      currentCanvas = canvas;
+
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(28, 1, 0.1, 20);
+      camera.position.set(0, 1.3, 1.4);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+      const dir = new THREE.DirectionalLight(0xffffff, 0.55);
+      dir.position.set(0.6, 1.6, 1.0);
+      scene.add(dir);
+
+      const resize = () => {
+        const stage = canvas.parentElement;
+        const rect = stage.getBoundingClientRect();
+        const size = Math.min(rect.width, rect.height);
+        renderer.setSize(size, size, false);
+        canvas.style.width = size + 'px';
+        canvas.style.height = size + 'px';
+        camera.aspect = 1;
+        camera.updateProjectionMatrix();
+      };
+      resize();
+      window.addEventListener('resize', resize);
+
+      const loader = new GLTFLoader();
+      loader.register((parser) => new VRMLoaderPlugin(parser));
+
+      await new Promise((resolve, reject) => {
+        loader.load('assets/stasha.vrm', (gltf) => {
+          vrm = gltf.userData.vrm;
+          if (!vrm) { reject(new Error('No VRM in file')); return; }
+          try { VRMUtils.removeUnnecessaryVertices(gltf.scene); } catch(_) {}
+          try { VRMUtils.removeUnnecessaryJoints(gltf.scene); } catch(_) {}
+          try { VRMUtils.rotateVRM0(vrm); } catch(_) {}
+          scene.add(vrm.scene);
+          // Frame on the head
+          const head = vrm.humanoid?.getBoneNode('head');
+          if (head) {
+            const pos = new THREE.Vector3();
+            head.getWorldPosition(pos);
+            camera.position.set(pos.x, pos.y - 0.05, pos.z + 0.78);
+            camera.lookAt(pos.x, pos.y - 0.04, pos.z);
+          }
+          clock = new THREE.Clock();
+          tick();
+          resolve();
+        }, undefined, reject);
+      });
+    }
+
+    function tick() {
+      if (!renderer || !vrm) return;
+      requestAnimationFrame(tick);
+      const dt = clock.getDelta();
+
+      // Breathing
+      const chest = vrm.humanoid?.getBoneNode('chest') || vrm.humanoid?.getBoneNode('spine');
+      if (chest) chest.rotation.x = Math.sin(clock.elapsedTime * 1.4) * 0.018;
+
+      // Blink
+      blinkAccum -= dt;
+      if (blinkAccum <= 0 && vrm.expressionManager) {
+        const blinkName = vrm.expressionManager.getExpression?.('blink') ? 'blink' :
+          (vrm.expressionManager.getExpression?.('Blink') ? 'Blink' : 'blink');
+        try { vrm.expressionManager.setValue(blinkName, 1); } catch(_) {}
+        setTimeout(() => {
+          try { vrm.expressionManager.setValue(blinkName, 0); } catch(_) {}
+        }, 120);
+        blinkAccum = 2 + Math.random() * 3;
+      }
+
+      // Wave animation
+      if (waveActive) {
+        waveTimer += dt;
+        const arm = vrm.humanoid?.getBoneNode('rightUpperArm');
+        const fore = vrm.humanoid?.getBoneNode('rightLowerArm');
+        if (arm) arm.rotation.z = -Math.PI * 0.55 + Math.sin(waveTimer * 8) * 0.25;
+        if (fore) fore.rotation.z = -0.4;
+        if (waveTimer > 1.6) {
+          waveActive = false;
+          if (arm) arm.rotation.z = 0;
+          if (fore) fore.rotation.z = 0;
+        }
+      }
+
+      // Expression reset
+      if (expressionTimer > 0) {
+        expressionTimer -= dt;
+        if (expressionTimer <= 0 && vrm.expressionManager) {
+          ['happy','sad','surprised','relaxed','angry'].forEach(e => {
+            try { vrm.expressionManager.setValue(e, 0); } catch(_) {}
+          });
+        }
+      }
+
+      vrm.update(dt);
+      renderer.render(scene, camera);
+    }
+
+    function react(kind) {
+      if (!vrm || !vrm.expressionManager) return;
+      const map = { happy:'happy', sad:'sad', surprised:'surprised', celebrate:'happy' };
+      const exp = map[kind];
+      if (exp) {
+        ['happy','sad','surprised','relaxed','angry'].forEach(e => {
+          try { vrm.expressionManager.setValue(e, 0); } catch(_) {}
+        });
+        try { vrm.expressionManager.setValue(exp, 1); } catch(_) {}
+        expressionTimer = 2.5;
+      }
+      if (kind === 'wave' || kind === 'celebrate') {
+        waveActive = true; waveTimer = 0;
+      }
+    }
+
+    window.__stasha3D = { init, react };
+  } catch (e) {
+    console.warn('Stasha 3D module failed to load — using 2D fallback.', e);
+  }
+</script>
 
 <!-- SCRIPTS (loaded in dependency order) -->
 <script>
@@ -12310,6 +12604,518 @@ function metaReflectAfter(skillId, onDone) {
 window.metaConfidenceBefore = metaConfidenceBefore;
 window.metaReflectAfter = metaReflectAfter;
 
+// --- src/avatar/wardrobe-data.js ---
+// ============================================================
+//  WARDROBE DATA — Items Anastasia can earn and equip on Stasha.
+//  Categories: hair, outfit, pet, background, aura.
+//  Unlock kinds: tokens, streak, level, skillsMastered, threadDone,
+//                achievementsCount, worldsTouched.
+// ============================================================
+
+var WARDROBE_ITEMS = [
+  // ===== HAIR (head accessories) =====
+  { id: 'pink-bow',       cat: 'hair',    name: 'Pink Bow',         emoji: '🎀', cost: 30,  unlock: { type: 'tokens',           value: 30 },  desc: 'A classic. Goes with everything.' },
+  { id: 'yellow-bow',     cat: 'hair',    name: 'Yellow Bow',       emoji: '🎀', cost: 30,  unlock: { type: 'tokens',           value: 30 },  desc: 'Sunshine on your head.', tint: '#ffd700' },
+  { id: 'flower-clip',    cat: 'hair',    name: 'Flower Clip',      emoji: '🌸', cost: 60,  unlock: { type: 'streak',           value: 2 },   desc: 'Tiny garden in your hair.' },
+  { id: 'butterfly-clip', cat: 'hair',    name: 'Butterfly Clip',   emoji: '🦋', cost: 100, unlock: { type: 'tokens',           value: 100 }, desc: 'Will it fly off? Probably not.' },
+  { id: 'mini-crown',     cat: 'hair',    name: 'Mini Crown',       emoji: '👑', cost: 150, unlock: { type: 'streak',           value: 5 },   desc: 'For everyday royalty.' },
+  { id: 'starlit-tiara',  cat: 'hair',    name: 'Starlit Tiara',    emoji: '✨', cost: 300, unlock: { type: 'streak',           value: 10 },  desc: 'Tiny stars woven in.' },
+  { id: 'unicorn-horn',   cat: 'hair',    name: 'Unicorn Horn',     emoji: '🦄', cost: 400, unlock: { type: 'worldsTouched',    value: 4 },   desc: 'For when all four worlds have met you.' },
+  { id: 'fairy-circlet',  cat: 'hair',    name: 'Fairy Circlet',    emoji: '🧚', cost: 500, unlock: { type: 'skillsMastered',   value: 5 },   desc: 'You have proven yourself.' },
+  { id: 'galaxy-halo',    cat: 'hair',    name: 'Galaxy Halo',      emoji: '🌌', cost: 0,   unlock: { type: 'level',            value: 4 },   desc: 'Star level unlocks this.' },
+  { id: 'princess-tiara', cat: 'hair',    name: 'Princess Tiara',   emoji: '👸', cost: 0,   unlock: { type: 'level',            value: 5 },   desc: 'Supernova level. Earned, not given.' },
+
+  // ===== OUTFIT (body) =====
+  { id: 'sparkle-vest',   cat: 'outfit',  name: 'Sparkle Vest',     emoji: '✨', cost: 50,  unlock: { type: 'tokens',           value: 50 },  desc: 'Twinkly. Comfortable.' },
+  { id: 'garden-apron',   cat: 'outfit',  name: 'Garden Apron',     emoji: '🌱', cost: 0,   unlock: { type: 'threadDone',       value: 'garden' },     desc: 'Earned by growing a garden.' },
+  { id: 'lemonade-apron', cat: 'outfit',  name: 'Lemonade Apron',   emoji: '🍋', cost: 0,   unlock: { type: 'threadDone',       value: 'lemonade' },   desc: 'You ran a shop. Proper boss.' },
+  { id: 'baju-kurung',    cat: 'outfit',  name: 'Baju Kurung',      emoji: '👘', cost: 0,   unlock: { type: 'threadDone',       value: 'hawker' },     desc: 'For when you order in Malay.' },
+  { id: 'lab-coat',       cat: 'outfit',  name: 'Lab Coat',         emoji: '🥼', cost: 0,   unlock: { type: 'skillsMasteredInWorld', value: { world: 'stem', n: 3 } }, desc: 'Three STEM skills mastered.' },
+  { id: 'robot-suit',     cat: 'outfit',  name: 'Robot Suit',       emoji: '🤖', cost: 0,   unlock: { type: 'threadDone',       value: 'robot' },      desc: 'Beep boop. You built one.' },
+  { id: 'princess-cape',  cat: 'outfit',  name: 'Princess Cape',    emoji: '🦋', cost: 400, unlock: { type: 'tokens',           value: 400 }, desc: 'Swooshes when you walk.' },
+  { id: 'bookworm-cardi', cat: 'outfit',  name: 'Bookworm Cardigan',emoji: '📚', cost: 0,   unlock: { type: 'skillsMasteredInWorld', value: { world: 'word', n: 5 } }, desc: 'Five English skills mastered.' },
+  { id: 'butterfly-wings',cat: 'outfit',  name: 'Butterfly Wings',  emoji: '🦋', cost: 200, unlock: { type: 'achievementsCount',value: 5 },   desc: 'Five achievements + 200 stars.' },
+  { id: 'chef-apron',     cat: 'outfit',  name: 'Chef Apron',       emoji: '👩‍🍳', cost: 250, unlock: { type: 'tokens',           value: 250 }, desc: 'Hawker centre ready.' },
+
+  // ===== PETS (companion) =====
+  { id: 'tabby-cat',      cat: 'pet',     name: 'Tabby Cat',        emoji: '🐱', cost: 80,  unlock: { type: 'tokens',           value: 80 },  desc: 'Purrs when you get answers right.' },
+  { id: 'bunny',          cat: 'pet',     name: 'Bunny',            emoji: '🐰', cost: 120, unlock: { type: 'tokens',           value: 120 }, desc: 'Hops in a happy pattern.' },
+  { id: 'butterfly-pet',  cat: 'pet',     name: 'Butterfly',        emoji: '🦋', cost: 0,   unlock: { type: 'skillMastered',    value: 'animals' },    desc: 'Animal life cycles mastered.' },
+  { id: 'mousedeer',      cat: 'pet',     name: 'Mousedeer',        emoji: '🦌', cost: 0,   unlock: { type: 'threadDone',       value: 'stories' },    desc: 'Sang Kancil sends regards.' },
+  { id: 'mini-dragon',    cat: 'pet',     name: 'Mini Dragon',      emoji: '🐲', cost: 600, unlock: { type: 'tokens',           value: 600 }, desc: 'Tiny but proud.' },
+  { id: 'baby-fox',       cat: 'pet',     name: 'Baby Fox',         emoji: '🦊', cost: 200, unlock: { type: 'tokens',           value: 200 }, desc: 'Clever like you.' },
+  { id: 'unicorn-pet',    cat: 'pet',     name: 'Unicorn',          emoji: '🦄', cost: 0,   unlock: { type: 'level',            value: 4 },   desc: 'Star level unlocks this loyal friend.' },
+  { id: 'robo-pup',       cat: 'pet',     name: 'Robo-Pup',         emoji: '🤖', cost: 0,   unlock: { type: 'skillMastered',    value: 'cseq' },       desc: 'Loyal because you programmed it.' },
+
+  // ===== BACKGROUNDS (scene) =====
+  { id: 'bedroom',        cat: 'background', name: 'Cosy Bedroom',  emoji: '🛏️', cost: 0,   unlock: { type: 'free',             value: true }, desc: 'The default — your starting room.' },
+  { id: 'garden-bg',      cat: 'background', name: 'Flower Garden', emoji: '🌷', cost: 50,  unlock: { type: 'tokens',           value: 50 },  desc: 'A meadow of pink and gold.' },
+  { id: 'castle-bg',      cat: 'background', name: 'Princess Castle',emoji: '🏰', cost: 200, unlock: { type: 'tokens',           value: 200 }, desc: 'You at home in a tower.' },
+  { id: 'space-bg',       cat: 'background', name: 'Starfield',     emoji: '🌌', cost: 350, unlock: { type: 'tokens',           value: 350 }, desc: 'Floating among the stars.' },
+  { id: 'hawker-bg',      cat: 'background', name: 'Hawker Centre', emoji: '🍜', cost: 0,   unlock: { type: 'threadDone',       value: 'hawker' },     desc: 'Smells of nasi lemak.' },
+  { id: 'library-bg',     cat: 'background', name: 'Library',       emoji: '📚', cost: 0,   unlock: { type: 'skillsMasteredInWorld', value: { world: 'word', n: 5 } }, desc: 'Where all the words live.' },
+  { id: 'beach-bg',       cat: 'background', name: 'Sandy Beach',   emoji: '🏖️', cost: 500, unlock: { type: 'tokens',           value: 500 }, desc: 'Palm trees and salty air.' },
+  { id: 'meadow-bg',      cat: 'background', name: 'Starlit Meadow',emoji: '✨', cost: 0,   unlock: { type: 'level',            value: 3 },   desc: 'Bloom level glows here.' },
+
+  // ===== AURAS (effects around her) =====
+  { id: 'soft-sparkle',   cat: 'aura',    name: 'Soft Sparkle',     emoji: '✨', cost: 0,   unlock: { type: 'free',             value: true }, desc: 'Gentle glow. Always nice.' },
+  { id: 'pink-hearts',    cat: 'aura',    name: 'Pink Hearts',      emoji: '💖', cost: 0,   unlock: { type: 'streak',           value: 5 },   desc: 'Floating little hearts.' },
+  { id: 'rainbow-aura',   cat: 'aura',    name: 'Rainbow Aura',     emoji: '🌈', cost: 0,   unlock: { type: 'streak',           value: 10 },  desc: 'A friendly band of colour.' },
+  { id: 'gold-stars',     cat: 'aura',    name: 'Gold Stars',       emoji: '⭐', cost: 0,   unlock: { type: 'level',            value: 4 },   desc: 'Star level. Wear it loudly.' },
+  { id: 'supernova-aura', cat: 'aura',    name: 'Supernova Burst',  emoji: '💫', cost: 0,   unlock: { type: 'level',            value: 5 },   desc: 'Pure radiance.' },
+  { id: 'galaxy-aura',    cat: 'aura',    name: 'Galaxy Spiral',    emoji: '🌌', cost: 0,   unlock: { type: 'level',            value: 6 },   desc: 'You are made of stars.' }
+];
+
+var WARDROBE_CATEGORIES = [
+  { id: 'hair',       label: 'Hair',        emoji: '💁' },
+  { id: 'outfit',     label: 'Outfit',      emoji: '👗' },
+  { id: 'pet',        label: 'Pet',         emoji: '🐾' },
+  { id: 'background', label: 'Background',  emoji: '🖼️' },
+  { id: 'aura',       label: 'Aura',        emoji: '✨' }
+];
+
+// --- src/avatar/wardrobe.js ---
+// ============================================================
+//  WARDROBE — Stasha's outfit catalogue, store, and try-on UI.
+//  Gamified: most items require tokens, streaks, masteries, or
+//  thread completion. A few are unlocked by reaching learning levels.
+// ============================================================
+
+function getWardrobeState() {
+  if (!state.wardrobe) {
+    state.wardrobe = {
+      owned: ['bedroom', 'soft-sparkle'],
+      equipped: { hair: null, outfit: null, pet: null, background: 'bedroom', aura: 'soft-sparkle' },
+      hintsSeen: false
+    };
+  }
+  if (!Array.isArray(state.wardrobe.owned)) state.wardrobe.owned = ['bedroom', 'soft-sparkle'];
+  if (!state.wardrobe.equipped) state.wardrobe.equipped = { hair: null, outfit: null, pet: null, background: 'bedroom', aura: 'soft-sparkle' };
+  return state.wardrobe;
+}
+
+function _wardrobeSkillsMasteredCount() {
+  if (!state.skills) return 0;
+  var n = 0;
+  Object.keys(state.skills).forEach(function(id) {
+    if ((state.skills[id].mastery || 0) >= 80) n++;
+  });
+  return n;
+}
+
+function _wardrobeSkillsMasteredInWorld(worldId) {
+  var trees = {
+    math: typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {},
+    word: typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {},
+    stem: typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {},
+    malay: typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}
+  };
+  var tree = trees[worldId] || {};
+  var n = 0;
+  Object.keys(tree).forEach(function(id) {
+    var s = state.skills && state.skills[id];
+    if (s && (s.mastery || 0) >= 80) n++;
+  });
+  return n;
+}
+
+function _wardrobeWorldsTouched() {
+  var touched = {};
+  Object.keys(state.skills || {}).forEach(function(id) {
+    if ((state.skills[id].totalAttempts || 0) === 0) return;
+    if (typeof MATH_TREE  !== 'undefined' && MATH_TREE[id])  touched.math = true;
+    if (typeof WORD_TREE  !== 'undefined' && WORD_TREE[id])  touched.word = true;
+    if (typeof STEM_TREE  !== 'undefined' && STEM_TREE[id])  touched.stem = true;
+    if (typeof MALAY_TREE !== 'undefined' && MALAY_TREE[id]) touched.malay = true;
+  });
+  return Object.keys(touched).length;
+}
+
+function _wardrobeThreadDone(threadId) {
+  if (!state.threads || !state.threads[threadId]) return false;
+  var thread = (typeof THREADS !== 'undefined') ? THREADS[threadId] : null;
+  if (!thread) return false;
+  var done = state.threads[threadId].completedChapters || [];
+  return done.length >= thread.chapters.length;
+}
+
+function wardrobeIsUnlocked(item) {
+  if (!item) return false;
+  if (state.wardrobe && state.wardrobe.owned.indexOf(item.id) !== -1) return true;
+  var u = item.unlock || {};
+  switch (u.type) {
+    case 'free':              return true;
+    case 'tokens':            return (state.tokens || 0) >= u.value;
+    case 'streak':            return (state.bestStreak || 0) >= u.value || (state.streak || 0) >= u.value;
+    case 'level':             return (state.level || 1) >= u.value;
+    case 'achievementsCount': return ((state.achievements || []).length) >= u.value;
+    case 'skillsMastered':    return _wardrobeSkillsMasteredCount() >= u.value;
+    case 'skillsMasteredInWorld': return _wardrobeSkillsMasteredInWorld(u.value.world) >= u.value.n;
+    case 'skillMastered': {
+      var s = state.skills && state.skills[u.value];
+      return !!(s && (s.mastery || 0) >= 80);
+    }
+    case 'worldsTouched':     return _wardrobeWorldsTouched() >= u.value;
+    case 'threadDone':        return _wardrobeThreadDone(u.value);
+    default: return false;
+  }
+}
+
+function wardrobeUnlockText(item) {
+  var u = item.unlock || {};
+  switch (u.type) {
+    case 'free':              return 'Free!';
+    case 'tokens':            return '⭐ ' + u.value + ' stars';
+    case 'streak':            return '🔥 ' + u.value + '-answer streak (current or best)';
+    case 'level':             return '🌟 Reach level ' + (typeof LEVEL_NAMES !== 'undefined' ? (LEVEL_NAMES[u.value] || ('lvl ' + u.value)) : ('lvl ' + u.value));
+    case 'achievementsCount': return '🏆 ' + u.value + ' achievements';
+    case 'skillsMastered':    return '⭐ Master ' + u.value + ' skills';
+    case 'skillsMasteredInWorld': return '⭐ Master ' + u.value.n + ' skills in ' + u.value.world.toUpperCase() + ' World';
+    case 'skillMastered':     return '⭐ Master "' + u.value + '"';
+    case 'worldsTouched':     return '🌍 Touch all 4 worlds';
+    case 'threadDone':        return '🌟 Finish the "' + u.value + '" adventure';
+    default: return 'Locked';
+  }
+}
+
+function wardrobeOwnedSet() {
+  return new Set((state.wardrobe && state.wardrobe.owned) || []);
+}
+
+function wardrobeBuy(itemId) {
+  var item = WARDROBE_ITEMS.find(function(x) { return x.id === itemId; });
+  if (!item) return false;
+  var w = getWardrobeState();
+  if (w.owned.indexOf(itemId) !== -1) {
+    // Already owned: just equip
+    wardrobeEquip(itemId);
+    return true;
+  }
+  if (!wardrobeIsUnlocked(item)) return false;
+
+  var cost = item.cost || 0;
+  if (cost > 0 && (state.tokens || 0) < cost) {
+    if (typeof lumiSay === 'function') lumiSay('Need ' + (cost - (state.tokens||0)) + ' more stars for that. So close!');
+    return false;
+  }
+  if (cost > 0) state.tokens -= cost;
+  w.owned.push(itemId);
+  saveState();
+  wardrobeEquip(itemId);
+
+  if (typeof playSound === 'function') playSound('unlock');
+  if (typeof spawnParticles === 'function') spawnParticles(window.innerWidth/2, window.innerHeight/3, 10, item.emoji);
+  if (typeof lumiSay === 'function') lumiSay('Stasha got the ' + item.name + '! Looking good.');
+  return true;
+}
+
+function wardrobeEquip(itemId) {
+  var item = WARDROBE_ITEMS.find(function(x) { return x.id === itemId; });
+  if (!item) return;
+  var w = getWardrobeState();
+  if (w.owned.indexOf(itemId) === -1) return;
+  if (w.equipped[item.cat] === itemId) {
+    // Toggle off if already equipped (clothing items only)
+    if (['hair','outfit','pet'].indexOf(item.cat) !== -1) w.equipped[item.cat] = null;
+  } else {
+    w.equipped[item.cat] = itemId;
+  }
+  saveState();
+  if (typeof renderStashaOverlays === 'function') renderStashaOverlays();
+  renderWardrobe(); // re-render shop to reflect new equipped state
+}
+
+function renderWardrobe() {
+  var container = document.getElementById('wardrobe-content');
+  if (!container) return;
+  var w = getWardrobeState();
+  var owned = wardrobeOwnedSet();
+
+  // Build category tabs
+  var tabBar = '<div class="wardrobe-tabs">';
+  WARDROBE_CATEGORIES.forEach(function(c, i) {
+    var active = (window._wardrobeActiveCat || 'hair') === c.id;
+    tabBar += '<button class="wardrobe-tab' + (active ? ' active' : '') + '" data-cat="' + c.id + '">' +
+      c.emoji + ' ' + c.label + '</button>';
+  });
+  tabBar += '</div>';
+
+  // Body for active category
+  var activeCat = window._wardrobeActiveCat || 'hair';
+  var items = WARDROBE_ITEMS.filter(function(it) { return it.cat === activeCat; });
+  var body = '<div class="wardrobe-grid">';
+  items.forEach(function(it) {
+    var unlocked = wardrobeIsUnlocked(it) || owned.has(it.id);
+    var isOwned = owned.has(it.id);
+    var isEquipped = w.equipped[it.cat] === it.id;
+    var cls = ['wardrobe-item'];
+    if (!unlocked) cls.push('locked');
+    if (isOwned) cls.push('owned');
+    if (isEquipped) cls.push('equipped');
+
+    body += '<div class="' + cls.join(' ') + '" data-id="' + it.id + '">';
+    body += '<div class="wardrobe-emoji">' + it.emoji + '</div>';
+    body += '<div class="wardrobe-name">' + it.name + '</div>';
+    body += '<div class="wardrobe-desc">' + (it.desc || '') + '</div>';
+    if (isEquipped) {
+      body += '<div class="wardrobe-badge equipped">Equipped ✓</div>';
+    } else if (isOwned) {
+      body += '<button class="wardrobe-btn equip">Wear it →</button>';
+    } else if (unlocked) {
+      body += '<button class="wardrobe-btn buy">' +
+        (it.cost > 0 ? 'Get for ⭐ ' + it.cost : 'Unlock now') + '</button>';
+    } else {
+      body += '<div class="wardrobe-badge locked">🔒 ' + wardrobeUnlockText(it) + '</div>';
+    }
+    body += '</div>';
+  });
+  body += '</div>';
+
+  // Header with token balance
+  var header = '<button class="back-btn" onclick="showScreen(\'stasha\')">← Back to Stasha</button>';
+  header += '<div class="wardrobe-header">';
+  header += '<h2>Stasha\'s Wardrobe</h2>';
+  header += '<div class="wardrobe-balance">⭐ ' + (state.tokens || 0) + '</div>';
+  header += '</div>';
+  header += '<div class="wardrobe-intro">Earn stars and finish adventures to unlock new looks. Tap a tab to browse.</div>';
+
+  container.innerHTML = header + tabBar + body;
+
+  // Wire tab clicks
+  container.querySelectorAll('.wardrobe-tab').forEach(function(t) {
+    t.onclick = function() {
+      window._wardrobeActiveCat = t.dataset.cat;
+      renderWardrobe();
+    };
+  });
+
+  // Wire item clicks (buy or equip)
+  container.querySelectorAll('.wardrobe-item').forEach(function(el) {
+    var id = el.dataset.id;
+    var item = WARDROBE_ITEMS.find(function(x) { return x.id === id; });
+    if (!item) return;
+    var unlocked = wardrobeIsUnlocked(item);
+    var isOwned = owned.has(id);
+    el.onclick = function() {
+      if (!unlocked && !isOwned) {
+        if (typeof lumiSay === 'function') lumiSay('Locked! Hint: ' + wardrobeUnlockText(item));
+        return;
+      }
+      if (isOwned) {
+        wardrobeEquip(id);
+      } else {
+        wardrobeBuy(id);
+      }
+    };
+  });
+}
+
+// === Stasha overlay layer ===
+// 2D items rendered on top of the canvas: hair, accessories, outfits as sprites,
+// pets as DOM elements, backgrounds as CSS gradients, auras as CSS shadows.
+
+function renderStashaOverlays() {
+  var host = document.getElementById('stasha-overlay');
+  if (!host) return;
+  var w = getWardrobeState();
+
+  var bgItem = WARDROBE_ITEMS.find(function(x) { return x.id === w.equipped.background; });
+  var auraItem = WARDROBE_ITEMS.find(function(x) { return x.id === w.equipped.aura; });
+  var hairItem = WARDROBE_ITEMS.find(function(x) { return x.id === w.equipped.hair; });
+  var outfitItem = WARDROBE_ITEMS.find(function(x) { return x.id === w.equipped.outfit; });
+  var petItem = WARDROBE_ITEMS.find(function(x) { return x.id === w.equipped.pet; });
+
+  var stage = document.getElementById('stasha-stage');
+  if (stage) {
+    stage.className = 'stasha-stage bg-' + (bgItem ? bgItem.id : 'bedroom');
+  }
+
+  var aura = document.getElementById('stasha-aura');
+  if (aura) aura.className = 'stasha-aura aura-' + (auraItem ? auraItem.id : 'soft-sparkle');
+
+  var hairEl = document.getElementById('stasha-hair');
+  if (hairEl) hairEl.textContent = hairItem ? hairItem.emoji : '';
+
+  var outfitEl = document.getElementById('stasha-outfit');
+  if (outfitEl) outfitEl.textContent = outfitItem ? outfitItem.emoji : '';
+
+  var petEl = document.getElementById('stasha-pet');
+  if (petEl) petEl.textContent = petItem ? petItem.emoji : '';
+}
+
+// ===== Stasha screen renderer =====
+
+function renderStashaScreen() {
+  var container = document.getElementById('stasha-content');
+  if (!container) return;
+
+  var w = getWardrobeState();
+  var ownedCount = w.owned.length;
+  var totalCount = WARDROBE_ITEMS.length;
+
+  var html = '<button class="back-btn" onclick="showScreen(\'home\')">← Back to Home</button>';
+  html += '<div class="stasha-shell">';
+  html += '<div id="stasha-stage" class="stasha-stage bg-' + (w.equipped.background || 'bedroom') + '">';
+  html +=   '<div id="stasha-aura" class="stasha-aura aura-' + (w.equipped.aura || 'soft-sparkle') + '"></div>';
+  html +=   '<canvas id="stasha-canvas"></canvas>';
+  html +=   '<div id="stasha-fallback" class="stasha-fallback hidden">';
+  html +=     '<div class="stasha-fallback-emoji">👧</div>';
+  html +=     '<div class="stasha-fallback-name">Stasha</div>';
+  html +=     '<div class="stasha-fallback-note">3D loader busy — Stasha is here in spirit. Wardrobe still works!</div>';
+  html +=   '</div>';
+  html +=   '<div id="stasha-hair" class="stasha-overlay-item stasha-hair"></div>';
+  html +=   '<div id="stasha-outfit" class="stasha-overlay-item stasha-outfit"></div>';
+  html +=   '<div id="stasha-pet" class="stasha-overlay-item stasha-pet"></div>';
+  html += '</div>';
+
+  html += '<div class="stasha-name">Stasha 💖</div>';
+  html += '<div class="stasha-bio">Anastasia\'s avatar. The better you do, the more she gets to wear.</div>';
+
+  html += '<div class="stasha-actions">';
+  html += '<button class="lesson-btn lesson-btn-done" onclick="showScreen(\'wardrobe\')">👗 Open Wardrobe (' + ownedCount + '/' + totalCount + ')</button>';
+  html += '<button class="lesson-btn" onclick="stashaWave()">👋 Say Hi</button>';
+  html += '</div>';
+
+  // Inventory peek
+  html += '<div class="stasha-inv">';
+  html += '<div class="stasha-inv-title">What you have:</div>';
+  html += '<div class="stasha-inv-chips">';
+  WARDROBE_CATEGORIES.forEach(function(c) {
+    var ownedInCat = WARDROBE_ITEMS.filter(function(it) {
+      return it.cat === c.id && w.owned.indexOf(it.id) !== -1;
+    });
+    html += '<div class="stasha-inv-chip">' + c.emoji + ' ' + c.label + ': ' + ownedInCat.length + '</div>';
+  });
+  html += '</div>';
+
+  // Hints (next few unlocks)
+  var nextUnlocks = WARDROBE_ITEMS
+    .filter(function(it) {
+      var u = it.unlock || {};
+      if (u.type === 'free') return false;
+      if (w.owned.indexOf(it.id) !== -1) return false;
+      return !wardrobeIsUnlocked(it);
+    })
+    .slice(0, 4);
+  if (nextUnlocks.length > 0) {
+    html += '<div class="stasha-inv-title" style="margin-top:14px">Almost yours:</div>';
+    html += '<div class="stasha-inv-chips">';
+    nextUnlocks.forEach(function(it) {
+      html += '<div class="stasha-inv-chip locked">' + it.emoji + ' ' + it.name + ' — ' + wardrobeUnlockText(it) + '</div>';
+    });
+    html += '</div>';
+  }
+  html += '</div>';
+  html += '</div>';
+
+  container.innerHTML = html;
+
+  // Trigger Stasha load (3D); if Three.js not present, fallback portrait shows
+  if (typeof stashaInit === 'function') {
+    stashaInit('stasha-canvas');
+  } else {
+    var fb = document.getElementById('stasha-fallback');
+    if (fb) fb.classList.remove('hidden');
+  }
+  renderStashaOverlays();
+}
+
+function stashaWave() {
+  if (typeof stashaReact === 'function') stashaReact('wave');
+  if (typeof lumiSay === 'function') {
+    var greetings = ['Halooo!', 'Hi friend!', 'Selamat datang, princess!', 'Look at me, look at me!', 'Knock knock — Stasha here!'];
+    lumiSay(greetings[Math.floor(Math.random() * greetings.length)]);
+  }
+}
+
+window.renderWardrobe = renderWardrobe;
+window.renderStashaScreen = renderStashaScreen;
+window.renderStashaOverlays = renderStashaOverlays;
+window.stashaWave = stashaWave;
+window.wardrobeBuy = wardrobeBuy;
+window.wardrobeEquip = wardrobeEquip;
+
+// --- src/avatar/stasha.js ---
+// ============================================================
+//  STASHA BRIDGE — Classic-script glue that talks to the 3D module.
+//  The actual Three.js loader lives in an <script type="module"> in
+//  index.html and exposes window.__stasha3D = { init, react, dispose }.
+//  This module provides the public stashaInit / stashaReact API.
+// ============================================================
+
+(function() {
+
+  var loadingPromise = null;
+  var currentCanvasId = null;
+
+  function ensureFallback(canvasId) {
+    var fb = document.getElementById('stasha-fallback');
+    if (fb) fb.classList.remove('hidden');
+    var canvas = document.getElementById(canvasId);
+    if (canvas) canvas.style.display = 'none';
+  }
+
+  function hideFallback(canvasId) {
+    var fb = document.getElementById('stasha-fallback');
+    if (fb) fb.classList.add('hidden');
+    var canvas = document.getElementById(canvasId);
+    if (canvas) canvas.style.display = '';
+  }
+
+  window.stashaInit = function(canvasId) {
+    currentCanvasId = canvasId;
+    var canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    if (!window.__stasha3D) {
+      // 3D module hasn't loaded (no internet, CDN blocked, etc).
+      ensureFallback(canvasId);
+      // Try again in 2 seconds in case the module is still loading
+      setTimeout(function() {
+        if (window.__stasha3D) {
+          window.stashaInit(canvasId);
+        }
+      }, 2000);
+      return;
+    }
+
+    hideFallback(canvasId);
+    try {
+      window.__stasha3D.init(canvas).catch(function(err) {
+        console.warn('Stasha 3D init failed', err);
+        ensureFallback(canvasId);
+      });
+    } catch (e) {
+      console.warn('Stasha 3D init threw', e);
+      ensureFallback(canvasId);
+    }
+  };
+
+  window.stashaReact = function(kind) {
+    if (window.__stasha3D && typeof window.__stasha3D.react === 'function') {
+      try { window.__stasha3D.react(kind); } catch (e) { /* silent */ }
+    }
+  };
+
+  // Mirror Lumi mood events onto Stasha when she is on screen.
+  var origLumiReactTo = window.lumiReactTo;
+  if (typeof origLumiReactTo === 'function') {
+    window.lumiReactTo = function(event, data) {
+      try { origLumiReactTo.call(this, event, data); } catch(e) {}
+      var stashaKind = {
+        correct:      'happy',
+        wrong:        'sad',
+        levelUp:      'celebrate',
+        quizComplete: data && data.pct >= 90 ? 'celebrate' : (data && data.pct >= 70 ? 'happy' : 'sad'),
+        achievementUnlocked: 'celebrate',
+        gardenGrow:   'happy',
+        questDone:    'celebrate'
+      }[event];
+      if (stashaKind) window.stashaReact(stashaKind);
+    };
+  }
+})();
+
 // --- src/challenges/star-trials.js ---
 // ============================================================
 //  STAR TRIALS — Multi-skill challenge assessments
@@ -16032,6 +16838,12 @@ function showScreen(screenId) {
   }
   if (screenId === 'parent-digest' && typeof renderParentDigest === 'function') {
     renderParentDigest();
+  }
+  if (screenId === 'stasha' && typeof renderStashaScreen === 'function') {
+    renderStashaScreen();
+  }
+  if (screenId === 'wardrobe' && typeof renderWardrobe === 'function') {
+    renderWardrobe();
   }
   if (screenId === 'garden') {
     if (typeof renderGardenIsland === 'function') renderGardenIsland();
