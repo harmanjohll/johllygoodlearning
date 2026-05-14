@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listening Practice — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 760px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    .listen-hero { margin-bottom: 1.5rem; }
+    .listen-hero h1 { font-size: 1.6rem; margin-bottom: .25rem; }
+    .listen-hero p { color: var(--muted); font-size: .92rem; line-height: 1.6; }
+
+    .key-warn { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.35); border-radius: 9px; padding: .65rem .95rem; font-size: .85rem; color: var(--text); margin-bottom: 1.25rem; line-height: 1.55; }
+
+    .passage-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+    .passage-meta { display: flex; gap: .5rem; align-items: center; margin-bottom: .65rem; flex-wrap: wrap; }
+    .passage-meta .num { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-weight: 700; }
+    .passage-meta .type-tag { font-size: .72rem; padding: .15rem .55rem; border-radius: 99px; background: rgba(96,165,250,.08); color: var(--comprehension); border: 1px solid var(--comprehension); font-weight: 700; }
+    .passage-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: .45rem; }
+    .passage-intro { font-size: .88rem; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; }
+
+    .audio-controls { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .audio-status { font-size: .85rem; color: var(--accent); margin: .5rem 0 1rem; min-height: 1.2rem; }
+    .audio-status .listen-count { color: var(--muted); }
+
+    .question-block { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .question-block.show { display: block; }
+    .qb-stem { font-size: .92rem; font-weight: 600; color: var(--text); margin-bottom: .65rem; }
+    .qb-options { display: flex; flex-direction: column; gap: .45rem; }
+    .qb-feedback { margin-top: .65rem; }
+
+    .nav-row { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 1rem; }
+
+    .done-card {
+      background: linear-gradient(135deg, #14302b 0%, #1e1835 100%);
+      border: 1px solid var(--accent);
+      border-radius: 12px; padding: 1.5rem 1.5rem;
+      text-align: center; margin-top: 1.25rem;
+    }
+    .done-card h2 { color: var(--accent); margin-bottom: .4rem; }
+    .done-card p { color: var(--text); font-size: .92rem; margin-bottom: 1rem; line-height: 1.65; }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">🎧 Listening Practice</h1>
+    <div style="font-size:.76rem;color:var(--muted)">Passages played aloud via Web Speech API (browser TTS). Each text is played TWICE, just like the real exam.</div>
+  </div>
+</header>
+
+<main>
+  <div class="listen-hero">
+    <h1>Practise the actual Paper 3 flow</h1>
+    <p>Each passage is read aloud TWICE by your browser's voice (Paper 3 rule). Read the question before you press Play. Use the first listen to identify your answer; the second to confirm. Track signal words: <em>however, because, first, for example, finally</em>.</p>
+  </div>
+
+  <div class="key-warn" id="tts-warn" style="display:none;">
+    <strong>Audio note:</strong> Your browser does not support text-to-speech, or your speaker is muted. The passage transcript will still appear below.
+  </div>
+
+  <div id="passage-host"></div>
+
+  <div id="done-host"></div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/streak.js"></script>
+<script>
+// ── Listening passages (3 with MCQ) ──────────────────────
+const PASSAGES = [
+  {
+    id: 'p1',
+    title: 'Announcement at the school assembly',
+    type: 'Announcement',
+    intro: 'A teacher addresses the school during morning assembly. Listen for the change in plans, the new venue, and the reason for the change.',
+    audio: `Good morning, everyone. I have an important update about this Friday's inter-class football tournament. Originally we had planned to hold the matches on the school field, but because of the heavy rain forecast for Friday afternoon, we have decided to move the entire tournament to the indoor sports hall. The schedule will remain the same: matches begin at two o'clock and end at four-thirty. Please remember to bring your team jerseys and your water bottles. We hope to see strong support from every class.`,
+    questions: [
+      {
+        text: 'Why has the tournament been moved indoors?',
+        options: ['The school field is being repaired.', 'Heavy rain is forecast for Friday afternoon.', 'The teachers prefer indoor matches.', 'The sports hall is more comfortable.'],
+        correct: 1,
+        explanation: 'The teacher gives the reason directly: "because of the heavy rain forecast for Friday afternoon".'
+      },
+      {
+        text: 'What time will the tournament begin?',
+        options: ['One o\'clock', 'Two o\'clock', 'Two-thirty', 'Four-thirty'],
+        correct: 1,
+        explanation: 'The announcement says "matches begin at two o\'clock and end at four-thirty".'
+      },
+      {
+        text: 'Which detail is NOT mentioned in the announcement?',
+        options: ['Bring your team jersey.', 'Bring your water bottle.', 'Bring your own football.', 'Schedule remains the same.'],
+        correct: 2,
+        explanation: 'Jerseys, water bottles, and the unchanged schedule are all mentioned. Bringing a football is NOT — the tournament organisers will provide it.'
+      }
+    ]
+  },
+  {
+    id: 'p2',
+    title: 'Conversation between two students',
+    type: 'Conversation',
+    intro: 'Aisha and her classmate Daniel are talking outside the science lab. Listen for what Aisha decided to do for her project, and why.',
+    audio: `Daniel: Hey Aisha, how is your science project coming along?
+Aisha: It's actually going well, thanks. I changed my topic last week, though.
+Daniel: Really? What did you change it to?
+Aisha: I was going to study how plants grow in different soils, but I realised that would take too long for the deadline. So I switched to studying how the brightness of light affects how quickly a sunflower turns toward it.
+Daniel: That sounds clever. Why sunflowers in particular?
+Aisha: Because they are the most responsive to light. My older sister suggested it. She said sunflowers track the sun every day, so the experiment would show results in just a few days, not weeks.`,
+    questions: [
+      {
+        text: 'Why did Aisha change her project topic?',
+        options: ['She found the first topic boring.', 'The first topic would take too long for the deadline.', 'Her teacher told her to change.', 'Daniel suggested a different topic.'],
+        correct: 1,
+        explanation: 'Aisha says: "I realised that would take too long for the deadline. So I switched..."'
+      },
+      {
+        text: 'Who suggested the new topic to Aisha?',
+        options: ['Her teacher', 'Daniel', 'Her older sister', 'Her parents'],
+        correct: 2,
+        explanation: 'Aisha says: "My older sister suggested it."'
+      },
+      {
+        text: 'What is Aisha studying now?',
+        options: ['How plants grow in different soils.', 'How brightness of light affects a sunflower\'s tracking.', 'How sunflowers grow taller.', 'How long sunflowers live.'],
+        correct: 1,
+        explanation: 'She specifies the new topic: "how the brightness of light affects how quickly a sunflower turns toward it".'
+      }
+    ]
+  },
+  {
+    id: 'p3',
+    title: 'Recount: A trip to the bird park',
+    type: 'Narrative recount',
+    intro: 'A student describes a trip to the bird park. Listen for what she enjoyed most, what surprised her, and what she would do differently next time.',
+    audio: `Last Saturday, my family and I went to the bird park for the first time. I had been looking forward to seeing the African penguins, but to my surprise, my favourite part of the day turned out to be something else entirely. We attended a flight show in which trained eagles, hawks and parrots flew over our heads in formation. I had not expected the parrots to be so colourful or so loud. However, by the end of the show, my younger brother had started to cry because one of the birds flew very close to his face. If we go back, I will be sure to sit in the back row, so that he can enjoy the show without feeling scared.`,
+    questions: [
+      {
+        text: 'What had the speaker originally been looking forward to?',
+        options: ['The flight show.', 'Seeing the African penguins.', 'Feeding the parrots.', 'Visiting the gift shop.'],
+        correct: 1,
+        explanation: 'She says: "I had been looking forward to seeing the African penguins". The "however" later signals her actual favourite was different.'
+      },
+      {
+        text: 'What did she enjoy most about the visit?',
+        options: ['The African penguins.', 'The flight show.', 'The food court.', 'The gift shop.'],
+        correct: 1,
+        explanation: '"my favourite part of the day turned out to be something else entirely" → the flight show.'
+      },
+      {
+        text: 'Why does she say she would sit in the back row next time?',
+        options: ['Because the birds fly higher there.', 'Because there is more space.', 'Because her younger brother got scared when a bird flew close.', 'Because she could not see well from the front.'],
+        correct: 2,
+        explanation: 'She explains: "one of the birds flew very close to his face... so that he can enjoy the show without feeling scared."'
+      }
+    ]
+  }
+];
+
+// ── State ────────────────────────────────────────────────
+const state = {
+  pidx: 0,
+  qidx: 0,
+  listens: 0,
+  questionsRevealed: false,
+  score: 0,
+  total: 0,
+};
+
+const synth = window.speechSynthesis;
+if (!synth) document.getElementById('tts-warn').style.display = 'block';
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+function speak(text, onEnd) {
+  if (!synth) { if (onEnd) onEnd(); return null; }
+  // Cancel any in-flight utterance first
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.92;
+  u.pitch = 1.0;
+  u.volume = 1.0;
+  // Prefer an en-GB or en-US voice
+  const voices = synth.getVoices();
+  const pref = voices.find(v => /en[-_](GB|SG|AU)/i.test(v.lang)) || voices.find(v => /en/i.test(v.lang));
+  if (pref) u.voice = pref;
+  if (onEnd) u.onend = onEnd;
+  synth.speak(u);
+  return u;
+}
+
+function renderPassage() {
+  const p = PASSAGES[state.pidx];
+  if (!p) { renderDone(); return; }
+  state.listens = 0;
+  state.qidx = 0;
+  state.questionsRevealed = false;
+
+  const host = document.getElementById('passage-host');
+  host.innerHTML = `
+    <div class="passage-card">
+      <div class="passage-meta">
+        <span class="num">Passage ${state.pidx + 1} of ${PASSAGES.length}</span>
+        <span class="type-tag">${esc(p.type)}</span>
+      </div>
+      <div class="passage-title">${esc(p.title)}</div>
+      <p class="passage-intro">${esc(p.intro)}</p>
+
+      <div class="audio-controls">
+        <button class="btn btn-primary" id="play-btn">▶ Play first listen</button>
+        <button class="btn btn-ghost" id="stop-btn" style="display:none;">⏹ Stop</button>
+        <button class="btn btn-ghost" id="show-text-btn">📄 Show transcript</button>
+      </div>
+      <div class="audio-status" id="audio-status">Press Play. The passage will be read aloud TWICE in total.</div>
+
+      <div id="transcript" style="display:none;font-size:.88rem;color:var(--muted);line-height:1.7;padding:.85rem 1.05rem;background:var(--surface);border-radius:8px;margin-bottom:1rem;white-space:pre-line;">${esc(p.audio)}</div>
+
+      <div id="questions-host"></div>
+    </div>
+  `;
+
+  const playBtn = document.getElementById('play-btn');
+  const stopBtn = document.getElementById('stop-btn');
+  const showTextBtn = document.getElementById('show-text-btn');
+  const statusEl = document.getElementById('audio-status');
+
+  function onAudioEnd() {
+    state.listens += 1;
+    stopBtn.style.display = 'none';
+    if (state.listens === 1) {
+      playBtn.disabled = false;
+      playBtn.innerHTML = '▶ Play second listen';
+      statusEl.innerHTML = `<span class="listen-count">First listen complete. Press Play again for the second listen, or reveal the questions to attempt your answer.</span> <button class="btn btn-ghost" id="reveal-q-btn" style="margin-left:.5rem;font-size:.78rem;">Show questions →</button>`;
+      const rq = document.getElementById('reveal-q-btn');
+      if (rq) rq.addEventListener('click', revealQuestions);
+    } else {
+      playBtn.disabled = false;
+      playBtn.innerHTML = '↻ Replay (third time, optional)';
+      statusEl.innerHTML = `<span class="listen-count">Second listen complete. The questions are now revealed below.</span>`;
+      revealQuestions();
+    }
+  }
+
+  function playOnce() {
+    playBtn.disabled = true;
+    stopBtn.style.display = 'inline-flex';
+    statusEl.innerHTML = `<span>🔊 Playing… listen carefully.</span>`;
+    speak(p.audio, onAudioEnd);
+  }
+
+  playBtn.addEventListener('click', playOnce);
+  stopBtn.addEventListener('click', () => {
+    synth && synth.cancel();
+    onAudioEnd();
+  });
+  showTextBtn.addEventListener('click', () => {
+    const t = document.getElementById('transcript');
+    t.style.display = t.style.display === 'none' ? 'block' : 'none';
+  });
+}
+
+function revealQuestions() {
+  if (state.questionsRevealed) return;
+  state.questionsRevealed = true;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const p = PASSAGES[state.pidx];
+  const q = p.questions[state.qidx];
+  const host = document.getElementById('questions-host');
+  host.innerHTML = `
+    <div class="question-block show">
+      <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin-bottom:.5rem;">
+        <span>Question ${state.qidx + 1} of ${p.questions.length}</span>
+        <span>Score: <strong style="color:var(--grammar);">${state.score}</strong></span>
+      </div>
+      <div class="qb-stem">${esc(q.text)}</div>
+      <div class="qb-options">
+        ${q.options.map((opt, i) => `<button class="quiz-option qb-opt" data-i="${i}">${esc(opt)}</button>`).join('')}
+      </div>
+      <div class="qb-feedback feedback-box" id="qb-feedback"></div>
+    </div>
+  `;
+  host.querySelectorAll('.qb-opt').forEach(btn => {
+    btn.addEventListener('click', () => answerQuestion(parseInt(btn.dataset.i, 10)));
+  });
+}
+
+function answerQuestion(idx) {
+  const p = PASSAGES[state.pidx];
+  const q = p.questions[state.qidx];
+  const opts = document.querySelectorAll('.qb-opt');
+  const fb = document.getElementById('qb-feedback');
+  opts.forEach(b => b.disabled = true);
+  state.total += 1;
+  if (idx === q.correct) {
+    state.score += 1;
+    opts[idx].classList.add('correct');
+    fb.className = 'qb-feedback feedback-box show feedback-correct';
+    fb.innerHTML = `✅ <strong>Correct.</strong> ${esc(q.explanation)}`;
+  } else {
+    opts[idx].classList.add('wrong');
+    opts[q.correct].classList.add('correct');
+    fb.className = 'qb-feedback feedback-box show feedback-wrong';
+    fb.innerHTML = `❌ <strong>Not quite.</strong> ${esc(q.explanation)}`;
+  }
+  const next = document.createElement('button');
+  next.className = 'btn btn-primary';
+  next.style.cssText = 'margin-top:.85rem;width:100%;';
+  next.textContent = state.qidx + 1 < p.questions.length ? 'Next question →'
+                   : state.pidx + 1 < PASSAGES.length    ? 'Next passage →'
+                                                        : 'See result →';
+  next.addEventListener('click', () => {
+    if (state.qidx + 1 < p.questions.length) {
+      state.qidx += 1;
+      renderQuestion();
+    } else if (state.pidx + 1 < PASSAGES.length) {
+      state.pidx += 1;
+      renderPassage();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      renderDone();
+    }
+  });
+  fb.after(next);
+}
+
+function renderDone() {
+  if (synth) synth.cancel();
+  document.getElementById('passage-host').innerHTML = '';
+  const pct = state.total ? Math.round((state.score / state.total) * 100) : 0;
+  let msg;
+  if (pct === 100) msg = '🏆 Perfect. Listening + signal-word tracking nailed.';
+  else if (pct >= 70) msg = '🎉 Strong. Revisit the missed audio passages to lock them in.';
+  else msg = '📚 Keep going. Listen for signal words (however, because, first, for example).';
+
+  document.getElementById('done-host').innerHTML = `
+    <div class="done-card">
+      <h2>✓ Practice complete</h2>
+      <p>${state.score} / ${state.total} · ${pct}% · ${PASSAGES.length} passages</p>
+      <p>${msg}</p>
+      <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="reset-btn">↻ Start over</button>
+        <a class="btn btn-ghost" href="../topics/listening/">📘 Open Listening topic</a>
+        <a class="btn btn-ghost" href="../index.html">← Hub</a>
+      </div>
+    </div>
+  `;
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    state.pidx = 0; state.qidx = 0; state.score = 0; state.total = 0;
+    document.getElementById('done-host').innerHTML = '';
+    renderPassage();
+  });
+  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('listening');
+  if (typeof Streak !== 'undefined' && Streak.record) Streak.record();
+  if (window.EnglishStreak && typeof window.EnglishStreak.record === 'function') { try { window.EnglishStreak.record(); } catch {} }
+}
+
+// Some browsers need a voices-changed event before voices are available
+if (synth && synth.getVoices().length === 0) {
+  synth.onvoiceschanged = () => {};
+}
+
+renderPassage();
+
+// Mark visit
+if (typeof Progress !== 'undefined' && Progress.recordVisit) Progress.recordVisit('listening');
+</script>
+</body>
+</html>

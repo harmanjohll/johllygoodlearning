@@ -162,11 +162,22 @@
       <div class="hub-streak-text" id="streak-text">Open a topic to start your streak. Showing up every day is the AL1 habit.</div>
     </div>
 
+    <!-- Plan of the Day — adaptive recommendation -->
+    <div id="plan-of-the-day" style="background:linear-gradient(135deg,#14302b 0%,#1e1835 100%);border:1px solid var(--accent);border-radius:14px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:none;">
+      <div style="display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap;margin-bottom:.5rem;">
+        <div style="font-size:.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">⭐ Plan of the Day</div>
+        <div style="font-size:.7rem;color:var(--muted);" id="plan-greeting"></div>
+      </div>
+      <div style="font-size:.95rem;color:var(--text);line-height:1.65;margin-bottom:.75rem;" id="plan-body"></div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;" id="plan-actions"></div>
+    </div>
+
     <div class="hub-cta-row">
       <a class="hub-cta hub-cta-primary" href="compass/">🧭 Compass — start a session</a>
       <a class="hub-cta" href="map/">🗺 Mega Map — connections</a>
       <a class="hub-cta" href="mentors/">📖 Mentor Essays</a>
       <a class="hub-cta" href="structured/">📋 Composition Builder</a>
+      <a class="hub-cta" href="listen/">🎧 Listening Practice</a>
       <a class="hub-cta" href="mirror/">🪞 Mirror — your progress</a>
       <a class="hub-cta" href="review/">🔁 Review queue</a>
       <a class="hub-cta" href="idioms-srs/">📇 Idioms SRS</a>
@@ -294,9 +305,117 @@
       }
     }
 
+    // ── Plan of the Day ─────────────────────────────────
+    // Reads mastery state + days-since-last-quiz to surface 1 focus
+    // topic + 1 mode + 1 extra (Idioms-SRS or Drill). Updates by
+    // time-of-day greeting.
+    function timeOfDayGreeting() {
+      const h = new Date().getHours();
+      if (h < 5)  return 'Late night. Start small, then sleep.';
+      if (h < 12) return 'Good morning. Mornings suit writing and reading.';
+      if (h < 17) return 'Good afternoon. Afternoons suit grammar and vocab.';
+      if (h < 22) return 'Good evening. Evenings suit drills and flashcards.';
+      return 'It is late. A 10-minute session, then rest.';
+    }
+
+    function daysSince(dateStr) {
+      if (!dateStr) return null;
+      return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+    }
+
+    function buildPlan() {
+      const wrap = document.getElementById('plan-of-the-day');
+      if (!wrap) return;
+      // Find weakest topic (lowest mastery among visited topics OR oldest-quizzed)
+      let pick = null;
+      let pickReason = '';
+
+      // First priority: an "urgent" review (>= 7 days since last quiz)
+      const candidates = TOPICS.filter(t => t.ready).map(t => {
+        const p = Progress.get(t.id);
+        return { t, p, mastery: Progress.masteryPct(t.id), days: daysSince(p.lastQuizDate) };
+      });
+      const urgent = candidates.filter(c => c.days != null && c.days >= 7);
+      const soon   = candidates.filter(c => c.days != null && c.days >= 3 && c.days < 7);
+      const never  = candidates.filter(c => c.days == null);
+      const visited = candidates.filter(c => (c.p.visitCount || 0) > 0);
+
+      if (urgent.length) {
+        // pick the one with longest gap
+        urgent.sort((a, b) => b.days - a.days);
+        pick = urgent[0];
+        pickReason = `${pick.days} days since your last quiz — surface this before it slips.`;
+      } else if (soon.length) {
+        soon.sort((a, b) => b.days - a.days);
+        pick = soon[0];
+        pickReason = `Last touched ${pick.days} days ago. A 15-minute pass keeps it fresh.`;
+      } else if (visited.length) {
+        // pick weakest visited topic
+        visited.sort((a, b) => a.mastery - b.mastery);
+        pick = visited[0];
+        pickReason = pick.mastery > 0 ? `Mastery at ${pick.mastery}% — push it forward today.` : 'You\'ve opened this, but not quizzed it yet.';
+      } else if (never.length) {
+        pick = never[Math.floor(Math.random() * never.length)];
+        pickReason = 'You haven\'t opened this topic yet. Start with the Learn tab.';
+      }
+
+      if (!pick) {
+        // Cold start: pick Continuous Writing
+        pick = candidates.find(c => c.t.id === 'composition') || candidates[0];
+        pickReason = 'Cold start — Continuous Writing is the biggest mark pool. Start here.';
+      }
+
+      // Pick a mode based on context
+      const h = new Date().getHours();
+      const isMorning = h >= 5 && h < 12;
+      const isEvening = h >= 17 || h < 5;
+      let mode = 'Learn tab';
+      let modeNote = 'Read the Common Traps and Mastery Checkpoints once.';
+      const composedAlready = (pick.p.visitCount || 0) > 0;
+      if (pick.t.id === 'listening') {
+        mode = 'Listening Practice';
+        modeNote = 'A three-passage audio drill. Each plays twice, just like Paper 3.';
+      } else if (!composedAlready) {
+        mode = 'Learn tab';
+        modeNote = 'Read the Learn tab to lock in the framework, then come back.';
+      } else if (isMorning && (pick.t.id === 'composition' || pick.t.id === 'situational')) {
+        mode = 'Composition Builder';
+        modeNote = 'Draft 200 words; get Examiner feedback. Or try the Annotator for a craft pass.';
+      } else if (isEvening) {
+        mode = 'Drill tab';
+        modeNote = '60-second timed drill. Build automaticity.';
+      } else {
+        mode = 'Quiz tab';
+        modeNote = 'A short quiz to measure where you are. AI Quiz adapts difficulty.';
+      }
+
+      // Compose the body text
+      document.getElementById('plan-greeting').textContent = timeOfDayGreeting();
+      document.getElementById('plan-body').innerHTML =
+        `Today, open <strong>${pick.t.name}</strong>. ${pickReason}<br>
+         Then spend 15–20 minutes in the <strong>${mode}</strong>. ${modeNote}<br>
+         Finish with <strong>5 idioms in Idioms SRS</strong> (under 2 minutes).`;
+
+      // Action buttons
+      const acts = document.getElementById('plan-actions');
+      const modeUrl =
+        mode === 'Composition Builder' ? 'structured/' :
+        mode === 'Listening Practice'  ? 'listen/' :
+        mode === 'Drill tab'           ? `topics/${pick.t.id}/#tab-drill` :
+        mode === 'Quiz tab'            ? `topics/${pick.t.id}/#tab-quiz` :
+                                         `topics/${pick.t.id}/`;
+      acts.innerHTML = `
+        <a class="hub-cta hub-cta-primary" style="font-size:.82rem;padding:.5rem .9rem;" href="${modeUrl}">→ Open ${pick.t.name}</a>
+        <a class="hub-cta" style="font-size:.82rem;padding:.5rem .9rem;" href="idioms-srs/">📇 5 idioms</a>
+        <a class="hub-cta" style="font-size:.82rem;padding:.5rem .9rem;" href="compass/">🧭 Compass</a>
+      `;
+      wrap.style.display = 'block';
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       buildHub();
       updateStats();
+      buildPlan();
     });
   </script>
 </body>
