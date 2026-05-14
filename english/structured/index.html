@@ -70,6 +70,95 @@
 
     .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--muted); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; margin-right: .4rem; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Annotator — colour-coded sentence underlines ── */
+    .annot-body {
+      font-size: .95rem; line-height: 1.95;
+      background: var(--bg); padding: 1rem 1.2rem;
+      border-radius: 9px; margin: .75rem 0;
+      color: var(--text);
+    }
+    .annot-sent {
+      cursor: pointer; padding: .1rem .15rem;
+      border-radius: 3px; transition: background .12s;
+    }
+    .annot-sent:hover { background: var(--surface); }
+    .annot-sent.active { background: var(--surface); outline: 2px solid var(--accent); }
+    .annot-sent[data-type="Tense"]        { border-bottom: 2.5px solid #f87171; }
+    .annot-sent[data-type="SVA"]          { border-bottom: 2.5px solid #fb923c; }
+    .annot-sent[data-type="Article"]      { border-bottom: 2.5px solid #fbbf24; }
+    .annot-sent[data-type="Preposition"]  { border-bottom: 2.5px solid #e879f9; }
+    .annot-sent[data-type="Pronoun"]      { border-bottom: 2.5px solid #60a5fa; }
+    .annot-sent[data-type="WordChoice"]   { border-bottom: 2.5px solid #a78bfa; }
+    .annot-sent[data-type="Collocation"]  { border-bottom: 2.5px solid #fcd34d; }
+    .annot-sent[data-type="Cliche"]       { border-bottom: 2.5px solid #f472b6; }
+    .annot-sent[data-type="Repetition"]   { border-bottom: 2.5px solid #93c5fd; }
+    .annot-sent[data-type="ShowDontTell"] { border-bottom: 2.5px solid #fb7185; }
+    .annot-sent[data-type="Punctuation"]  { border-bottom: 2.5px solid #c4b5fd; }
+    .annot-sent[data-type="OK"]           { border-bottom: 2.5px solid #34d39966; }
+
+    .annot-summary {
+      display: flex; flex-wrap: wrap; gap: .35rem;
+      margin: .65rem 0 .85rem;
+      font-size: .76rem;
+    }
+    .annot-chip {
+      padding: .2rem .6rem; border-radius: 99px;
+      font-weight: 700;
+      border: 1px solid;
+    }
+    .annot-chip-tense        { background: #3a1212; color: #fca5a5; border-color: #f87171; }
+    .annot-chip-sva          { background: #2a1400; color: #fdba74; border-color: #fb923c; }
+    .annot-chip-article      { background: #2e2105; color: #fde68a; border-color: #fbbf24; }
+    .annot-chip-preposition  { background: #1e183a; color: #f0abfc; border-color: #e879f9; }
+    .annot-chip-pronoun      { background: #1a2a3a; color: #93c5fd; border-color: #60a5fa; }
+    .annot-chip-wordchoice   { background: #221a3a; color: #c4b5fd; border-color: #a78bfa; }
+    .annot-chip-collocation  { background: #1a1500; color: #fcd34d; border-color: #fcd34d; }
+    .annot-chip-cliche       { background: #2a1024; color: #f9a8d4; border-color: #f472b6; }
+    .annot-chip-repetition   { background: #142a40; color: #93c5fd; border-color: #93c5fd; }
+    .annot-chip-showdonttell { background: #2a0e15; color: #fda4af; border-color: #fb7185; }
+    .annot-chip-punctuation  { background: #1a163a; color: #c4b5fd; border-color: #c4b5fd; }
+    .annot-chip-ok           { background: #053b27; color: #6ee7b7; border-color: #34d399; }
+
+    .annot-issues {
+      display: flex; flex-direction: column; gap: .5rem;
+      font-size: .85rem;
+    }
+    .annot-issue {
+      padding: .65rem .85rem;
+      background: var(--surface);
+      border-left: 3px solid var(--border);
+      border-radius: 0 8px 8px 0;
+    }
+    .annot-issue.highlighted { outline: 2px solid var(--accent); }
+    .annot-issue .issue-head { display: flex; align-items: center; gap: .45rem; margin-bottom: .35rem; }
+    .annot-issue .issue-quote { font-style: italic; color: var(--muted); margin-bottom: .3rem; line-height: 1.55; }
+    .annot-issue .issue-fix { color: var(--text); line-height: 1.55; }
+
+    .annot-legend {
+      display: flex; flex-wrap: wrap; gap: .55rem;
+      font-size: .7rem; color: var(--muted);
+      margin-bottom: .85rem;
+      padding: .55rem .75rem;
+      background: var(--surface);
+      border-radius: 7px;
+    }
+    .annot-legend span { display: inline-flex; align-items: center; gap: .3rem; }
+    .annot-legend span::before {
+      content: ''; width: 18px; height: 3px; border-radius: 1px; display: inline-block;
+    }
+    .annot-legend .lg-tense::before        { background: #f87171; }
+    .annot-legend .lg-sva::before          { background: #fb923c; }
+    .annot-legend .lg-article::before      { background: #fbbf24; }
+    .annot-legend .lg-preposition::before  { background: #e879f9; }
+    .annot-legend .lg-pronoun::before      { background: #60a5fa; }
+    .annot-legend .lg-wordchoice::before   { background: #a78bfa; }
+    .annot-legend .lg-collocation::before  { background: #fcd34d; }
+    .annot-legend .lg-cliche::before       { background: #f472b6; }
+    .annot-legend .lg-repetition::before   { background: #93c5fd; }
+    .annot-legend .lg-showdonttell::before { background: #fb7185; }
+    .annot-legend .lg-punctuation::before  { background: #c4b5fd; }
+    .annot-legend .lg-ok::before           { background: #34d39966; }
   </style>
 </head>
 <body>
@@ -93,16 +182,20 @@
     <button class="task-tab" data-task="comprehension">📚 Comprehension OE</button>
   </div>
 
-  <div class="mode-tabs" style="display:flex;gap:.35rem;margin-bottom:1.25rem;padding:.35rem;background:var(--surface);border-radius:9px;max-width:320px;">
+  <div class="mode-tabs" style="display:flex;gap:.35rem;margin-bottom:1.25rem;padding:.35rem;background:var(--surface);border-radius:9px;max-width:460px;">
     <button class="mode-tab active" data-mode="examiner" style="flex:1;padding:.45rem .65rem;border-radius:7px;border:none;background:var(--accent);color:#0f172a;cursor:pointer;font-size:.85rem;font-weight:700;">🧑‍🏫 Examiner</button>
     <button class="mode-tab" data-mode="coach" style="flex:1;padding:.45rem .65rem;border-radius:7px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:.85rem;font-weight:700;">🧭 Coach</button>
+    <button class="mode-tab" data-mode="annotator" style="flex:1;padding:.45rem .65rem;border-radius:7px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:.85rem;font-weight:700;">🔍 Annotator</button>
   </div>
   <p id="mode-hint" style="font-size:.82rem;color:var(--muted);margin:-.75rem 0 1rem;line-height:1.55;">
-    <strong style="color:var(--text);">Examiner</strong> marks your draft against the SEAB band descriptors. <strong style="color:var(--text);">Coach</strong> never reveals the model — it asks probing questions so you discover the gap yourself.
+    <strong style="color:var(--text);">Examiner</strong> marks your draft against the SEAB band descriptors. <strong style="color:var(--text);">Coach</strong> never reveals the model — it asks probing questions so you discover the gap yourself. <strong style="color:var(--text);">Annotator</strong> colour-codes every sentence by error type so you see exactly where to upgrade.
   </p>
 
   <!-- Coach dialogue thread (shared across both tasks) -->
   <div id="coach-thread" class="feedback" style="border-left-color:var(--oral);"></div>
+
+  <!-- Annotator output (shared across both tasks) -->
+  <div id="annot-output" class="feedback" style="border-left-color:var(--vocab);display:none;"></div>
 
   <!-- ── Composition task ───────────────────────────────── -->
   <div id="task-composition" class="task-pane">
@@ -232,7 +325,7 @@ document.querySelectorAll('.task-tab').forEach(b => {
   });
 });
 
-// ── Mode tabs (Examiner / Coach) ────────────────────────
+// ── Mode tabs (Examiner / Coach / Annotator) ────────────
 document.querySelectorAll('.mode-tab').forEach(b => {
   b.addEventListener('click', () => {
     document.querySelectorAll('.mode-tab').forEach(x => {
@@ -241,16 +334,24 @@ document.querySelectorAll('.mode-tab').forEach(b => {
       x.style.color = 'var(--muted)';
     });
     b.classList.add('active');
-    b.style.background = b.dataset.mode === 'examiner' ? 'var(--accent)' : 'var(--oral)';
+    const modeColour = b.dataset.mode === 'examiner' ? 'var(--accent)'
+                     : b.dataset.mode === 'coach'    ? 'var(--oral)'
+                     : 'var(--vocab)';
+    b.style.background = modeColour;
     b.style.color = '#0f172a';
     state.mode = b.dataset.mode;
     // Update button labels
     document.querySelectorAll('#composition-submit, #comprehension-submit').forEach(btn => {
-      btn.innerHTML = state.mode === 'examiner' ? '🧑‍🏫 Get Examiner Feedback' : '🧭 Ask the Coach';
+      btn.innerHTML = state.mode === 'examiner'  ? '🧑‍🏫 Get Examiner Feedback'
+                    : state.mode === 'coach'     ? '🧭 Ask the Coach'
+                                                 : '🔍 Annotate my draft';
     });
     // Reset coach thread when switching modes
     state.coach.turns = [];
     renderCoachThread();
+    // Hide annotator output when switching modes
+    const annotEl = document.getElementById('annot-output');
+    if (annotEl) annotEl.style.display = 'none';
   });
 });
 
@@ -461,6 +562,75 @@ ${history || '(no prior turns — this is your first probe)'}
 Now produce ONE next Coach turn. Two to four sentences. End with exactly ONE probing question. No labels, no preamble.`;
 }
 
+// ── Annotator prompt (per-sentence error tagging) ────────
+function compositionAnnotatorPrompt(topic, draft) {
+  return `You are an experienced PSLE English Language teacher annotating a Primary 6 Continuous Writing draft sentence-by-sentence.
+
+The topic was: "${topic.note}"
+
+Student draft:
+"""
+${draft}
+"""
+
+Annotate EVERY sentence (split on . ! ?) with an error tag. The 12 allowed tags are:
+
+- Tense — wrong tense or inconsistent tense.
+- SVA — subject-verb agreement error.
+- Article — wrong a/an/the (or missing/extra).
+- Preposition — wrong verb-preposition pair or wrong preposition.
+- Pronoun — wrong pronoun (subject/object/reflexive confusion; vague reference).
+- WordChoice — wrong register (informal in formal piece) or imprecise word.
+- Collocation — unnatural word pairing (e.g., "strong rain" instead of "heavy rain").
+- Cliche — banned phrase ("I learnt a valuable lesson", "best day of my life", "raining cats and dogs").
+- Repetition — same word/phrase used too close to itself.
+- ShowDontTell — telling an emotion flatly instead of showing through F.A.S.T. (Face/Actions/Speech/Thoughts).
+- Punctuation — missing/wrong comma, full stop, apostrophe, quotation marks.
+- OK — sentence is solid; no error to flag.
+
+Reply with ONLY a JSON array, one object per sentence, in order:
+[
+  { "sentence_index": 0, "sentence": "...exact sentence text...", "type": "ShowDontTell", "issue": "Names fear flatly; no F.A.S.T. dimension.", "suggestion": "Replace with a body or thought beat: 'My knees trembled and I held my breath.'" },
+  { "sentence_index": 1, "sentence": "...", "type": "OK", "issue": "", "suggestion": "" }
+]
+
+Rules:
+- Output VALID JSON only. No markdown, no code fences, no preamble.
+- Be conservative — only tag clear errors. When in doubt, tag OK.
+- "suggestion" must be concrete and rewriteable, not abstract advice.
+- Aim for ~30-50% OK tags in a typical draft.`;
+}
+
+function comprehensionAnnotatorPrompt(passage, question, answer) {
+  return `You are an experienced PSLE English Language teacher annotating a Primary 6 Comprehension Open-Ended answer sentence-by-sentence.
+
+QUESTION (${question.type}): ${question.text}
+
+Student answer:
+"""
+${answer}
+"""
+
+Annotate EVERY sentence (split on . ! ?) with one of these tags:
+
+- Tense / SVA / Article / Preposition / Pronoun / WordChoice / Punctuation — standard grammar issues.
+- Cliche — vague filler ("It is good", "very nice", "a lot").
+- Repetition — same word/phrase used too close.
+- ShowDontTell — for comprehension this means "states without text evidence" — use this tag when a sentence makes a claim but does NOT cite a quote from the passage.
+- Collocation — unnatural word pair.
+- OK — sentence is solid.
+
+Reply with ONLY a JSON array, one object per sentence, in order:
+[
+  { "sentence_index": 0, "sentence": "...exact sentence text...", "type": "ShowDontTell", "issue": "Inference made without citing a quote from the passage.", "suggestion": "Cite an exact quote that supports the inference: 'This is shown when the text states...'" }
+]
+
+Rules:
+- Output VALID JSON only.
+- Be conservative — only tag clear errors. Default to OK when unsure.
+- "suggestion" must be concrete and rewriteable.`;
+}
+
 function comprehensionCoachPrompt(passage, question, answer, turns) {
   const history = turns.map(t => `${t.role === 'coach' ? 'COACH' : 'STUDENT'}: ${t.text}`).join('\n\n');
   return `You are a PSLE English Coach helping a Primary 6 student improve a Comprehension OE answer. The Coach voice:
@@ -537,6 +707,73 @@ function escapeHtml(s) {
   return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+// ── Annotator renderer ───────────────────────────────────
+const ANNOT_TYPES = ['Tense', 'SVA', 'Article', 'Preposition', 'Pronoun', 'WordChoice', 'Collocation', 'Cliche', 'Repetition', 'ShowDontTell', 'Punctuation', 'OK'];
+const ANNOT_LEGEND = [
+  ['Tense', 'lg-tense'], ['SVA', 'lg-sva'], ['Article', 'lg-article'],
+  ['Preposition', 'lg-preposition'], ['Pronoun', 'lg-pronoun'],
+  ['WordChoice', 'lg-wordchoice'], ['Collocation', 'lg-collocation'],
+  ['Cliche', 'lg-cliche'], ['Repetition', 'lg-repetition'],
+  ['ShowDontTell', 'lg-showdonttell'], ['Punctuation', 'lg-punctuation'],
+  ['OK', 'lg-ok'],
+];
+
+function renderAnnotator(targetEl, annotations) {
+  if (!Array.isArray(annotations) || !annotations.length) {
+    targetEl.innerHTML = '<p>No annotations produced. Try a longer draft.</p>';
+    targetEl.style.display = 'block';
+    return;
+  }
+  // Count by type
+  const counts = {};
+  annotations.forEach(a => { counts[a.type] = (counts[a.type] || 0) + 1; });
+  const ordered = ANNOT_TYPES.filter(t => counts[t] > 0);
+  // Issues list (skip OK)
+  const issues = annotations.filter(a => a.type && a.type !== 'OK' && (a.issue || a.suggestion));
+
+  targetEl.innerHTML = `
+    <h4>🔍 Annotator</h4>
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:.65rem;line-height:1.55;">Every sentence is tagged with one of 12 categories. Click any underlined sentence to jump to its issue.</p>
+    <div class="annot-legend">
+      ${ANNOT_LEGEND.map(([t, c]) => `<span class="${c}">${t}</span>`).join('')}
+    </div>
+    <div class="annot-summary">
+      ${ordered.map(t => `<span class="annot-chip annot-chip-${t.toLowerCase()}">${t} · ${counts[t]}</span>`).join('')}
+    </div>
+    <div class="annot-body" id="annot-prose">
+      ${annotations.map(a => `<span class="annot-sent" data-idx="${a.sentence_index}" data-type="${a.type || 'OK'}">${escapeHtml(a.sentence || '')}</span> `).join('')}
+    </div>
+    ${issues.length ? `
+      <h4 style="margin-top:1rem;">Issues to fix (${issues.length})</h4>
+      <div class="annot-issues" id="annot-issues">
+        ${issues.map(a => `
+          <div class="annot-issue" data-idx="${a.sentence_index}">
+            <div class="issue-head">
+              <span class="annot-chip annot-chip-${(a.type||'').toLowerCase()}" style="font-size:.68rem;">${escapeHtml(a.type)}</span>
+              <span style="font-size:.75rem;color:var(--muted);">Sentence ${a.sentence_index + 1}</span>
+            </div>
+            ${a.sentence ? `<div class="issue-quote">"${escapeHtml(a.sentence)}"</div>` : ''}
+            ${a.issue ? `<div style="font-size:.82rem;color:var(--muted);margin-bottom:.35rem;line-height:1.5;"><strong style="color:#fbbf24;">Issue:</strong> ${escapeHtml(a.issue)}</div>` : ''}
+            ${a.suggestion ? `<div class="issue-fix"><strong style="color:var(--grammar);">Fix:</strong> ${escapeHtml(a.suggestion)}</div>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    ` : '<p style="color:var(--grammar);margin-top:1rem;font-size:.88rem;">No issues to flag — every sentence checked out.</p>'}
+  `;
+  // Click-to-highlight cross-link between sentence underlines and issue cards
+  const sents  = targetEl.querySelectorAll('.annot-sent');
+  const issuesNodes = targetEl.querySelectorAll('.annot-issue');
+  function focusIdx(idx) {
+    sents.forEach(s => s.classList.toggle('active', String(s.dataset.idx) === String(idx)));
+    issuesNodes.forEach(n => n.classList.toggle('highlighted', String(n.dataset.idx) === String(idx)));
+    const card = targetEl.querySelector(`.annot-issue[data-idx="${idx}"]`);
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  sents.forEach(s => s.addEventListener('click', () => focusIdx(s.dataset.idx)));
+  issuesNodes.forEach(n => n.addEventListener('click', () => focusIdx(n.dataset.idx)));
+  targetEl.style.display = 'block';
+}
+
 // ── Submit handlers ──────────────────────────────────────
 document.getElementById('composition-submit').addEventListener('click', async () => {
   const draft = document.getElementById('composition-draft').value.trim();
@@ -544,13 +781,15 @@ document.getElementById('composition-submit').addEventListener('click', async ()
   if (!checkKey()) return;
   const btn = document.getElementById('composition-submit');
   const fb = document.getElementById('composition-feedback');
+  const annotEl = document.getElementById('annot-output');
   btn.disabled = true;
-  const isCoach = state.mode === 'coach';
-  btn.innerHTML = '<span class="spinner"></span>' + (isCoach ? 'Coach is thinking…' : 'Marking your draft…');
-  if (!isCoach) fb.classList.remove('show');
+  const mode = state.mode;
+  const busyLabel = mode === 'coach' ? 'Coach is thinking…' : mode === 'annotator' ? 'Annotating draft…' : 'Marking your draft…';
+  btn.innerHTML = '<span class="spinner"></span>' + busyLabel;
+  if (mode === 'examiner') fb.classList.remove('show');
+  if (mode !== 'annotator' && annotEl) annotEl.style.display = 'none';
   try {
-    if (isCoach) {
-      // Add the latest draft as student turn (overwrite first turn each time).
+    if (mode === 'coach') {
       if (state.coach.turns.length === 0 || state.coach.turns[state.coach.turns.length - 1].role !== 'student') {
         state.coach.turns.push({ role: 'student', text: draft.slice(0, 800) });
       } else {
@@ -559,6 +798,17 @@ document.getElementById('composition-submit').addEventListener('click', async ()
       const coachText = await callGemini(compositionCoachPrompt(state.composition.topic, draft, state.coach.turns));
       state.coach.turns.push({ role: 'coach', text: coachText.trim() });
       renderCoachThread();
+    } else if (mode === 'annotator') {
+      const json = await window.askGemini({
+        system: window.EnglishCoach ? window.EnglishCoach.VOICE : '',
+        prompt: compositionAnnotatorPrompt(state.composition.topic, draft),
+        temperature: 0.25,
+        maxTokens: 1800,
+        responseMimeType: 'application/json',
+        asJson: true,
+        thinkingBudget: 0,
+      });
+      renderAnnotator(annotEl, Array.isArray(json) ? json : (json.annotations || []));
     } else {
       const text = await callGemini(compositionExaminerPrompt(state.composition.topic, draft));
       renderFeedback(fb, text);
@@ -567,12 +817,16 @@ document.getElementById('composition-submit').addEventListener('click', async ()
     if (window.EnglishStreak && typeof window.EnglishStreak.record === 'function') { try { window.EnglishStreak.record(); } catch {} }
     if (typeof Progress !== 'undefined') Progress.recordVisit('composition');
   } catch (err) {
-    fb.innerHTML = `<h4>Could not get feedback</h4><p>${escapeHtml(err.message)}</p>`;
-    if (err.code === 'NO_KEY') fb.innerHTML += '<p><button class="btn btn-ghost" onclick="showAISetup()">⚙️ Set up API key</button></p>';
-    fb.classList.add('show');
+    const target = mode === 'annotator' ? annotEl : fb;
+    if (target) {
+      target.innerHTML = `<h4>Could not get feedback</h4><p>${escapeHtml(err.message)}</p>`;
+      if (err.code === 'NO_KEY') target.innerHTML += '<p><button class="btn btn-ghost" onclick="showAISetup()">⚙️ Set up API key</button></p>';
+      target.style.display = 'block';
+      if (target === fb) target.classList.add('show');
+    }
   } finally {
     btn.disabled = false;
-    btn.innerHTML = isCoach ? '🧭 Ask the Coach' : '🧑‍🏫 Get Examiner Feedback';
+    btn.innerHTML = mode === 'coach' ? '🧭 Ask the Coach' : mode === 'annotator' ? '🔍 Annotate my draft' : '🧑‍🏫 Get Examiner Feedback';
   }
 });
 
@@ -582,13 +836,16 @@ document.getElementById('comprehension-submit').addEventListener('click', async 
   if (!checkKey()) return;
   const btn = document.getElementById('comprehension-submit');
   const fb = document.getElementById('comprehension-feedback');
+  const annotEl = document.getElementById('annot-output');
   btn.disabled = true;
-  const isCoach = state.mode === 'coach';
-  btn.innerHTML = '<span class="spinner"></span>' + (isCoach ? 'Coach is thinking…' : 'Marking your answer…');
-  if (!isCoach) fb.classList.remove('show');
+  const mode = state.mode;
+  const busyLabel = mode === 'coach' ? 'Coach is thinking…' : mode === 'annotator' ? 'Annotating answer…' : 'Marking your answer…';
+  btn.innerHTML = '<span class="spinner"></span>' + busyLabel;
+  if (mode === 'examiner') fb.classList.remove('show');
+  if (mode !== 'annotator' && annotEl) annotEl.style.display = 'none';
   try {
     const q = state.comprehension.passage.questions[state.comprehension.qIdx];
-    if (isCoach) {
+    if (mode === 'coach') {
       if (state.coach.turns.length === 0 || state.coach.turns[state.coach.turns.length - 1].role !== 'student') {
         state.coach.turns.push({ role: 'student', text: answer.slice(0, 800) });
       } else {
@@ -597,6 +854,17 @@ document.getElementById('comprehension-submit').addEventListener('click', async 
       const coachText = await callGemini(comprehensionCoachPrompt(state.comprehension.passage, q, answer, state.coach.turns));
       state.coach.turns.push({ role: 'coach', text: coachText.trim() });
       renderCoachThread();
+    } else if (mode === 'annotator') {
+      const json = await window.askGemini({
+        system: window.EnglishCoach ? window.EnglishCoach.VOICE : '',
+        prompt: comprehensionAnnotatorPrompt(state.comprehension.passage, q, answer),
+        temperature: 0.25,
+        maxTokens: 1200,
+        responseMimeType: 'application/json',
+        asJson: true,
+        thinkingBudget: 0,
+      });
+      renderAnnotator(annotEl, Array.isArray(json) ? json : (json.annotations || []));
     } else {
       const text = await callGemini(comprehensionExaminerPrompt(state.comprehension.passage, q, answer));
       renderFeedback(fb, text);
@@ -605,12 +873,16 @@ document.getElementById('comprehension-submit').addEventListener('click', async 
     if (window.EnglishStreak && typeof window.EnglishStreak.record === 'function') { try { window.EnglishStreak.record(); } catch {} }
     if (typeof Progress !== 'undefined') Progress.recordVisit('comprehension');
   } catch (err) {
-    fb.innerHTML = `<h4>Could not get feedback</h4><p>${escapeHtml(err.message)}</p>`;
-    if (err.code === 'NO_KEY') fb.innerHTML += '<p><button class="btn btn-ghost" onclick="showAISetup()">⚙️ Set up API key</button></p>';
-    fb.classList.add('show');
+    const target = mode === 'annotator' ? annotEl : fb;
+    if (target) {
+      target.innerHTML = `<h4>Could not get feedback</h4><p>${escapeHtml(err.message)}</p>`;
+      if (err.code === 'NO_KEY') target.innerHTML += '<p><button class="btn btn-ghost" onclick="showAISetup()">⚙️ Set up API key</button></p>';
+      target.style.display = 'block';
+      if (target === fb) target.classList.add('show');
+    }
   } finally {
     btn.disabled = false;
-    btn.innerHTML = isCoach ? '🧭 Ask the Coach' : '🧑‍🏫 Get Examiner Feedback';
+    btn.innerHTML = mode === 'coach' ? '🧭 Ask the Coach' : mode === 'annotator' ? '🔍 Annotate my answer' : '🧑‍🏫 Get Examiner Feedback';
   }
 });
 
