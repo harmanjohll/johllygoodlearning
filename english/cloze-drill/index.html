@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grammar Cloze Sprint — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 780px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+
+    .hero h1 { font-size: 1.55rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 1.25rem; }
+
+    .timer-bar {
+      position: sticky; top: 0; z-index: 30;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: .65rem 1rem; margin-bottom: 1rem;
+    }
+    .timer-bar .time-left {
+      font-family: 'IBM Plex Mono', ui-monospace, monospace; font-weight: 700;
+      font-size: 1.4rem; color: var(--accent); letter-spacing: .05em;
+    }
+    .timer-bar .time-left.warn { color: #fbbf24; }
+    .timer-bar .time-left.crit { color: #f87171; animation: pulse 1s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+    .passage {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.25rem 1.5rem; margin-bottom: 1rem;
+      font-size: 1rem; line-height: 2.1; color: var(--text);
+    }
+    .passage .title { font-size: .92rem; font-weight: 700; color: var(--accent); margin-bottom: .85rem; }
+
+    .blank {
+      display: inline-block; min-width: 6.5rem; padding: .25rem .55rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text); font-family: inherit; font-size: .95rem;
+    }
+    .blank:focus { outline: none; border-color: var(--accent); }
+    .blank.right { border-color: #4ade80; background: rgba(74,222,128,.06); }
+    .blank.wrong { border-color: #f87171; background: rgba(248,113,113,.04); }
+
+    .scorecard {
+      background: linear-gradient(135deg, #14302b 0%, #1e1835 100%);
+      border: 1px solid var(--accent); border-radius: 12px;
+      padding: 1.5rem; text-align: center; margin-top: 1rem;
+    }
+    .scorecard .num { font-size: 3rem; font-weight: 800; color: var(--accent); font-family: 'IBM Plex Mono', monospace; }
+    .scorecard .qual { font-size: 1rem; color: var(--text); margin: .25rem 0 1rem; }
+    .scorecard .row { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+
+    .review {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.25rem 1.5rem; margin-top: 1rem;
+    }
+    .review h3 { font-size: .95rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .65rem; }
+    .review .blank-row {
+      display: grid; grid-template-columns: 1.5rem auto 1fr; gap: .55rem;
+      align-items: baseline; padding: .55rem 0; border-bottom: 1px solid var(--border); font-size: .85rem;
+    }
+    .review .blank-row:last-child { border-bottom: 0; }
+    .review .blank-row .n { color: var(--muted); font-weight: 700; }
+    .review .blank-row .your { color: var(--text); }
+    .review .blank-row .your.right { color: #4ade80; }
+    .review .blank-row .your.wrong { color: #f87171; }
+    .review .blank-row .ok { color: var(--accent); }
+    .review .blank-row .why { color: var(--muted); font-size: .8rem; grid-column: 2 / span 2; margin-top: .15rem; line-height: 1.55; }
+
+    .start-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
+    .start-card h2 { margin-bottom: .5rem; }
+    .start-card p  { color: var(--muted); font-size: .92rem; margin-bottom: 1rem; line-height: 1.65; }
+    .pill { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .25rem .65rem; font-size: .72rem; margin: .15rem; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../" class="back-link">← Hub</a>
+  <strong style="color: var(--text);">Grammar Cloze Sprint</strong>
+  <span style="color: var(--muted); font-size: .82rem;">Paper 2 · 10 marks · 10 minutes</span>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Grammar Cloze Sprint</h1>
+    <p>
+      A single passage with ten one-word blanks — the real Paper 2 format. No word bank. Each blank tests
+      one of: tense, subject-verb agreement, article, preposition, pronoun, conjunction/connector, or
+      auxiliary. Type ONE word per blank. The clock auto-submits at zero.
+    </p>
+  </div>
+
+  <div id="start-pane">
+    <div class="start-card">
+      <h2>Ready?</h2>
+      <p>Ten minutes for ten blanks. Read the whole passage first; the clue is often a sentence away.</p>
+      <p>
+        <span class="pill">10 blanks · 1 mark each</span>
+        <span class="pill">No word bank</span>
+        <span class="pill">10 min</span>
+      </p>
+      <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="btn-start">Start the sprint</button>
+        <button class="btn btn-secondary" id="btn-untimed">Untimed practice</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="quiz-pane" style="display:none;">
+    <div class="timer-bar">
+      <span class="time-left" id="time-left">10:00</span>
+      <span style="color:var(--muted);font-size:.85rem;" id="filled-meta">0 / 10 filled</span>
+      <span style="flex:1;"></span>
+      <button class="btn btn-secondary" id="btn-submit" style="font-size:.82rem;padding:.4rem .8rem;">Submit now</button>
+    </div>
+    <div class="passage" id="passage"></div>
+  </div>
+
+  <div id="result-pane" style="display:none;"></div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script>
+const QUIZ_MS = 10 * 60 * 1000;
+
+// Passage: alternating strings and blank objects. Each blank carries
+// an accept-list (case-insensitive) and a `why` for review.
+const PASSAGE = {
+  title: 'A quiet Sunday at the wet market',
+  parts: [
+    "Every Sunday morning, my mother and I ",
+    { id: 1, accept: ['walk', 'go'],                     why: "Habit / routine → simple present. With 'every Sunday', use 'walk' or 'go'." },
+    " down to the wet market near our block. By the time we arrive at seven, the stalls ",
+    { id: 2, accept: ['have', 'are'],                    why: "Auxiliary for the perfect/continuous coming next. 'have already begun' or 'are already busy'." },
+    " already begun bustling with regulars. The fishmonger waves at us ",
+    { id: 3, accept: ['as', 'because', 'when'],          why: "Reason / time connector — 'as he sees us' / 'because he sees us' / 'when he sees us'." },
+    " he has been keeping the freshest yellowtail aside. ",
+    { id: 4, accept: ['Although', 'Though', 'While'],    why: "Contrast connector — the next clause sets up a 'but' relationship." },
+    " the market is crowded, my mother always knows exactly which stalls ",
+    { id: 5, accept: ['to', "we'll", "we", "I"],         why: "Infinitive 'to visit' OR contraction 'we'll' (we will). The most common natural fit is 'to'." },
+    " visit first. ",
+    { id: 6, accept: ['She', 'My mother', 'Mother'],     why: "Subject pronoun continuing the previous sentence's referent." },
+    " has been buying from these stalls ",
+    { id: 7, accept: ['for', 'over'],                    why: "Preposition signalling duration — 'for thirty years' / 'over thirty years'." },
+    " thirty years. The aunties greet her by name, and ",
+    { id: 8, accept: ['occasionally', 'sometimes'],      why: "Frequency adverb — the gift-giving is not every time, just now and then." },
+    " they slip an extra bunch of coriander into her basket. Loyalty, ",
+    { id: 9, accept: ['as', 'so'],                       why: "Comparative/result connector — 'as I learnt' (as a result of all of this) is most natural here." },
+    " I have learnt over the years, is its own quiet currency at the market. When she came home empty-handed last week, the fishmonger himself ",
+    { id: 10, accept: ['delivered', 'brought', 'sent'],  why: "Past tense, transitive — 'delivered the fish', 'brought the fish', 'sent the fish'. Past-tense form required by 'last week'." },
+    " the fish to our door. He had not been told. He had simply known.",
+  ],
+};
+
+let state = { startedAt: null, submitted: false, timed: true, answers: {} };
+let tickHandle = null;
+
+function init() {
+  document.getElementById('btn-start').addEventListener('click',     () => startQuiz(true));
+  document.getElementById('btn-untimed').addEventListener('click',  () => startQuiz(false));
+  document.getElementById('btn-submit').addEventListener('click', () => { if (!state.submitted && confirm('Submit now?')) submit(); });
+}
+
+function startQuiz(timed) {
+  state.timed = timed;
+  state.startedAt = Date.now();
+  document.getElementById('start-pane').style.display = 'none';
+  document.getElementById('quiz-pane').style.display  = 'block';
+  renderPassage();
+  if (timed) startTicker(); else document.getElementById('time-left').textContent = '∞';
+  setInterval(updateMeta, 1500);
+}
+
+function renderPassage() {
+  const wrap = document.getElementById('passage');
+  wrap.innerHTML = `<div class="title">${PASSAGE.title}</div>`;
+  const body = document.createElement('div');
+  body.style.cssText = 'line-height:2.15;';
+  PASSAGE.parts.forEach(piece => {
+    if (typeof piece === 'string') body.appendChild(document.createTextNode(piece));
+    else {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'blank';
+      input.dataset.id = piece.id;
+      input.placeholder = `(${piece.id})`;
+      input.autocomplete = 'off';
+      input.addEventListener('input', () => { state.answers[piece.id] = input.value.trim(); updateMeta(); });
+      body.appendChild(input);
+    }
+  });
+  wrap.appendChild(body);
+}
+
+function updateMeta() {
+  const blanks = PASSAGE.parts.filter(p => typeof p === 'object');
+  let n = 0;
+  blanks.forEach(b => { if ((state.answers[b.id] || '').trim()) n += 1; });
+  document.getElementById('filled-meta').textContent = `${n} / ${blanks.length} filled`;
+}
+
+function startTicker() {
+  if (tickHandle) clearInterval(tickHandle);
+  tickHandle = setInterval(tick, 500);
+  tick();
+}
+function tick() {
+  if (!state.startedAt || state.submitted) return;
+  const left = QUIZ_MS - (Date.now() - state.startedAt);
+  paintTime(left);
+  if (left <= 0) submit();
+}
+function paintTime(ms) {
+  const display = document.getElementById('time-left');
+  const mins = Math.max(0, Math.floor(ms / 60000));
+  const secs = Math.max(0, Math.floor((ms % 60000) / 1000));
+  display.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+  display.classList.remove('warn','crit');
+  if (ms <= 60_000)       display.classList.add('crit');
+  else if (ms <= 180_000) display.classList.add('warn');
+}
+
+function submit() {
+  if (state.submitted) return;
+  state.submitted = true;
+  if (tickHandle) clearInterval(tickHandle);
+
+  const blanks = PASSAGE.parts.filter(p => typeof p === 'object');
+  let got = 0;
+  blanks.forEach(b => {
+    const val = (state.answers[b.id] || '').toLowerCase().trim();
+    const ok  = (b.accept || []).map(x => x.toLowerCase());
+    const right = !!val && ok.includes(val);
+    if (right) got += 1;
+    const input = document.querySelector(`.blank[data-id="${b.id}"]`);
+    if (input) {
+      input.disabled = true;
+      input.classList.toggle('right', right);
+      input.classList.toggle('wrong', !right);
+    }
+  });
+
+  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('cloze');
+
+  const qual =
+    got === blanks.length ? 'Perfect. AL1 grammar instinct.' :
+    got >= blanks.length - 2 ? 'On the AL1/AL2 line. Look at the two misses below.' :
+    got >= blanks.length / 2 ? 'Halfway. Re-read every WHY below — patterns repeat.' :
+                                'Read the WHYs below, then retry with the untimed mode.';
+
+  let reviewHTML = '<div class="review"><h3>Review every blank</h3>';
+  blanks.forEach(b => {
+    const val = state.answers[b.id] || '';
+    const right = (b.accept || []).map(x => x.toLowerCase()).includes(val.toLowerCase());
+    reviewHTML += `<div class="blank-row">
+      <div class="n">${b.id}.</div>
+      <div class="your ${right ? 'right' : 'wrong'}">${right ? '✓' : '✗'} "${escapeHTML(val) || '(blank)'}"</div>
+      <div class="ok">Accept: ${b.accept.join(' / ')}</div>
+      <div class="why">${escapeHTML(b.why)}</div>
+    </div>`;
+  });
+  reviewHTML += '</div>';
+
+  const r = document.getElementById('result-pane');
+  r.style.display = 'block';
+  r.innerHTML = `
+    <div class="scorecard">
+      <div class="num">${got} / ${blanks.length}</div>
+      <div class="qual">${qual}</div>
+      <div class="row">
+        <a class="btn btn-primary" href="./">Retry</a>
+        <a class="btn btn-secondary" href="../">← Hub</a>
+        <a class="btn btn-secondary" href="../topics/cloze/">Open Cloze topic</a>
+      </div>
+    </div>
+    ${reviewHTML}
+  `;
+  r.scrollIntoView({ behavior: 'smooth' });
+}
+
+function escapeHTML(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+init();
+</script>
+</body>
+</html>
