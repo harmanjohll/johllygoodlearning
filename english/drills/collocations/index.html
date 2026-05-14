@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collocations Drill — PSLE English Studio</title>
+  <link rel="stylesheet" href="../../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 760px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+    .hero h1 { font-size: 1.55rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 1.25rem; }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <a href="../../" class="back-link">← Hub</a>
+  <strong style="color: var(--text);">Collocations Drill</strong>
+  <span style="color: var(--muted); font-size: .82rem;">Cross-paper · ~30 items · 5–10 minutes</span>
+</header>
+<main>
+  <div class="hero">
+    <h1>Collocations Drill</h1>
+    <p>
+      Words that go together. <em>Make a decision</em>, not <em>do a decision</em>. <em>Heavy rain</em>, not
+      <em>strong rain</em>. Collocations decide 3–4 Comprehension Cloze blanks every year, plus most of the
+      Vocab MCQ. Drill these until they feel obvious.
+    </p>
+  </div>
+  <div id="drill-container"></div>
+</main>
+
+<script src="../../shared.js"></script>
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/drill.js"></script>
+<script>
+const COLLOCATIONS = [
+  { prompt: "Which verb collocates with the noun 'decision'?", options: ["do a decision", "make a decision", "have a decision", "take a decision"],
+    correct: 1, explanation: "'Make a decision' is the standard collocation. 'Take a decision' is British formal usage but examiners reward 'make' first." },
+  { prompt: "Which verb collocates with 'homework'?", options: ["make homework", "do homework", "have homework", "take homework"],
+    correct: 1, explanation: "'Do homework' is fixed. Common trap: 'make homework' is a direct translation error from Mandarin/Malay." },
+  { prompt: "Which adjective collocates with 'rain'?", options: ["strong rain", "heavy rain", "big rain", "thick rain"],
+    correct: 1, explanation: "Rain is HEAVY, never strong. Wind is strong, rain is heavy, snow is heavy or thick." },
+  { prompt: "Which adjective collocates with 'wind'?", options: ["heavy wind", "thick wind", "strong wind", "deep wind"],
+    correct: 2, explanation: "'Strong wind' is fixed. Native speakers DON'T say 'heavy wind' — that's a common ESL error." },
+  { prompt: "Which preposition follows 'depend'?", options: ["depend in", "depend with", "depend on", "depend at"],
+    correct: 2, explanation: "Depend ON. Same family: rely ON, count ON, focus ON, concentrate ON." },
+  { prompt: "Which preposition follows 'consist'?", options: ["consist with", "consist of", "consist from", "consist in"],
+    correct: 1, explanation: "Consist OF. The whole consists OF its parts. Don't confuse with 'comprise' (no 'of' needed)." },
+  { prompt: "Which preposition follows 'suffer'?", options: ["suffer from", "suffer with", "suffer of", "suffer at"],
+    correct: 0, explanation: "Suffer FROM (an illness or condition). 'He suffers from asthma.'" },
+  { prompt: "Which preposition follows 'congratulate'?", options: ["congratulate for", "congratulate on", "congratulate about", "congratulate with"],
+    correct: 1, explanation: "Congratulate someone ON an achievement. 'I congratulate you on your win.'" },
+  { prompt: "Pick the natural pair: '_____ attention'.", options: ["give", "pay", "make", "do"],
+    correct: 1, explanation: "'Pay attention' is fixed. Common trap: 'give attention' is grammatically OK but the standard collocation is 'pay'." },
+  { prompt: "Pick the natural pair: '_____ a mistake'.", options: ["make", "do", "have", "take"],
+    correct: 0, explanation: "'Make a mistake' is fixed. 'Do a mistake' is a classic ESL error." },
+  { prompt: "Pick the natural pair: '_____ a photo'.", options: ["do", "make", "take", "catch"],
+    correct: 2, explanation: "'Take a photo / picture / selfie / video.' English uses 'take' for all forms of image-capture." },
+  { prompt: "Pick the natural pair: '_____ a shower'.", options: ["do", "make", "have", "take"],
+    correct: 2, explanation: "Both 'have a shower' (British) and 'take a shower' (American) are correct. Singapore exam usage prefers 'have' but accepts both." },
+  { prompt: "Pick the natural pair: '_____ a cold'.", options: ["catch", "have", "take", "make"],
+    correct: 0, explanation: "'Catch a cold' (you get sick); afterwards you 'have a cold' (you are sick). The first event is 'catch'." },
+  { prompt: "Pick the natural pair: '_____ a promise'.", options: ["do", "make", "say", "tell"],
+    correct: 1, explanation: "'Make a promise'. After making it, you 'keep' or 'break' the promise — but you don't 'do' it." },
+  { prompt: "Pick the natural pair: '_____ progress'.", options: ["do", "make", "have", "take"],
+    correct: 1, explanation: "'Make progress.' Progress is uncountable here: no article, no 's'." },
+  { prompt: "Pick the natural pair: '_____ care of'.", options: ["take", "make", "have", "give"],
+    correct: 0, explanation: "'Take care of' = look after. 'Make care' is wrong." },
+  { prompt: "Pick the natural pair: '_____ an effect on'.", options: ["do", "make", "have", "take"],
+    correct: 2, explanation: "'Have an effect on'. Sister phrase: 'have an impact on' / 'have an influence on'." },
+  { prompt: "Pick the right adjective: A '_____ disagreement' between two people.", options: ["heavy", "deep", "serious", "strong"],
+    correct: 2, explanation: "'Serious disagreement' or 'strong disagreement' are natural. 'Serious' is the more common AL1 collocation here." },
+  { prompt: "Pick the right adjective: '_____ traffic' on the highway.", options: ["thick", "heavy", "strong", "big"],
+    correct: 1, explanation: "'Heavy traffic' is fixed. Also: heavy rain, heavy losses, heavy work — 'heavy' carries lots of these noun pairings." },
+  { prompt: "Pick the right adjective: A '_____ silence' fell over the room.", options: ["heavy", "thick", "deep", "strong"],
+    correct: 2, explanation: "'Deep silence' is the standard PSLE-level collocation. 'Thick silence' is acceptable in narrative writing." },
+  { prompt: "Pick the right adjective: A '_____ accent' that's hard to understand.", options: ["heavy", "thick", "strong", "big"],
+    correct: 2, explanation: "'Strong accent' or 'thick accent'. 'Strong' is more neutral and standard." },
+  { prompt: "Pick the right adverb: 'She is _____ aware of the rules.'", options: ["greatly", "fully", "totally", "completely"],
+    correct: 1, explanation: "'Fully aware' is the fixed collocation. 'Completely aware' works but 'fully' is preferred." },
+  { prompt: "Pick the right noun for 'commit ____'.", options: ["a crime", "a problem", "a mistake", "a chance"],
+    correct: 0, explanation: "'Commit a crime' / 'commit fraud' / 'commit suicide' — 'commit' pairs only with serious negative actions." },
+  { prompt: "Pick the right noun for 'launch ____'.", options: ["a campaign", "a price", "a stress", "a hope"],
+    correct: 0, explanation: "'Launch a campaign / a project / a product / an investigation' — 'launch' = start formally." },
+  { prompt: "Pick the right noun for 'tell ____'.", options: ["a fact", "a story", "the news", "an opinion"],
+    correct: 1, explanation: "'Tell a story / a joke / a lie / the truth.' You SAY facts, news, an opinion; you TELL stories." },
+  { prompt: "Pick the right noun for 'say ____'.", options: ["a story", "a joke", "a word", "a song"],
+    correct: 2, explanation: "'Say a word / a prayer / a few words.' You SAY words but TELL stories. Common trap: 'say a story' is wrong." },
+  { prompt: "Pick the right verb: 'I would like to _____ a question.'", options: ["do", "make", "ask", "give"],
+    correct: 2, explanation: "'Ask a question' is fixed. 'Make a question' is a translation error." },
+  { prompt: "Pick the right verb: '_____ your breath' (hold it in).", options: ["catch", "hold", "take", "make"],
+    correct: 1, explanation: "'Hold your breath.' Also: 'take a deep breath' (inhale deeply); 'catch your breath' (recover after exertion)." },
+  { prompt: "Pick the right verb: '_____ time' = waste time / kill time.", options: ["do", "make", "kill", "have"],
+    correct: 2, explanation: "'Kill time' = pass time idly. Fixed idiomatic collocation." },
+  { prompt: "Pick the right verb: 'The teacher _____ a strong impression on the class.'", options: ["did", "made", "took", "had"],
+    correct: 1, explanation: "'Make an impression' is fixed. 'Have an impression' exists but means 'have the feeling that...', different meaning." },
+  { prompt: "Pick the right verb: 'I'll _____ a quick break.'", options: ["do", "make", "take", "have"],
+    correct: 2, explanation: "'Take a break' is the standard collocation. 'Have a break' is acceptable in British English." },
+  { prompt: "Pick the right verb: '_____ an effort to be on time.'", options: ["do", "make", "give", "have"],
+    correct: 1, explanation: "'Make an effort' is fixed. Same family: make a contribution, make a difference, make a change." },
+];
+
+if (window.EnglishDrill && window.EnglishDrill.mount) {
+  window.EnglishDrill.mount('collocations', 'Collocations Drill', COLLOCATIONS);
+}
+if (typeof Progress !== 'undefined' && Progress.recordVisit) Progress.recordVisit('vocab');
+</script>
+</body>
+</html>

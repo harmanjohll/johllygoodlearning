@@ -172,6 +172,17 @@
       <div style="display:flex;gap:.5rem;flex-wrap:wrap;" id="plan-actions"></div>
     </div>
 
+    <!-- Daily 10 status — surfaces today's score and 14-day streak strip -->
+    <div id="daily-status" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.9rem 1.1rem;margin-bottom:1rem;display:none;">
+      <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.45rem;">
+        <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">⚡ Daily 10</span>
+        <span id="daily-status-label" style="font-size:.84rem;color:var(--text);font-weight:600;"></span>
+        <span style="flex:1;"></span>
+        <a id="daily-status-cta" class="hub-cta" style="font-size:.72rem;padding:.3rem .65rem;" href="daily/">→ Open</a>
+      </div>
+      <div id="daily-status-strip" style="display:grid;grid-template-columns:repeat(14, 1fr);gap:3px;"></div>
+    </div>
+
     <!-- Daily Power-ups: Idiom of the Day + Show-Don't-Tell of the Day -->
     <div id="power-ups" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
       <div class="power-card" id="pu-idiom" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.9rem 1.05rem;">
@@ -215,6 +226,10 @@
       <a class="hub-cta" href="review/">🔁 Review queue</a>
       <a class="hub-cta" href="idioms-srs/">📇 Idioms SRS</a>
       <a class="hub-cta" href="cards/">📇 Cheat Cards</a>
+      <a class="hub-cta" href="drills/collocations/">🔗 Collocations Drill</a>
+      <a class="hub-cta" href="drills/connectors/">🔀 Connectors Drill</a>
+      <a class="hub-cta" href="editing/">✏️ Editing Sprint</a>
+      <a class="hub-cta" href="synthesis-drill/">🔄 Synthesis Sprint</a>
       <a class="hub-cta" href="strategies/">📚 Strategies</a>
       <a class="hub-cta" href="format/">📋 PSLE Format</a>
       <a class="hub-cta" href="how-to-use/">📖 How to use</a>
@@ -510,11 +525,78 @@
         });
     }
 
+    // ── Daily 10 status widget ─────────────────────────────────
+    function paintDailyStatus() {
+      let store;
+      try { store = JSON.parse(localStorage.getItem('jgl.english.daily') || '{"dates":{}}'); }
+      catch { store = { dates: {} }; }
+      const dates = store.dates || {};
+      const today = new Date().toISOString().slice(0, 10);
+      const todayScore = dates[today];
+
+      // Compute the current streak of pass-days (score >= 7) ending today (counting today only if it passed)
+      let streak = 0;
+      for (let i = 0; i < 14; i++) {
+        const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+        const s = dates[d];
+        if (s != null && s >= 7) streak += 1;
+        else if (i === 0 && s == null) continue;  // allow today to be undone
+        else break;
+      }
+
+      let label, ctaText;
+      if (todayScore == null) {
+        label = streak > 0 ? `Take today's 10 to keep your ${streak}-day streak alive.` : 'Take today\'s 10 to start a streak.';
+        ctaText = '→ Open';
+      } else if (todayScore >= 9) {
+        label = `Today: ${todayScore}/10. AL1 territory.`;
+        ctaText = '→ Review';
+      } else if (todayScore >= 7) {
+        label = `Today: ${todayScore}/10. Streak: ${streak} day${streak === 1 ? '' : 's'}.`;
+        ctaText = '→ Review';
+      } else {
+        label = `Today: ${todayScore}/10. The misses are where the marks live — review them.`;
+        ctaText = '→ Review';
+      }
+
+      // 14-day strip
+      const strip = document.getElementById('daily-status-strip');
+      strip.innerHTML = '';
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+        const s = dates[d];
+        const cell = document.createElement('div');
+        cell.style.cssText = 'aspect-ratio:1;border-radius:3px;background:var(--surface);';
+        if (s != null) cell.style.background = s >= 7 ? 'var(--accent)' : 'rgba(248,113,113,.4)';
+        if (i === 0) cell.style.outline = '2px solid var(--accent)';
+        cell.title = `${d}${s != null ? ' · ' + s + '/10' : ' · no entry'}`;
+        strip.appendChild(cell);
+      }
+
+      document.getElementById('daily-status-label').textContent = label;
+      document.getElementById('daily-status-cta').textContent   = ctaText;
+
+      // Hide entirely on a true cold start (no entries at all AND no streak)
+      const anyEntries = Object.keys(dates).length > 0;
+      const isFirstVisit = (() => {
+        try {
+          const meta = JSON.parse(localStorage.getItem('english_meta') || '{}');
+          return !(meta.activeDays && meta.activeDays.length);
+        } catch { return true; }
+      })();
+      if (!anyEntries && isFirstVisit) {
+        // Still show on first day so the student sees the entry point; just a soft prompt.
+        document.getElementById('daily-status-label').textContent = 'Try today\'s Daily 10 — 10 mixed items, 10 minutes.';
+      }
+      document.getElementById('daily-status').style.display = 'block';
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       buildHub();
       updateStats();
       buildPlan();
       paintPowerUps();
+      paintDailyStatus();
     });
   </script>
 </body>
