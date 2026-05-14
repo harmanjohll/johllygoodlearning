@@ -206,8 +206,10 @@
       <a class="hub-cta" href="mentors/">📖 Mentor Essays</a>
       <a class="hub-cta" href="structured/">📋 Composition Builder</a>
       <a class="hub-cta" href="simulate/">⏱ Paper 1 Simulator</a>
+      <a class="hub-cta" href="simulate-p2/">⏱ Paper 2 Mini</a>
       <a class="hub-cta" href="listen/">🎧 Listening Practice</a>
       <a class="hub-cta" href="aloud/">🎙 Reading Aloud</a>
+      <a class="hub-cta" href="sbc/">💬 SBC Practice</a>
       <a class="hub-cta" href="mirror/">🪞 Mirror — your progress</a>
       <a class="hub-cta" href="review/">🔁 Review queue</a>
       <a class="hub-cta" href="idioms-srs/">📇 Idioms SRS</a>
@@ -408,6 +410,9 @@
       } else if (pick.t.id === 'oral-reading') {
         mode = 'Reading Aloud';
         modeNote = 'Record a passage, listen back, self-score, get one coach pointer.';
+      } else if (pick.t.id === 'oral-sbc') {
+        mode = 'SBC Practice';
+        modeNote = 'Pick a stimulus, draft three PEEL answers, get one Coach probe each.';
       } else if (!composedAlready) {
         mode = 'Learn tab';
         modeNote = 'Read the Learn tab to lock in the framework, then come back.';
@@ -435,6 +440,7 @@
         mode === 'Composition Builder' ? 'structured/' :
         mode === 'Listening Practice'  ? 'listen/' :
         mode === 'Reading Aloud'       ? 'aloud/' :
+        mode === 'SBC Practice'        ? 'sbc/' :
         mode === 'Drill tab'           ? `topics/${pick.t.id}/#tab-drill` :
         mode === 'Quiz tab'            ? `topics/${pick.t.id}/#tab-quiz` :
                                          `topics/${pick.t.id}/`;

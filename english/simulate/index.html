@@ -90,10 +90,11 @@
   <div class="sim-hero">
     <h1>Paper 1 Simulator</h1>
     <p>
-      Full Paper 1 in one sitting. Fifteen minutes for Situational Writing (15 marks), fifty-five minutes for
-      Continuous Writing (40 marks if you include the picture, 55 marks max). The timer auto-advances. Drafts
-      auto-save every ten seconds, so you can reload safely. At the end you get a single-page Examiner scorecard
-      across both sections. No model answers shown until you click <em>Reveal mentor</em>.
+      Full Paper 1 in one sitting. Fifteen minutes for Situational Writing (14 marks), fifty-five minutes for
+      Continuous Writing (36 marks — the picture is optional, you may include it or set your own scene). The
+      timer auto-advances. Drafts auto-save every ten seconds, so you can reload safely. At the end you get a
+      single-page Examiner scorecard across both sections. No model answers shown until you click <em>Reveal
+      mentor</em>.
     </p>
   </div>
 
@@ -109,8 +110,8 @@
         like the real paper: no Google, no AI, no notes. When time is up the page locks both drafts and submits
         them to the Examiner.</p>
       <p>
-        <span class="pill">Section A · Situational · 15 m · ~70 words · 15 marks</span>
-        <span class="pill">Section B · Continuous · 55 m · ~150 words · 40 marks</span>
+        <span class="pill">Section A · Situational · 15 m · ~70 words · 14 marks</span>
+        <span class="pill">Section B · Continuous · 55 m · ~150 words · 36 marks</span>
       </p>
       <div class="row" style="justify-content: center;">
         <button class="btn btn-primary" id="btn-start">Start the timer</button>
@@ -132,7 +133,7 @@
     </div>
 
     <div class="phase-card" id="phase-A">
-      <h2>Section A · Situational Writing (15 marks)</h2>
+      <h2>Section A · Situational Writing (14 marks)</h2>
       <div class="meta">Write between 60 and 80 words. Pick the right register for the audience.</div>
       <div class="prompt-box" id="sit-prompt"></div>
       <div class="situational-fields" id="sit-fields"></div>
@@ -141,7 +142,7 @@
     </div>
 
     <div class="phase-card locked" id="phase-B">
-      <h2>Section B · Continuous Writing (40 marks)</h2>
+      <h2>Section B · Continuous Writing (36 marks)</h2>
       <div class="meta">Write a story of at least 150 words based on the topic. Use the picture as a starting point or include it somewhere in the story.</div>
       <div class="prompt-box" id="cont-prompt"></div>
       <textarea class="draft" id="cont-draft" placeholder="Open with a hook. F.A.S.T. throughout. End with R.E.F."></textarea>
@@ -421,7 +422,7 @@ async function finishPaper() {
 function wordCount(s) { return (s || '').trim().split(/\s+/).filter(Boolean).length; }
 
 async function markSituational(draft, prompt) {
-  const sys = `You are an experienced PSLE English Language examiner. Mark Situational Writing against the Singapore SEAB 2025+ rubric (15 marks: 9 for Task Fulfilment / Audience / Tone / Format, 6 for Language).`;
+  const sys = `You are an experienced PSLE English Language examiner. Mark Situational Writing against the Singapore SEAB 2025+ rubric (14 marks: 8 for Task Fulfilment / Audience / Tone / Format, 6 for Language).`;
   const user = `STUDENT PROMPT:
 Type: ${prompt.type}
 Audience: ${prompt.audience}
@@ -436,9 +437,9 @@ ${draft}
 
 Mark and respond in clear sections. Plain text only — no markdown, no asterisks. Each section starts with the LABEL in CAPITALS followed by a colon.
 
-1. TASK FULFILMENT (out of 9) — number, then one line. Was each required point addressed? Was the format/tone matched?
+1. TASK FULFILMENT (out of 8) — number, then one line. Was each required point addressed? Was the format/tone matched?
 2. LANGUAGE (out of 6) — number, then one line. Grammar, register, varied structure.
-3. ESTIMATED TOTAL (out of 15).
+3. ESTIMATED TOTAL (out of 14).
 4. THREE STRENGTHS — bullet points. Be specific; quote short phrases.
 5. THREE GROWTH POINTS — bullet points. Each names the issue AND a concrete fix.
 6. ONE SENTENCE TO REWRITE — pick the weakest sentence and suggest a stronger version.
@@ -448,7 +449,7 @@ Be honest. Be specific.`;
 }
 
 async function markContinuous(draft, prompt) {
-  const sys = `You are an experienced PSLE English Language examiner. Mark Continuous Writing against the Singapore SEAB 2025+ rubric (40 marks: ~20 Content, ~20 Language & Organisation).`;
+  const sys = `You are an experienced PSLE English Language examiner. Mark Continuous Writing against the Singapore SEAB 2025+ rubric (36 marks: ~18 Content, ~18 Language & Organisation).`;
   const user = `STUDENT TOPIC: "${prompt.note}"
 ${prompt.pictureHint}
 
@@ -459,9 +460,9 @@ ${draft}
 
 Mark and respond in clear sections. Plain text only — no markdown, no asterisks. Each section starts with the LABEL in CAPITALS followed by a colon.
 
-1. CONTENT BAND (out of 20) — number, then one line. Relevance, sensory and emotional detail, climax development, reflective ending.
-2. LANGUAGE & ORGANISATION BAND (out of 20) — number, then one line. Vocabulary range, varied sentence structures, paragraphing, grammar.
-3. ESTIMATED TOTAL (out of 40).
+1. CONTENT BAND (out of 18) — number, then one line. Relevance, sensory and emotional detail, climax development, reflective ending.
+2. LANGUAGE & ORGANISATION BAND (out of 18) — number, then one line. Vocabulary range, varied sentence structures, paragraphing, grammar.
+3. ESTIMATED TOTAL (out of 36).
 4. THREE STRENGTHS — bullet points. Be specific; quote short phrases.
 5. THREE GROWTH POINTS — bullet points. Each names the issue AND a concrete improvement. Anchor in F.A.S.T., R.E.F., Weather Contrast / Flashback, paragraph rhythm, banned clichés.
 6. ONE SENTENCE TO REWRITE — pick the flattest "telling" sentence and suggest a "showing" version using F.A.S.T.

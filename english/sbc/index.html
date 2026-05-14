@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SBC Practice — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 820px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+
+    .hero h1 { font-size: 1.55rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 1.25rem; }
+
+    .key-warn { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.35); border-radius: 9px; padding: .65rem .95rem; font-size: .85rem; color: var(--text); margin-bottom: 1.25rem; line-height: 1.55; }
+
+    .stimulus-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .85rem; margin-bottom: 1.5rem; }
+    .stim-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1rem 1.15rem; cursor: pointer; transition: border-color .15s;
+    }
+    .stim-card:hover { border-color: var(--accent); }
+    .stim-card.active { border-color: var(--accent); background: rgba(74,222,128,.04); }
+    .stim-card .stim-num { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-weight: 700; }
+    .stim-card .stim-title { font-size: 1rem; font-weight: 700; color: var(--text); margin: .25rem 0; }
+    .stim-card .stim-theme { font-size: .72rem; padding: .15rem .55rem; border-radius: 99px; background: rgba(167,139,250,.08); color: #a78bfa; border: 1px solid #a78bfa; display: inline-block; }
+    .stim-card .stim-desc { font-size: .82rem; color: var(--muted); line-height: 1.55; margin-top: .5rem; }
+    .stim-card.today { border-color: var(--accent); }
+    .stim-card .today-tag { font-size: .62rem; color: var(--accent); font-weight: 800; letter-spacing: .07em; text-transform: uppercase; margin-bottom: .25rem; display: block; }
+
+    .work-pane { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
+    .work-pane.active { display: block; }
+
+    .scene {
+      font-size: .94rem; line-height: 1.7; color: var(--text);
+      padding: .85rem 1.1rem; background: var(--surface); border-left: 3px solid var(--accent);
+      border-radius: 6px; margin-bottom: 1.25rem;
+    }
+    .scene strong { color: var(--accent); }
+
+    .question-block { border-top: 1px solid var(--border); padding-top: 1.25rem; margin-top: 1.25rem; }
+    .question-block:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+    .q-tag { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-weight: 700; margin-bottom: .25rem; }
+    .q-stem { font-size: .95rem; font-weight: 600; color: var(--text); margin-bottom: .65rem; line-height: 1.55; }
+    .q-hint { font-size: .82rem; color: var(--muted); margin-bottom: .65rem; }
+    textarea.q-draft {
+      width: 100%; min-height: 100px; background: var(--surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: .65rem .75rem; font-family: 'Inter', sans-serif; font-size: .9rem; line-height: 1.6;
+      resize: vertical;
+    }
+    textarea.q-draft:focus { outline: none; border-color: var(--accent); }
+    .q-row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin-top: .55rem; }
+
+    .feedback { display: none; margin-top: .85rem; background: linear-gradient(135deg, #14302b 0%, #1e1835 100%); border: 1px solid var(--accent); border-radius: 9px; padding: .85rem 1rem; }
+    .feedback.show { display: block; }
+    .feedback h4 { color: var(--accent); font-size: .85rem; margin-bottom: .4rem; }
+    .feedback pre { white-space: pre-wrap; font-family: inherit; font-size: .86rem; color: var(--text); line-height: 1.7; }
+    .feedback .model-reveal { margin-top: .65rem; }
+    .feedback .model-reveal summary { font-size: .76rem; color: var(--muted); cursor: pointer; }
+    .feedback .model-reveal[open] summary { color: var(--accent); }
+    .feedback .model-reveal .model-text { font-size: .86rem; color: var(--text); margin-top: .35rem; padding: .55rem .75rem; background: var(--surface); border-radius: 6px; line-height: 1.65; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../" class="back-link">← Hub</a>
+  <strong style="color: var(--text);">SBC Practice</strong>
+  <span style="color: var(--muted); font-size: .82rem;">Paper 4 · 25 marks · 3 questions per stimulus</span>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Stimulus-Based Conversation</h1>
+    <p>
+      In the real Paper 4, the examiner shows you a photograph and asks three open questions on it. Each
+      stimulus below is described in detail so you can practise without copyrighted images. Pick one (or use
+      Today's). Draft each answer using PEEL — Point, Example, Explanation, Link. Submit a question for AI
+      Coach feedback; a model answer reveals only if you ask for it.
+    </p>
+  </div>
+
+  <div class="key-warn" id="key-warn" style="display:none;">
+    No Gemini API key. You can still draft answers; the AI Coach feedback per question needs a key.
+  </div>
+
+  <div class="stimulus-grid" id="stim-grid"></div>
+
+  <div class="work-pane" id="work-pane"></div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script>
+const TOPIC = 'oral-sbc';
+
+const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+if (!key) document.getElementById('key-warn').style.display = 'block';
+
+// ── Stimuli (described scenes; no embedded images) ────────
+const STIMULI = [
+  {
+    id: 'recycling-bin',
+    title: 'Overflowing recycling bin at a void deck',
+    theme: 'Civic life',
+    desc: 'A photograph of three colour-coded recycling bins under an HDB block. The blue (paper) bin is overflowing onto the ground. Two children walk past with backpacks; one points at the mess.',
+    scene: "An HDB void deck on a weekday afternoon. Three recycling bins — blue (paper), yellow (metal/plastic), brown (glass) — stand side by side. The blue bin is so full that flattened cardboard boxes have toppled to the ground beside it. A piece of newspaper has blown a few metres away. Two Primary 5 children, returning from school, slow down to look. One of them points at the spill; the other holds a snack in one hand and a milk carton in the other. Across the carpark, an uncle on a bicycle pedals past without stopping.",
+    questions: [
+      {
+        kind: 'Factual / Observation',
+        stem: "What is happening in the picture?",
+        hint: "Describe ONE clear observation and ONE smaller detail. Two to three sentences.",
+        model: "In the picture, the blue recycling bin at the void deck is overflowing, with flattened cardboard spilling onto the ground. Two children have stopped to look at the mess. A piece of newspaper has been blown a short distance away, suggesting the bin has been full for some time.",
+      },
+      {
+        kind: 'Opinion / Stance',
+        stem: "Whose job is it to clear up a situation like this — the residents, the cleaners, or the town council? Explain.",
+        hint: "Take ONE stance first. Then give a reason. Then a small example. Then loop back to the question.",
+        model: "I think the responsibility is shared. The town council should empty the bins more regularly; once a week is clearly not enough in busy blocks. But residents must also flatten boxes and avoid stuffing the bin past full, otherwise the cleaners' work doubles. In my block, our residents' committee put a small poster on the bin showing how to flatten boxes, and the spillover dropped almost overnight.",
+      },
+      {
+        kind: 'Hypothetical / Extension',
+        stem: "If you were a member of your school's Environment Club, what is ONE small project you could start to address this kind of problem in your neighbourhood?",
+        hint: "Be SPECIFIC: name the project, the frequency, the audience, and ONE expected result.",
+        model: "I would start a monthly 'Cardboard Saturday' near my void deck, where club members help residents flatten boxes before they go into the bin. We would put up a small reminder poster the week before. Even if only ten families take part, the blue bin would last longer between collections, and residents who see us would be more likely to do it themselves. Small habits add up.",
+      },
+    ],
+  },
+  {
+    id: 'queue-bus-stop',
+    title: 'Long queue at a school bus stop',
+    theme: 'Community',
+    desc: 'Twelve Primary School students wait in a long, neat queue at a bus stop, holding water bottles and backpacks. The morning sun is bright; one student leans against the shelter pole.',
+    scene: "Seven in the morning at a school bus stop. Twelve Primary School students stand in a queue that stretches almost out of the shelter. Most are in green-trimmed uniforms; their backpacks are heavy enough that several have set them on the ground. One girl, near the front, drinks from her water bottle. Another, near the back, leans on the shelter pole, eyes half-closed. The bus is not yet visible.",
+    questions: [
+      {
+        kind: 'Factual / Observation',
+        stem: "What can you see in this picture?",
+        hint: "Two to three sentences. Use specific details, not vague ones.",
+        model: "Twelve Primary School students are queueing at a bus stop early in the morning. Most are in matching uniforms, with heavy backpacks; some have rested their bags on the ground. The queue is orderly, but a few of the students at the back look tired.",
+      },
+      {
+        kind: 'Opinion / Stance',
+        stem: "Do you think Primary School students should be expected to carry such heavy bags every day? Why or why not?",
+        hint: "Pick a side cleanly. PEEL. 3–4 sentences.",
+        model: "I think the bags are too heavy and we should not have to carry that much every day. Most of mine is textbooks I do not even open during the school day; I carry them just in case. Last term my classmate hurt his back from his bag, and his doctor said it was from the strap. If schools allowed us to leave some books in lockers, we would arrive less tired and ready to learn.",
+      },
+      {
+        kind: 'Hypothetical / Extension',
+        stem: "Suppose your school invited Primary 6 students to redesign the school bag. What is ONE feature you would add and why?",
+        hint: "Name ONE feature. Name ONE problem it solves. Two to three sentences.",
+        model: "I would add a built-in tablet sleeve with a padded back, so that we can carry one device instead of many books. It solves the weight problem and protects the tablet from drops. Some students might worry about screen time, but the school can still set limits on which apps are allowed.",
+      },
+    ],
+  },
+  {
+    id: 'phone-dinner',
+    title: 'Family at a hawker centre, all on phones',
+    theme: 'Family / technology',
+    desc: 'Four family members at a hawker centre table. Food is on the trays. All four are looking at their phones, not at each other.',
+    scene: "A busy hawker centre at dinner time. A family of four — two parents and two children, perhaps around eight and twelve — sit around a table with chicken rice, fishball noodles, and a plate of fried carrot cake between them. None of the four is eating right now. Each is holding a phone in front of their face. The youngest child, despite the food in front of her, has not touched her chopsticks.",
+    questions: [
+      {
+        kind: 'Factual / Observation',
+        stem: "What is happening in this picture?",
+        hint: "Two to three sentences, with at least one specific detail.",
+        model: "A family of four is sitting at a hawker centre table with their food ready, but every one of them is looking at a phone instead of eating or talking. The youngest child has not even picked up her chopsticks. There is a quiet contrast between the busy stall behind them and the silence at the table.",
+      },
+      {
+        kind: 'Opinion / Stance',
+        stem: "Some families have a 'no phones at meals' rule. Do you think such a rule is a good idea? Why?",
+        hint: "Take a side. One reason + one example + a loop back.",
+        model: "I think a 'no phones at meals' rule is a good idea, with a small exception for emergencies. Meals are one of the few times in the day that the whole family is in the same place, so they are a chance to actually talk. My family started this rule last year; my younger brother complained at first, but now he is the one who asks about my football match. A rule helps because it removes the temptation, not the fun.",
+      },
+      {
+        kind: 'Hypothetical / Extension',
+        stem: "If you were designing a family-friendly app, what would it do? Describe one specific feature.",
+        hint: "Name the app. Name ONE specific feature. Explain why it helps.",
+        model: "I would design an app called Table Talk that suggests one good question for the family to discuss at dinner each evening. It would pull from a wide bank — favourite memories, future plans, light debates. The point is not to replace phones, but to give the family something to start with so the conversation does not stall after 'how was your day'.",
+      },
+    ],
+  },
+  {
+    id: 'community-garden',
+    title: 'Community garden with elderly volunteers and students',
+    theme: 'Intergenerational',
+    desc: 'A small rooftop community garden. Three elderly residents are kneeling among plots of leafy greens; two Primary students help water with small cans.',
+    scene: "A community garden on the rooftop of a void deck. There are six raised plots: kang kong, sweet potato leaves, chilli, brinjal, mint, and one plot of marigold flowers in bloom. Three elderly volunteers — two aunties in straw hats and one uncle — are kneeling on small mats, weeding. Two Primary 5 students, in their PE T-shirts after a Saturday CCA, are helping with watering cans. One auntie is explaining something to a student, who is listening with her head tilted.",
+    questions: [
+      {
+        kind: 'Factual / Observation',
+        stem: "Describe what you see in this picture.",
+        hint: "Two to three sentences. Name at least two details.",
+        model: "A community garden is being looked after by three elderly volunteers and two Primary 5 students on a Saturday morning. The volunteers are weeding while the students water the plots, and one auntie is explaining something to a student. The garden has several plots, including leafy greens and a colourful patch of marigolds.",
+      },
+      {
+        kind: 'Opinion / Stance',
+        stem: "Why do you think community gardens are good for both the elderly and young people?",
+        hint: "ONE benefit for elderly, ONE for young, then link. PEEL.",
+        model: "Community gardens are good for both groups because they create a shared purpose. For the elderly, gardening keeps them active and gives them a place to meet others, which helps loneliness. For young people, working alongside older neighbours teaches patience and respect; you cannot rush a plant. In my block's garden, I learnt more about kang kong from one auntie than I had from any book — and she learnt how to use a watering app from me.",
+      },
+      {
+        kind: 'Hypothetical / Extension',
+        stem: "If you could start a new community project for your block, what would it be and why?",
+        hint: "Name the project. Name the frequency or scale. Name ONE expected outcome.",
+        model: "I would start a weekly 'Story Hour' on a Saturday afternoon, where elderly residents share kampung memories with primary-aged children in the void deck. Each session would last one hour, with a shared snack provided. The children would hear stories that are slowly disappearing, and the elderly would feel that what they remember still matters to someone.",
+      },
+    ],
+  },
+  {
+    id: 'crowded-mrt',
+    title: 'Crowded MRT during morning rush hour',
+    theme: 'Transport / consideration',
+    desc: 'A packed MRT cabin. A pregnant woman stands holding the rail. Several seated commuters are looking at their phones; one young man stands up to offer his seat.',
+    scene: "A peak-hour MRT cabin. Every seat is taken; commuters are packed shoulder to shoulder near the doors. A pregnant woman stands holding the overhead rail, balancing her tote bag with the other hand. Most seated passengers are looking at their phones. One young man, perhaps in his twenties, has just noticed her — he is half-rising from his seat near the priority row, gesturing for her to sit. A schoolgirl nearby smiles slightly at the gesture.",
+    questions: [
+      {
+        kind: 'Factual / Observation',
+        stem: "What is happening in this picture?",
+        hint: "Two to three sentences. Include at least one observed detail.",
+        model: "On a crowded MRT during the morning rush, a young man is standing up to offer his seat to a pregnant woman who is holding onto the overhead rail. Most other passengers seem absorbed in their phones. A schoolgirl near them has noticed the gesture and is smiling slightly.",
+      },
+      {
+        kind: 'Opinion / Stance',
+        stem: "Why do you think some passengers might NOT have noticed her?",
+        hint: "Suggest TWO reasons. Be fair, not judgemental.",
+        model: "I think there are two main reasons. First, many commuters are tired and absorbed in their phones, so they simply do not look up. Second, the priority seat reminders have become so familiar that people stop registering them — like a sign you walk past every day. It is not always rudeness; sometimes it is just routine.",
+      },
+      {
+        kind: 'Hypothetical / Extension',
+        stem: "If you were running a small campaign to encourage more people to give up their seats, what is ONE idea you would try?",
+        hint: "Specific idea. Specific channel. Specific result.",
+        model: "I would design a short video — fifteen seconds — that runs on the MRT screens during peak hour, showing real commuters, not actors, giving up their seats. People are more likely to copy what they see ordinary people doing than what posters tell them to do. The video would end with one sentence: 'Look up for a second. You might make someone's day.'",
+      },
+    ],
+  },
+  {
+    id: 'school-canteen',
+    title: 'Two students sharing lunch with a classmate sitting alone',
+    theme: 'Friendship / inclusion',
+    desc: 'A school canteen at lunch. Two students at a table with their food trays look towards another student who sits alone two tables away. One of them appears to be about to wave the lone student over.',
+    scene: "A busy school canteen at lunch break. Two Primary 5 students sit together at a table near the drinks counter, both with chicken rice trays. At a table two seats away, another student — slightly younger looking — eats alone, picking at her noodles without looking up. The two friends have noticed her. One of them is half-rising, hand cupped to wave her over; the other is gathering her tray, preparing to make room.",
+    questions: [
+      {
+        kind: 'Factual / Observation',
+        stem: "What is happening in this picture?",
+        hint: "Two to three sentences. Name one specific detail.",
+        model: "Two students at a school canteen are about to invite a younger-looking classmate, sitting alone at another table, to join them for lunch. One is waving her over while the other shifts her tray to make space. The lone classmate is eating quietly and has not yet noticed them.",
+      },
+      {
+        kind: 'Opinion / Stance',
+        stem: "Why is it important to include someone who is eating alone, even if you don't know them well?",
+        hint: "PEEL. One reason + one example + a small loop.",
+        model: "It is important because eating alone, especially in a noisy canteen, can feel much lonelier than it sounds. The simple act of waving someone over tells them that they belong. Last year a new student joined our class, and for the first week she ate alone; once a few of us made a point of sitting with her, she said it was the first thing that made school feel okay. Small invitations carry a lot of weight.",
+      },
+      {
+        kind: 'Hypothetical / Extension',
+        stem: "If you were in charge of welcoming new students to your school, what is ONE thing you would put in place?",
+        hint: "ONE specific idea. ONE expected outcome.",
+        model: "I would set up a 'first-week buddy' system, where every new student is paired with an existing one in the same class who shows them around, eats lunch with them, and answers questions for the first five days. The new student would have a guaranteed friend from day one, and the existing student learns to look out for others. After the first week, the buddies stay in touch if they want.",
+      },
+    ],
+  },
+  {
+    id: 'fitness-park',
+    title: 'Elderly residents exercising at a void deck fitness corner',
+    theme: 'Health / community',
+    desc: 'Five elderly residents using fitness corner equipment under an HDB block — leg presses, arm rotations. A grandchild watches from a bench, half-amused.',
+    scene: "An HDB fitness corner at six in the morning. Five elderly residents — three uncles and two aunties — are using the outdoor equipment. One auntie does slow arm rotations; an uncle pedals a stationary cycle; another auntie chats while doing leg presses. A small grandchild, perhaps five or six, sits on the bench watching, his half-finished bun in one hand. The light is soft; the air still feels cool.",
+    questions: [
+      {
+        kind: 'Factual / Observation',
+        stem: "What is happening in this picture?",
+        hint: "Two to three sentences. Name at least one specific activity.",
+        model: "Five elderly residents are using the fitness corner under their HDB block in the early morning. One is doing arm rotations, another is cycling, and an auntie chats while doing leg presses. A small grandchild watches from a bench, eating a half-finished bun.",
+      },
+      {
+        kind: 'Opinion / Stance',
+        stem: "Why might exercising in a group be better for elderly residents than exercising alone at home?",
+        hint: "TWO reasons. PEEL.",
+        model: "Exercising in a group is better for two reasons. First, the morning chat is itself good for them — many elderly residents live alone, and meeting neighbours is sometimes the best part of their day. Second, people are more likely to show up when they know someone is waiting; the social commitment is stronger than personal motivation. My grandmother goes to her fitness corner every morning because Auntie Geraldine would notice if she did not.",
+      },
+      {
+        kind: 'Hypothetical / Extension',
+        stem: "If your school organised an 'exercise with grandparents' day, what is ONE activity you would suggest?",
+        hint: "Specific activity. Why both groups would enjoy it.",
+        model: "I would suggest a slow morning walk in the park, where each student is paired with a grandparent — their own or a neighbour's. The walk lasts thirty minutes, with one rest stop in the middle for everyone to share one childhood memory of being outdoors. It works for both groups because no one needs to keep up, and the conversation comes naturally on a walk in a way it never does at a desk.",
+      },
+    ],
+  },
+  {
+    id: 'wet-market',
+    title: 'A wet market vendor giving extra ginger to an elderly regular',
+    theme: 'Loyalty / kindness',
+    desc: 'A wet market vegetable stall. The vendor, an uncle in his fifties, is slipping an extra handful of ginger into the basket of an elderly auntie holding a small purse.',
+    scene: "A wet market on a Sunday morning. A vegetable stall is stacked with kang kong, brinjal, kai lan, and ginger. The vendor, an uncle in his fifties with a calculator behind one ear, is slipping an extra handful of ginger into the woven basket of an elderly auntie. The auntie holds out a five-dollar note with one hand; with the other, she is pretending not to notice the extra. Behind her, a young boy waits with his mother.",
+    questions: [
+      {
+        kind: 'Factual / Observation',
+        stem: "What is happening in this picture?",
+        hint: "Two to three sentences with one specific detail.",
+        model: "At a wet market vegetable stall, the vendor is slipping an extra handful of ginger into the basket of an elderly auntie who is paying for her vegetables. She pretends not to notice the extra. Behind her, a young boy and his mother wait their turn.",
+      },
+      {
+        kind: 'Opinion / Stance',
+        stem: "Why do you think the vendor adds the extra ginger?",
+        hint: "Offer TWO possible reasons. Two to three sentences.",
+        model: "I think there are two likely reasons. First, the auntie is probably a long-time customer; over years of buying from him, a kind of friendship has grown that is more than just business. Second, the extra ginger costs almost nothing to him, but is a small kindness to an elderly customer — the kind of small generosity that keeps regulars coming back. Both reasons can be true at once.",
+      },
+      {
+        kind: 'Hypothetical / Extension',
+        stem: "Can you share an example, from your own life, of a small act of kindness you remember?",
+        hint: "ONE specific incident. ONE specific detail of the kindness. Why it stayed with you.",
+        model: "When I was eight, my brother and I were caught in the rain at the bus stop without an umbrella. An old uncle waiting for the same bus opened his small umbrella and held it over us, not himself, until our bus arrived. He got wet; we did not. He never said anything, just nodded when we said thank you. I still think of him whenever I see an umbrella in someone's hand on a rainy day.",
+      },
+    ],
+  },
+];
+
+// ── Render ─────────────────────────────────────────────────
+function dayOfYear() {
+  const now = new Date();
+  return Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+}
+
+const todayId = STIMULI[dayOfYear() % STIMULI.length].id;
+const grid = document.getElementById('stim-grid');
+let activeStimulusId = null;
+
+STIMULI.forEach((s, idx) => {
+  const card = document.createElement('div');
+  card.className = 'stim-card' + (s.id === todayId ? ' today' : '');
+  card.dataset.id = s.id;
+  card.innerHTML = `
+    ${s.id === todayId ? '<span class="today-tag">★ Today\'s pick</span>' : ''}
+    <div class="stim-num">Stimulus ${idx + 1}</div>
+    <div class="stim-title">${s.title}</div>
+    <div class="stim-theme">${s.theme}</div>
+    <div class="stim-desc">${s.desc}</div>
+  `;
+  card.addEventListener('click', () => selectStimulus(s.id));
+  grid.appendChild(card);
+});
+
+function selectStimulus(id) {
+  activeStimulusId = id;
+  document.querySelectorAll('.stim-card').forEach(c => c.classList.toggle('active', c.dataset.id === id));
+  const s = STIMULI.find(x => x.id === id);
+  renderWorkPane(s);
+  document.getElementById('work-pane').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderWorkPane(s) {
+  const pane = document.getElementById('work-pane');
+  pane.classList.add('active');
+  pane.innerHTML = `
+    <h2 style="font-size:1.15rem;margin-bottom:.35rem;">${s.title}</h2>
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:.85rem;">Theme: ${s.theme}</div>
+    <div class="scene"><strong>Scene:</strong> ${s.scene}</div>
+    <div id="questions"></div>
+  `;
+  const qWrap = pane.querySelector('#questions');
+  s.questions.forEach((q, idx) => {
+    const block = document.createElement('div');
+    block.className = 'question-block';
+    block.innerHTML = `
+      <div class="q-tag">Question ${idx + 1} · ${q.kind}</div>
+      <div class="q-stem">${q.stem}</div>
+      <div class="q-hint">${q.hint}</div>
+      <textarea class="q-draft" placeholder="Draft your answer. 2–4 sentences. PEEL."></textarea>
+      <div class="q-row">
+        <button class="btn btn-primary" style="font-size:.78rem;padding:.4rem .8rem;" data-action="coach" data-q="${idx}">Ask Coach</button>
+        <button class="btn btn-secondary" style="font-size:.78rem;padding:.4rem .8rem;" data-action="examiner" data-q="${idx}">Examiner mark</button>
+        <span style="flex:1;"></span>
+        <span class="word-count" data-q="${idx}" style="font-size:.78rem;color:var(--muted);">0 words</span>
+      </div>
+      <div class="feedback" data-q="${idx}">
+        <h4>Coach pass</h4>
+        <pre></pre>
+        <details class="model-reveal">
+          <summary>Reveal a model answer (only after you've tried).</summary>
+          <div class="model-text">${q.model}</div>
+        </details>
+      </div>
+    `;
+    // Hook draft → word count
+    const ta = block.querySelector('textarea');
+    const wc = block.querySelector('.word-count');
+    ta.addEventListener('input', () => { const n = ta.value.trim().split(/\s+/).filter(Boolean).length; wc.textContent = `${n} word${n === 1 ? '' : 's'}`; });
+    // Hook buttons
+    block.querySelector('[data-action="coach"]').addEventListener('click',    () => askAI(s, idx, 'coach',    block));
+    block.querySelector('[data-action="examiner"]').addEventListener('click', () => askAI(s, idx, 'examiner', block));
+    qWrap.appendChild(block);
+  });
+}
+
+async function askAI(stim, qIdx, mode, blockEl) {
+  const ta = blockEl.querySelector('textarea');
+  const fb = blockEl.querySelector('.feedback');
+  const pre = fb.querySelector('pre');
+  fb.classList.add('show');
+  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  if (!k) { pre.textContent = 'No Gemini key set. Add one in How-to-use.'; return; }
+  pre.textContent = 'Asking...';
+  const q = stim.questions[qIdx];
+  try {
+    const sys = mode === 'coach'
+      ? 'You are a calm PSLE English Oral Coach. The student is preparing for the Stimulus-Based Conversation. ONE probing question per turn. Two to four sentences. Praise strategy specifically. Mirror flat or vague answers back; ask which part of PEEL is missing. Do NOT reveal a model answer. No emoji, no markdown.'
+      : 'You are a PSLE English Paper 4 examiner marking a single SBC answer against the rubric (Communication 7.5 marks, Discussion of Ideas 7.5 marks, Use of Language 5 marks, Engagement 5 marks across the whole 3-question set — so per answer, weight ~8 marks). Plain text. No markdown. Output EXACTLY:\nMARK: <x>/8\nSTRENGTH: <one specific strength>\nGAP: <one specific gap with concrete fix>\nNEXT TAKE: <one sentence rewrite suggestion>';
+    const prompt = `STIMULUS (described, not shown): ${stim.scene}\n\nQUESTION (${q.kind}): ${q.stem}\n\nSTUDENT DRAFT (${(ta.value || '').trim().split(/\s+/).filter(Boolean).length} words):\n"""\n${ta.value || '(blank)'}\n"""`;
+    const txt = await window.askGemini({ system: sys, prompt, temperature: mode === 'coach' ? 0.6 : 0.3, maxTokens: 450, thinkingBudget: 0 });
+    pre.textContent = txt;
+    if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed(TOPIC);
+  } catch (e) {
+    pre.textContent = mode + ' error: ' + (e?.message || e);
+  }
+}
+
+if (typeof Progress !== 'undefined' && Progress.recordVisit) Progress.recordVisit(TOPIC);
+
+// Auto-load today's stimulus
+selectStimulus(todayId);
+</script>
+</body>
+</html>
