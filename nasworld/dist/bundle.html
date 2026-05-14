@@ -386,8 +386,63 @@ body {
 .world-card.math .world-card-progress-fill { background: linear-gradient(90deg, var(--sky), var(--mint)); }
 .world-card.literacy .world-card-progress-fill { background: linear-gradient(90deg, var(--coral), var(--pink)); }
 .world-card.stem .world-card-progress-fill { background: linear-gradient(90deg, var(--teal), var(--sky)); }
+.world-card.malay .world-card-progress-fill { background: linear-gradient(90deg, var(--pink), var(--gold)); }
+.world-card.mega .world-card-progress-fill  { background: linear-gradient(90deg, var(--gold), var(--lavender)); }
 .world-card.garden .world-card-progress-fill { background: linear-gradient(90deg, var(--lavender), var(--gold)); }
 .world-card.challenges .world-card-progress-fill { background: linear-gradient(90deg, var(--gold), var(--coral)); }
+
+/* === MEGA MAP === */
+.mega-canvas {
+  position: relative; max-width: 880px; margin: 12px auto 16px;
+  background: radial-gradient(ellipse at center, rgba(37,27,94,0.4), rgba(15,11,46,0.6));
+  border: 1px solid rgba(255,215,0,0.15); border-radius: var(--radius-xl);
+  padding: 8px; box-shadow: 0 0 60px rgba(181,123,255,0.08);
+}
+#mega-map-svg { width: 100%; height: auto; display: block; }
+.mega-legend { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin: 8px 0; }
+.mega-legend-chip { font-size: 11px; padding: 4px 10px; border-radius: 999px; border:1px solid; font-weight:600; }
+.mega-stats { display:flex; gap:16px; justify-content:center; margin: 8px 0 12px; flex-wrap: wrap; }
+.mega-stat { font-size: 12px; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 12px; }
+.mega-stat b { color: var(--gold); font-size: 14px; }
+.mega-detail {
+  max-width: 760px; margin: 0 auto 8px; padding: 12px 16px;
+  background: rgba(37,27,94,0.6); border: 1px solid rgba(181,123,255,0.2);
+  border-radius: var(--radius-lg); font-size: 13px; color: var(--text-secondary);
+  min-height: 56px;
+}
+.mega-node text { pointer-events: none; }
+
+/* === THREAD CHAPTER VIEW === */
+.thread-hero {
+  text-align:center; padding: 20px; margin-bottom: 16px;
+  background: linear-gradient(135deg, rgba(37,27,94,0.7), rgba(47,35,112,0.7));
+  border: 2px solid; border-radius: var(--radius-xl);
+}
+.thread-hero-emoji { font-size: 56px; margin-bottom: 8px; }
+.thread-hero h2 { font-family: var(--font-display); font-size: 26px; margin-bottom: 6px; color: var(--gold); }
+.thread-hero p { color: var(--text-secondary); }
+
+.thread-chapters { display: flex; flex-direction: column; gap: 12px; max-width: 720px; margin: 0 auto; }
+.thread-chapter {
+  display: flex; gap: 14px; padding: 16px; align-items: flex-start;
+  background: rgba(37,27,94,0.45); border: 1px solid rgba(181,123,255,0.2);
+  border-radius: var(--radius-lg); transition: all .2s;
+}
+.thread-chapter.done { border-color: var(--mint); background: rgba(74,222,128,0.07); }
+.thread-chapter.current { border-color: var(--gold); box-shadow: 0 0 30px rgba(255,215,0,0.15); }
+.thread-chapter.locked { opacity: 0.45; }
+.thread-chapter-num {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  display:flex; align-items:center; justify-content:center;
+  background: rgba(255,215,0,0.15); color: var(--gold); font-weight: 700; font-family: var(--font-display);
+}
+.thread-chapter.done .thread-chapter-num { background: rgba(74,222,128,0.25); color: var(--success); }
+.thread-chapter-title { font-weight: 700; font-size: 16px; color: var(--text-primary); margin-bottom: 4px; }
+.thread-chapter-scene { font-size: 14px; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.4; }
+.thread-chapter-action { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; font-style: italic; }
+.thread-chapter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.thread-locked { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+.thread-locked h3 { font-family: var(--font-display); margin: 12px 0 6px; color: var(--gold); }
 
 /* === ACTIVITY SELECTION === */
 .activity-header {
@@ -2485,6 +2540,20 @@ body {
           <div class="world-card-desc">Science experiments, coding adventures, and amazing discoveries!</div>
           <div class="world-card-progress"><div class="world-card-progress-fill" id="stem-progress" style="width:0%"></div></div>
         </div>
+
+        <div class="world-card malay" onclick="showScreen('malay-world')">
+          <span class="world-card-icon">&#127802;</span>
+          <div class="world-card-title">Dunia Melayu</div>
+          <div class="world-card-desc">Selamat datang! Bahasa Melayu for hawker centres, friends, and stories.</div>
+          <div class="world-card-progress"><div class="world-card-progress-fill" id="malay-progress" style="width:0%"></div></div>
+        </div>
+
+        <div class="world-card mega" onclick="showScreen('mega-map')">
+          <span class="world-card-icon">&#10024;</span>
+          <div class="world-card-title">Mega Map</div>
+          <div class="world-card-desc">See every world, skill, and real-world adventure light up together.</div>
+          <div class="world-card-progress"><div class="world-card-progress-fill" id="mega-progress" style="width:0%"></div></div>
+        </div>
         <div class="world-card garden" onclick="showScreen('garden')">
           <span class="world-card-icon">&#127800;</span>
           <div class="world-card-title">My Garden</div>
@@ -2534,6 +2603,31 @@ body {
         <p>Explore science and coding!</p>
       </div>
       <div id="stem-activities"></div>
+    </div>
+
+    <!-- MALAY WORLD SCREEN -->
+    <div class="screen" id="screen-malay-world">
+      <button class="back-btn" onclick="showScreen('home')">&#8592; Back to Home</button>
+      <div class="activity-header">
+        <h2>&#127802; Dunia Melayu</h2>
+        <p>Belajar Bahasa Melayu! Selamat datang.</p>
+      </div>
+      <div id="malay-activities"></div>
+    </div>
+
+    <!-- MEGA MAP SCREEN -->
+    <div class="screen" id="screen-mega-map">
+      <button class="back-btn" onclick="showScreen('home')">&#8592; Back to Home</button>
+      <div class="activity-header">
+        <h2>&#10024; Nasworld Mega Map</h2>
+        <p>Four worlds, every skill, all the real-world adventures.</p>
+      </div>
+      <div id="mega-map-content"></div>
+    </div>
+
+    <!-- THREAD (real-world story) SCREEN -->
+    <div class="screen" id="screen-thread">
+      <div id="thread-content"></div>
     </div>
 
     <!-- SKILL VIEW SCREEN (Learn / Explore / Quiz tabs) -->
@@ -3201,7 +3295,10 @@ var ACHIEVEMENTS = [
   { id: 'tryMath',    cat: 'explorer', icon: '\uD83D\uDD22',   name: 'Number Explorer',   desc: 'Try a skill in Number World',    secret: false },
   { id: 'tryWord',    cat: 'explorer', icon: '\uD83D\uDCD6',   name: 'Word Explorer',     desc: 'Try a skill in Word World',      secret: false },
   { id: 'tryStem',    cat: 'explorer', icon: '\uD83D\uDD2C',   name: 'STEM Explorer',     desc: 'Try a skill in STEM World',      secret: false },
-  { id: 'allWorlds',  cat: 'explorer', icon: '\uD83C\uDF0D',   name: 'World Traveller',   desc: 'Try skills in all 3 worlds',     secret: false },
+  { id: 'tryMalay',   cat: 'explorer', icon: '\uD83C\uDF3A',   name: 'Dunia Melayu',      desc: 'Try a skill in Dunia Melayu',    secret: false },
+  { id: 'allWorlds',  cat: 'explorer', icon: '\uD83C\uDF0D',   name: 'World Traveller',   desc: 'Try skills in all 4 worlds',     secret: false },
+  { id: 'firstThread',cat: 'explorer', icon: '\u2728',         name: 'First Adventure',   desc: 'Unlock a real-world adventure on the Mega Map', secret: false },
+  { id: 'threeThreads',cat: 'explorer',icon: '\u2728',         name: 'Adventurer',        desc: 'Unlock 3 real-world adventures', secret: false },
   { id: 'try10',      cat: 'explorer', icon: '\uD83D\uDDFA\uFE0F', name: 'Curious Mind',  desc: 'Try 10 different skills',        secret: false },
   { id: 'lesson5',    cat: 'explorer', icon: '\uD83D\uDCDA',   name: 'Lesson Lover',      desc: 'Complete 5 lessons',             secret: false },
   { id: 'lesson15',   cat: 'explorer', icon: '\uD83D\uDCDA',   name: 'Knowledge Seeker',  desc: 'Complete 15 lessons',            secret: false },
@@ -3340,14 +3437,25 @@ function checkAchievementsAfterQuiz(results, skillId, worldType) {
   if (state.sessionsCompleted >= 100) unlockAchievement('sessions100');
 
   // World exploration
-  if (worldType === 'math') unlockAchievement('tryMath');
-  if (worldType === 'word') unlockAchievement('tryWord');
-  if (worldType === 'stem') unlockAchievement('tryStem');
+  if (worldType === 'math')  unlockAchievement('tryMath');
+  if (worldType === 'word')  unlockAchievement('tryWord');
+  if (worldType === 'stem')  unlockAchievement('tryStem');
+  if (worldType === 'malay') unlockAchievement('tryMalay');
 
-  // All worlds
+  // All worlds (now 4)
   var a = state.achievements || [];
-  if (a.indexOf('tryMath') !== -1 && a.indexOf('tryWord') !== -1 && a.indexOf('tryStem') !== -1) {
+  if (a.indexOf('tryMath') !== -1 && a.indexOf('tryWord') !== -1 && a.indexOf('tryStem') !== -1 && a.indexOf('tryMalay') !== -1) {
     unlockAchievement('allWorlds');
+  }
+
+  // Real-world thread unlocks happen via state.threads
+  if (state.threads) {
+    var unlockedCount = 0;
+    Object.keys(state.threads).forEach(function(tid) {
+      if (state.threads[tid] && state.threads[tid].unlocked) unlockedCount++;
+    });
+    if (unlockedCount >= 1) unlockAchievement('firstThread');
+    if (unlockedCount >= 3) unlockAchievement('threeThreads');
   }
 
   // Tried N different skills
@@ -3578,17 +3686,20 @@ var QUEST_TEMPLATES = [
   { id: 'math3',     type: 'daily', label: 'Answer 3 Number World questions', icon: '\uD83D\uDD22', target: 3,  check: 'mathQs' },
   { id: 'word3',     type: 'daily', label: 'Answer 3 Word World questions',   icon: '\uD83D\uDCDA', target: 3,  check: 'wordQs' },
   { id: 'stem3',     type: 'daily', label: 'Answer 3 STEM World questions',   icon: '\uD83D\uDD2C', target: 3,  check: 'stemQs' },
+  { id: 'malay3',    type: 'daily', label: 'Answer 3 Dunia Melayu questions', icon: '\uD83C\uDF3A', target: 3,  check: 'malayQs' },
   { id: 'perfect1',  type: 'daily', label: 'Get a perfect score on any quiz', icon: '\uD83D\uDCAF', target: 1,  check: 'perfectQuiz' },
-  { id: 'explore2',  type: 'daily', label: 'Try 2 different skills',          icon: '\uD83D\uDDFA\uFE0F', target: 2,  check: 'uniqueSkills' }
+  { id: 'explore2',  type: 'daily', label: 'Try 2 different skills',          icon: '\uD83D\uDDFA\uFE0F', target: 2,  check: 'uniqueSkills' },
+  { id: 'twoworlds', type: 'daily', label: 'Play in 2 different worlds',      icon: '\uD83C\uDF0D', target: 2,  check: 'worldsPlayedToday' }
 ];
 
 var WEEKLY_TEMPLATES = [
   { id: 'wk_master',  type: 'weekly', label: 'Master a new skill to 80%',           icon: '\uD83C\uDF1F', target: 1, check: 'newMastery',  reward: 50 },
-  { id: 'wk_all3',    type: 'weekly', label: 'Play in all 3 worlds',                icon: '\uD83C\uDF0D', target: 3, check: 'worldsPlayed', reward: 40 },
+  { id: 'wk_all4',    type: 'weekly', label: 'Play in all 4 worlds',                icon: '\uD83C\uDF0D', target: 4, check: 'worldsPlayed', reward: 60 },
   { id: 'wk_escape',  type: 'weekly', label: 'Complete an escape room',             icon: '\uD83D\uDD13', target: 1, check: 'escapesDone',  reward: 50 },
   { id: 'wk_streak7', type: 'weekly', label: 'Get a 7-answer streak',               icon: '\uD83D\uDD25', target: 7, check: 'bestStreak',   reward: 40 },
   { id: 'wk_15q',     type: 'weekly', label: 'Answer 15 questions correctly',        icon: '\u2705',       target: 15, check: 'weekCorrect', reward: 40 },
-  { id: 'wk_learn5',  type: 'weekly', label: 'Complete 5 lessons',                   icon: '\uD83D\uDCDA', target: 5, check: 'weekLessons',  reward: 50 }
+  { id: 'wk_learn5',  type: 'weekly', label: 'Complete 5 lessons',                   icon: '\uD83D\uDCDA', target: 5, check: 'weekLessons',  reward: 50 },
+  { id: 'wk_thread',  type: 'weekly', label: 'Finish a real-world adventure chapter',icon: '\uD83C\uDF1F', target: 1, check: 'threadChapters', reward: 60 }
 ];
 
 // Daily quest tracking counters (reset each day)
@@ -3600,8 +3711,10 @@ var questCounters = {
   mathQs: 0,
   wordQs: 0,
   stemQs: 0,
+  malayQs: 0,
   perfectQuiz: 0,
   uniqueSkills: [],
+  worldsPlayedToday: [],
   streak: 0
 };
 
@@ -3612,7 +3725,8 @@ var weeklyCounters = {
   escapesDone: 0,
   bestStreak: 0,
   weekCorrect: 0,
-  weekLessons: 0
+  weekLessons: 0,
+  threadChapters: 0
 };
 
 // Pick today's quest (seeded by date for consistency)
@@ -3684,13 +3798,22 @@ function getWeeklyQuest() {
 // Increment quest counters (called from various hooks)
 function questRecordQuiz(worldType) {
   questCounters.quizzes++;
-  if (worldType === 'math') questCounters.mathQs++;
-  if (worldType === 'word') questCounters.wordQs++;
-  if (worldType === 'stem') questCounters.stemQs++;
+  if (worldType === 'math')  questCounters.mathQs++;
+  if (worldType === 'word')  questCounters.wordQs++;
+  if (worldType === 'stem')  questCounters.stemQs++;
+  if (worldType === 'malay') questCounters.malayQs++;
   weeklyCounters.weekCorrect++;
+  if (worldType && questCounters.worldsPlayedToday.indexOf(worldType) === -1) {
+    questCounters.worldsPlayedToday.push(worldType);
+  }
   if (worldType && weeklyCounters.worldsPlayed.indexOf(worldType) === -1) {
     weeklyCounters.worldsPlayed.push(worldType);
   }
+  updateQuestProgress();
+}
+
+function questRecordThreadChapter() {
+  weeklyCounters.threadChapters++;
   updateQuestProgress();
 }
 
@@ -3749,11 +3872,13 @@ function updateQuestProgress() {
       case 'lessons':      val = questCounters.lessons; break;
       case 'flashcards':   val = questCounters.flashcards; break;
       case 'reviews':      val = questCounters.reviews; break;
-      case 'mathQs':       val = questCounters.mathQs; break;
-      case 'wordQs':       val = questCounters.wordQs; break;
-      case 'stemQs':       val = questCounters.stemQs; break;
-      case 'perfectQuiz':  val = questCounters.perfectQuiz; break;
-      case 'uniqueSkills': val = questCounters.uniqueSkills.length; break;
+      case 'mathQs':            val = questCounters.mathQs; break;
+      case 'wordQs':            val = questCounters.wordQs; break;
+      case 'stemQs':            val = questCounters.stemQs; break;
+      case 'malayQs':           val = questCounters.malayQs; break;
+      case 'perfectQuiz':       val = questCounters.perfectQuiz; break;
+      case 'uniqueSkills':      val = questCounters.uniqueSkills.length; break;
+      case 'worldsPlayedToday': val = questCounters.worldsPlayedToday.length; break;
     }
     dq.progress = Math.min(val, dq.target);
     if (dq.progress >= dq.target) dq.completed = true;
@@ -3764,12 +3889,13 @@ function updateQuestProgress() {
   if (wq && !wq.completed) {
     var wval = 0;
     switch (wq.check) {
-      case 'newMastery':   wval = weeklyCounters.newMastery; break;
-      case 'worldsPlayed': wval = weeklyCounters.worldsPlayed.length; break;
-      case 'escapesDone':  wval = weeklyCounters.escapesDone; break;
-      case 'bestStreak':   wval = weeklyCounters.bestStreak; break;
-      case 'weekCorrect':  wval = weeklyCounters.weekCorrect; break;
-      case 'weekLessons':  wval = weeklyCounters.weekLessons; break;
+      case 'newMastery':     wval = weeklyCounters.newMastery; break;
+      case 'worldsPlayed':   wval = weeklyCounters.worldsPlayed.length; break;
+      case 'escapesDone':    wval = weeklyCounters.escapesDone; break;
+      case 'bestStreak':     wval = weeklyCounters.bestStreak; break;
+      case 'weekCorrect':    wval = weeklyCounters.weekCorrect; break;
+      case 'weekLessons':    wval = weeklyCounters.weekLessons; break;
+      case 'threadChapters': wval = weeklyCounters.threadChapters; break;
     }
     wq.progress = Math.min(wval, wq.target);
     if (wq.progress >= wq.target) wq.completed = true;
@@ -4023,121 +4149,153 @@ function lumiReactTo(event, data) {
 
 var LUMI_REACTIONS = {
   correct: [
-    "That's right! You're so clever!",
-    "YES! Your brain is amazing!",
-    "Nailed it! Keep going!",
-    "Woohoo! I knew you could do it!",
-    "Brilliant thinking, Anastasia!"
+    "Yes! Lock that one in.",
+    "You. Just. Solved. That. Show off.",
+    "Bingo. Next one, please.",
+    "Your brain just flexed. I felt it from here.",
+    "Brilliant. Slightly suspicious how easy you made that look.",
+    "Tepat sekali! (That's Malay for spot on.)"
   ],
   streak: [
-    "You're on a ROLL! " + state.streak + " in a row!",
-    "Wow, nothing can stop you!",
-    "Your brain is ON FIRE today!",
-    "Look at that streak! Incredible!"
+    "Five in a row. I'm officially impressed and slightly nervous.",
+    "On fire. Should I get the fire extinguisher?",
+    "Look at you, casually being a genius again.",
+    "Streak alert! Streak alert! This is not a drill!"
   ],
   bigStreak: [
-    "TEN IN A ROW?! You're a LEGEND!",
-    "I can barely keep up with you!",
-    "Stop — you're making me dizzy with excitement!",
-    "This is the best streak I've EVER seen!"
+    "Ten in a row?! I'm filing for early retirement, you've got this.",
+    "I asked you for clever, not LEGENDARY. Show off.",
+    "My sparkles need a lie-down. You broke them.",
+    "I have run out of compliments. Please slow down."
   ],
   wrong: [
-    "Hmm, not quite — but that's how brains grow!",
-    "Mistakes are brain food! Let's try another!",
-    "Oops! But I love that you tried!",
-    "Your brain just got a tiny bit stronger!",
-    "That's okay! Even stars wobble sometimes!"
+    "Close-ish! Brain wrinkles forming as we speak.",
+    "Wrong answer, right effort. Try again, princess.",
+    "Plot twist. Let's reroute!",
+    "I would have got that one wrong too, if I had a brain. But you have one. Try again!",
+    "Oops! That counts as a free hint for next time."
   ],
   levelUp: [
-    "OH WOW! You reached {level}! I'm so proud!",
-    "LEVEL UP! {level}! You're shining brighter!",
-    "{level}! This calls for a celebration!"
+    "{level}! Roll out the sparkle carpet!",
+    "Levelled up to {level}! You unlocked extra cleverness.",
+    "{level}! Quick, take a bow — I'm clapping with both sparkles."
   ],
   quizAmazing: [
-    "INCREDIBLE! That was almost perfect!",
-    "I am SO proud of you right now!",
-    "You absolutely CRUSHED that quiz!",
-    "Is there anything you CAN'T do?!"
+    "That was suspicious. Are you the actual quiz writer?",
+    "Near perfect. I have no notes. Just admiration.",
+    "Sliced it. Diced it. Plated it. Chef's kiss.",
+    "I'm putting that quiz in a frame. Where would you like it hung?"
   ],
   quizGood: [
-    "Great job! You really know your stuff!",
-    "Solid work! Your brain is getting stronger!",
-    "Nice! You're improving every time!"
+    "Solid run. Brain is officially in good shape today.",
+    "Nice work. Two more like that and I'll bake you a (virtual) cake.",
+    "You did the thing! And you did it well. Onwards."
   ],
   quizTryAgain: [
-    "That was tough! But every try makes you better!",
-    "Don't worry — even I get tricky ones wrong!",
-    "Practice makes progress! Want to try again?"
+    "That one fought back. Tough questions, tougher Anastasia.",
+    "We'll get it next time. Brain warm-up, that's all that was.",
+    "Even the smartest stars miss a few. Try again or pick something fresh?"
   ],
   lessonDone: [
-    "You just learned something new! How cool is that?",
-    "Another lesson done! Your brain is growing!",
-    "Look at you, learning like a superstar!",
-    "Knowledge unlocked! I love watching you learn!"
+    "Lesson absorbed. Brain visibly bigger. Probably.",
+    "Done! Now go show off this fact at dinner.",
+    "Knowledge unlocked. Achievement: Slightly Wiser Anastasia.",
+    "Plug that in your memory bank. Earning interest already."
   ],
   achievement: [
-    "ACHIEVEMENT UNLOCKED: {name}! You're amazing!",
-    "Wow! You earned {name}! I'm so impressed!",
-    "Look what you did! {name}! Incredible!"
+    "{name}! Stick it on the wall. Loudly.",
+    "Achievement unlocked: {name}. Pure show-off energy.",
+    "You earned {name}. That's brag-worthy. Brag away."
   ],
   earlyMorning: [
-    "*yawn* You're up early, Anastasia! Let's learn while the world sleeps!",
-    "Wow, you're an early bird! I'm still waking up...",
-    "Good moooorning! *stretches* Ready for some brain warmups?"
+    "Up before me? Bold. Pass the imaginary coffee.",
+    "Sunrise scholar mode. I respect it.",
+    "Brain says morning, eyes say maybe. Let's start gentle."
   ],
   morning: [
-    "Good morning, Anastasia! Your brain is fresh and ready!",
-    "Rise and shine! What shall we learn today?",
-    "Morning! I've been waiting for you! Let's go!",
-    "Hello sunshine! Ready for an adventure?"
+    "Good morning, brain boss. Pick a world.",
+    "Selamat pagi, Anastasia! Let's see what trouble we make today.",
+    "Morning! Brain is freshly defragmented. Use it.",
+    "Hello sunshine. Today's mission: smarter than yesterday."
   ],
   afternoon: [
-    "Good afternoon! Perfect time for some learning!",
-    "Hey Anastasia! How about a brain workout?",
-    "Afternoon brain boost! Let's do this!",
-    "Welcome back! Your garden missed you!"
+    "Selamat petang! After-school brain unlocked.",
+    "Afternoon power-up time. Quick session?",
+    "Brain naps are for amateurs. Quizzing time.",
+    "Hi! Garden still missing flowers. Just a friendly reminder."
   ],
   evening: [
-    "Good evening! Time for some relaxed learning!",
-    "Evening study session! My favourite time!",
-    "Hi Anastasia! Let's end the day with some fun learning!",
-    "The stars are coming out — just like YOUR star potential!"
+    "Evening session, my favourite kind. Cosy clever time.",
+    "Selamat malam! One quick quest before bed?",
+    "Brain works extra well after dinner. Science. (Probably.)",
+    "Stars are out. Yours is the brightest. Obviously."
   ],
   lateNight: [
-    "*yawn* Isn't it past your bedtime? Just a quick session then!",
-    "A night owl! Just like me! Let's do something fun!",
-    "Shh... quiet learning time! Our little secret!"
+    "Late night brain? Five minutes max, then bed. Deal?",
+    "Past bedtime detective at work. I'll keep your secret.",
+    "Tiny session, then sleep. Memory consolidates while you snooze!"
   ],
   comeBack: [
-    "You're BACK! I missed you so much!",
-    "Anastasia! It's been a while — I saved your place!",
-    "Welcome back! Your garden has been waiting!",
-    "I'm so happy to see you again! Let's pick up where we left off!"
+    "You're back! The garden looks slightly less sad already.",
+    "I almost emailed you. (I can't email. But I almost.)",
+    "There you are! Saved your spot. Mostly.",
+    "Missed you. Three jokes saved. Possibly four."
   ],
   firstToday: [
-    "Welcome back today! Ready for an awesome session?",
-    "Hey! Great to see you again today!",
-    "Back for more? I love your dedication!"
+    "Round two of the day! Showing off now, are we?",
+    "Back again? Officially a learning machine.",
+    "Twice in one day. Brain agrees, this is excellent."
   ],
   questDone: [
-    "QUEST COMPLETE! You're on a mission today!",
-    "Done already?! You're AMAZING!",
-    "Quest conquered! What's next, champion?"
+    "Quest done! Stars rain incoming. Brace.",
+    "Done. Done. Done. Take the win.",
+    "Quest squished. Pick another?"
   ],
   gardenGrow: [
-    "A new flower! Your garden is getting so beautiful!",
-    "Look! Your garden is growing! Just like your brain!",
-    "Another bloom! Keep it up — paradise incoming!"
+    "Fresh flower! The garden gasps in delight.",
+    "Another bloom. Your garden could rival a museum.",
+    "New flower! I'm watering my eyes in pride."
   ]
 };
 
+// Lumi's joke bank — pulled on taps and idle moments. Cheeky, P1-friendly.
+var LUMI_JOKES = [
+  "Why did the math book look sad? Too many problems!",
+  "What did zero say to eight? Nice belt!",
+  "What do you call a cat who's good at sums? A purr-fect mathematician!",
+  "Why did the cookie go to the doctor? It was feeling crummy!",
+  "Knock knock. Who's there? Lettuce. Lettuce who? Lettuce in, it's raining!",
+  "Why don't eggs tell jokes? They'd crack up!",
+  "What did the kucing say at the laptop? I'm watching the mouse!",
+  "What's brown and sticky? A stick!",
+  "Why did the banana go to the doctor? It wasn't peeling well!",
+  "What do you call a fish wearing a crown? Your Royal Hi-ness!",
+  "Why did Tigger look in the toilet? Looking for Pooh!",
+  "What's a vampire's favourite fruit? A neck-tarine!",
+  "Where do hamburgers dance? At the meat-ball!",
+  "Why did the teddy say no to dessert? She was stuffed!",
+  "What did one ocean say to the other? Nothing, they just waved!"
+];
+
+// Random cheeky banter for idle moments and easter eggs
+var LUMI_BANTER = [
+  "Psst. Did you know nasi means rice? Now you do. You're welcome.",
+  "Fun fact: my sparkles run on correct answers. Hint hint.",
+  "If you whisper 'Selamat pagi' to a teacher tomorrow they will love you.",
+  "Sang Kancil the mousedeer outsmarted a crocodile by counting. Counting is power!",
+  "Brain rule: it's okay to be wrong. It's not okay to be bored.",
+  "Singapore weather only has two settings: panas (hot) and hujan (rain). Discuss.",
+  "Did you brush your teeth today? Asking for a friend. The friend is your mouth.",
+  "Bonus level unlocks when you make me laugh. (Joking. Or am I?)"
+];
+
 // === LUMI TAP INTERACTIONS ===
 var LUMI_TAP_RESPONSES = [
-  { maxTaps: 1, responses: ["Hi! Tap me again!", "Hey there! What's up?", "Let's learn something cool!"] },
-  { maxTaps: 3, responses: ["Hehe, that tickles!", "Again! Again!", "You're funny!"] },
-  { maxTaps: 5, responses: ["Okay okay, I'm awake!", "So many taps! My sparkles are going crazy!", "You really like tapping me, huh?"] },
-  { maxTaps: 8, responses: ["I'm getting dizzy!", "Please... my sparkles need a break!", "Are you trying to break my tap record?!"] },
-  { maxTaps: 15, responses: ["OKAY that's a LOT of taps!", "My sparkle meter is OVERLOADING!", "You've discovered my secret tickle spot!"] }
+  { maxTaps: 1, responses: ["Hi! Was that a poke?", "Boop yourself back!", "Want a joke? Tap me twice.", "Hello hello!"] },
+  { maxTaps: 3, responses: ["Stop, that tickles! (Don't stop.)", "Joke incoming. Brace yourself.", "Three taps = secret handshake unlocked.", "Hey, save some taps for later!"] },
+  { maxTaps: 5, responses: ["My sparkles are spinning!", "Tap five complete. Energy: 110 percent.", "Five taps? You like me, you really like me!", "Okay okay, I'm awake. Mostly."] },
+  { maxTaps: 8, responses: ["Calling tap-tap emergency!", "I might levitate if you keep going.", "Eight! Eight! I have a headache and a star bridge to build!", "Are you trying to break me, princess?"] },
+  { maxTaps: 15, responses: ["FIFTEEN. I'm officially tickled to bits.", "You found my favourite tap spot. Achievement coming.", "I demand a snack break.", "If I had hands I would high-five you. Then beg you to stop."] }
 ];
 
 function lumiTapped() {
@@ -4156,7 +4314,13 @@ function lumiTapped() {
     }
   }
 
-  var msg = pick(tier.responses);
+  // Every 3rd tap from tap 4 onwards, drop a joke or banter instead.
+  var msg;
+  if (lumiState.tapCount >= 4 && lumiState.tapCount % 3 === 0) {
+    msg = pick(Math.random() < 0.6 ? LUMI_JOKES : LUMI_BANTER);
+  } else {
+    msg = pick(tier.responses);
+  }
   setLumiMood(lumiState.tapCount > 8 ? 'excited' : 'happy');
   lumiSay(msg);
   if (typeof playSound === 'function') playSound('click');
@@ -4173,51 +4337,49 @@ function lumiTapped() {
 var LUMI_STORY = [
   {
     chapter: 1,
-    title: "The Broken Star Bridge",
+    title: "Lumi's Tiny Disaster",
     unlockFlowers: 0,
-    intro: "Anastasia, I need your help! The Star Bridge that connects all the learning worlds is broken! " +
-           "Long ago, it shimmered with the light of knowledge... but its stars scattered across the worlds. " +
-           "Every time you learn something new, you help me find a star to rebuild it!",
-    milestone: "You found the first star! The bridge glimmers faintly...",
+    intro: "Anastasia, slight problem. The Star Bridge that ties Number, Word, STEM and Dunia Melayu together... fell apart. " +
+           "Stars scattered everywhere. Good news: every time you learn something, one star floats back. " +
+           "Help me fix the bridge? You are cheaper than a contractor.",
+    milestone: "First star recovered. Bridge glimmers like a sleepy fairy light.",
     icon: "\uD83C\uDF09"
   },
   {
     chapter: 2,
-    title: "The Number Stars",
+    title: "Number Stars Switch On",
     unlockFlowers: 5,
-    intro: "Look! The Number World stars are beginning to glow! " +
-           "The bridge needs stars from all three worlds to be complete. " +
-           "Keep learning in Number World and the math stars will light the way!",
-    milestone: "The Number World section of the bridge is shining!",
+    intro: "Counting, adding, sharing \u2014 every math puzzle wakes up a Number Star. " +
+           "Keep going! The bridge needs maths to hold itself up. Literally. It is all geometry.",
+    milestone: "Number World section glowing. Architects impressed.",
     icon: "\uD83D\uDD22"
   },
   {
     chapter: 3,
-    title: "The Word Stars",
+    title: "Word Stars Whisper",
     unlockFlowers: 12,
-    intro: "The Word Stars are calling! Every word you learn, every story you read, " +
-           "sends a new light up to the bridge. I can almost see the words dancing across it!",
-    milestone: "Beautiful! The Word Stars illuminate the bridge with stories!",
+    intro: "Words make the bridge magical. Every sight word, every sentence, every silly story lights it up like a fairy lantern. " +
+           "Read me one, would you? I do enjoy a bedtime story.",
+    milestone: "Word Stars singing in soft, story-shaped lights.",
     icon: "\uD83D\uDCDA"
   },
   {
     chapter: 4,
-    title: "The STEM Stars",
+    title: "STEM Stars Spark",
     unlockFlowers: 20,
-    intro: "We're getting close! The STEM Stars are the trickiest — they need experiments " +
-           "and discoveries to shine. But I believe in you, Anastasia. You're the brightest " +
-           "learner I've ever met!",
-    milestone: "The STEM Stars flash like lightning! The bridge is almost complete!",
+    intro: "Science and code are the engine. Live wires, tiny gears, robot toes. " +
+           "You poke at them, they spark. You explain how plants grow, they hum.",
+    milestone: "STEM Stars zinging electric blue. The bridge purrs.",
     icon: "\uD83D\uDD2C"
   },
   {
     chapter: 5,
-    title: "The Complete Star Bridge",
+    title: "Dunia Melayu Lights Up",
     unlockFlowers: 30,
-    intro: "ANASTASIA! LOOK! The Star Bridge is COMPLETE! All three worlds are connected " +
-           "by YOUR knowledge and YOUR hard work! Every lesson, every quiz, every discovery " +
-           "— they all led to this moment. I am SO proud of you!",
-    milestone: "The Star Bridge shines forever, powered by everything you've learned!",
+    intro: "Selamat datang, master builder. The Malay stars are the warmest of the lot. " +
+           "Greetings, family words, hawker menus add golden lanterns. " +
+           "All four worlds, all yours, all connected. Tepuk tangan!",
+    milestone: "The Star Bridge shines across every world. Lumi wipes a sparkly tear.",
     icon: "\uD83C\uDF1F"
   }
 ];
@@ -9805,6 +9967,1318 @@ var CODE_GRID_LEVELS = [
   { skill:'cdebug', title:'Final Debug', grid:[[4,0,0,0,0,0],[1,1,0,1,1,0],[0,0,0,0,0,0],[0,1,1,0,1,1],[0,0,0,0,0,0],[0,0,1,0,0,3]], start:[0,0], goal:[5,5], gems:[], maxBlocks:14, hint:'This is the hardest maze. Plan every move!' }
 ];
 
+// --- src/malay/malay-tree.js ---
+// ============================================================
+//  MALAY TREE — 10-skill tree for Bahasa Melayu (P1 foundation)
+// ============================================================
+
+const MALAY_TREE = {
+  // === P1 Foundation (Bahasa Melayu) ===
+  huruf:     { id:'huruf',     name:'Huruf & Bunyi',       icon:'🔤', grade:'P1 Foundation', deps:[],            desc:'Vowels, consonants, suku kata' },
+  nombor:    { id:'nombor',    name:'Nombor 1-20',          icon:'🔢', grade:'P1 Foundation', deps:[],            desc:'Count in Malay: satu, dua, tiga...' },
+  salam:     { id:'salam',     name:'Salam & Sopan',         icon:'👋', grade:'P1 Foundation', deps:[],            desc:'Greetings and polite words' },
+  warna:     { id:'warna',     name:'Warna-warni',           icon:'🎨', grade:'P1 Foundation', deps:[],            desc:'Colours in Malay' },
+
+  // === P1 Everyday (Bahasa Melayu) ===
+  keluarga:  { id:'keluarga',  name:'Keluarga Saya',         icon:'👪', grade:'P1 Everyday',  deps:['salam'],     desc:'Family members and relations' },
+  haiwan:    { id:'haiwan',    name:'Haiwan Kesayangan',     icon:'🐱', grade:'P1 Everyday',  deps:['warna'],     desc:'Animals and their colours' },
+  badan:     { id:'badan',     name:'Anggota Badan',         icon:'👐', grade:'P1 Everyday',  deps:['huruf'],     desc:'Body parts in Malay' },
+  makanan:   { id:'makanan',   name:'Makanan Sedap',         icon:'🍛', grade:'P1 Everyday',  deps:['haiwan'],    desc:'Food and drinks' },
+
+  // === P1 Stretch (Bahasa Melayu) ===
+  hari:      { id:'hari',      name:'Hari & Cuaca',          icon:'☀️',  grade:'P1 Stretch',   deps:['nombor'],    desc:'Days of the week and weather' },
+  ayat:      { id:'ayat',      name:'Ayat Mudah',            icon:'✍️', grade:'P1 Stretch',   deps:['keluarga','makanan'], desc:'Build simple Malay sentences' }
+};
+
+// --- src/malay/malay-data.js ---
+// ============================================================
+//  MALAY DATA — Vocabulary banks for Bahasa Melayu (P1)
+// ============================================================
+
+// Huruf vokal (vowels) and suku kata (syllables)
+const MALAY_VOWELS = ['a','e','i','o','u'];
+const MALAY_SUKU_KATA = [
+  { syllable: 'ba', word: 'bapa', meaning: 'father', emoji: '👨' },
+  { syllable: 'bu', word: 'buku', meaning: 'book',   emoji: '📖' },
+  { syllable: 'ka', word: 'kaki', meaning: 'leg',    emoji: '🦵' },
+  { syllable: 'ki', word: 'kita', meaning: 'us',     emoji: '👥' },
+  { syllable: 'la', word: 'lampu', meaning: 'lamp',   emoji: '💡' },
+  { syllable: 'ma', word: 'mata', meaning: 'eye',    emoji: '👁️' },
+  { syllable: 'me', word: 'meja', meaning: 'table',  emoji: '🪑' },
+  { syllable: 'na', word: 'nasi', meaning: 'rice',   emoji: '🍚' },
+  { syllable: 'pi', word: 'pisang', meaning: 'banana',emoji: '🍌' },
+  { syllable: 'ru', word: 'rumah', meaning: 'house', emoji: '🏠' },
+  { syllable: 'sa', word: 'sapu', meaning: 'sweep',  emoji: '🧹' },
+  { syllable: 'ti', word: 'tikus', meaning: 'mouse', emoji: '🐭' },
+  { syllable: 'tu', word: 'tunjuk',meaning: 'point', emoji: '👉' }
+];
+
+// Nombor satu hingga dua puluh (1-20)
+const MALAY_NUMBERS = [
+  { n: 1,  word: 'satu',           shortWord: 'satu' },
+  { n: 2,  word: 'dua',            shortWord: 'dua' },
+  { n: 3,  word: 'tiga',           shortWord: 'tiga' },
+  { n: 4,  word: 'empat',          shortWord: 'empat' },
+  { n: 5,  word: 'lima',           shortWord: 'lima' },
+  { n: 6,  word: 'enam',           shortWord: 'enam' },
+  { n: 7,  word: 'tujuh',          shortWord: 'tujuh' },
+  { n: 8,  word: 'lapan',          shortWord: 'lapan' },
+  { n: 9,  word: 'sembilan',       shortWord: 'sembilan' },
+  { n: 10, word: 'sepuluh',        shortWord: 'sepuluh' },
+  { n: 11, word: 'sebelas',        shortWord: 'sebelas' },
+  { n: 12, word: 'dua belas',      shortWord: 'dua belas' },
+  { n: 13, word: 'tiga belas',     shortWord: 'tiga belas' },
+  { n: 14, word: 'empat belas',    shortWord: 'empat belas' },
+  { n: 15, word: 'lima belas',     shortWord: 'lima belas' },
+  { n: 16, word: 'enam belas',     shortWord: 'enam belas' },
+  { n: 17, word: 'tujuh belas',    shortWord: 'tujuh belas' },
+  { n: 18, word: 'lapan belas',    shortWord: 'lapan belas' },
+  { n: 19, word: 'sembilan belas', shortWord: 'sembilan belas' },
+  { n: 20, word: 'dua puluh',      shortWord: 'dua puluh' }
+];
+
+// Salam (greetings) and polite words
+const MALAY_GREETINGS = [
+  { malay: 'Selamat pagi',  english: 'Good morning',   emoji: '🌅', context: 'when you wake up' },
+  { malay: 'Selamat petang',english: 'Good afternoon', emoji: '☀️',  context: 'in the late afternoon' },
+  { malay: 'Selamat malam', english: 'Good night',     emoji: '🌙', context: 'at night, before sleep' },
+  { malay: 'Apa khabar?',   english: 'How are you?',   emoji: '😊', context: 'asking how someone is' },
+  { malay: 'Khabar baik',   english: 'I am well',      emoji: '👍', context: 'replying you are fine' },
+  { malay: 'Terima kasih',  english: 'Thank you',      emoji: '🙏', context: 'when someone helps you' },
+  { malay: 'Sama-sama',     english: "You're welcome", emoji: '🤗', context: 'after someone thanks you' },
+  { malay: 'Maaf',          english: 'Sorry / excuse me', emoji: '🙅', context: 'when you make a mistake' },
+  { malay: 'Tolong',        english: 'Please / help',  emoji: '🤲', context: 'when you ask for something' },
+  { malay: 'Selamat tinggal',english: 'Goodbye',       emoji: '👋', context: 'when you leave' }
+];
+
+// Warna (colours)
+const MALAY_COLOURS = [
+  { malay: 'merah',  english: 'red',     hex: '#ff5252', emoji: '❤️' },
+  { malay: 'biru',   english: 'blue',    hex: '#4a90e2', emoji: '💙' },
+  { malay: 'kuning', english: 'yellow',  hex: '#ffd700', emoji: '💛' },
+  { malay: 'hijau',  english: 'green',   hex: '#4caf50', emoji: '💚' },
+  { malay: 'hitam',  english: 'black',   hex: '#222222', emoji: '🖤' },
+  { malay: 'putih',  english: 'white',   hex: '#f5f5f5', emoji: '🤍' },
+  { malay: 'ungu',   english: 'purple',  hex: '#9c27b0', emoji: '💜' },
+  { malay: 'jingga', english: 'orange',  hex: '#ff9800', emoji: '🧡' },
+  { malay: 'merah jambu', english: 'pink', hex: '#ff7bdb', emoji: '🌸' },
+  { malay: 'coklat', english: 'brown',   hex: '#795548', emoji: '🤎' }
+];
+
+// Keluarga (family)
+const MALAY_FAMILY = [
+  { malay: 'ibu',     english: 'mother',     emoji: '👩' },
+  { malay: 'bapa',    english: 'father',     emoji: '👨' },
+  { malay: 'abang',   english: 'older brother', emoji: '👦' },
+  { malay: 'kakak',   english: 'older sister',  emoji: '👧' },
+  { malay: 'adik',    english: 'younger sibling', emoji: '👶' },
+  { malay: 'nenek',   english: 'grandmother', emoji: '👵' },
+  { malay: 'datuk',   english: 'grandfather', emoji: '👴' },
+  { malay: 'pak cik', english: 'uncle',      emoji: '🧔' },
+  { malay: 'mak cik', english: 'aunty',      emoji: '💃' },
+  { malay: 'sepupu',  english: 'cousin',     emoji: '👥' }
+];
+
+// Haiwan (animals)
+const MALAY_ANIMALS = [
+  { malay: 'kucing',  english: 'cat',     emoji: '🐱' },
+  { malay: 'anjing',  english: 'dog',     emoji: '🐶' },
+  { malay: 'ikan',    english: 'fish',    emoji: '🐟' },
+  { malay: 'ayam',    english: 'chicken', emoji: '🐔' },
+  { malay: 'burung',  english: 'bird',    emoji: '🐦' },
+  { malay: 'lembu',   english: 'cow',     emoji: '🐄' },
+  { malay: 'kambing', english: 'goat',    emoji: '🐐' },
+  { malay: 'arnab',   english: 'rabbit',  emoji: '🐇' },
+  { malay: 'tikus',   english: 'mouse',   emoji: '🐭' },
+  { malay: 'kupu-kupu', english: 'butterfly', emoji: '🦋' },
+  { malay: 'gajah',   english: 'elephant', emoji: '🐘' },
+  { malay: 'singa',   english: 'lion',    emoji: '🦁' }
+];
+
+// Anggota badan (body parts)
+const MALAY_BODY = [
+  { malay: 'kepala',   english: 'head',     emoji: '🧠' },
+  { malay: 'rambut',   english: 'hair',     emoji: '💇' },
+  { malay: 'mata',     english: 'eye',      emoji: '👁️' },
+  { malay: 'hidung',   english: 'nose',     emoji: '👃' },
+  { malay: 'mulut',    english: 'mouth',    emoji: '👄' },
+  { malay: 'telinga',  english: 'ear',      emoji: '👂' },
+  { malay: 'tangan',   english: 'hand',     emoji: '✋' },
+  { malay: 'kaki',     english: 'foot/leg', emoji: '🦶' },
+  { malay: 'jari',     english: 'finger',   emoji: '👆' },
+  { malay: 'perut',    english: 'tummy',    emoji: '🤲' }
+];
+
+// Makanan (food and drink)
+const MALAY_FOOD = [
+  { malay: 'nasi',     english: 'rice',     emoji: '🍚' },
+  { malay: 'roti',     english: 'bread',    emoji: '🍞' },
+  { malay: 'ayam',     english: 'chicken',  emoji: '🍗' },
+  { malay: 'ikan',     english: 'fish',     emoji: '🐟' },
+  { malay: 'sayur',    english: 'vegetable', emoji: '🥦' },
+  { malay: 'buah',     english: 'fruit',    emoji: '🍎' },
+  { malay: 'pisang',   english: 'banana',   emoji: '🍌' },
+  { malay: 'epal',     english: 'apple',    emoji: '🍏' },
+  { malay: 'air',      english: 'water',    emoji: '💧' },
+  { malay: 'susu',     english: 'milk',     emoji: '🥛' },
+  { malay: 'gula-gula',english: 'sweets',   emoji: '🍬' },
+  { malay: 'kuih',     english: 'kueh',     emoji: '🍰' }
+];
+
+// Hari & cuaca (days and weather)
+const MALAY_DAYS = [
+  { malay: 'Isnin',   english: 'Monday' },
+  { malay: 'Selasa',  english: 'Tuesday' },
+  { malay: 'Rabu',    english: 'Wednesday' },
+  { malay: 'Khamis',  english: 'Thursday' },
+  { malay: 'Jumaat',  english: 'Friday' },
+  { malay: 'Sabtu',   english: 'Saturday' },
+  { malay: 'Ahad',    english: 'Sunday' }
+];
+
+const MALAY_WEATHER = [
+  { malay: 'cerah',  english: 'sunny',     emoji: '☀️' },
+  { malay: 'hujan',  english: 'rainy',     emoji: '🌧️' },
+  { malay: 'mendung',english: 'cloudy',    emoji: '☁️' },
+  { malay: 'angin',  english: 'windy',     emoji: '💨' },
+  { malay: 'panas',  english: 'hot',       emoji: '🔥' },
+  { malay: 'sejuk',  english: 'cold',      emoji: '❄️' }
+];
+
+// Simple sentence frames (P1 Ayat Mudah)
+const MALAY_SENTENCE_FRAMES = [
+  { template: 'Saya suka {food}.',        gloss: 'I like {food}.',        slot: 'food' },
+  { template: 'Ini ialah {animal}.',      gloss: 'This is a {animal}.',   slot: 'animal' },
+  { template: '{family} saya baik.',      gloss: 'My {family} is kind.',  slot: 'family' },
+  { template: 'Warna {colour} cantik.',   gloss: 'The colour {colour} is pretty.', slot: 'colour' },
+  { template: 'Saya ada {number} {food}.',gloss: 'I have {number} {food}.', slot: 'number+food' },
+  { template: 'Selamat {greeting}!',      gloss: 'Good {greeting}!',      slot: 'time' }
+];
+
+// --- src/malay/malay-lessons.js ---
+// ============================================================
+//  MALAY LESSONS — Visual step-by-step lessons for Bahasa Melayu
+//  Aimed at lower-primary learners. Each lesson teaches before quizzing.
+// ============================================================
+
+var MALAY_LESSONS = {
+  huruf: {
+    title: 'Huruf & Bunyi',
+    icon: '🔤',
+    lumiSays: 'Bahasa Melayu has the same alphabet as English, but the sounds are sometimes different. Let me show you!',
+    steps: [
+      { visual: '<div style="font-size:42px;letter-spacing:8px">a e i o u</div>', text: 'These are the <b>huruf vokal</b> (vowels). Each one has one steady sound: <b>ah, eh, ee, oh, oo</b>.', lumiTip: 'In Malay you usually say letters the same way every time. Tidy!' },
+      { visual: '<div style="font-size:34px">b + a = <b>ba</b></div><div style="font-size:34px">k + a = <b>ka</b></div>', text: 'Stick a consonant to a vowel and you get a <b>suku kata</b> (syllable).', lumiTip: 'Malay words are built from these little blocks.' },
+      { visual: '<div style="font-size:28px"><b>ba</b> + <b>pa</b> = <b>bapa</b> 👨</div><div style="font-size:28px"><b>i</b> + <b>bu</b> = <b>ibu</b> 👩</div>', text: 'Two syllables clipped together make a word: <b>bapa</b> (father), <b>ibu</b> (mother).', lumiTip: 'Most P1 Malay words are two syllables. Watch for the pattern!' },
+      { type: 'try', prompt: 'Which is a vowel?', options: ['b','o','t','k'], answer: 'o', successMsg: '“o” is a vokal — yes!' },
+      { type: 'try', prompt: 'What word do these syllables make? <b>ka + ki</b>', options: ['kaki','kuku','kuca'], answer: 'kaki', successMsg: '<b>kaki</b> means foot / leg!' }
+    ]
+  },
+
+  nombor: {
+    title: 'Nombor 1-20',
+    icon: '🔢',
+    lumiSays: 'Counting in Malay is so neat once you get to ten. Let me prove it.',
+    steps: [
+      { visual: '<div style="font-size:24px">1 satu · 2 dua · 3 tiga · 4 empat · 5 lima</div>', text: 'Here are the first five Malay numbers. Say each one out loud!', lumiTip: 'Try counting your fingers in Malay right now.' },
+      { visual: '<div style="font-size:24px">6 enam · 7 tujuh · 8 lapan · 9 sembilan · 10 sepuluh</div>', text: 'And the next five. <b>Sepuluh</b> = ten.', lumiTip: 'Once you know 1-10, the rest is easy!' },
+      { visual: '<div style="font-size:22px;line-height:1.6">11 = <b>se</b>-belas<br>12 = <b>dua</b>-belas<br>13 = <b>tiga</b>-belas</div>', text: 'For 11-19, take the small number and add <b>-belas</b>. <b>Sebelas, dua belas, tiga belas...</b>', lumiTip: 'It is literally “one-teen, two-teen, three-teen”.' },
+      { visual: '<div style="font-size:32px"><b>20 = dua puluh</b></div>', text: '20 is <b>dua puluh</b> — two tens. After that you keep stacking: 21 = <b>dua puluh satu</b>.', lumiTip: 'Malay numbers stay logical all the way up!' },
+      { type: 'try', prompt: 'What is <b>tiga</b> in numbers?', options: ['1','3','5'], answer: '3', successMsg: 'Tiga = 3!' },
+      { type: 'try', prompt: 'How do you say <b>7</b> in Malay?', options: ['lima','tujuh','lapan'], answer: 'tujuh', successMsg: 'Tujuh = 7!' }
+    ]
+  },
+
+  salam: {
+    title: 'Salam & Sopan',
+    icon: '👋',
+    lumiSays: 'Manners matter, princess! In Singapore, knowing your Malay greetings will get you smiles everywhere.',
+    steps: [
+      { visual: '<div style="font-size:30px">🌅 Selamat pagi!</div>', text: '<b>Selamat pagi</b> means "Good morning". Say it before noon.', lumiTip: 'It literally means "safe morning". Sweet, right?' },
+      { visual: '<div style="font-size:30px">☀️ Selamat petang!</div><div style="font-size:30px">🌙 Selamat malam!</div>', text: '<b>Selamat petang</b> = good afternoon. <b>Selamat malam</b> = good night.', lumiTip: 'Notice the pattern: <b>Selamat ___</b>.' },
+      { visual: '<div style="font-size:24px">😊 Apa khabar?</div><div style="font-size:24px">👍 Khabar baik!</div>', text: 'Ask <b>"Apa khabar?"</b> (how are you?). Reply <b>"Khabar baik"</b> (I am well).', lumiTip: 'Use it on Cik Guru, your neighbours, anyone!' },
+      { visual: '<div style="font-size:24px">🙏 Terima kasih</div><div style="font-size:24px">🤗 Sama-sama</div>', text: 'Thank someone with <b>"Terima kasih"</b>. They will reply <b>"Sama-sama"</b> (you are welcome).', lumiTip: 'Saying terima kasih is the easiest way to make someone smile.' },
+      { type: 'try', prompt: 'What do you say at night?', options: ['Selamat pagi','Selamat petang','Selamat malam'], answer: 'Selamat malam', successMsg: 'Yes — malam = night!' },
+      { type: 'try', prompt: 'Someone helps you carry your bag. You say…', options: ['Maaf','Terima kasih','Tolong'], answer: 'Terima kasih', successMsg: 'Terima kasih = thank you!' }
+    ]
+  },
+
+  warna: {
+    title: 'Warna-warni',
+    icon: '🎨',
+    lumiSays: 'Colours in Malay sound like little songs. Ready?',
+    steps: [
+      { visual: '<div style="font-size:28px">❤️ <b>merah</b> · 💙 <b>biru</b> · 💛 <b>kuning</b></div>', text: 'Three to start: <b>merah</b> (red), <b>biru</b> (blue), <b>kuning</b> (yellow).', lumiTip: 'Try shouting them while pointing at your clothes!' },
+      { visual: '<div style="font-size:28px">💚 <b>hijau</b> · 🖤 <b>hitam</b> · 🤍 <b>putih</b></div>', text: '<b>Hijau</b> = green, <b>hitam</b> = black, <b>putih</b> = white.', lumiTip: 'Hijau is the colour of leaves — daun hijau!' },
+      { visual: '<div style="font-size:24px">🌸 <b>merah jambu</b> = pink<br>🧡 <b>jingga</b> = orange<br>💜 <b>ungu</b> = purple</div>', text: '"Pink" is literally <b>merah jambu</b> — the colour of a jambu fruit!', lumiTip: 'Now you know why jambu trees are sometimes pink.' },
+      { type: 'try', prompt: 'What is <b>kuning</b>?', options: ['Red','Yellow','Green'], answer: 'Yellow', successMsg: 'Kuning = yellow!' },
+      { type: 'try', prompt: 'Pink in Malay is…', options: ['merah jambu','merah','jingga'], answer: 'merah jambu', successMsg: 'Yes! Pink = merah jambu (jambu-fruit red).' }
+    ]
+  },
+
+  keluarga: {
+    title: 'Keluarga Saya',
+    icon: '👪',
+    lumiSays: 'Time to meet your family in Malay! Pakcik (uncle) Lumi is here too.',
+    steps: [
+      { visual: '<div style="font-size:28px">👩 <b>ibu</b> = mother<br>👨 <b>bapa</b> = father</div>', text: '<b>Ibu</b> and <b>bapa</b> are the two most important Malay family words.', lumiTip: 'Some kids say "mak" for mother and "ayah" for father — both are fine.' },
+      { visual: '<div style="font-size:24px">👦 <b>abang</b> = older brother<br>👧 <b>kakak</b> = older sister<br>👶 <b>adik</b> = younger sibling</div>', text: 'Order matters in Malay! Older siblings have special names.', lumiTip: 'A younger sibling is always <b>adik</b>, boy or girl.' },
+      { visual: '<div style="font-size:24px">👵 <b>nenek</b> = grandmother<br>👴 <b>datuk</b> = grandfather</div>', text: 'Your grandparents are <b>nenek</b> and <b>datuk</b>.', lumiTip: 'Some families say "tok" for grandpa.' },
+      { type: 'try', prompt: 'Your older sister is your…', options: ['adik','kakak','nenek'], answer: 'kakak', successMsg: 'Kakak = older sister!' },
+      { type: 'try', prompt: 'A younger brother is called…', options: ['abang','adik','bapa'], answer: 'adik', successMsg: 'Yes — younger siblings are all <b>adik</b>.' }
+    ]
+  },
+
+  haiwan: {
+    title: 'Haiwan Kesayangan',
+    icon: '🐱',
+    lumiSays: 'Some Malay animal names sound exactly like the noises they make. Listen for them!',
+    steps: [
+      { visual: '<div style="font-size:30px">🐱 <b>kucing</b> · 🐶 <b>anjing</b> · 🐟 <b>ikan</b></div>', text: 'Cat, dog, fish. <b>Kucing</b> is a fluffy P1 favourite.', lumiTip: 'My friend has a kucing called Bola — “ball”!' },
+      { visual: '<div style="font-size:30px">🐔 <b>ayam</b> · 🐦 <b>burung</b> · 🐄 <b>lembu</b></div>', text: '<b>Ayam</b> = chicken, <b>burung</b> = bird, <b>lembu</b> = cow.', lumiTip: 'Ayam is also food! Nasi ayam = chicken rice. Yum.' },
+      { visual: '<div style="font-size:30px">🦋 <b>kupu-kupu</b></div>', text: '<b>Kupu-kupu</b> = butterfly. Malay sometimes doubles a word to make it cute or plural.', lumiTip: 'Anak-anak = children. Bunga-bunga = flowers. Doubled = lovely.' },
+      { type: 'try', prompt: 'What is a <b>kucing</b>?', options: ['Cat','Dog','Cow'], answer: 'Cat', successMsg: 'Kucing = cat!' },
+      { type: 'try', prompt: 'Butterfly in Malay is…', options: ['burung','kupu-kupu','arnab'], answer: 'kupu-kupu', successMsg: 'Kupu-kupu — the prettiest doubled word!' }
+    ]
+  },
+
+  badan: {
+    title: 'Anggota Badan',
+    icon: '👐',
+    lumiSays: 'Point at your nose and your knee while you learn — it makes the words stick.',
+    steps: [
+      { visual: '<div style="font-size:28px">🧠 <b>kepala</b> = head<br>💇 <b>rambut</b> = hair</div>', text: '<b>Kepala</b> is your head, <b>rambut</b> is your hair.', lumiTip: 'Touch your kepala while you say it.' },
+      { visual: '<div style="font-size:28px">👁️ <b>mata</b> · 👃 <b>hidung</b> · 👄 <b>mulut</b> · 👂 <b>telinga</b></div>', text: 'Eye, nose, mouth, ear. <b>Mata</b> is one of the prettiest Malay words.', lumiTip: 'Try a face song: mata, hidung, mulut, telinga!' },
+      { visual: '<div style="font-size:28px">✋ <b>tangan</b> = hand · 🦶 <b>kaki</b> = leg/foot</div>', text: '<b>Tangan</b> and <b>kaki</b> are super useful.', lumiTip: 'Two tangan + two kaki = ready for anything!' },
+      { type: 'try', prompt: 'What is <b>mata</b>?', options: ['Eye','Ear','Hand'], answer: 'Eye', successMsg: 'Mata = eye!' },
+      { type: 'try', prompt: 'You walk with your…', options: ['tangan','telinga','kaki'], answer: 'kaki', successMsg: 'Yes! Kaki = legs/feet.' }
+    ]
+  },
+
+  makanan: {
+    title: 'Makanan Sedap',
+    icon: '🍛',
+    lumiSays: 'My favourite Malay topic! Singapore food has Malay names all over the menu.',
+    steps: [
+      { visual: '<div style="font-size:30px">🍚 <b>nasi</b> · 🍞 <b>roti</b> · 🍗 <b>ayam</b></div>', text: 'Rice, bread, chicken. You will see <b>nasi ayam</b>, <b>nasi lemak</b>, <b>roti prata</b> at every hawker stall!', lumiTip: 'Nasi just means rice. Whatever comes after tells you the flavour.' },
+      { visual: '<div style="font-size:30px">🥦 <b>sayur</b> · 🍎 <b>buah</b> · 🐟 <b>ikan</b></div>', text: 'Vegetables, fruit, fish. Eat all three to grow strong like a kucing on a roof!', lumiTip: 'Buah-buahan = fruits (doubled = lots of fruit!).' },
+      { visual: '<div style="font-size:30px">💧 <b>air</b> · 🥛 <b>susu</b></div>', text: '<b>Air</b> means water (not the air you breathe!). <b>Susu</b> means milk.', lumiTip: '“Air kosong” at hawker centres = plain water.' },
+      { type: 'try', prompt: 'You order rice. The Malay word is…', options: ['roti','nasi','susu'], answer: 'nasi', successMsg: 'Nasi = rice!' },
+      { type: 'try', prompt: '<b>Air</b> means…', options: ['Wind','Water','Bread'], answer: 'Water', successMsg: 'Tricky! Air in Malay = water.' }
+    ]
+  },
+
+  hari: {
+    title: 'Hari & Cuaca',
+    icon: '☀️',
+    lumiSays: 'Days of the week have Arabic roots — most of them are easy to spot once you know.',
+    steps: [
+      { visual: '<div style="font-size:22px">Isnin · Selasa · Rabu · Khamis · Jumaat · Sabtu · Ahad</div>', text: 'The seven hari (days), Monday to Sunday.', lumiTip: 'Try saying them while skipping. One step per day!' },
+      { visual: '<div style="font-size:28px">☀️ cerah · 🌧️ hujan · ☁️ mendung</div>', text: '<b>Cerah</b> = sunny, <b>hujan</b> = rain, <b>mendung</b> = cloudy.', lumiTip: 'Singapore weather is mostly panas (hot) and hujan (rain)!' },
+      { visual: '<div style="font-size:24px">🔥 <b>panas</b> = hot<br>❄️ <b>sejuk</b> = cold</div>', text: 'Hot or cold? <b>Panas</b> or <b>sejuk</b>.', lumiTip: 'Aircon room = sejuk. Outside in Singapore = panas!' },
+      { type: 'try', prompt: 'What day comes after <b>Isnin</b>?', options: ['Rabu','Selasa','Sabtu'], answer: 'Selasa', successMsg: 'Yes! Isnin → Selasa.' },
+      { type: 'try', prompt: 'It is pouring outside. The weather is…', options: ['cerah','hujan','panas'], answer: 'hujan', successMsg: 'Hujan = rain!' }
+    ]
+  },
+
+  ayat: {
+    title: 'Ayat Mudah',
+    icon: '✍️',
+    lumiSays: 'Time to put words together into mini-sentences! In Malay, the order is usually Subject + Verb + Object — just like English.',
+    steps: [
+      { visual: '<div style="font-size:24px"><b>Saya</b> + <b>suka</b> + <b>nasi</b> = <i>Saya suka nasi.</i></div>', text: '"I like rice." Easy! Swap the food word and you have a brand new sentence.', lumiTip: 'Saya = I. Suka = like. Tukar makanan = swap the food.' },
+      { visual: '<div style="font-size:22px"><b>Ini</b> + <b>ialah</b> + <b>kucing</b> = <i>Ini ialah kucing.</i></div>', text: '"This is a cat." Use <b>ini ialah</b> + any noun.', lumiTip: 'Ini = this. Ialah = is.' },
+      { visual: '<div style="font-size:22px"><b>Ibu</b> + <b>saya</b> + <b>baik</b> = <i>Ibu saya baik.</i></div>', text: '"My mother is kind." In Malay you say <b>ibu saya</b>, not <b>my mother</b>. The owner comes after!', lumiTip: 'Kucing saya = my cat. Sister saya? No — kakak saya!' },
+      { type: 'try', prompt: 'Which sentence means "I like rice"?', options: ['Saya suka roti.','Saya suka nasi.','Nasi suka saya.'], answer: 'Saya suka nasi.', successMsg: 'Yes! Saya suka nasi.' },
+      { type: 'try', prompt: 'How would you say "This is a cat"?', options: ['Kucing ini ialah.','Ini ialah kucing.','Saya ialah kucing.'], answer: 'Ini ialah kucing.', successMsg: 'Tepat sekali (exactly right)!' }
+    ]
+  }
+};
+
+function getMalayLesson(skillId) {
+  return MALAY_LESSONS[skillId] || null;
+}
+
+// Malay flashcards (simple translation deck per skill)
+function getMalayFlashcards(skillId) {
+  switch (skillId) {
+    case 'huruf':
+      return MALAY_SUKU_KATA.map(function(s) {
+        return { front: s.syllable + ' + ?', back: s.word + ' = ' + s.meaning, emoji: s.emoji };
+      });
+    case 'nombor':
+      return MALAY_NUMBERS.slice(0, 12).map(function(n) {
+        return { front: String(n.n), back: n.word, emoji: '🔢' };
+      });
+    case 'salam':
+      return MALAY_GREETINGS.map(function(g) {
+        return { front: g.malay, back: g.english + ' (' + g.context + ')', emoji: g.emoji };
+      });
+    case 'warna':
+      return MALAY_COLOURS.map(function(c) {
+        return { front: c.malay, back: c.english, emoji: c.emoji };
+      });
+    case 'keluarga':
+      return MALAY_FAMILY.map(function(f) {
+        return { front: f.malay, back: f.english, emoji: f.emoji };
+      });
+    case 'haiwan':
+      return MALAY_ANIMALS.map(function(a) {
+        return { front: a.malay, back: a.english, emoji: a.emoji };
+      });
+    case 'badan':
+      return MALAY_BODY.map(function(b) {
+        return { front: b.malay, back: b.english, emoji: b.emoji };
+      });
+    case 'makanan':
+      return MALAY_FOOD.map(function(f) {
+        return { front: f.malay, back: f.english, emoji: f.emoji };
+      });
+    case 'hari':
+      return MALAY_DAYS.map(function(d) {
+        return { front: d.malay, back: d.english, emoji: '📅' };
+      }).concat(MALAY_WEATHER.map(function(w) {
+        return { front: w.malay, back: w.english, emoji: w.emoji };
+      }));
+    case 'ayat':
+      return MALAY_SENTENCE_FRAMES.map(function(s) {
+        return { front: s.template, back: s.gloss, emoji: '✍️' };
+      });
+    default:
+      return [];
+  }
+}
+
+// --- src/malay/malay-gen.js ---
+// ============================================================
+//  MALAY GENERATORS — Question generators for the 10 Malay skills
+// ============================================================
+
+function generateMalayQuestion(skillId) {
+  var diff = (typeof getSkillDifficulty === 'function') ? getSkillDifficulty(skillId) : { level: 0 };
+  switch (skillId) {
+    case 'huruf':    return genMalayHuruf(diff);
+    case 'nombor':   return genMalayNombor(diff);
+    case 'salam':    return genMalaySalam(diff);
+    case 'warna':    return genMalayWarna(diff);
+    case 'keluarga': return genMalayKeluarga(diff);
+    case 'haiwan':   return genMalayHaiwan(diff);
+    case 'badan':    return genMalayBadan(diff);
+    case 'makanan':  return genMalayMakanan(diff);
+    case 'hari':     return genMalayHari(diff);
+    case 'ayat':     return genMalayAyat(diff);
+    default:         return genMalaySalam(diff);
+  }
+}
+
+function _shuffle4(correct, pool) {
+  var wrongs = shuffle(pool.filter(function(o) { return o !== correct; })).slice(0, 3);
+  return shuffle([correct].concat(wrongs));
+}
+
+// ===================== HURUF =====================
+
+function genMalayHuruf(diff) {
+  var item = pick(MALAY_SUKU_KATA);
+  if (diff.level < 1 || Math.random() < 0.4) {
+    var letters = ['a','e','i','o','u','b','k','m','n','p','r','s','t','l'];
+    var correct = item.syllable[1]; // the vowel inside the suku kata
+    return {
+      type: 'malay-vowel',
+      syllable: item.syllable,
+      options: _shuffle4(correct, MALAY_VOWELS),
+      answer: correct,
+      hint: 'A vowel hides inside every Malay syllable. Look for a, e, i, o or u.'
+    };
+  }
+  // suku kata to whole word
+  var allWords = MALAY_SUKU_KATA.map(function(s) { return s.word; });
+  return {
+    type: 'malay-suku-word',
+    syllables: item.word.match(/[bcdfghjklmnpqrstvwxyz]*[aeiou]+/gi) || [item.syllable, item.word.slice(item.syllable.length)],
+    word: item.word,
+    meaning: item.meaning,
+    emoji: item.emoji,
+    options: _shuffle4(item.word, allWords),
+    answer: item.word,
+    hint: 'Glue the syllables together gently. Say them out loud.'
+  };
+}
+
+// ===================== NOMBOR =====================
+
+function genMalayNombor(diff) {
+  var cap = diff.level < 2 ? 10 : 20;
+  var item = pick(MALAY_NUMBERS.slice(0, cap));
+  var malayToNumber = Math.random() < 0.5;
+
+  if (malayToNumber) {
+    var pool = MALAY_NUMBERS.slice(0, cap).map(function(n) { return String(n.n); });
+    return {
+      type: 'malay-number',
+      prompt: item.word,
+      options: _shuffle4(String(item.n), pool),
+      answer: String(item.n),
+      hint: 'Sing 1-10 in Malay in your head: satu, dua, tiga, empat, lima!'
+    };
+  }
+
+  var poolW = MALAY_NUMBERS.slice(0, cap).map(function(n) { return n.word; });
+  return {
+    type: 'malay-number-word',
+    number: item.n,
+    options: _shuffle4(item.word, poolW),
+    answer: item.word,
+    hint: 'After sepuluh (10), every number ends in -belas until 20.'
+  };
+}
+
+// ===================== SALAM =====================
+
+function genMalaySalam(diff) {
+  var item = pick(MALAY_GREETINGS);
+  var malayToEnglish = Math.random() < 0.5;
+  if (malayToEnglish) {
+    return {
+      type: 'malay-greet',
+      prompt: item.malay,
+      emoji: item.emoji,
+      options: _shuffle4(item.english, MALAY_GREETINGS.map(function(g) { return g.english; })),
+      answer: item.english,
+      hint: 'Imagine where you would say this: ' + item.context + '.'
+    };
+  }
+  return {
+    type: 'malay-greet-context',
+    prompt: 'You want to say: <b>"' + item.english + '"</b>',
+    context: item.context,
+    options: _shuffle4(item.malay, MALAY_GREETINGS.map(function(g) { return g.malay; })),
+    answer: item.malay,
+    hint: 'Selamat... or terima... or maaf?'
+  };
+}
+
+// ===================== WARNA =====================
+
+function genMalayWarna(diff) {
+  var item = pick(MALAY_COLOURS);
+  if (Math.random() < 0.5) {
+    return {
+      type: 'malay-colour-swatch',
+      hex: item.hex,
+      options: _shuffle4(item.malay, MALAY_COLOURS.map(function(c) { return c.malay; })),
+      answer: item.malay,
+      hint: 'Match the swatch to the Malay name!'
+    };
+  }
+  return {
+    type: 'malay-colour-word',
+    prompt: item.malay,
+    emoji: item.emoji,
+    options: _shuffle4(item.english, MALAY_COLOURS.map(function(c) { return c.english; })),
+    answer: item.english,
+    hint: 'Picture an object that colour.'
+  };
+}
+
+// ===================== KELUARGA =====================
+
+function genMalayKeluarga(diff) {
+  var item = pick(MALAY_FAMILY);
+  return {
+    type: 'malay-family',
+    prompt: item.malay,
+    emoji: item.emoji,
+    options: _shuffle4(item.english, MALAY_FAMILY.map(function(f) { return f.english; })),
+    answer: item.english,
+    hint: 'Older or younger? Ibu, bapa, abang, kakak, adik...'
+  };
+}
+
+// ===================== HAIWAN =====================
+
+function genMalayHaiwan(diff) {
+  var item = pick(MALAY_ANIMALS);
+  var malayToEnglish = Math.random() < 0.5;
+  if (malayToEnglish) {
+    return {
+      type: 'malay-animal',
+      prompt: item.malay,
+      emoji: item.emoji,
+      options: _shuffle4(item.english, MALAY_ANIMALS.map(function(a) { return a.english; })),
+      answer: item.english,
+      hint: 'Picture the haiwan in your head.'
+    };
+  }
+  return {
+    type: 'malay-animal-emoji',
+    emoji: item.emoji,
+    options: _shuffle4(item.malay, MALAY_ANIMALS.map(function(a) { return a.malay; })),
+    answer: item.malay,
+    hint: 'What does this animal say in Malay?'
+  };
+}
+
+// ===================== BADAN =====================
+
+function genMalayBadan(diff) {
+  var item = pick(MALAY_BODY);
+  return {
+    type: 'malay-body',
+    prompt: item.malay,
+    emoji: item.emoji,
+    options: _shuffle4(item.english, MALAY_BODY.map(function(b) { return b.english; })),
+    answer: item.english,
+    hint: 'Point at your body while you guess.'
+  };
+}
+
+// ===================== MAKANAN =====================
+
+function genMalayMakanan(diff) {
+  var item = pick(MALAY_FOOD);
+  var malayToEnglish = Math.random() < 0.5;
+  if (malayToEnglish) {
+    return {
+      type: 'malay-food',
+      prompt: item.malay,
+      emoji: item.emoji,
+      options: _shuffle4(item.english, MALAY_FOOD.map(function(f) { return f.english; })),
+      answer: item.english,
+      hint: 'Imagine the food on your plate.'
+    };
+  }
+  return {
+    type: 'malay-food-emoji',
+    emoji: item.emoji,
+    options: _shuffle4(item.malay, MALAY_FOOD.map(function(f) { return f.malay; })),
+    answer: item.malay,
+    hint: 'Hawker centre menu: which word do you spot?'
+  };
+}
+
+// ===================== HARI / CUACA =====================
+
+function genMalayHari(diff) {
+  if (Math.random() < 0.6) {
+    var d = pick(MALAY_DAYS);
+    return {
+      type: 'malay-day',
+      prompt: d.malay,
+      options: _shuffle4(d.english, MALAY_DAYS.map(function(x) { return x.english; })),
+      answer: d.english,
+      hint: 'Mon → Sun: Isnin, Selasa, Rabu, Khamis, Jumaat, Sabtu, Ahad.'
+    };
+  }
+  var w = pick(MALAY_WEATHER);
+  return {
+    type: 'malay-weather',
+    prompt: w.malay,
+    emoji: w.emoji,
+    options: _shuffle4(w.english, MALAY_WEATHER.map(function(x) { return x.english; })),
+    answer: w.english,
+    hint: 'Look at the emoji for a clue!'
+  };
+}
+
+// ===================== AYAT =====================
+
+function genMalayAyat(diff) {
+  var rolls = [
+    function() {
+      var f = pick(MALAY_FOOD);
+      return {
+        type: 'malay-sentence',
+        prompt: '"I like ' + f.english + '"',
+        emoji: f.emoji,
+        options: shuffle([
+          'Saya suka ' + f.malay + '.',
+          f.malay + ' suka saya.',
+          'Saya tidak suka ' + f.malay + '.',
+          'Suka saya ' + f.malay + '.'
+        ]),
+        answer: 'Saya suka ' + f.malay + '.',
+        hint: 'Saya (I) + suka (like) + makanan = ?'
+      };
+    },
+    function() {
+      var a = pick(MALAY_ANIMALS);
+      return {
+        type: 'malay-sentence',
+        prompt: '"This is a ' + a.english + '"',
+        emoji: a.emoji,
+        options: shuffle([
+          'Ini ialah ' + a.malay + '.',
+          a.malay + ' ialah ini.',
+          'Saya ialah ' + a.malay + '.',
+          'Ini bukan ' + a.malay + '.'
+        ]),
+        answer: 'Ini ialah ' + a.malay + '.',
+        hint: 'Ini ialah ___.'
+      };
+    },
+    function() {
+      var fam = pick(MALAY_FAMILY);
+      return {
+        type: 'malay-sentence',
+        prompt: '"My ' + fam.english + ' is kind"',
+        emoji: fam.emoji,
+        options: shuffle([
+          fam.malay + ' saya baik.',
+          'Saya baik ' + fam.malay + '.',
+          fam.malay + ' baik saya.',
+          'Baik saya ' + fam.malay + '.'
+        ]),
+        answer: fam.malay + ' saya baik.',
+        hint: 'Owner comes after in Malay: ibu saya, not saya ibu.'
+      };
+    }
+  ];
+  return pick(rolls)();
+}
+
+// --- src/malay/malay-render.js ---
+// ============================================================
+//  MALAY RENDER — Render Malay question types
+// ============================================================
+
+function renderMalayQuestion(card, q) {
+  switch (q.type) {
+    case 'malay-vowel':         renderMalayVowel(card, q); return true;
+    case 'malay-suku-word':     renderMalaySukuWord(card, q); return true;
+    case 'malay-number':        renderMalayNumber(card, q); return true;
+    case 'malay-number-word':   renderMalayNumberWord(card, q); return true;
+    case 'malay-greet':         renderMalayGreet(card, q); return true;
+    case 'malay-greet-context': renderMalayGreetContext(card, q); return true;
+    case 'malay-colour-swatch': renderMalayColourSwatch(card, q); return true;
+    case 'malay-colour-word':   renderMalayColourWord(card, q); return true;
+    case 'malay-family':        renderMalayFamily(card, q); return true;
+    case 'malay-animal':        renderMalayAnimal(card, q); return true;
+    case 'malay-animal-emoji':  renderMalayAnimalEmoji(card, q); return true;
+    case 'malay-body':          renderMalayBody(card, q); return true;
+    case 'malay-food':          renderMalayFood(card, q); return true;
+    case 'malay-food-emoji':    renderMalayFoodEmoji(card, q); return true;
+    case 'malay-day':           renderMalayDay(card, q); return true;
+    case 'malay-weather':       renderMalayWeather(card, q); return true;
+    case 'malay-sentence':      renderMalaySentence(card, q); return true;
+    default: return false;
+  }
+}
+
+function _malayOptions(q, btnStyle) {
+  btnStyle = btnStyle || '';
+  return '<div class="answer-options">' + q.options.map(function(o) {
+    var safe = String(o).replace(/'/g, "\\'");
+    return '<button class="answer-btn" style="' + btnStyle + '" onclick="checkAnswer(\'' + safe + '\', \'' + String(q.answer).replace(/'/g, "\\'") + '\', this)">' + o + '</button>';
+  }).join('') + '</div>';
+}
+
+function renderMalayVowel(card, q) {
+  var html = '<div class="question-text">Which vowel is hiding in <b>' + q.syllable + '</b>?</div>';
+  html += '<div style="font-size:48px;margin:14px 0;letter-spacing:4px;color:var(--gold)">' + q.syllable + '</div>';
+  html += _malayOptions(q, 'font-size:28px;font-weight:700');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalaySukuWord(card, q) {
+  var html = '<div class="question-text">What word do these syllables make?</div>';
+  html += '<div style="font-size:32px;margin:14px 0;letter-spacing:8px;color:var(--mint)">' + (q.syllables || []).join(' · ') + '</div>';
+  if (q.emoji) html += '<div style="font-size:36px;margin:6px 0">' + q.emoji + '</div>';
+  html += _malayOptions(q, 'font-size:22px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalayNumber(card, q) {
+  var html = '<div class="question-text">What number is <b>' + q.prompt + '</b>?</div>';
+  html += '<div style="font-size:42px;margin:12px 0;color:var(--gold)">' + q.prompt + '</div>';
+  html += _malayOptions(q, 'font-size:28px;font-weight:700');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalayNumberWord(card, q) {
+  var html = '<div class="question-text">How do you say <b>' + q.number + '</b> in Malay?</div>';
+  html += '<div style="font-size:56px;margin:12px 0;color:var(--gold);font-weight:700">' + q.number + '</div>';
+  html += _malayOptions(q, 'font-size:22px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalayGreet(card, q) {
+  var html = '<div class="question-text">What does <b>"' + q.prompt + '"</b> mean?</div>';
+  if (q.emoji) html += '<div style="font-size:40px;margin:8px 0">' + q.emoji + '</div>';
+  html += _malayOptions(q, 'font-size:18px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalayGreetContext(card, q) {
+  var html = '<div class="question-text">' + q.prompt + '</div>';
+  html += '<div style="font-size:13px;color:var(--text-dim);margin-bottom:8px">Context: ' + (q.context || '') + '</div>';
+  html += _malayOptions(q, 'font-size:18px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalayColourSwatch(card, q) {
+  var html = '<div class="question-text">What is this colour in Malay?</div>';
+  html += '<div style="width:80px;height:80px;border-radius:16px;background:' + q.hex + ';margin:16px auto;box-shadow:0 0 24px ' + q.hex + '44"></div>';
+  html += _malayOptions(q, 'font-size:22px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalayColourWord(card, q) {
+  var html = '<div class="question-text">What colour is <b>' + q.prompt + '</b>?</div>';
+  if (q.emoji) html += '<div style="font-size:42px;margin:8px 0">' + q.emoji + '</div>';
+  html += _malayOptions(q, 'font-size:22px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalayFamily(card, q) {
+  var html = '<div class="question-text">Who is <b>' + q.prompt + '</b>?</div>';
+  html += '<div style="font-size:46px;margin:10px 0">' + (q.emoji || '👪') + '</div>';
+  html += _malayOptions(q, 'font-size:20px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalayAnimal(card, q) {
+  var html = '<div class="question-text">What is a <b>' + q.prompt + '</b>?</div>';
+  html += '<div style="font-size:46px;margin:10px 0">' + (q.emoji || '🐾') + '</div>';
+  html += _malayOptions(q, 'font-size:22px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalayAnimalEmoji(card, q) {
+  var html = '<div class="question-text">What is this animal in Malay?</div>';
+  html += '<div style="font-size:64px;margin:14px 0">' + q.emoji + '</div>';
+  html += _malayOptions(q, 'font-size:22px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalayBody(card, q) {
+  var html = '<div class="question-text">What is <b>' + q.prompt + '</b>?</div>';
+  html += '<div style="font-size:46px;margin:10px 0">' + (q.emoji || '👐') + '</div>';
+  html += _malayOptions(q, 'font-size:20px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalayFood(card, q) {
+  var html = '<div class="question-text">What is <b>' + q.prompt + '</b>?</div>';
+  html += '<div style="font-size:46px;margin:10px 0">' + (q.emoji || '🍽️') + '</div>';
+  html += _malayOptions(q, 'font-size:20px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalayFoodEmoji(card, q) {
+  var html = '<div class="question-text">What is this in Malay?</div>';
+  html += '<div style="font-size:64px;margin:14px 0">' + q.emoji + '</div>';
+  html += _malayOptions(q, 'font-size:22px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalayDay(card, q) {
+  var html = '<div class="question-text">Which day is <b>' + q.prompt + '</b>?</div>';
+  html += '<div style="font-size:34px;margin:10px 0;color:var(--lavender)">📅 ' + q.prompt + '</div>';
+  html += _malayOptions(q, 'font-size:18px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalayWeather(card, q) {
+  var html = '<div class="question-text">What weather is <b>' + q.prompt + '</b>?</div>';
+  html += '<div style="font-size:50px;margin:10px 0">' + q.emoji + '</div>';
+  html += _malayOptions(q, 'font-size:22px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderMalaySentence(card, q) {
+  var html = '<div class="question-text">Translate this sentence to Malay:</div>';
+  html += '<div style="font-size:22px;margin:10px 0;color:var(--gold)">' + q.prompt + '</div>';
+  if (q.emoji) html += '<div style="font-size:36px;margin:6px 0">' + q.emoji + '</div>';
+  html += _malayOptions(q, 'font-size:16px;line-height:1.3');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+// --- src/data/mega-map.js ---
+// ============================================================
+//  MEGA MAP — Cross-world concept graph
+//  Nodes: 4 worlds, ~63 skills, ~24 phenomena (real-world hooks)
+//  Edges: every skill belongs-to a world; phenomena link to skills
+//  across multiple worlds (the "cross-world" tissue).
+// ============================================================
+
+// Node kinds:
+//   "world"      — top-level domain (math / word / stem / malay)
+//   "skill"      — an individual skill (id matches MATH_TREE etc.)
+//   "phenomenon" — a real-world hook that connects skills
+
+var MEGA_WORLDS = [
+  { id: 'math',  label: 'Number World', emoji: '🔢', colour: '#7bb3ff', desc: 'Counting, shape, money, time.' },
+  { id: 'word',  label: 'Word World',   emoji: '📖', colour: '#ff7b7b', desc: 'Reading, spelling, stories.' },
+  { id: 'stem',  label: 'STEM World',   emoji: '🔬', colour: '#7bffb5', desc: 'Science, coding, discovery.' },
+  { id: 'malay', label: 'Dunia Melayu', emoji: '🌺', colour: '#ff7bdb', desc: 'Bahasa Melayu — words you hear every day.' }
+];
+
+// Phenomena = real-world things that pull skills together across worlds.
+// Each phenomenon names the worlds it touches AND the specific skills.
+var MEGA_PHENOMENA = [
+  {
+    id: 'lemonade-stand', label: 'Lemonade Stand', emoji: '🍋', threadId: 'lemonade',
+    blurb: 'Run a tiny shop. Count coins, make a sign, taste-test, write a price list.',
+    skills: ['count','add','money','sight','sentence','material','salam']
+  },
+  {
+    id: 'plant-garden', label: 'Plant a Garden', emoji: '🌱', threadId: 'garden',
+    blurb: 'Seed to sprout: measure pots, label plants, watch them grow.',
+    skills: ['count','lenmass','grammar','living','earth','warna']
+  },
+  {
+    id: 'build-robot', label: 'Build a Robot', emoji: '🤖', threadId: 'robot',
+    blurb: 'Give a robot instructions. Sequence steps. Find bugs.',
+    skills: ['cseq','cloop','ccond','cdebug','sentence','forces']
+  },
+  {
+    id: 'world-stories', label: 'Stories From Many Homes', emoji: '📚', threadId: 'stories',
+    blurb: 'Bedtime tales from Malay, Chinese, Indian and Western traditions. Spot the kindness inside each.',
+    skills: ['sight','comprehension','vocab','keluarga','salam','ayat']
+  },
+  {
+    id: 'hawker-centre', label: 'Hawker Centre Hunt', emoji: '🍜', threadId: 'hawker',
+    blurb: 'Order lunch in Malay. Count change. Read the price board.',
+    skills: ['salam','makanan','nombor','money','add','vocab']
+  },
+  {
+    id: 'mooncake-festival', label: 'Festivals & Light', emoji: '🏮', threadId: 'stories',
+    blurb: 'Lantern festivals, Hari Raya, Deepavali, Christmas — how families light up the year.',
+    skills: ['warna','keluarga','sight','comprehension','earth']
+  },
+  {
+    id: 'weather-watch', label: 'Weather Watcher', emoji: '🌦️', threadId: 'garden',
+    blurb: 'Track Singapore weather. Hot? Rainy? Plot it on a graph.',
+    skills: ['earth','pgraph','count','hari','warna']
+  },
+  {
+    id: 'body-detective', label: 'Body Detective', emoji: '🩺', threadId: 'garden',
+    blurb: 'Name body parts in two languages. Spot the bones and the heart.',
+    skills: ['body','badan','sight','vocab','count']
+  },
+  {
+    id: 'magnet-mystery', label: 'Magnet Mystery', emoji: '🧲', threadId: 'robot',
+    blurb: 'Test which things a magnet pulls. Why? Materials!',
+    skills: ['forces','material','count','grammar']
+  },
+  {
+    id: 'family-tree', label: 'Family Tree', emoji: '🌳', threadId: 'stories',
+    blurb: 'Draw your family tree. Name each person in Malay and English.',
+    skills: ['keluarga','vocab','grammar','count','sentence']
+  }
+];
+
+// Edge types used for visualisation.
+//   "belongs-to"  — skill in a world
+//   "depends-on"  — skill prerequisite (within a world)
+//   "phenomenon"  — phenomenon to skill (cross-world tissue)
+function buildMegaEdges() {
+  var edges = [];
+
+  // World ↔ skill (belongs-to)
+  function addWorld(world, tree) {
+    if (typeof tree === 'undefined' || tree === null) return;
+    Object.keys(tree).forEach(function(skillId) {
+      edges.push({ from: world, to: skillId, type: 'belongs-to' });
+      var deps = tree[skillId].deps || [];
+      deps.forEach(function(depId) {
+        edges.push({ from: depId, to: skillId, type: 'depends-on' });
+      });
+    });
+  }
+  addWorld('math',  typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : null);
+  addWorld('word',  typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : null);
+  addWorld('stem',  typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : null);
+  addWorld('malay', typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : null);
+
+  // Phenomenon ↔ skills (cross-world)
+  MEGA_PHENOMENA.forEach(function(p) {
+    p.skills.forEach(function(skillId) {
+      edges.push({ from: p.id, to: skillId, type: 'phenomenon' });
+    });
+  });
+
+  return edges;
+}
+
+function getMegaNodes() {
+  var nodes = [];
+
+  MEGA_WORLDS.forEach(function(w) {
+    nodes.push({ id: w.id, kind: 'world', label: w.label, emoji: w.emoji, colour: w.colour, desc: w.desc });
+  });
+
+  function pushSkills(tree, worldId) {
+    if (typeof tree === 'undefined' || tree === null) return;
+    Object.keys(tree).forEach(function(skillId) {
+      var s = tree[skillId];
+      var skillState = (typeof state !== 'undefined' && state.skills && state.skills[skillId]) || {};
+      nodes.push({
+        id:      skillId,
+        kind:    'skill',
+        label:   s.name,
+        emoji:   s.icon,
+        world:   worldId,
+        grade:   s.grade,
+        mastery: skillState.mastery || 0,
+        attempts: skillState.totalAttempts || 0,
+        desc:    s.desc || ''
+      });
+    });
+  }
+  pushSkills(typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : null, 'math');
+  pushSkills(typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : null, 'word');
+  pushSkills(typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : null, 'stem');
+  pushSkills(typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : null, 'malay');
+
+  MEGA_PHENOMENA.forEach(function(p) {
+    var unlocked = (typeof state !== 'undefined' && state.threads && state.threads[p.threadId]) ? !!state.threads[p.threadId].unlocked : false;
+    nodes.push({
+      id:       p.id,
+      kind:     'phenomenon',
+      label:    p.label,
+      emoji:    p.emoji,
+      desc:     p.blurb,
+      threadId: p.threadId,
+      unlocked: unlocked
+    });
+  });
+
+  return nodes;
+}
+
+// Map skillId -> [phenomenon ids]
+function skillToPhenomena(skillId) {
+  return MEGA_PHENOMENA.filter(function(p) {
+    return p.skills.indexOf(skillId) !== -1;
+  });
+}
+
+// Resolve a skillId to its worldType
+function getSkillWorld(skillId) {
+  if (typeof MATH_TREE  !== 'undefined' && MATH_TREE[skillId])  return 'math';
+  if (typeof WORD_TREE  !== 'undefined' && WORD_TREE[skillId])  return 'word';
+  if (typeof STEM_TREE  !== 'undefined' && STEM_TREE[skillId])  return 'stem';
+  if (typeof MALAY_TREE !== 'undefined' && MALAY_TREE[skillId]) return 'malay';
+  return null;
+}
+
+function getWorldColour(worldId) {
+  var w = MEGA_WORLDS.find(function(x) { return x.id === worldId; });
+  return w ? w.colour : '#b57bff';
+}
+
+// Phenomenon unlock: needs at least one engaged skill from at least two worlds
+function getPhenomenonUnlock(phenomenonId) {
+  var p = MEGA_PHENOMENA.find(function(x) { return x.id === phenomenonId; });
+  if (!p) return { unlocked: false, progress: 0, required: 0, worldsTouched: [] };
+
+  var touched = {};
+  var anyEngaged = 0;
+  p.skills.forEach(function(skillId) {
+    var w = getSkillWorld(skillId);
+    var sk = (typeof state !== 'undefined' && state.skills && state.skills[skillId]) || {};
+    if ((sk.totalAttempts || 0) > 0) {
+      anyEngaged++;
+      if (w) touched[w] = true;
+    }
+  });
+  var worldsTouched = Object.keys(touched);
+  return {
+    unlocked: worldsTouched.length >= 2,
+    progress: anyEngaged,
+    required: Math.min(2, p.skills.length),
+    worldsTouched: worldsTouched
+  };
+}
+
+// --- src/data/threads.js ---
+// ============================================================
+//  THREADS — Cross-world story arcs that pull skills together.
+//  Each thread has chapters. Each chapter has a tiny activity
+//  card that opens one or more relevant skills.
+// ============================================================
+
+var THREADS = {
+  lemonade: {
+    id: 'lemonade',
+    title: 'Run a Lemonade Stand',
+    emoji: '🍋',
+    blurb: 'You are the boss! Set up shop, count the coins, get the word out.',
+    colour: '#ffd700',
+    chapters: [
+      {
+        id: 1, title: 'Make the Sign',
+        scene: 'Every shop needs a name. Pick one and write it big!',
+        action: 'Visit Word World → Sight Words to grab the words you need.',
+        skill: 'sight', worldType: 'word'
+      },
+      {
+        id: 2, title: 'Set the Prices',
+        scene: 'How much per cup? 50 cents? $1? Decide and lay out the coins.',
+        action: 'Open Number World → Money to practise Singapore coins.',
+        skill: 'money', worldType: 'math'
+      },
+      {
+        id: 3, title: 'Test the Lemonade',
+        scene: 'Sweet? Sour? Cold? Words are how you tell the customer.',
+        action: 'Try Word World → Grammar Garden to find adjectives.',
+        skill: 'grammar', worldType: 'word'
+      },
+      {
+        id: 4, title: 'Greet Your Customers',
+        scene: '“Selamat petang! Mahu lemonade?” Sales go up when you say hello.',
+        action: 'Try Dunia Melayu → Salam to learn polite Malay openers.',
+        skill: 'salam', worldType: 'malay'
+      },
+      {
+        id: 5, title: 'Count the Day’s Takings',
+        scene: 'End of day. Pile up the coins and add them up.',
+        action: 'Back to Number World → Addition to count the takings.',
+        skill: 'add', worldType: 'math'
+      }
+    ]
+  },
+
+  garden: {
+    id: 'garden',
+    title: 'Plant a Garden',
+    emoji: '🌱',
+    blurb: 'Tiny seeds, big plants. You will measure, label, and look after them.',
+    colour: '#7bffb5',
+    chapters: [
+      {
+        id: 1, title: 'Pick Your Seeds',
+        scene: 'Sunflowers? Basil? Cherry tomatoes? Every seed needs the right pot.',
+        action: 'Open STEM World → Living Things to see what plants need.',
+        skill: 'living', worldType: 'stem'
+      },
+      {
+        id: 2, title: 'Measure the Pot',
+        scene: 'Will the plant fit? Pull out a ruler and measure.',
+        action: 'Try Number World → Length & Mass.',
+        skill: 'lenmass', worldType: 'math'
+      },
+      {
+        id: 3, title: 'Label in Two Languages',
+        scene: 'Make a tag: green plant = pokok hijau. Both languages, one tag.',
+        action: 'Visit Dunia Melayu → Warna for colours in Malay.',
+        skill: 'warna', worldType: 'malay'
+      },
+      {
+        id: 4, title: 'Watch the Weather',
+        scene: 'Rain today or sun? Plants need the right mix.',
+        action: 'Open STEM World → Earth & Weather.',
+        skill: 'earth', worldType: 'stem'
+      },
+      {
+        id: 5, title: 'Write the Plant Diary',
+        scene: 'How tall today? How many leaves? Use describing words.',
+        action: 'Word World → Grammar Garden for adjectives that paint pictures.',
+        skill: 'grammar', worldType: 'word'
+      }
+    ]
+  },
+
+  robot: {
+    id: 'robot',
+    title: 'Build a Robot Helper',
+    emoji: '🤖',
+    blurb: 'Tell the robot what to do — step by step. Find the bugs.',
+    colour: '#7bb3ff',
+    chapters: [
+      {
+        id: 1, title: 'Step-by-Step',
+        scene: 'A robot only does exactly what you say. So say it carefully.',
+        action: 'Open STEM World → Code: Sequences.',
+        skill: 'cseq', worldType: 'stem'
+      },
+      {
+        id: 2, title: 'Repeat Yourself',
+        scene: 'Why say "step" ten times when you can say "ten steps"?',
+        action: 'Open STEM World → Code: Loops.',
+        skill: 'cloop', worldType: 'stem'
+      },
+      {
+        id: 3, title: 'If This, Then That',
+        scene: 'If the floor is wet, dry it. If it is dry, skip. Choices!',
+        action: 'Open STEM World → Code: Conditionals.',
+        skill: 'ccond', worldType: 'stem'
+      },
+      {
+        id: 4, title: 'Push and Pull',
+        scene: 'The robot needs to push a box. How hard? Which way?',
+        action: 'Try STEM World → Forces & Energy.',
+        skill: 'forces', worldType: 'stem'
+      },
+      {
+        id: 5, title: 'Find the Bug',
+        scene: 'The robot is spinning in circles. Something is wrong!',
+        action: 'Open STEM World → Code: Debugging.',
+        skill: 'cdebug', worldType: 'stem'
+      }
+    ]
+  },
+
+  stories: {
+    id: 'stories',
+    title: 'Stories From Many Homes',
+    emoji: '📚',
+    blurb: 'Bedtime tales from all kinds of families. Spot the kind heart inside each one.',
+    colour: '#b57bff',
+    chapters: [
+      {
+        id: 1, title: 'The Clever Mousedeer (Sang Kancil)',
+        scene: 'A tiny Malay mousedeer outwits a crocodile by counting it. Cheeky and clever.',
+        action: 'Dunia Melayu → Haiwan and Nombor — animals and counting.',
+        skill: 'haiwan', worldType: 'malay'
+      },
+      {
+        id: 2, title: 'The Moon Cake Sister',
+        scene: 'A Chinese tale of a sister who jumps to the moon. Look up tonight!',
+        action: 'Word World → Vocabulary Vault for new picture-words.',
+        skill: 'vocab', worldType: 'word'
+      },
+      {
+        id: 3, title: 'Rama and Sita',
+        scene: 'An Indian story about courage, kindness, and a magic bow. Read together.',
+        action: 'Word World → Reading Comprehension.',
+        skill: 'comprehension', worldType: 'word'
+      },
+      {
+        id: 4, title: 'The Star and the Manger',
+        scene: 'A Christmas story of a baby born in a barn, and the gifts brought by strangers.',
+        action: 'Dunia Melayu → Keluarga — family words like ibu and bapa.',
+        skill: 'keluarga', worldType: 'malay'
+      },
+      {
+        id: 5, title: 'Your Own Story',
+        scene: 'Now you. Tell a kindness story from your family.',
+        action: 'Word World → Story Garden, or Dunia Melayu → Ayat Mudah for a Malay version.',
+        skill: 'story', worldType: 'word'
+      }
+    ]
+  },
+
+  hawker: {
+    id: 'hawker',
+    title: 'Hawker Centre Hunt',
+    emoji: '🍜',
+    blurb: 'Lunch on a budget. Order in Malay, count the change, read the board.',
+    colour: '#ff7b7b',
+    chapters: [
+      {
+        id: 1, title: 'Read the Board',
+        scene: 'The price board is full of words. Spot the food words.',
+        action: 'Dunia Melayu → Makanan to learn nasi, ayam, sayur.',
+        skill: 'makanan', worldType: 'malay'
+      },
+      {
+        id: 2, title: 'Order Politely',
+        scene: '"Selamat tengah hari! Boleh saya order nasi ayam, tolong?"',
+        action: 'Dunia Melayu → Salam for the polite words.',
+        skill: 'salam', worldType: 'malay'
+      },
+      {
+        id: 3, title: 'Pay the Auntie',
+        scene: 'Lunch is $4.20. You have a $5 note. How much change?',
+        action: 'Number World → Money.',
+        skill: 'money', worldType: 'math'
+      },
+      {
+        id: 4, title: 'Tell Mum What You Ate',
+        scene: 'Now describe it. Was it sedap (yummy)? Pedas (spicy)?',
+        action: 'Word World → Vocabulary Vault for describing words.',
+        skill: 'vocab', worldType: 'word'
+      }
+    ]
+  }
+};
+
+// Default thread state — { unlocked: bool, currentChapter: number, completedChapters: number[] }
+function getThreadState(threadId) {
+  if (!state.threads) state.threads = {};
+  if (!state.threads[threadId]) {
+    state.threads[threadId] = { unlocked: false, currentChapter: 1, completedChapters: [] };
+  }
+  return state.threads[threadId];
+}
+
+// Try to unlock a thread: requires at least one attempt in 2 different worlds.
+function maybeUnlockThreads() {
+  if (typeof MEGA_PHENOMENA === 'undefined') return;
+  if (!state.threads) state.threads = {};
+
+  // Unique threadIds across all phenomena (1:1 with THREADS keys)
+  Object.keys(THREADS).forEach(function(threadId) {
+    // Reuse phenomenon test if there is a matching phenomenon, else fallback to a worlds-touched check.
+    var related = MEGA_PHENOMENA.filter(function(p) { return p.threadId === threadId; });
+    var worldsTouched = {};
+    related.forEach(function(p) {
+      p.skills.forEach(function(skillId) {
+        var sk = state.skills && state.skills[skillId];
+        if (sk && sk.totalAttempts > 0) {
+          var w = (typeof getSkillWorld === 'function') ? getSkillWorld(skillId) : null;
+          if (w) worldsTouched[w] = true;
+        }
+      });
+    });
+    var st = getThreadState(threadId);
+    var nowUnlocked = Object.keys(worldsTouched).length >= 2;
+    if (nowUnlocked && !st.unlocked) {
+      st.unlocked = true;
+      if (typeof lumiSay === 'function') {
+        var t = THREADS[threadId];
+        lumiSay('New adventure unlocked: ' + t.emoji + ' ' + t.title + '! Find it on the Mega Map.');
+      }
+    }
+  });
+  saveState();
+}
+
+// Mark current chapter complete and advance to next
+function completeThreadChapter(threadId) {
+  var thread = THREADS[threadId];
+  if (!thread) return;
+  var st = getThreadState(threadId);
+  var ch = st.currentChapter;
+  if (st.completedChapters.indexOf(ch) === -1) {
+    st.completedChapters.push(ch);
+  }
+  if (ch < thread.chapters.length) {
+    st.currentChapter = ch + 1;
+  }
+  state.tokens += 5;
+  if (typeof questRecordThreadChapter === 'function') questRecordThreadChapter();
+  saveState();
+}
+
+function getActiveThreadChapter(threadId) {
+  var thread = THREADS[threadId];
+  if (!thread) return null;
+  var st = getThreadState(threadId);
+  var idx = Math.min(st.currentChapter - 1, thread.chapters.length - 1);
+  return thread.chapters[idx];
+}
+
 // --- src/challenges/star-trials.js ---
 // ============================================================
 //  STAR TRIALS — Multi-skill challenge assessments
@@ -12112,16 +13586,16 @@ function closeIslandEvolution() {
 // ============================================================
 
 const LUMI_GREETINGS = [
-  "Let's learn something awesome today!",
-  "Your garden is waiting to grow!",
-  "I believe in you, Anastasia!",
-  "Every challenge makes you stronger!",
-  "Ready for an adventure? Let's go!",
-  "You're getting so smart! Keep it up!",
-  "What shall we explore today?",
-  "The stars are cheering for you!",
-  "Today is going to be amazing!",
-  "Let's make your brain sparkle!"
+  "Hi boss! Where are we adventuring today?",
+  "Your brain is bigger than my whole sparkle. Let's use it!",
+  "I bet you can't beat yesterday. Prove me wrong, Anastasia!",
+  "Knock knock. Who's there? You. Inside Nasworld. Let's go.",
+  "I had three jokes ready. You picked the perfect day to hear them!",
+  "Quick warning: my sparkles are extra dazzly today. Try not to faint.",
+  "Number World? Word World? Or shall we open Dunia Melayu?",
+  "Tiny brain workout = giant brain growth. Pinkie promise.",
+  "You + me + a learning quest = unbeatable combo. Pick a world!",
+  "The garden told me it misses your flowers. Just saying."
 ];
 
 function lumiSpeak() {
@@ -12162,6 +13636,27 @@ function updateHomeUI() {
     const stemAvg = calculateWorldProgress(stemIds);
     document.getElementById('stem-progress').style.width = stemAvg + '%';
   }
+  if (typeof MALAY_TREE !== 'undefined') {
+    const malayIds = Object.keys(MALAY_TREE);
+    const malayAvg = calculateWorldProgress(malayIds);
+    var malayBar = document.getElementById('malay-progress');
+    if (malayBar) malayBar.style.width = malayAvg + '%';
+  }
+
+  // Mega progress: phenomena unlocked / total
+  if (typeof MEGA_PHENOMENA !== 'undefined') {
+    var totalP = MEGA_PHENOMENA.length;
+    var unlockedP = 0;
+    MEGA_PHENOMENA.forEach(function(p) {
+      if (typeof getPhenomenonUnlock === 'function' && getPhenomenonUnlock(p.id).unlocked) unlockedP++;
+    });
+    var megaPct = totalP > 0 ? (unlockedP / totalP) * 100 : 0;
+    var megaBar = document.getElementById('mega-progress');
+    if (megaBar) megaBar.style.width = megaPct + '%';
+  }
+
+  // Refresh thread-unlock state in case new skills crossed worlds since last visit
+  if (typeof maybeUnlockThreads === 'function') maybeUnlockThreads();
 
   const gardenPct = Math.min(100, (state.garden.length / 50) * 100);
   document.getElementById('garden-progress').style.width = gardenPct + '%';
@@ -12319,6 +13814,384 @@ function updateChallengesSection() {
   }
 }
 
+// --- src/ui/mega-map.js ---
+// ============================================================
+//  MEGA MAP UI — Cross-world concept map.
+//  Vanilla SVG; no D3 dependency so it works offline.
+//
+//  Layout: 4 worlds in the four quadrants, each with their skills
+//  fanning out around them. Phenomena ring the outside, with
+//  cross-world links drawn dashed.
+//
+//  Skill brightness scales with mastery. Hover highlights the
+//  network. Click a skill to open its lesson/quiz.
+// ============================================================
+
+(function() {
+
+var VIEW = 1000;          // SVG viewBox size (square)
+var CENTRE = VIEW / 2;
+var WORLD_RADIUS_OUTER = 380;
+var WORLD_RADIUS_INNER = 140;
+var PHENOMENON_RADIUS = 460;
+
+// World anchor positions (NW, NE, SW, SE)
+var WORLD_ANCHORS = {
+  math:  { angle: 225 },
+  word:  { angle: 315 },
+  stem:  { angle: 135 },
+  malay: { angle: 45  }
+};
+
+function polarToXY(cx, cy, r, angleDeg) {
+  var a = (angleDeg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+}
+
+function clampNum(n, lo, hi) {
+  return Math.max(lo, Math.min(hi, n));
+}
+
+// Compute node positions, returned keyed by node id.
+function layoutMega(nodes) {
+  var positions = {};
+
+  // World hubs
+  MEGA_WORLDS.forEach(function(w) {
+    var a = WORLD_ANCHORS[w.id] ? WORLD_ANCHORS[w.id].angle : 0;
+    var p = polarToXY(CENTRE, CENTRE, WORLD_RADIUS_INNER, a);
+    positions[w.id] = p;
+  });
+
+  // Skills fan out around their world hub
+  MEGA_WORLDS.forEach(function(w) {
+    var skills = nodes.filter(function(n) { return n.kind === 'skill' && n.world === w.id; });
+    var anchor = WORLD_ANCHORS[w.id].angle;
+    var halfFan = 50;  // degrees on either side
+    var step = skills.length > 1 ? (2 * halfFan) / (skills.length - 1) : 0;
+    skills.forEach(function(s, i) {
+      var deg = anchor - halfFan + i * step;
+      var jitter = (i % 2 === 0 ? 20 : -10);   // tiered ring
+      var r = WORLD_RADIUS_OUTER - 70 + jitter;
+      r = clampNum(r, WORLD_RADIUS_INNER + 80, WORLD_RADIUS_OUTER);
+      positions[s.id] = polarToXY(CENTRE, CENTRE, r, deg);
+    });
+  });
+
+  // Phenomena scattered on outer ring (cardinal + diagonal)
+  var phenomena = nodes.filter(function(n) { return n.kind === 'phenomenon'; });
+  phenomena.forEach(function(p, i) {
+    var deg = (360 / phenomena.length) * i + 18;
+    positions[p.id] = polarToXY(CENTRE, CENTRE, PHENOMENON_RADIUS, deg);
+  });
+
+  return positions;
+}
+
+function masteryAlpha(mastery) {
+  // Map 0..100 to 0.35..1.0
+  return 0.35 + 0.65 * (mastery / 100);
+}
+
+function escapeAttr(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function buildEdgesSvg(edges, positions, hoveredId) {
+  var svg = '';
+  edges.forEach(function(e) {
+    var p1 = positions[e.from];
+    var p2 = positions[e.to];
+    if (!p1 || !p2) return;
+    var opacity, dash, stroke;
+    if (e.type === 'phenomenon') {
+      opacity = hoveredId && (hoveredId === e.from || hoveredId === e.to) ? 0.9 : 0.18;
+      dash = '6 4';
+      stroke = '#ffd700';
+    } else if (e.type === 'belongs-to') {
+      opacity = 0.32;
+      dash = '0';
+      stroke = '#b57bff';
+    } else { // depends-on
+      opacity = 0.18;
+      dash = '2 4';
+      stroke = '#7bb3ff';
+    }
+    // Quadratic curve through centre for a softer look on cross links
+    if (e.type === 'phenomenon') {
+      var midX = (p1.x + p2.x) / 2;
+      var midY = (p1.y + p2.y) / 2;
+      var dx = p2.x - p1.x;
+      var dy = p2.y - p1.y;
+      var nx = -dy * 0.12;
+      var ny = dx * 0.12;
+      svg += '<path d="M' + p1.x + ' ' + p1.y + ' Q' + (midX + nx) + ' ' + (midY + ny) + ' ' + p2.x + ' ' + p2.y + '" ' +
+             'fill="none" stroke="' + stroke + '" stroke-opacity="' + opacity + '" stroke-width="1.5" stroke-dasharray="' + dash + '"/>';
+    } else {
+      svg += '<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y +
+             '" stroke="' + stroke + '" stroke-opacity="' + opacity + '" stroke-width="1.2" stroke-dasharray="' + dash + '"/>';
+    }
+  });
+  return svg;
+}
+
+function buildNodesSvg(nodes, positions, hoveredId) {
+  var svg = '';
+  nodes.forEach(function(n) {
+    var pos = positions[n.id];
+    if (!pos) return;
+
+    if (n.kind === 'world') {
+      var dim = hoveredId && hoveredId !== n.id ? 0.55 : 1;
+      svg += '<g class="mega-node mega-world" data-id="' + escapeAttr(n.id) + '" style="cursor:pointer;opacity:' + dim + '">';
+      svg += '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="58" fill="' + n.colour + '" fill-opacity="0.22" stroke="' + n.colour + '" stroke-width="2.5"/>';
+      svg += '<text x="' + pos.x + '" y="' + (pos.y - 4) + '" text-anchor="middle" font-size="34">' + n.emoji + '</text>';
+      svg += '<text x="' + pos.x + '" y="' + (pos.y + 26) + '" text-anchor="middle" font-size="13" fill="#fff" font-weight="700">' + escapeAttr(n.label) + '</text>';
+      svg += '</g>';
+    } else if (n.kind === 'skill') {
+      var col = getWorldColour(n.world);
+      var alpha = masteryAlpha(n.mastery || 0);
+      var r = 22 + (n.mastery || 0) * 0.07;
+      var dim2 = hoveredId && hoveredId !== n.id && (typeof megaEdgeMap === 'undefined' || !isLinked(hoveredId, n.id)) ? 0.4 : 1;
+      svg += '<g class="mega-node mega-skill" data-id="' + escapeAttr(n.id) + '" data-world="' + escapeAttr(n.world) + '" style="cursor:pointer;opacity:' + dim2 + '">';
+      svg += '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="' + r + '" fill="' + col + '" fill-opacity="' + alpha + '" stroke="' + col + '" stroke-width="2"/>';
+      svg += '<text x="' + pos.x + '" y="' + (pos.y + 6) + '" text-anchor="middle" font-size="18">' + n.emoji + '</text>';
+      if (n.mastery >= 80) {
+        svg += '<text x="' + (pos.x + 18) + '" y="' + (pos.y - 16) + '" font-size="14">⭐</text>';
+      }
+      svg += '</g>';
+    } else if (n.kind === 'phenomenon') {
+      var unlocked = !!n.unlocked;
+      var pcol = unlocked ? '#ffd700' : '#7a6b9a';
+      var alpha2 = unlocked ? 0.9 : 0.4;
+      var dim3 = hoveredId && hoveredId !== n.id && !isLinked(hoveredId, n.id) ? 0.4 : 1;
+      svg += '<g class="mega-node mega-phen" data-id="' + escapeAttr(n.id) + '" data-thread="' + escapeAttr(n.threadId || '') + '" style="cursor:pointer;opacity:' + dim3 + '">';
+      svg += '<circle cx="' + pos.x + '" cy="' + pos.y + '" r="26" fill="' + pcol + '" fill-opacity="' + (alpha2 * 0.3) + '" stroke="' + pcol + '" stroke-width="2" stroke-dasharray="' + (unlocked ? '0' : '3 3') + '"/>';
+      svg += '<text x="' + pos.x + '" y="' + (pos.y + 8) + '" text-anchor="middle" font-size="22">' + n.emoji + '</text>';
+      svg += '<text x="' + pos.x + '" y="' + (pos.y + 48) + '" text-anchor="middle" font-size="11" fill="' + (unlocked ? '#fff' : '#b8a9d4') + '" font-weight="600">' + escapeAttr(n.label) + '</text>';
+      svg += '</g>';
+    }
+  });
+  return svg;
+}
+
+// === Edge index for hover-highlight ===
+var megaEdgeMap = {};   // id -> Set of connected ids
+
+function buildEdgeIndex(edges) {
+  megaEdgeMap = {};
+  edges.forEach(function(e) {
+    if (!megaEdgeMap[e.from]) megaEdgeMap[e.from] = {};
+    if (!megaEdgeMap[e.to]) megaEdgeMap[e.to] = {};
+    megaEdgeMap[e.from][e.to] = true;
+    megaEdgeMap[e.to][e.from] = true;
+  });
+}
+
+function isLinked(a, b) {
+  if (!a || !b) return false;
+  if (a === b) return true;
+  return !!(megaEdgeMap[a] && megaEdgeMap[a][b]);
+}
+
+// ============================================================
+//  Public: render the mega map screen
+// ============================================================
+var _hoveredNodeId = null;
+
+function renderMegaMap() {
+  var container = document.getElementById('mega-map-content');
+  if (!container) return;
+
+  var nodes = getMegaNodes();
+  var edges = buildMegaEdges();
+  buildEdgeIndex(edges);
+  var positions = layoutMega(nodes);
+
+  // Stats
+  var skillNodes = nodes.filter(function(n) { return n.kind === 'skill'; });
+  var mastered = skillNodes.filter(function(n) { return n.mastery >= 80; }).length;
+  var attempted = skillNodes.filter(function(n) { return n.attempts > 0; }).length;
+  var threadsUnlocked = nodes.filter(function(n) { return n.kind === 'phenomenon' && n.unlocked; }).length;
+
+  var legendHtml = '<div class="mega-legend">';
+  MEGA_WORLDS.forEach(function(w) {
+    legendHtml += '<span class="mega-legend-chip" style="background:' + w.colour + '22;border-color:' + w.colour + '88;color:' + w.colour + '">' + w.emoji + ' ' + w.label + '</span>';
+  });
+  legendHtml += '<span class="mega-legend-chip" style="background:#ffd70022;border-color:#ffd70088;color:#ffd700">⭐ Real-World Adventure</span>';
+  legendHtml += '</div>';
+
+  var statsHtml = '<div class="mega-stats">' +
+    '<div class="mega-stat"><b>' + attempted + '</b>/' + skillNodes.length + ' explored</div>' +
+    '<div class="mega-stat"><b>' + mastered + '</b> mastered ⭐</div>' +
+    '<div class="mega-stat"><b>' + threadsUnlocked + '</b>/' + nodes.filter(function(n) { return n.kind === 'phenomenon'; }).length + ' adventures unlocked</div>' +
+    '</div>';
+
+  var svg = '<svg id="mega-map-svg" viewBox="0 0 ' + VIEW + ' ' + VIEW + '" xmlns="http://www.w3.org/2000/svg">';
+  svg += '<defs><radialGradient id="megaCentreGlow"><stop offset="0%" stop-color="#ffd700" stop-opacity="0.4"/><stop offset="60%" stop-color="#b57bff" stop-opacity="0.1"/><stop offset="100%" stop-color="#0f0b2e" stop-opacity="0"/></radialGradient></defs>';
+  svg += '<circle cx="' + CENTRE + '" cy="' + CENTRE + '" r="' + (PHENOMENON_RADIUS + 30) + '" fill="url(#megaCentreGlow)"/>';
+  svg += '<circle cx="' + CENTRE + '" cy="' + CENTRE + '" r="50" fill="#251b5e" stroke="#ffd700" stroke-width="2"/>';
+  svg += '<text x="' + CENTRE + '" y="' + (CENTRE - 4) + '" text-anchor="middle" font-size="26">✨</text>';
+  svg += '<text x="' + CENTRE + '" y="' + (CENTRE + 20) + '" text-anchor="middle" font-size="11" fill="#ffd700" font-weight="700">Nasworld</text>';
+  svg += buildEdgesSvg(edges, positions, _hoveredNodeId);
+  svg += buildNodesSvg(nodes, positions, _hoveredNodeId);
+  svg += '</svg>';
+
+  var detailHtml = '<div id="mega-detail" class="mega-detail">Hover a node to see what it connects to. Tap a skill to play, or tap a glowing adventure to start a real-world quest.</div>';
+
+  container.innerHTML = legendHtml + statsHtml + '<div class="mega-canvas">' + svg + '</div>' + detailHtml;
+
+  // Wire up interactions
+  var svgEl = document.getElementById('mega-map-svg');
+  if (!svgEl) return;
+
+  var nodeEls = svgEl.querySelectorAll('.mega-node');
+  nodeEls.forEach(function(el) {
+    el.addEventListener('mouseenter', function() {
+      _hoveredNodeId = el.dataset.id;
+      // Light re-render of just the detail panel — cheaper than full re-render
+      var node = nodes.find(function(n) { return n.id === _hoveredNodeId; });
+      if (node) showMegaDetail(node);
+      // Re-render once with new hover state
+      renderMegaMap();
+    });
+    el.addEventListener('mouseleave', function() {
+      _hoveredNodeId = null;
+    });
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var id = el.dataset.id;
+      var node = nodes.find(function(n) { return n.id === id; });
+      if (!node) return;
+
+      if (node.kind === 'world') {
+        var worldScreen = { math: 'math-world', word: 'word-world', stem: 'stem-world', malay: 'malay-world' }[node.id];
+        if (worldScreen && typeof showScreen === 'function') showScreen(worldScreen);
+      } else if (node.kind === 'skill') {
+        var w = getSkillWorld(node.id);
+        if (w && typeof openSkillView === 'function') openSkillView(node.id, w);
+      } else if (node.kind === 'phenomenon') {
+        var threadId = node.threadId || el.dataset.thread;
+        if (threadId && typeof openThreadView === 'function') openThreadView(threadId);
+      }
+    });
+  });
+}
+
+function showMegaDetail(node) {
+  var d = document.getElementById('mega-detail');
+  if (!d) return;
+  if (node.kind === 'world') {
+    d.innerHTML = '<b style="color:' + node.colour + '">' + node.emoji + ' ' + node.label + '</b><br><span>' + node.desc + '</span>';
+  } else if (node.kind === 'skill') {
+    var related = skillToPhenomena(node.id);
+    var relList = related.map(function(p) { return p.emoji + ' ' + p.label; }).join(' · ');
+    var mast = '<b style="color:#ffd700">' + (node.mastery || 0) + '% mastery</b>';
+    d.innerHTML = '<b>' + node.emoji + ' ' + node.label + '</b> &nbsp; ' + mast +
+      '<br><span>' + node.desc + '</span>' +
+      (relList ? '<br><span style="color:#ffd700">Used in: ' + relList + '</span>' : '');
+  } else if (node.kind === 'phenomenon') {
+    var status = node.unlocked ? '<b style="color:#ffd700">Unlocked!</b>' : '<b style="color:#b8a9d4">Touch skills in 2 worlds to unlock</b>';
+    d.innerHTML = '<b>' + node.emoji + ' ' + node.label + '</b> &nbsp; ' + status + '<br><span>' + node.desc + '</span>';
+  }
+}
+
+// ============================================================
+//  Thread view — opens a chapter-by-chapter real-world story
+// ============================================================
+
+function openThreadView(threadId) {
+  var thread = THREADS[threadId];
+  if (!thread) return;
+
+  var screen = document.getElementById('screen-thread');
+  var content = document.getElementById('thread-content');
+  if (!screen || !content) return;
+
+  var st = getThreadState(threadId);
+  if (!st.unlocked) {
+    content.innerHTML = '<div class="thread-locked">' +
+      '<div style="font-size:54px">🔒</div>' +
+      '<h3>' + thread.emoji + ' ' + thread.title + '</h3>' +
+      '<p>' + thread.blurb + '</p>' +
+      '<p style="color:#b8a9d4;margin-top:14px">Try a skill in any two worlds to unlock this adventure.</p>' +
+      '<button class="lesson-btn" onclick="showScreen(\'mega-map\')">Back to Map</button>' +
+      '</div>';
+    if (typeof showScreen === 'function') showScreen('thread');
+    return;
+  }
+
+  var html = '<button class="back-btn" onclick="showScreen(\'mega-map\')">← Back to Map</button>';
+  html += '<div class="thread-hero" style="border-color:' + thread.colour + '">';
+  html += '<div class="thread-hero-emoji">' + thread.emoji + '</div>';
+  html += '<h2>' + thread.title + '</h2>';
+  html += '<p>' + thread.blurb + '</p>';
+  html += '</div>';
+
+  html += '<div class="thread-chapters">';
+  thread.chapters.forEach(function(ch) {
+    var done = st.completedChapters.indexOf(ch.id) !== -1;
+    var current = ch.id === st.currentChapter && !done;
+    var locked = ch.id > st.currentChapter;
+    var stateClass = done ? 'done' : (current ? 'current' : (locked ? 'locked' : ''));
+    html += '<div class="thread-chapter ' + stateClass + '">';
+    html += '<div class="thread-chapter-num">' + (done ? '✓' : ch.id) + '</div>';
+    html += '<div class="thread-chapter-body">';
+    html += '<div class="thread-chapter-title">' + ch.title + '</div>';
+    html += '<div class="thread-chapter-scene">' + ch.scene + '</div>';
+    html += '<div class="thread-chapter-action">' + ch.action + '</div>';
+    if (!locked) {
+      html += '<div class="thread-chapter-buttons">';
+      html += '<button class="lesson-btn" onclick="threadGoToSkill(\'' + ch.skill + '\',\'' + ch.worldType + '\')">Open ' + (typeof getSkillName === 'function' ? getSkillName(ch.skill) : ch.skill) + ' →</button>';
+      if (current) {
+        html += '<button class="lesson-btn lesson-btn-done" onclick="threadMarkChapterDone(\'' + threadId + '\')">Mark Chapter Done +5⭐</button>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  content.innerHTML = html;
+  if (typeof showScreen === 'function') showScreen('thread');
+}
+
+function threadGoToSkill(skillId, worldType) {
+  if (typeof openSkillView === 'function') openSkillView(skillId, worldType);
+}
+
+function threadMarkChapterDone(threadId) {
+  if (typeof completeThreadChapter === 'function') completeThreadChapter(threadId);
+  if (typeof playSound === 'function') playSound('levelup');
+  if (typeof spawnParticles === 'function') {
+    spawnParticles(window.innerWidth / 2, window.innerHeight / 3, 8, '⭐');
+  }
+  openThreadView(threadId);
+}
+
+function getSkillName(skillId) {
+  var trees = [
+    typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {},
+    typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {},
+    typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {},
+    typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}
+  ];
+  for (var i = 0; i < trees.length; i++) {
+    if (trees[i][skillId]) return trees[i][skillId].name;
+  }
+  return skillId;
+}
+
+// Expose to global so navigation/onclick handlers can reach them
+window.renderMegaMap = renderMegaMap;
+window.openThreadView = openThreadView;
+window.threadGoToSkill = threadGoToSkill;
+window.threadMarkChapterDone = threadMarkChapterDone;
+window.getSkillName = getSkillName;
+
+})();
+
 // --- src/ui/navigation.js ---
 // ============================================================
 //  NAVIGATION — Screen management, game engine, init
@@ -12356,6 +14229,12 @@ function showScreen(screenId) {
   if (screenId === 'stem-world' && typeof STEM_TREE !== 'undefined') {
     renderActivityCards(STEM_TREE, 'stem-activities', 'stem');
   }
+  if (screenId === 'malay-world' && typeof MALAY_TREE !== 'undefined') {
+    renderActivityCards(MALAY_TREE, 'malay-activities', 'malay');
+  }
+  if (screenId === 'mega-map' && typeof renderMegaMap === 'function') {
+    renderMegaMap();
+  }
   if (screenId === 'garden') {
     if (typeof renderGardenIsland === 'function') renderGardenIsland();
     renderGarden();
@@ -12373,9 +14252,10 @@ function openSkillView(skillId, worldType) {
 
   // Look up skill name/icon
   var allTrees = Object.assign({},
-    typeof MATH_TREE !== 'undefined' ? MATH_TREE : {},
-    typeof WORD_TREE !== 'undefined' ? WORD_TREE : {},
-    typeof STEM_TREE !== 'undefined' ? STEM_TREE : {}
+    typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {},
+    typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {},
+    typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {},
+    typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}
   );
   var skill = allTrees[skillId];
   var skillName = skill ? skill.icon + ' ' + skill.name : skillId;
@@ -12393,6 +14273,9 @@ function openSkillView(skillId, worldType) {
   } else if (worldType === 'stem') {
     if (typeof getStemLesson === 'function') lesson = getStemLesson(skillId);
     if (typeof getStemFlashcards === 'function') flashcards = getStemFlashcards(skillId);
+  } else if (worldType === 'malay') {
+    if (typeof getMalayLesson === 'function') lesson = getMalayLesson(skillId);
+    if (typeof getMalayFlashcards === 'function') flashcards = getMalayFlashcards(skillId);
   }
 
   var hasLesson = !!lesson;
@@ -12447,7 +14330,7 @@ function openSkillView(skillId, worldType) {
 
   // Back button
   document.getElementById('skill-view-back').onclick = function() {
-    var worldMap = { math: 'math-world', word: 'word-world', stem: 'stem-world' };
+    var worldMap = { math: 'math-world', word: 'word-world', stem: 'stem-world', malay: 'malay-world' };
     showScreen(worldMap[worldType] || 'home');
   };
 
@@ -12532,9 +14415,10 @@ function startGame(skillId, worldType) {
 
   // Set title
   const allTrees = Object.assign({},
-    typeof MATH_TREE !== 'undefined' ? MATH_TREE : {},
-    typeof WORD_TREE !== 'undefined' ? WORD_TREE : {},
-    typeof STEM_TREE !== 'undefined' ? STEM_TREE : {}
+    typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {},
+    typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {},
+    typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {},
+    typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}
   );
   const skill = allTrees[skillId];
   document.getElementById('game-title').textContent = skill ? skill.icon + ' ' + skill.name : skillId;
@@ -12548,7 +14432,8 @@ function exitGame() {
   const worldMap = {
     math: 'math-world',
     word: 'word-world',
-    stem: 'stem-world'
+    stem: 'stem-world',
+    malay: 'malay-world'
   };
   showScreen(worldMap[currentGame.worldType] || 'home');
   saveState();
@@ -12593,6 +14478,7 @@ function renderCurrentQuestion() {
   if (typeof renderWordQuestion === 'function' && renderWordQuestion(card, q)) return;
   if (typeof renderScienceQuestion === 'function' && renderScienceQuestion(card, q)) return;
   if (typeof renderCodeQuestion === 'function' && renderCodeQuestion(card, q)) return;
+  if (typeof renderMalayQuestion === 'function' && renderMalayQuestion(card, q)) return;
 
   // Fallback generic MCQ
   renderGenericMCQ(card, q);
@@ -12703,6 +14589,9 @@ function generateQuestion(skillId, worldType) {
       const codeResult = generateCodeQuestion(skillId);
       if (codeResult) return codeResult;
     }
+  }
+  if (worldType === 'malay' && typeof generateMalayQuestion === 'function') {
+    return generateMalayQuestion(skillId);
   }
   // Fallback
   return { type: 'generic', text: 'Coming soon!', options: ['OK'], answer: 'OK' };

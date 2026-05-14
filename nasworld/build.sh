@@ -51,6 +51,13 @@ SCRIPTS=(
   "src/stem/science-sim.js"
   "src/stem/code-engine.js"
   "src/stem/code-levels.js"
+  "src/malay/malay-tree.js"
+  "src/malay/malay-data.js"
+  "src/malay/malay-lessons.js"
+  "src/malay/malay-gen.js"
+  "src/malay/malay-render.js"
+  "src/data/mega-map.js"
+  "src/data/threads.js"
   "src/challenges/star-trials.js"
   "src/challenges/escape-rooms.js"
   "src/core/interactive-sims.js"
@@ -60,6 +67,7 @@ SCRIPTS=(
   "src/ui/garden.js"
   "src/ui/garden-island.js"
   "src/ui/home.js"
+  "src/ui/mega-map.js"
   "src/ui/navigation.js"
 )
 

@@ -159,121 +159,153 @@ function lumiReactTo(event, data) {
 
 var LUMI_REACTIONS = {
   correct: [
-    "That's right! You're so clever!",
-    "YES! Your brain is amazing!",
-    "Nailed it! Keep going!",
-    "Woohoo! I knew you could do it!",
-    "Brilliant thinking, Anastasia!"
+    "Yes! Lock that one in.",
+    "You. Just. Solved. That. Show off.",
+    "Bingo. Next one, please.",
+    "Your brain just flexed. I felt it from here.",
+    "Brilliant. Slightly suspicious how easy you made that look.",
+    "Tepat sekali! (That's Malay for spot on.)"
   ],
   streak: [
-    "You're on a ROLL! " + state.streak + " in a row!",
-    "Wow, nothing can stop you!",
-    "Your brain is ON FIRE today!",
-    "Look at that streak! Incredible!"
+    "Five in a row. I'm officially impressed and slightly nervous.",
+    "On fire. Should I get the fire extinguisher?",
+    "Look at you, casually being a genius again.",
+    "Streak alert! Streak alert! This is not a drill!"
   ],
   bigStreak: [
-    "TEN IN A ROW?! You're a LEGEND!",
-    "I can barely keep up with you!",
-    "Stop — you're making me dizzy with excitement!",
-    "This is the best streak I've EVER seen!"
+    "Ten in a row?! I'm filing for early retirement, you've got this.",
+    "I asked you for clever, not LEGENDARY. Show off.",
+    "My sparkles need a lie-down. You broke them.",
+    "I have run out of compliments. Please slow down."
   ],
   wrong: [
-    "Hmm, not quite — but that's how brains grow!",
-    "Mistakes are brain food! Let's try another!",
-    "Oops! But I love that you tried!",
-    "Your brain just got a tiny bit stronger!",
-    "That's okay! Even stars wobble sometimes!"
+    "Close-ish! Brain wrinkles forming as we speak.",
+    "Wrong answer, right effort. Try again, princess.",
+    "Plot twist. Let's reroute!",
+    "I would have got that one wrong too, if I had a brain. But you have one. Try again!",
+    "Oops! That counts as a free hint for next time."
   ],
   levelUp: [
-    "OH WOW! You reached {level}! I'm so proud!",
-    "LEVEL UP! {level}! You're shining brighter!",
-    "{level}! This calls for a celebration!"
+    "{level}! Roll out the sparkle carpet!",
+    "Levelled up to {level}! You unlocked extra cleverness.",
+    "{level}! Quick, take a bow — I'm clapping with both sparkles."
   ],
   quizAmazing: [
-    "INCREDIBLE! That was almost perfect!",
-    "I am SO proud of you right now!",
-    "You absolutely CRUSHED that quiz!",
-    "Is there anything you CAN'T do?!"
+    "That was suspicious. Are you the actual quiz writer?",
+    "Near perfect. I have no notes. Just admiration.",
+    "Sliced it. Diced it. Plated it. Chef's kiss.",
+    "I'm putting that quiz in a frame. Where would you like it hung?"
   ],
   quizGood: [
-    "Great job! You really know your stuff!",
-    "Solid work! Your brain is getting stronger!",
-    "Nice! You're improving every time!"
+    "Solid run. Brain is officially in good shape today.",
+    "Nice work. Two more like that and I'll bake you a (virtual) cake.",
+    "You did the thing! And you did it well. Onwards."
   ],
   quizTryAgain: [
-    "That was tough! But every try makes you better!",
-    "Don't worry — even I get tricky ones wrong!",
-    "Practice makes progress! Want to try again?"
+    "That one fought back. Tough questions, tougher Anastasia.",
+    "We'll get it next time. Brain warm-up, that's all that was.",
+    "Even the smartest stars miss a few. Try again or pick something fresh?"
   ],
   lessonDone: [
-    "You just learned something new! How cool is that?",
-    "Another lesson done! Your brain is growing!",
-    "Look at you, learning like a superstar!",
-    "Knowledge unlocked! I love watching you learn!"
+    "Lesson absorbed. Brain visibly bigger. Probably.",
+    "Done! Now go show off this fact at dinner.",
+    "Knowledge unlocked. Achievement: Slightly Wiser Anastasia.",
+    "Plug that in your memory bank. Earning interest already."
   ],
   achievement: [
-    "ACHIEVEMENT UNLOCKED: {name}! You're amazing!",
-    "Wow! You earned {name}! I'm so impressed!",
-    "Look what you did! {name}! Incredible!"
+    "{name}! Stick it on the wall. Loudly.",
+    "Achievement unlocked: {name}. Pure show-off energy.",
+    "You earned {name}. That's brag-worthy. Brag away."
   ],
   earlyMorning: [
-    "*yawn* You're up early, Anastasia! Let's learn while the world sleeps!",
-    "Wow, you're an early bird! I'm still waking up...",
-    "Good moooorning! *stretches* Ready for some brain warmups?"
+    "Up before me? Bold. Pass the imaginary coffee.",
+    "Sunrise scholar mode. I respect it.",
+    "Brain says morning, eyes say maybe. Let's start gentle."
   ],
   morning: [
-    "Good morning, Anastasia! Your brain is fresh and ready!",
-    "Rise and shine! What shall we learn today?",
-    "Morning! I've been waiting for you! Let's go!",
-    "Hello sunshine! Ready for an adventure?"
+    "Good morning, brain boss. Pick a world.",
+    "Selamat pagi, Anastasia! Let's see what trouble we make today.",
+    "Morning! Brain is freshly defragmented. Use it.",
+    "Hello sunshine. Today's mission: smarter than yesterday."
   ],
   afternoon: [
-    "Good afternoon! Perfect time for some learning!",
-    "Hey Anastasia! How about a brain workout?",
-    "Afternoon brain boost! Let's do this!",
-    "Welcome back! Your garden missed you!"
+    "Selamat petang! After-school brain unlocked.",
+    "Afternoon power-up time. Quick session?",
+    "Brain naps are for amateurs. Quizzing time.",
+    "Hi! Garden still missing flowers. Just a friendly reminder."
   ],
   evening: [
-    "Good evening! Time for some relaxed learning!",
-    "Evening study session! My favourite time!",
-    "Hi Anastasia! Let's end the day with some fun learning!",
-    "The stars are coming out — just like YOUR star potential!"
+    "Evening session, my favourite kind. Cosy clever time.",
+    "Selamat malam! One quick quest before bed?",
+    "Brain works extra well after dinner. Science. (Probably.)",
+    "Stars are out. Yours is the brightest. Obviously."
   ],
   lateNight: [
-    "*yawn* Isn't it past your bedtime? Just a quick session then!",
-    "A night owl! Just like me! Let's do something fun!",
-    "Shh... quiet learning time! Our little secret!"
+    "Late night brain? Five minutes max, then bed. Deal?",
+    "Past bedtime detective at work. I'll keep your secret.",
+    "Tiny session, then sleep. Memory consolidates while you snooze!"
   ],
   comeBack: [
-    "You're BACK! I missed you so much!",
-    "Anastasia! It's been a while — I saved your place!",
-    "Welcome back! Your garden has been waiting!",
-    "I'm so happy to see you again! Let's pick up where we left off!"
+    "You're back! The garden looks slightly less sad already.",
+    "I almost emailed you. (I can't email. But I almost.)",
+    "There you are! Saved your spot. Mostly.",
+    "Missed you. Three jokes saved. Possibly four."
   ],
   firstToday: [
-    "Welcome back today! Ready for an awesome session?",
-    "Hey! Great to see you again today!",
-    "Back for more? I love your dedication!"
+    "Round two of the day! Showing off now, are we?",
+    "Back again? Officially a learning machine.",
+    "Twice in one day. Brain agrees, this is excellent."
   ],
   questDone: [
-    "QUEST COMPLETE! You're on a mission today!",
-    "Done already?! You're AMAZING!",
-    "Quest conquered! What's next, champion?"
+    "Quest done! Stars rain incoming. Brace.",
+    "Done. Done. Done. Take the win.",
+    "Quest squished. Pick another?"
   ],
   gardenGrow: [
-    "A new flower! Your garden is getting so beautiful!",
-    "Look! Your garden is growing! Just like your brain!",
-    "Another bloom! Keep it up — paradise incoming!"
+    "Fresh flower! The garden gasps in delight.",
+    "Another bloom. Your garden could rival a museum.",
+    "New flower! I'm watering my eyes in pride."
   ]
 };
 
+// Lumi's joke bank — pulled on taps and idle moments. Cheeky, P1-friendly.
+var LUMI_JOKES = [
+  "Why did the math book look sad? Too many problems!",
+  "What did zero say to eight? Nice belt!",
+  "What do you call a cat who's good at sums? A purr-fect mathematician!",
+  "Why did the cookie go to the doctor? It was feeling crummy!",
+  "Knock knock. Who's there? Lettuce. Lettuce who? Lettuce in, it's raining!",
+  "Why don't eggs tell jokes? They'd crack up!",
+  "What did the kucing say at the laptop? I'm watching the mouse!",
+  "What's brown and sticky? A stick!",
+  "Why did the banana go to the doctor? It wasn't peeling well!",
+  "What do you call a fish wearing a crown? Your Royal Hi-ness!",
+  "Why did Tigger look in the toilet? Looking for Pooh!",
+  "What's a vampire's favourite fruit? A neck-tarine!",
+  "Where do hamburgers dance? At the meat-ball!",
+  "Why did the teddy say no to dessert? She was stuffed!",
+  "What did one ocean say to the other? Nothing, they just waved!"
+];
+
+// Random cheeky banter for idle moments and easter eggs
+var LUMI_BANTER = [
+  "Psst. Did you know nasi means rice? Now you do. You're welcome.",
+  "Fun fact: my sparkles run on correct answers. Hint hint.",
+  "If you whisper 'Selamat pagi' to a teacher tomorrow they will love you.",
+  "Sang Kancil the mousedeer outsmarted a crocodile by counting. Counting is power!",
+  "Brain rule: it's okay to be wrong. It's not okay to be bored.",
+  "Singapore weather only has two settings: panas (hot) and hujan (rain). Discuss.",
+  "Did you brush your teeth today? Asking for a friend. The friend is your mouth.",
+  "Bonus level unlocks when you make me laugh. (Joking. Or am I?)"
+];
+
 // === LUMI TAP INTERACTIONS ===
 var LUMI_TAP_RESPONSES = [
-  { maxTaps: 1, responses: ["Hi! Tap me again!", "Hey there! What's up?", "Let's learn something cool!"] },
-  { maxTaps: 3, responses: ["Hehe, that tickles!", "Again! Again!", "You're funny!"] },
-  { maxTaps: 5, responses: ["Okay okay, I'm awake!", "So many taps! My sparkles are going crazy!", "You really like tapping me, huh?"] },
-  { maxTaps: 8, responses: ["I'm getting dizzy!", "Please... my sparkles need a break!", "Are you trying to break my tap record?!"] },
-  { maxTaps: 15, responses: ["OKAY that's a LOT of taps!", "My sparkle meter is OVERLOADING!", "You've discovered my secret tickle spot!"] }
+  { maxTaps: 1, responses: ["Hi! Was that a poke?", "Boop yourself back!", "Want a joke? Tap me twice.", "Hello hello!"] },
+  { maxTaps: 3, responses: ["Stop, that tickles! (Don't stop.)", "Joke incoming. Brace yourself.", "Three taps = secret handshake unlocked.", "Hey, save some taps for later!"] },
+  { maxTaps: 5, responses: ["My sparkles are spinning!", "Tap five complete. Energy: 110 percent.", "Five taps? You like me, you really like me!", "Okay okay, I'm awake. Mostly."] },
+  { maxTaps: 8, responses: ["Calling tap-tap emergency!", "I might levitate if you keep going.", "Eight! Eight! I have a headache and a star bridge to build!", "Are you trying to break me, princess?"] },
+  { maxTaps: 15, responses: ["FIFTEEN. I'm officially tickled to bits.", "You found my favourite tap spot. Achievement coming.", "I demand a snack break.", "If I had hands I would high-five you. Then beg you to stop."] }
 ];
 
 function lumiTapped() {
@@ -292,7 +324,13 @@ function lumiTapped() {
     }
   }
 
-  var msg = pick(tier.responses);
+  // Every 3rd tap from tap 4 onwards, drop a joke or banter instead.
+  var msg;
+  if (lumiState.tapCount >= 4 && lumiState.tapCount % 3 === 0) {
+    msg = pick(Math.random() < 0.6 ? LUMI_JOKES : LUMI_BANTER);
+  } else {
+    msg = pick(tier.responses);
+  }
   setLumiMood(lumiState.tapCount > 8 ? 'excited' : 'happy');
   lumiSay(msg);
   if (typeof playSound === 'function') playSound('click');
@@ -309,51 +347,49 @@ function lumiTapped() {
 var LUMI_STORY = [
   {
     chapter: 1,
-    title: "The Broken Star Bridge",
+    title: "Lumi's Tiny Disaster",
     unlockFlowers: 0,
-    intro: "Anastasia, I need your help! The Star Bridge that connects all the learning worlds is broken! " +
-           "Long ago, it shimmered with the light of knowledge... but its stars scattered across the worlds. " +
-           "Every time you learn something new, you help me find a star to rebuild it!",
-    milestone: "You found the first star! The bridge glimmers faintly...",
+    intro: "Anastasia, slight problem. The Star Bridge that ties Number, Word, STEM and Dunia Melayu together... fell apart. " +
+           "Stars scattered everywhere. Good news: every time you learn something, one star floats back. " +
+           "Help me fix the bridge? You are cheaper than a contractor.",
+    milestone: "First star recovered. Bridge glimmers like a sleepy fairy light.",
     icon: "\uD83C\uDF09"
   },
   {
     chapter: 2,
-    title: "The Number Stars",
+    title: "Number Stars Switch On",
     unlockFlowers: 5,
-    intro: "Look! The Number World stars are beginning to glow! " +
-           "The bridge needs stars from all three worlds to be complete. " +
-           "Keep learning in Number World and the math stars will light the way!",
-    milestone: "The Number World section of the bridge is shining!",
+    intro: "Counting, adding, sharing \u2014 every math puzzle wakes up a Number Star. " +
+           "Keep going! The bridge needs maths to hold itself up. Literally. It is all geometry.",
+    milestone: "Number World section glowing. Architects impressed.",
     icon: "\uD83D\uDD22"
   },
   {
     chapter: 3,
-    title: "The Word Stars",
+    title: "Word Stars Whisper",
     unlockFlowers: 12,
-    intro: "The Word Stars are calling! Every word you learn, every story you read, " +
-           "sends a new light up to the bridge. I can almost see the words dancing across it!",
-    milestone: "Beautiful! The Word Stars illuminate the bridge with stories!",
+    intro: "Words make the bridge magical. Every sight word, every sentence, every silly story lights it up like a fairy lantern. " +
+           "Read me one, would you? I do enjoy a bedtime story.",
+    milestone: "Word Stars singing in soft, story-shaped lights.",
     icon: "\uD83D\uDCDA"
   },
   {
     chapter: 4,
-    title: "The STEM Stars",
+    title: "STEM Stars Spark",
     unlockFlowers: 20,
-    intro: "We're getting close! The STEM Stars are the trickiest — they need experiments " +
-           "and discoveries to shine. But I believe in you, Anastasia. You're the brightest " +
-           "learner I've ever met!",
-    milestone: "The STEM Stars flash like lightning! The bridge is almost complete!",
+    intro: "Science and code are the engine. Live wires, tiny gears, robot toes. " +
+           "You poke at them, they spark. You explain how plants grow, they hum.",
+    milestone: "STEM Stars zinging electric blue. The bridge purrs.",
     icon: "\uD83D\uDD2C"
   },
   {
     chapter: 5,
-    title: "The Complete Star Bridge",
+    title: "Dunia Melayu Lights Up",
     unlockFlowers: 30,
-    intro: "ANASTASIA! LOOK! The Star Bridge is COMPLETE! All three worlds are connected " +
-           "by YOUR knowledge and YOUR hard work! Every lesson, every quiz, every discovery " +
-           "— they all led to this moment. I am SO proud of you!",
-    milestone: "The Star Bridge shines forever, powered by everything you've learned!",
+    intro: "Selamat datang, master builder. The Malay stars are the warmest of the lot. " +
+           "Greetings, family words, hawker menus add golden lanterns. " +
+           "All four worlds, all yours, all connected. Tepuk tangan!",
+    milestone: "The Star Bridge shines across every world. Lumi wipes a sparkly tear.",
     icon: "\uD83C\uDF1F"
   }
 ];
