@@ -163,7 +163,7 @@
     </div>
 
     <!-- Plan of the Day — adaptive recommendation -->
-    <div id="plan-of-the-day" style="background:linear-gradient(135deg,#14302b 0%,#1e1835 100%);border:1px solid var(--accent);border-radius:14px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:none;">
+    <div id="plan-of-the-day" style="background:linear-gradient(135deg,#14302b 0%,#1e1835 100%);border:1px solid var(--accent);border-radius:14px;padding:1rem 1.25rem;margin-bottom:1rem;display:none;">
       <div style="display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap;margin-bottom:.5rem;">
         <div style="font-size:.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">⭐ Plan of the Day</div>
         <div style="font-size:.7rem;color:var(--muted);" id="plan-greeting"></div>
@@ -172,12 +172,42 @@
       <div style="display:flex;gap:.5rem;flex-wrap:wrap;" id="plan-actions"></div>
     </div>
 
+    <!-- Daily Power-ups: Idiom of the Day + Show-Don't-Tell of the Day -->
+    <div id="power-ups" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div class="power-card" id="pu-idiom" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.9rem 1.05rem;">
+        <div style="display:flex;align-items:baseline;gap:.4rem;margin-bottom:.45rem;">
+          <span style="font-size:.66rem;color:var(--idioms,#a78bfa);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">📇 Idiom of the day</span>
+          <span style="font-size:.66rem;color:var(--muted);" id="pu-idiom-date"></span>
+        </div>
+        <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:.3rem;" id="pu-idiom-term">Loading...</div>
+        <div style="font-size:.84rem;color:var(--muted);line-height:1.55;margin-bottom:.45rem;" id="pu-idiom-def"></div>
+        <div style="font-size:.76rem;color:var(--muted);font-style:italic;margin-bottom:.55rem;" id="pu-idiom-use"></div>
+        <a class="hub-cta" style="font-size:.74rem;padding:.35rem .65rem;" href="idioms-srs/">→ Drill in SRS</a>
+      </div>
+      <div class="power-card" id="pu-sdt" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.9rem 1.05rem;">
+        <div style="display:flex;align-items:baseline;gap:.4rem;margin-bottom:.45rem;">
+          <span style="font-size:.66rem;color:var(--composition,#fb7185);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Show-Don't-Tell</span>
+          <span style="font-size:.66rem;color:var(--muted);" id="pu-sdt-emotion"></span>
+        </div>
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:.15rem;">AL2 — telling:</div>
+        <div style="font-size:.88rem;color:var(--text);font-style:italic;margin-bottom:.55rem;line-height:1.5;" id="pu-sdt-tell"></div>
+        <div style="font-size:.78rem;color:var(--accent);margin-bottom:.15rem;">AL1 — showing:</div>
+        <div style="font-size:.88rem;color:var(--text);margin-bottom:.55rem;line-height:1.5;" id="pu-sdt-show"></div>
+        <a class="hub-cta" style="font-size:.74rem;padding:.35rem .65rem;" href="mentors/">→ Mentor essays</a>
+      </div>
+    </div>
+    <style>
+      @media (max-width: 640px) { #power-ups { grid-template-columns: 1fr !important; } }
+    </style>
+
     <div class="hub-cta-row">
       <a class="hub-cta hub-cta-primary" href="compass/">🧭 Compass — start a session</a>
       <a class="hub-cta" href="map/">🗺 Mega Map — connections</a>
       <a class="hub-cta" href="mentors/">📖 Mentor Essays</a>
       <a class="hub-cta" href="structured/">📋 Composition Builder</a>
+      <a class="hub-cta" href="simulate/">⏱ Paper 1 Simulator</a>
       <a class="hub-cta" href="listen/">🎧 Listening Practice</a>
+      <a class="hub-cta" href="aloud/">🎙 Reading Aloud</a>
       <a class="hub-cta" href="mirror/">🪞 Mirror — your progress</a>
       <a class="hub-cta" href="review/">🔁 Review queue</a>
       <a class="hub-cta" href="idioms-srs/">📇 Idioms SRS</a>
@@ -375,6 +405,9 @@
       if (pick.t.id === 'listening') {
         mode = 'Listening Practice';
         modeNote = 'A three-passage audio drill. Each plays twice, just like Paper 3.';
+      } else if (pick.t.id === 'oral-reading') {
+        mode = 'Reading Aloud';
+        modeNote = 'Record a passage, listen back, self-score, get one coach pointer.';
       } else if (!composedAlready) {
         mode = 'Learn tab';
         modeNote = 'Read the Learn tab to lock in the framework, then come back.';
@@ -401,6 +434,7 @@
       const modeUrl =
         mode === 'Composition Builder' ? 'structured/' :
         mode === 'Listening Practice'  ? 'listen/' :
+        mode === 'Reading Aloud'       ? 'aloud/' :
         mode === 'Drill tab'           ? `topics/${pick.t.id}/#tab-drill` :
         mode === 'Quiz tab'            ? `topics/${pick.t.id}/#tab-quiz` :
                                          `topics/${pick.t.id}/`;
@@ -412,10 +446,67 @@
       wrap.style.display = 'block';
     }
 
+    // ── Daily Power-ups: Idiom of the Day + Show-Don't-Tell of the Day ──
+    function dayOfYear() {
+      const now = new Date();
+      return Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+    }
+
+    const SDT_PAIRS = [
+      { emotion: 'Fear',           tell: 'I was scared.',                  show: 'My knees trembled uncontrollably while my heart pounded wildly against my chest.' },
+      { emotion: 'Nervousness',    tell: 'She was nervous.',               show: 'Her sweaty palms tightened around the microphone as her stomach twisted into knots.' },
+      { emotion: 'Sadness',        tell: 'I was sad.',                     show: 'Tears blurred my vision while disappointment weighed heavily upon my chest.' },
+      { emotion: 'Heartbreak',     tell: 'She was heartbroken.',           show: 'She held the letter in her lap for a long time, smoothing the same corner over and over again as if she could iron the news out of it.' },
+      { emotion: 'Anger',          tell: 'I was angry.',                   show: 'A hot pulse rose up my throat; my fists clenched at my sides.' },
+      { emotion: 'Fury',           tell: 'He was furious.',                show: 'He slammed the door so hard the picture frames on the wall rattled.' },
+      { emotion: 'Joy',            tell: 'I was happy.',                   show: 'A grin spread across my face before I could stop it; my feet wanted to break into a run.' },
+      { emotion: 'Excitement',     tell: 'She was excited.',               show: 'She kept checking the clock as though staring at it could make the hands move faster.' },
+      { emotion: 'Shame',          tell: 'I felt ashamed.',                show: 'My cheeks burned and I stared at the floor, willing the bell to ring.' },
+      { emotion: 'Embarrassment',  tell: 'I was embarrassed.',             show: 'I pulled my hood up and hoped the corridor would somehow swallow me whole.' },
+      { emotion: 'Pride',          tell: 'I was proud.',                   show: 'I tried to keep my face neutral but the corners of my mouth refused to obey.' },
+      { emotion: 'Relief',         tell: 'I felt relieved.',               show: 'I let out the breath I had not realised I had been holding.' },
+      { emotion: 'Loneliness',     tell: 'She felt lonely.',               show: 'She ate her lunch quickly, alone at the corner table, watching the others laugh at a joke she had not heard.' },
+      { emotion: 'Surprise',       tell: 'I was surprised.',               show: 'My eyebrows shot up before my brain caught up; the spoon clattered against the bowl.' },
+      { emotion: 'Disgust',        tell: 'It was disgusting.',             show: 'I pinched my nose and turned my head away; even looking at it made my stomach turn.' },
+      { emotion: 'Guilt',          tell: 'I felt guilty.',                 show: 'The lie sat heavy in my pocket, like a stone I could not put down.' },
+      { emotion: 'Bravery',        tell: 'He was brave.',                  show: 'His hands shook, but he took the first step anyway.' },
+      { emotion: 'Dread',          tell: 'I dreaded going home.',          show: 'The lift doors closed too quickly; my legs felt heavier with every floor.' },
+      { emotion: 'Anticipation',   tell: 'She could not wait.',            show: 'She was packed three days early; the suitcase had been zipped and re-zipped twice.' },
+      { emotion: 'Confusion',      tell: 'I was confused.',                show: 'I read the message twice, then a third time, but the words refused to make sense.' },
+    ];
+
+    function paintPowerUps() {
+      // ── SDT of the day (deterministic by day of year) ──
+      const sdt = SDT_PAIRS[dayOfYear() % SDT_PAIRS.length];
+      document.getElementById('pu-sdt-emotion').textContent = `· ${sdt.emotion}`;
+      document.getElementById('pu-sdt-tell').textContent    = sdt.tell;
+      document.getElementById('pu-sdt-show').textContent    = sdt.show;
+
+      // ── Idiom of the day (pull from idioms.json deterministically) ──
+      const todayLabel = new Date().toLocaleDateString('en-SG', { month: 'short', day: 'numeric' });
+      document.getElementById('pu-idiom-date').textContent = '· ' + todayLabel;
+      fetch('shared/content/idioms.json', { cache: 'no-cache' })
+        .then(r => r.json())
+        .then(d => {
+          const list = d.topics?.idioms?.glossary || [];
+          if (!list.length) return;
+          const pick = list[dayOfYear() % list.length];
+          document.getElementById('pu-idiom-term').textContent = pick.term;
+          document.getElementById('pu-idiom-def').textContent  = pick.definition;
+          document.getElementById('pu-idiom-use').textContent  = pick.template || '';
+        })
+        .catch(() => {
+          document.getElementById('pu-idiom-term').textContent = 'on cloud nine';
+          document.getElementById('pu-idiom-def').textContent  = 'extremely happy';
+          document.getElementById('pu-idiom-use').textContent  = 'Composition — joy after good news. Common.';
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       buildHub();
       updateStats();
       buildPlan();
+      paintPowerUps();
     });
   </script>
 </body>
