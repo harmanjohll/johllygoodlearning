@@ -386,8 +386,63 @@ body {
 .world-card.math .world-card-progress-fill { background: linear-gradient(90deg, var(--sky), var(--mint)); }
 .world-card.literacy .world-card-progress-fill { background: linear-gradient(90deg, var(--coral), var(--pink)); }
 .world-card.stem .world-card-progress-fill { background: linear-gradient(90deg, var(--teal), var(--sky)); }
+.world-card.malay .world-card-progress-fill { background: linear-gradient(90deg, var(--pink), var(--gold)); }
+.world-card.mega .world-card-progress-fill  { background: linear-gradient(90deg, var(--gold), var(--lavender)); }
 .world-card.garden .world-card-progress-fill { background: linear-gradient(90deg, var(--lavender), var(--gold)); }
 .world-card.challenges .world-card-progress-fill { background: linear-gradient(90deg, var(--gold), var(--coral)); }
+
+/* === MEGA MAP === */
+.mega-canvas {
+  position: relative; max-width: 880px; margin: 12px auto 16px;
+  background: radial-gradient(ellipse at center, rgba(37,27,94,0.4), rgba(15,11,46,0.6));
+  border: 1px solid rgba(255,215,0,0.15); border-radius: var(--radius-xl);
+  padding: 8px; box-shadow: 0 0 60px rgba(181,123,255,0.08);
+}
+#mega-map-svg { width: 100%; height: auto; display: block; }
+.mega-legend { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin: 8px 0; }
+.mega-legend-chip { font-size: 11px; padding: 4px 10px; border-radius: 999px; border:1px solid; font-weight:600; }
+.mega-stats { display:flex; gap:16px; justify-content:center; margin: 8px 0 12px; flex-wrap: wrap; }
+.mega-stat { font-size: 12px; color: var(--text-secondary); background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 12px; }
+.mega-stat b { color: var(--gold); font-size: 14px; }
+.mega-detail {
+  max-width: 760px; margin: 0 auto 8px; padding: 12px 16px;
+  background: rgba(37,27,94,0.6); border: 1px solid rgba(181,123,255,0.2);
+  border-radius: var(--radius-lg); font-size: 13px; color: var(--text-secondary);
+  min-height: 56px;
+}
+.mega-node text { pointer-events: none; }
+
+/* === THREAD CHAPTER VIEW === */
+.thread-hero {
+  text-align:center; padding: 20px; margin-bottom: 16px;
+  background: linear-gradient(135deg, rgba(37,27,94,0.7), rgba(47,35,112,0.7));
+  border: 2px solid; border-radius: var(--radius-xl);
+}
+.thread-hero-emoji { font-size: 56px; margin-bottom: 8px; }
+.thread-hero h2 { font-family: var(--font-display); font-size: 26px; margin-bottom: 6px; color: var(--gold); }
+.thread-hero p { color: var(--text-secondary); }
+
+.thread-chapters { display: flex; flex-direction: column; gap: 12px; max-width: 720px; margin: 0 auto; }
+.thread-chapter {
+  display: flex; gap: 14px; padding: 16px; align-items: flex-start;
+  background: rgba(37,27,94,0.45); border: 1px solid rgba(181,123,255,0.2);
+  border-radius: var(--radius-lg); transition: all .2s;
+}
+.thread-chapter.done { border-color: var(--mint); background: rgba(74,222,128,0.07); }
+.thread-chapter.current { border-color: var(--gold); box-shadow: 0 0 30px rgba(255,215,0,0.15); }
+.thread-chapter.locked { opacity: 0.45; }
+.thread-chapter-num {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  display:flex; align-items:center; justify-content:center;
+  background: rgba(255,215,0,0.15); color: var(--gold); font-weight: 700; font-family: var(--font-display);
+}
+.thread-chapter.done .thread-chapter-num { background: rgba(74,222,128,0.25); color: var(--success); }
+.thread-chapter-title { font-weight: 700; font-size: 16px; color: var(--text-primary); margin-bottom: 4px; }
+.thread-chapter-scene { font-size: 14px; color: var(--text-secondary); margin-bottom: 6px; line-height: 1.4; }
+.thread-chapter-action { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; font-style: italic; }
+.thread-chapter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.thread-locked { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+.thread-locked h3 { font-family: var(--font-display); margin: 12px 0 6px; color: var(--gold); }
 
 /* === ACTIVITY SELECTION === */
 .activity-header {
@@ -2485,6 +2540,20 @@ body {
           <div class="world-card-desc">Science experiments, coding adventures, and amazing discoveries!</div>
           <div class="world-card-progress"><div class="world-card-progress-fill" id="stem-progress" style="width:0%"></div></div>
         </div>
+
+        <div class="world-card malay" onclick="showScreen('malay-world')">
+          <span class="world-card-icon">&#127802;</span>
+          <div class="world-card-title">Dunia Melayu</div>
+          <div class="world-card-desc">Selamat datang! Bahasa Melayu for hawker centres, friends, and stories.</div>
+          <div class="world-card-progress"><div class="world-card-progress-fill" id="malay-progress" style="width:0%"></div></div>
+        </div>
+
+        <div class="world-card mega" onclick="showScreen('mega-map')">
+          <span class="world-card-icon">&#10024;</span>
+          <div class="world-card-title">Mega Map</div>
+          <div class="world-card-desc">See every world, skill, and real-world adventure light up together.</div>
+          <div class="world-card-progress"><div class="world-card-progress-fill" id="mega-progress" style="width:0%"></div></div>
+        </div>
         <div class="world-card garden" onclick="showScreen('garden')">
           <span class="world-card-icon">&#127800;</span>
           <div class="world-card-title">My Garden</div>
@@ -2534,6 +2603,31 @@ body {
         <p>Explore science and coding!</p>
       </div>
       <div id="stem-activities"></div>
+    </div>
+
+    <!-- MALAY WORLD SCREEN -->
+    <div class="screen" id="screen-malay-world">
+      <button class="back-btn" onclick="showScreen('home')">&#8592; Back to Home</button>
+      <div class="activity-header">
+        <h2>&#127802; Dunia Melayu</h2>
+        <p>Belajar Bahasa Melayu! Selamat datang.</p>
+      </div>
+      <div id="malay-activities"></div>
+    </div>
+
+    <!-- MEGA MAP SCREEN -->
+    <div class="screen" id="screen-mega-map">
+      <button class="back-btn" onclick="showScreen('home')">&#8592; Back to Home</button>
+      <div class="activity-header">
+        <h2>&#10024; Nasworld Mega Map</h2>
+        <p>Four worlds, every skill, all the real-world adventures.</p>
+      </div>
+      <div id="mega-map-content"></div>
+    </div>
+
+    <!-- THREAD (real-world story) SCREEN -->
+    <div class="screen" id="screen-thread">
+      <div id="thread-content"></div>
     </div>
 
     <!-- SKILL VIEW SCREEN (Learn / Explore / Quiz tabs) -->
@@ -2634,6 +2728,13 @@ body {
 <script src="src/stem/science-sim.js"></script>
 <script src="src/stem/code-engine.js"></script>
 <script src="src/stem/code-levels.js"></script>
+<script src="src/malay/malay-tree.js"></script>
+<script src="src/malay/malay-data.js"></script>
+<script src="src/malay/malay-lessons.js"></script>
+<script src="src/malay/malay-gen.js"></script>
+<script src="src/malay/malay-render.js"></script>
+<script src="src/data/mega-map.js"></script>
+<script src="src/data/threads.js"></script>
 <script src="src/challenges/star-trials.js"></script>
 <script src="src/challenges/escape-rooms.js"></script>
 <script src="src/core/interactive-sims.js"></script>
@@ -2643,6 +2744,7 @@ body {
 <script src="src/ui/garden.js"></script>
 <script src="src/ui/garden-island.js"></script>
 <script src="src/ui/home.js"></script>
+<script src="src/ui/mega-map.js"></script>
 <script src="src/ui/navigation.js"></script>
 
 </body>

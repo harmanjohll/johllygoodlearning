@@ -3,16 +3,16 @@
 // ============================================================
 
 const LUMI_GREETINGS = [
-  "Let's learn something awesome today!",
-  "Your garden is waiting to grow!",
-  "I believe in you, Anastasia!",
-  "Every challenge makes you stronger!",
-  "Ready for an adventure? Let's go!",
-  "You're getting so smart! Keep it up!",
-  "What shall we explore today?",
-  "The stars are cheering for you!",
-  "Today is going to be amazing!",
-  "Let's make your brain sparkle!"
+  "Hi boss! Where are we adventuring today?",
+  "Your brain is bigger than my whole sparkle. Let's use it!",
+  "I bet you can't beat yesterday. Prove me wrong, Anastasia!",
+  "Knock knock. Who's there? You. Inside Nasworld. Let's go.",
+  "I had three jokes ready. You picked the perfect day to hear them!",
+  "Quick warning: my sparkles are extra dazzly today. Try not to faint.",
+  "Number World? Word World? Or shall we open Dunia Melayu?",
+  "Tiny brain workout = giant brain growth. Pinkie promise.",
+  "You + me + a learning quest = unbeatable combo. Pick a world!",
+  "The garden told me it misses your flowers. Just saying."
 ];
 
 function lumiSpeak() {
@@ -53,6 +53,27 @@ function updateHomeUI() {
     const stemAvg = calculateWorldProgress(stemIds);
     document.getElementById('stem-progress').style.width = stemAvg + '%';
   }
+  if (typeof MALAY_TREE !== 'undefined') {
+    const malayIds = Object.keys(MALAY_TREE);
+    const malayAvg = calculateWorldProgress(malayIds);
+    var malayBar = document.getElementById('malay-progress');
+    if (malayBar) malayBar.style.width = malayAvg + '%';
+  }
+
+  // Mega progress: phenomena unlocked / total
+  if (typeof MEGA_PHENOMENA !== 'undefined') {
+    var totalP = MEGA_PHENOMENA.length;
+    var unlockedP = 0;
+    MEGA_PHENOMENA.forEach(function(p) {
+      if (typeof getPhenomenonUnlock === 'function' && getPhenomenonUnlock(p.id).unlocked) unlockedP++;
+    });
+    var megaPct = totalP > 0 ? (unlockedP / totalP) * 100 : 0;
+    var megaBar = document.getElementById('mega-progress');
+    if (megaBar) megaBar.style.width = megaPct + '%';
+  }
+
+  // Refresh thread-unlock state in case new skills crossed worlds since last visit
+  if (typeof maybeUnlockThreads === 'function') maybeUnlockThreads();
 
   const gardenPct = Math.min(100, (state.garden.length / 50) * 100);
   document.getElementById('garden-progress').style.width = gardenPct + '%';
