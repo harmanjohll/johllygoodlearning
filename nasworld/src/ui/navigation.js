@@ -52,6 +52,12 @@ function showScreen(screenId) {
   if (screenId === 'parent-digest' && typeof renderParentDigest === 'function') {
     renderParentDigest();
   }
+  if (screenId === 'stasha' && typeof renderStashaScreen === 'function') {
+    renderStashaScreen();
+  }
+  if (screenId === 'wardrobe' && typeof renderWardrobe === 'function') {
+    renderWardrobe();
+  }
   if (screenId === 'garden') {
     if (typeof renderGardenIsland === 'function') renderGardenIsland();
     renderGarden();
