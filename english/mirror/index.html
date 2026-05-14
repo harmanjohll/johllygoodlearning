@@ -103,6 +103,18 @@
     <div class="theme-legend" id="theme-legend"></div>
   </div>
 
+  <div class="section" id="paper-readiness-section">
+    <h3>Paper-by-paper readiness</h3>
+    <div class="sub">Mastery across the topics that make up each of the four papers. This is the closest the Mirror gets to a PSLE forecast — and it's still only a rough one.</div>
+    <div id="paper-rows"></div>
+  </div>
+
+  <div class="section" id="mismatch-section" style="display:none;">
+    <h3>One honest nudge</h3>
+    <div class="sub" id="mismatch-narrative">Based on where your time goes and where your mastery is weakest.</div>
+    <div id="mismatch-action" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.4rem;"></div>
+  </div>
+
   <div class="section">
     <h3>Mastery by Topic</h3>
     <div class="sub">This percentage combines: visits (10), drills (30), mind maps (20), and quiz scores (40).</div>
@@ -233,6 +245,77 @@ all.slice().sort((a, b) => b.pct - a.pct).forEach(x => {
   `;
   list.appendChild(row);
 });
+
+// ── Paper-by-paper readiness ────────────────────────────────
+const PAPER_MAP = {
+  'P1 · Writing (50m)':                ['composition', 'situational'],
+  'P2 · Language & Comprehension (90m)': ['grammar', 'vocab', 'visual-text', 'cloze', 'editing', 'synthesis', 'comprehension'],
+  'P3 · Listening (20m)':              ['listening'],
+  'P4 · Oral (40m)':                   ['oral-reading', 'oral-sbc'],
+};
+const PAPER_COLOR = {
+  'P1 · Writing (50m)':                  '#fb7185',
+  'P2 · Language & Comprehension (90m)': '#60a5fa',
+  'P3 · Listening (20m)':                '#e879f9',
+  'P4 · Oral (40m)':                     '#fbbf24',
+};
+const paperRowsEl = document.getElementById('paper-rows');
+let weakestPaper = null, weakestPaperPct = 101;
+Object.entries(PAPER_MAP).forEach(([paperName, topicIds]) => {
+  const matching = all.filter(t => topicIds.includes(t.id));
+  if (!matching.length) return;
+  const avg = Math.round(matching.reduce((s, x) => s + x.pct, 0) / matching.length);
+  if (avg < weakestPaperPct) { weakestPaperPct = avg; weakestPaper = paperName; }
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML = `
+    <span class="name">${paperName}</span>
+    <span class="bar"><span class="bar-fill" style="width:${avg}%;background:${PAPER_COLOR[paperName]}"></span></span>
+    <span class="pct">${avg}%</span>
+  `;
+  paperRowsEl.appendChild(row);
+});
+
+// ── Effort-vs-weakness mismatch ─────────────────────────────
+// Compare time-share (proxied by visits + drillUses across the theme)
+// to mastery rank. If the most-visited theme is NOT the weakest,
+// and the weakest theme is in the bottom-half by visits, surface a nudge.
+const themeVisits = {};
+THEMES.forEach(th => themeVisits[th] = 0);
+all.forEach(x => { themeVisits[x.theme] += (x.p.visitCount || 0) + (x.p.drillUsed ? 1 : 0); });
+const themeMasteryAvg = {};
+THEMES.forEach(th => {
+  const topics = all.filter(x => x.theme === th);
+  themeMasteryAvg[th] = topics.length ? topics.reduce((s, t) => s + t.pct, 0) / topics.length : 0;
+});
+// Pick the theme with the WORST mastery
+let worstTheme = THEMES[0], worstMastery = themeMasteryAvg[THEMES[0]];
+THEMES.forEach(th => { if (themeMasteryAvg[th] < worstMastery) { worstMastery = themeMasteryAvg[th]; worstTheme = th; } });
+// Pick the theme with the MOST visits
+let busiestTheme = THEMES[0], busiestVisits = themeVisits[THEMES[0]];
+THEMES.forEach(th => { if (themeVisits[th] > busiestVisits) { busiestVisits = themeVisits[th]; busiestTheme = th; } });
+const totalVisits = Object.values(themeVisits).reduce((s, n) => s + n, 0);
+const worstShare = totalVisits ? Math.round((themeVisits[worstTheme] / totalVisits) * 100) : 0;
+const busiestShare = totalVisits ? Math.round((themeVisits[busiestTheme] / totalVisits) * 100) : 0;
+// Only surface if the worst theme has clearly less attention AND there's been some activity at all
+if (totalVisits >= 4 && worstTheme !== busiestTheme && busiestShare - worstShare >= 20 && worstMastery < 60) {
+  const sec = document.getElementById('mismatch-section');
+  sec.style.display = 'block';
+  document.getElementById('mismatch-narrative').textContent =
+    `You've put about ${busiestShare}% of your effort into ${THEME_LABEL[busiestTheme]}, ` +
+    `but ${THEME_LABEL[worstTheme]} is ${Math.round(themeMasteryAvg[busiestTheme] - worstMastery)} points lower in mastery and has had only ${worstShare}% of your time. ` +
+    `That's where the next session would matter most.`;
+  const actions = document.getElementById('mismatch-action');
+  // Pick the lowest-mastery topic in the worst theme
+  const targets = all.filter(x => x.theme === worstTheme).sort((a, b) => a.pct - b.pct);
+  const target = targets[0];
+  if (target) {
+    actions.innerHTML = `
+      <a class="back-link" style="text-decoration:none;color:var(--accent);border-color:var(--accent);padding:.45rem .9rem;font-size:.82rem;" href="../topics/${target.id}/">→ Open ${target.name}</a>
+      <a class="back-link" style="text-decoration:none;padding:.45rem .9rem;font-size:.82rem;" href="../compass/">🧭 Plan a session via Compass</a>
+    `;
+  }
+}
 
 const meta = (function(){ try { return JSON.parse(localStorage.getItem('english_meta') || '{}'); } catch { return {}; } })();
 const activeDays = new Set(meta.activeDays || []);

@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paper 2 Mini Simulator — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 820px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+
+    .hero h1 { font-size: 1.55rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 1.25rem; }
+
+    .timer-bar {
+      position: sticky; top: 0; z-index: 30;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: .65rem 1rem; margin-bottom: 1rem;
+    }
+    .timer-bar .phase-name { font-weight: 700; font-size: .85rem; color: var(--text); }
+    .timer-bar .time-left  {
+      font-family: 'IBM Plex Mono', ui-monospace, monospace; font-weight: 700;
+      font-size: 1.4rem; color: var(--accent); letter-spacing: .05em;
+    }
+    .timer-bar .time-left.warn  { color: #fbbf24; }
+    .timer-bar .time-left.crit  { color: #f87171; animation: pulse 1s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+    .section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+    .section h2 { font-size: 1.1rem; margin-bottom: .35rem; }
+    .section .meta { color: var(--muted); font-size: .82rem; margin-bottom: 1rem; }
+    .section .booklet-tag { font-size: .68rem; padding: .15rem .55rem; border-radius: 99px; background: rgba(96,165,250,.08); color: var(--comprehension); border: 1px solid var(--comprehension); font-weight: 700; margin-right: .5rem; }
+
+    .item { border-top: 1px solid var(--border); padding-top: .85rem; margin-top: .85rem; }
+    .item:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+    .item .stem { font-size: .92rem; line-height: 1.6; margin-bottom: .55rem; color: var(--text); }
+    .item .stem .qnum { color: var(--muted); font-weight: 700; margin-right: .4rem; }
+    .item .options { display: flex; flex-direction: column; gap: .35rem; }
+    .item .options label {
+      display: flex; gap: .55rem; padding: .45rem .65rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 7px;
+      cursor: pointer; font-size: .88rem; color: var(--text);
+    }
+    .item .options label:hover { border-color: var(--accent); }
+    .item .options input[type=radio]:checked + span { color: var(--accent); font-weight: 700; }
+    .item .options input[type=radio] { accent-color: var(--accent); }
+
+    .item .fill { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: .25rem .5rem; color: var(--text); font-family: inherit; font-size: .9rem; min-width: 7rem; }
+    .item .fill:focus { outline: none; border-color: var(--accent); }
+    .item .longfill { width: 100%; min-height: 4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: .5rem; color: var(--text); font-family: inherit; font-size: .9rem; resize: vertical; }
+
+    .cloze-passage { font-size: .94rem; line-height: 2.1; color: var(--text); padding: .85rem 1rem; background: var(--surface); border-left: 3px solid var(--accent); border-radius: 6px; margin-bottom: 1rem; }
+    .cloze-passage .blank { display: inline-block; min-width: 6rem; }
+
+    .editing-row { display: flex; gap: .65rem; align-items: center; margin-bottom: .5rem; flex-wrap: wrap; font-size: .9rem; }
+    .editing-row .num { color: var(--muted); font-weight: 700; min-width: 1.5rem; }
+    .editing-row .word { color: #f87171; font-weight: 700; }
+
+    .verdict { font-size: .82rem; padding: .15rem .55rem; border-radius: 99px; margin-left: .5rem; font-weight: 700; display: none; }
+    .verdict.right { background: rgba(74,222,128,.15); color: #4ade80; border: 1px solid #4ade80; }
+    .verdict.wrong { background: rgba(248,113,113,.10); color: #f87171; border: 1px solid #f87171; }
+    .verdict.show  { display: inline-block; }
+
+    .explain { font-size: .82rem; color: var(--muted); margin-top: .3rem; line-height: 1.55; display: none; }
+    .explain.show { display: block; }
+
+    .nav-row { display: flex; gap: .55rem; flex-wrap: wrap; margin: 1.25rem 0 2rem; }
+
+    .scorecard {
+      background: linear-gradient(135deg, #14302b 0%, #1e1835 100%);
+      border: 1px solid var(--accent);
+      border-radius: 12px; padding: 1.5rem; margin-top: 1rem;
+    }
+    .scorecard h3 { color: var(--accent); margin-bottom: .65rem; font-size: 1.15rem; }
+    .scorecard .breakdown { display: grid; grid-template-columns: 1fr auto auto; gap: .5rem 1rem; font-size: .9rem; align-items: baseline; }
+    .scorecard .breakdown .label { color: var(--text); }
+    .scorecard .breakdown .raw   { color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+    .scorecard .total { font-size: 1.6rem; font-weight: 700; color: var(--accent); margin: 1rem 0 .25rem; }
+    .scorecard .ai-pass pre { white-space: pre-wrap; font-family: inherit; font-size: .9rem; color: var(--text); line-height: 1.7; margin-top: .5rem; }
+
+    .start-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
+    .start-card h2 { margin-bottom: .5rem; }
+    .start-card p { color: var(--muted); font-size: .92rem; margin-bottom: 1rem; line-height: 1.65; }
+    .pill { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .25rem .65rem; font-size: .72rem; margin: .15rem; }
+
+    .key-warn { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.35); border-radius: 9px; padding: .65rem .95rem; font-size: .85rem; color: var(--text); margin-bottom: 1.25rem; line-height: 1.55; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../" class="back-link">← Hub</a>
+  <strong style="color: var(--text);">Paper 2 Mini Simulator</strong>
+  <span style="color: var(--muted); font-size: .82rem;">Language &amp; Comprehension · ~50 marks · 60 min</span>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Paper 2 — Mini Simulator</h1>
+    <p>
+      A scaled-down PSLE Paper 2: every section type appears, but with fewer items so you can finish in one
+      sitting. Booklet A is auto-marked. Booklet B's open answers (Synthesis &amp; Comprehension Open-Ended)
+      are scored by the AI Examiner. Sixty minutes on the clock. Save your scorecard at the end.
+    </p>
+  </div>
+
+  <div class="key-warn" id="key-warn" style="display:none;">
+    No Gemini API key. You can still complete the paper; Booklet A and the cloze sections will mark, but the
+    Synthesis and Open-Ended will be marked as <em>not auto-marked</em> in the scorecard.
+  </div>
+
+  <div id="start-pane">
+    <div class="start-card">
+      <h2>Ready?</h2>
+      <p>Sixty minutes. No Google, no AI, no notes. Work through Booklet A then Booklet B. When the clock hits
+        zero, the paper auto-submits and the scorecard renders. You can review every wrong answer with
+        explanation after submission.</p>
+      <p>
+        <span class="pill">Booklet A · MCQ · ~15 marks</span>
+        <span class="pill">Booklet B · Open · ~35 marks</span>
+      </p>
+      <div class="nav-row" style="justify-content: center;">
+        <button class="btn btn-primary" id="btn-start">Start the 60-min clock</button>
+        <button class="btn btn-secondary" id="btn-clear">Clear saved progress</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="paper-pane" style="display:none;">
+
+    <div class="timer-bar">
+      <span class="phase-name">Paper 2 · Mini</span>
+      <span class="time-left" id="time-left">60:00</span>
+      <span style="color: var(--muted); font-size: .82rem;" id="autosave-status"></span>
+      <span style="flex:1;"></span>
+      <button class="btn btn-secondary" id="btn-submit-early" style="font-size:.8rem; padding:.4rem .8rem;">Submit now</button>
+    </div>
+
+    <div id="paper-content"></div>
+
+    <div class="nav-row" style="justify-content: flex-end;">
+      <button class="btn btn-primary" id="btn-submit">Submit paper</button>
+    </div>
+  </div>
+
+  <div id="result-pane" style="display:none;"></div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script>
+const STORAGE_KEY = 'jgl.english.p2simulator';
+const PAPER_MS = 60 * 60 * 1000;
+
+// ── Content (~50 marks; 60-min budget) ──────────────────────
+const PAPER = {
+  sections: [
+    // ── Booklet A ────────────────────────────────────────
+    {
+      id: 'gram-mcq', booklet: 'A', title: 'A1 · Grammar MCQ',
+      meta: 'Five items, 1 mark each. Pick the option that fits best.',
+      type: 'mcq',
+      items: [
+        { stem: "By the time the bell rang, the students _____ their lunch.",
+          options: ["have finished", "had finished", "finished", "are finishing"],
+          correct: 1, why: "Two past events; the earlier one (finishing lunch) takes past perfect: 'had finished'." },
+        { stem: "Neither the boys nor their teacher _____ aware of the change.",
+          options: ["are", "were", "was", "have been"],
+          correct: 2, why: "With 'neither/nor', the verb agrees with the NEAREST subject. 'Teacher' is singular → 'was'." },
+        { stem: "She is _____ honest girl who always tells the truth.",
+          options: ["a", "an", "the", "(no article)"],
+          correct: 1, why: "'Honest' begins with a vowel SOUND (silent h) → 'an honest'." },
+        { stem: "The committee _____ on the proposal next week.",
+          options: ["decide", "decides", "are deciding", "have decided"],
+          correct: 1, why: "Collective nouns ('committee') in Singapore usage typically take a singular verb → 'decides'." },
+        { stem: "Between you and _____, I really don't agree with the plan.",
+          options: ["I", "me", "myself", "mine"],
+          correct: 1, why: "After a preposition ('between'), use the OBJECT pronoun → 'me'." },
+      ],
+    },
+    {
+      id: 'vocab-mcq', booklet: 'A', title: 'A2 · Vocabulary MCQ',
+      meta: 'Five items, 1 mark each. Pick the word that fits best.',
+      type: 'mcq',
+      items: [
+        { stem: "The library was so quiet that even a whisper sounded _____ in the empty hall.",
+          options: ["deafening", "muted", "silent", "soft"],
+          correct: 0, why: "Context = quiet so anything sounds loud → 'deafening' fits the contrast." },
+        { stem: "After the heavy rain, the path was so _____ that we slipped twice.",
+          options: ["slippery", "slimy", "soaked", "slow"],
+          correct: 0, why: "Cause (rain) + effect (slipped) → 'slippery'. 'Slimy' suggests dirty/wet substance, not water." },
+        { stem: "The chef _____ a beautiful soufflé that rose perfectly in the oven.",
+          options: ["build", "constructed", "produced", "concocted"],
+          correct: 3, why: "'Concocted' = combined ingredients skillfully. 'Produced' is fine but generic; 'concocted' is the precise verb for a chef + recipe." },
+        { stem: "The new student was a bit _____ at first, but she warmed up by lunchtime.",
+          options: ["reserved", "rude", "rough", "rotten"],
+          correct: 0, why: "'Reserved' = shy, holding back — fits the warming-up arc. The others are negative judgements." },
+        { stem: "The detective examined the room _____, missing not a single detail.",
+          options: ["meticulously", "magnificently", "minutely", "monstrously"],
+          correct: 0, why: "'Meticulously' = with great attention to detail; matches the clue 'not a single detail'." },
+      ],
+    },
+    {
+      id: 'visual-mcq', booklet: 'A', title: 'A3 · Visual Text Comprehension',
+      meta: 'Imagine you see this LTA campaign poster: "WAIT FOR THE GREEN MAN. Every step counts." A child stands at a zebra crossing while red lights blink. Five items based on this stimulus.',
+      type: 'mcq',
+      items: [
+        { stem: "Who is the MAIN target audience of this poster?",
+          options: ["Drivers", "Pedestrians, especially children", "Construction workers", "Cyclists"],
+          correct: 1, why: "The 'Green Man' is a pedestrian signal; the child illustration confirms pedestrians, especially children, are the focus." },
+        { stem: "The phrase 'Every step counts' is used to:",
+          options: ["Encourage exercise.", "Remind walkers that each crossing decision matters for safety.", "Tell people to walk more.", "Count footsteps."],
+          correct: 1, why: "In context (road safety + crossing), 'every step counts' means every crossing choice matters for safety, not exercise." },
+        { stem: "Why is the Green Man image likely to be larger than the text?",
+          options: ["To make the poster colourful.", "Because images grab attention faster than words, especially for young children.", "Because the artist liked it.", "To save printing costs."],
+          correct: 1, why: "Visual hierarchy: in safety campaigns aimed at children, the immediate visual cue is prioritised over text." },
+        { stem: "Which of these would BEST extend this campaign to reach drivers too?",
+          options: ["A billboard saying 'Slow down at zebra crossings — children rely on you.'", "A bigger version of the same poster.", "More green colour.", "A radio advert about fashion."],
+          correct: 0, why: "The campaign focus is pedestrians; to address drivers, the message must shift to driver behaviour at the same site (the crossing)." },
+        { stem: "The poster's tone is best described as:",
+          options: ["Angry and accusing", "Calm but firm and protective", "Funny and joking", "Sad and worried"],
+          correct: 1, why: "Public safety posters typically use calm authority; 'Every step counts' is firm without being aggressive." },
+      ],
+    },
+
+    // ── Booklet B ────────────────────────────────────────
+    {
+      id: 'gram-cloze', booklet: 'B', title: 'B1 · Grammar Cloze (5 blanks)',
+      meta: 'Read the passage. Type ONE word per blank. Items 1–5 = 1 mark each.',
+      type: 'gram-cloze',
+      passage: [
+        "On Saturday morning, my brother and I went to the new sports hall. We had been looking forward to it ",
+        { id: 1, answer: ["for", "since"], accept: "for" },
+        " weeks. ",
+        { id: 2, answer: ["Although", "Though"], accept: "Although" },
+        " the weather was hot, the hall was air-conditioned and comfortable. We ",
+        { id: 3, answer: ["had", "had to"], accept: "had to" },
+        " queue at the counter for ten minutes before the staff let us in. As soon as we entered, my brother dashed off to the badminton court ",
+        { id: 4, answer: ["while", "whereas"], accept: "while" },
+        " I made my way to the climbing wall. After two hours of climbing, my arms ached so much that I could ",
+        { id: 5, answer: ["hardly", "barely", "scarcely"], accept: "hardly" },
+        " lift the kettle to make myself a drink at home.",
+      ],
+    },
+    {
+      id: 'editing', booklet: 'B', title: 'B2 · Editing (5 items)',
+      meta: 'Each numbered word below is wrong (grammar OR spelling). Type the CORRECT word in the box. 1 mark each.',
+      type: 'editing',
+      items: [
+        { num: 1, wrong: "writted",       correct: ["wrote"],                  why: "Past tense of 'write' is 'wrote', not 'writted'." },
+        { num: 2, wrong: "childrens",     correct: ["children"],               why: "'Children' is already plural; never add -s." },
+        { num: 3, wrong: "neccessary",    correct: ["necessary"],              why: "Spelling: ONE c, double s. Mnemonic: 'one Collar, two Sleeves'." },
+        { num: 4, wrong: "more better",   correct: ["better", "much better"],  why: "'Better' is already comparative; 'more better' is double-comparative." },
+        { num: 5, wrong: "amoung",        correct: ["among"],                  why: "Spelling: a-m-o-n-g, no second u." },
+      ],
+    },
+    {
+      id: 'comp-cloze', booklet: 'B', title: 'B3 · Comprehension Cloze (8 blanks)',
+      meta: 'Read the passage carefully. Type ONE word per blank that makes sense in CONTEXT. 1 mark each.',
+      type: 'comp-cloze',
+      passage: [
+        "Every Sunday afternoon, my grandmother used to bring us to the wet market near her flat. She had a ",
+        { id: 1, answer: ["favourite", "regular", "trusted", "particular"], accept: "favourite" },
+        " stall for vegetables, another for fish, and a third for the small green packets of nasi lemak she liked to bring home for dinner. The market was always ",
+        { id: 2, answer: ["crowded", "bustling", "busy", "noisy", "packed"], accept: "crowded" },
+        ", and I would clutch the hem of her dress so I would not lose her. \"Stay ",
+        { id: 3, answer: ["close", "near"], accept: "close" },
+        ",\" she would remind me, never looking down. She knew the route too well to need to look. As I grew older, I began to notice the ",
+        { id: 4, answer: ["respect", "trust", "warmth", "affection"], accept: "respect" },
+        " the stall owners showed her. They would call her by name, slip an extra bunch of coriander into her bag, ",
+        { id: 5, answer: ["sometimes", "occasionally"], accept: "sometimes" },
+        " refuse to take her money for the smallest items. She had been a loyal customer for thirty years. Loyalty, I learnt that afternoon, was a ",
+        { id: 6, answer: ["currency", "kind", "type", "form"], accept: "currency" },
+        " of its own — quieter than money, but more lasting. When she ",
+        { id: 7, answer: ["passed", "died"], accept: "passed" },
+        " away last winter, the fishmonger came to her wake. He had not been told. He had simply seen the obituary in the paper and known he had to come. That, more than any other thing, was how I ",
+        { id: 8, answer: ["understood", "realised", "knew"], accept: "understood" },
+        " who my grandmother had really been.",
+      ],
+    },
+    {
+      id: 'synthesis', booklet: 'B', title: 'B4 · Synthesis & Transformation (3 items)',
+      meta: 'Rewrite the sentence(s) keeping the meaning the SAME. 2 marks each (1 for grammar, 1 for meaning).',
+      type: 'long-text',
+      items: [
+        { stem: "Joining the two sentences using BECAUSE: 'It was raining heavily. We cancelled the picnic.'",
+          rubric: "Acceptable: 'We cancelled the picnic because it was raining heavily.' OR 'Because it was raining heavily, we cancelled the picnic.' (use a comma after the leading clause)." },
+        { stem: "Rewrite in REPORTED speech, starting with the words given: '\"I will help you with your homework after dinner,\" Aaron said to me.' → Aaron told me that...",
+          rubric: "Tense back-shift required: 'Aaron told me that he WOULD help me with MY homework after dinner.' (will → would; you → me; your → my)" },
+        { stem: "Combine using a RELATIVE clause: 'The boy is my cousin. The boy is wearing the blue cap.'",
+          rubric: "Acceptable: 'The boy who is wearing the blue cap is my cousin.' OR 'The boy in the blue cap is my cousin.' (use 'who' for people; defining relative clause needs no commas)." },
+      ],
+    },
+    {
+      id: 'comp-oe', booklet: 'B', title: 'B5 · Comprehension Open-Ended (1 question · 4 marks)',
+      meta: 'Read the short passage, then answer in full sentences. Use RACE: Restate, Answer, Cite, Explain.',
+      type: 'long-text',
+      passage:
+        "The lift stopped on the seventh floor. Mei stepped out into the corridor and froze. The door to her flat was ajar, the metal grille pushed back just enough for a hand to slip through. Her father always — ALWAYS — double-locked when he left for work. She listened. There was no sound from inside, only the faint hum of someone else's television seeping through the wall.\n\nFor a moment, Mei considered running back into the lift and pressing every button. But she had left her phone charging on her desk. Her father's number lived in that phone. So did everyone else's. She took a slow breath, then a slower step back, and forced herself to walk — not run — towards the staircase. She would knock on Aunty Geraldine's door on the sixth floor. Aunty Geraldine, retired police, would know what to do.",
+      items: [
+        { stem: "Question 1 (4 marks): Why did Mei decide to walk towards the staircase rather than enter the flat or use the lift? Give TWO reasons and use evidence from the passage.",
+          rubric: "Two distinct reasons expected, each cited. (a) She suspected something was wrong (door ajar / grille pushed back / father always double-locks) — staircase = quieter, safer escape than re-entering the lift she just left. (b) She had no phone, so she chose to seek help from Aunty Geraldine (retired police) on the sixth floor — staircase = direct access to that flat. Full 4 marks need both reasons with passage evidence; 2-3 marks for partial." },
+      ],
+    },
+  ],
+};
+
+// ── State ──────────────────────────────────────────────────
+let state = {
+  startedAt: null,
+  answers: {},                  // { sectionId: { itemIdx: value } }
+  status: 'idle',               // idle | running | done
+};
+
+function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {} }
+function loadState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch { return null; } }
+
+// ── Boot ──────────────────────────────────────────────────
+function init() {
+  const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  if (!key) document.getElementById('key-warn').style.display = 'block';
+
+  document.getElementById('btn-start').addEventListener('click', () => { state.startedAt = Date.now(); state.status = 'running'; saveState(); startPaper(); });
+  document.getElementById('btn-clear').addEventListener('click', () => { localStorage.removeItem(STORAGE_KEY); state = { startedAt: null, answers: {}, status: 'idle' }; });
+  document.getElementById('btn-submit').addEventListener('click', submitPaper);
+  document.getElementById('btn-submit-early').addEventListener('click', () => { if (confirm('Submit now?')) submitPaper(); });
+
+  // Visit recording for all P2 topics
+  if (typeof Progress !== 'undefined' && Progress.recordVisit) {
+    ['grammar','vocab','editing','synthesis','comprehension','cloze','visual-text'].forEach(t => Progress.recordVisit(t));
+  }
+}
+
+// ── Render ─────────────────────────────────────────────────
+function startPaper() {
+  document.getElementById('start-pane').style.display = 'none';
+  document.getElementById('paper-pane').style.display = 'block';
+  renderPaper();
+  startTicker();
+  setInterval(saveAnswers, 10_000);
+}
+
+function renderPaper() {
+  const root = document.getElementById('paper-content');
+  root.innerHTML = '';
+  PAPER.sections.forEach(sec => {
+    const div = document.createElement('div');
+    div.className = 'section';
+    div.dataset.section = sec.id;
+    div.innerHTML = `
+      <div>
+        <span class="booklet-tag">Booklet ${sec.booklet}</span>
+        <h2 style="display:inline;">${sec.title}</h2>
+      </div>
+      <div class="meta">${sec.meta}</div>
+      <div class="items"></div>
+    `;
+    const items = div.querySelector('.items');
+    if (sec.type === 'mcq') {
+      sec.items.forEach((it, idx) => items.appendChild(renderMCQ(sec.id, idx, it)));
+    } else if (sec.type === 'gram-cloze' || sec.type === 'comp-cloze') {
+      items.appendChild(renderClozePassage(sec));
+    } else if (sec.type === 'editing') {
+      sec.items.forEach((it, idx) => items.appendChild(renderEditing(sec.id, idx, it)));
+    } else if (sec.type === 'long-text') {
+      if (sec.passage) {
+        const p = document.createElement('div');
+        p.className = 'cloze-passage';
+        p.style.lineHeight = '1.75';
+        p.textContent = sec.passage;
+        items.appendChild(p);
+      }
+      sec.items.forEach((it, idx) => items.appendChild(renderLongText(sec.id, idx, it)));
+    }
+    root.appendChild(div);
+  });
+}
+
+function renderMCQ(sid, idx, it) {
+  const row = document.createElement('div');
+  row.className = 'item';
+  row.innerHTML = `
+    <div class="stem"><span class="qnum">${idx + 1}.</span> ${it.stem}</div>
+    <div class="options">
+      ${it.options.map((opt, oIdx) => `
+        <label><input type="radio" name="${sid}-${idx}" value="${oIdx}"><span>${String.fromCharCode(65 + oIdx)}. ${opt}</span></label>
+      `).join('')}
+    </div>
+    <span class="verdict"></span>
+    <div class="explain"></div>
+  `;
+  row.querySelectorAll('input[type=radio]').forEach(r => r.addEventListener('change', () => {
+    state.answers[sid] = state.answers[sid] || {};
+    state.answers[sid][idx] = Number(r.value);
+  }));
+  return row;
+}
+
+function renderClozePassage(sec) {
+  const p = document.createElement('div');
+  p.className = 'cloze-passage';
+  sec.passage.forEach((piece, i) => {
+    if (typeof piece === 'string') p.appendChild(document.createTextNode(piece));
+    else {
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.className = 'fill';
+      inp.dataset.section = sec.id;
+      inp.dataset.id = piece.id;
+      inp.placeholder = `(${piece.id})`;
+      inp.addEventListener('input', () => {
+        state.answers[sec.id] = state.answers[sec.id] || {};
+        state.answers[sec.id][piece.id] = inp.value.trim();
+      });
+      p.appendChild(inp);
+    }
+  });
+  // Verdict line under the passage
+  const verdictWrap = document.createElement('div');
+  verdictWrap.className = 'cloze-verdicts';
+  verdictWrap.style.marginTop = '.85rem';
+  p.appendChild(verdictWrap);
+  return p;
+}
+
+function renderEditing(sid, idx, it) {
+  const row = document.createElement('div');
+  row.className = 'editing-row';
+  row.innerHTML = `
+    <span class="num">${it.num}.</span>
+    Wrong: <span class="word">${it.wrong}</span>
+    →
+    <input type="text" class="fill" data-section="${sid}" data-idx="${idx}" placeholder="correct word">
+    <span class="verdict"></span>
+    <div class="explain" style="width:100%;"></div>
+  `;
+  row.querySelector('input').addEventListener('input', e => {
+    state.answers[sid] = state.answers[sid] || {};
+    state.answers[sid][idx] = e.target.value.trim();
+  });
+  return row;
+}
+
+function renderLongText(sid, idx, it) {
+  const row = document.createElement('div');
+  row.className = 'item';
+  row.innerHTML = `
+    <div class="stem"><span class="qnum">${idx + 1}.</span> ${it.stem}</div>
+    <textarea class="longfill" data-section="${sid}" data-idx="${idx}" placeholder="Type your answer here."></textarea>
+    <span class="verdict"></span>
+    <div class="explain"></div>
+  `;
+  row.querySelector('textarea').addEventListener('input', e => {
+    state.answers[sid] = state.answers[sid] || {};
+    state.answers[sid][idx] = e.target.value;
+  });
+  return row;
+}
+
+function saveAnswers() { saveState(); document.getElementById('autosave-status').textContent = 'auto-saved'; setTimeout(() => { const s = document.getElementById('autosave-status'); if (s) s.textContent = ''; }, 1200); }
+
+// ── Timer ─────────────────────────────────────────────────
+let tickHandle = null;
+function startTicker() {
+  if (tickHandle) clearInterval(tickHandle);
+  tickHandle = setInterval(tick, 500);
+  tick();
+}
+function tick() {
+  if (!state.startedAt || state.status !== 'running') return;
+  const left = PAPER_MS - (Date.now() - state.startedAt);
+  paintTime(left);
+  if (left <= 0) submitPaper();
+}
+function paintTime(ms) {
+  const display = document.getElementById('time-left');
+  const mins = Math.max(0, Math.floor(ms / 60000));
+  const secs = Math.max(0, Math.floor((ms % 60000) / 1000));
+  display.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+  display.classList.remove('warn','crit');
+  if (ms <= 60_000)       display.classList.add('crit');
+  else if (ms <= 300_000) display.classList.add('warn');
+}
+
+// ── Marking ───────────────────────────────────────────────
+async function submitPaper() {
+  if (state.status === 'done') return;
+  state.status = 'done';
+  saveState();
+  if (tickHandle) clearInterval(tickHandle);
+
+  document.getElementById('paper-pane').style.display = 'none';
+  const result = document.getElementById('result-pane');
+  result.style.display = 'block';
+  result.innerHTML = '<div style="text-align:center;color:var(--muted);padding:2rem 0;">Marking your paper…</div>';
+
+  const scores = {};
+  let autoMarked = 0;
+  let autoMax    = 0;
+
+  // Auto-mark every objective section
+  PAPER.sections.forEach(sec => {
+    if (sec.type === 'mcq') {
+      const ans = state.answers[sec.id] || {};
+      let got = 0;
+      sec.items.forEach((it, idx) => {
+        if (ans[idx] === it.correct) got += 1;
+      });
+      scores[sec.id] = { got, max: sec.items.length };
+      autoMarked += got; autoMax += sec.items.length;
+    } else if (sec.type === 'gram-cloze' || sec.type === 'comp-cloze') {
+      const ans = state.answers[sec.id] || {};
+      const blanks = sec.passage.filter(p => typeof p === 'object');
+      let got = 0;
+      blanks.forEach(b => {
+        const val = (ans[b.id] || '').toLowerCase();
+        const list = (b.answer || []).map(x => x.toLowerCase());
+        if (val && list.includes(val)) got += 1;
+      });
+      scores[sec.id] = { got, max: blanks.length };
+      autoMarked += got; autoMax += blanks.length;
+    } else if (sec.type === 'editing') {
+      const ans = state.answers[sec.id] || {};
+      let got = 0;
+      sec.items.forEach((it, idx) => {
+        const val = (ans[idx] || '').toLowerCase();
+        const ok = (it.correct || []).map(x => x.toLowerCase());
+        if (val && ok.includes(val)) got += 1;
+      });
+      scores[sec.id] = { got, max: sec.items.length };
+      autoMarked += got; autoMax += sec.items.length;
+    }
+  });
+
+  // AI-mark Synthesis (B4) and Open-Ended (B5)
+  const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  const longSections = PAPER.sections.filter(s => s.type === 'long-text');
+  const longResults = {};
+  if (key) {
+    await Promise.all(longSections.map(async sec => {
+      try {
+        const txt = await markLong(sec);
+        longResults[sec.id] = { text: txt };
+      } catch (e) {
+        longResults[sec.id] = { text: 'Examiner error: ' + (e?.message || e) };
+      }
+    }));
+  } else {
+    longSections.forEach(sec => { longResults[sec.id] = { text: 'No Gemini key set — Synthesis and Open-Ended not auto-marked. Add a key in How-to-use to enable.' }; });
+  }
+
+  // Mark drillUsed on the relevant topics
+  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) {
+    ['grammar','vocab','editing','synthesis','comprehension','cloze','visual-text'].forEach(t => Progress.recordDrillUsed(t));
+  }
+
+  renderScorecard(scores, autoMarked, autoMax, longResults);
+}
+
+async function markLong(sec) {
+  const ans = state.answers[sec.id] || {};
+  const lines = sec.items.map((it, idx) => `Question ${idx + 1}: ${it.stem}\nRubric: ${it.rubric}\nStudent answer: ${(ans[idx] || '(blank)').slice(0, 600)}`).join('\n\n');
+  const sys = `You are an experienced PSLE English Language examiner. Mark each item against its rubric strictly. Plain text only. No markdown. No asterisks. For EACH item, output exactly three lines:\nQ<n> MARK: <x>/<max>\nQ<n> WHY: <one-sentence reason>\nQ<n> BETTER: <one-sentence model rewrite>`;
+  const prompt = (sec.passage ? `PASSAGE:\n"""\n${sec.passage}\n"""\n\n` : '') + lines;
+  return await window.askGemini({ system: sys, prompt, temperature: 0.3, maxTokens: 1200, thinkingBudget: 0 });
+}
+
+function renderScorecard(scores, autoMarked, autoMax, longResults) {
+  // For long sections, parse marks out of the AI text (very rough — look for "MARK: <x>/<y>")
+  const longTotals = {};
+  Object.entries(longResults).forEach(([sid, r]) => {
+    const all = [...(r.text || '').matchAll(/MARK:\s*(\d+)\s*\/\s*(\d+)/g)];
+    let got = 0, max = 0;
+    all.forEach(m => { got += Number(m[1]); max += Number(m[2]); });
+    longTotals[sid] = { got, max };
+  });
+  // Fallback max if parsing failed
+  PAPER.sections.filter(s => s.type === 'long-text').forEach(sec => {
+    if (!longTotals[sec.id] || longTotals[sec.id].max === 0) {
+      const fallback = sec.items.length * (sec.id === 'comp-oe' ? 4 : 2);
+      longTotals[sec.id] = { got: longTotals[sec.id]?.got || 0, max: fallback };
+    }
+  });
+
+  const aiTotal    = Object.values(longTotals).reduce((s, r) => s + r.got, 0);
+  const aiMax      = Object.values(longTotals).reduce((s, r) => s + r.max, 0);
+  const grandGot   = autoMarked + aiTotal;
+  const grandMax   = autoMax    + aiMax;
+
+  const breakdownRows = PAPER.sections.map(sec => {
+    const r = scores[sec.id] || longTotals[sec.id] || { got: 0, max: 0 };
+    return `<div class="label">${sec.title}</div><div class="raw">${r.got} / ${r.max}</div><div></div>`;
+  }).join('');
+
+  const aiHTML = PAPER.sections.filter(s => s.type === 'long-text').map(sec => `
+    <div class="ai-pass" style="margin-top:1rem;">
+      <h3 style="font-size:.95rem;margin-bottom:.4rem;">${sec.title} — Examiner notes</h3>
+      <pre>${escapeHTML(longResults[sec.id]?.text || '')}</pre>
+    </div>
+  `).join('');
+
+  const reviewHTML = renderReview(scores);
+
+  document.getElementById('result-pane').innerHTML = `
+    <div class="scorecard">
+      <h3>Paper 2 — Scorecard</h3>
+      <div class="total">${grandGot} / ${grandMax}</div>
+      <div style="color:var(--muted);font-size:.82rem;margin-bottom:1rem;">Auto-marked: ${autoMarked} / ${autoMax}. AI-marked: ${aiTotal} / ${aiMax}.</div>
+      <div class="breakdown">${breakdownRows}</div>
+      ${aiHTML}
+    </div>
+    <div style="margin-top:1.25rem;">${reviewHTML}</div>
+    <div class="nav-row" style="justify-content:center;margin-top:1.25rem;">
+      <a class="btn btn-primary" href="../">← Back to hub</a>
+      <a class="btn btn-secondary" href="../simulate/">Try Paper 1</a>
+      <a class="btn btn-secondary" href="../structured/">Composition Builder</a>
+    </div>
+  `;
+}
+
+function renderReview(scores) {
+  let html = `<div class="section"><h2>Review — every item with explanation</h2><div class="meta">Click through each section. Green = you got it; red = the right answer.</div>`;
+  PAPER.sections.forEach(sec => {
+    html += `<div style="margin-top:.85rem;"><div class="booklet-tag">${sec.title}</div></div>`;
+    if (sec.type === 'mcq') {
+      sec.items.forEach((it, idx) => {
+        const a = state.answers[sec.id]?.[idx];
+        const got = a === it.correct;
+        html += `<div class="item">
+          <div class="stem"><span class="qnum">${idx + 1}.</span> ${it.stem}</div>
+          <div style="font-size:.85rem;color:${got ? '#4ade80' : '#f87171'};margin-top:.25rem;">
+            Your answer: ${a == null ? '(blank)' : String.fromCharCode(65 + a) + '. ' + escapeHTML(it.options[a])}
+          </div>
+          <div style="font-size:.85rem;color:var(--accent);margin-top:.15rem;">
+            Correct: ${String.fromCharCode(65 + it.correct)}. ${escapeHTML(it.options[it.correct])}
+          </div>
+          <div class="explain show">${escapeHTML(it.why)}</div>
+        </div>`;
+      });
+    } else if (sec.type === 'gram-cloze' || sec.type === 'comp-cloze') {
+      const blanks = sec.passage.filter(p => typeof p === 'object');
+      blanks.forEach(b => {
+        const val = state.answers[sec.id]?.[b.id] || '';
+        const got = (b.answer || []).map(x => x.toLowerCase()).includes(val.toLowerCase());
+        html += `<div class="item">
+          <div class="stem"><span class="qnum">${b.id}.</span> Your answer: <strong style="color:${got ? '#4ade80' : '#f87171'};">${escapeHTML(val || '(blank)')}</strong></div>
+          <div style="font-size:.85rem;color:var(--accent);">Accept: ${b.answer.join(', ')}</div>
+        </div>`;
+      });
+    } else if (sec.type === 'editing') {
+      sec.items.forEach((it, idx) => {
+        const val = state.answers[sec.id]?.[idx] || '';
+        const got = (it.correct || []).map(x => x.toLowerCase()).includes(val.toLowerCase());
+        html += `<div class="item">
+          <div class="stem"><span class="qnum">${it.num}.</span> Wrong: <span style="color:#f87171;font-weight:700;">${it.wrong}</span> → Your fix: <strong style="color:${got ? '#4ade80' : '#f87171'};">${escapeHTML(val || '(blank)')}</strong></div>
+          <div style="font-size:.85rem;color:var(--accent);">Accept: ${it.correct.join(', ')}</div>
+          <div class="explain show">${escapeHTML(it.why)}</div>
+        </div>`;
+      });
+    } else if (sec.type === 'long-text') {
+      sec.items.forEach((it, idx) => {
+        const val = state.answers[sec.id]?.[idx] || '';
+        html += `<div class="item">
+          <div class="stem"><span class="qnum">${idx + 1}.</span> ${it.stem}</div>
+          <div style="font-size:.85rem;color:var(--muted);margin-top:.25rem;">Your answer:</div>
+          <div style="font-size:.88rem;background:var(--surface);padding:.55rem .75rem;border-radius:6px;margin-top:.2rem;white-space:pre-wrap;">${escapeHTML(val || '(blank)')}</div>
+          <div class="explain show"><strong>Rubric:</strong> ${escapeHTML(it.rubric)}</div>
+        </div>`;
+      });
+    }
+  });
+  html += `</div>`;
+  return html;
+}
+
+function escapeHTML(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+init();
+</script>
+</body>
+</html>
