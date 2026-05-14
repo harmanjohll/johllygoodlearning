@@ -95,6 +95,10 @@
     </p>
   </div>
 
+  <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:800;margin-bottom:.65rem;">Paper-level overviews</div>
+  <div id="paper-cards" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1rem;margin-bottom:2rem;"></div>
+
+  <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:800;margin-bottom:.65rem;">Per-topic cards · click a tab to jump</div>
   <div class="topic-tabs" id="topic-tabs"></div>
 
   <div id="cards"></div>
@@ -107,10 +111,50 @@
 <script src="../shared.js"></script>
 <script>
 // Cheat cards live in shared/content/cheatcards.json so topic pages can reuse the data.
-let CARDS = [];
+let CARDS  = [];
+let PAPERS = [];
 
-const tabsEl  = document.getElementById('topic-tabs');
-const cardsEl = document.getElementById('cards');
+const tabsEl     = document.getElementById('topic-tabs');
+const cardsEl    = document.getElementById('cards');
+const paperEl    = document.getElementById('paper-cards');
+
+function renderPapers() {
+  paperEl.innerHTML = '';
+  const PAPER_TINT = { 'paper-1': '#fb7185', 'paper-2': '#60a5fa', 'paper-3': '#e879f9', 'paper-4': '#fbbf24' };
+  PAPERS.forEach(p => {
+    const tint = PAPER_TINT[p.id] || 'var(--accent)';
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = 'paper-' + p.id;
+    card.style.borderLeft = '4px solid ' + tint;
+    card.innerHTML = `
+      <div class="meta">
+        <span class="paper-pill" style="background:transparent;color:${tint};border-color:${tint};">${p.marks}m · ${p.time}</span>
+        <span>Paper overview</span>
+      </div>
+      <h2>${p.title}</h2>
+      <div class="subtitle">${p.tagline}</div>
+      <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:800;margin-bottom:.45rem;">Sections</div>
+      <ul style="list-style:none;padding:0;margin:0 0 .85rem;">
+        ${p.sections.map(s => `<li style="display:grid;grid-template-columns:auto auto 1fr;gap:.55rem;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.85rem;">
+          <span style="color:${tint};font-weight:700;min-width:2.5rem;">${s.marks}m</span>
+          <span style="color:var(--muted);min-width:5rem;">${s.minutes} min</span>
+          <span><strong>${s.name}</strong> &mdash; ${s.what}</span>
+        </li>`).join('')}
+      </ul>
+      <div style="font-size:.78rem;color:var(--muted);margin-bottom:.85rem;">${(p.rubricSplit || []).map(line => `• ${line}`).join('<br>')}</div>
+      <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:800;margin-bottom:.35rem;">Top 3 mistakes</div>
+      <ul style="padding-left:1.2rem;margin:0 0 .85rem;font-size:.84rem;line-height:1.55;color:var(--text);">
+        ${p.topMistakes.map(m => `<li style="margin-bottom:.25rem;">${m}</li>`).join('')}
+      </ul>
+      <div class="mnemonic-block" style="border-left-color:${tint};">
+        <span class="label" style="color:${tint};">One instruction</span>
+        ${p.oneInstruction}
+      </div>
+    `;
+    paperEl.appendChild(card);
+  });
+}
 
 function renderCards() {
   tabsEl.innerHTML  = '';
@@ -157,7 +201,9 @@ function focusCard(id) {
   try {
     const r = await fetch('../shared/content/cheatcards.json', { cache: 'no-cache' });
     const d = await r.json();
-    CARDS = d.cards || [];
+    PAPERS = d.papers || [];
+    CARDS  = d.cards  || [];
+    renderPapers();
     renderCards();
   } catch (e) {
     cardsEl.innerHTML = '<div style="color:var(--muted);padding:2rem 0;text-align:center;">Could not load Cheat Cards. Try reloading.</div>';

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visual Text Sprint — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 780px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+
+    .hero h1 { font-size: 1.55rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 1.25rem; }
+
+    .timer-bar {
+      position: sticky; top: 0; z-index: 30;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: .65rem 1rem; margin-bottom: 1rem;
+    }
+    .timer-bar .time-left {
+      font-family: 'IBM Plex Mono', ui-monospace, monospace; font-weight: 700;
+      font-size: 1.4rem; color: var(--accent); letter-spacing: .05em;
+    }
+    .timer-bar .time-left.warn { color: #fbbf24; }
+    .timer-bar .time-left.crit { color: #f87171; animation: pulse 1s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+    .stimulus {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.25rem 1.5rem; margin-bottom: 1rem;
+    }
+    .stim-tag { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-weight: 700; margin-bottom: .35rem; }
+    .stim-title { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: .55rem; }
+    .stim-mock {
+      background: var(--surface); border: 2px dashed var(--accent); border-radius: 10px;
+      padding: 1rem 1.25rem; color: var(--text); font-size: .9rem; line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+    .stim-mock .heading { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.05rem; color: var(--accent); margin-bottom: .5rem; }
+    .stim-mock .body  { line-height: 1.7; }
+    .stim-mock .caption { font-size: .76rem; font-style: italic; color: var(--muted); margin-top: .5rem; }
+
+    .item { border-top: 1px solid var(--border); padding-top: .85rem; margin-top: .85rem; }
+    .item:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+    .item .qnum { color: var(--muted); font-weight: 700; margin-right: .4rem; }
+    .item .stem { font-size: .92rem; line-height: 1.55; color: var(--text); margin-bottom: .55rem; }
+    .item .qtype { font-size: .65rem; padding: .15rem .55rem; border-radius: 99px; background: rgba(96,165,250,.08); color: var(--comprehension,#60a5fa); border: 1px solid var(--comprehension,#60a5fa); font-weight: 700; margin-right: .35rem; }
+    .item .options { display: flex; flex-direction: column; gap: .4rem; }
+    .item .options button {
+      text-align: left; padding: .5rem .75rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 7px;
+      color: var(--text); font-size: .88rem; cursor: pointer;
+    }
+    .item .options button:hover:not(:disabled) { border-color: var(--accent); }
+    .item .options button.picked-right { background: rgba(74,222,128,.08); border-color: #4ade80; color: #4ade80; }
+    .item .options button.picked-wrong { background: rgba(248,113,113,.08); border-color: #f87171; color: #f87171; }
+    .item .options button.show-correct { border-color: #4ade80; color: #4ade80; }
+    .item .options button:disabled { cursor: default; }
+    .item .explain { display: none; margin-top: .55rem; font-size: .82rem; color: var(--muted); line-height: 1.55; }
+    .item .explain.show { display: block; }
+
+    .scorecard {
+      background: linear-gradient(135deg, #14302b 0%, #1e1835 100%);
+      border: 1px solid var(--accent); border-radius: 12px;
+      padding: 1.5rem; text-align: center;
+    }
+    .scorecard .num { font-size: 3rem; font-weight: 800; color: var(--accent); font-family: 'IBM Plex Mono', monospace; }
+    .scorecard .qual { font-size: 1rem; color: var(--text); margin: .25rem 0 1rem; }
+    .scorecard .row { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+
+    .start-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
+    .start-card h2 { margin-bottom: .5rem; }
+    .start-card p  { color: var(--muted); font-size: .92rem; margin-bottom: 1rem; line-height: 1.65; }
+    .pill { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .25rem .65rem; font-size: .72rem; margin: .15rem; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../" class="back-link">← Hub</a>
+  <strong style="color: var(--text);">Visual Text Sprint</strong>
+  <span style="color: var(--muted); font-size: .82rem;">Paper 2 · 8 marks · 8 minutes</span>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Visual Text Sprint</h1>
+    <p>
+      Two mock posters, each with five MCQ questions covering Audience, Purpose, Tone, Detail and Extension —
+      the five PSLE Visual Text question types. The posters are described in text (no copyrighted images).
+      Read the heading and caption FIRST: tiny print often hides the answer to one question.
+    </p>
+  </div>
+
+  <div id="start-pane">
+    <div class="start-card">
+      <h2>Ready?</h2>
+      <p>Eight minutes for two posters, ten items total. Auto-marked. Untimed mode if you want to learn the question types first.</p>
+      <p>
+        <span class="pill">2 stimuli · 10 items · 1m each</span>
+        <span class="pill">A.P.T.D.E.</span>
+        <span class="pill">8 min</span>
+      </p>
+      <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="btn-start">Start the sprint</button>
+        <button class="btn btn-secondary" id="btn-untimed">Untimed practice</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="quiz-pane" style="display:none;">
+    <div class="timer-bar">
+      <span class="time-left" id="time-left">8:00</span>
+      <span style="color:var(--muted);font-size:.85rem;" id="score-meta">0 answered</span>
+      <span style="flex:1;"></span>
+      <button class="btn btn-secondary" id="btn-submit" style="font-size:.82rem;padding:.4rem .8rem;">Submit now</button>
+    </div>
+    <div id="content"></div>
+  </div>
+
+  <div id="result-pane" style="display:none;"></div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script>
+const QUIZ_MS = 8 * 60 * 1000;
+
+// ── Mock visual texts (no copyrighted images) ──────────────
+const STIMULI = [
+  {
+    id: 'spend-wisely',
+    title: 'MAS Money Sense — "Spend Wisely, Save Daily" campaign poster',
+    mockHeading: 'SPEND WISELY. SAVE DAILY.',
+    mockBody: 'A bright illustration of a piggy bank wearing a graduation cap, surrounded by S$2 notes folded into paper aeroplanes. A speech bubble reads: "Every dollar you save today is a dollar that earns for tomorrow." Below the image, three icons: a coffee cup with a cross through it (cut down on small daily indulgences), a hand putting coins into a jar (save what you skip), and a small graph rising over time (compound interest).',
+    mockCaption: 'Brought to you by the Monetary Authority of Singapore. Visit moneysense.gov.sg for more tips.',
+    items: [
+      { type: 'Audience',  stem: "Who is the MAIN target audience of this poster?",
+        options: ["Adult investors with large savings", "Young people learning to manage allowance", "Bank staff", "Tourists in Singapore"],
+        correct: 1, why: "Tone (cheerful, illustrated), placement (MoneySense for youth), and the 'small daily indulgences' angle all point at young people / students starting to save." },
+      { type: 'Purpose',   stem: "What ACTION does the poster want the reader to take?",
+        options: ["Open a new bank account immediately", "Cut down on small daily spending and save it instead", "Apply for a loan", "Travel less"],
+        correct: 1, why: "The coffee-cup-with-cross + 'save what you skip' icons spell out the specific habit: skip a small treat, save the dollar." },
+      { type: 'Tone',      stem: "Which BEST describes the poster's tone?",
+        options: ["Stern and disapproving", "Light, encouraging, and educational", "Urgent and panicked", "Sarcastic"],
+        correct: 1, why: "Bright illustration, friendly speech bubble, paper-aeroplane money — all signal encouragement, not warning." },
+      { type: 'Detail',    stem: "What is the meaning of the rising graph icon at the bottom?",
+        options: ["The cost of coffee rising over time", "Compound interest — savings grow over time", "Stock market crash", "Inflation"],
+        correct: 1, why: "Caption + context (savings poster + graph trending UP) point to compound interest, not inflation (which would be a NEGATIVE for the saver)." },
+      { type: 'Extension', stem: "Which ONE addition would best extend this campaign to reach PARENTS?",
+        options: ["A larger version of the same poster", "A short video showing a parent and child counting weekly savings together at home", "More bright colours", "A poster in another language only"],
+        correct: 1, why: "Extension questions reward SPECIFIC, AUDIENCE-shifted additions. A parent-and-child video adds a NEW audience while keeping the campaign's tone." },
+    ],
+  },
+  {
+    id: 'safer-cycling',
+    title: 'LTA / SCDF — "See, Be Seen, Stay Safe" cycling poster',
+    mockHeading: 'SEE. BE SEEN. STAY SAFE.',
+    mockBody: 'Three side-by-side photographs along the top: a cyclist with bright reflective vest at dawn, a cyclist with a working front and rear light at dusk, and a cyclist using hand signals to turn at an intersection. Below the photos, three short rules in large type: 1. Wear bright. 2. Light up after sunset. 3. Signal before you turn. A red warning band at the bottom reads: "Fines up to S$300 for cycling without lights at night."',
+    mockCaption: 'A joint campaign by Land Transport Authority and Singapore Civil Defence Force.',
+    items: [
+      { type: 'Audience',  stem: "Who is the poster MAINLY speaking to?",
+        options: ["Drivers of cars", "Cyclists, especially evening commuters", "Pedestrians at zebra crossings", "Construction workers"],
+        correct: 1, why: "The three photos all show cyclists; the three rules are all cyclist actions; the fine specifically targets unlit night cycling." },
+      { type: 'Purpose',   stem: "What is the MAIN purpose of the poster?",
+        options: ["Sell cycling gear", "Persuade cyclists to take three specific safety actions", "Warn drivers about cyclists", "Promote a cycling competition"],
+        correct: 1, why: "Three numbered rules + a specific fine = behaviour change, not promotion or sale." },
+      { type: 'Tone',      stem: "How would you describe the poster's tone?",
+        options: ["Playful and humorous", "Calm but firm, with a warning edge at the bottom", "Angry and accusing", "Confused and uncertain"],
+        correct: 1, why: "The bulk of the poster is calm and instructional ('See. Be Seen.'); the red fine band adds firm authority — a typical safety-campaign blend." },
+      { type: 'Detail',    stem: "What is the fine for cycling without lights at night, according to the poster?",
+        options: ["Up to S$50", "Up to S$100", "Up to S$300", "Up to S$1,000"],
+        correct: 2, why: "The red band at the bottom states 'S$300'. Detail questions reward students who read EVERY part of the visual — including the warning footnote." },
+      { type: 'Extension', stem: "Which ONE addition would best make the safety message reach DRIVERS as well?",
+        options: ["A larger photo of a cyclist", "A separate poster reminding drivers to look twice at junctions for cyclists", "Bigger fine amounts", "Translate to another language"],
+        correct: 1, why: "To reach drivers, the message must SHIFT to driver behaviour, not just amplify the existing cyclist message. 'Look twice at junctions' is a specific driver action." },
+    ],
+  },
+];
+
+let state = { startedAt: null, submitted: false, answers: {}, timed: true };
+let tickHandle = null;
+
+function init() {
+  document.getElementById('btn-start').addEventListener('click',     () => startQuiz(true));
+  document.getElementById('btn-untimed').addEventListener('click',  () => startQuiz(false));
+  document.getElementById('btn-submit').addEventListener('click', () => { if (!state.submitted && confirm('Submit now?')) submit(); });
+}
+
+function startQuiz(timed) {
+  state.timed = timed;
+  state.startedAt = Date.now();
+  document.getElementById('start-pane').style.display = 'none';
+  document.getElementById('quiz-pane').style.display  = 'block';
+  renderAll();
+  if (timed) startTicker(); else document.getElementById('time-left').textContent = '∞';
+}
+
+function renderAll() {
+  const root = document.getElementById('content');
+  root.innerHTML = '';
+  STIMULI.forEach((s, sIdx) => {
+    const div = document.createElement('div');
+    div.className = 'stimulus';
+    div.innerHTML = `
+      <div class="stim-tag">Visual Text ${sIdx + 1} of ${STIMULI.length}</div>
+      <div class="stim-title">${s.title}</div>
+      <div class="stim-mock">
+        <div class="heading">${s.mockHeading}</div>
+        <div class="body">${s.mockBody}</div>
+        <div class="caption">${s.mockCaption}</div>
+      </div>
+      <div class="items"></div>
+    `;
+    const items = div.querySelector('.items');
+    s.items.forEach((it, idx) => items.appendChild(renderItem(s.id, sIdx, idx, it)));
+    root.appendChild(div);
+  });
+}
+
+function renderItem(sid, sIdx, idx, it) {
+  const row = document.createElement('div');
+  row.className = 'item';
+  row.dataset.sid = sid;
+  row.dataset.idx = idx;
+  row.innerHTML = `
+    <div><span class="qtype">${it.type}</span><span class="qnum">Q${sIdx + 1}.${idx + 1}</span></div>
+    <div class="stem">${it.stem}</div>
+    <div class="options">
+      ${it.options.map((opt, oi) => `<button data-opt="${oi}">${String.fromCharCode(65 + oi)}. ${opt}</button>`).join('')}
+    </div>
+    <div class="explain"></div>
+  `;
+  row.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => answer(sid, idx, Number(btn.dataset.opt), it)));
+  return row;
+}
+
+function answer(sid, idx, choice, it) {
+  const key = sid + ':' + idx;
+  if (state.answers[key] !== undefined) return;
+  state.answers[key] = choice;
+  const row = document.querySelector(`.item[data-sid="${sid}"][data-idx="${idx}"]`);
+  const buttons = row.querySelectorAll('button');
+  const correct = (choice === it.correct);
+  buttons.forEach((b, i) => {
+    b.disabled = true;
+    if (i === it.correct) b.classList.add(correct ? 'picked-right' : 'show-correct');
+    if (i === choice && !correct) b.classList.add('picked-wrong');
+  });
+  const exp = row.querySelector('.explain');
+  exp.textContent = it.why || '';
+  exp.classList.add('show');
+  updateMeta();
+}
+
+function updateMeta() {
+  const total = STIMULI.reduce((s, x) => s + x.items.length, 0);
+  const n = Object.keys(state.answers).length;
+  document.getElementById('score-meta').textContent = `${n} of ${total} answered`;
+}
+
+function startTicker() {
+  if (tickHandle) clearInterval(tickHandle);
+  tickHandle = setInterval(tick, 500);
+  tick();
+}
+function tick() {
+  if (!state.startedAt || state.submitted) return;
+  const left = QUIZ_MS - (Date.now() - state.startedAt);
+  paintTime(left);
+  if (left <= 0) submit();
+}
+function paintTime(ms) {
+  const display = document.getElementById('time-left');
+  const mins = Math.max(0, Math.floor(ms / 60000));
+  const secs = Math.max(0, Math.floor((ms % 60000) / 1000));
+  display.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+  display.classList.remove('warn','crit');
+  if (ms <= 60_000)       display.classList.add('crit');
+  else if (ms <= 180_000) display.classList.add('warn');
+}
+
+function submit() {
+  if (state.submitted) return;
+  state.submitted = true;
+  if (tickHandle) clearInterval(tickHandle);
+
+  let got = 0, total = 0;
+  STIMULI.forEach(s => s.items.forEach((it, idx) => {
+    total += 1;
+    const a = state.answers[s.id + ':' + idx];
+    if (a === it.correct) got += 1;
+    // Force-reveal any unanswered items
+    if (a === undefined) {
+      const row = document.querySelector(`.item[data-sid="${s.id}"][data-idx="${idx}"]`);
+      if (row) {
+        row.querySelectorAll('button').forEach((b, i) => { b.disabled = true; if (i === it.correct) b.classList.add('show-correct'); });
+        const exp = row.querySelector('.explain');
+        exp.textContent = it.why || '';
+        exp.classList.add('show');
+      }
+    }
+  }));
+
+  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('visual-text');
+
+  const qual =
+    got === total ? 'Perfect. Every poster gives up its answers.' :
+    got >= total - 2 ? 'AL1 territory — the missed one usually hides in the caption.' :
+    got >= total / 2 ? 'Halfway. The five question types repeat every year — drill A.P.T.D.E. until reflexive.' :
+                       'The misses below name the question type they missed. Drill that one first.';
+
+  document.getElementById('result-pane').style.display = 'block';
+  document.getElementById('result-pane').innerHTML = `
+    <div class="scorecard">
+      <div class="num">${got} / ${total}</div>
+      <div class="qual">${qual}</div>
+      <div class="row">
+        <a class="btn btn-primary" href="./">Retry</a>
+        <a class="btn btn-secondary" href="../">← Hub</a>
+        <a class="btn btn-secondary" href="../topics/visual-text/">Open Visual Text topic</a>
+      </div>
+    </div>
+  `;
+}
+
+init();
+</script>
+</body>
+</html>
