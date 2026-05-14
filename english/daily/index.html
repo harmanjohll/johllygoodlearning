@@ -221,28 +221,59 @@ function pickTodayItems() {
     todayItems = allItems;
     return;
   }
-  const seed = dayOfYear() + 7919;
-  const shuffled = seededShuffle(allItems, seed);
-  // Distribute across topics: take up to N items, prefer no two from the same topic in a row
   const targetN = 10;
-  const seenTopics = {};
+  const seed = dayOfYear() + 7919;
+
+  // ── Mastery-weighted bucketing ──
+  // Build per-topic buckets of items (shuffled deterministically by day).
+  // Then pick round-robin from topics in mastery-ascending order, so weakest
+  // topics contribute first. Cap 2 items per topic.
+  const byTopic = {};
+  allItems.forEach(it => { (byTopic[it.topicId] = byTopic[it.topicId] || []).push(it); });
+  Object.keys(byTopic).forEach(tid => { byTopic[tid] = seededShuffle(byTopic[tid], seed + tid.charCodeAt(0)); });
+
+  // Mastery per topic, ascending (weakest first). Tie-break with topic id for
+  // determinism. Unstarted topics (mastery 0) come first, then weak, then strong.
+  const masteryFor = (tid) => {
+    try { return (typeof Progress !== 'undefined' && Progress.masteryPct) ? Progress.masteryPct(tid) : 0; }
+    catch { return 0; }
+  };
+  const topicsRanked = Object.keys(byTopic).sort((a, b) => {
+    const ma = masteryFor(a), mb = masteryFor(b);
+    if (ma !== mb) return ma - mb;
+    return a.localeCompare(b);
+  });
+
   const pick = [];
-  for (const it of shuffled) {
-    seenTopics[it.topicId] = seenTopics[it.topicId] || 0;
-    if (seenTopics[it.topicId] >= 2) continue;        // cap 2 per topic
-    pick.push(it);
-    seenTopics[it.topicId] += 1;
-    if (pick.length >= targetN) break;
+  const seenTopics = {};
+  // Two-pass round-robin: first pass takes one per topic (weakest first),
+  // second pass picks up the remaining slots, again weakest first.
+  for (let pass = 0; pass < 2 && pick.length < targetN; pass++) {
+    for (const tid of topicsRanked) {
+      if (pick.length >= targetN) break;
+      seenTopics[tid] = seenTopics[tid] || 0;
+      if (seenTopics[tid] >= 2) continue;
+      const bucket = byTopic[tid];
+      if (!bucket || bucket.length <= seenTopics[tid]) continue;
+      pick.push(bucket[seenTopics[tid]]);
+      seenTopics[tid] += 1;
+    }
   }
-  // Fallback: fill from anything left if we didn't reach 10
+
+  // Fallback: if topics are too sparse, just keep filling from any topic
   if (pick.length < targetN) {
-    for (const it of shuffled) {
+    const allShuffled = seededShuffle(allItems, seed);
+    for (const it of allShuffled) {
       if (pick.includes(it)) continue;
       pick.push(it);
       if (pick.length >= targetN) break;
     }
   }
-  todayItems = pick;
+
+  // Final touch: shuffle the chosen set so the order on the page is mixed
+  // (otherwise the student sees weakest topic first every time, which is a
+  // small but real psychological hit on a hard day).
+  todayItems = seededShuffle(pick, seed + 31);
 }
 
 // ── Streak ─────────────────────────────────────────────────
@@ -302,7 +333,13 @@ async function init() {
     document.getElementById('start-blurb').textContent = 'Try reloading the page — the daily test needs the topic content files to be reachable.';
   } else {
     const distinctTopics = new Set(todayItems.map(i => i.topicId)).size;
-    document.getElementById('pill-paper-mix').textContent = `${distinctTopics} topics today`;
+    // Check if weighting actually shifted anything (i.e., if any progress exists)
+    let weightedHint = '';
+    try {
+      const stored = JSON.parse(localStorage.getItem('english_progress') || '{}');
+      if (Object.keys(stored).length > 0) weightedHint = ' · weighted toward weakest';
+    } catch {}
+    document.getElementById('pill-paper-mix').textContent = `${distinctTopics} topics today${weightedHint}`;
   }
 }
 

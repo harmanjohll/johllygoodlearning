@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comprehension OE Sprint — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 820px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+
+    .hero h1 { font-size: 1.55rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 1.25rem; }
+
+    .timer-bar {
+      position: sticky; top: 0; z-index: 30;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: .65rem 1rem; margin-bottom: 1rem;
+    }
+    .timer-bar .time-left {
+      font-family: 'IBM Plex Mono', ui-monospace, monospace; font-weight: 700;
+      font-size: 1.4rem; color: var(--accent); letter-spacing: .05em;
+    }
+    .timer-bar .time-left.warn { color: #fbbf24; }
+    .timer-bar .time-left.crit { color: #f87171; animation: pulse 1s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+    .passage-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.25rem 1.5rem; margin-bottom: 1rem;
+    }
+    .passage-card .title { font-size: .92rem; font-weight: 700; color: var(--accent); margin-bottom: .65rem; }
+    .passage-card .body { font-size: .95rem; line-height: 1.7; color: var(--text); white-space: pre-wrap; }
+
+    .qcard {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.25rem 1.5rem; margin-bottom: 1rem;
+    }
+    .qcard .qnum { color: var(--muted); font-weight: 700; margin-right: .4rem; }
+    .qcard .cmd-tag { font-size: .68rem; padding: .15rem .55rem; border-radius: 99px; background: rgba(167,139,250,.08); color: #a78bfa; border: 1px solid #a78bfa; font-weight: 700; margin-right: .35rem; }
+    .qcard .marks-tag { font-size: .68rem; padding: .15rem .55rem; border-radius: 99px; background: rgba(96,165,250,.08); color: var(--comprehension,#60a5fa); border: 1px solid var(--comprehension,#60a5fa); font-weight: 700; }
+    .qcard .stem { font-size: .92rem; line-height: 1.6; color: var(--text); margin: .5rem 0 .65rem; }
+    .qcard textarea {
+      width: 100%; min-height: 5rem;
+      background: var(--surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: .55rem .75rem; font-family: 'Inter', sans-serif; font-size: .9rem; line-height: 1.55;
+      resize: vertical;
+    }
+    .qcard textarea:focus { outline: none; border-color: var(--accent); }
+    .qcard .row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin-top: .5rem; }
+    .qcard .wc { font-size: .78rem; color: var(--muted); }
+
+    .feedback {
+      display: none; margin-top: .65rem;
+      background: linear-gradient(135deg, #14302b 0%, #1e1835 100%);
+      border: 1px solid var(--accent); border-radius: 9px;
+      padding: .85rem 1rem;
+    }
+    .feedback.show { display: block; }
+    .feedback h4 { color: var(--accent); font-size: .85rem; margin-bottom: .4rem; }
+    .feedback pre { white-space: pre-wrap; font-family: inherit; font-size: .86rem; color: var(--text); line-height: 1.7; }
+    .feedback .reveal-block { display: none; margin-top: .55rem; padding: .55rem .75rem; background: var(--surface); border-radius: 6px; font-size: .86rem; color: var(--text); line-height: 1.6; }
+    .feedback .reveal-block.show { display: block; }
+    .feedback .reveal-toggle { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 6px; padding: .25rem .55rem; font-size: .76rem; cursor: pointer; }
+
+    .scorecard {
+      background: linear-gradient(135deg, #14302b 0%, #1e1835 100%);
+      border: 1px solid var(--accent); border-radius: 12px;
+      padding: 1.5rem; text-align: center; margin-top: 1rem;
+    }
+    .scorecard .num { font-size: 2.6rem; font-weight: 800; color: var(--accent); font-family: 'IBM Plex Mono', monospace; }
+
+    .start-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
+    .start-card h2 { margin-bottom: .5rem; }
+    .start-card p  { color: var(--muted); font-size: .92rem; margin-bottom: 1rem; line-height: 1.65; }
+    .pill { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .25rem .65rem; font-size: .72rem; margin: .15rem; }
+    .key-warn { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.35); border-radius: 9px; padding: .65rem .95rem; font-size: .85rem; color: var(--text); margin-bottom: 1.25rem; line-height: 1.55; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../" class="back-link">← Hub</a>
+  <strong style="color: var(--text);">Comprehension OE Sprint</strong>
+  <span style="color: var(--muted); font-size: .82rem;">Paper 2 · 12 marks · 18 minutes</span>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Comprehension Open-Ended Sprint</h1>
+    <p>
+      One short passage, five open-ended questions covering the main PSLE command words: <strong>Describe</strong>,
+      <strong>Explain</strong>, <strong>Infer</strong>, <strong>Suggest</strong>, <strong>Compare</strong>.
+      Write each answer in full sentences using <strong>R.A.C.E.</strong> — Restate, Answer, Cite, Explain.
+      AI Examiner marks each item with band feedback. A model answer reveals only on request.
+    </p>
+  </div>
+
+  <div class="key-warn" id="key-warn" style="display:none;">
+    No Gemini API key. You can still draft answers; AI marking and the scorecard need a key.
+  </div>
+
+  <div id="start-pane">
+    <div class="start-card">
+      <h2>Ready?</h2>
+      <p>Eighteen minutes for one passage + five questions. The clock auto-submits at zero. Be specific. Quote then explain.</p>
+      <p>
+        <span class="pill">5 items · 12 marks</span>
+        <span class="pill">18 min</span>
+        <span class="pill">AI Examiner · RACE</span>
+      </p>
+      <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="btn-start">Start the sprint</button>
+        <button class="btn btn-secondary" id="btn-untimed">Untimed practice</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="quiz-pane" style="display:none;">
+    <div class="timer-bar">
+      <span class="time-left" id="time-left">18:00</span>
+      <span style="color:var(--muted);font-size:.85rem;" id="answered-meta">0 / 5 answered</span>
+      <span style="flex:1;"></span>
+      <button class="btn btn-primary" id="btn-submit-all" style="font-size:.82rem;padding:.4rem .8rem;">Submit all for marking</button>
+    </div>
+
+    <div class="passage-card" id="passage"></div>
+    <div id="questions"></div>
+  </div>
+
+  <div id="result-pane" style="display:none;"></div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script>
+const QUIZ_MS = 18 * 60 * 1000;
+
+const PASSAGE = {
+  title: 'The lift that stopped on the seventh floor',
+  body:
+"The lift stopped on the seventh floor. Mei stepped out into the corridor and froze. The door to her flat was ajar, the metal grille pushed back just enough for a hand to slip through. Her father always, ALWAYS, double-locked when he left for work. She listened. There was no sound from inside, only the faint hum of someone else's television seeping through the wall.\n\n" +
+"For a moment, Mei considered running back into the lift and pressing every button. But she had left her phone charging on her desk. Her father's number lived in that phone. So did everyone else's. She took a slow breath, then a slower step back, and forced herself to walk — not run — towards the staircase. She would knock on Aunty Geraldine's door on the sixth floor. Aunty Geraldine, retired police, would know what to do.\n\n" +
+"On the way down, Mei tried to think clearly. She had not seen any unfamiliar shoes outside her flat — but the door, the door. Her father was not the kind of man who forgot. Once, three years ago, he had driven all the way back from East Coast Park to check the front lock; he had not been wrong then either. By the time her hand was raised to knock on Aunty Geraldine's door, Mei realised her fingers were trembling. She made a small fist, breathed in, and knocked.\n\n" +
+"Aunty Geraldine opened the door in seconds, a kettle still in her other hand. \"Mei?\" she said. \"You're early today.\" Mei tried to speak but the words queued up somewhere behind her teeth and would not move. Aunty Geraldine set the kettle down. \"Show me,\" she said. That was all. They climbed the stairs together, Aunty Geraldine first, Mei behind her, both of them quiet in the way of people who are listening very, very hard.",
+};
+
+const QUESTIONS = [
+  { cmd: 'Describe', marks: 2,
+    stem: "What did Mei notice that made her freeze when she stepped out of the lift?",
+    rubric: "TWO observations expected. Door ajar (1m); metal grille pushed back / father always double-locks (1m). Direct lift without explanation = max 1m." },
+  { cmd: 'Explain',  marks: 2,
+    stem: "Explain why Mei did not use the lift to go back down.",
+    rubric: "Two-part explanation. (a) Her phone was on her desk (1m); (b) without it she had no numbers to call, so the staircase to Aunty Geraldine was the better plan (1m)." },
+  { cmd: 'Infer',    marks: 3,
+    stem: "What does the writer's reference to the East Coast Park incident suggest about Mei's father?",
+    rubric: "Inference required: he is careful / meticulous / not forgetful (1m). Evidence cited from passage (1m). Implication for the present situation — the open door must therefore be unusual or worrying (1m)." },
+  { cmd: 'Suggest',  marks: 2,
+    stem: "Suggest TWO reasons why Mei chose to knock on Aunty Geraldine's door rather than any other neighbour's.",
+    rubric: "Two distinct reasons. Examples accepted: (a) retired police = will know what to do (1m); (b) someone she trusts / has known a long time (1m); (c) on the sixth floor = direct from the staircase (1m). Any TWO of these = full marks." },
+  { cmd: 'Compare',  marks: 3,
+    stem: "Compare how Mei behaves at the start of the passage with how she behaves by the time she reaches Aunty Geraldine's door. Use TWO details from each part of the passage.",
+    rubric: "Start: frozen, considered pressing every button, panicked (cite phrase). End: making a small fist, breathed in, knocked deliberately (cite phrase). 1m for start description; 1m for end description; 1m for the comparison/shift point (she moved from panic to deliberate action)." },
+];
+
+const answers = {};
+const aiResults = {};
+let state = { startedAt: null, submitted: false, timed: true };
+let tickHandle = null;
+
+function init() {
+  const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  if (!key) document.getElementById('key-warn').style.display = 'block';
+  document.getElementById('btn-start').addEventListener('click',     () => startQuiz(true));
+  document.getElementById('btn-untimed').addEventListener('click',  () => startQuiz(false));
+  document.getElementById('btn-submit-all').addEventListener('click', () => { if (!state.submitted && confirm('Submit all answers for marking?')) submitAll(); });
+}
+
+function startQuiz(timed) {
+  state.timed = timed;
+  state.startedAt = Date.now();
+  document.getElementById('start-pane').style.display = 'none';
+  document.getElementById('quiz-pane').style.display  = 'block';
+  renderPassage();
+  renderQuestions();
+  if (timed) startTicker(); else document.getElementById('time-left').textContent = '∞';
+}
+
+function renderPassage() {
+  document.getElementById('passage').innerHTML = `
+    <div class="title">${PASSAGE.title}</div>
+    <div class="body">${escapeHTML(PASSAGE.body)}</div>
+  `;
+}
+
+function renderQuestions() {
+  const wrap = document.getElementById('questions');
+  wrap.innerHTML = '';
+  QUESTIONS.forEach((q, idx) => {
+    const card = document.createElement('div');
+    card.className = 'qcard';
+    card.dataset.idx = idx;
+    card.innerHTML = `
+      <div><span class="qnum">Q${idx + 1}.</span><span class="cmd-tag">${q.cmd}</span><span class="marks-tag">${q.marks}m</span></div>
+      <div class="stem">${q.stem}</div>
+      <textarea data-idx="${idx}" placeholder="Use RACE. Restate the question. Answer plainly. Cite from the passage. Explain what that proves."></textarea>
+      <div class="row"><span class="wc">0 words</span></div>
+      <div class="feedback" data-idx="${idx}">
+        <h4>Marker pass</h4>
+        <pre></pre>
+        <div style="margin-top:.55rem;">
+          <button class="reveal-toggle">▼ Show the rubric breakdown</button>
+          <div class="reveal-block">${q.rubric}</div>
+        </div>
+      </div>
+    `;
+    const ta = card.querySelector('textarea');
+    const wc = card.querySelector('.wc');
+    ta.addEventListener('input', () => {
+      answers[idx] = ta.value;
+      const n = ta.value.trim().split(/\s+/).filter(Boolean).length;
+      wc.textContent = `${n} word${n === 1 ? '' : 's'}`;
+      updateMeta();
+    });
+    card.querySelector('.reveal-toggle').addEventListener('click', () => {
+      const blk = card.querySelector('.reveal-block');
+      blk.classList.toggle('show');
+      card.querySelector('.reveal-toggle').textContent = blk.classList.contains('show') ? '▲ Hide rubric' : '▼ Show the rubric breakdown';
+    });
+    wrap.appendChild(card);
+  });
+}
+
+function updateMeta() {
+  const n = Object.values(answers).filter(v => v && v.trim()).length;
+  document.getElementById('answered-meta').textContent = `${n} / ${QUESTIONS.length} answered`;
+}
+
+function startTicker() {
+  if (tickHandle) clearInterval(tickHandle);
+  tickHandle = setInterval(tick, 500);
+  tick();
+}
+function tick() {
+  if (!state.startedAt || state.submitted) return;
+  const left = QUIZ_MS - (Date.now() - state.startedAt);
+  paintTime(left);
+  if (left <= 0) submitAll();
+}
+function paintTime(ms) {
+  const display = document.getElementById('time-left');
+  const mins = Math.max(0, Math.floor(ms / 60000));
+  const secs = Math.max(0, Math.floor((ms % 60000) / 1000));
+  display.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+  display.classList.remove('warn','crit');
+  if (ms <= 60_000)       display.classList.add('crit');
+  else if (ms <= 180_000) display.classList.add('warn');
+}
+
+async function submitAll() {
+  if (state.submitted) return;
+  state.submitted = true;
+  if (tickHandle) clearInterval(tickHandle);
+
+  document.getElementById('btn-submit-all').disabled = true;
+  document.getElementById('btn-submit-all').textContent = 'Marking…';
+
+  const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  if (!key) {
+    QUESTIONS.forEach((_, idx) => { aiResults[idx] = 'No Gemini key set. Open How-to-use to add one, then retry.'; });
+  } else {
+    await Promise.all(QUESTIONS.map((q, idx) => markOne(idx, q).catch(e => { aiResults[idx] = 'Marker error: ' + (e?.message || e); })));
+  }
+
+  let totalGot = 0;
+  let totalMax = 0;
+  QUESTIONS.forEach((q, idx) => {
+    const fbEl = document.querySelector(`.feedback[data-idx="${idx}"]`);
+    if (fbEl) {
+      fbEl.classList.add('show');
+      fbEl.querySelector('pre').textContent = aiResults[idx] || '(no marker pass)';
+    }
+    const m = (aiResults[idx] || '').match(/MARK:\s*(\d+)\s*\/\s*(\d+)/);
+    if (m) { totalGot += Number(m[1]); totalMax += Number(m[2]); }
+    else   { totalMax += q.marks; }
+  });
+
+  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('comprehension');
+
+  const r = document.getElementById('result-pane');
+  r.style.display = 'block';
+  r.innerHTML = `
+    <div class="scorecard">
+      <div class="num">${totalGot} / ${totalMax}</div>
+      <div style="color:var(--muted);font-size:.85rem;margin-top:.55rem;">Scroll up to read the marker's per-question feedback. Quote then explain is the difference between AL2 and AL1.</div>
+      <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;">
+        <a class="btn btn-primary" href="./">Retry</a>
+        <a class="btn btn-secondary" href="../">← Hub</a>
+        <a class="btn btn-secondary" href="../structured/">Composition / Comprehension Builder</a>
+      </div>
+    </div>
+  `;
+  document.getElementById('btn-submit-all').style.display = 'none';
+  r.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function markOne(idx, q) {
+  const ans = (answers[idx] || '').trim();
+  const sys = `You are an experienced PSLE English Language examiner marking a Comprehension Open-Ended item. Apply the rubric strictly. Plain text only. No markdown. Output EXACTLY four lines:\nMARK: <x>/${q.marks}\nRACE: <which of Restate/Answer/Cite/Explain were done well or missed>\nWHY: <one short reason for the mark>\nFIX: <one-sentence concrete suggestion>`;
+  const prompt = `PASSAGE:\n"""\n${PASSAGE.body}\n"""\n\nQUESTION (${q.cmd}, ${q.marks} marks): ${q.stem}\n\nRUBRIC (for your reference; do NOT reveal to the student): ${q.rubric}\n\nSTUDENT ANSWER (${(ans||'').trim().split(/\s+/).filter(Boolean).length} words):\n"""${ans || '(blank)'}"""`;
+  aiResults[idx] = await window.askGemini({ system: sys, prompt, temperature: 0.25, maxTokens: 350, thinkingBudget: 0 });
+}
+
+function escapeHTML(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+init();
+</script>
+</body>
+</html>

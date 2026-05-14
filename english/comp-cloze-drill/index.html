@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Grammar Cloze Sprint — PSLE English Studio</title>
+  <title>Comprehension Cloze Sprint — PSLE English Studio</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
     .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
     .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
     .back-link:hover { background: var(--border); color: var(--text); }
-    main { max-width: 780px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+    main { max-width: 820px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
 
     .hero h1 { font-size: 1.55rem; margin-bottom: .25rem; }
     .hero p  { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 1.25rem; }
@@ -33,13 +33,13 @@
 
     .passage {
       background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-      padding: 1.25rem 1.5rem; margin-bottom: 1rem;
-      font-size: 1rem; line-height: 2.1; color: var(--text);
+      padding: 1.5rem 1.75rem; margin-bottom: 1rem;
+      font-size: 1.02rem; line-height: 2.15; color: var(--text);
     }
     .passage .title { font-size: .92rem; font-weight: 700; color: var(--accent); margin-bottom: .85rem; }
 
     .blank {
-      display: inline-block; min-width: 6.5rem; padding: .25rem .55rem;
+      display: inline-block; min-width: 7rem; padding: .25rem .55rem;
       background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
       color: var(--text); font-family: inherit; font-size: .95rem;
     }
@@ -67,11 +67,11 @@
     }
     .review .blank-row:last-child { border-bottom: 0; }
     .review .blank-row .n { color: var(--muted); font-weight: 700; }
-    .review .blank-row .your { color: var(--text); }
     .review .blank-row .your.right { color: #4ade80; }
     .review .blank-row .your.wrong { color: #f87171; }
     .review .blank-row .ok { color: var(--accent); }
     .review .blank-row .why { color: var(--muted); font-size: .8rem; grid-column: 2 / span 2; margin-top: .15rem; line-height: 1.55; }
+    .review .clue-tag { display: inline-block; font-size: .68rem; padding: .1rem .4rem; border-radius: 99px; background: rgba(96,165,250,.08); color: var(--comprehension,#60a5fa); border: 1px solid var(--comprehension,#60a5fa); font-weight: 700; margin-right: .35rem; vertical-align: 2px; }
 
     .start-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
     .start-card h2 { margin-bottom: .5rem; }
@@ -83,28 +83,28 @@
 
 <header class="page-header">
   <a href="../" class="back-link">← Hub</a>
-  <strong style="color: var(--text);">Grammar Cloze Sprint</strong>
-  <span style="color: var(--muted); font-size: .82rem;">Paper 2 · 10 marks · 10 minutes</span>
+  <strong style="color: var(--text);">Comprehension Cloze Sprint</strong>
+  <span style="color: var(--muted); font-size: .82rem;">Paper 2 · 15 marks · 15 minutes</span>
 </header>
 
 <main>
   <div class="hero">
-    <h1>Grammar Cloze Sprint</h1>
+    <h1>Comprehension Cloze Sprint</h1>
     <p>
-      A single passage with ten one-word blanks — the real Paper 2 format. No word bank. Each blank tests
-      one of: tense, subject-verb agreement, article, preposition, pronoun, conjunction/connector, or
-      auxiliary. Type ONE word per blank. The clock auto-submits at zero.
+      Fifteen blanks in one running passage — the real Paper 2 Booklet B format. No word bank. Each blank is
+      decided by ONE of four clue types: context, collocation, grammar fit, or register. Read the whole
+      passage first; the clue is often a sentence away from the blank. Auto-marked on submit.
     </p>
   </div>
 
   <div id="start-pane">
     <div class="start-card">
       <h2>Ready?</h2>
-      <p>Ten minutes for ten blanks. Read the whole passage first; the clue is often a sentence away.</p>
+      <p>15 minutes for 15 blanks. The biggest single mark pool in Booklet B. Untimed mode if you'd rather learn the clue types first.</p>
       <p>
-        <span class="pill">10 blanks · 1 mark each</span>
-        <span class="pill">No word bank</span>
-        <span class="pill">10 min</span>
+        <span class="pill">15 blanks · 1 mark each</span>
+        <span class="pill">Context · Collocation · Grammar · Register</span>
+        <span class="pill">15 min</span>
       </p>
       <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;">
         <button class="btn btn-primary" id="btn-start">Start the sprint</button>
@@ -115,8 +115,8 @@
 
   <div id="quiz-pane" style="display:none;">
     <div class="timer-bar">
-      <span class="time-left" id="time-left">10:00</span>
-      <span style="color:var(--muted);font-size:.85rem;" id="filled-meta">0 / 10 filled</span>
+      <span class="time-left" id="time-left">15:00</span>
+      <span style="color:var(--muted);font-size:.85rem;" id="filled-meta">0 / 15 filled</span>
       <span style="flex:1;"></span>
       <button class="btn btn-secondary" id="btn-submit" style="font-size:.82rem;padding:.4rem .8rem;">Submit now</button>
     </div>
@@ -129,34 +129,44 @@
 <script src="../shared.js"></script>
 <script src="../shared/storage.js"></script>
 <script>
-const QUIZ_MS = 10 * 60 * 1000;
+const QUIZ_MS = 15 * 60 * 1000;
 
-// Passage: alternating strings and blank objects. Each blank carries
-// an accept-list (case-insensitive) and a `why` for review.
+// 15-blank Comprehension Cloze. Each blank carries a clue tag: 'context',
+// 'collocation', 'grammar', or 'register'. The accept-list is case-insensitive.
 const PASSAGE = {
-  title: 'A quiet Sunday at the wet market',
+  title: 'The corner shop that always remembered me',
   parts: [
-    "Every Sunday morning, my mother and I ",
-    { id: 1, accept: ['walk', 'go'],                     why: "Habit / routine → simple present. With 'every Sunday', use 'walk' or 'go'." },
-    " down to the wet market near our block. By the time we arrive at seven, the stalls ",
-    { id: 2, accept: ['have', 'are'],                    why: "Auxiliary for the perfect/continuous coming next. 'have already begun' or 'are already busy'." },
-    " already begun bustling with regulars. The fishmonger waves at us ",
-    { id: 3, accept: ['as', 'because', 'when'],          why: "Reason / time connector — 'as he sees us' / 'because he sees us' / 'when he sees us'." },
-    " he has been keeping the freshest yellowtail aside. ",
-    { id: 4, accept: ['Although', 'Though', 'While'],    why: "Contrast connector — the next clause sets up a 'but' relationship." },
-    " the market is crowded, my mother always knows exactly which stalls ",
-    { id: 5, accept: ['to', "we'll", "we", "I"],         why: "Infinitive 'to visit' OR contraction 'we'll' (we will). The most common natural fit is 'to'." },
-    " visit first. ",
-    { id: 6, accept: ['She', 'My mother', 'Mother'],     why: "Subject pronoun continuing the previous sentence's referent." },
-    " has been buying from these stalls ",
-    { id: 7, accept: ['for', 'over'],                    why: "Preposition signalling duration — 'for thirty years' / 'over thirty years'." },
-    " thirty years. The aunties greet her by name, and ",
-    { id: 8, accept: ['occasionally', 'sometimes'],      why: "Frequency adverb — the gift-giving is not every time, just now and then." },
-    " they slip an extra bunch of coriander into her basket. Loyalty, ",
-    { id: 9, accept: ['as', 'so'],                       why: "Comparative/result connector — 'as I learnt' (as a result of all of this) is most natural here." },
-    " I have learnt over the years, is its own quiet currency at the market. When she came home empty-handed last week, the fishmonger himself ",
-    { id: 10, accept: ['delivered', 'brought', 'sent'],  why: "Past tense, transitive — 'delivered the fish', 'brought the fish', 'sent the fish'. Past-tense form required by 'last week'." },
-    " the fish to our door. He had not been told. He had simply known.",
+    "When I was eight, I used to ",
+    { id: 1,  clue: 'collocation', accept: ['stop', 'drop', 'pop'],           why: "'Stop by' / 'drop by' / 'pop by' all collocate with 'on the way home'. Common verbs for brief visits." },
+    " by Mr Tan's corner shop on the way home from school. The shop was so narrow that two customers could ",
+    { id: 2,  clue: 'context',     accept: ['barely', 'hardly', 'scarcely'],  why: "Context = 'so narrow that...'. The next clause names a difficulty. Negative-degree adverb required." },
+    " pass each other in the aisle. ",
+    { id: 3,  clue: 'context',     accept: ['Despite', 'Notwithstanding'],    why: "Contrast with the next clause ('it had everything'). Sentence-opener form: 'Despite + noun'." },
+    " its size, the shop seemed to stock everything: comics, candy, kites, batteries, the right kind of sweet drink for a humid afternoon. Mr Tan ran the shop with a quiet ",
+    { id: 4,  clue: 'context',     accept: ['pride', 'patience', 'efficiency'], why: "Abstract noun describing a calm professional virtue. The next sentences show him knowing every customer — pride or patience both fit; pride is the AL1 pick." },
+    ", as if he had been doing it his whole life — which, my mother told me later, he had. ",
+    { id: 5,  clue: 'grammar',     accept: ['What', 'Something'],             why: "Subject pronoun introducing an emphatic clause: 'What set him apart...' — a relative-like What-construction." },
+    " set him apart was that he ",
+    { id: 6,  clue: 'grammar',     accept: ['remembered', 'knew'],            why: "Past simple, transitive verb. Past tense required throughout the narrative. 'Remembered' is the most natural; 'knew' is acceptable." },
+    " every regular customer by name and by order. Mrs Lim, two blocks down, came in on Wednesdays for a tin of green tea. The Ravi family always bought their newspapers ",
+    { id: 7,  clue: 'collocation', accept: ['in', 'from'],                    why: "'In the morning' / 'from the morning' — preposition fixed by the surrounding 'always bought their newspapers ___ the morning'. 'In the morning' is the natural collocation." },
+    " the morning, never the evening. And I, the boy who came in at half past three each weekday, ",
+    { id: 8,  clue: 'collocation', accept: ['always', 'invariably'],          why: "Adverb of frequency — emphasises a routine. Aligns with 'each weekday' from the previous clause." },
+    " left with the same orange-flavoured popsicle in my hand. Mr Tan would slip a packet of stickers into my bag ",
+    { id: 9,  clue: 'context',     accept: ['occasionally', 'sometimes'],     why: "Frequency adverb — the gift is described as a bonus, not a guaranteed event. 'Occasionally' fits the 'as if a small kindness' tone better than 'often'." },
+    ", as if a small kindness was the most natural thing in the world. ",
+    { id: 10, clue: 'context',     accept: ['Years', 'Many years', 'Decades'], why: "Time marker opening a new paragraph. The next sentence shifts to adulthood ('I was already in secondary school'), so a long-time-passing word." },
+    " later, when I was already in secondary school, I went back to find the shop. The aisle was still narrow. The shelves were still ",
+    { id: 11, clue: 'collocation', accept: ['packed', 'crammed', 'crowded', 'stocked'], why: "Collocation with shelves and 'with kites, comics, candy'. 'Packed with' or 'crammed with' or 'stocked with' — all natural." },
+    " with kites and comics and candy. But Mr Tan, the man who had once known me by my popsicle, ",
+    { id: 12, clue: 'context',     accept: ['squinted', 'frowned', 'paused', 'hesitated'], why: "The next clause says he didn't recognise the now-grown narrator. A facial-effort verb fits — peering uncertainly at a familiar-yet-different face." },
+    " at me, his head tilted, trying to ",
+    { id: 13, clue: 'context',     accept: ['place', 'remember', 'recognise', 'recall'], why: "What you do mentally when you're trying to match a face to a memory. 'Place' is the precise English verb here; the others are acceptable paraphrases." },
+    " who I was. \"You used to come in for the orange one,\" he said at last. ",
+    { id: 14, clue: 'context',     accept: ['Tears', 'Something'],            why: "Emotional response to being remembered after many years. The student's eyes did something — 'tears welled up', 'something caught in my throat'." },
+    " welled up in my eyes, not because he had forgotten me, but because he had ",
+    { id: 15, clue: 'context',     accept: ['remembered', 'recognised'],      why: "The whole story turns on this word — he HAD remembered, after all the years. Past participle." },
+    ".",
   ],
 };
 
@@ -183,7 +193,7 @@ function renderPassage() {
   const wrap = document.getElementById('passage');
   wrap.innerHTML = `<div class="title">${PASSAGE.title}</div>`;
   const body = document.createElement('div');
-  body.style.cssText = 'line-height:2.15;';
+  body.style.cssText = 'line-height:2.2;';
   PASSAGE.parts.forEach(piece => {
     if (typeof piece === 'string') body.appendChild(document.createTextNode(piece));
     else {
@@ -248,21 +258,31 @@ function submit() {
     }
   });
 
-  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('grammar');
+  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('cloze');
 
   const qual =
-    got === blanks.length ? 'Perfect. AL1 grammar instinct.' :
-    got >= blanks.length - 2 ? 'On the AL1/AL2 line. Look at the two misses below.' :
-    got >= blanks.length / 2 ? 'Halfway. Re-read every WHY below — patterns repeat.' :
-                                'Read the WHYs below, then retry with the untimed mode.';
+    got === blanks.length ? 'Perfect. AL1 reading instinct.' :
+    got >= blanks.length - 2 ? 'On the AL1/AL2 line — look at the two misses below.' :
+    got >= blanks.length / 2 ? 'Halfway. The clue-type tags below show which kind of clue you missed most.' :
+                                'Read every WHY below, then retry with the untimed mode. The clue-type tags reveal the pattern.';
 
-  let reviewHTML = '<div class="review"><h3>Review every blank</h3>';
+  // Tally misses by clue type so the student sees their weak spot
+  const missByClue = {};
+  blanks.forEach(b => {
+    const val = state.answers[b.id] || '';
+    const right = (b.accept || []).map(x => x.toLowerCase()).includes(val.toLowerCase());
+    if (!right) missByClue[b.clue] = (missByClue[b.clue] || 0) + 1;
+  });
+  const clueLines = Object.entries(missByClue).sort((a,b) => b[1]-a[1])
+    .map(([k,v]) => `<span style="font-size:.78rem;color:var(--muted);">${v}× ${k}</span>`).join(' &middot; ');
+
+  let reviewHTML = `<div class="review"><h3>Review every blank</h3>${clueLines ? `<div style="margin-bottom:.55rem;">Misses by clue type: ${clueLines}</div>` : ''}`;
   blanks.forEach(b => {
     const val = state.answers[b.id] || '';
     const right = (b.accept || []).map(x => x.toLowerCase()).includes(val.toLowerCase());
     reviewHTML += `<div class="blank-row">
       <div class="n">${b.id}.</div>
-      <div class="your ${right ? 'right' : 'wrong'}">${right ? '✓' : '✗'} "${escapeHTML(val) || '(blank)'}"</div>
+      <div><span class="clue-tag">${b.clue}</span><span class="your ${right ? 'right' : 'wrong'}">${right ? '✓' : '✗'} "${escapeHTML(val) || '(blank)'}"</span></div>
       <div class="ok">Accept: ${b.accept.join(' / ')}</div>
       <div class="why">${escapeHTML(b.why)}</div>
     </div>`;
