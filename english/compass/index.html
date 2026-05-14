@@ -140,6 +140,65 @@
 <script src="../shared/streak.js"></script>
 <script src="../shared/pomodoro.js"></script>
 <script>
+// ── Topic registry (mirrors Mirror + Plan) ──────────────────
+const TOPICS = [
+  { id: 'composition',   name: 'Continuous Writing',          theme: 'composition', dest: '../structured/',     destLabel: '📋 Composition Builder' },
+  { id: 'situational',   name: 'Situational Writing',         theme: 'composition', dest: '../structured/',     destLabel: '📋 Composition Builder' },
+  { id: 'grammar',       name: 'Grammar',                     theme: 'grammar',     dest: '../topics/grammar/', destLabel: '📝 Grammar Drill' },
+  { id: 'vocab',         name: 'Vocabulary',                  theme: 'vocab',       dest: '../topics/vocab/',   destLabel: '📚 Vocab Drill' },
+  { id: 'visual-text',   name: 'Visual Text',                 theme: 'comprehension', dest: '../topics/visual-text/', destLabel: '🖼 Visual Text' },
+  { id: 'cloze',         name: 'Comprehension Cloze',         theme: 'comprehension', dest: '../topics/cloze/',       destLabel: '🧩 Cloze Drill' },
+  { id: 'editing',       name: 'Editing',                     theme: 'comprehension', dest: '../topics/editing/',     destLabel: '✏️ Editing Drill' },
+  { id: 'synthesis',     name: 'Synthesis & Transformation',  theme: 'comprehension', dest: '../topics/synthesis/',   destLabel: '🔄 Synthesis Drill' },
+  { id: 'comprehension', name: 'Comprehension Open-Ended',    theme: 'comprehension', dest: '../structured/',         destLabel: '📋 Comprehension Builder' },
+  { id: 'listening',     name: 'Listening',                   theme: 'oral',        dest: '../listen/',        destLabel: '🎧 Listening Practice' },
+  { id: 'oral-reading',  name: 'Reading Aloud',               theme: 'oral',        dest: '../aloud/',         destLabel: '🎙 Reading Aloud' },
+  { id: 'oral-sbc',      name: 'Stimulus-Based Conversation', theme: 'oral',        dest: '../sbc/',           destLabel: '💬 SBC Practice' },
+];
+const THEME_LABEL = { composition: 'Composition', grammar: 'Grammar', vocab: 'Vocabulary', comprehension: 'Comprehension', oral: 'Oral & Listening' };
+
+function masteryFor(p) {
+  let s = 0;
+  if ((p.visitCount || 0) > 0) s += 10;
+  if (p.drillUsed)             s += 30;
+  if (p.mindMapSaved)          s += 20;
+  if (p.quizTotal > 0)         s += Math.round((p.quizScore / p.quizTotal) * 40);
+  return Math.min(s, 100);
+}
+
+function progressFor(id) {
+  try { return (typeof Progress !== 'undefined') ? Progress.get(id) : {}; }
+  catch { return {}; }
+}
+
+function topicStates() {
+  return TOPICS.map(t => {
+    const p = progressFor(t.id);
+    return { ...t, p, pct: masteryFor(p) };
+  });
+}
+
+function pickFocus(mood) {
+  const states = topicStates();
+  // Identify the weakest topic AND a "comfort" topic (highest mastery > 0)
+  const visited = states.filter(s => (s.p.visitCount || 0) > 0);
+  const weakest = states.slice().sort((a, b) => a.pct - b.pct)[0];
+  const comfort = visited.slice().sort((a, b) => b.pct - a.pct)[0];
+
+  // Mood 1-2 (drained / low): pick a familiar topic the student already knows
+  if (mood <= 2 && comfort && comfort.pct >= 20) return { topic: comfort, why: 'familiar territory', kind: 'comfort' };
+
+  // Mood 4-5 (good / strong): pick the weakest topic to push mastery
+  if (mood >= 4) return { topic: weakest, why: 'biggest mark-per-hour gain', kind: 'stretch' };
+
+  // Mood 3 (OK): pick lowest-mastery visited topic, or weakest overall if nothing visited
+  if (visited.length > 0) {
+    const visitedLowest = visited.slice().sort((a, b) => a.pct - b.pct)[0];
+    return { topic: visitedLowest, why: 'already started but unfinished', kind: 'continue' };
+  }
+  return { topic: weakest, why: 'no progress recorded yet', kind: 'cold-start' };
+}
+
 function timeBand() {
   const h = new Date().getHours();
   if (h < 5)  return ['Very early.', 'Consider sleeping first if you can.'];
@@ -161,25 +220,25 @@ try {
   }
 } catch {}
 
-const PROPOSALS = {
-  1: { len: 10, mode: 'Gentle', text: 'A <strong>10-minute session</strong>. Pick a topic you already know well. Open the <strong>Vocab topic</strong> or <strong>Idioms SRS</strong>. Keep the load light — what matters is showing up, not the volume.', url: '../idioms-srs/index.html', label: '🔁 Idioms SRS' },
-  2: { len: 15, mode: 'Gentle', text: 'A <strong>15-minute session</strong>. Feeling low today? That is OK. Try one short quiz on a familiar topic — not for high scores, just for repetition.', url: '../topics/vocab/index.html', label: '📝 Vocab Quiz' },
-  3: { len: 20, mode: 'Balanced', text: 'A <strong>20-minute session</strong>. Pick a topic from the review queue. Take a quiz; review missed answers carefully.', url: '../mirror/index.html', label: '🪞 Open Mirror' },
-  4: { len: 25, mode: 'Challenge', text: 'A <strong>25-minute session</strong>. Mood is good — try something more challenging. Open <strong>Continuous Writing</strong> or <strong>Comprehension OE</strong> at P6 level.', url: '../topics/composition/index.html', label: '✍️ Continuous Writing' },
-  5: { len: 30, mode: 'Stretch', text: 'A <strong>30-minute session</strong>. Strong mood — time to push yourself. Try the <strong>Synthesis &amp; Transformation</strong> drill or a full Continuous Writing piece.', url: '../topics/synthesis/index.html', label: '🔄 Synthesis &amp; Transformation' },
+// ── Mood → length + tone (the "why" depends on the picked focus topic) ──
+const MOOD_PROFILE = {
+  1: { len: 10, mode: 'Gentle',    lead: 'Tonight is a maintenance session. Keep it small.' },
+  2: { len: 15, mode: 'Gentle',    lead: 'A short session is still a session. The streak doesn\'t care about score.' },
+  3: { len: 20, mode: 'Balanced',  lead: 'Twenty minutes is the sweet spot when energy is steady.' },
+  4: { len: 25, mode: 'Challenge', lead: 'Mood is good. Push something that has been sitting at the bottom of your mastery list.' },
+  5: { len: 30, mode: 'Stretch',   lead: 'Strong mood. A focused 30-min stretch beats two distracted hours.' },
 };
 
 let chosenScore = null;
+let chosenFocus = null;
+
 document.querySelectorAll('.mood').forEach(el => {
   el.addEventListener('click', () => {
     document.querySelectorAll('.mood').forEach(m => m.classList.remove('selected'));
     el.classList.add('selected');
     chosenScore = parseInt(el.dataset.score, 10);
-    const p = PROPOSALS[chosenScore];
-    document.getElementById('proposal').innerHTML = `<h4>${p.mode} · ${p.len} minutes</h4>${p.text}`;
-    document.getElementById('step-proposal').style.display = 'block';
-    document.getElementById('step-intention').style.display = 'block';
-    document.getElementById('i-mins').value = p.len;
+    chosenFocus = pickFocus(chosenScore);
+    renderProposal();
     if (window.JglStorage && window.JglStorage.update) {
       window.JglStorage.update(p => {
         p.wellbeing = p.wellbeing || { lastCheckInIso: null, recentMoodScores: [] };
@@ -191,18 +250,57 @@ document.querySelectorAll('.mood').forEach(el => {
   });
 });
 
+function renderProposal() {
+  const mp = MOOD_PROFILE[chosenScore];
+  const f  = chosenFocus;
+  const t  = f.topic;
+  const kindBlurb = ({
+    'comfort':    `Open <strong>${t.name}</strong> — it\'s your strongest familiar area (${t.pct}%). The point tonight is showing up, not stretching.`,
+    'continue':   `Open <strong>${t.name}</strong> — you\'ve already started here but mastery sits at ${t.pct}%. Twenty more minutes will move the needle.`,
+    'stretch':    `Open <strong>${t.name}</strong> — currently your weakest theme (${t.pct}% mastery). Marks-per-hour is highest where the gap is biggest.`,
+    'cold-start': `Open <strong>${t.name}</strong> — a clean starting point for a fresh streak.`,
+  })[f.kind];
+
+  document.getElementById('proposal').innerHTML = `
+    <h4>${mp.mode} · ${mp.len} minutes</h4>
+    ${mp.lead}<br><br>${kindBlurb}
+    <div style="margin-top:.6rem;font-size:.8rem;color:var(--muted);">${THEME_LABEL[t.theme]} · ${f.why}</div>
+  `;
+  document.getElementById('step-proposal').style.display = 'block';
+  document.getElementById('step-intention').style.display = 'block';
+  document.getElementById('i-mins').value = mp.len;
+
+  // Pre-fill the topic dropdown with the recommended focus
+  const sel = document.getElementById('i-topic');
+  const opt = [...sel.options].find(o => o.textContent.trim() === t.name);
+  if (opt) sel.value = opt.value;
+
+  // Pre-fill the action dropdown based on topic
+  const actionSel = document.getElementById('i-action');
+  const actionGuess =
+    t.id === 'composition' || t.id === 'situational' ? 'write one composition paragraph' :
+    t.id === 'oral-reading'                          ? 'practise a reading aloud passage' :
+    t.id === 'comprehension'                         ? 'read and answer comprehension' :
+    t.id === 'synthesis'                             ? 'do a synthesis & transformation set' :
+    t.id === 'vocab' || t.id === 'idioms'            ? 'review my idioms' :
+                                                       'complete one quiz';
+  const actOpt = [...actionSel.options].find(o => o.textContent.trim() === actionGuess);
+  if (actOpt) actionSel.value = actOpt.value;
+}
+
 document.getElementById('commit-btn').addEventListener('click', () => {
   const m = document.getElementById('i-mins').value;
   const a = document.getElementById('i-action').value;
   const t = document.getElementById('i-topic').value;
   document.getElementById('commit-line').innerHTML = `Intention: <em>"In the next ${m} minutes I will ${a} on ${t}."</em> What you promise yourself is what you become.`;
-  const proposal = PROPOSALS[chosenScore || 3];
-  // Pass the chosen minutes via ?pomo so the destination auto-starts the timer.
-  const sep = proposal.url.includes('?') ? '&' : '?';
-  document.getElementById('quick-link').href = proposal.url + sep + 'pomo=' + encodeURIComponent(m);
-  document.getElementById('quick-link').innerHTML = proposal.label;
+
+  // Pick destination from chosen focus topic; fall back to the topic page
+  const dest = chosenFocus ? chosenFocus.topic.dest : '../index.html';
+  const label = chosenFocus ? chosenFocus.topic.destLabel : '← Back to Hub';
+  const sep = dest.includes('?') ? '&' : '?';
+  document.getElementById('quick-link').href = dest + sep + 'pomo=' + encodeURIComponent(m);
+  document.getElementById('quick-link').innerHTML = label;
   document.getElementById('session-summary').classList.add('show');
-  // Also mount the pomodoro on this page so the student can see it ticking while reviewing the summary.
   if (window.JglPomodoro && !window.JglPomodoro.isActive()) window.JglPomodoro.mount(parseInt(m, 10));
   if (window.JglStorage && window.JglStorage.update) {
     window.JglStorage.update(p => {
