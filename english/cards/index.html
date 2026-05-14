@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cheat Cards — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 880px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+
+    .hero h1 { font-size: 1.55rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 1.25rem; }
+
+    .topic-tabs { display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .topic-tab {
+      background: var(--card); border: 1px solid var(--border); border-radius: 99px;
+      padding: .4rem .85rem; font-size: .8rem; color: var(--muted); cursor: pointer;
+      transition: all .15s;
+    }
+    .topic-tab:hover { color: var(--text); border-color: var(--accent); }
+    .topic-tab.active { color: #1c0c0c; background: var(--accent); border-color: var(--accent); font-weight: 700; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.5rem 1.75rem; margin-bottom: 1rem;
+    }
+    .card .meta { display: flex; gap: .55rem; align-items: center; margin-bottom: .85rem; font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-weight: 700; flex-wrap: wrap; }
+    .card .meta .paper-pill { padding: .15rem .55rem; border-radius: 99px; background: rgba(96,165,250,.08); color: var(--comprehension); border: 1px solid var(--comprehension); }
+    .card h2 { font-size: 1.4rem; margin-bottom: .35rem; }
+    .card .subtitle { font-size: .9rem; color: var(--muted); margin-bottom: 1.25rem; line-height: 1.55; font-style: italic; }
+
+    .must-know-list { list-style: none; padding: 0; margin: 0 0 1.25rem; }
+    .must-know-list li {
+      padding: .65rem 0 .65rem 2rem; border-bottom: 1px solid var(--border);
+      position: relative; font-size: .92rem; line-height: 1.6; color: var(--text);
+    }
+    .must-know-list li:last-child { border-bottom: 0; }
+    .must-know-list li::before {
+      content: counter(li); counter-increment: li;
+      position: absolute; left: 0; top: .55rem;
+      width: 1.4rem; height: 1.4rem; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--accent); color: var(--accent);
+      text-align: center; line-height: 1.4rem; font-size: .75rem; font-weight: 800;
+    }
+    .must-know-list { counter-reset: li; }
+    .must-know-list li strong { color: var(--accent); }
+    .must-know-list li code { background: var(--surface); padding: .1rem .3rem; border-radius: 4px; font-size: .85rem; color: var(--text); }
+
+    .worked-block, .mnemonic-block {
+      background: var(--surface); border-left: 3px solid var(--accent);
+      padding: .85rem 1.1rem; border-radius: 6px; margin-bottom: .85rem;
+      font-size: .9rem; line-height: 1.6; color: var(--text);
+    }
+    .worked-block .label, .mnemonic-block .label {
+      display: inline-block; font-size: .65rem; color: var(--accent);
+      text-transform: uppercase; letter-spacing: .07em; font-weight: 800; margin-bottom: .35rem;
+    }
+    .worked-block .before { color: #f87171; }
+    .worked-block .after  { color: #4ade80; font-weight: 600; }
+    .worked-block .arrow  { color: var(--muted); margin: 0 .35rem; }
+
+    .footer-tip { font-size: .78rem; color: var(--muted); text-align: center; margin-top: 2rem; line-height: 1.65; }
+
+    @media print {
+      .page-header, .topic-tabs, .footer-tip, .back-link { display: none !important; }
+      main { max-width: none; padding: 0; }
+      .card { break-after: page; border: none; padding: 0; }
+      body { background: white; color: black; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../" class="back-link">← Hub</a>
+  <strong style="color: var(--text);">Cheat Cards</strong>
+  <span style="color: var(--muted); font-size: .82rem;">Last-7-days revision · one card per topic</span>
+  <span style="flex:1;"></span>
+  <button class="back-link" onclick="window.print()">🖨 Print all cards</button>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Cheat Cards</h1>
+    <p>
+      One card per topic. Five must-knows, one worked example, one memory hook. Designed for the last seven
+      days before the paper, when revision is about <em>reminders</em>, not learning. Print all cards onto
+      one A4 each, or browse here. Tap a topic above to jump.
+    </p>
+  </div>
+
+  <div class="topic-tabs" id="topic-tabs"></div>
+
+  <div id="cards"></div>
+
+  <div class="footer-tip">
+    Take one card with you on exam day. Re-read it on the bus. The point is recognition, not new learning.
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script>
+const CARDS = [
+  {
+    id: 'composition', paper: 'P1 · 36m', title: 'Continuous Writing',
+    subtitle: 'A short story that hooks, shows, climaxes, and reflects. Aim for ~200 words, 4 paragraphs, one specific image holding it together.',
+    musts: [
+      "<strong>Open with a sensory image, never a stage announcement.</strong> Not 'It was a sunny day' — but 'Buddy's leash slid through my fingers like wet rope.'",
+      "<strong>F.A.S.T. instead of naming emotion.</strong> Face, Actions, Speech, Thoughts. Pick one or two each time the feeling shifts.",
+      "<strong>Climax in paragraph 3 of 4.</strong> Build-up then breaks; resolution + R.E.F. follows.",
+      "<strong>R.E.F. ending = Reflection, Emotion, Future-action.</strong> Concrete, not 'I learnt a valuable lesson.'",
+      "<strong>One idiom or sustained metaphor maximum.</strong> Two if both earned. Banned: 'raining cats and dogs', 'best day of my life', 'I learnt a valuable lesson'.",
+    ],
+    worked: {
+      before: "I was very scared as I walked into the dark room.",
+      after:  "My fingers froze around the door handle; my heartbeat thudded in my ears.",
+    },
+    mnemonic: "<strong>O.B.C.R.</strong> — Opening, Build-up, Climax, Reflection. Four paragraphs, in that order.",
+  },
+  {
+    id: 'situational', paper: 'P1 · 14m', title: 'Situational Writing',
+    subtitle: '60–80 words. Match the FORMAT, match the REGISTER, cover EVERY bullet point. The marks are won in the first thirty seconds of planning.',
+    musts: [
+      "<strong>Read the bullets twice; tick them off as you write.</strong> Missing one usually drops you a whole band.",
+      "<strong>Register matches audience.</strong> Principal → formal ('Yours sincerely'). Classmate → friendly ('Your friend'). Stranger → 'Yours faithfully'.",
+      "<strong>Format: Letter has sender's address. Email has Subject line. Note has neither.</strong>",
+      "<strong>One sentence per bullet point.</strong> 60–80 words is too tight for filler.",
+      "<strong>'Yours sincerely' when you know the name. 'Yours faithfully' for Dear Sir/Madam.</strong> Get this right.",
+    ],
+    worked: {
+      before: "Hi Mrs Lim, lol I think we should have a chess club, ok thanks bye.",
+      after:  "Dear Mrs Lim, I am writing to propose a new Chess Club for our school next term...",
+    },
+    mnemonic: "<strong>F.R.A.</strong> — Format, Register, Address-every-point. Three minutes to plan, ten to write, two to check.",
+  },
+  {
+    id: 'grammar', paper: 'P2 · 20m', title: 'Grammar',
+    subtitle: 'Booklet A MCQ (10m) + Booklet B Cloze (10m). High-frequency traps repeat year after year. Memorise the patterns.',
+    musts: [
+      "<strong>'Each/Every/Neither/One of' is SINGULAR.</strong> 'Each of the boys IS here.' Not 'are.'",
+      "<strong>Past perfect for the earlier of two past events.</strong> 'By the time the bell rang, the students HAD finished.'",
+      "<strong>Articles depend on SOUND, not letter.</strong> 'an honest', 'a university', 'an hour', 'a European'.",
+      "<strong>After a preposition, OBJECT pronoun.</strong> 'Between you and ME.' Not 'I'.",
+      "<strong>Memorise verb+preposition as units.</strong> depend ON, rely ON, agree WITH (person), agree TO (plan), consist OF, suffer FROM, succeed IN.",
+    ],
+    worked: {
+      before: "Between you and I, neither of the boys are willing to apologise.",
+      after:  "Between you and ME, neither of the boys IS willing to apologise.",
+    },
+    mnemonic: "<strong>T.S.A.P.P.C.</strong> — Tense, SVA, Article, Preposition, Pronoun, Conjunction. Six checks per blank.",
+  },
+  {
+    id: 'vocab', paper: 'P2 · 10m', title: 'Vocabulary',
+    subtitle: 'Booklet A MCQ (5m) + Booklet A Cloze MCQ (5m). Read the CLUES in the sentence: cause-effect, contrast, definition.',
+    musts: [
+      "<strong>Re-read the sentence with each option plugged in.</strong> Which one fits the WHOLE sentence, not just the blank?",
+      "<strong>Watch for contrast words.</strong> 'but', 'however', 'although' → the missing word is the OPPOSITE of what's nearby.",
+      "<strong>Watch for cause-effect.</strong> 'so', 'because', 'therefore' → the missing word continues the chain.",
+      "<strong>Register matters.</strong> 'chuck' is informal; 'discard' is neutral; 'jettison' is formal. Pick what fits the passage tone.",
+      "<strong>Beware collocations.</strong> 'heavy rain' (not strong); 'make a decision' (not do); 'pay attention' (not give).",
+    ],
+    worked: {
+      before: "The library was so quiet that even a whisper sounded _____. (silent / muted / deafening / soft)",
+      after:  "DEAFENING — the contrast 'so quiet that even a whisper' demands the unexpected loud answer.",
+    },
+    mnemonic: "<strong>C.R.C.</strong> — Clues, Re-read, Contrast. Always plug the answer back in.",
+  },
+  {
+    id: 'cloze', paper: 'P2 · 15m', title: 'Comprehension Cloze',
+    subtitle: 'No word bank. Read the WHOLE passage first. The blank is always provable from nearby sentences.',
+    musts: [
+      "<strong>Read every paragraph before filling any blank.</strong> The clue often lives sentences later.",
+      "<strong>Match grammar AND meaning.</strong> A noun blank takes a noun; tense agrees with surrounding verbs.",
+      "<strong>Connectors are common.</strong> 'although', 'because', 'while', 'since', 'despite' — know which signals what.",
+      "<strong>Common Cloze targets:</strong> connectors, prepositions, articles, time markers, pronouns, abstract nouns ('respect', 'kindness', 'silence').",
+      "<strong>If unsure, pick the MOST COMMON natural word.</strong> Examiners reward common, idiomatic English.",
+    ],
+    worked: {
+      before: "She had been a loyal customer for thirty years. Loyalty, I learnt that afternoon, was a _____ of its own — quieter than money.",
+      after:  "currency / kind / form — any captures 'a type of its own'; pick the most precise.",
+    },
+    mnemonic: "<strong>R.G.M.C.</strong> — Read whole, Grammar fit, Meaning fit, Common word wins ties.",
+  },
+  {
+    id: 'editing', paper: 'P2 · 10m', title: 'Editing for Grammar & Spelling',
+    subtitle: 'Each line has ONE error: grammar OR spelling. Five grammar, five spelling, indicative split.',
+    musts: [
+      "<strong>Read the whole sentence aloud in your head.</strong> Errors that the eye misses, the ear catches.",
+      "<strong>Common spelling traps:</strong> necessary (1c,2s), occurred (2c,2r), embarrassed (2r,2s), separate (e-a), receive (i before e EXCEPT after c).",
+      "<strong>Common grammar errors:</strong> double comparative ('more better'), wrong verb form ('writted'), plural errors ('childrens'), missing -ed on past tense.",
+      "<strong>If a word LOOKS odd, it usually is.</strong> Trust the eye on spelling.",
+      "<strong>Only write ONE word in the box.</strong> Two words = automatic wrong.",
+    ],
+    worked: {
+      before: "My grandmother writted a long letter to her childrens last week.",
+      after:  "WROTE / CHILDREN — past tense + already-plural noun.",
+    },
+    mnemonic: "<strong>S.O.S.</strong> — Spelling-or-Sense. If both look fine, re-read aloud.",
+  },
+  {
+    id: 'synthesis', paper: 'P2 · 10m', title: 'Synthesis & Transformation',
+    subtitle: 'Five items × 2 marks each. Meaning MUST stay identical. One mark for grammar, one for meaning.',
+    musts: [
+      "<strong>Practise these patterns:</strong> active↔passive, direct↔reported, relative clauses (who/which/that), conditionals (if + would), inversion (Had I known...).",
+      "<strong>Reported speech: back-shift tense AND change pronouns.</strong> 'I will help YOU.' → He said he WOULD help ME.",
+      "<strong>'Although/Despite' swap:</strong> Although + clause; Despite + noun/-ing. NOT 'Despite he is tired' — 'Despite being tired'.",
+      "<strong>Keep the same FACTS.</strong> Don't add information; don't change names or numbers.",
+      "<strong>Don't change the word given.</strong> If the rewrite starts 'She told...', it stays 'told', not 'said'.",
+    ],
+    worked: {
+      before: "\"I will help you with your homework,\" said Aaron. (→ Aaron told me that...)",
+      after:  "...he WOULD help ME with MY homework. (will→would, you→me, your→my)",
+    },
+    mnemonic: "<strong>K.M.F.</strong> — Keep Meaning, change Form. Mark depends on BOTH.",
+  },
+  {
+    id: 'comprehension', paper: 'P2 · 20m', title: 'Comprehension Open-Ended',
+    subtitle: 'Two passages: narrative + non-narrative. RACE every answer: Restate, Answer, Cite, Explain.',
+    musts: [
+      "<strong>RACE = Restate / Answer / Cite / Explain.</strong> Skip any step, lose the marks.",
+      "<strong>Command words decide structure:</strong> DESCRIBE (what), EXPLAIN (why+how), INFER (read between lines+evidence), SUGGEST (offer a possibility), COMPARE (both sides).",
+      "<strong>Quote then EXPLAIN.</strong> Direct lifts without your own words = 0 marks for understanding.",
+      "<strong>Marks ≈ points.</strong> 2 marks → 2 distinct points. 3 marks → 3. Don't pad; don't under-deliver.",
+      "<strong>Inference questions need TWO clues from the passage.</strong> One emotion + two body-language quotes that prove it.",
+    ],
+    worked: {
+      before: "Why did the boy hide the letter? (Passage: 'He stuffed it under his pillow before his mother could see.')",
+      after:  "The boy hid the letter because he did not want his mother to see it. This is shown by how he 'stuffed it under his pillow before his mother could see', suggesting it contained something he wanted to keep secret.",
+    },
+    mnemonic: "<strong>R.A.C.E.</strong> — Restate the question, Answer plainly, Cite from passage, Explain what that proves.",
+  },
+  {
+    id: 'visual-text', paper: 'P2 · 8m', title: 'Visual Text MCQ',
+    subtitle: 'Posters, ads, infographics — usually a Singaporean campaign. 5 questions, often Audience / Purpose / Tone / Detail / Extend.',
+    musts: [
+      "<strong>Audience first.</strong> Who is the poster trying to reach? Look at the visual cues (a child = parents/kids; an elderly figure = elderly + caregivers).",
+      "<strong>Purpose = the ACTION the poster wants from the reader.</strong> Inform, warn, persuade, recruit, recommend.",
+      "<strong>Tone = the FEEL.</strong> Calm-firm (safety), urgent (emergency), light-friendly (community), grand-serious (national).",
+      "<strong>Read EVERY caption.</strong> Tiny disclaimer text often holds the answer to one question.",
+      "<strong>Extension questions ask: 'What ELSE could this campaign do?'</strong> Suggest ONE specific addition, not a vague 'more of the same'.",
+    ],
+    worked: {
+      before: "Why is the Green Man image larger than the text on the LTA poster?",
+      after:  "Because images grab attention faster than words, especially for the campaign's main audience — young children. Visual hierarchy puts the safety cue first.",
+    },
+    mnemonic: "<strong>A.P.T.D.E.</strong> — Audience, Purpose, Tone, Detail, Extend. Five visual-text question types.",
+  },
+  {
+    id: 'idioms', paper: 'P1+P4 · use', title: 'Idioms',
+    subtitle: 'Use 1–2 in Continuous Writing. 0–1 in Situational where register permits. Avoid in respectful contexts.',
+    musts: [
+      "<strong>Anchor the idiom in a specific action.</strong> 'She went the extra mile' alone = generic. 'She went the extra mile, staying back two hours to revise with her friend' = earned.",
+      "<strong>Banned over-use:</strong> 'raining cats and dogs', 'as quiet as a mouse', 'as fast as lightning'.",
+      "<strong>Match register.</strong> 'Kicked the bucket' is too casual for respectful death contexts; use 'passed away'.",
+      "<strong>One idiom per piece, two maximum.</strong> Three or more = forced.",
+      "<strong>If unsure, prefer a fresh sensory image over a known idiom.</strong> 'Her shoulders sagged' beats 'she was sad as anything'.",
+    ],
+    worked: {
+      before: "After failing twice, he was sad. He had to keep going.",
+      after:  "After failing twice, he was about to give up — but he decided to bite the bullet and try one more time.",
+    },
+    mnemonic: "<strong>A.R.O.</strong> — Anchor (specific action), Register (matches context), One (per 200 words).",
+  },
+  {
+    id: 'oral-reading', paper: 'P4 · 15m', title: 'Reading Aloud',
+    subtitle: 'About one minute aloud. Marks across Pronunciation, Pace, Phrasing, Expression. Monotone = the #1 mark loss.',
+    musts: [
+      "<strong>Pause at commas; smaller pause inside long sentences at natural sense-group boundaries.</strong>",
+      "<strong>Stress the WORD that carries the meaning.</strong> 'She FINALLY finished' — not 'SHE finally finished'.",
+      "<strong>Rising intonation on yes/no questions; falling on WH-questions.</strong>",
+      "<strong>If you mispronounce, self-correct briefly and move on.</strong> Don't apologise; don't restart the sentence.",
+      "<strong>Aim for ~140–160 words/minute.</strong> Too fast = trips; too slow = robotic.",
+    ],
+    worked: {
+      before: "(Monotone) Despite-the-heavy-rain-the-children-continued-to-play-in-the-field.",
+      after:  "Despite the heavy rain, | the children continued to play | in the field. (3 sense-groups, slight emphasis on 'rain' and 'play')",
+    },
+    mnemonic: "<strong>P.P.P.E.</strong> — Pronunciation, Pace, Phrasing, Expression. Four scored dimensions.",
+  },
+  {
+    id: 'oral-sbc', paper: 'P4 · 25m', title: 'Stimulus-Based Conversation',
+    subtitle: 'Three questions about a photograph. 2–4 sentences each. PEEL throughout. Engagement carries silent marks.',
+    musts: [
+      "<strong>PEEL = Point, Example, Explanation, Link.</strong> Take a stance first, then back it.",
+      "<strong>Specific over general.</strong> Name the place, name the people, name the time. 'My block's Aunty Geraldine' beats 'someone I know'.",
+      "<strong>Use hypotheticals when no personal experience.</strong> 'I can imagine that...' / 'A friend of mine...' Banned: 'I have no example'.",
+      "<strong>Eye contact + steady voice = Engagement marks.</strong> Pausing to think is fine. Memorised answers are flagged and penalised.",
+      "<strong>Hedge when disagreeing.</strong> 'I see what you mean, but I think there's another angle...'",
+    ],
+    worked: {
+      before: "Do students spend too much time on phones? — Yes. It is bad.",
+      after:  "I think students today do spend too much time on phones, especially during meals and just before bed. My family started a 'no phones at meals' rule last year, and our dinners are much louder — in the good way. A small rule can change a habit fast.",
+    },
+    mnemonic: "<strong>P.E.E.L.</strong> — Point, Example, Explanation, Link. One full PEEL per main answer.",
+  },
+];
+
+const tabsEl  = document.getElementById('topic-tabs');
+const cardsEl = document.getElementById('cards');
+
+CARDS.forEach((c, idx) => {
+  // Tab
+  const tab = document.createElement('button');
+  tab.className = 'topic-tab' + (idx === 0 ? ' active' : '');
+  tab.textContent = c.title;
+  tab.addEventListener('click', () => focusCard(c.id));
+  tabsEl.appendChild(tab);
+
+  // Card
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.id = 'card-' + c.id;
+  card.innerHTML = `
+    <div class="meta">
+      <span class="paper-pill">${c.paper}</span>
+      <span>Cheat card ${idx + 1} of ${CARDS.length}</span>
+    </div>
+    <h2>${c.title}</h2>
+    <div class="subtitle">${c.subtitle}</div>
+    <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:800;margin-bottom:.55rem;">Must know — 5 things</div>
+    <ol class="must-know-list">${c.musts.map(m => `<li>${m}</li>`).join('')}</ol>
+    <div class="worked-block">
+      <span class="label">Worked example</span>
+      <div><span class="before">${c.worked.before}</span></div>
+      <div style="margin-top:.35rem;"><span class="arrow">↓</span> <span class="after">${c.worked.after}</span></div>
+    </div>
+    <div class="mnemonic-block">
+      <span class="label">Memory hook</span>
+      ${c.mnemonic}
+    </div>
+  `;
+  cardsEl.appendChild(card);
+});
+
+function focusCard(id) {
+  document.querySelectorAll('.topic-tab').forEach((t, i) => t.classList.toggle('active', CARDS[i].id === id));
+  document.getElementById('card-' + id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
