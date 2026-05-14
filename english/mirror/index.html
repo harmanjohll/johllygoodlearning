@@ -73,6 +73,12 @@
     <p id="mirror-tagline">The Mirror shows the real state. Four tiles below: what is consolidated, what is on the edge of memory, where your time has gone, and your effort separately from performance.</p>
   </div>
 
+  <div class="section" id="cross-site-section" style="display:none;">
+    <h3>Across all three studios</h3>
+    <div class="sub">Your Science, Malay, and English studios share the same browser. The streak and Gemini key already cross over. Here is the overall mastery in each.</div>
+    <div id="cross-site-rows"></div>
+  </div>
+
   <div class="tiles">
     <div class="tile consolidated">
       <div class="lbl">✓ Consolidated</div>
@@ -170,6 +176,50 @@ function masteryFor(p) {
   if (p.quizTotal > 0) s += Math.round((p.quizScore / p.quizTotal) * 40);
   return Math.min(s, 100);
 }
+
+// ── Cross-site overview ────────────────────────────────────
+const CROSS_SITES = [
+  { key: 'sciLab_progress', label: 'Science (Lab)', emoji: '🔬', href: '../../lab/',   color: '#34d399' },
+  { key: 'malay_progress',  label: 'Bahasa Melayu', emoji: '🌺', href: '../../malay/', color: '#fb7185' },
+  { key: 'english_progress',label: 'English',       emoji: '📚', href: '../',          color: '#60a5fa' },
+];
+
+function aggregateSite(key) {
+  let raw;
+  try { raw = JSON.parse(localStorage.getItem(key) || '{}'); } catch { raw = {}; }
+  const ids = Object.keys(raw);
+  if (!ids.length) return { topics: 0, visited: 0, avgMastery: 0 };
+  let sum = 0, visited = 0;
+  ids.forEach(id => {
+    const p = raw[id] || {};
+    if ((p.visitCount || 0) > 0) visited += 1;
+    sum += masteryFor(p);
+  });
+  return { topics: ids.length, visited, avgMastery: Math.round(sum / ids.length) };
+}
+
+(function renderCrossSite() {
+  const wrap = document.getElementById('cross-site-rows');
+  let anyData = false;
+  CROSS_SITES.forEach(site => {
+    const a = aggregateSite(site.key);
+    if (a.topics === 0) return;
+    anyData = true;
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <span class="name" style="display:flex;align-items:center;gap:.5rem;">
+        <span style="font-size:1.05rem;">${site.emoji}</span> ${site.label}
+        <span style="font-size:.72rem;color:var(--muted);font-weight:500;">${a.visited} of ${a.topics} topics opened</span>
+      </span>
+      <span class="bar"><span class="bar-fill" style="width:${a.avgMastery}%;background:${site.color};"></span></span>
+      <span class="pct">${a.avgMastery}%</span>
+      <a href="${site.href}" style="font-size:.74rem;color:var(--muted);text-decoration:none;border-left:1px solid var(--border);padding-left:.65rem;margin-left:.35rem;">→</a>
+    `;
+    wrap.appendChild(row);
+  });
+  if (anyData) document.getElementById('cross-site-section').style.display = 'block';
+})();
 
 function daysSince(iso) {
   if (!iso) return null;
