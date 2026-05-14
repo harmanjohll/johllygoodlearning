@@ -773,6 +773,259 @@ body {
 .wardrobe-badge.equipped { background: rgba(74,222,128,0.18); color: var(--success); border: 1px solid rgba(74,222,128,0.3); }
 .wardrobe-badge.locked { background: rgba(0,0,0,0.25); color: var(--text-dim); border: 1px solid rgba(255,255,255,0.08); font-size: 10px; }
 
+/* === STEM SIMS === */
+.world-card.sim-hub .world-card-icon { animation: float 4s ease-in-out infinite; }
+.sim-hub-title { font-family: var(--font-display); color: var(--gold); text-align: center; margin: 12px 0 6px; }
+.sim-hub-blurb { text-align: center; color: var(--text-secondary); margin: 0 0 16px; font-size: 13px; }
+.sim-hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; padding: 0 12px; }
+.sim-card {
+  background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(123,179,255,0.08));
+  border: 2px solid rgba(255,215,0,0.25);
+  border-radius: var(--radius-lg);
+  padding: 18px 12px; text-align: center; cursor: pointer;
+  transition: all .25s;
+}
+.sim-card:hover { transform: translateY(-3px); border-color: var(--gold); box-shadow: 0 8px 24px rgba(255,215,0,0.2); }
+.sim-card-emoji { font-size: 44px; margin-bottom: 6px; }
+.sim-card-name { font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.sim-card-skill { font-size: 11px; color: var(--gold); margin-bottom: 6px; }
+.sim-card-plays { font-size: 12px; color: var(--text-secondary); }
+
+.sim-title { font-family: var(--font-display); color: var(--gold); text-align: center; margin: 8px 0 4px; }
+.sim-blurb { text-align: center; color: var(--text-secondary); font-size: 13px; padding: 0 16px; margin: 0 0 12px; }
+.sim-blurb-sm { text-align: center; color: var(--text-dim); font-size: 11px; padding: 0 16px; margin-top: 12px; }
+.sim-stage {
+  max-width: 640px; margin: 0 auto;
+  background: rgba(37,27,94,0.5); border: 1px solid rgba(181,123,255,0.25);
+  border-radius: var(--radius-xl); padding: 18px; text-align: center;
+}
+.sim-meter { margin-top: 12px; color: var(--text-primary); font-size: 14px; }
+.sim-win {
+  background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.4);
+  color: var(--text-primary); padding: 14px; border-radius: var(--radius-md);
+  margin-top: 14px; line-height: 1.5;
+}
+.sim-win .lesson-btn { margin-top: 10px; }
+
+/* Push & Pull */
+.sim-surface-label { display: flex; justify-content: space-between; padding: 0 8px; margin-bottom: 6px; align-items: baseline; }
+.sim-surf-pill { background: rgba(255,215,0,0.18); padding: 4px 12px; border-radius: 999px; font-weight: 600; color: var(--gold); }
+.sim-surf-note { color: var(--text-secondary); font-size: 12px; }
+.sim-track {
+  position: relative; height: 120px;
+  background: linear-gradient(180deg, transparent 50%, #7bc96f 50%);
+  border-radius: var(--radius-md); overflow: hidden; margin: 8px 0 12px;
+}
+.sim-target { position: absolute; right: 30px; top: 30px; font-size: 32px; z-index: 1; }
+.sim-box { position: absolute; left: 0; top: 36px; font-size: 40px; cursor: grab; user-select: none; touch-action: none; z-index: 2; }
+.sim-box:active { cursor: grabbing; }
+.sim-surface-buttons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.sim-surf-btn {
+  background: rgba(37,27,94,0.6); border: 1px solid rgba(181,123,255,0.3);
+  color: var(--text-primary); padding: 8px 14px; border-radius: 999px;
+  font-family: var(--font-body); font-size: 13px; cursor: pointer;
+}
+.sim-surf-btn:hover { background: rgba(255,215,0,0.2); border-color: var(--gold); }
+
+/* Plant */
+.plant-stage { max-width: 480px; }
+.plant-scene {
+  position: relative; height: 220px;
+  background: linear-gradient(180deg, #87b8e8 0%, #c8e6f8 60%, #8b6f4f 60%, #6b4f3b 100%);
+  border-radius: var(--radius-md); overflow: hidden; margin-bottom: 12px;
+}
+.plant-sky {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  font-size: 36px; opacity: 0; transition: opacity 0.3s;
+}
+.plant-sky.drop-anim { opacity: 1; animation: drop-fall 0.7s ease-in; }
+.plant-sky.sun-anim  { opacity: 1; animation: sun-pulse 0.9s ease-out; }
+@keyframes drop-fall { 0% { transform: translateX(-50%) translateY(0); opacity: 1; } 100% { transform: translateX(-50%) translateY(120px); opacity: 0; } }
+@keyframes sun-pulse { 0% { transform: translateX(-50%) scale(0.8); opacity: 0; } 50% { transform: translateX(-50%) scale(1.3); opacity: 1; } 100% { transform: translateX(-50%) scale(1); opacity: 0.8; } }
+.plant-soil {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  display: flex; align-items: flex-end; justify-content: center;
+  height: 88px; padding-bottom: 10px;
+}
+.plant-emoji { font-size: 60px; transition: font-size 0.5s ease-out; }
+.plant-stage-name { font-weight: 700; color: var(--gold); margin: 6px 0; }
+.plant-meters { display: flex; gap: 18px; justify-content: center; margin: 6px 0; color: var(--text-primary); font-size: 14px; }
+.plant-actions { display: flex; gap: 10px; justify-content: center; margin: 10px 0; }
+.plant-tip { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+
+/* Shadow */
+.shadow-svg {
+  width: 100%; max-width: 360px; aspect-ratio: 1/1;
+  background: radial-gradient(ellipse at center, #1a1147 0%, #0f0b2e 100%);
+  border-radius: var(--radius-md); display: block; margin: 0 auto;
+  touch-action: none;
+}
+.shadow-target { fill: rgba(255,255,255,0.06); stroke: rgba(255,215,0,0.4); stroke-width: 2; }
+.shadow-target.hit { fill: rgba(74,222,128,0.35); stroke: #4ade80; }
+.shadow-target-label { fill: var(--gold); text-anchor: middle; font-family: var(--font-display); font-size: 20px; pointer-events: none; }
+.shadow-blob { fill: rgba(0,0,0,0.55); opacity: 0.7; pointer-events: none; }
+.shadow-line { stroke: #fff7c7; stroke-width: 1.5; stroke-dasharray: 4 3; opacity: 0.7; pointer-events: none; }
+.shadow-tree, .shadow-torch { text-anchor: middle; font-size: 36px; pointer-events: none; }
+.shadow-torch { cursor: grab; pointer-events: all; }
+
+/* Recycle */
+.recycle-current { min-height: 130px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.recycle-item {
+  background: rgba(255,255,255,0.1); border: 2px solid rgba(255,215,0,0.4);
+  border-radius: var(--radius-md); padding: 14px 18px;
+  cursor: grab; user-select: none; transition: transform 0.2s;
+}
+.recycle-item:active { cursor: grabbing; }
+.recycle-item.shake { animation: shake 0.4s ease; }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+.recycle-item-emoji { font-size: 50px; }
+.recycle-item-name { font-size: 13px; color: var(--text-primary); margin-top: 4px; }
+.recycle-bins { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.recycle-bin {
+  background: rgba(37,27,94,0.5); border: 2px solid;
+  border-radius: var(--radius-md); padding: 14px 6px;
+  cursor: pointer; transition: all 0.2s; text-align: center;
+}
+.recycle-bin:hover, .recycle-bin.hover { transform: translateY(-4px); background: rgba(255,255,255,0.08); }
+.recycle-bin-emoji { font-size: 36px; }
+.recycle-bin-name { font-size: 11px; color: var(--text-primary); margin-top: 2px; }
+
+/* Float */
+.float-stage { max-width: 540px; }
+.float-item {
+  background: rgba(255,255,255,0.08); border-radius: var(--radius-md);
+  padding: 12px; margin-bottom: 12px; min-height: 100px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.float-item-emoji { font-size: 56px; }
+.float-item-name { font-size: 14px; color: var(--text-primary); margin-top: 4px; }
+.float-predict { display: flex; gap: 12px; justify-content: center; margin-bottom: 12px; }
+.float-btn { min-width: 110px; }
+.float-result { color: var(--text-primary); margin: 8px 0; }
+.float-verdict { font-family: var(--font-display); font-size: 20px; color: var(--gold); margin-bottom: 4px; }
+.float-why { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.5; }
+.float-tank {
+  position: relative; height: 180px;
+  background: linear-gradient(180deg, transparent 0%, transparent 25%, #5dbef0 25%, #2a7eb5 100%);
+  border-radius: var(--radius-md); overflow: hidden;
+  border: 2px solid #4f9bd9;
+  margin-top: 10px;
+}
+.float-water::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 25%;
+  height: 4px; background: rgba(255,255,255,0.4); border-radius: 50%;
+}
+.float-shelf {
+  position: absolute; top: 16%; left: 50%; transform: translateX(-50%);
+  font-size: 36px;
+}
+.float-bed {
+  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+  font-size: 36px;
+}
+.float-bobber { display: inline-block; animation: bob 1.5s ease-in-out infinite; }
+.float-sinker { display: inline-block; animation: sink-drop 1.2s ease-in; }
+@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes sink-drop { 0% { transform: translateY(-130px); opacity: 0.3; } 100% { transform: translateY(0); opacity: 1; } }
+
+/* === SIGN STUDIO === */
+.world-card.sign-studio .world-card-icon { animation: float 4s ease-in-out infinite; }
+.sign-title { font-family: var(--font-display); color: var(--gold); text-align: center; margin: 8px 0; }
+.sign-blurb { text-align: center; color: var(--text-secondary); padding: 0 16px; margin: 0 0 10px; font-size: 13px; line-height: 1.5; }
+.sign-honest {
+  background: rgba(255, 207, 100, 0.1); border: 1px solid rgba(255, 207, 100, 0.35);
+  color: #ffe7a8; padding: 10px 14px; margin: 10px 12px; border-radius: var(--radius-md);
+  font-size: 12px; line-height: 1.5;
+}
+.sign-progress { text-align: center; color: var(--text-primary); margin: 12px 0; font-size: 14px; }
+.sign-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px; padding: 0 12px;
+}
+.sign-card {
+  background: rgba(37,27,94,0.5); border: 2px solid rgba(123,179,255,0.25);
+  border-radius: var(--radius-lg); padding: 16px 12px;
+  text-align: center; cursor: pointer; transition: all 0.25s;
+}
+.sign-card:hover { transform: translateY(-3px); border-color: var(--gold); }
+.sign-card.taught { border-color: rgba(74,222,128,0.45); background: rgba(74,222,128,0.08); }
+.sign-card-emoji { font-size: 44px; margin-bottom: 4px; }
+.sign-card-label { font-family: var(--font-display); color: var(--gold); margin-bottom: 4px; }
+.sign-card-why { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; min-height: 32px; }
+.sign-card-status { font-size: 12px; color: var(--text-primary); padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); }
+
+/* Sign Builder */
+.sign-ref {
+  background: rgba(123,179,255,0.12); border: 1px solid rgba(123,179,255,0.3);
+  padding: 10px 14px; margin: 10px 12px; border-radius: var(--radius-md);
+  font-size: 13px; line-height: 1.5; color: var(--text-primary);
+}
+.sign-ref a { color: var(--gold); text-decoration: underline; }
+.sign-note {
+  background: rgba(123,179,255,0.08); padding: 8px 14px;
+  margin: 0 12px 12px; border-radius: var(--radius-md);
+  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.sign-preview {
+  margin: 18px auto; padding: 16px; max-width: 320px;
+  background: rgba(37,27,94,0.5); border: 1px solid rgba(255,215,0,0.25);
+  border-radius: var(--radius-lg); text-align: center;
+}
+.sign-preview-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; }
+.sign-stasha {
+  position: relative; width: 200px; height: 240px; margin: 0 auto;
+  background: linear-gradient(180deg, #fce4f1 0%, #f5d6e8 100%);
+  border-radius: var(--radius-md); overflow: hidden;
+}
+.sign-stasha-body {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%); font-size: 120px;
+}
+.sign-stasha-hand {
+  position: absolute; font-size: 32px; z-index: 5;
+  transform: translate(-50%, -50%); transition: top 0.6s, left 0.6s;
+}
+.sign-stasha-hand.move-up      { animation: sign-move-up 1.2s ease-in-out; }
+.sign-stasha-hand.move-down    { animation: sign-move-down 1.2s ease-in-out; }
+.sign-stasha-hand.move-side    { animation: sign-move-side 1.2s ease-in-out; }
+.sign-stasha-hand.move-circle  { animation: sign-move-circle 1.4s ease-in-out; }
+.sign-stasha-hand.move-tap     { animation: sign-move-tap 1.0s ease-in-out; }
+.sign-stasha-hand.move-wave    { animation: sign-move-wave 1.2s ease-in-out; }
+.sign-stasha-hand.move-forward { animation: sign-move-forward 1.0s ease-out; }
+.sign-stasha-hand.move-inward  { animation: sign-move-inward 1.0s ease-out; }
+@keyframes sign-move-up      { 0%,100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -180%); } }
+@keyframes sign-move-down    { 0%,100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%,  60%); } }
+@keyframes sign-move-side    { 0%,100% { transform: translate(-50%, -50%); } 25% { transform: translate(-180%, -50%); } 75% { transform: translate(80%, -50%); } }
+@keyframes sign-move-circle  { 0%,100% { transform: translate(-50%, -50%); } 25% { transform: translate(40%, -50%); } 50% { transform: translate(-50%, 40%); } 75% { transform: translate(-180%, -50%); } }
+@keyframes sign-move-tap     { 0%,40%,80%,100% { transform: translate(-50%, -50%) scale(1); } 20%,60% { transform: translate(-50%, -50%) scale(1.25); } }
+@keyframes sign-move-wave    { 0%,100% { transform: translate(-50%, -50%) rotate(0deg); } 25% { transform: translate(-50%, -50%) rotate(-20deg); } 75% { transform: translate(-50%, -50%) rotate(20deg); } }
+@keyframes sign-move-forward { 0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0.6; } 100% { transform: translate(-50%, -50%) scale(1.4); opacity: 1; } }
+@keyframes sign-move-inward  { 0% { transform: translate(-50%, -50%) scale(1.4); opacity: 0.5; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+.sign-play-btn { margin-top: 12px; }
+
+.sign-builder { margin: 16px 12px; }
+.sign-builder-label { font-weight: 700; color: var(--gold); margin-bottom: 12px; text-align: center; font-size: 14px; }
+.sign-picker {
+  background: rgba(37,27,94,0.4); border: 1px solid rgba(181,123,255,0.2);
+  border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px;
+}
+.sign-picker-label {
+  font-weight: 700; color: var(--text-primary); margin-bottom: 8px;
+  font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.sign-picker-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.sign-opt {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-primary); padding: 8px 12px; border-radius: 10px;
+  cursor: pointer; font-family: var(--font-body); font-size: 12px;
+  display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+}
+.sign-opt:hover { background: rgba(255,215,0,0.1); border-color: rgba(255,215,0,0.3); }
+.sign-opt.selected { background: rgba(255,215,0,0.2); border-color: var(--gold); color: var(--gold); font-weight: 700; }
+.sign-opt-emoji { font-size: 18px; }
+.sign-opt-desc { display: block; font-size: 10px; color: var(--text-dim); margin-left: 6px; }
+.sign-save-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 18px 12px 30px; }
+
 /* === ACTIVITY SELECTION === */
 .activity-header {
   text-align: center;
@@ -2907,6 +3160,18 @@ body {
           <div class="world-card-title">Meet Stasha</div>
           <div class="world-card-desc">Your 3D avatar. Dress her up — earn outfits with stars and streaks.</div>
         </div>
+
+        <div class="world-card sim-hub" onclick="showScreen('sim-hub')">
+          <span class="world-card-icon">&#128300;</span>
+          <div class="world-card-title">STEM Lab</div>
+          <div class="world-card-desc">5 hands-on experiments: forces, plants, shadows, recycling, floating.</div>
+        </div>
+
+        <div class="world-card sign-studio" onclick="showScreen('sign-studio')">
+          <span class="world-card-icon">&#129311;</span>
+          <div class="world-card-title">Sign Studio</div>
+          <div class="world-card-desc">Teach Stasha to sign! Watch a real sign, then build it with her.</div>
+        </div>
         <div class="world-card garden" onclick="showScreen('garden')">
           <span class="world-card-icon">&#127800;</span>
           <div class="world-card-title">My Garden</div>
@@ -3020,6 +3285,26 @@ body {
     <!-- WARDROBE SCREEN -->
     <div class="screen" id="screen-wardrobe">
       <div id="wardrobe-content"></div>
+    </div>
+
+    <!-- STEM LAB HUB SCREEN -->
+    <div class="screen" id="screen-sim-hub">
+      <div id="sim-hub-content"></div>
+    </div>
+
+    <!-- INDIVIDUAL SIM SCREEN -->
+    <div class="screen" id="screen-sim">
+      <div id="sim-content"></div>
+    </div>
+
+    <!-- SIGN STUDIO SCREEN -->
+    <div class="screen" id="screen-sign-studio">
+      <div id="sign-studio-content"></div>
+    </div>
+
+    <!-- SIGN BUILDER SCREEN -->
+    <div class="screen" id="screen-sign-builder">
+      <div id="sign-builder-content"></div>
     </div>
 
     <!-- SKILL VIEW SCREEN (Learn / Explore / Quiz tabs) -->
@@ -13116,6 +13401,1086 @@ window.wardrobeEquip = wardrobeEquip;
   }
 })();
 
+// --- src/stem-sims/sim-pushpull.js ---
+// ============================================================
+//  STEM SIM 1 — PUSH & PULL PLAYGROUND
+//  Drag the box across three surfaces (grass, ice, sand).
+//  Friction differs; same push goes different distances.
+//  Skill: forces
+// ============================================================
+
+var simPushPull = (function() {
+  var SURFACES = [
+    { id: 'grass', name: 'Grass', emoji: '🌿', friction: 0.85, colour: '#7bc96f', text: 'A bit grippy.' },
+    { id: 'ice',   name: 'Ice',   emoji: '🧊', friction: 0.97, colour: '#bfe8ff', text: 'Slippery!' },
+    { id: 'sand',  name: 'Sand',  emoji: '🏜️', friction: 0.70, colour: '#ecd197', text: 'Sticky.' }
+  ];
+
+  var state = null;
+
+  function render(container) {
+    state = { surfaceIdx: 0, boxX: 80, vel: 0, dragging: false, dragStart: 0, dragX: 0, attempts: 0, wins: 0, target: 320, completed: false };
+    container.innerHTML =
+      '<button class="back-btn" onclick="openSimHub()">← Back to STEM Lab</button>' +
+      '<h2 class="sim-title">⚡ Push & Pull Playground</h2>' +
+      '<p class="sim-blurb">Pull the box back, then let go to launch it. Get it to the gold star ⭐ on each surface!</p>' +
+      '<div class="sim-stage" id="pp-stage">' +
+        '<div class="sim-surface-label" id="pp-label"></div>' +
+        '<div class="sim-track" id="pp-track">' +
+          '<div class="sim-target" id="pp-target">⭐</div>' +
+          '<div class="sim-box" id="pp-box">📦</div>' +
+        '</div>' +
+        '<div class="sim-surface-buttons">' +
+          SURFACES.map(function(s, i) {
+            return '<button class="sim-surf-btn" data-i="' + i + '">' + s.emoji + ' ' + s.name + '</button>';
+          }).join('') +
+        '</div>' +
+        '<div class="sim-meter" id="pp-meter">Surfaces conquered: <strong>0 / 3</strong></div>' +
+      '</div>';
+
+    redraw();
+    container.querySelectorAll('.sim-surf-btn').forEach(function(b) {
+      b.onclick = function() {
+        state.surfaceIdx = parseInt(b.dataset.i, 10);
+        state.boxX = 80; state.vel = 0;
+        redraw();
+      };
+    });
+
+    var box = document.getElementById('pp-box');
+    var track = document.getElementById('pp-track');
+    box.addEventListener('pointerdown', startDrag);
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', endDrag);
+  }
+
+  function startDrag(e) {
+    if (!state || state.completed) return;
+    state.dragging = true;
+    state.dragStart = e.clientX;
+    state.dragX = e.clientX;
+  }
+  function onMove(e) {
+    if (!state || !state.dragging) return;
+    state.dragX = e.clientX;
+    var pull = Math.max(0, state.dragStart - state.dragX);
+    var box = document.getElementById('pp-box');
+    if (box) box.style.transform = 'translateX(' + (state.boxX - pull) + 'px)';
+  }
+  function endDrag(e) {
+    if (!state || !state.dragging) return;
+    state.dragging = false;
+    var pull = Math.max(0, state.dragStart - state.dragX);
+    state.vel = pull * 0.35;
+    animate();
+  }
+  function animate() {
+    if (!state) return;
+    var surf = SURFACES[state.surfaceIdx];
+    var step = function() {
+      state.boxX += state.vel;
+      state.vel *= surf.friction;
+      var box = document.getElementById('pp-box');
+      if (!box) return;
+      box.style.transform = 'translateX(' + state.boxX + 'px)';
+      if (Math.abs(state.vel) > 0.1) {
+        requestAnimationFrame(step);
+      } else {
+        checkWin();
+      }
+    };
+    step();
+  }
+  function checkWin() {
+    if (!state) return;
+    state.attempts++;
+    var hit = Math.abs(state.boxX - state.target) < 40;
+    if (hit) {
+      state.wins++;
+      if (typeof lumiReactTo === 'function') lumiReactTo('correct');
+      if (typeof spawnParticles === 'function') {
+        var rect = document.getElementById('pp-target').getBoundingClientRect();
+        spawnParticles(rect.left + rect.width/2, rect.top + rect.height/2, 8, '⭐');
+      }
+      if (typeof lumiSay === 'function') lumiSay('Nice! ' + SURFACES[state.surfaceIdx].name + ' done. Try the next surface.');
+      // Mark surface as won
+      SURFACES[state.surfaceIdx]._won = true;
+      // Advance
+      var nextIdx = SURFACES.findIndex(function(s) { return !s._won; });
+      if (nextIdx === -1) finishSim();
+      else { state.surfaceIdx = nextIdx; state.boxX = 80; redraw(); }
+    } else {
+      var diff = state.boxX < state.target ? 'a bit further' : 'a bit gentler';
+      if (typeof lumiSay === 'function') lumiSay('Pull ' + diff + '. ' + SURFACES[state.surfaceIdx].text);
+      state.boxX = 80;
+      redraw();
+    }
+  }
+  function redraw() {
+    var stage = document.getElementById('pp-stage');
+    var label = document.getElementById('pp-label');
+    var track = document.getElementById('pp-track');
+    var box = document.getElementById('pp-box');
+    if (!stage || !label || !track) return;
+    var surf = SURFACES[state.surfaceIdx];
+    track.style.background = 'linear-gradient(180deg, transparent 0%, transparent 50%, ' + surf.colour + ' 50%, ' + surf.colour + ' 100%)';
+    label.innerHTML = '<span class="sim-surf-pill">' + surf.emoji + ' ' + surf.name + '</span> <span class="sim-surf-note">' + surf.text + '</span>';
+    if (box) box.style.transform = 'translateX(' + state.boxX + 'px)';
+    var won = SURFACES.filter(function(s){return s._won;}).length;
+    var meter = document.getElementById('pp-meter');
+    if (meter) meter.innerHTML = 'Surfaces conquered: <strong>' + won + ' / 3</strong>';
+  }
+  function finishSim() {
+    if (!state || state.completed) return;
+    state.completed = true;
+    if (typeof grantSimReward === 'function') grantSimReward('forces', 'Push & Pull mastered!');
+    var stage = document.getElementById('pp-stage');
+    if (stage) {
+      stage.innerHTML += '<div class="sim-win">🎉 You felt friction! Ice is slippery (low friction). Sand is sticky (high friction). <button class="lesson-btn" onclick="openSimHub()">More Lab →</button></div>';
+    }
+    // Reset won flags for next play
+    SURFACES.forEach(function(s){ delete s._won; });
+  }
+
+  function dispose() {
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', endDrag);
+    state = null;
+  }
+
+  return { id: 'pushpull', name: 'Push & Pull Playground', emoji: '⚡', skill: 'forces', render: render, dispose: dispose };
+})();
+
+// --- src/stem-sims/sim-plant.js ---
+// ============================================================
+//  STEM SIM 2 — PLANT TIME-LAPSE
+//  Plant a seed. Give it water, sun, and time. Watch it grow.
+//  Skill: plants
+// ============================================================
+
+var simPlant = (function() {
+  // Growth stages
+  var STAGES = [
+    { id: 'seed',     emoji: '🌰', label: 'Seed',           waterNeeded: 1, sunNeeded: 0 },
+    { id: 'sprout',   emoji: '🌱', label: 'Sprout',         waterNeeded: 1, sunNeeded: 1 },
+    { id: 'seedling', emoji: '🌿', label: 'Seedling',       waterNeeded: 1, sunNeeded: 1 },
+    { id: 'bud',      emoji: '🌾', label: 'Bud',            waterNeeded: 0, sunNeeded: 2 },
+    { id: 'flower',   emoji: '🌻', label: 'Flower!',         waterNeeded: 0, sunNeeded: 0 }
+  ];
+
+  var state = null;
+
+  function render(container) {
+    state = { stageIdx: 0, water: 0, sun: 0, dryDays: 0, completed: false };
+    container.innerHTML =
+      '<button class="back-btn" onclick="openSimHub()">← Back to STEM Lab</button>' +
+      '<h2 class="sim-title">🌻 Plant Time-Lapse</h2>' +
+      '<p class="sim-blurb">Give your plant water and sunshine. See it grow from seed to flower!</p>' +
+      '<div class="sim-stage plant-stage">' +
+        '<div class="plant-scene">' +
+          '<div class="plant-sky" id="plant-sky"></div>' +
+          '<div class="plant-soil"><div class="plant-emoji" id="plant-emoji">🌰</div></div>' +
+        '</div>' +
+        '<div class="plant-status">' +
+          '<div class="plant-stage-name" id="plant-stage-name">Seed — needs water</div>' +
+          '<div class="plant-meters">' +
+            '<div class="plant-meter">💧 Water: <span id="plant-water">0</span></div>' +
+            '<div class="plant-meter">☀️ Sun: <span id="plant-sun">0</span></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="plant-actions">' +
+          '<button class="lesson-btn" id="plant-water-btn">💧 Water it</button>' +
+          '<button class="lesson-btn" id="plant-sun-btn">☀️ Give sun</button>' +
+        '</div>' +
+        '<div class="plant-tip" id="plant-tip">Tip: Seeds need water first to sprout!</div>' +
+      '</div>';
+
+    document.getElementById('plant-water-btn').onclick = giveWater;
+    document.getElementById('plant-sun-btn').onclick = giveSun;
+    redraw();
+  }
+
+  function giveWater() {
+    if (!state || state.completed) return;
+    state.water++;
+    var sky = document.getElementById('plant-sky');
+    if (sky) {
+      sky.innerHTML = '💧';
+      sky.className = 'plant-sky drop-anim';
+      setTimeout(function() { if (sky) sky.className = 'plant-sky'; }, 700);
+    }
+    if (typeof playSound === 'function') playSound('correct');
+    checkGrowth();
+  }
+  function giveSun() {
+    if (!state || state.completed) return;
+    state.sun++;
+    var sky = document.getElementById('plant-sky');
+    if (sky) {
+      sky.innerHTML = '☀️';
+      sky.className = 'plant-sky sun-anim';
+      setTimeout(function() { if (sky) sky.className = 'plant-sky'; }, 900);
+    }
+    if (typeof playSound === 'function') playSound('correct');
+    checkGrowth();
+  }
+  function checkGrowth() {
+    var stage = STAGES[state.stageIdx];
+    if (state.water >= stage.waterNeeded && state.sun >= stage.sunNeeded) {
+      state.stageIdx++;
+      state.water = 0;
+      state.sun = 0;
+      if (typeof spawnParticles === 'function') {
+        var el = document.getElementById('plant-emoji');
+        if (el) {
+          var r = el.getBoundingClientRect();
+          spawnParticles(r.left + r.width/2, r.top, 6, '✨');
+        }
+      }
+      if (typeof lumiSay === 'function') lumiSay('It grew into a ' + STAGES[state.stageIdx].label + '! What else does it need?');
+      if (state.stageIdx >= STAGES.length - 1) {
+        // Reached flower
+        redraw();
+        finishSim();
+        return;
+      }
+    } else {
+      // Hint
+      var nm = stage.waterNeeded - state.water;
+      var ns = stage.sunNeeded - state.sun;
+      var hint = '';
+      if (nm > 0 && ns > 0) hint = 'Needs ' + nm + ' more 💧 and ' + ns + ' more ☀️';
+      else if (nm > 0) hint = 'Needs ' + nm + ' more 💧';
+      else hint = 'Needs ' + ns + ' more ☀️';
+      var tip = document.getElementById('plant-tip');
+      if (tip) tip.textContent = hint;
+    }
+    redraw();
+  }
+  function redraw() {
+    if (!state) return;
+    var emojiEl = document.getElementById('plant-emoji');
+    var stageEl = document.getElementById('plant-stage-name');
+    var waterEl = document.getElementById('plant-water');
+    var sunEl = document.getElementById('plant-sun');
+    if (!emojiEl) return;
+    var stage = STAGES[Math.min(state.stageIdx, STAGES.length - 1)];
+    emojiEl.textContent = stage.emoji;
+    emojiEl.style.fontSize = (40 + state.stageIdx * 10) + 'px';
+    if (stageEl) stageEl.textContent = stage.label + (state.stageIdx < STAGES.length - 1 ? ' — keep going!' : ' 🎉');
+    if (waterEl) waterEl.textContent = state.water + ' / ' + stage.waterNeeded;
+    if (sunEl) sunEl.textContent = state.sun + ' / ' + stage.sunNeeded;
+  }
+  function finishSim() {
+    if (!state || state.completed) return;
+    state.completed = true;
+    if (typeof grantSimReward === 'function') grantSimReward('plants', 'Plant grown!');
+    var c = document.querySelector('.plant-stage');
+    if (c) c.innerHTML += '<div class="sim-win">🌻 Your seed became a flower! Plants need water, sunlight, and time. Soon it will make new seeds. <button class="lesson-btn" onclick="openSimHub()">More Lab →</button></div>';
+  }
+
+  function dispose() { state = null; }
+
+  return { id: 'plant', name: 'Plant Time-Lapse', emoji: '🌻', skill: 'plants', render: render, dispose: dispose };
+})();
+
+// --- src/stem-sims/sim-shadow.js ---
+// ============================================================
+//  STEM SIM 3 — LIGHT & SHADOW
+//  Move the torch around the tree. Shadow lands on the opposite side.
+//  Hit the 3 target spots.
+//  Skill: light
+// ============================================================
+
+var simShadow = (function() {
+  // The tree sits at center. Torch can be placed anywhere around it.
+  // Target zones: north, southeast, west.
+  var TARGETS = [
+    { angle: 90,  label: 'point UP',    name: 'north' },
+    { angle: 315, label: 'point DOWN-LEFT', name: 'southwest' },
+    { angle: 180, label: 'point RIGHT',  name: 'east' }
+  ];
+  var state = null;
+
+  function render(container) {
+    state = { torchAngle: 270, torchR: 110, completed: false, hits: [] };
+    container.innerHTML =
+      '<button class="back-btn" onclick="openSimHub()">← Back to STEM Lab</button>' +
+      '<h2 class="sim-title">🔦 Light & Shadow</h2>' +
+      '<p class="sim-blurb">Drag the torch around the tree. Watch the shadow move! Get the shadow to ' + TARGETS.length + ' target spots.</p>' +
+      '<div class="sim-stage">' +
+        '<svg id="shadow-svg" viewBox="-160 -160 320 320" class="shadow-svg">' +
+          // Targets (grey circles)
+          TARGETS.map(function(t, i) {
+            var rad = t.angle * Math.PI / 180;
+            var tx = Math.cos(rad) * 100;
+            var ty = -Math.sin(rad) * 100;
+            return '<circle cx="' + tx + '" cy="' + ty + '" r="22" class="shadow-target" data-i="' + i + '"></circle>' +
+                   '<text x="' + tx + '" y="' + (ty + 5) + '" class="shadow-target-label" data-i="' + i + '">' + (i+1) + '</text>';
+          }).join('') +
+          '<line id="shadow-line" x1="0" y1="0" x2="0" y2="0" class="shadow-line"></line>' +
+          '<ellipse id="shadow-blob" cx="0" cy="0" rx="32" ry="14" class="shadow-blob"></ellipse>' +
+          '<text id="tree" x="0" y="8" class="shadow-tree">🌳</text>' +
+          '<text id="torch" x="0" y="0" class="shadow-torch">🔦</text>' +
+        '</svg>' +
+        '<div class="sim-meter" id="shadow-meter">Targets hit: <strong>0 / 3</strong></div>' +
+        '<p class="sim-blurb-sm">💡 Light travels in straight lines. The shadow always lands opposite the light.</p>' +
+      '</div>';
+
+    var svg = document.getElementById('shadow-svg');
+    svg.addEventListener('pointerdown', onPointer);
+    svg.addEventListener('pointermove', onPointer);
+    redraw();
+  }
+
+  function onPointer(e) {
+    if (!state || state.completed) return;
+    if (e.buttons === 0 && e.type !== 'pointerdown') return;
+    var svg = document.getElementById('shadow-svg');
+    var pt = svg.createSVGPoint();
+    pt.x = e.clientX; pt.y = e.clientY;
+    var loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+    var angle = Math.atan2(-loc.y, loc.x) * 180 / Math.PI;
+    if (angle < 0) angle += 360;
+    state.torchAngle = angle;
+    redraw();
+    checkHit();
+  }
+
+  function redraw() {
+    if (!state) return;
+    var rad = state.torchAngle * Math.PI / 180;
+    var tx = Math.cos(rad) * state.torchR;
+    var ty = -Math.sin(rad) * state.torchR;
+    var torch = document.getElementById('torch');
+    var line = document.getElementById('shadow-line');
+    var blob = document.getElementById('shadow-blob');
+    if (torch) { torch.setAttribute('x', tx); torch.setAttribute('y', ty + 6); }
+    if (line) { line.setAttribute('x1', tx); line.setAttribute('y1', ty); line.setAttribute('x2', 0); line.setAttribute('y2', 0); }
+    // Shadow: opposite direction at same radius
+    var sx = -Math.cos(rad) * 80;
+    var sy = Math.sin(rad) * 80;
+    if (blob) {
+      blob.setAttribute('cx', sx);
+      blob.setAttribute('cy', sy);
+      // Orient shadow along the light-to-tree axis
+      var shadowAngle = Math.atan2(sy, sx) * 180 / Math.PI;
+      blob.setAttribute('transform', 'rotate(' + shadowAngle + ' ' + sx + ' ' + sy + ')');
+    }
+    // Mark hit targets visually
+    TARGETS.forEach(function(t, i) {
+      var el = document.querySelector('.shadow-target[data-i="' + i + '"]');
+      if (el) el.classList.toggle('hit', state.hits.indexOf(i) !== -1);
+    });
+    var meter = document.getElementById('shadow-meter');
+    if (meter) meter.innerHTML = 'Targets hit: <strong>' + state.hits.length + ' / ' + TARGETS.length + '</strong>';
+  }
+
+  function checkHit() {
+    var rad = state.torchAngle * Math.PI / 180;
+    var sx = -Math.cos(rad) * 80;
+    var sy = Math.sin(rad) * 80;
+    TARGETS.forEach(function(t, i) {
+      if (state.hits.indexOf(i) !== -1) return;
+      var trad = t.angle * Math.PI / 180;
+      var tx = Math.cos(trad) * 100;
+      var ty = -Math.sin(trad) * 100;
+      var dist = Math.hypot(sx - tx, sy - ty);
+      if (dist < 30) {
+        state.hits.push(i);
+        if (typeof lumiReactTo === 'function') lumiReactTo('correct');
+        if (typeof lumiSay === 'function') lumiSay('Yes! Shadow at target ' + (i+1) + '. ' + (state.hits.length === TARGETS.length ? 'Last one!' : 'Two more to go!'));
+        if (state.hits.length === TARGETS.length) finishSim();
+      }
+    });
+    redraw();
+  }
+
+  function finishSim() {
+    if (!state || state.completed) return;
+    state.completed = true;
+    if (typeof grantSimReward === 'function') grantSimReward('light', 'Shadow detective!');
+    var stage = document.querySelector('#screen-sim .sim-stage');
+    if (stage) stage.innerHTML += '<div class="sim-win">🔦 Light goes in a straight line. When the tree blocks it, you get a shadow on the other side! <button class="lesson-btn" onclick="openSimHub()">More Lab →</button></div>';
+  }
+
+  function dispose() {
+    var svg = document.getElementById('shadow-svg');
+    if (svg) {
+      svg.removeEventListener('pointerdown', onPointer);
+      svg.removeEventListener('pointermove', onPointer);
+    }
+    state = null;
+  }
+
+  return { id: 'shadow', name: 'Light & Shadow', emoji: '🔦', skill: 'light', render: render, dispose: dispose };
+})();
+
+// --- src/stem-sims/sim-recycle.js ---
+// ============================================================
+//  STEM SIM 4 — SORT THE RECYCLING
+//  Drag each item to the right bin. Wrong bins bounce it back.
+//  Skill: material
+// ============================================================
+
+var simRecycle = (function() {
+  var BINS = [
+    { id: 'paper',   emoji: '📄', name: 'Paper',   colour: '#7bb3ff' },
+    { id: 'plastic', emoji: '♻️', name: 'Plastic', colour: '#ffd166' },
+    { id: 'metal',   emoji: '🥫', name: 'Metal',   colour: '#bcc6cc' },
+    { id: 'food',    emoji: '🍂', name: 'Food / Compost', colour: '#8bd17c' }
+  ];
+  var ALL_ITEMS = [
+    { emoji: '📰', name: 'Newspaper',  bin: 'paper' },
+    { emoji: '📦', name: 'Cardboard',  bin: 'paper' },
+    { emoji: '📚', name: 'Old Book',   bin: 'paper' },
+    { emoji: '🧴', name: 'Shampoo Bottle', bin: 'plastic' },
+    { emoji: '🥤', name: 'Plastic Cup',  bin: 'plastic' },
+    { emoji: '🛍️', name: 'Plastic Bag', bin: 'plastic' },
+    { emoji: '🥫', name: 'Tin Can',     bin: 'metal' },
+    { emoji: '🔑', name: 'Old Key',     bin: 'metal' },
+    { emoji: '⚙️', name: 'Metal Gear',  bin: 'metal' },
+    { emoji: '🍌', name: 'Banana Peel', bin: 'food' },
+    { emoji: '🍎', name: 'Apple Core',  bin: 'food' },
+    { emoji: '🥚', name: 'Eggshells',   bin: 'food' }
+  ];
+
+  var state = null;
+
+  function render(container) {
+    // Pick 8 random items
+    var items = ALL_ITEMS.slice().sort(function() { return Math.random() - 0.5; }).slice(0, 8);
+    state = { items: items, idx: 0, sorted: 0, completed: false };
+
+    container.innerHTML =
+      '<button class="back-btn" onclick="openSimHub()">← Back to STEM Lab</button>' +
+      '<h2 class="sim-title">♻️ Sort the Recycling</h2>' +
+      '<p class="sim-blurb">Drag each item to its bin. Some are tricky! Lumi will hint if you get stuck.</p>' +
+      '<div class="sim-stage">' +
+        '<div class="recycle-current" id="recycle-current"></div>' +
+        '<div class="recycle-bins">' +
+          BINS.map(function(b) {
+            return '<div class="recycle-bin" data-bin="' + b.id + '" style="border-color:' + b.colour + '">' +
+              '<div class="recycle-bin-emoji">' + b.emoji + '</div>' +
+              '<div class="recycle-bin-name">' + b.name + '</div>' +
+            '</div>';
+          }).join('') +
+        '</div>' +
+        '<div class="sim-meter">Sorted: <strong id="recycle-count">0 / 8</strong></div>' +
+      '</div>';
+
+    showItem();
+    document.querySelectorAll('.recycle-bin').forEach(function(el) {
+      el.onclick = function() { tryBin(el.dataset.bin); };
+      el.addEventListener('dragover', function(e) { e.preventDefault(); el.classList.add('hover'); });
+      el.addEventListener('dragleave', function() { el.classList.remove('hover'); });
+      el.addEventListener('drop', function(e) { e.preventDefault(); el.classList.remove('hover'); tryBin(el.dataset.bin); });
+    });
+  }
+
+  function showItem() {
+    if (!state) return;
+    var cur = document.getElementById('recycle-current');
+    if (!cur) return;
+    if (state.idx >= state.items.length) { finishSim(); return; }
+    var it = state.items[state.idx];
+    cur.innerHTML =
+      '<div class="recycle-item" draggable="true">' +
+        '<div class="recycle-item-emoji">' + it.emoji + '</div>' +
+        '<div class="recycle-item-name">' + it.name + '</div>' +
+      '</div>';
+    var el = cur.querySelector('.recycle-item');
+    if (el) {
+      el.addEventListener('dragstart', function(e) {
+        e.dataTransfer.setData('text/plain', it.bin);
+      });
+    }
+  }
+
+  function tryBin(binId) {
+    if (!state || state.idx >= state.items.length) return;
+    var it = state.items[state.idx];
+    var correct = it.bin === binId;
+    if (correct) {
+      state.sorted++;
+      state.idx++;
+      if (typeof lumiReactTo === 'function') lumiReactTo('correct');
+      if (typeof spawnParticles === 'function') {
+        var binEl = document.querySelector('.recycle-bin[data-bin="' + binId + '"]');
+        if (binEl) {
+          var r = binEl.getBoundingClientRect();
+          spawnParticles(r.left + r.width/2, r.top + r.height/2, 4, '✨');
+        }
+      }
+      document.getElementById('recycle-count').textContent = state.sorted + ' / ' + state.items.length;
+      if (state.idx >= state.items.length) {
+        setTimeout(finishSim, 300);
+      } else {
+        showItem();
+      }
+    } else {
+      // Hint
+      if (typeof lumiSay === 'function') {
+        var bin = BINS.find(function(b) { return b.id === it.bin; });
+        lumiSay('Not quite — that goes in ' + bin.name + '. Try again!');
+      }
+      if (typeof playSound === 'function') playSound('wrong');
+      var el = document.querySelector('.recycle-item');
+      if (el) { el.classList.add('shake'); setTimeout(function() { el.classList.remove('shake'); }, 400); }
+    }
+  }
+
+  function finishSim() {
+    if (!state || state.completed) return;
+    state.completed = true;
+    if (typeof grantSimReward === 'function') grantSimReward('material', 'Recycling champion!');
+    var stage = document.querySelector('#screen-sim .sim-stage');
+    if (stage) stage.innerHTML += '<div class="sim-win">♻️ Sorting helps Earth. Paper, plastic, metal, and food all get reused in different ways! <button class="lesson-btn" onclick="openSimHub()">More Lab →</button></div>';
+  }
+
+  function dispose() { state = null; }
+
+  return { id: 'recycle', name: 'Sort the Recycling', emoji: '♻️', skill: 'material', render: render, dispose: dispose };
+})();
+
+// --- src/stem-sims/sim-float.js ---
+// ============================================================
+//  STEM SIM 5 — FLOAT OR SINK
+//  Predict first, then drop. Curiosity, not correctness, is the reward.
+//  Skill: material
+// ============================================================
+
+var simFloat = (function() {
+  var ITEMS = [
+    { emoji: '🪨', name: 'Stone',       floats: false, why: 'Stone is dense — heavier than water for its size.' },
+    { emoji: '🍂', name: 'Dry Leaf',    floats: true,  why: 'Leaves are light and full of air pockets.' },
+    { emoji: '🪙', name: 'Coin',        floats: false, why: 'Metal coins are heavier than the water they push aside.' },
+    { emoji: '🧽', name: 'Sponge',      floats: true,  why: 'Sponges are mostly air — very light for their size.' },
+    { emoji: '🔑', name: 'Old Key',     floats: false, why: 'Metal is denser than water.' },
+    { emoji: '🍎', name: 'Apple',       floats: true,  why: 'Most apples are 25% air inside — they float!' },
+    { emoji: '🥚', name: 'Egg',         floats: false, why: 'Most eggs sink in plain water (but float in salty water!).' },
+    { emoji: '🪵', name: 'Wood Block',  floats: true,  why: 'Wood is less dense than water — it floats.' },
+    { emoji: '⚽', name: 'Football',    floats: true,  why: 'Hollow and full of air — definitely floats.' },
+    { emoji: '🍇', name: 'Grape',       floats: false, why: 'Grapes are surprisingly dense — they sink!' }
+  ];
+  var state = null;
+
+  function render(container) {
+    var pool = ITEMS.slice().sort(function() { return Math.random() - 0.5; }).slice(0, 6);
+    state = { pool: pool, idx: 0, predictions: 0, prediction: null, droppedItems: [], completed: false };
+
+    container.innerHTML =
+      '<button class="back-btn" onclick="openSimHub()">← Back to STEM Lab</button>' +
+      '<h2 class="sim-title">🌊 Float or Sink?</h2>' +
+      '<p class="sim-blurb">Look at the item. Guess first: float or sink? Then drop it in!</p>' +
+      '<div class="sim-stage float-stage">' +
+        '<div class="float-item" id="float-item"></div>' +
+        '<div class="float-predict" id="float-predict">' +
+          '<button class="lesson-btn float-btn" data-p="float">🟢 Float</button>' +
+          '<button class="lesson-btn float-btn" data-p="sink">🔵 Sink</button>' +
+        '</div>' +
+        '<div class="float-result" id="float-result"></div>' +
+        '<div class="float-tank">' +
+          '<div class="float-water"></div>' +
+          '<div class="float-shelf" id="float-shelf"></div>' +
+          '<div class="float-bed" id="float-bed"></div>' +
+        '</div>' +
+        '<div class="sim-meter">Items tested: <strong id="float-count">0 / 6</strong></div>' +
+      '</div>';
+
+    showItem();
+    document.querySelectorAll('.float-btn').forEach(function(b) {
+      b.onclick = function() { onPredict(b.dataset.p); };
+    });
+  }
+
+  function showItem() {
+    if (!state) return;
+    if (state.idx >= state.pool.length) { finishSim(); return; }
+    var it = state.pool[state.idx];
+    var el = document.getElementById('float-item');
+    if (el) el.innerHTML = '<div class="float-item-emoji">' + it.emoji + '</div><div class="float-item-name">' + it.name + '</div>';
+    state.prediction = null;
+    var pred = document.getElementById('float-predict');
+    var result = document.getElementById('float-result');
+    if (pred) pred.style.display = 'flex';
+    if (result) result.innerHTML = '';
+  }
+
+  function onPredict(choice) {
+    if (!state || state.prediction !== null) return;
+    state.prediction = choice;
+    state.predictions++;
+    var pred = document.getElementById('float-predict');
+    if (pred) pred.style.display = 'none';
+    var it = state.pool[state.idx];
+    var correctWord = it.floats ? 'float' : 'sink';
+    var matched = choice === correctWord;
+    var result = document.getElementById('float-result');
+    var verdict = it.floats ? '🟢 It floats!' : '🔵 It sinks!';
+    var msg = matched ? 'You guessed it!' : 'Curious! You predicted ' + (choice === 'float' ? 'float' : 'sink') + '.';
+    if (result) result.innerHTML = '<div class="float-verdict">' + verdict + '</div><div class="float-why">' + msg + ' ' + it.why + '</div><button class="lesson-btn" id="float-next">Next item →</button>';
+
+    // Animate the item dropping
+    var shelf = document.getElementById('float-shelf');
+    var bed = document.getElementById('float-bed');
+    var item = it.emoji;
+    if (it.floats && shelf) shelf.innerHTML = '<span class="float-bobber">' + item + '</span>';
+    else if (bed) bed.innerHTML = '<span class="float-sinker">' + item + '</span>';
+
+    if (matched && typeof lumiReactTo === 'function') lumiReactTo('correct');
+    if (typeof spawnParticles === 'function') {
+      var target = document.querySelector('.float-tank').getBoundingClientRect();
+      spawnParticles(target.left + target.width/2, target.top + 30, 5, '💧');
+    }
+
+    setTimeout(function() {
+      var nxt = document.getElementById('float-next');
+      if (nxt) nxt.onclick = function() {
+        state.idx++;
+        // Clear floats from previous
+        if (shelf) shelf.innerHTML = '';
+        if (bed) bed.innerHTML = '';
+        showItem();
+        var meter = document.getElementById('float-count');
+        if (meter) meter.textContent = state.idx + ' / ' + state.pool.length;
+      };
+    }, 100);
+  }
+
+  function finishSim() {
+    if (!state || state.completed) return;
+    state.completed = true;
+    if (typeof grantSimReward === 'function') grantSimReward('material', 'Scientist! You predicted and tested.');
+    var stage = document.querySelector('.float-stage');
+    if (stage) stage.innerHTML += '<div class="sim-win">🌊 Floating depends on density — how heavy something is for its size. Air inside = float; solid metal/stone = sink. <button class="lesson-btn" onclick="openSimHub()">More Lab →</button></div>';
+  }
+
+  function dispose() { state = null; }
+
+  return { id: 'float', name: 'Float or Sink?', emoji: '🌊', skill: 'material', render: render, dispose: dispose };
+})();
+
+// --- src/stem-sims/sim-hub.js ---
+// ============================================================
+//  STEM SIM HUB — Index + reward bridge
+// ============================================================
+
+var SIM_REGISTRY = null;
+function getSimRegistry() {
+  if (SIM_REGISTRY) return SIM_REGISTRY;
+  SIM_REGISTRY = {};
+  [simPushPull, simPlant, simShadow, simRecycle, simFloat].forEach(function(s) {
+    if (s) SIM_REGISTRY[s.id] = s;
+  });
+  return SIM_REGISTRY;
+}
+
+function renderSimHub() {
+  var c = document.getElementById('sim-hub-content');
+  if (!c) return;
+  var reg = getSimRegistry();
+  if (!state.simPlays) state.simPlays = {};
+  var played = state.simPlays;
+
+  var html = '<button class="back-btn" onclick="showScreen(\'home\')">← Back to Home</button>';
+  html += '<h2 class="sim-hub-title">🔬 STEM Lab</h2>';
+  html += '<p class="sim-hub-blurb">Five real experiments. Curiosity earns stars.</p>';
+  html += '<div class="sim-hub-grid">';
+  Object.keys(reg).forEach(function(id) {
+    var s = reg[id];
+    var p = played[id] || 0;
+    var skillName = '';
+    if (typeof STEM_TREE !== 'undefined' && STEM_TREE[s.skill]) {
+      skillName = STEM_TREE[s.skill].name;
+    }
+    html += '<div class="sim-card" onclick="openSim(\'' + id + '\')">' +
+      '<div class="sim-card-emoji">' + s.emoji + '</div>' +
+      '<div class="sim-card-name">' + s.name + '</div>' +
+      '<div class="sim-card-skill">' + (skillName ? '⭐ ' + skillName : '') + '</div>' +
+      '<div class="sim-card-plays">' + (p > 0 ? '✅ Played ' + p + 'x' : 'Tap to play →') + '</div>' +
+    '</div>';
+  });
+  html += '</div>';
+  c.innerHTML = html;
+}
+
+function openSim(simId) {
+  var reg = getSimRegistry();
+  var sim = reg[simId];
+  if (!sim) return;
+  // Dispose previous
+  if (window._currentSim && window._currentSim.dispose) {
+    try { window._currentSim.dispose(); } catch(e) {}
+  }
+  window._currentSim = sim;
+  showScreen('sim');
+  var c = document.getElementById('sim-content');
+  if (c) sim.render(c);
+}
+
+function openSimHub() {
+  if (window._currentSim && window._currentSim.dispose) {
+    try { window._currentSim.dispose(); } catch(e) {}
+  }
+  window._currentSim = null;
+  showScreen('sim-hub');
+}
+
+// Reward bridge — called by sims on completion
+function grantSimReward(skillId, message) {
+  if (!state.simPlays) state.simPlays = {};
+  var sim = window._currentSim;
+  if (sim) state.simPlays[sim.id] = (state.simPlays[sim.id] || 0) + 1;
+
+  // First play of a sim → bigger reward; replays → smaller
+  var times = sim ? state.simPlays[sim.id] : 1;
+  var tokens = times === 1 ? 20 : 5;
+  state.tokens = (state.tokens || 0) + tokens;
+
+  // Mastery bump
+  if (skillId && typeof state.skills === 'object') {
+    if (!state.skills[skillId]) state.skills[skillId] = { mastery: 0, totalAttempts: 0, correctAttempts: 0 };
+    var bump = times === 1 ? 8 : 3;
+    state.skills[skillId].mastery = Math.min(100, (state.skills[skillId].mastery || 0) + bump);
+    state.skills[skillId].totalAttempts = (state.skills[skillId].totalAttempts || 0) + 1;
+    state.skills[skillId].correctAttempts = (state.skills[skillId].correctAttempts || 0) + 1;
+  }
+
+  // Lumi reaction + token particles
+  if (typeof lumiReactTo === 'function') lumiReactTo('quizComplete', { pct: 100 });
+  if (typeof spawnParticles === 'function') {
+    spawnParticles(window.innerWidth/2, window.innerHeight/3, 12, '⭐');
+  }
+  if (typeof lumiSay === 'function') lumiSay('+' + tokens + ' stars! ' + (message || ''));
+
+  saveState();
+  if (typeof updateTokenDisplay === 'function') updateTokenDisplay();
+  if (typeof renderHome === 'function') renderHome();
+}
+
+window.openSim = openSim;
+window.openSimHub = openSimHub;
+window.renderSimHub = renderSimHub;
+window.grantSimReward = grantSimReward;
+
+// --- src/signs/sign-studio.js ---
+// ============================================================
+//  SIGN STUDIO v1 — Anastasia teaches Stasha to sign.
+//
+//  Lego-style sign builder. She picks the four real linguistic
+//  parameters of any sign: handshape, location, movement, orientation.
+//  Stasha "tries it back" by playing an animation built from those
+//  parameters. Anastasia can refine, save, or share with a parent.
+//
+//  IMPORTANT: This is NOT a sign-language authority. Every sign links
+//  to a verified reference (SADeaf SgSL Sign Bank or YouTube channel
+//  flagged by parent). The app is a practice partner and memory
+//  bank — what Anastasia and Stasha worked out together.
+// ============================================================
+
+var HANDSHAPES = [
+  { id: 'flat',    name: 'Flat hand',  emoji: '✋', desc: 'All five fingers together, palm flat' },
+  { id: 'fist',    name: 'Fist',       emoji: '✊', desc: 'Closed hand, fingers curled in' },
+  { id: 'point',   name: 'Point',      emoji: '☝️', desc: 'Index finger out, others curled' },
+  { id: 'peace',   name: 'Peace',      emoji: '✌️', desc: 'Two fingers in a V' },
+  { id: 'ok',      name: 'OK / O',     emoji: '👌', desc: 'Thumb and finger forming a circle' },
+  { id: 'open',    name: 'Open 5',     emoji: '🖐️', desc: 'Five fingers spread out' },
+  { id: 'thumbsup',name: 'Thumbs up',  emoji: '👍', desc: 'Fist with thumb pointing up' },
+  { id: 'claw',    name: 'Claw',       emoji: '🦅', desc: 'Curled fingers like a claw' },
+  { id: 'L',       name: 'L-shape',    emoji: '🔫', desc: 'Thumb and index forming an L' },
+  { id: 'babyO',   name: 'Baby O',     emoji: '🤏', desc: 'Small circle with thumb + index' }
+];
+
+var LOCATIONS = [
+  { id: 'forehead', name: 'Forehead',  desc: 'Hand near the brow' },
+  { id: 'temple',   name: 'Temple',    desc: 'Side of the head' },
+  { id: 'mouth',    name: 'Mouth',     desc: 'In front of the lips' },
+  { id: 'chin',     name: 'Chin',      desc: 'Below the mouth' },
+  { id: 'chest',    name: 'Chest',     desc: 'Centre of the chest' },
+  { id: 'shoulder', name: 'Shoulder',  desc: 'Top of the shoulder' },
+  { id: 'neutral',  name: 'Neutral',   desc: 'In front of body, mid height' },
+  { id: 'otherhand',name: 'Other hand',desc: 'Touching or near the other hand' }
+];
+
+var MOVEMENTS = [
+  { id: 'still',   name: 'Still',         desc: 'Stay put' },
+  { id: 'up',      name: 'Up',            desc: 'Move upward' },
+  { id: 'down',    name: 'Down',          desc: 'Move downward' },
+  { id: 'side',    name: 'Sideways',      desc: 'Move side to side' },
+  { id: 'circle',  name: 'Circle',        desc: 'Small circle' },
+  { id: 'tap',     name: 'Tap',           desc: 'Tap twice' },
+  { id: 'wave',    name: 'Wave',          desc: 'Wave the hand' },
+  { id: 'forward', name: 'Forward',       desc: 'Move away from body' },
+  { id: 'inward',  name: 'Inward',        desc: 'Move toward body' }
+];
+
+var ORIENTATIONS = [
+  { id: 'palm-up',     name: 'Palm up' },
+  { id: 'palm-down',   name: 'Palm down' },
+  { id: 'palm-in',     name: 'Palm inward' },
+  { id: 'palm-out',    name: 'Palm outward (facing other person)' },
+  { id: 'palm-side',   name: 'Palm sideways' }
+];
+
+// Sign suggestions (small starter set — Anastasia picks one or invents her own).
+// Each suggestion provides a reference URL placeholder (parent fills in) and
+// optionally a "preset" that pre-fills the builder.
+var SIGN_SUGGESTIONS = [
+  {
+    id: 'hello',
+    label: 'HELLO',
+    emoji: '👋',
+    why: 'Greet Stasha when you open the app.',
+    refUrl: 'https://signbank.sg',
+    preset: { handshape: 'flat', location: 'temple', movement: 'side', orientation: 'palm-out' },
+    note: 'Many signs for HELLO exist. Check signbank.sg or ask a deaf friend which feels right for you.'
+  },
+  {
+    id: 'thank-you',
+    label: 'THANK YOU',
+    emoji: '🙏',
+    why: 'Use after a streak of correct answers.',
+    refUrl: 'https://signbank.sg',
+    preset: { handshape: 'flat', location: 'chin', movement: 'forward', orientation: 'palm-in' }
+  },
+  {
+    id: 'good',
+    label: 'GOOD / WELL DONE',
+    emoji: '👍',
+    why: 'A small milestone reward.',
+    refUrl: 'https://signbank.sg',
+    preset: { handshape: 'thumbsup', location: 'neutral', movement: 'still', orientation: 'palm-side' }
+  },
+  {
+    id: 'more',
+    label: 'MORE',
+    emoji: '➕',
+    why: 'Between questions when she wants another go.',
+    refUrl: 'https://signbank.sg',
+    preset: { handshape: 'babyO', location: 'neutral', movement: 'tap', orientation: 'palm-in' }
+  },
+  {
+    id: 'try-again',
+    label: 'TRY AGAIN',
+    emoji: '🔄',
+    why: 'Gentle reminder after a wrong answer.',
+    refUrl: 'https://signbank.sg',
+    preset: { handshape: 'point', location: 'neutral', movement: 'circle', orientation: 'palm-side' }
+  },
+  {
+    id: 'i-love-you',
+    label: 'I LOVE YOU',
+    emoji: '💖',
+    why: 'For rest days and end of long sessions.',
+    refUrl: 'https://signbank.sg',
+    preset: { handshape: 'L', location: 'neutral', movement: 'still', orientation: 'palm-out' },
+    note: 'Universal Sign Language ILY: thumb + index + pinky out.'
+  },
+  {
+    id: 'one', label: 'ONE', emoji: '1️⃣', why: 'Numbers for Math World.', refUrl: 'https://signbank.sg',
+    preset: { handshape: 'point', location: 'neutral', movement: 'still', orientation: 'palm-out' }
+  },
+  {
+    id: 'two', label: 'TWO', emoji: '2️⃣', why: 'Numbers for Math World.', refUrl: 'https://signbank.sg',
+    preset: { handshape: 'peace', location: 'neutral', movement: 'still', orientation: 'palm-out' }
+  }
+];
+
+function getSignsState() {
+  if (!state.signs) {
+    state.signs = {
+      // taught[suggestionId] = { handshape, location, movement, orientation, signedAt, note }
+      taught: {},
+      parentVerified: {}
+    };
+  }
+  return state.signs;
+}
+
+function renderSignStudio() {
+  var c = document.getElementById('sign-studio-content');
+  if (!c) return;
+  var signs = getSignsState();
+  var taughtCount = Object.keys(signs.taught || {}).length;
+  var total = SIGN_SUGGESTIONS.length;
+
+  var html = '<button class="back-btn" onclick="showScreen(\'home\')">← Back to Home</button>';
+  html += '<h2 class="sign-title">🤟 Sign Studio</h2>';
+  html += '<p class="sign-blurb">Teach Stasha to sign! Watch a real sign first, then build it together. <strong>Stasha learns from you.</strong></p>';
+  html += '<div class="sign-honest">⚠️ This is a practice partner, not a sign-language teacher. Always watch the real sign first. If you\'re unsure, ask a deaf friend or a parent.</div>';
+  html += '<div class="sign-progress">Signs taught: <strong>' + taughtCount + ' / ' + total + '</strong></div>';
+
+  html += '<div class="sign-grid">';
+  SIGN_SUGGESTIONS.forEach(function(s) {
+    var taught = !!signs.taught[s.id];
+    var verified = !!signs.parentVerified[s.id];
+    html += '<div class="sign-card' + (taught ? ' taught' : '') + '" onclick="openSignBuilder(\'' + s.id + '\')">' +
+      '<div class="sign-card-emoji">' + s.emoji + '</div>' +
+      '<div class="sign-card-label">' + s.label + '</div>' +
+      '<div class="sign-card-why">' + s.why + '</div>' +
+      '<div class="sign-card-status">' +
+        (taught ? (verified ? '✅ Verified by parent' : '🎓 Taught') : '✨ Tap to teach') +
+      '</div>' +
+    '</div>';
+  });
+  html += '</div>';
+
+  c.innerHTML = html;
+}
+
+function openSignBuilder(suggestionId) {
+  var sug = SIGN_SUGGESTIONS.find(function(s) { return s.id === suggestionId; });
+  if (!sug) return;
+  var signs = getSignsState();
+  var current = signs.taught[suggestionId] || sug.preset || {
+    handshape: 'flat', location: 'neutral', movement: 'still', orientation: 'palm-out'
+  };
+  window._signBuilderState = { suggestionId: suggestionId, current: Object.assign({}, current) };
+  showScreen('sign-builder');
+  renderSignBuilder();
+}
+
+function renderSignBuilder() {
+  var c = document.getElementById('sign-builder-content');
+  if (!c || !window._signBuilderState) return;
+  var st = window._signBuilderState;
+  var sug = SIGN_SUGGESTIONS.find(function(s) { return s.id === st.suggestionId; });
+  if (!sug) return;
+  var cur = st.current;
+
+  var html = '<button class="back-btn" onclick="showScreen(\'sign-studio\')">← Back to Sign Studio</button>';
+  html += '<h2 class="sign-title">' + sug.emoji + ' Teach Stasha: ' + sug.label + '</h2>';
+  html += '<p class="sign-blurb">' + sug.why + '</p>';
+  html += '<div class="sign-ref">📺 <strong>Step 1: Watch the real sign.</strong> <a href="' + sug.refUrl + '" target="_blank" rel="noopener">Open signbank.sg in a new tab →</a></div>';
+  if (sug.note) html += '<div class="sign-note">💡 ' + sug.note + '</div>';
+
+  // Live preview of Stasha
+  html += '<div class="sign-preview">';
+  html += '<div class="sign-preview-label">Step 2: Watch Stasha sign it</div>';
+  html += '<div class="sign-stasha">';
+  html += '<div class="sign-stasha-body">👧</div>';
+  html += '<div class="sign-stasha-hand" id="sign-hand">' + (HANDSHAPES.find(function(h){return h.id === cur.handshape;}) || HANDSHAPES[0]).emoji + '</div>';
+  html += '</div>';
+  html += '<button class="lesson-btn sign-play-btn" onclick="playSignPreview()">▶ Stasha, try it!</button>';
+  html += '</div>';
+
+  // Builder
+  html += '<div class="sign-builder">';
+  html += '<div class="sign-builder-label">Step 3: Build it (the four parts of any sign)</div>';
+
+  html += _buildPicker('Handshape', 'handshape', HANDSHAPES, cur.handshape, true);
+  html += _buildPicker('Location', 'location', LOCATIONS, cur.location, false);
+  html += _buildPicker('Movement', 'movement', MOVEMENTS, cur.movement, false);
+  html += _buildPicker('Orientation', 'orientation', ORIENTATIONS, cur.orientation, false);
+
+  html += '</div>';
+
+  // Save + verify actions
+  html += '<div class="sign-save-row">';
+  html += '<button class="lesson-btn lesson-btn-done" onclick="saveTaughtSign()">💾 Save — Stasha remembers this!</button>';
+  html += '<button class="lesson-btn" onclick="markParentVerified()">👩‍👧 Parent-verify</button>';
+  html += '</div>';
+
+  c.innerHTML = html;
+}
+
+function _buildPicker(label, key, options, currentValue, showEmoji) {
+  var html = '<div class="sign-picker">';
+  html += '<div class="sign-picker-label">' + label + '</div>';
+  html += '<div class="sign-picker-options">';
+  options.forEach(function(o) {
+    var sel = (o.id === currentValue) ? ' selected' : '';
+    html += '<button class="sign-opt' + sel + '" onclick="pickSign(\'' + key + '\', \'' + o.id + '\')">';
+    if (showEmoji && o.emoji) html += '<span class="sign-opt-emoji">' + o.emoji + '</span> ';
+    html += o.name;
+    if (o.desc) html += '<span class="sign-opt-desc">' + o.desc + '</span>';
+    html += '</button>';
+  });
+  html += '</div></div>';
+  return html;
+}
+
+function pickSign(key, value) {
+  if (!window._signBuilderState) return;
+  window._signBuilderState.current[key] = value;
+  renderSignBuilder();
+}
+
+function playSignPreview() {
+  if (!window._signBuilderState) return;
+  var cur = window._signBuilderState.current;
+  var hand = document.getElementById('sign-hand');
+  if (!hand) return;
+  // Set handshape emoji
+  var hs = HANDSHAPES.find(function(h) { return h.id === cur.handshape; });
+  hand.textContent = hs ? hs.emoji : '✋';
+
+  // Position based on location
+  var positions = {
+    forehead:  { top: '8%',  left: '50%' },
+    temple:    { top: '14%', left: '72%' },
+    mouth:     { top: '36%', left: '50%' },
+    chin:      { top: '44%', left: '50%' },
+    chest:     { top: '54%', left: '50%' },
+    shoulder:  { top: '40%', left: '74%' },
+    neutral:   { top: '60%', left: '50%' },
+    otherhand: { top: '60%', left: '30%' }
+  };
+  var pos = positions[cur.location] || positions.neutral;
+  hand.style.top = pos.top;
+  hand.style.left = pos.left;
+  hand.style.transition = 'none';
+  // Force reflow then animate movement
+  hand.offsetHeight; // eslint-disable-line
+  hand.style.transition = 'transform 1.2s ease-in-out';
+  hand.className = 'sign-stasha-hand move-' + cur.movement;
+  // Re-trigger animation
+  hand.classList.remove('move-' + cur.movement);
+  void hand.offsetWidth;
+  hand.classList.add('move-' + cur.movement);
+
+  if (typeof stashaReact === 'function') stashaReact('happy');
+  if (typeof lumiSay === 'function') lumiSay('Stasha is signing!');
+}
+
+function saveTaughtSign() {
+  if (!window._signBuilderState) return;
+  var st = window._signBuilderState;
+  var signs = getSignsState();
+  var firstTime = !signs.taught[st.suggestionId];
+  signs.taught[st.suggestionId] = Object.assign({}, st.current, { savedAt: new Date().toISOString() });
+  saveState();
+  if (firstTime) {
+    state.tokens = (state.tokens || 0) + 12;
+    if (typeof lumiReactTo === 'function') lumiReactTo('correct');
+    if (typeof spawnParticles === 'function') spawnParticles(window.innerWidth/2, window.innerHeight/3, 10, '🌟');
+    if (typeof lumiSay === 'function') lumiSay('Stasha learned a new sign from you! +12 stars.');
+    saveState();
+    if (typeof updateTokenDisplay === 'function') updateTokenDisplay();
+  } else {
+    if (typeof lumiSay === 'function') lumiSay('Stasha\'s sign updated!');
+  }
+}
+
+function markParentVerified() {
+  if (!window._signBuilderState) return;
+  if (!confirm('Has a parent or deaf friend confirmed this sign matches the reference? Click OK if yes.')) return;
+  var signs = getSignsState();
+  signs.parentVerified[window._signBuilderState.suggestionId] = new Date().toISOString();
+  saveState();
+  if (typeof lumiSay === 'function') lumiSay('Verified! Stasha will use this sign confidently.');
+  renderSignBuilder();
+}
+
+window.renderSignStudio = renderSignStudio;
+window.renderSignBuilder = renderSignBuilder;
+window.openSignBuilder = openSignBuilder;
+window.pickSign = pickSign;
+window.playSignPreview = playSignPreview;
+window.saveTaughtSign = saveTaughtSign;
+window.markParentVerified = markParentVerified;
+
 // --- src/challenges/star-trials.js ---
 // ============================================================
 //  STAR TRIALS — Multi-skill challenge assessments
@@ -16844,6 +18209,15 @@ function showScreen(screenId) {
   }
   if (screenId === 'wardrobe' && typeof renderWardrobe === 'function') {
     renderWardrobe();
+  }
+  if (screenId === 'sim-hub' && typeof renderSimHub === 'function') {
+    renderSimHub();
+  }
+  if (screenId === 'sign-studio' && typeof renderSignStudio === 'function') {
+    renderSignStudio();
+  }
+  if (screenId === 'sign-builder' && typeof renderSignBuilder === 'function') {
+    renderSignBuilder();
   }
   if (screenId === 'garden') {
     if (typeof renderGardenIsland === 'function') renderGardenIsland();
