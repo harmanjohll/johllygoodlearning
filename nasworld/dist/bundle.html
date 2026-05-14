@@ -444,6 +444,205 @@ body {
 .thread-locked { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
 .thread-locked h3 { font-family: var(--font-display); margin: 12px 0 6px; color: var(--gold); }
 
+/* === COMPASS === */
+.world-card.compass .world-card-progress-fill { background: linear-gradient(90deg, var(--sky), var(--gold)); }
+.world-card.mirror .world-card-progress-fill  { background: linear-gradient(90deg, var(--lavender), var(--sky)); }
+.world-card.strategies .world-card-progress-fill { background: linear-gradient(90deg, var(--mint), var(--gold)); }
+.compass-shell { max-width: 720px; margin: 8px auto; padding: 12px; }
+.compass-greet { font-family: var(--font-display); font-size: 28px; color: var(--gold); text-align: center; margin-bottom: 4px; }
+.compass-intro { font-size: 15px; color: var(--text-secondary); text-align: center; margin-bottom: 18px; }
+.compass-moods { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+.compass-mood {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding: 14px 12px; min-width: 88px; border-radius: 18px;
+  background: rgba(37,27,94,0.6); border: 2px solid rgba(181,123,255,0.2);
+  cursor: pointer; transition: all .2s; color: var(--text-primary);
+  font-family: var(--font-body); font-size: 13px;
+}
+.compass-mood:hover { transform: translateY(-3px); }
+.compass-mood.selected { border-color: var(--gold); background: rgba(255,215,0,0.12); box-shadow: 0 0 20px rgba(255,215,0,0.18); }
+.compass-face { font-size: 34px; }
+.compass-mood-label { font-weight: 600; }
+.compass-plan-card {
+  background: rgba(37,27,94,0.7); border:1px solid rgba(255,215,0,0.2);
+  border-radius: var(--radius-xl); padding: 18px; margin-top: 12px;
+}
+.compass-plan-title { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.compass-plan-len   { font-size: 13px; color: var(--gold); margin-bottom: 14px; }
+.compass-suggestions { display:flex; flex-direction:column; gap:8px; margin-bottom: 14px; }
+.compass-suggest {
+  background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.25);
+  color: var(--text-primary); padding: 10px 14px; border-radius: 14px;
+  text-align: left; font-size: 14px; cursor: pointer; transition: background .2s;
+  font-family: var(--font-body);
+}
+.compass-suggest:hover { background: rgba(255,215,0,0.18); }
+.compass-intention { padding: 12px; border-top: 1px dashed rgba(181,123,255,0.3); margin-bottom: 12px; }
+.compass-intention-label { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+.compass-intention-text { font-size: 14px; color: var(--text-primary); line-height: 1.8; }
+.compass-intention-text input {
+  border: 1px solid rgba(255,215,0,0.4); background: rgba(0,0,0,0.25);
+  color: var(--text-primary); border-radius: 10px; padding: 6px 10px;
+  font-family: var(--font-body); font-size: 13px; min-width: 220px;
+}
+.compass-tertiary {
+  display: block; width: 100%; margin-top: 10px; padding: 10px;
+  background: transparent; border: 1px dashed rgba(255,215,0,0.4);
+  color: var(--text-secondary); border-radius: 14px; cursor: pointer;
+  font-family: var(--font-body); font-size: 13px;
+}
+.compass-rest {
+  margin-top: 14px; padding: 12px;
+  background: rgba(123,179,255,0.1); border-left: 3px solid var(--sky);
+  border-radius: 12px; font-size: 13px; color: var(--text-secondary); line-height: 1.5;
+}
+
+/* === MIRROR === */
+.mirror-shell { max-width: 760px; margin: 8px auto; padding: 12px; display:flex; flex-direction:column; gap:14px; }
+.mirror-intro { text-align: center; color: var(--text-secondary); font-size: 14px; margin-bottom: 4px; }
+.mirror-tile {
+  background: rgba(37,27,94,0.6); border:1px solid rgba(181,123,255,0.2);
+  border-radius: var(--radius-lg); padding: 16px;
+}
+.mirror-tile-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--lavender); margin-bottom: 6px; }
+.mirror-tile-big { font-family: var(--font-display); font-size: 42px; font-weight: 700; color: var(--gold); line-height: 1; }
+.mirror-tile-of { font-size: 18px; color: var(--text-dim); margin-left: 4px; }
+.mirror-tile-sub { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+.mirror-tile-note { font-size: 13px; color: var(--text-primary); margin-top: 10px; font-style: italic; }
+.mirror-tile-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.mirror-tile-chip {
+  font-size: 13px; padding: 6px 12px; border-radius: 999px;
+  background: rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.3);
+  color: var(--text-primary); cursor: pointer;
+  font-family: var(--font-body);
+}
+.mirror-world-bars { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
+.mirror-world-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.mirror-world-name { min-width: 92px; }
+.mirror-world-bar { flex: 1; height: 10px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden; }
+.mirror-world-fill { height: 100%; border-radius: 6px; transition: width .5s; }
+.mirror-world-pct { min-width: 40px; text-align: right; color: var(--text-secondary); font-weight: 600; }
+.mirror-heatmap {
+  display: grid; grid-template-columns: repeat(14, 1fr); gap: 4px; margin: 8px 0;
+}
+.mirror-heat-cell {
+  aspect-ratio: 1 / 1; border-radius: 4px;
+  background: rgba(255,255,255,0.05); position: relative;
+}
+.mirror-heat-cell.heat-1 { background: rgba(255,215,0,0.18); }
+.mirror-heat-cell.heat-2 { background: rgba(255,215,0,0.36); }
+.mirror-heat-cell.heat-3 { background: rgba(255,215,0,0.6); }
+.mirror-heat-cell.heat-4 { background: rgba(255,215,0,0.95); }
+.mirror-heat-tick { position: absolute; bottom: -16px; font-size: 9px; color: var(--text-dim); }
+
+/* === POMODORO WIDGET === */
+.pomo-widget {
+  position: fixed; bottom: 18px; right: 18px; z-index: 4000;
+  background: linear-gradient(135deg, rgba(37,27,94,0.95), rgba(47,35,112,0.95));
+  border: 2px solid var(--gold); border-radius: 18px;
+  padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4); transition: transform .3s;
+  font-family: var(--font-display);
+}
+.pomo-widget.hidden { transform: translateY(140%); }
+.pomo-widget.break { border-color: var(--mint); }
+.pomo-ring {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(255,215,0,0.12); display: flex; align-items: center; justify-content: center;
+}
+.pomo-widget.break .pomo-ring { background: rgba(74,222,128,0.15); }
+.pomo-time { font-weight: 700; color: var(--gold); font-size: 16px; }
+.pomo-widget.break .pomo-time { color: var(--mint); }
+.pomo-mode { font-size: 13px; color: var(--text-secondary); }
+.pomo-controls { display: flex; gap: 4px; }
+.pomo-btn {
+  background: transparent; border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text-primary); width: 30px; height: 30px;
+  border-radius: 50%; cursor: pointer; transition: background .2s;
+}
+.pomo-btn:hover { background: rgba(255,255,255,0.08); }
+
+/* === DAILY TREATS (WotD / IotD / QotD) === */
+.daily-treats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 12px 0; }
+.treat-card {
+  background: linear-gradient(135deg, rgba(255,215,0,0.05), rgba(181,123,255,0.05));
+  border: 1px solid rgba(255,215,0,0.18); border-radius: var(--radius-lg);
+  padding: 14px; cursor: pointer; transition: transform .2s;
+}
+.treat-card:hover { transform: translateY(-2px); border-color: rgba(255,215,0,0.45); }
+.treat-card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gold); margin-bottom: 4px; }
+.treat-card-headline { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.treat-card-sub { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+.treat-card-extra { font-size: 11px; color: var(--text-dim); margin-top: 6px; font-style: italic; }
+
+/* === STRATEGY LIBRARY === */
+.strategies-shell { max-width: 920px; margin: 8px auto; padding: 12px; }
+.strategies-intro { text-align: center; color: var(--text-secondary); margin-bottom: 18px; }
+.strategies-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.strategy-card {
+  background: rgba(37,27,94,0.6); border: 1px solid rgba(181,123,255,0.2);
+  border-radius: var(--radius-lg); padding: 16px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.strategy-card-emoji { font-size: 32px; }
+.strategy-card-title { font-family: var(--font-display); font-size: 17px; color: var(--gold); font-weight: 600; }
+.strategy-card-blurb { font-size: 13px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
+.strategy-card-try {
+  margin-top: 4px; padding: 8px 12px; background: rgba(255,215,0,0.08);
+  border: 1px solid rgba(255,215,0,0.3); color: var(--gold); border-radius: 10px;
+  cursor: pointer; font-family: var(--font-body); font-size: 13px; transition: background .2s;
+}
+.strategy-card-try:hover { background: rgba(255,215,0,0.2); }
+
+/* === PARENT DIGEST === */
+.digest-shell { max-width: 720px; margin: 8px auto; padding: 12px; }
+.digest-title { font-family: var(--font-display); font-size: 28px; color: var(--gold); text-align: center; margin-bottom: 6px; }
+.digest-intro { text-align: center; font-size: 14px; color: var(--text-secondary); margin-bottom: 18px; line-height: 1.5; }
+.digest-optin { text-align: center; padding: 16px; border: 1px dashed rgba(255,215,0,0.3); border-radius: 16px; }
+.digest-optin-q { font-size: 16px; color: var(--text-primary); margin-bottom: 14px; }
+.digest-optin .lesson-btn { margin: 4px 6px; }
+.digest-card {
+  background: #fef9ee; color: #1a1147; padding: 18px;
+  border-radius: 16px; border: 1px solid rgba(255,215,0,0.4);
+  margin: 16px 0; font-family: 'Patrick Hand', cursive;
+}
+.digest-card pre {
+  white-space: pre-wrap; word-wrap: break-word; font-family: 'Patrick Hand', cursive;
+  font-size: 17px; line-height: 1.55;
+}
+.digest-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; }
+.digest-tertiary {
+  background: transparent; border: 1px dashed rgba(248,113,113,0.4);
+  color: var(--error); padding: 8px 14px; border-radius: 12px;
+  font-family: var(--font-body); font-size: 12px; cursor: pointer;
+}
+
+/* === METACOGNITION OVERLAY === */
+.meta-overlay {
+  position: fixed; inset: 0; z-index: 6000;
+  background: rgba(15,11,46,0.85);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.meta-card {
+  background: linear-gradient(135deg, #1a1147, #2f2370);
+  border: 2px solid var(--gold); border-radius: var(--radius-xl);
+  padding: 24px; text-align: center; max-width: 440px; width: 100%;
+  animation: pop-in 0.4s ease-out;
+}
+.meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gold); }
+.meta-q { font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 8px 0 14px; }
+.meta-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.meta-face, .meta-reflect {
+  background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.3);
+  color: var(--text-primary); padding: 8px 12px; border-radius: 14px;
+  font-family: var(--font-body); font-size: 13px; cursor: pointer;
+}
+.meta-face:hover, .meta-reflect:hover { background: rgba(255,215,0,0.18); }
+.meta-skip {
+  margin-top: 12px; background: transparent; border: none;
+  color: var(--text-dim); cursor: pointer; font-size: 12px;
+}
+
 /* === ACTIVITY SELECTION === */
 .activity-header {
   text-align: center;
@@ -2554,6 +2753,24 @@ body {
           <div class="world-card-desc">See every world, skill, and real-world adventure light up together.</div>
           <div class="world-card-progress"><div class="world-card-progress-fill" id="mega-progress" style="width:0%"></div></div>
         </div>
+
+        <div class="world-card compass" onclick="showScreen('compass')">
+          <span class="world-card-icon">&#129517;</span>
+          <div class="world-card-title">Compass</div>
+          <div class="world-card-desc">Pick your mood and Lumi will plan a tiny session for you.</div>
+        </div>
+
+        <div class="world-card mirror" onclick="showScreen('mirror')">
+          <span class="world-card-icon">&#129683;</span>
+          <div class="world-card-title">Mirror</div>
+          <div class="world-card-desc">The honest story of where you are at — and what is next.</div>
+        </div>
+
+        <div class="world-card strategies" onclick="showScreen('strategies')">
+          <span class="world-card-icon">&#129504;</span>
+          <div class="world-card-title">Smart Tricks</div>
+          <div class="world-card-desc">10 tricks the cleverest learners use. Try one a week.</div>
+        </div>
         <div class="world-card garden" onclick="showScreen('garden')">
           <span class="world-card-icon">&#127800;</span>
           <div class="world-card-title">My Garden</div>
@@ -2561,6 +2778,9 @@ body {
           <div class="world-card-progress"><div class="world-card-progress-fill" id="garden-progress" style="width:0%"></div></div>
         </div>
       </div>
+
+      <!-- Daily Treats: WotD + IotD + QotD -->
+      <div id="daily-treats-area"></div>
 
       <!-- Streak Calendar -->
       <div id="streak-calendar-area"></div>
@@ -2572,6 +2792,12 @@ body {
       <div class="challenges-section" id="challenges-section">
         <h3>&#127942; Challenges</h3>
         <div class="challenges-grid" id="challenges-grid"></div>
+      </div>
+
+      <!-- Pomodoro + Parent Digest quick actions -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:24px">
+        <button class="reset-btn" style="border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,0.06)" onclick="startPomodoro(10)">&#9201; 10-min Pomodoro</button>
+        <button class="reset-btn" style="border-color:var(--lavender);color:var(--lavender);background:rgba(181,123,255,0.06)" onclick="showScreen('parent-digest')">&#128173; Family Digest</button>
       </div>
     </div>
 
@@ -2628,6 +2854,26 @@ body {
     <!-- THREAD (real-world story) SCREEN -->
     <div class="screen" id="screen-thread">
       <div id="thread-content"></div>
+    </div>
+
+    <!-- COMPASS SCREEN -->
+    <div class="screen" id="screen-compass">
+      <div id="compass-content"></div>
+    </div>
+
+    <!-- MIRROR SCREEN -->
+    <div class="screen" id="screen-mirror">
+      <div id="mirror-content"></div>
+    </div>
+
+    <!-- STRATEGIES SCREEN -->
+    <div class="screen" id="screen-strategies">
+      <div id="strategies-content"></div>
+    </div>
+
+    <!-- PARENT DIGEST SCREEN -->
+    <div class="screen" id="screen-parent-digest">
+      <div id="parent-digest-content"></div>
     </div>
 
     <!-- SKILL VIEW SCREEN (Learn / Explore / Quiz tabs) -->
@@ -5948,11 +6194,12 @@ const WORD_TREE = {
   phonics:  { id:'phonics',  name:'Phonics & CVC',      icon:'\uD83D\uDD24', grade:'P1 Foundation', deps:[],           desc:'Sound out CVC words' },
   sight:    { id:'sight',    name:'Sight Words',         icon:'\uD83D\uDC41\uFE0F', grade:'P1 Foundation', deps:[],           desc:'Read high-frequency words' },
   spell:    { id:'spell',    name:'Spelling Bee',        icon:'\uD83D\uDC1D', grade:'P1 Foundation', deps:['phonics'],  desc:'Spell CVC words with pictures' },
+  punct:    { id:'punct',    name:'Punctuation Power',   icon:'\u2755',       grade:'P1 Foundation', deps:[],            desc:'Full stops, question marks, commas, more' },
 
   // === P2 Expansion (EL) ===
-  grammar:  { id:'grammar',  name:'Grammar Garden',      icon:'\uD83C\uDF3B', grade:'P2 Expansion',  deps:['sight'],           desc:'Nouns, verbs, adjectives' },
+  grammar:  { id:'grammar',  name:'Grammar Garden',      icon:'\uD83C\uDF3B', grade:'P2 Expansion',  deps:['sight'],           desc:'Nouns, verbs, adjectives, pronouns, plurals' },
   vocab:    { id:'vocab',    name:'Vocabulary Vault',     icon:'\uD83D\uDCDA', grade:'P2 Expansion',  deps:['sight'],           desc:'Learn new word meanings' },
-  sentence: { id:'sentence', name:'Sentence Builder',     icon:'\uD83D\uDD28', grade:'P2 Expansion',  deps:['grammar'],         desc:'Build correct sentences' },
+  sentence: { id:'sentence', name:'Sentence Builder',     icon:'\uD83D\uDD28', grade:'P2 Expansion',  deps:['grammar','punct'], desc:'Build correct sentences' },
 
   // === P3 Deepening (EL) ===
   comprehension: { id:'comprehension', name:'Reading Comprehension', icon:'\uD83D\uDCD6', grade:'P3 Deepening', deps:['vocab','sentence'], desc:'Read passages and answer questions' },
@@ -6014,6 +6261,9 @@ var WORD_LESSONS = {
       { text: '<b>Nouns</b> are naming words.<br>They name people, animals, places, or things.<br><span style="color:var(--sky)">girl</span>, <span style="color:var(--sky)">cat</span>, <span style="color:var(--sky)">school</span>, <span style="color:var(--sky)">ball</span>', lumiTip: 'If you can touch it or see it, it\'s probably a noun!' },
       { text: '<b>Verbs</b> are doing words.<br>They tell us what someone does.<br><span style="color:var(--coral)">run</span>, <span style="color:var(--coral)">eat</span>, <span style="color:var(--coral)">sleep</span>, <span style="color:var(--coral)">play</span>', lumiTip: 'Can you act it out? Then it\'s a verb!' },
       { text: '<b>Adjectives</b> are describing words.<br>They tell us more about nouns.<br><span style="color:var(--mint)">big</span>, <span style="color:var(--mint)">happy</span>, <span style="color:var(--mint)">red</span>, <span style="color:var(--mint)">tall</span>', lumiTip: 'Adjectives answer: what kind? how many? which one?' },
+      { text: '<b>Pronouns</b> replace nouns so we don\'t repeat them.<br><i>Lina has a doll. Lina loves the doll.</i> → <i>Lina has a doll. <b>She</b> loves <b>it</b>.</i><br>Common pronouns: <b>I, you, he, she, it, we, they</b>', lumiTip: 'Use a pronoun the second time you mention something.' },
+      { text: '<b>Plurals</b> mean more than one.<br>Most words just add <b>-s</b>: cat → cats, book → books.<br>Words ending in <b>-s, -x, -ch, -sh</b> add <b>-es</b>: bus → bus<b>es</b>, fox → fox<b>es</b>.<br>A few are tricky: child → <b>children</b>, mouse → <b>mice</b>, foot → <b>feet</b>.', lumiTip: 'Listen for the hiss sound. If it hisses, use -es!' },
+      { text: '<b>Articles:</b> tiny words before a noun.<br><b>a</b> = one, used before a consonant sound: <i>a cat, a banana</i><br><b>an</b> = one, used before a vowel sound: <i>an apple, an egg</i><br><b>the</b> = a specific one: <i>the cat on the mat</i>', lumiTip: 'Hear the first sound, not the first letter. "an hour" sounds like "owur"!' },
       { type: 'sort', text: 'Sort these words into the right group!', categories: [
         { name: 'Nouns', items: ['cat', 'ball', 'tree'] },
         { name: 'Verbs', items: ['run', 'jump', 'eat'] }
@@ -6092,6 +6342,26 @@ var WORD_LESSONS = {
   }
 };
 
+WORD_LESSONS.punct = {
+  title: 'Punctuation',
+  icon: '❕',
+  lumiSays: 'Punctuation tells the reader how your sentence sounds. It is like the rests, drums and exclaim marks in music!',
+  steps: [
+    { text: '<b>Full stop</b> <span style="color:var(--gold);font-size:24px">.</span><br>Use it at the END of a normal sentence.<br>Examples: <i>The cat is fluffy. I like ice cream.</i>', lumiTip: 'A full stop is a tiny dot that says "I am done!"' },
+    { text: '<b>Question mark</b> <span style="color:var(--gold);font-size:24px">?</span><br>Use it at the end of a question.<br>Examples: <i>Where is my bag? Are you okay?</i>', lumiTip: 'Anytime you can answer with "yes", "no", or info — a question mark belongs.' },
+    { text: '<b>Exclamation mark</b> <span style="color:var(--gold);font-size:24px">!</span><br>Use it for surprise, loud voices, or strong feelings.<br>Examples: <i>Watch out! That was amazing!</i>', lumiTip: 'Use sparingly — too many and they lose their pop.' },
+    { text: '<b>Comma</b> <span style="color:var(--gold);font-size:24px">,</span><br>Use it for tiny pauses, lists, and after greetings.<br>Lists: <i>I packed apples, pears, plums.</i><br>Pause: <i>After lunch, we went to the park.</i><br>Greeting: <i>Dear Nenek,</i>', lumiTip: 'Read it out loud. Where you pause is usually where the comma goes.' },
+    { text: '<b>Apostrophe</b> <span style="color:var(--gold);font-size:24px">\'</span><br>Use it for shortcuts (it\'s = it is) and to show ownership (Lumi\'s sparkle = the sparkle belonging to Lumi).<br>Examples: <i>Don\'t worry. That is Anna\'s book.</i>', lumiTip: 'Shortcuts: do not → don\'t. The little flick stands in for missing letters.' },
+    { text: '<b>Quotation marks</b> <span style="color:var(--gold);font-size:24px">""</span><br>Wrap the exact words someone says.<br>Example: Mum smiled. <i>"Time for bed!"</i> she said.', lumiTip: 'Only the words spoken out loud go inside the quotes.' },
+    { text: '<b>Scenarios — same words, different punctuation:</b><br><i>You finished your homework</i> — full stop. (calm)<br><i>You finished your homework!</i> — exclamation. (surprised)<br><i>You finished your homework?</i> — question. (asking)<br>Same words, very different feeling!', lumiTip: 'Punctuation gives the sentence its voice.' },
+    { text: '<b>Where you write changes which marks you use:</b><br>📝 <b>SMS / chat to friend:</b> short sentences, lots of !!! and ?<br>📩 <b>Letter to Nenek:</b> commas after greeting, full stops, polite tone<br>📖 <b>Story:</b> all the marks — quotation marks for talking parts<br>📋 <b>List:</b> commas between items, full stop at the end', lumiTip: 'Same words, different setting, different punctuation!' },
+    { type: 'try', prompt: 'Where is my hat ___', options: ['.', '?', '!'], answer: '?', successMsg: 'It is a question, so a question mark!' },
+    { type: 'try', prompt: 'Watch out for that puddle ___', options: ['.', '?', '!'], answer: '!', successMsg: 'Strong feeling = exclamation mark!' },
+    { type: 'try', prompt: 'I packed apples ___ pears and plums.', options: [',', '.', '!'], answer: ',', successMsg: 'Commas separate items in a list!' },
+    { type: 'try', prompt: 'Which is correct?', options: ['I dont like it.', 'I don\'t like it.', 'I do not\'t like it.'], answer: 'I don\'t like it.', successMsg: 'Shortcuts use an apostrophe where letters are missing.' }
+  ]
+};
+
 function getWordLesson(skillId) {
   return WORD_LESSONS[skillId] || null;
 }
@@ -6153,32 +6423,53 @@ function getWordFlashcards(skillId) {
     ];
   }
 
+  if (skillId === 'punct') {
+    return [
+      { front: '.', back: 'Full stop — end of a normal sentence.', image: '❕' },
+      { front: '?', back: 'Question mark — for asking.',          image: '❓' },
+      { front: '!', back: 'Exclamation mark — for strong feelings.', image: '❗' },
+      { front: ',', back: 'Comma — tiny pause, list, or after a greeting.', image: '🟡' },
+      { front: '\'',back: 'Apostrophe — shortcuts (don\'t) and ownership (Lumi\'s).', image: '➰' },
+      { front: '""',back: 'Quotation marks — wrap the words someone says aloud.', image: '🗯️' },
+      { front: ':', back: 'Colon — introduces a list or explanation.', image: '🔸' },
+      { front: ';', back: 'Semicolon — like a slightly stronger comma.', image: '🟠' }
+    ];
+  }
+
   return null;
 }
 
 // --- src/stem/stem-tree.js ---
 // ============================================================
-//  STEM TREE — 10-skill tree: Science (5) + Coding (5)
+//  STEM TREE — 18-skill tree: Science (11) + Coding (7)
 // ============================================================
 
 const STEM_TREE = {
   // === Science — P1 Foundation ===
-  living:   { id:'living',   name:'Living Things',        icon:'\uD83C\uDF31', grade:'P1 Science',  deps:[],          desc:'Plants, animals, and habitats' },
-  material: { id:'material', name:'Materials & Matter',    icon:'\uD83E\uDDEA', grade:'P1 Science',  deps:[],          desc:'Solids, liquids, and properties' },
+  living:   { id:'living',   name:'Living Things',        icon:'🌱', grade:'P1 Science',  deps:[],          desc:'Plants, animals, and habitats' },
+  material: { id:'material', name:'Materials & Matter',    icon:'🧪', grade:'P1 Science',  deps:[],          desc:'Solids, liquids, and properties' },
+  senses:   { id:'senses',   name:'My Five Senses',         icon:'👀', grade:'P1 Science',  deps:[],            desc:'See, hear, smell, taste, touch' },
+  plants:   { id:'plants',   name:'Plant Life Cycle',       icon:'🌻', grade:'P1 Science',  deps:['living'],    desc:'Seed, sprout, flower, seed' },
 
   // === Science — P2 Expansion ===
-  forces:   { id:'forces',   name:'Forces & Energy',      icon:'\u26A1',       grade:'P2 Science',  deps:['material'], desc:'Push, pull, magnets, and energy' },
-  earth:    { id:'earth',    name:'Earth & Weather',      icon:'\uD83C\uDF0D', grade:'P2 Science',  deps:['living'],   desc:'Weather, water cycle, and Earth' },
-  body:     { id:'body',     name:'Human Body',           icon:'\uD83E\uDEC0', grade:'P2 Science',  deps:['living'],   desc:'Body systems and staying healthy' },
+  forces:   { id:'forces',   name:'Forces & Energy',      icon:'⚡',       grade:'P2 Science',  deps:['material'], desc:'Push, pull, magnets, and energy' },
+  earth:    { id:'earth',    name:'Earth & Weather',      icon:'🌍', grade:'P2 Science',  deps:['living'],   desc:'Weather, water cycle, and Earth' },
+  body:     { id:'body',     name:'Human Body',           icon:'🫀', grade:'P2 Science',  deps:['living'],   desc:'Body systems and staying healthy' },
+  animals:  { id:'animals',  name:'Animal Life Cycles',     icon:'🐛', grade:'P2 Science',  deps:['living'],    desc:'Butterflies, frogs, chickens, more' },
+  seasons:  { id:'seasons',  name:'Day, Night, Seasons',    icon:'🌗', grade:'P2 Science',  deps:['earth'],     desc:'Why day and night, why seasons change' },
+  sound:    { id:'sound',    name:'Sound',                  icon:'🔊', grade:'P2 Science',  deps:['forces'],    desc:'Vibrations, loud and soft, high and low' },
+  light:    { id:'light',    name:'Light & Shadows',        icon:'🔦', grade:'P2 Science',  deps:['forces'],    desc:'Where light comes from, how shadows form' },
 
   // === Coding — P1 Foundation ===
-  cseq:     { id:'cseq',     name:'Code: Sequences',      icon:'\u27A1\uFE0F', grade:'P1 Coding',   deps:[],           desc:'Step-by-step instructions' },
-  cloop:    { id:'cloop',    name:'Code: Loops',           icon:'\uD83D\uDD01', grade:'P1 Coding',   deps:['cseq'],     desc:'Repeat actions with loops' },
+  cseq:     { id:'cseq',     name:'Code: Sequences',      icon:'➡️', grade:'P1 Coding',   deps:[],           desc:'Step-by-step instructions' },
+  cloop:    { id:'cloop',    name:'Code: Loops',           icon:'🔁', grade:'P1 Coding',   deps:['cseq'],     desc:'Repeat actions with loops' },
 
   // === Coding — P2 Expansion ===
-  ccond:    { id:'ccond',    name:'Code: Conditionals',    icon:'\uD83D\uDD00', grade:'P2 Coding',   deps:['cloop'],    desc:'If-then decisions' },
-  cvar:     { id:'cvar',     name:'Code: Variables',       icon:'\uD83D\uDCE6', grade:'P2 Coding',   deps:['ccond'],    desc:'Store and change values' },
-  cdebug:   { id:'cdebug',   name:'Code: Debugging',       icon:'\uD83D\uDC1B', grade:'P2 Coding',   deps:['cvar'],     desc:'Find and fix bugs' }
+  ccond:    { id:'ccond',    name:'Code: Conditionals',    icon:'🔀', grade:'P2 Coding',   deps:['cloop'],    desc:'If-then decisions' },
+  cvar:     { id:'cvar',     name:'Code: Variables',       icon:'📦', grade:'P2 Coding',   deps:['ccond'],    desc:'Store and change values' },
+  cevent:   { id:'cevent',   name:'Code: Events',           icon:'⚡',       grade:'P2 Coding',   deps:['ccond'],     desc:'When X happens, do Y' },
+  cfunc:    { id:'cfunc',    name:'Code: Mini-Programs',    icon:'🧩', grade:'P2 Coding',   deps:['cvar'],      desc:'Reusable blocks of code' },
+  cdebug:   { id:'cdebug',   name:'Code: Debugging',       icon:'🐛', grade:'P2 Coding',   deps:['cvar'],     desc:'Find and fix bugs' }
 };
 
 // --- src/stem/stem-lessons.js ---
@@ -6322,6 +6613,113 @@ var STEM_LESSONS = {
       { type: 'try', prompt: '"→ → ↓ →" should go right 4 times. Which step is the bug?', options: ['Step 1', 'Step 2', 'Step 3'], answer: 'Step 3', successMsg: 'Step 3 goes down instead of right — that\'s the bug!' }
     ]
   }
+};
+
+// === New P1/P2 science lessons ===
+
+STEM_LESSONS.senses = {
+  title: 'My Five Senses',
+  icon: '👀',
+  lumiSays: 'Your senses are your superpowers for exploring the world!',
+  steps: [
+    { visual: '<div style="font-size:38px">👀 👂 👃 👅 ✋</div>', text: 'Five superpowers: <b>see</b>, <b>hear</b>, <b>smell</b>, <b>taste</b>, <b>touch</b>.', lumiTip: 'Each sense uses a different part of your body.' },
+    { text: '<b>👀 Sight</b> uses your <b>eyes</b>. You see colours, shapes, your own reflection.<br><b>👂 Hearing</b> uses your <b>ears</b>. You hear music, voices, the rain.<br><b>👃 Smell</b> uses your <b>nose</b>. You smell food, flowers, freshly baked bread.', lumiTip: 'Eyes / ears / nose — all live on your head, neat little neighbours.' },
+    { text: '<b>👅 Taste</b> uses your <b>tongue</b>. Sweet, salty, sour, bitter.<br><b>✋ Touch</b> uses your <b>skin</b> all over your body. Soft, rough, hot, cold.', lumiTip: 'Your skin is the biggest sense organ. It is your whole self-wrapping.' },
+    { type: 'try', prompt: 'You hear a bell. Which sense are you using?', options: ['Sight','Hearing','Smell'], answer: 'Hearing', successMsg: 'Ears + bell = hearing!' },
+    { type: 'try', prompt: 'You feel a fluffy cat. Which sense?', options: ['Taste','Touch','Sight'], answer: 'Touch', successMsg: 'Touch — your skin notices fluffiness.' }
+  ]
+};
+
+STEM_LESSONS.plants = {
+  title: 'Plant Life Cycle',
+  icon: '🌻',
+  lumiSays: 'A whole sunflower starts as a teeny seed. Let me show you.',
+  steps: [
+    { visual: '<div style="font-size:36px">🌰 → 🌱 → 🌿 → 🌻 → 🌰</div>', text: 'Seed → sprout → young plant → flower → new seeds. Round and round.', lumiTip: 'Plants make new seeds so the cycle keeps going.' },
+    { text: '<b>What a plant needs:</b><br>☀️ Sun (for light)<br>💧 Water (the engine)<br>🌫️ Air (for breathing)<br>🟤 Soil (for food and grip)', lumiTip: 'Take away any one and the plant gets sad.' },
+    { text: '<b>Parts of a plant:</b><br>🌱 Roots — drink water from soil<br>🌿 Stem — holds plant up and moves water<br>🍃 Leaves — make food using sunlight (called photosynthesis)<br>🌸 Flower — makes seeds for new plants', lumiTip: 'Leaves are tiny chefs. Sunlight is their oven.' },
+    { type: 'try', prompt: 'What comes after a sprout?', options: ['A seed','A young plant','A rainbow'], answer: 'A young plant', successMsg: 'Yes — the sprout grows into a young plant!' },
+    { type: 'try', prompt: 'Which part drinks water from the soil?', options: ['Leaves','Roots','Petals'], answer: 'Roots', successMsg: 'Roots! They are the plant\'s drinking straws.' }
+  ]
+};
+
+STEM_LESSONS.animals = {
+  title: 'Animal Life Cycles',
+  icon: '🐛',
+  lumiSays: 'Most animals look very different when they are born. Wait until you see this.',
+  steps: [
+    { visual: '<div style="font-size:30px">🥚 → 🐛 → 🛌 → 🦋</div>', text: 'Butterfly life cycle: <b>egg → caterpillar → pupa (chrysalis) → butterfly</b>.', lumiTip: 'A caterpillar literally rearranges itself inside the chrysalis. Wild.' },
+    { visual: '<div style="font-size:30px">🥚 → 🐟 → 🐸</div>', text: 'Frog life cycle: <b>egg → tadpole → froglet → frog</b>. Tadpoles have tails and live in water!', lumiTip: 'A frog used to be a fish-ish swimmer. Imagine.' },
+    { visual: '<div style="font-size:30px">🥚 → 🐥 → 🐔</div>', text: 'Chicken life cycle: <b>egg → chick → hen/rooster</b>. Mums lay the eggs.', lumiTip: 'Some lay eggs, some give birth, some do a weird mix. Animals!' },
+    { type: 'try', prompt: 'What is between caterpillar and butterfly?', options: ['Egg','Pupa','Chick'], answer: 'Pupa', successMsg: 'Yes! Caterpillars build a pupa first.' },
+    { type: 'try', prompt: 'A tadpole grows into a...', options: ['Fish','Frog','Bird'], answer: 'Frog', successMsg: 'Tadpole → frog. Big body change!' }
+  ]
+};
+
+STEM_LESSONS.seasons = {
+  title: 'Day, Night & Seasons',
+  icon: '🌗',
+  lumiSays: 'The Sun does not move much. Earth does the moving. We just sit on it!',
+  steps: [
+    { visual: '<div style="font-size:40px">🌎 🔄 ☀️</div>', text: 'Earth spins! One full spin = 24 hours = <b>one day</b>. The side facing the Sun has daytime; the other has night.', lumiTip: 'You are spinning right now and not even getting dizzy. Lucky.' },
+    { visual: '<div style="font-size:36px">☀️ 🌎 ↻ ↻ ↻ 🌎</div>', text: 'Earth also <b>orbits</b> the Sun once a year. The tilt of Earth gives us seasons in many countries.', lumiTip: 'Singapore is near the equator, so it skips most seasons. Lucky-not-lucky.' },
+    { text: '<b>Singapore weather pattern:</b><br>🌤️ <b>Dry months</b> — less rain (Feb–Apr, mid-year)<br>🌧️ <b>Monsoon months</b> — heavier rain (Nov–Jan, May–Sep)<br>Year round: panas + hujan.', lumiTip: 'Bring an umbrella. Always. Forever. (Singapore Rule #1.)' },
+    { type: 'try', prompt: 'What causes day and night?', options: ['Earth spinning on its axis','The Sun moving around Earth','Clouds blocking the Sun'], answer: 'Earth spinning on its axis', successMsg: 'Earth spins once a day!' },
+    { type: 'try', prompt: 'How long does Earth take to orbit the Sun?', options: ['One day','One month','One year'], answer: 'One year', successMsg: 'A whole year per lap!' }
+  ]
+};
+
+STEM_LESSONS.sound = {
+  title: 'Sound',
+  icon: '🔊',
+  lumiSays: 'Sound is wiggly air bumping into your ears. Honest.',
+  steps: [
+    { text: '<b>Sound = vibration.</b><br>When something shakes (vibrates), it pushes the air around it. That wiggling air reaches your ear and your brain says: "Sound!"', lumiTip: 'Touch your throat while you hum. Feel the wiggle? That is sound being made.' },
+    { text: '<b>Loud vs soft:</b><br>Big vibrations = loud sounds (drum, shout)<br>Tiny vibrations = soft sounds (whisper, falling leaf)', lumiTip: 'Loud or soft is about how big the wiggles are.' },
+    { text: '<b>High vs low pitch:</b><br>Fast wiggles = high pitch (squeak, whistle)<br>Slow wiggles = low pitch (rumble, foghorn)', lumiTip: 'Mum\'s voice = lower pitch than yours, usually!' },
+    { type: 'try', prompt: 'What makes sound happen?', options: ['Light','Vibration','Wind only'], answer: 'Vibration', successMsg: 'Yes — anything that vibrates makes sound.' },
+    { type: 'try', prompt: 'A drum hit hard makes a... ?', options: ['Loud sound','Soft sound','No sound'], answer: 'Loud sound', successMsg: 'Bigger hit = bigger vibration = louder sound.' }
+  ]
+};
+
+STEM_LESSONS.light = {
+  title: 'Light & Shadows',
+  icon: '🔦',
+  lumiSays: 'Where there is light there is a shadow nearby. Always.',
+  steps: [
+    { text: '<b>Light comes from:</b><br>☀️ The Sun (the biggest light)<br>💡 Light bulbs, torches, screens<br>🔥 Fire<br>✨ Some animals (fireflies, glow-worms)', lumiTip: 'The Moon is NOT a light. It just reflects the Sun\'s light back at us.' },
+    { text: '<b>How shadows form:</b><br>When light hits something it cannot pass through, a <b>shadow</b> appears on the opposite side.', lumiTip: 'Stand in the sun, your shadow points away from the sun. Try it!' },
+    { text: '<b>Transparent / Translucent / Opaque:</b><br>🪟 Transparent — light passes through (clear glass)<br>🟫 Translucent — some light passes (tracing paper)<br>🧱 Opaque — no light passes (wall, book)', lumiTip: 'Your hand is opaque. That is why it makes a shadow.' },
+    { type: 'try', prompt: 'What makes a shadow appear?', options: ['Light hitting an opaque object','Wind blowing','Heat'], answer: 'Light hitting an opaque object', successMsg: 'Exactly — block the light, get a shadow.' },
+    { type: 'try', prompt: 'Which gives off its own light?', options: ['Moon','Mirror','Torch'], answer: 'Torch', successMsg: 'A torch glows by itself. The moon and mirror just reflect.' }
+  ]
+};
+
+// === New P2 coding lessons ===
+
+STEM_LESSONS.cevent = {
+  title: 'Coding — Events',
+  icon: '⚡',
+  lumiSays: 'Events are "when X happens, do Y" rules. Your remote control runs on these.',
+  steps: [
+    { text: '<b>An event</b> is something that happens.<br>Button pressed. Bell rung. Door opened. Time reached.<br>Code can <b>listen</b> for events and react.', lumiTip: 'Doorbell. Press → ding. The button pressed is the event!' },
+    { visual: '<div style="font-size:18px;font-family:monospace">WHEN button is pressed<br>&nbsp;&nbsp;PLAY sound</div>', text: 'In code we write: <b>WHEN X DO Y</b>. Two halves: the event and the action.', lumiTip: 'WHEN is the trigger, DO is the reaction.' },
+    { visual: '<div style="font-size:18px;font-family:monospace">WHEN the timer rings<br>&nbsp;&nbsp;TURN OFF the oven</div>', text: 'Real-world examples: timers, alarms, smart lights. All running on events.', lumiTip: 'Your alarm clock is just an event listener with a buzzer attached.' },
+    { type: 'try', prompt: 'Which is an event?', options: ['Light bulb glows','Button pressed','Day of the week'], answer: 'Button pressed', successMsg: 'Yes! Buttons being pressed is an event.' },
+    { type: 'try', prompt: 'WHEN __ DO play music. Fill the blank.', options: ['the song ends','the alarm rings','the music plays'], answer: 'the alarm rings', successMsg: 'Alarm rings = event!' }
+  ]
+};
+
+STEM_LESSONS.cfunc = {
+  title: 'Coding — Mini-Programs',
+  icon: '🧩',
+  lumiSays: 'A mini-program is a chunk of code with a name. You write it once, then use it again and again.',
+  steps: [
+    { visual: '<div style="font-size:18px;font-family:monospace">MAKE wave_hello:<br>&nbsp;&nbsp;raise hand<br>&nbsp;&nbsp;wiggle fingers<br>&nbsp;&nbsp;lower hand</div>', text: 'We bundled three instructions into one new word: <b>wave_hello</b>.', lumiTip: 'Anywhere we say wave_hello, all three happen.' },
+    { visual: '<div style="font-size:18px;font-family:monospace">wave_hello<br>wave_hello<br>wave_hello</div>', text: 'Reuse it! Three waves with three lines instead of nine.', lumiTip: 'Mini-programs save writing — and your brain space.' },
+    { text: '<b>Why bother?</b><br>1. Less code = fewer mistakes<br>2. If you change it once, every use changes<br>3. Code reads like a book', lumiTip: 'Real coders write little reusable blocks all the time.' },
+    { type: 'try', prompt: 'You need to draw a square three times. What helps?', options: ['Write the square steps 3 times','Make a draw_square mini-program','Skip squares'], answer: 'Make a draw_square mini-program', successMsg: 'One block, used three times!' }
+  ]
 };
 
 function getStemLesson(skillId) {
@@ -7672,8 +8070,85 @@ function generateWordQuestion(skillId) {
     case 'poetry':        return genPoetry(diff);
     case 'story':         return genStory(diff);
     case 'paragraph':     return genParagraph(diff);
+    case 'punct':         return genPunct(diff);
     default:              return genPhonics(diff);
   }
+}
+
+// ===================== PUNCTUATION =====================
+
+var PUNCT_BANK = [
+  { sentence: 'Where is my school bag __',           mark: '?', kind: 'question' },
+  { sentence: 'Watch out for that puddle __',        mark: '!', kind: 'exclaim' },
+  { sentence: 'I love going to the beach __',        mark: '.', kind: 'full-stop' },
+  { sentence: 'Are you ready to go __',              mark: '?', kind: 'question' },
+  { sentence: 'That cake smells amazing __',         mark: '!', kind: 'exclaim' },
+  { sentence: 'The cat is sleeping on the mat __',   mark: '.', kind: 'full-stop' },
+  { sentence: 'Can I have a glass of water __',      mark: '?', kind: 'question' },
+  { sentence: 'Yikes, a spider __',                  mark: '!', kind: 'exclaim' },
+  { sentence: 'I packed apples __ pears and plums.', mark: ',', kind: 'comma-list' },
+  { sentence: 'After lunch __ we walked to the park.',mark: ',', kind: 'comma-pause' },
+  { sentence: 'Dear Nenek __',                       mark: ',', kind: 'comma-greet' },
+  { sentence: 'My favourite colours are red __ blue and gold.', mark: ',', kind: 'comma-list' }
+];
+
+var PUNCT_PURPOSE = [
+  { mark: '.',  purpose: 'end a normal sentence' },
+  { mark: '?',  purpose: 'end a question' },
+  { mark: '!',  purpose: 'show a strong feeling' },
+  { mark: ',',  purpose: 'pause or separate things in a list' },
+  { mark: '\'', purpose: 'show a shortcut or who owns something' },
+  { mark: '""', purpose: 'show the exact words someone says' }
+];
+
+var PUNCT_SCENARIO = [
+  { setting: 'A surprised shout to your friend',          best: '!' },
+  { setting: 'Asking Mum where your shoes are',           best: '?' },
+  { setting: 'Listing the fruits in your lunchbox',       best: ',' },
+  { setting: 'A friendly letter to Nenek',                best: ',' },
+  { setting: 'Writing "I am" in a shorter way',           best: '\'' },
+  { setting: 'Writing what your teacher said in a story', best: '""' }
+];
+
+function genPunct(diff) {
+  var roll = Math.random();
+
+  if (roll < 0.45) {
+    var item = pick(PUNCT_BANK);
+    var allMarks = ['.', '?', '!', ','];
+    var opts = shuffle(allMarks.filter(function(m) { return m !== item.mark; })).slice(0, 3);
+    return {
+      type: 'punct-pick',
+      sentence: item.sentence,
+      options: shuffle([item.mark].concat(opts)),
+      answer: item.mark,
+      hint: 'Read it aloud and listen — is it asking, exclaiming, listing, or just telling?'
+    };
+  }
+
+  if (roll < 0.75) {
+    var p = pick(PUNCT_PURPOSE);
+    var allM = PUNCT_PURPOSE.map(function(x) { return x.mark; });
+    var wrongs = shuffle(allM.filter(function(m) { return m !== p.mark; })).slice(0, 3);
+    return {
+      type: 'punct-purpose',
+      prompt: 'Which mark would you use to <b>' + p.purpose + '</b>?',
+      options: shuffle([p.mark].concat(wrongs)),
+      answer: p.mark,
+      hint: 'Think about the job each mark does.'
+    };
+  }
+
+  var s = pick(PUNCT_SCENARIO);
+  var allMS = ['.', '?', '!', ',', '\'', '""'];
+  var ws = shuffle(allMS.filter(function(m) { return m !== s.best; })).slice(0, 3);
+  return {
+    type: 'punct-scenario',
+    setting: s.setting,
+    options: shuffle([s.best].concat(ws)),
+    answer: s.best,
+    hint: 'Where you write changes what marks fit.'
+  };
 }
 
 // ===================== P1 GENERATORS =====================
@@ -7972,8 +8447,46 @@ function renderWordQuestion(card, q) {
     case 'poetry-couplet':    renderPoetryCouplet(card, q); return true;
     case 'story-write':       renderStoryWrite(card, q); return true;
     case 'paragraph-write':   renderParagraphWrite(card, q); return true;
+    case 'punct-pick':        renderPunctPick(card, q); return true;
+    case 'punct-purpose':     renderPunctPurpose(card, q); return true;
+    case 'punct-scenario':    renderPunctScenario(card, q); return true;
     default: return false;
   }
+}
+
+// ===================== PUNCTUATION RENDERERS =====================
+
+function _renderPunctOptions(q, btnStyle) {
+  btnStyle = btnStyle || 'font-size:28px;font-weight:700;min-width:54px';
+  return '<div class="answer-options">' + q.options.map(function(o) {
+    var safe = String(o).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    var display = String(o).replace(/"/g, '&quot;');
+    return '<button class="answer-btn" style="' + btnStyle + '" onclick="checkAnswer(\'' + safe + '\', \'' + String(q.answer).replace(/'/g, "\\'") + '\', this)">' + display + '</button>';
+  }).join('') + '</div>';
+}
+
+function renderPunctPick(card, q) {
+  var sentenceHtml = q.sentence.replace('__', '<span style="color:var(--gold);font-weight:700;font-size:22px">__</span>');
+  var html = '<div class="question-text">Which punctuation mark fits the blank?</div>';
+  html += '<div style="font-size:20px;margin:14px 0;line-height:1.5;color:var(--text-primary)">' + sentenceHtml + '</div>';
+  html += _renderPunctOptions(q);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderPunctPurpose(card, q) {
+  var html = '<div class="question-text">' + q.prompt + '</div>';
+  html += _renderPunctOptions(q);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderPunctScenario(card, q) {
+  var html = '<div class="question-text">Pick the best mark for this setting:</div>';
+  html += '<div style="font-size:18px;margin:12px 0;padding:14px;background:rgba(255,215,0,0.08);border-radius:12px;color:var(--text-primary)">📋 ' + q.setting + '</div>';
+  html += _renderPunctOptions(q);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
 }
 
 // ===================== P1 RENDERERS =====================
@@ -8418,9 +8931,98 @@ function generateScienceQuestion(skillId) {
     case 'forces':   return genForces(diff);
     case 'earth':    return genEarth(diff);
     case 'body':     return genBody(diff);
+    case 'senses':   return genSenses(diff);
+    case 'plants':   return genPlants(diff);
+    case 'animals':  return genAnimals(diff);
+    case 'seasons':  return genSeasons(diff);
+    case 'sound':    return genSound(diff);
+    case 'light':    return genLight(diff);
     default:         return null;
   }
 }
+
+// ===================== NEW SCIENCE BANKS =====================
+
+var SCIENCE_SENSES = [
+  { q:'You hear a doorbell. Which sense?', options:['Sight','Hearing','Smell','Taste'], answer:'Hearing', hint:'Ears detect sound.' },
+  { q:'You bite a lemon. Which sense?',     options:['Taste','Touch','Sight','Smell'], answer:'Taste', hint:'Tongue notices flavours.' },
+  { q:'You feel something soft. Which sense?', options:['Touch','Smell','Hearing','Sight'], answer:'Touch', hint:'Skin senses softness.' },
+  { q:'You see a rainbow. Which sense?',    options:['Sight','Hearing','Smell','Touch'], answer:'Sight', hint:'Eyes see colours.' },
+  { q:'You smell roasted chicken. Which sense?', options:['Smell','Taste','Touch','Sight'], answer:'Smell', hint:'Nose picks up scents.' },
+  { q:'Which body part is for hearing?',     options:['Ear','Eye','Nose','Tongue'], answer:'Ear', hint:'Ears are on the side of your head.' },
+  { q:'Which body part is for tasting?',     options:['Tongue','Skin','Nose','Eye'], answer:'Tongue', hint:'Your taste buds live here.' },
+  { q:'Your skin is the sense organ for...?', options:['Touch','Sight','Hearing','Smell'], answer:'Touch', hint:'Skin covers your whole body.' }
+];
+
+var SCIENCE_PLANTS = [
+  { q:'What does a plant grow from?',     options:['A seed','A rock','A leaf','A cloud'], answer:'A seed', hint:'Tiny start, big plant.' },
+  { q:'Which plant part takes in water?', options:['Roots','Petals','Leaves','Stem'], answer:'Roots', hint:'Roots grow underground.' },
+  { q:'Where does the plant make its food?', options:['Leaves','Roots','Petals','Soil'], answer:'Leaves', hint:'Leaves catch sunlight.' },
+  { q:'Which is NOT something plants need?', options:['Music','Sunlight','Water','Air'], answer:'Music', hint:'Plants do not actually need songs!' },
+  { q:'What comes between a seed and a flower?', options:['Sprout','Egg','Bird','Wave'], answer:'Sprout', hint:'A small green shoot.' },
+  { q:'What does a flower help make?',    options:['New seeds','Sunlight','Soil','Wind'], answer:'New seeds', hint:'Flowers keep the cycle going.' },
+  { q:'Which plant part holds the plant up?', options:['Stem','Petal','Root','Leaf'], answer:'Stem', hint:'It works like a backbone.' },
+  { q:'A sunflower needs sunlight to do what?', options:['Make food','Sing','Move','Sleep'], answer:'Make food', hint:'Photosynthesis in the leaves.' }
+];
+
+var SCIENCE_ANIMALS = [
+  { q:'A butterfly comes from a...?',       options:['Caterpillar','Tadpole','Chick','Egg only'], answer:'Caterpillar', hint:'Through the chrysalis stage.' },
+  { q:'What grows in the chrysalis (pupa)?', options:['A butterfly','A frog','A fish','A bird'], answer:'A butterfly', hint:'Caterpillar transforms inside.' },
+  { q:'A tadpole grows into a...?',         options:['Frog','Fish','Bird','Snake'], answer:'Frog', hint:'Loses tail, grows legs.' },
+  { q:'Chickens hatch from...?',            options:['Eggs','Pups','Chrysalises','Seeds'], answer:'Eggs', hint:'Hens lay them.' },
+  { q:'Which animal lays eggs?',            options:['Chicken','Cow','Dog','Cat'], answer:'Chicken', hint:'Birds usually lay eggs.' },
+  { q:'A baby frog (after egg) is called?', options:['Tadpole','Pupa','Chick','Sprout'], answer:'Tadpole', hint:'Lives in water, has a tail.' },
+  { q:'Order: egg, ___, butterfly. The middle stage?', options:['Caterpillar','Tadpole','Chick','Sprout'], answer:'Caterpillar', hint:'It eats lots of leaves.' },
+  { q:'Which animal does NOT come from an egg?', options:['Cow','Frog','Chicken','Butterfly'], answer:'Cow', hint:'Cows have live babies.' }
+];
+
+var SCIENCE_SEASONS = [
+  { q:'What causes day and night?',          options:['Earth spinning on its axis','Sun moving','Moon hiding','Wind blowing'], answer:'Earth spinning on its axis', hint:'Earth turns once every 24 hours.' },
+  { q:'How long does Earth take to orbit the Sun?', options:['One year','One day','One month','Seven days'], answer:'One year', hint:'One trip around = 365 days.' },
+  { q:'When the Sun shines on your side of Earth, it is...?', options:['Daytime','Night','Winter','Summer'], answer:'Daytime', hint:'Light side = day.' },
+  { q:'Singapore has mainly which two weather types?', options:['Hot and rainy','Snow and rain','Cold and dry','Snow and hot'], answer:'Hot and rainy', hint:'Tropical climate.' },
+  { q:'Which season comes after winter (in cool countries)?', options:['Spring','Autumn','Summer','Monsoon'], answer:'Spring', hint:'Things begin to grow.' },
+  { q:'The Moon makes its own light. True or false?', options:['False — it reflects the Sun','True','Only at midnight','Only in summer'], answer:'False — it reflects the Sun', hint:'Moonlight = bounced sunlight.' },
+  { q:'Which country usually has 4 distinct seasons?', options:['United Kingdom','Singapore','Indonesia','Brunei'], answer:'United Kingdom', hint:'Far from the equator.' }
+];
+
+var SCIENCE_SOUND = [
+  { q:'What makes a sound happen?',  options:['Vibration','Light','Wind only','Temperature'], answer:'Vibration', hint:'Something has to shake the air.' },
+  { q:'A drum hit hard makes a...?', options:['Loud sound','Soft sound','No sound','Sweet smell'], answer:'Loud sound', hint:'Bigger hit, bigger sound.' },
+  { q:'A whisper is a...?',          options:['Soft sound','Loud sound','High note only','Smell'], answer:'Soft sound', hint:'Tiny vibration.' },
+  { q:'Which organ helps us hear?',  options:['Ear','Eye','Nose','Skin'], answer:'Ear', hint:'On the side of your head.' },
+  { q:'Fast vibrations make...?',    options:['High pitch','Low pitch','No sound','Wind'], answer:'High pitch', hint:'Squeaky, like a whistle.' },
+  { q:'Slow vibrations make...?',    options:['Low pitch','High pitch','Hot air','No sound'], answer:'Low pitch', hint:'Deep, like a drum or a foghorn.' },
+  { q:'Can sound travel through water?', options:['Yes','No','Only in winter','Only at night'], answer:'Yes', hint:'Dolphins use it!' }
+];
+
+var SCIENCE_LIGHT = [
+  { q:'Which gives off its own light?', options:['Sun','Mirror','Moon','Window'], answer:'Sun', hint:'It is a star — it shines!' },
+  { q:'The Moon shines because it...?', options:['Reflects the Sun','Burns gas','Is hot','Has lamps'], answer:'Reflects the Sun', hint:'Moonlight is bounced sunlight.' },
+  { q:'A shadow appears when...?',      options:['Light hits an opaque object','Wind blows','Sound is loud','It is cold'], answer:'Light hits an opaque object', hint:'Light cannot pass through.' },
+  { q:'Glass is...?',                  options:['Transparent','Opaque','Translucent only','Loud'], answer:'Transparent', hint:'You see through clear glass.' },
+  { q:'A wall is...?',                 options:['Opaque','Transparent','Translucent','Loud'], answer:'Opaque', hint:'You cannot see through it.' },
+  { q:'What is NOT a light source?',    options:['A mirror','A torch','A fire','A bulb'], answer:'A mirror', hint:'Mirrors reflect, do not glow.' },
+  { q:'Your shadow points...?',         options:['Away from the light','Toward the light','Up always','Down always'], answer:'Away from the light', hint:'Stand in sun: your shadow stretches away from it.' }
+];
+
+function _scienceMCQFromBank(bank, hintLead) {
+  var item = pick(bank);
+  return {
+    type: 'science-mcq',
+    prompt: item.q,
+    options: shuffle([].concat(item.options)),
+    answer: item.answer,
+    hint: item.hint || (hintLead || 'Think it through carefully.')
+  };
+}
+
+function genSenses(diff)  { return _scienceMCQFromBank(SCIENCE_SENSES,  'Match the sense to the body part.'); }
+function genPlants(diff)  { return _scienceMCQFromBank(SCIENCE_PLANTS,  'Picture the plant.'); }
+function genAnimals(diff) { return _scienceMCQFromBank(SCIENCE_ANIMALS, 'Walk through the life cycle.'); }
+function genSeasons(diff) { return _scienceMCQFromBank(SCIENCE_SEASONS, 'Earth spins and orbits.'); }
+function genSound(diff)   { return _scienceMCQFromBank(SCIENCE_SOUND,   'Vibration is the key.'); }
+function genLight(diff)   { return _scienceMCQFromBank(SCIENCE_LIGHT,   'Light → shadow → object.'); }
 
 // ===================== SCIENCE DATA =====================
 
@@ -9234,8 +9836,79 @@ function generateCodeQuestion(skillId) {
     case 'ccond':  return genCodeCond(diff);
     case 'cvar':   return genCodeVar(diff);
     case 'cdebug': return genCodeDebug(diff);
+    case 'cevent': return genCodeEvent(diff);
+    case 'cfunc':  return genCodeFunc(diff);
     default:       return null;
   }
+}
+
+// ===================== EVENT & FUNCTION GENERATORS =====================
+
+var CODE_EVENT_PAIRS = [
+  { event: 'button is pressed',     action: 'play a sound' },
+  { event: 'alarm rings',           action: 'turn off the oven' },
+  { event: 'door is opened',        action: 'turn on the light' },
+  { event: 'timer reaches zero',    action: 'show a message' },
+  { event: 'sun rises',             action: 'roll up the blinds' },
+  { event: 'phone receives a text', action: 'buzz the phone' }
+];
+
+function genCodeEvent(diff) {
+  var pair = pick(CODE_EVENT_PAIRS);
+  var roll = Math.random();
+
+  if (roll < 0.5) {
+    // Pick the right action for a given event
+    var wrongs = shuffle(CODE_EVENT_PAIRS.filter(function(p) { return p.action !== pair.action; }))
+      .slice(0, 3).map(function(p) { return p.action; });
+    return {
+      type: 'code-mcq',
+      prompt: 'WHEN <b>' + pair.event + '</b> DO ___',
+      options: shuffle([pair.action].concat(wrongs)),
+      answer: pair.action,
+      hint: 'Read it like a sentence. What reaction fits the event?'
+    };
+  }
+  // Identify which choice is an event (vs a thing or a state)
+  var notEvents = ['blue colour', 'a number', 'a name', 'the wind direction'];
+  var ev = pair.event;
+  return {
+    type: 'code-mcq',
+    prompt: 'Which of these is an <b>event</b> (something that happens)?',
+    options: shuffle([ev].concat(shuffle(notEvents).slice(0, 3))),
+    answer: ev,
+    hint: 'Events are actions or moments, not things or states.'
+  };
+}
+
+function genCodeFunc(diff) {
+  var roll = Math.random();
+  if (roll < 0.5) {
+    return {
+      type: 'code-mcq',
+      prompt: 'You need to draw a square three times. What is the smartest way?',
+      options: shuffle([
+        'Make a draw_square mini-program and use it three times',
+        'Copy the same 4 lines, three times in a row',
+        'Use a different shape',
+        'Skip drawing squares'
+      ]),
+      answer: 'Make a draw_square mini-program and use it three times',
+      hint: 'A mini-program lets you reuse code without copying it.'
+    };
+  }
+  return {
+    type: 'code-mcq',
+    prompt: 'What is the BEST reason to make a mini-program?',
+    options: shuffle([
+      'Reuse the same code in many places',
+      'Make the program longer',
+      'Confuse other coders',
+      'Use up more memory'
+    ]),
+    answer: 'Reuse the same code in many places',
+    hint: 'Mini-programs are about reuse and clarity.'
+  };
 }
 
 // ===================== DATA =====================
@@ -9417,8 +10090,19 @@ function renderCodeQuestion(card, q) {
     case 'code-conditional': renderCodeConditional(card, q); return true;
     case 'code-variable':    renderCodeVariable(card, q); return true;
     case 'code-debug':       renderCodeDebug(card, q); return true;
+    case 'code-mcq':         renderCodeMCQ(card, q); return true;
     default: return false;
   }
+}
+
+function renderCodeMCQ(card, q) {
+  var html = '<div class="question-text">' + q.prompt + '</div>';
+  html += '<div class="answer-options">' + q.options.map(function(o) {
+    var safe = String(o).replace(/'/g, "\\'");
+    return '<button class="answer-btn" style="font-size:15px;text-align:left" onclick="checkAnswer(\'' + safe + '\', \'' + String(q.answer).replace(/'/g, "\\'") + '\', this)">' + o + '</button>';
+  }).join('') + '</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
 }
 
 function renderCodeSequence(card, q) {
@@ -11278,6 +11962,353 @@ function getActiveThreadChapter(threadId) {
   var idx = Math.min(st.currentChapter - 1, thread.chapters.length - 1);
   return thread.chapters[idx];
 }
+
+// --- src/data/iotd.js ---
+// ============================================================
+//  IDIOM OF THE DAY — 50 P1-friendly English idioms with kid-safe meanings
+// ============================================================
+
+const IOTD_BANK = [
+  { idiom: "Piece of cake",            meaning: "very easy",                                  example: "That puzzle was a piece of cake!" },
+  { idiom: "Raining cats and dogs",    meaning: "raining very heavily",                       example: "Bring an umbrella, it's raining cats and dogs!" },
+  { idiom: "Bookworm",                 meaning: "someone who loves reading",                  example: "Anastasia is a real bookworm." },
+  { idiom: "Cool as a cucumber",       meaning: "very calm",                                  example: "Even before the test, she was cool as a cucumber." },
+  { idiom: "Apple of my eye",          meaning: "favourite person",                           example: "Grandma calls me the apple of her eye." },
+  { idiom: "Spill the beans",          meaning: "tell a secret",                              example: "Don't spill the beans about the surprise party!" },
+  { idiom: "Couch potato",             meaning: "someone who sits around a lot",              example: "I was being a couch potato all afternoon." },
+  { idiom: "Once in a blue moon",      meaning: "very rarely",                                example: "We only have ice cream once in a blue moon." },
+  { idiom: "Hit the books",            meaning: "to study hard",                              example: "Time to hit the books for the spelling test!" },
+  { idiom: "Hold your horses",         meaning: "wait, slow down",                            example: "Hold your horses, I'm coming!" },
+  { idiom: "Under the weather",        meaning: "feeling a little sick",                      example: "I'm staying home, I feel under the weather." },
+  { idiom: "Two peas in a pod",        meaning: "very similar, often best friends",           example: "Those twins are like two peas in a pod." },
+  { idiom: "On cloud nine",            meaning: "very happy",                                 example: "She was on cloud nine when she won." },
+  { idiom: "When pigs fly",            meaning: "never going to happen",                      example: "He'll eat broccoli when pigs fly." },
+  { idiom: "Easy as pie",              meaning: "very easy",                                  example: "Riding a bike is easy as pie once you learn." },
+  { idiom: "Lend a hand",              meaning: "to help",                                    example: "Can you lend a hand with the washing?" },
+  { idiom: "All ears",                 meaning: "listening very carefully",                   example: "Tell me about it — I'm all ears!" },
+  { idiom: "Costs an arm and a leg",   meaning: "very expensive",                             example: "That toy costs an arm and a leg." },
+  { idiom: "Break the ice",            meaning: "start a conversation with new people",       example: "He told a joke to break the ice." },
+  { idiom: "Butterflies in my tummy",  meaning: "feeling nervous and excited",                example: "I had butterflies in my tummy before the show." },
+  { idiom: "Don't cry over spilled milk", meaning: "don't be upset about something small",    example: "I dropped my biscuit, but don't cry over spilled milk." },
+  { idiom: "A bit fishy",              meaning: "something seems suspicious",                 example: "His story sounds a bit fishy." },
+  { idiom: "Bite off more than you can chew", meaning: "take on too much",                    example: "Don't bite off more than you can chew today." },
+  { idiom: "In hot water",             meaning: "in trouble",                                 example: "He got in hot water for drawing on the wall." },
+  { idiom: "Crocodile tears",          meaning: "fake crying",                                example: "She cried crocodile tears to get ice cream." },
+  { idiom: "Let the cat out of the bag", meaning: "reveal a secret by accident",              example: "Oops, I let the cat out of the bag." },
+  { idiom: "Get cold feet",            meaning: "feel nervous about something",               example: "She got cold feet right before her performance." },
+  { idiom: "Bee in your bonnet",       meaning: "something you keep talking about",           example: "She has a bee in her bonnet about birds today." },
+  { idiom: "Like a fish out of water", meaning: "feeling out of place",                       example: "He felt like a fish out of water on his first day." },
+  { idiom: "Storm in a teacup",        meaning: "big fuss over something small",              example: "It was just a storm in a teacup, really." },
+  { idiom: "A whole new ball game",    meaning: "a totally new situation",                    example: "P1 is a whole new ball game!" },
+  { idiom: "Hit the nail on the head", meaning: "get exactly the right answer",               example: "You hit the nail on the head with that guess!" },
+  { idiom: "The early bird catches the worm", meaning: "those who start early do best",      example: "She got there first because the early bird catches the worm." },
+  { idiom: "A piece of the puzzle",    meaning: "part of a bigger thing",                     example: "Practising every day is a piece of the puzzle." },
+  { idiom: "Time flies",               meaning: "time passes very quickly",                   example: "Wow, time flies when you're having fun!" },
+  { idiom: "Walking on sunshine",      meaning: "feeling super happy",                        example: "After winning, I was walking on sunshine." },
+  { idiom: "A bird in the hand",       meaning: "what you already have is better than what you might get", example: "A bird in the hand is worth two in the bush." },
+  { idiom: "Curiosity killed the cat", meaning: "being too curious can get you in trouble",    example: "Don't peek, curiosity killed the cat!" },
+  { idiom: "The ball is in your court", meaning: "now it's your turn to decide",              example: "I've given you the choice — the ball is in your court." },
+  { idiom: "Smell a rat",              meaning: "feel something is wrong",                    example: "I smell a rat — those cookies were here yesterday!" },
+  { idiom: "Fit as a fiddle",          meaning: "very healthy",                               example: "Grandpa is 80 and fit as a fiddle!" },
+  { idiom: "Quick as a flash",         meaning: "extremely fast",                             example: "The cat was up the tree quick as a flash." },
+  { idiom: "A little bird told me",    meaning: "I heard a secret",                           example: "A little bird told me it's your birthday!" },
+  { idiom: "Look before you leap",     meaning: "think before you do something",              example: "Look before you leap — check the puddle first!" },
+  { idiom: "Best of both worlds",      meaning: "you get good things from two choices",       example: "Living near the park is the best of both worlds." },
+  { idiom: "Costs a pretty penny",     meaning: "very expensive",                             example: "That sparkly dress cost a pretty penny." },
+  { idiom: "Cry your eyes out",        meaning: "cry a lot",                                  example: "She cried her eyes out when she lost her teddy." },
+  { idiom: "Have a heart of gold",     meaning: "be very kind",                               example: "Auntie Mei has a heart of gold." },
+  { idiom: "Take it with a grain of salt", meaning: "don't believe it completely",            example: "His fishing story? Take it with a grain of salt." },
+  { idiom: "Better late than never",   meaning: "doing it late is still good",                example: "I finished the book — better late than never!" }
+];
+
+function getIdiomOfTheDay() {
+  const today = new Date();
+  const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+  // Offset by 7 so IotD doesn't always rotate in step with WotD
+  return IOTD_BANK[(dayOfYear + 7) % IOTD_BANK.length];
+}
+
+// --- src/data/qotd.js ---
+// ============================================================
+//  QUOTE OF THE DAY — 50 P1-friendly inspiring + cheeky quotes
+// ============================================================
+
+const QOTD_BANK = [
+  { quote: "You are braver than you believe, stronger than you seem, and smarter than you think.", who: "A.A. Milne" },
+  { quote: "Be the rainbow in someone's cloud.",                                                   who: "Maya Angelou" },
+  { quote: "Mistakes are proof that you are trying.",                                              who: "Anon" },
+  { quote: "If at first you don't succeed, try, try again.",                                       who: "Thomas H. Palmer" },
+  { quote: "Do small things with great love.",                                                     who: "Mother Teresa" },
+  { quote: "Stars can't shine without darkness.",                                                  who: "Anon" },
+  { quote: "Be kind whenever possible. It is always possible.",                                    who: "The Dalai Lama" },
+  { quote: "Believe you can and you're halfway there.",                                            who: "Theodore Roosevelt" },
+  { quote: "The expert in anything was once a beginner.",                                          who: "Helen Hayes" },
+  { quote: "A jug fills drop by drop.",                                                            who: "Buddha" },
+  { quote: "Never stop being curious.",                                                            who: "Anon" },
+  { quote: "Today you are you, that is truer than true.",                                          who: "Dr. Seuss" },
+  { quote: "There is no friend as loyal as a book.",                                               who: "Ernest Hemingway" },
+  { quote: "The more that you read, the more things you will know.",                               who: "Dr. Seuss" },
+  { quote: "It always seems impossible until it's done.",                                          who: "Nelson Mandela" },
+  { quote: "You can't go back and change the beginning, but you can start where you are.",         who: "C.S. Lewis" },
+  { quote: "Falling down is part of life. Getting back up is living.",                             who: "Anon" },
+  { quote: "Why fit in when you were born to stand out?",                                          who: "Dr. Seuss" },
+  { quote: "Do or do not. There is no try.",                                                       who: "Yoda" },
+  { quote: "I have not failed. I've just found 10,000 ways that won't work.",                      who: "Thomas Edison" },
+  { quote: "Every story has an end, but in life every ending is just a new beginning.",            who: "Anon" },
+  { quote: "Kindness is a language everyone understands.",                                         who: "Anon" },
+  { quote: "Even the longest journey begins with a single step.",                                  who: "Lao Tzu" },
+  { quote: "A dream you don't act on is just a wish.",                                             who: "Anon" },
+  { quote: "Don't let anyone dull your sparkle.",                                                  who: "Anon" },
+  { quote: "Smile, it's free therapy.",                                                            who: "Doug Horton" },
+  { quote: "Imagination is more important than knowledge.",                                        who: "Albert Einstein" },
+  { quote: "She believed she could, so she did.",                                                  who: "R.S. Grey" },
+  { quote: "Be a flamingo in a flock of pigeons.",                                                 who: "Anon" },
+  { quote: "Practice makes progress.",                                                             who: "Anon" },
+  { quote: "Don't compare your beginning to someone else's middle.",                               who: "Tim Hiller" },
+  { quote: "Today's reader is tomorrow's leader.",                                                 who: "Margaret Fuller" },
+  { quote: "Throw kindness around like confetti.",                                                 who: "Anon" },
+  { quote: "Tough times don't last. Tough kids do.",                                               who: "Anon" },
+  { quote: "You miss 100% of the shots you don't take.",                                           who: "Wayne Gretzky" },
+  { quote: "Hard work beats talent when talent doesn't work hard.",                                who: "Tim Notke" },
+  { quote: "Where there's a will, there's a way.",                                                 who: "Anon" },
+  { quote: "Plant kindness, gather love.",                                                         who: "Proverb" },
+  { quote: "The best way to predict the future is to create it.",                                  who: "Peter Drucker" },
+  { quote: "What you do today can improve all your tomorrows.",                                    who: "Ralph Marston" },
+  { quote: "Don't be afraid to give up the good to go for the great.",                             who: "John D. Rockefeller" },
+  { quote: "Try to be a rainbow in someone else's cloud.",                                         who: "Maya Angelou" },
+  { quote: "Strong people don't put others down. They lift them up.",                              who: "Michael P. Watson" },
+  { quote: "Yesterday I was clever, so I wanted to change the world. Today I am wise, so I am changing myself.", who: "Rumi" },
+  { quote: "A book is a dream that you hold in your hand.",                                        who: "Neil Gaiman" },
+  { quote: "I am still learning.",                                                                 who: "Michelangelo" },
+  { quote: "Be soft. Don't let the world make you hard.",                                          who: "Iain Thomas" },
+  { quote: "If you can dream it, you can do it.",                                                  who: "Walt Disney" },
+  { quote: "Little progress is still progress.",                                                   who: "Anon" },
+  { quote: "Whatever you are, be a good one.",                                                     who: "Abraham Lincoln" }
+];
+
+function getQuoteOfTheDay() {
+  const today = new Date();
+  const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+  // Offset by 14 so QotD rotates independently
+  return QOTD_BANK[(dayOfYear + 14) % QOTD_BANK.length];
+}
+
+// --- src/data/strategies.js ---
+// ============================================================
+//  STRATEGY LIBRARY — Study strategies for a P1 learner.
+//  Each strategy has a "try this now" action.
+// ============================================================
+
+var STRATEGIES = [
+  {
+    id: 'feynman',
+    title: 'Teach it back',
+    emoji: '🧑‍🏫',
+    blurb: 'If you can explain it to Lumi in your own words, you really know it. If you stumble, that is the bit to relearn.',
+    tryAction: 'lumi-tap',
+    tryLabel: 'Tell Lumi what you just learned'
+  },
+  {
+    id: 'retrieve',
+    title: 'Cover it up',
+    emoji: '🙈',
+    blurb: 'Close your eyes. What do you remember? Then peek. Recalling is much better for memory than re-reading.',
+    tryAction: 'flashcards',
+    tryLabel: 'Try the flashcards instead of the lesson'
+  },
+  {
+    id: 'interleave',
+    title: 'Mix it up',
+    emoji: '🧩',
+    blurb: 'Do not spend a whole session on one topic. Mix two or three. Your brain learns more when it has to switch.',
+    tryAction: 'mega-map',
+    tryLabel: 'Pick two worlds today on the Mega Map'
+  },
+  {
+    id: 'space',
+    title: 'Sprinkle, do not pour',
+    emoji: '💧',
+    blurb: 'Five short sessions across the week beats one long one. Your brain glues things together overnight.',
+    tryAction: 'compass',
+    tryLabel: 'Open Compass for a tiny session'
+  },
+  {
+    id: 'sleep',
+    title: 'Sleep on it',
+    emoji: '💤',
+    blurb: 'Eight hours tonight does more for tomorrow than one extra hour now. Reading before bed locks in the new word.',
+    tryAction: 'home',
+    tryLabel: 'Tuck in early tonight — promise?'
+  },
+  {
+    id: 'two-minute',
+    title: 'The two-minute trick',
+    emoji: '⏱️',
+    blurb: 'If starting feels hard, promise yourself just two minutes. You can always stop after. (Spoiler: you usually do not stop.)',
+    tryAction: 'pomodoro',
+    tryLabel: 'Start a 2-minute timer'
+  },
+  {
+    id: 'mistakes',
+    title: 'Hug your mistakes',
+    emoji: '🤗',
+    blurb: 'Wrong answers grow your brain faster than easy right ones. When you get one wrong, that is the bit your brain is growing.',
+    tryAction: 'home',
+    tryLabel: 'Pick a tricky skill on purpose'
+  },
+  {
+    id: 'why',
+    title: 'Find the why',
+    emoji: '🔎',
+    blurb: 'When you learn something new, ask: where would I use this? At the hawker centre? In a game? In a story?',
+    tryAction: 'mega-map',
+    tryLabel: 'See where today\'s skill fits on the Mega Map'
+  },
+  {
+    id: 'wiggle',
+    title: 'Wiggle then think',
+    emoji: '🤸',
+    blurb: 'Stuck on a question? Stand up. Wiggle for 10 seconds. Sit down. Try again. The brain loves a tiny break.',
+    tryAction: 'pomodoro',
+    tryLabel: 'Set a Pomodoro — built-in wiggle breaks'
+  },
+  {
+    id: 'one-sentence',
+    title: 'One-sentence summary',
+    emoji: '📝',
+    blurb: 'After every lesson, say one sentence out loud about what you learned. Trim until it fits. That trimming is learning.',
+    tryAction: 'home',
+    tryLabel: 'Try this after your next lesson'
+  }
+];
+
+function renderStrategyLibrary() {
+  var container = document.getElementById('strategies-content');
+  if (!container) return;
+
+  var html = '<button class="back-btn" onclick="showScreen(\'home\')">← Back to Home</button>';
+  html += '<div class="strategies-shell">';
+  html += '<div class="strategies-intro">Tricks the cleverest learners use. Pick one a week — they get easier with practice.</div>';
+  html += '<div class="strategies-grid">';
+  STRATEGIES.forEach(function(s) {
+    html += '<div class="strategy-card">';
+    html += '<div class="strategy-card-emoji">' + s.emoji + '</div>';
+    html += '<div class="strategy-card-title">' + s.title + '</div>';
+    html += '<div class="strategy-card-blurb">' + s.blurb + '</div>';
+    html += '<button class="strategy-card-try" onclick="strategyTry(\'' + s.id + '\')">Try this now →</button>';
+    html += '</div>';
+  });
+  html += '</div></div>';
+  container.innerHTML = html;
+}
+
+function strategyTry(id) {
+  var s = STRATEGIES.find(function(x) { return x.id === id; });
+  if (!s) return;
+  switch (s.tryAction) {
+    case 'lumi-tap':
+      showScreen('home');
+      setTimeout(function() { if (typeof lumiSpeak === 'function') lumiSpeak(); }, 300);
+      break;
+    case 'flashcards':
+    case 'home':
+      showScreen('home');
+      break;
+    case 'mega-map':
+      showScreen('mega-map');
+      break;
+    case 'compass':
+      showScreen('compass');
+      break;
+    case 'pomodoro':
+      if (typeof startPomodoro === 'function') startPomodoro(id === 'two-minute' ? 2 : 10);
+      break;
+  }
+}
+
+window.renderStrategyLibrary = renderStrategyLibrary;
+window.strategyTry = strategyTry;
+
+// --- src/core/metacognition.js ---
+// ============================================================
+//  METACOGNITION — Confidence ratings + one-sentence reflection.
+//  Tiny prompts that ask the learner to think about their own thinking.
+// ============================================================
+
+function metaConfidenceBefore(skillId, onPicked) {
+  // Modal: 1 (unsure) to 5 (super sure)
+  var overlay = document.createElement('div');
+  overlay.className = 'meta-overlay';
+  overlay.innerHTML =
+    '<div class="meta-card">' +
+      '<div class="meta-label">Before we start...</div>' +
+      '<div class="meta-q">How sure are you about this skill right now?</div>' +
+      '<div class="meta-row">' +
+        '<button class="meta-face" data-c="1">😵 not sure</button>' +
+        '<button class="meta-face" data-c="2">🙃 a bit</button>' +
+        '<button class="meta-face" data-c="3">🙂 okay</button>' +
+        '<button class="meta-face" data-c="4">😊 pretty sure</button>' +
+        '<button class="meta-face" data-c="5">🤩 super sure</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  overlay.querySelectorAll('.meta-face').forEach(function(b) {
+    b.onclick = function() {
+      var c = Number(b.dataset.c);
+      if (!state.meta) state.meta = { confidence: {}, reflections: [] };
+      if (!state.meta.confidence[skillId]) state.meta.confidence[skillId] = [];
+      state.meta.confidence[skillId].push({ ts: Date.now(), before: c });
+      saveState();
+      overlay.remove();
+      if (typeof onPicked === 'function') onPicked(c);
+    };
+  });
+}
+
+var META_REFLECTION_PROMPTS = [
+  'What did your brain just figure out?',
+  'Say one sentence about what you learned.',
+  'What is the trickiest bit you cracked?',
+  'In one sentence: what would you tell a friend about this?'
+];
+var META_REFLECTION_OPTIONS = [
+  '🌟 I nailed it',
+  '🙂 I got most of it',
+  '🤔 Some bits still wobbly',
+  '😅 Need more practice',
+  '😴 My brain is tired'
+];
+
+function metaReflectAfter(skillId, onDone) {
+  var prompt = META_REFLECTION_PROMPTS[Math.floor(Math.random() * META_REFLECTION_PROMPTS.length)];
+  var overlay = document.createElement('div');
+  overlay.className = 'meta-overlay';
+  var optHtml = META_REFLECTION_OPTIONS.map(function(o, i) {
+    return '<button class="meta-reflect" data-r="' + i + '">' + o + '</button>';
+  }).join('');
+  overlay.innerHTML =
+    '<div class="meta-card">' +
+      '<div class="meta-label">One last thing...</div>' +
+      '<div class="meta-q">' + prompt + '</div>' +
+      '<div class="meta-row">' + optHtml + '</div>' +
+      '<button class="meta-skip" onclick="this.closest(\'.meta-overlay\').remove()">Skip</button>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  overlay.querySelectorAll('.meta-reflect').forEach(function(b) {
+    b.onclick = function() {
+      var r = Number(b.dataset.r);
+      if (!state.meta) state.meta = { confidence: {}, reflections: [] };
+      state.meta.reflections.push({ ts: Date.now(), skillId: skillId, reflection: r });
+      if (state.meta.reflections.length > 100) state.meta.reflections = state.meta.reflections.slice(-100);
+      saveState();
+      overlay.remove();
+      if (typeof onDone === 'function') onDone(r);
+    };
+  });
+}
+
+window.metaConfidenceBefore = metaConfidenceBefore;
+window.metaReflectAfter = metaReflectAfter;
 
 // --- src/challenges/star-trials.js ---
 // ============================================================
@@ -13739,7 +14770,44 @@ function updateHomeUI() {
   }
 
   updateWotd();
+  updateDailyTreats();
   updateChallengesSection();
+}
+
+// === DAILY TREATS — WotD, IotD, QotD as a trio ===
+function updateDailyTreats() {
+  var host = document.getElementById('daily-treats-area');
+  if (!host) return;
+  var wotd = (typeof getWordOfTheDay === 'function') ? getWordOfTheDay() : null;
+  var iotd = (typeof getIdiomOfTheDay === 'function') ? getIdiomOfTheDay() : null;
+  var qotd = (typeof getQuoteOfTheDay === 'function') ? getQuoteOfTheDay() : null;
+
+  var html = '<div class="daily-treats">';
+  if (wotd) {
+    html += '<div class="treat-card" onclick="claimWotd()">' +
+      '<div class="treat-card-label">📚 Word of the Day</div>' +
+      '<div class="treat-card-headline">' + wotd.word + '</div>' +
+      '<div class="treat-card-sub">' + wotd.def + '</div>' +
+      '<div class="treat-card-extra">' + wotd.sentence + '</div>' +
+    '</div>';
+  }
+  if (iotd) {
+    html += '<div class="treat-card">' +
+      '<div class="treat-card-label">💬 Idiom of the Day</div>' +
+      '<div class="treat-card-headline">"' + iotd.idiom + '"</div>' +
+      '<div class="treat-card-sub">' + iotd.meaning + '</div>' +
+      '<div class="treat-card-extra">' + iotd.example + '</div>' +
+    '</div>';
+  }
+  if (qotd) {
+    html += '<div class="treat-card">' +
+      '<div class="treat-card-label">✨ Quote of the Day</div>' +
+      '<div class="treat-card-headline">"' + qotd.quote + '"</div>' +
+      '<div class="treat-card-sub">— ' + qotd.who + '</div>' +
+    '</div>';
+  }
+  html += '</div>';
+  host.innerHTML = html;
 }
 
 // === WORD OF THE DAY ===
@@ -14192,6 +15260,724 @@ window.getSkillName = getSkillName;
 
 })();
 
+// --- src/ui/compass.js ---
+// ============================================================
+//  COMPASS — Session opener.
+//  Reads mood, proposes a session length, suggests focus,
+//  invites an implementation intention.
+// ============================================================
+//
+//  Why: a P1 learner needs a soft start, not a feature wall.
+//  The Compass takes 30 seconds and routes her to the right
+//  thing for today's energy level.
+
+var MOODS = [
+  { id: 'drained', face: '😴', label: 'Drained',  minutes: 8,  flavour: 'gentle' },
+  { id: 'low',     face: '🙁', label: 'Low',      minutes: 10, flavour: 'gentle' },
+  { id: 'okay',    face: '🙂', label: 'Okay',     minutes: 12, flavour: 'balanced' },
+  { id: 'good',    face: '😊', label: 'Good',     minutes: 15, flavour: 'balanced' },
+  { id: 'strong',  face: '🤩', label: 'Strong',   minutes: 18, flavour: 'stretch' }
+];
+
+var COMPASS_INTROS = [
+  "Right then, princess. How are we today?",
+  "Tap your mood. No wrong answers.",
+  "Quick check: what kind of brain do we have right now?",
+  "Tell me your mood first. Then I'll plan."
+];
+
+function getCompassState() {
+  if (!state.compass) {
+    state.compass = {
+      lastOpenedDate: '',
+      lastMood: '',
+      currentSession: null,
+      moodHistory: []   // [{date, mood}]
+    };
+  }
+  return state.compass;
+}
+
+function compassRecordMood(moodId) {
+  var c = getCompassState();
+  var today = new Date().toDateString();
+  c.lastMood = moodId;
+  c.lastOpenedDate = today;
+  if (!Array.isArray(c.moodHistory)) c.moodHistory = [];
+  c.moodHistory.push({ date: today, mood: moodId });
+  if (c.moodHistory.length > 60) c.moodHistory = c.moodHistory.slice(-60);
+  saveState();
+}
+
+function compassRecordPlan(plan) {
+  var c = getCompassState();
+  c.currentSession = {
+    started: Date.now(),
+    minutes: plan.minutes,
+    intention: plan.intention || '',
+    suggestedSkill: plan.suggestedSkill || null,
+    mood: c.lastMood
+  };
+  saveState();
+}
+
+function compassFindWeakSkill() {
+  var weakest = null;
+  if (!state.skills) return null;
+  Object.keys(state.skills).forEach(function(id) {
+    var s = state.skills[id];
+    if ((s.totalAttempts || 0) < 2) return;
+    if (!weakest || (s.mastery || 0) < (weakest.mastery || 0)) {
+      weakest = { id: id, mastery: s.mastery || 0 };
+    }
+  });
+  return weakest;
+}
+
+function compassFindFreshSkill() {
+  // A skill that has zero attempts and no missing deps
+  var allTrees = Object.assign({},
+    typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {},
+    typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {},
+    typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {},
+    typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}
+  );
+  var ids = Object.keys(allTrees);
+  for (var i = 0; i < ids.length; i++) {
+    var id = ids[i];
+    var s = state.skills && state.skills[id];
+    if (!s || (s.totalAttempts || 0) === 0) {
+      // Check deps mastered enough
+      var deps = allTrees[id].deps || [];
+      var depsOk = deps.every(function(d) {
+        var ds = state.skills && state.skills[d];
+        return !!(ds && (ds.totalAttempts || 0) > 0);
+      });
+      if (depsOk) {
+        return { id: id, name: allTrees[id].name, world: _skillToWorld(id) };
+      }
+    }
+  }
+  return null;
+}
+
+function _skillToWorld(skillId) {
+  if (typeof MATH_TREE  !== 'undefined' && MATH_TREE[skillId])  return 'math';
+  if (typeof WORD_TREE  !== 'undefined' && WORD_TREE[skillId])  return 'word';
+  if (typeof STEM_TREE  !== 'undefined' && STEM_TREE[skillId])  return 'stem';
+  if (typeof MALAY_TREE !== 'undefined' && MALAY_TREE[skillId]) return 'malay';
+  return null;
+}
+
+function _skillName(skillId) {
+  var allTrees = Object.assign({},
+    typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {},
+    typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {},
+    typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {},
+    typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}
+  );
+  var s = allTrees[skillId];
+  return s ? (s.icon + ' ' + s.name) : skillId;
+}
+
+function _greetingByTime() {
+  var h = new Date().getHours();
+  if (h < 7)  return 'Up bright and early!';
+  if (h < 12) return 'Good morning, princess!';
+  if (h < 17) return 'Selamat petang, Anastasia!';
+  if (h < 21) return 'Evening, sparkles!';
+  return 'Bedtime brain is the cosiest brain.';
+}
+
+function renderCompass() {
+  var container = document.getElementById('compass-content');
+  if (!container) return;
+
+  var c = getCompassState();
+  var greet = _greetingByTime();
+
+  // Step 1: mood check
+  var moodCards = MOODS.map(function(m) {
+    var selected = c.lastMood === m.id && c.lastOpenedDate === new Date().toDateString();
+    return '<button class="compass-mood' + (selected ? ' selected' : '') + '" data-mood="' + m.id + '">' +
+      '<span class="compass-face">' + m.face + '</span>' +
+      '<span class="compass-mood-label">' + m.label + '</span>' +
+    '</button>';
+  }).join('');
+
+  var html = '<button class="back-btn" onclick="showScreen(\'home\')">← Back to Home</button>';
+  html += '<div class="compass-shell">';
+  html += '<div class="compass-greet">' + greet + '</div>';
+  html += '<div class="compass-intro">' + (typeof pick === 'function' ? pick(COMPASS_INTROS) : COMPASS_INTROS[0]) + '</div>';
+  html += '<div class="compass-moods">' + moodCards + '</div>';
+  html += '<div class="compass-plan" id="compass-plan"></div>';
+  html += '</div>';
+  container.innerHTML = html;
+
+  container.querySelectorAll('.compass-mood').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var moodId = btn.dataset.mood;
+      compassRecordMood(moodId);
+      renderCompassPlan(moodId);
+      container.querySelectorAll('.compass-mood').forEach(function(b) { b.classList.toggle('selected', b === btn); });
+    });
+  });
+
+  // If mood already chosen today, show plan immediately
+  if (c.lastMood && c.lastOpenedDate === new Date().toDateString()) {
+    renderCompassPlan(c.lastMood);
+  }
+}
+
+function renderCompassPlan(moodId) {
+  var planEl = document.getElementById('compass-plan');
+  if (!planEl) return;
+  var mood = MOODS.find(function(m) { return m.id === moodId; }) || MOODS[2];
+
+  // Build suggestions
+  var dueIds = (typeof getSkillsDueForReview === 'function') ? getSkillsDueForReview() : [];
+  var weak = compassFindWeakSkill();
+  var fresh = compassFindFreshSkill();
+
+  var suggestions = [];
+  if (mood.flavour === 'gentle') {
+    // Soft mode: review + nothing too new
+    if (dueIds.length > 0) {
+      suggestions.push({ kind: 'review', label: 'A quick review of ' + _skillName(dueIds[0]), skillId: dueIds[0] });
+    } else if (weak) {
+      suggestions.push({ kind: 'review', label: 'A friendly redo: ' + _skillName(weak.id), skillId: weak.id });
+    }
+    suggestions.push({ kind: 'companion', label: 'Tap Lumi for a joke', action: 'lumi' });
+  } else if (mood.flavour === 'balanced') {
+    if (dueIds.length > 0) {
+      suggestions.push({ kind: 'review', label: 'Review: ' + _skillName(dueIds[0]), skillId: dueIds[0] });
+    }
+    if (weak && (!dueIds.length || dueIds[0] !== weak.id)) {
+      suggestions.push({ kind: 'practice', label: 'Practise: ' + _skillName(weak.id), skillId: weak.id });
+    }
+    suggestions.push({ kind: 'adventure', label: 'Pop into the Mega Map', action: 'mega-map' });
+  } else { // stretch
+    if (fresh) {
+      suggestions.push({ kind: 'new', label: 'Try something new: ' + _skillName(fresh.id), skillId: fresh.id, worldType: fresh.world });
+    }
+    if (weak) {
+      suggestions.push({ kind: 'practice', label: 'Push: ' + _skillName(weak.id), skillId: weak.id });
+    }
+    suggestions.push({ kind: 'adventure', label: 'Crack an adventure on the Mega Map', action: 'mega-map' });
+  }
+
+  var html = '<div class="compass-plan-card">';
+  html += '<div class="compass-plan-title">' + mood.face + ' Plan for a <b>' + mood.label.toLowerCase() + '</b> brain</div>';
+  html += '<div class="compass-plan-len">~ ' + mood.minutes + ' minutes today</div>';
+  html += '<div class="compass-suggestions">';
+  suggestions.forEach(function(s) {
+    if (s.action === 'lumi') {
+      html += '<button class="compass-suggest" onclick="showScreen(\'home\');setTimeout(lumiSpeak,300)">✨ ' + s.label + '</button>';
+    } else if (s.action === 'mega-map') {
+      html += '<button class="compass-suggest" onclick="showScreen(\'mega-map\')">✨ ' + s.label + '</button>';
+    } else if (s.skillId) {
+      var world = s.worldType || _skillToWorld(s.skillId) || 'math';
+      html += '<button class="compass-suggest" onclick="openSkillView(\'' + s.skillId + '\',\'' + world + '\')">▶ ' + s.label + '</button>';
+    }
+  });
+  html += '</div>';
+
+  // Implementation intention
+  html += '<div class="compass-intention">';
+  html += '<div class="compass-intention-label">Tiny promise to yourself (optional):</div>';
+  html += '<div class="compass-intention-text">In the next ' + mood.minutes + ' minutes I will <input type="text" id="compass-intention-input" placeholder="e.g. nail two punctuation questions" maxlength="80" /></div>';
+  html += '<button class="lesson-btn lesson-btn-done" onclick="compassCommit()">Lock it in →</button>';
+  html += '</div>';
+
+  // Pomodoro link
+  if (typeof startPomodoroForCompass === 'function') {
+    html += '<button class="compass-tertiary" onclick="startPomodoroForCompass(' + mood.minutes + ')">Start the ' + mood.minutes + '-minute Pomodoro</button>';
+  }
+
+  // Rest-day nudge
+  var streakDays = (state.visitHistory || []).length;
+  if (streakDays >= 5) {
+    html += '<div class="compass-rest">';
+    html += '5 days in a row — your brain has been working hard. ';
+    html += 'Want a soft day? Just tap Lumi, browse the Mega Map, or pick one flashcard set. Your streak is safe.';
+    html += '</div>';
+  }
+  html += '</div>';
+  planEl.innerHTML = html;
+}
+
+function compassCommit() {
+  var input = document.getElementById('compass-intention-input');
+  var intention = input ? input.value.trim() : '';
+  var mood = (state.compass && state.compass.lastMood) || 'okay';
+  var moodMeta = MOODS.find(function(m) { return m.id === mood; }) || MOODS[2];
+  compassRecordPlan({ minutes: moodMeta.minutes, intention: intention });
+  if (typeof lumiReactTo === 'function') lumiReactTo('correct');
+  if (typeof spawnParticles === 'function') spawnParticles(window.innerWidth/2, 120, 6, '✨');
+  if (typeof lumiSay === 'function') {
+    lumiSay(intention ? 'Locked it in: ' + intention : 'Plan locked in. Let\'s go!');
+  }
+  setTimeout(function() { showScreen('home'); }, 700);
+}
+
+window.renderCompass = renderCompass;
+window.compassCommit = compassCommit;
+
+// --- src/ui/mirror.js ---
+// ============================================================
+//  MIRROR — Honest progress dashboard.
+//  Four panels: Consolidated · On the Edge · Time by World · Effort.
+//  Voice: factual, kind, no fake cheer.
+// ============================================================
+
+function _allTreesMap() {
+  return Object.assign({},
+    typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {},
+    typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {},
+    typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {},
+    typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}
+  );
+}
+
+function mirrorSkillWorld(skillId) {
+  if (typeof MATH_TREE  !== 'undefined' && MATH_TREE[skillId])  return 'math';
+  if (typeof WORD_TREE  !== 'undefined' && WORD_TREE[skillId])  return 'word';
+  if (typeof STEM_TREE  !== 'undefined' && STEM_TREE[skillId])  return 'stem';
+  if (typeof MALAY_TREE !== 'undefined' && MALAY_TREE[skillId]) return 'malay';
+  return null;
+}
+
+function mirrorStats() {
+  var consolidated = 0;
+  var onEdge = [];
+  var attempted = 0;
+  var totalSkills = 0;
+  var byWorld = { math: 0, word: 0, stem: 0, malay: 0 };
+  var weakestWorld = null;
+  var trees = _allTreesMap();
+
+  Object.keys(trees).forEach(function(id) {
+    totalSkills++;
+    var s = state.skills && state.skills[id];
+    var w = mirrorSkillWorld(id);
+    if (s && (s.totalAttempts || 0) > 0) attempted++;
+    if (s && (s.mastery || 0) >= 80) {
+      consolidated++;
+    }
+    if (w) {
+      byWorld[w] = (byWorld[w] || 0) + (s ? (s.mastery || 0) : 0);
+    }
+  });
+
+  // Normalise byWorld to averages
+  var counts = { math: 0, word: 0, stem: 0, malay: 0 };
+  Object.keys(trees).forEach(function(id) {
+    var w = mirrorSkillWorld(id);
+    if (w) counts[w]++;
+  });
+  var avgByWorld = {};
+  Object.keys(counts).forEach(function(w) {
+    avgByWorld[w] = counts[w] ? Math.round(byWorld[w] / counts[w]) : 0;
+  });
+  // Weakest world among those with at least one skill
+  var minPct = 200;
+  Object.keys(avgByWorld).forEach(function(w) {
+    if (counts[w] > 0 && avgByWorld[w] < minPct) { minPct = avgByWorld[w]; weakestWorld = w; }
+  });
+
+  // On the edge = due for review (spaced review module)
+  if (typeof getSkillsDueForReview === 'function') {
+    onEdge = getSkillsDueForReview();
+  }
+
+  return {
+    consolidated: consolidated,
+    attempted: attempted,
+    totalSkills: totalSkills,
+    onEdge: onEdge,
+    avgByWorld: avgByWorld,
+    weakestWorld: weakestWorld
+  };
+}
+
+// Effort heatmap: read state.visitHistory + sessionsCompleted.
+function mirrorEffortMinutesByDay() {
+  var byDay = {};
+  // Use compass mood history as a proxy for "showed up today"
+  var hist = (state.compass && state.compass.moodHistory) ? state.compass.moodHistory : [];
+  hist.forEach(function(entry) {
+    var d = new Date(entry.date).toISOString().slice(0,10);
+    byDay[d] = (byDay[d] || 0) + 10;   // approx 10 min per mood check
+  });
+  // Visit history adds a baseline 5 min per visit day
+  (state.visitHistory || []).forEach(function(dStr) {
+    var d = new Date(dStr).toISOString().slice(0,10);
+    byDay[d] = (byDay[d] || 0) + 5;
+  });
+  // Sessions completed roughly today
+  if (state.lastVisit) {
+    var today = new Date().toISOString().slice(0,10);
+    if (!byDay[today]) byDay[today] = 5;
+  }
+  return byDay;
+}
+
+function renderMirror() {
+  var container = document.getElementById('mirror-content');
+  if (!container) return;
+  var stats = mirrorStats();
+  var heat = mirrorEffortMinutesByDay();
+
+  var worldLabels = { math: '🔢 Number', word: '📖 Word', stem: '🔬 STEM', malay: '🌺 Melayu' };
+  var worldColours = { math: '#7bb3ff', word: '#ff7b7b', stem: '#7bffb5', malay: '#ff7bdb' };
+
+  var html = '<button class="back-btn" onclick="showScreen(\'home\')">← Back to Home</button>';
+  html += '<div class="mirror-shell">';
+  html += '<div class="mirror-intro">The honest story of how things are going. No fake cheer.</div>';
+
+  // Tile 1: Consolidated
+  html += '<div class="mirror-tile">';
+  html += '<div class="mirror-tile-label">Consolidated</div>';
+  html += '<div class="mirror-tile-big">' + stats.consolidated + '<span class="mirror-tile-of">/' + stats.totalSkills + '</span></div>';
+  html += '<div class="mirror-tile-sub">skills at 80% mastery or higher</div>';
+  if (stats.consolidated === 0) {
+    html += '<div class="mirror-tile-note">No skills mastered yet — that is okay. First five are the hardest.</div>';
+  } else if (stats.consolidated < 3) {
+    html += '<div class="mirror-tile-note">Three more and you will have a real momentum.</div>';
+  } else {
+    html += '<div class="mirror-tile-note">Real progress. You are not new at this anymore.</div>';
+  }
+  html += '</div>';
+
+  // Tile 2: On the Edge
+  html += '<div class="mirror-tile">';
+  html += '<div class="mirror-tile-label">On the Edge</div>';
+  html += '<div class="mirror-tile-big">' + stats.onEdge.length + '</div>';
+  html += '<div class="mirror-tile-sub">skill' + (stats.onEdge.length === 1 ? '' : 's') + ' due for a quick review today</div>';
+  if (stats.onEdge.length > 0) {
+    html += '<div class="mirror-tile-list">';
+    stats.onEdge.slice(0, 3).forEach(function(id) {
+      var w = mirrorSkillWorld(id) || 'math';
+      var nm = (typeof getSkillName === 'function') ? getSkillName(id) : id;
+      html += '<button class="mirror-tile-chip" onclick="openSkillView(\'' + id + '\',\'' + w + '\')">' + nm + ' →</button>';
+    });
+    html += '</div>';
+  } else {
+    html += '<div class="mirror-tile-note">Nothing waiting today. Use the time for something new.</div>';
+  }
+  html += '</div>';
+
+  // Tile 3: Time by World
+  html += '<div class="mirror-tile">';
+  html += '<div class="mirror-tile-label">Where you are at, by World</div>';
+  html += '<div class="mirror-world-bars">';
+  Object.keys(worldLabels).forEach(function(w) {
+    var pct = stats.avgByWorld[w] || 0;
+    html += '<div class="mirror-world-row">';
+    html += '<span class="mirror-world-name">' + worldLabels[w] + '</span>';
+    html += '<div class="mirror-world-bar"><div class="mirror-world-fill" style="width:' + pct + '%;background:' + worldColours[w] + '"></div></div>';
+    html += '<span class="mirror-world-pct">' + pct + '%</span>';
+    html += '</div>';
+  });
+  html += '</div>';
+  if (stats.weakestWorld) {
+    html += '<div class="mirror-tile-note">Softest spot right now: <b style="color:' + worldColours[stats.weakestWorld] + '">' + worldLabels[stats.weakestWorld] + '</b>. Worth a session this week.</div>';
+  }
+  html += '</div>';
+
+  // Tile 4: Effort heatmap (28 days)
+  html += '<div class="mirror-tile">';
+  html += '<div class="mirror-tile-label">Showing Up — last 28 days</div>';
+  html += '<div class="mirror-heatmap">';
+  for (var i = 27; i >= 0; i--) {
+    var d = new Date();
+    d.setDate(d.getDate() - i);
+    var key = d.toISOString().slice(0,10);
+    var mins = heat[key] || 0;
+    var bucket = mins === 0 ? 0 : mins < 5 ? 1 : mins < 15 ? 2 : mins < 30 ? 3 : 4;
+    var dayShort = d.toDateString().slice(0,3);
+    html += '<div class="mirror-heat-cell heat-' + bucket + '" title="' + key + ': ' + mins + ' min">' +
+      (i % 7 === 0 ? '<span class="mirror-heat-tick">' + dayShort + '</span>' : '') +
+      '</div>';
+  }
+  html += '</div>';
+  html += '<div class="mirror-tile-note">Effort is its own story. On a hard day, showing up is enough.</div>';
+  html += '</div>';
+
+  html += '</div>';   // mirror-shell
+  container.innerHTML = html;
+}
+
+window.renderMirror = renderMirror;
+
+// --- src/ui/pomodoro.js ---
+// ============================================================
+//  POMODORO — Tiny session timer.
+//  Defaults to 10 minutes on, 3 minutes off (P1-appropriate).
+//  Soft chime warning at -60 seconds. Auto-advance.
+// ============================================================
+
+var POMO_DEFAULT_ON = 10;
+var POMO_DEFAULT_OFF = 3;
+var POMO_BREAK_TIPS = [
+  'Stand up. Wiggle your fingers. Touch your toes.',
+  'Take a sip of water. Big sip.',
+  'Look out the window for 20 seconds. Count three things you can see.',
+  'Stretch like a cat. Then like a snake.',
+  'Do 5 jumping jacks. Or 10 if you are feeling extra.',
+  'Tell someone in the house something you learned today.',
+  'Blink slowly five times. Eye yoga.',
+  'Take three big slow breaths in through the nose, out through the mouth.'
+];
+
+var pomoState = {
+  running: false,
+  mode: 'on',          // 'on' or 'break'
+  remaining: 0,
+  total: 0,
+  intervalId: null,
+  warned: false
+};
+
+function _ensurePomoUI() {
+  if (document.getElementById('pomo-widget')) return;
+  var w = document.createElement('div');
+  w.id = 'pomo-widget';
+  w.className = 'pomo-widget hidden';
+  w.innerHTML =
+    '<div class="pomo-ring"><div class="pomo-time" id="pomo-time">10:00</div></div>' +
+    '<div class="pomo-mode" id="pomo-mode">Focus</div>' +
+    '<div class="pomo-controls">' +
+      '<button class="pomo-btn" id="pomo-toggle">⏸</button>' +
+      '<button class="pomo-btn" id="pomo-close">✕</button>' +
+    '</div>';
+  document.body.appendChild(w);
+  document.getElementById('pomo-toggle').onclick = togglePomodoro;
+  document.getElementById('pomo-close').onclick = stopPomodoro;
+}
+
+function _format(sec) {
+  var m = Math.floor(sec / 60);
+  var s = sec % 60;
+  return m + ':' + (s < 10 ? '0' + s : s);
+}
+
+function _tickPomodoro() {
+  if (!pomoState.running) return;
+  pomoState.remaining--;
+  document.getElementById('pomo-time').textContent = _format(pomoState.remaining);
+
+  if (pomoState.remaining === 60 && !pomoState.warned && pomoState.mode === 'on') {
+    pomoState.warned = true;
+    if (typeof lumiSay === 'function') lumiSay('One minute left. Wrapping up time.');
+    if (typeof playSound === 'function') playSound('click');
+  }
+  if (pomoState.remaining <= 0) {
+    _advancePomodoro();
+  }
+}
+
+function _advancePomodoro() {
+  if (pomoState.mode === 'on') {
+    pomoState.mode = 'break';
+    pomoState.remaining = POMO_DEFAULT_OFF * 60;
+    pomoState.total = pomoState.remaining;
+    pomoState.warned = false;
+    document.getElementById('pomo-mode').textContent = 'Break';
+    document.getElementById('pomo-widget').classList.add('break');
+    var tip = (typeof pick === 'function') ? pick(POMO_BREAK_TIPS) : POMO_BREAK_TIPS[0];
+    if (typeof lumiSay === 'function') lumiSay('Break! ' + tip);
+    if (typeof playSound === 'function') playSound('levelup');
+  } else {
+    pomoState.mode = 'on';
+    pomoState.remaining = POMO_DEFAULT_ON * 60;
+    pomoState.total = pomoState.remaining;
+    pomoState.warned = false;
+    document.getElementById('pomo-mode').textContent = 'Focus';
+    document.getElementById('pomo-widget').classList.remove('break');
+    if (typeof lumiSay === 'function') lumiSay('Back to it. You can do this.');
+  }
+}
+
+function startPomodoro(minutes) {
+  _ensurePomoUI();
+  pomoState.running = true;
+  pomoState.mode = 'on';
+  pomoState.warned = false;
+  pomoState.remaining = (minutes || POMO_DEFAULT_ON) * 60;
+  pomoState.total = pomoState.remaining;
+  document.getElementById('pomo-mode').textContent = 'Focus';
+  document.getElementById('pomo-time').textContent = _format(pomoState.remaining);
+  document.getElementById('pomo-widget').classList.remove('hidden');
+  document.getElementById('pomo-widget').classList.remove('break');
+  document.getElementById('pomo-toggle').textContent = '⏸';
+  if (pomoState.intervalId) clearInterval(pomoState.intervalId);
+  pomoState.intervalId = setInterval(_tickPomodoro, 1000);
+}
+
+function togglePomodoro() {
+  pomoState.running = !pomoState.running;
+  var btn = document.getElementById('pomo-toggle');
+  if (btn) btn.textContent = pomoState.running ? '⏸' : '▶';
+}
+
+function stopPomodoro() {
+  pomoState.running = false;
+  if (pomoState.intervalId) clearInterval(pomoState.intervalId);
+  pomoState.intervalId = null;
+  var w = document.getElementById('pomo-widget');
+  if (w) w.classList.add('hidden');
+}
+
+function startPomodoroForCompass(minutes) {
+  startPomodoro(minutes || POMO_DEFAULT_ON);
+}
+
+window.startPomodoro = startPomodoro;
+window.startPomodoroForCompass = startPomodoroForCompass;
+window.togglePomodoro = togglePomodoro;
+window.stopPomodoro = stopPomodoro;
+
+// --- src/ui/parent-digest.js ---
+// ============================================================
+//  PARENT DIGEST — Weekly summary, opt-in.
+//  Anastasia sees it first. Designed to spark a chat, not surveil.
+// ============================================================
+
+function _parentDigestAllSkills() {
+  return Object.assign({},
+    typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {},
+    typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {},
+    typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {},
+    typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}
+  );
+}
+
+function _parentDigestCompose() {
+  var trees = _parentDigestAllSkills();
+  var consolidated = [];
+  var stillHard = [];
+  Object.keys(trees).forEach(function(id) {
+    var s = state.skills && state.skills[id];
+    if (!s || (s.totalAttempts || 0) === 0) return;
+    if ((s.mastery || 0) >= 80) consolidated.push(trees[id]);
+    if ((s.mastery || 0) < 40 && (s.totalAttempts || 0) >= 3) stillHard.push(trees[id]);
+  });
+
+  var click = consolidated[Math.floor(Math.random() * consolidated.length)];
+  var hard  = stillHard[Math.floor(Math.random() * stillHard.length)];
+
+  var minutes = 0;
+  var moodHist = (state.compass && state.compass.moodHistory) ? state.compass.moodHistory : [];
+  var weekStart = new Date(); weekStart.setDate(weekStart.getDate() - 7);
+  moodHist.forEach(function(entry) {
+    if (new Date(entry.date) >= weekStart) minutes += 10;
+  });
+  minutes += (state.visitHistory || []).filter(function(d) {
+    return new Date(d) >= weekStart;
+  }).length * 5;
+
+  var threadsDone = 0;
+  if (state.threads) {
+    Object.keys(state.threads).forEach(function(t) {
+      threadsDone += (state.threads[t].completedChapters || []).length;
+    });
+  }
+
+  return {
+    name: state.name || 'Anastasia',
+    minutes: minutes,
+    consolidatedCount: consolidated.length,
+    clicked: click ? (click.icon + ' ' + click.name) : null,
+    stillHard: hard ? (hard.icon + ' ' + hard.name) : null,
+    threadsDoneThisWeek: threadsDone,
+    starter: hard ? ('Ask: "Show me what you do when ' + hard.name.toLowerCase() + ' feels tricky?"') :
+                    click ? ('Ask: "What did you find out about ' + click.name.toLowerCase() + '?"') :
+                            'Ask: "What was the best part of Nasworld this week?"'
+  };
+}
+
+function renderParentDigest() {
+  var container = document.getElementById('parent-digest-content');
+  if (!container) return;
+
+  if (!state.parentDigest) state.parentDigest = { optIn: false, lastGenerated: '' };
+  var optIn = state.parentDigest.optIn;
+
+  var html = '<button class="back-btn" onclick="showScreen(\'home\')">← Back to Home</button>';
+  html += '<div class="digest-shell">';
+  html += '<h2 class="digest-title">Family Digest</h2>';
+  html += '<div class="digest-intro">A short weekly note for whoever helps Anastasia learn. Anastasia sees it first. She can choose not to share — and that is fine.</div>';
+
+  if (!optIn) {
+    html += '<div class="digest-optin">';
+    html += '<div class="digest-optin-q">Anastasia, do you want to share a weekly note with the grown-ups?</div>';
+    html += '<button class="lesson-btn lesson-btn-done" onclick="parentDigestOptIn(true)">Yes — share it</button>';
+    html += '<button class="lesson-btn" onclick="parentDigestOptIn(false)">Not right now</button>';
+    html += '</div>';
+  } else {
+    var d = _parentDigestCompose();
+    var weekLabel = (function() {
+      var end = new Date();
+      var start = new Date(); start.setDate(start.getDate() - 6);
+      var opts = { month: 'short', day: 'numeric' };
+      return start.toLocaleDateString(undefined, opts) + ' – ' + end.toLocaleDateString(undefined, opts);
+    })();
+
+    var bodyText =
+      'Anastasia\'s Nasworld week (' + weekLabel + ')\n\n' +
+      '• Minutes practised: ' + d.minutes + '\n' +
+      '• Skills consolidated: ' + d.consolidatedCount + '\n' +
+      (d.clicked ? '• One thing that clicked: ' + d.clicked + '\n' : '') +
+      (d.stillHard ? '• One thing still hard: ' + d.stillHard + '\n' : '') +
+      (d.threadsDoneThisWeek ? '• Real-world adventure chapters finished: ' + d.threadsDoneThisWeek + '\n' : '') +
+      '\nConversation starter: ' + d.starter + '\n\n' +
+      '(Anastasia chose to share this. Please celebrate effort, not just answers.)';
+
+    html += '<div class="digest-card"><pre id="digest-text">' + bodyText.replace(/</g, '&lt;') + '</pre></div>';
+    html += '<div class="digest-actions">';
+    html += '<button class="lesson-btn lesson-btn-done" onclick="parentDigestCopy()">📋 Copy to clipboard</button>';
+    html += '<button class="lesson-btn" onclick="window.print()">🖨️ Print this</button>';
+    html += '<button class="digest-tertiary" onclick="parentDigestOptIn(false)">Turn off the digest</button>';
+    html += '</div>';
+  }
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function parentDigestOptIn(yes) {
+  if (!state.parentDigest) state.parentDigest = {};
+  state.parentDigest.optIn = !!yes;
+  saveState();
+  renderParentDigest();
+  if (yes && typeof lumiSay === 'function') {
+    lumiSay('Locked in. You will always see it first — promise.');
+  }
+}
+
+function parentDigestCopy() {
+  var pre = document.getElementById('digest-text');
+  if (!pre) return;
+  var text = pre.textContent;
+  try {
+    navigator.clipboard.writeText(text).then(function() {
+      if (typeof lumiSay === 'function') lumiSay('Copied! Paste it wherever.');
+    });
+  } catch (e) {
+    // Fallback: select and prompt user to copy manually
+    var range = document.createRange();
+    range.selectNode(pre);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    if (typeof lumiSay === 'function') lumiSay('Selected — press Ctrl+C (or Cmd+C) to copy.');
+  }
+}
+
+window.renderParentDigest = renderParentDigest;
+window.parentDigestOptIn = parentDigestOptIn;
+window.parentDigestCopy = parentDigestCopy;
+
 // --- src/ui/navigation.js ---
 // ============================================================
 //  NAVIGATION — Screen management, game engine, init
@@ -14234,6 +16020,18 @@ function showScreen(screenId) {
   }
   if (screenId === 'mega-map' && typeof renderMegaMap === 'function') {
     renderMegaMap();
+  }
+  if (screenId === 'compass' && typeof renderCompass === 'function') {
+    renderCompass();
+  }
+  if (screenId === 'mirror' && typeof renderMirror === 'function') {
+    renderMirror();
+  }
+  if (screenId === 'strategies' && typeof renderStrategyLibrary === 'function') {
+    renderStrategyLibrary();
+  }
+  if (screenId === 'parent-digest' && typeof renderParentDigest === 'function') {
+    renderParentDigest();
   }
   if (screenId === 'garden') {
     if (typeof renderGardenIsland === 'function') renderGardenIsland();
@@ -14382,7 +16180,13 @@ function openSkillView(skillId, worldType) {
         '<button class="lesson-btn lesson-btn-done" id="start-quiz-btn">Start Quiz →</button>' +
         '</div>';
       document.getElementById('start-quiz-btn').onclick = function() {
-        startGame(skillId, worldType);
+        if (typeof metaConfidenceBefore === 'function') {
+          metaConfidenceBefore(skillId, function() {
+            startGame(skillId, worldType);
+          });
+        } else {
+          startGame(skillId, worldType);
+        }
       };
     }
   }
@@ -14516,6 +16320,9 @@ function endGame() {
   }
   if (typeof lumiReactTo === 'function') {
     lumiReactTo('quizComplete', { pct: pct });
+  }
+  if (typeof metaReflectAfter === 'function') {
+    metaReflectAfter(currentGame.skillId);
   }
 
   const overlay = document.getElementById('feedback-overlay');

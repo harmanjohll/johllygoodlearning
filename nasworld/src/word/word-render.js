@@ -20,8 +20,46 @@ function renderWordQuestion(card, q) {
     case 'poetry-couplet':    renderPoetryCouplet(card, q); return true;
     case 'story-write':       renderStoryWrite(card, q); return true;
     case 'paragraph-write':   renderParagraphWrite(card, q); return true;
+    case 'punct-pick':        renderPunctPick(card, q); return true;
+    case 'punct-purpose':     renderPunctPurpose(card, q); return true;
+    case 'punct-scenario':    renderPunctScenario(card, q); return true;
     default: return false;
   }
+}
+
+// ===================== PUNCTUATION RENDERERS =====================
+
+function _renderPunctOptions(q, btnStyle) {
+  btnStyle = btnStyle || 'font-size:28px;font-weight:700;min-width:54px';
+  return '<div class="answer-options">' + q.options.map(function(o) {
+    var safe = String(o).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    var display = String(o).replace(/"/g, '&quot;');
+    return '<button class="answer-btn" style="' + btnStyle + '" onclick="checkAnswer(\'' + safe + '\', \'' + String(q.answer).replace(/'/g, "\\'") + '\', this)">' + display + '</button>';
+  }).join('') + '</div>';
+}
+
+function renderPunctPick(card, q) {
+  var sentenceHtml = q.sentence.replace('__', '<span style="color:var(--gold);font-weight:700;font-size:22px">__</span>');
+  var html = '<div class="question-text">Which punctuation mark fits the blank?</div>';
+  html += '<div style="font-size:20px;margin:14px 0;line-height:1.5;color:var(--text-primary)">' + sentenceHtml + '</div>';
+  html += _renderPunctOptions(q);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderPunctPurpose(card, q) {
+  var html = '<div class="question-text">' + q.prompt + '</div>';
+  html += _renderPunctOptions(q);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderPunctScenario(card, q) {
+  var html = '<div class="question-text">Pick the best mark for this setting:</div>';
+  html += '<div style="font-size:18px;margin:12px 0;padding:14px;background:rgba(255,215,0,0.08);border-radius:12px;color:var(--text-primary)">📋 ' + q.setting + '</div>';
+  html += _renderPunctOptions(q);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
 }
 
 // ===================== P1 RENDERERS =====================

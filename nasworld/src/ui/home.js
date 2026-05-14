@@ -156,7 +156,44 @@ function updateHomeUI() {
   }
 
   updateWotd();
+  updateDailyTreats();
   updateChallengesSection();
+}
+
+// === DAILY TREATS — WotD, IotD, QotD as a trio ===
+function updateDailyTreats() {
+  var host = document.getElementById('daily-treats-area');
+  if (!host) return;
+  var wotd = (typeof getWordOfTheDay === 'function') ? getWordOfTheDay() : null;
+  var iotd = (typeof getIdiomOfTheDay === 'function') ? getIdiomOfTheDay() : null;
+  var qotd = (typeof getQuoteOfTheDay === 'function') ? getQuoteOfTheDay() : null;
+
+  var html = '<div class="daily-treats">';
+  if (wotd) {
+    html += '<div class="treat-card" onclick="claimWotd()">' +
+      '<div class="treat-card-label">📚 Word of the Day</div>' +
+      '<div class="treat-card-headline">' + wotd.word + '</div>' +
+      '<div class="treat-card-sub">' + wotd.def + '</div>' +
+      '<div class="treat-card-extra">' + wotd.sentence + '</div>' +
+    '</div>';
+  }
+  if (iotd) {
+    html += '<div class="treat-card">' +
+      '<div class="treat-card-label">💬 Idiom of the Day</div>' +
+      '<div class="treat-card-headline">"' + iotd.idiom + '"</div>' +
+      '<div class="treat-card-sub">' + iotd.meaning + '</div>' +
+      '<div class="treat-card-extra">' + iotd.example + '</div>' +
+    '</div>';
+  }
+  if (qotd) {
+    html += '<div class="treat-card">' +
+      '<div class="treat-card-label">✨ Quote of the Day</div>' +
+      '<div class="treat-card-headline">"' + qotd.quote + '"</div>' +
+      '<div class="treat-card-sub">— ' + qotd.who + '</div>' +
+    '</div>';
+  }
+  html += '</div>';
+  host.innerHTML = html;
 }
 
 // === WORD OF THE DAY ===

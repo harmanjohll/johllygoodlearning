@@ -444,6 +444,205 @@ body {
 .thread-locked { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
 .thread-locked h3 { font-family: var(--font-display); margin: 12px 0 6px; color: var(--gold); }
 
+/* === COMPASS === */
+.world-card.compass .world-card-progress-fill { background: linear-gradient(90deg, var(--sky), var(--gold)); }
+.world-card.mirror .world-card-progress-fill  { background: linear-gradient(90deg, var(--lavender), var(--sky)); }
+.world-card.strategies .world-card-progress-fill { background: linear-gradient(90deg, var(--mint), var(--gold)); }
+.compass-shell { max-width: 720px; margin: 8px auto; padding: 12px; }
+.compass-greet { font-family: var(--font-display); font-size: 28px; color: var(--gold); text-align: center; margin-bottom: 4px; }
+.compass-intro { font-size: 15px; color: var(--text-secondary); text-align: center; margin-bottom: 18px; }
+.compass-moods { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+.compass-mood {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding: 14px 12px; min-width: 88px; border-radius: 18px;
+  background: rgba(37,27,94,0.6); border: 2px solid rgba(181,123,255,0.2);
+  cursor: pointer; transition: all .2s; color: var(--text-primary);
+  font-family: var(--font-body); font-size: 13px;
+}
+.compass-mood:hover { transform: translateY(-3px); }
+.compass-mood.selected { border-color: var(--gold); background: rgba(255,215,0,0.12); box-shadow: 0 0 20px rgba(255,215,0,0.18); }
+.compass-face { font-size: 34px; }
+.compass-mood-label { font-weight: 600; }
+.compass-plan-card {
+  background: rgba(37,27,94,0.7); border:1px solid rgba(255,215,0,0.2);
+  border-radius: var(--radius-xl); padding: 18px; margin-top: 12px;
+}
+.compass-plan-title { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.compass-plan-len   { font-size: 13px; color: var(--gold); margin-bottom: 14px; }
+.compass-suggestions { display:flex; flex-direction:column; gap:8px; margin-bottom: 14px; }
+.compass-suggest {
+  background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.25);
+  color: var(--text-primary); padding: 10px 14px; border-radius: 14px;
+  text-align: left; font-size: 14px; cursor: pointer; transition: background .2s;
+  font-family: var(--font-body);
+}
+.compass-suggest:hover { background: rgba(255,215,0,0.18); }
+.compass-intention { padding: 12px; border-top: 1px dashed rgba(181,123,255,0.3); margin-bottom: 12px; }
+.compass-intention-label { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+.compass-intention-text { font-size: 14px; color: var(--text-primary); line-height: 1.8; }
+.compass-intention-text input {
+  border: 1px solid rgba(255,215,0,0.4); background: rgba(0,0,0,0.25);
+  color: var(--text-primary); border-radius: 10px; padding: 6px 10px;
+  font-family: var(--font-body); font-size: 13px; min-width: 220px;
+}
+.compass-tertiary {
+  display: block; width: 100%; margin-top: 10px; padding: 10px;
+  background: transparent; border: 1px dashed rgba(255,215,0,0.4);
+  color: var(--text-secondary); border-radius: 14px; cursor: pointer;
+  font-family: var(--font-body); font-size: 13px;
+}
+.compass-rest {
+  margin-top: 14px; padding: 12px;
+  background: rgba(123,179,255,0.1); border-left: 3px solid var(--sky);
+  border-radius: 12px; font-size: 13px; color: var(--text-secondary); line-height: 1.5;
+}
+
+/* === MIRROR === */
+.mirror-shell { max-width: 760px; margin: 8px auto; padding: 12px; display:flex; flex-direction:column; gap:14px; }
+.mirror-intro { text-align: center; color: var(--text-secondary); font-size: 14px; margin-bottom: 4px; }
+.mirror-tile {
+  background: rgba(37,27,94,0.6); border:1px solid rgba(181,123,255,0.2);
+  border-radius: var(--radius-lg); padding: 16px;
+}
+.mirror-tile-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--lavender); margin-bottom: 6px; }
+.mirror-tile-big { font-family: var(--font-display); font-size: 42px; font-weight: 700; color: var(--gold); line-height: 1; }
+.mirror-tile-of { font-size: 18px; color: var(--text-dim); margin-left: 4px; }
+.mirror-tile-sub { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+.mirror-tile-note { font-size: 13px; color: var(--text-primary); margin-top: 10px; font-style: italic; }
+.mirror-tile-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.mirror-tile-chip {
+  font-size: 13px; padding: 6px 12px; border-radius: 999px;
+  background: rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.3);
+  color: var(--text-primary); cursor: pointer;
+  font-family: var(--font-body);
+}
+.mirror-world-bars { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
+.mirror-world-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.mirror-world-name { min-width: 92px; }
+.mirror-world-bar { flex: 1; height: 10px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden; }
+.mirror-world-fill { height: 100%; border-radius: 6px; transition: width .5s; }
+.mirror-world-pct { min-width: 40px; text-align: right; color: var(--text-secondary); font-weight: 600; }
+.mirror-heatmap {
+  display: grid; grid-template-columns: repeat(14, 1fr); gap: 4px; margin: 8px 0;
+}
+.mirror-heat-cell {
+  aspect-ratio: 1 / 1; border-radius: 4px;
+  background: rgba(255,255,255,0.05); position: relative;
+}
+.mirror-heat-cell.heat-1 { background: rgba(255,215,0,0.18); }
+.mirror-heat-cell.heat-2 { background: rgba(255,215,0,0.36); }
+.mirror-heat-cell.heat-3 { background: rgba(255,215,0,0.6); }
+.mirror-heat-cell.heat-4 { background: rgba(255,215,0,0.95); }
+.mirror-heat-tick { position: absolute; bottom: -16px; font-size: 9px; color: var(--text-dim); }
+
+/* === POMODORO WIDGET === */
+.pomo-widget {
+  position: fixed; bottom: 18px; right: 18px; z-index: 4000;
+  background: linear-gradient(135deg, rgba(37,27,94,0.95), rgba(47,35,112,0.95));
+  border: 2px solid var(--gold); border-radius: 18px;
+  padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4); transition: transform .3s;
+  font-family: var(--font-display);
+}
+.pomo-widget.hidden { transform: translateY(140%); }
+.pomo-widget.break { border-color: var(--mint); }
+.pomo-ring {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(255,215,0,0.12); display: flex; align-items: center; justify-content: center;
+}
+.pomo-widget.break .pomo-ring { background: rgba(74,222,128,0.15); }
+.pomo-time { font-weight: 700; color: var(--gold); font-size: 16px; }
+.pomo-widget.break .pomo-time { color: var(--mint); }
+.pomo-mode { font-size: 13px; color: var(--text-secondary); }
+.pomo-controls { display: flex; gap: 4px; }
+.pomo-btn {
+  background: transparent; border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text-primary); width: 30px; height: 30px;
+  border-radius: 50%; cursor: pointer; transition: background .2s;
+}
+.pomo-btn:hover { background: rgba(255,255,255,0.08); }
+
+/* === DAILY TREATS (WotD / IotD / QotD) === */
+.daily-treats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 12px 0; }
+.treat-card {
+  background: linear-gradient(135deg, rgba(255,215,0,0.05), rgba(181,123,255,0.05));
+  border: 1px solid rgba(255,215,0,0.18); border-radius: var(--radius-lg);
+  padding: 14px; cursor: pointer; transition: transform .2s;
+}
+.treat-card:hover { transform: translateY(-2px); border-color: rgba(255,215,0,0.45); }
+.treat-card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gold); margin-bottom: 4px; }
+.treat-card-headline { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.treat-card-sub { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+.treat-card-extra { font-size: 11px; color: var(--text-dim); margin-top: 6px; font-style: italic; }
+
+/* === STRATEGY LIBRARY === */
+.strategies-shell { max-width: 920px; margin: 8px auto; padding: 12px; }
+.strategies-intro { text-align: center; color: var(--text-secondary); margin-bottom: 18px; }
+.strategies-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.strategy-card {
+  background: rgba(37,27,94,0.6); border: 1px solid rgba(181,123,255,0.2);
+  border-radius: var(--radius-lg); padding: 16px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.strategy-card-emoji { font-size: 32px; }
+.strategy-card-title { font-family: var(--font-display); font-size: 17px; color: var(--gold); font-weight: 600; }
+.strategy-card-blurb { font-size: 13px; color: var(--text-secondary); line-height: 1.5; flex: 1; }
+.strategy-card-try {
+  margin-top: 4px; padding: 8px 12px; background: rgba(255,215,0,0.08);
+  border: 1px solid rgba(255,215,0,0.3); color: var(--gold); border-radius: 10px;
+  cursor: pointer; font-family: var(--font-body); font-size: 13px; transition: background .2s;
+}
+.strategy-card-try:hover { background: rgba(255,215,0,0.2); }
+
+/* === PARENT DIGEST === */
+.digest-shell { max-width: 720px; margin: 8px auto; padding: 12px; }
+.digest-title { font-family: var(--font-display); font-size: 28px; color: var(--gold); text-align: center; margin-bottom: 6px; }
+.digest-intro { text-align: center; font-size: 14px; color: var(--text-secondary); margin-bottom: 18px; line-height: 1.5; }
+.digest-optin { text-align: center; padding: 16px; border: 1px dashed rgba(255,215,0,0.3); border-radius: 16px; }
+.digest-optin-q { font-size: 16px; color: var(--text-primary); margin-bottom: 14px; }
+.digest-optin .lesson-btn { margin: 4px 6px; }
+.digest-card {
+  background: #fef9ee; color: #1a1147; padding: 18px;
+  border-radius: 16px; border: 1px solid rgba(255,215,0,0.4);
+  margin: 16px 0; font-family: 'Patrick Hand', cursive;
+}
+.digest-card pre {
+  white-space: pre-wrap; word-wrap: break-word; font-family: 'Patrick Hand', cursive;
+  font-size: 17px; line-height: 1.55;
+}
+.digest-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; }
+.digest-tertiary {
+  background: transparent; border: 1px dashed rgba(248,113,113,0.4);
+  color: var(--error); padding: 8px 14px; border-radius: 12px;
+  font-family: var(--font-body); font-size: 12px; cursor: pointer;
+}
+
+/* === METACOGNITION OVERLAY === */
+.meta-overlay {
+  position: fixed; inset: 0; z-index: 6000;
+  background: rgba(15,11,46,0.85);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.meta-card {
+  background: linear-gradient(135deg, #1a1147, #2f2370);
+  border: 2px solid var(--gold); border-radius: var(--radius-xl);
+  padding: 24px; text-align: center; max-width: 440px; width: 100%;
+  animation: pop-in 0.4s ease-out;
+}
+.meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gold); }
+.meta-q { font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 8px 0 14px; }
+.meta-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.meta-face, .meta-reflect {
+  background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.3);
+  color: var(--text-primary); padding: 8px 12px; border-radius: 14px;
+  font-family: var(--font-body); font-size: 13px; cursor: pointer;
+}
+.meta-face:hover, .meta-reflect:hover { background: rgba(255,215,0,0.18); }
+.meta-skip {
+  margin-top: 12px; background: transparent; border: none;
+  color: var(--text-dim); cursor: pointer; font-size: 12px;
+}
+
 /* === ACTIVITY SELECTION === */
 .activity-header {
   text-align: center;
@@ -2554,6 +2753,24 @@ body {
           <div class="world-card-desc">See every world, skill, and real-world adventure light up together.</div>
           <div class="world-card-progress"><div class="world-card-progress-fill" id="mega-progress" style="width:0%"></div></div>
         </div>
+
+        <div class="world-card compass" onclick="showScreen('compass')">
+          <span class="world-card-icon">&#129517;</span>
+          <div class="world-card-title">Compass</div>
+          <div class="world-card-desc">Pick your mood and Lumi will plan a tiny session for you.</div>
+        </div>
+
+        <div class="world-card mirror" onclick="showScreen('mirror')">
+          <span class="world-card-icon">&#129683;</span>
+          <div class="world-card-title">Mirror</div>
+          <div class="world-card-desc">The honest story of where you are at — and what is next.</div>
+        </div>
+
+        <div class="world-card strategies" onclick="showScreen('strategies')">
+          <span class="world-card-icon">&#129504;</span>
+          <div class="world-card-title">Smart Tricks</div>
+          <div class="world-card-desc">10 tricks the cleverest learners use. Try one a week.</div>
+        </div>
         <div class="world-card garden" onclick="showScreen('garden')">
           <span class="world-card-icon">&#127800;</span>
           <div class="world-card-title">My Garden</div>
@@ -2561,6 +2778,9 @@ body {
           <div class="world-card-progress"><div class="world-card-progress-fill" id="garden-progress" style="width:0%"></div></div>
         </div>
       </div>
+
+      <!-- Daily Treats: WotD + IotD + QotD -->
+      <div id="daily-treats-area"></div>
 
       <!-- Streak Calendar -->
       <div id="streak-calendar-area"></div>
@@ -2572,6 +2792,12 @@ body {
       <div class="challenges-section" id="challenges-section">
         <h3>&#127942; Challenges</h3>
         <div class="challenges-grid" id="challenges-grid"></div>
+      </div>
+
+      <!-- Pomodoro + Parent Digest quick actions -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:24px">
+        <button class="reset-btn" style="border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,0.06)" onclick="startPomodoro(10)">&#9201; 10-min Pomodoro</button>
+        <button class="reset-btn" style="border-color:var(--lavender);color:var(--lavender);background:rgba(181,123,255,0.06)" onclick="showScreen('parent-digest')">&#128173; Family Digest</button>
       </div>
     </div>
 
@@ -2628,6 +2854,26 @@ body {
     <!-- THREAD (real-world story) SCREEN -->
     <div class="screen" id="screen-thread">
       <div id="thread-content"></div>
+    </div>
+
+    <!-- COMPASS SCREEN -->
+    <div class="screen" id="screen-compass">
+      <div id="compass-content"></div>
+    </div>
+
+    <!-- MIRROR SCREEN -->
+    <div class="screen" id="screen-mirror">
+      <div id="mirror-content"></div>
+    </div>
+
+    <!-- STRATEGIES SCREEN -->
+    <div class="screen" id="screen-strategies">
+      <div id="strategies-content"></div>
+    </div>
+
+    <!-- PARENT DIGEST SCREEN -->
+    <div class="screen" id="screen-parent-digest">
+      <div id="parent-digest-content"></div>
     </div>
 
     <!-- SKILL VIEW SCREEN (Learn / Explore / Quiz tabs) -->
@@ -2735,6 +2981,10 @@ body {
 <script src="src/malay/malay-render.js"></script>
 <script src="src/data/mega-map.js"></script>
 <script src="src/data/threads.js"></script>
+<script src="src/data/iotd.js"></script>
+<script src="src/data/qotd.js"></script>
+<script src="src/data/strategies.js"></script>
+<script src="src/core/metacognition.js"></script>
 <script src="src/challenges/star-trials.js"></script>
 <script src="src/challenges/escape-rooms.js"></script>
 <script src="src/core/interactive-sims.js"></script>
@@ -2745,6 +2995,10 @@ body {
 <script src="src/ui/garden-island.js"></script>
 <script src="src/ui/home.js"></script>
 <script src="src/ui/mega-map.js"></script>
+<script src="src/ui/compass.js"></script>
+<script src="src/ui/mirror.js"></script>
+<script src="src/ui/pomodoro.js"></script>
+<script src="src/ui/parent-digest.js"></script>
 <script src="src/ui/navigation.js"></script>
 
 </body>
