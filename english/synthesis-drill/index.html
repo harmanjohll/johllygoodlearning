@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synthesis Sprint — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 780px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+
+    .hero h1 { font-size: 1.55rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 1.25rem; }
+
+    .timer-bar {
+      position: sticky; top: 0; z-index: 30;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: .65rem 1rem; margin-bottom: 1rem;
+    }
+    .timer-bar .time-left {
+      font-family: 'IBM Plex Mono', ui-monospace, monospace; font-weight: 700;
+      font-size: 1.4rem; color: var(--accent); letter-spacing: .05em;
+    }
+    .timer-bar .time-left.warn { color: #fbbf24; }
+    .timer-bar .time-left.crit { color: #f87171; animation: pulse 1s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+    .item {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.25rem 1.5rem; margin-bottom: 1rem;
+    }
+    .item .num-tag { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-weight: 700; margin-bottom: .35rem; }
+    .item .pattern { font-size: .72rem; color: var(--synthesis,#60a5fa); border: 1px solid var(--synthesis,#60a5fa); padding: .15rem .55rem; border-radius: 99px; font-weight: 700; display: inline-block; margin-bottom: .55rem; }
+    .item .source { font-size: .95rem; line-height: 1.7; color: var(--text); margin-bottom: .6rem; padding: .55rem .8rem; background: var(--surface); border-left: 3px solid var(--synthesis,#60a5fa); border-radius: 5px; }
+    .item .source strong { color: var(--accent); }
+    .item .rewrite-prefix { font-size: .85rem; color: var(--muted); margin-bottom: .25rem; }
+    .item textarea {
+      width: 100%; min-height: 4rem;
+      background: var(--surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: .55rem .75rem; font-family: 'Inter', sans-serif; font-size: .9rem; line-height: 1.55;
+      resize: vertical;
+    }
+    .item textarea:focus { outline: none; border-color: var(--accent); }
+    .item .row { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .5rem; align-items: center; }
+
+    .feedback {
+      display: none; margin-top: .65rem;
+      background: linear-gradient(135deg, #14302b 0%, #1e1835 100%);
+      border: 1px solid var(--accent); border-radius: 9px;
+      padding: .85rem 1rem;
+    }
+    .feedback.show { display: block; }
+    .feedback h4 { color: var(--accent); font-size: .85rem; margin-bottom: .4rem; }
+    .feedback pre { white-space: pre-wrap; font-family: inherit; font-size: .86rem; color: var(--text); line-height: 1.7; }
+    .feedback .reveal-block { margin-top: .55rem; padding: .55rem .75rem; background: var(--surface); border-radius: 6px; font-size: .86rem; color: var(--text); line-height: 1.6; display: none; }
+    .feedback .reveal-block.show { display: block; }
+    .feedback .reveal-toggle { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 6px; padding: .25rem .55rem; font-size: .76rem; cursor: pointer; }
+
+    .scorecard {
+      background: linear-gradient(135deg, #14302b 0%, #1e1835 100%);
+      border: 1px solid var(--accent); border-radius: 12px;
+      padding: 1.5rem; margin-top: 1rem;
+    }
+    .scorecard .num { font-size: 2.6rem; font-weight: 800; color: var(--accent); font-family: 'IBM Plex Mono', monospace; }
+    .scorecard h3 { color: var(--accent); margin-bottom: .65rem; font-size: 1.05rem; }
+
+    .start-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
+    .start-card h2 { margin-bottom: .5rem; }
+    .start-card p  { color: var(--muted); font-size: .92rem; margin-bottom: 1rem; line-height: 1.65; }
+    .pill { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .25rem .65rem; font-size: .72rem; margin: .15rem; }
+    .key-warn { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.35); border-radius: 9px; padding: .65rem .95rem; font-size: .85rem; color: var(--text); margin-bottom: 1.25rem; line-height: 1.55; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../" class="back-link">← Hub</a>
+  <strong style="color: var(--text);">Synthesis Sprint</strong>
+  <span style="color: var(--muted); font-size: .82rem;">Paper 2 · 10 marks · 12 minutes</span>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Synthesis &amp; Transformation Sprint</h1>
+    <p>
+      Five items, two marks each. Rewrite each given sentence(s) so the meaning stays identical. AI Examiner
+      marks each on the rubric: <strong>1 mark for grammar, 1 mark for meaning</strong>. The patterns repeat
+      year after year — drill them until they are automatic.
+    </p>
+  </div>
+
+  <div class="key-warn" id="key-warn" style="display:none;">
+    No Gemini API key. You can still draft answers; AI marking and the scorecard need a key.
+  </div>
+
+  <div id="start-pane">
+    <div class="start-card">
+      <h2>Ready?</h2>
+      <p>Twelve minutes for five items. The clock auto-submits at zero. Suggestions are auto-revealed only if you ask.</p>
+      <p>
+        <span class="pill">5 items × 2m = 10 marks</span>
+        <span class="pill">12 min</span>
+        <span class="pill">AI Examiner</span>
+      </p>
+      <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="btn-start">Start the sprint</button>
+        <button class="btn btn-secondary" id="btn-untimed">Untimed practice</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="quiz-pane" style="display:none;">
+    <div class="timer-bar">
+      <span class="time-left" id="time-left">12:00</span>
+      <span style="color:var(--muted);font-size:.85rem;" id="answered-meta">0 / 5 answered</span>
+      <span style="flex:1;"></span>
+      <button class="btn btn-primary" id="btn-submit-all" style="font-size:.82rem;padding:.4rem .8rem;">Submit all for marking</button>
+    </div>
+    <div id="items"></div>
+  </div>
+
+  <div id="result-pane" style="display:none;"></div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script>
+const QUIZ_MS = 12 * 60 * 1000;
+
+const ITEMS = [
+  {
+    pattern: 'Reported speech',
+    source: '"I will help you with your homework after dinner," Aaron said to me.',
+    prefix: 'Aaron told me that...',
+    suggested: '...he would help me with my homework after dinner.',
+    rubric: 'Back-shift tense (will → would), change pronouns (you → me, your → my). 1m grammar + 1m meaning.',
+  },
+  {
+    pattern: 'Although / Despite',
+    source: 'It was raining heavily. We continued our football match.',
+    prefix: 'Despite...',
+    suggested: 'Despite the heavy rain, we continued our football match.',
+    rubric: '"Despite" must take a noun phrase or -ing form, never a clause. 1m grammar + 1m meaning.',
+  },
+  {
+    pattern: 'Relative clause',
+    source: 'The boy won the spelling bee. The boy is in my class.',
+    prefix: 'The boy...',
+    suggested: 'The boy who is in my class won the spelling bee.',
+    rubric: '"Who" for people, defining relative clause (no commas). 1m grammar + 1m meaning.',
+  },
+  {
+    pattern: 'Active / Passive',
+    source: 'A famous architect designed our new school hall.',
+    prefix: 'Our new school hall...',
+    suggested: 'Our new school hall was designed by a famous architect.',
+    rubric: 'Passive voice: subject becomes object, "by" + agent. Keep past tense. 1m grammar + 1m meaning.',
+  },
+  {
+    pattern: 'If-conditional (Type 2)',
+    source: 'I do not have a pet because my brother is allergic to fur.',
+    prefix: 'If my brother...',
+    suggested: 'If my brother were not allergic to fur, I would have a pet.',
+    rubric: 'Type-2 conditional: if + past simple (were/had), main clause + would + verb. 1m grammar + 1m meaning.',
+  },
+];
+
+const answers = {};
+const aiResults = {};
+let state = { startedAt: null, submitted: false, timed: true };
+let tickHandle = null;
+
+function init() {
+  const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  if (!key) document.getElementById('key-warn').style.display = 'block';
+  document.getElementById('btn-start').addEventListener('click',     () => startQuiz(true));
+  document.getElementById('btn-untimed').addEventListener('click',  () => startQuiz(false));
+  document.getElementById('btn-submit-all').addEventListener('click', () => { if (!state.submitted && confirm('Submit all answers for marking?')) submitAll(); });
+}
+
+function startQuiz(timed) {
+  state.timed = timed;
+  state.startedAt = Date.now();
+  document.getElementById('start-pane').style.display = 'none';
+  document.getElementById('quiz-pane').style.display  = 'block';
+  renderItems();
+  if (timed) startTicker(); else document.getElementById('time-left').textContent = '∞';
+}
+
+function renderItems() {
+  const wrap = document.getElementById('items');
+  wrap.innerHTML = '';
+  ITEMS.forEach((it, idx) => {
+    const card = document.createElement('div');
+    card.className = 'item';
+    card.dataset.idx = idx;
+    card.innerHTML = `
+      <div class="num-tag">Q${idx + 1} of ${ITEMS.length}</div>
+      <span class="pattern">${it.pattern}</span>
+      <div class="source"><strong>Source:</strong> ${it.source}</div>
+      <div class="rewrite-prefix">Rewrite, starting with: <strong>${it.prefix}</strong></div>
+      <textarea data-idx="${idx}" placeholder="Type your full rewritten sentence here."></textarea>
+      <div class="row">
+        <span style="font-size:.78rem;color:var(--muted);" class="wc">0 words</span>
+      </div>
+      <div class="feedback" data-idx="${idx}">
+        <h4>Marker pass</h4>
+        <pre></pre>
+        <div style="margin-top:.55rem;">
+          <button class="reveal-toggle">▼ Show a suggested rewrite</button>
+          <div class="reveal-block">${it.suggested}<div style="font-size:.76rem;color:var(--muted);margin-top:.35rem;">${it.rubric}</div></div>
+        </div>
+      </div>
+    `;
+    const ta = card.querySelector('textarea');
+    const wc = card.querySelector('.wc');
+    ta.addEventListener('input', () => {
+      answers[idx] = ta.value;
+      const n = ta.value.trim().split(/\s+/).filter(Boolean).length;
+      wc.textContent = `${n} word${n === 1 ? '' : 's'}`;
+      updateMeta();
+    });
+    card.querySelector('.reveal-toggle').addEventListener('click', () => {
+      const blk = card.querySelector('.reveal-block');
+      blk.classList.toggle('show');
+      card.querySelector('.reveal-toggle').textContent = blk.classList.contains('show') ? '▲ Hide suggested rewrite' : '▼ Show a suggested rewrite';
+    });
+    wrap.appendChild(card);
+  });
+}
+
+function updateMeta() {
+  const n = Object.values(answers).filter(v => v && v.trim()).length;
+  document.getElementById('answered-meta').textContent = `${n} / ${ITEMS.length} answered`;
+}
+
+function startTicker() {
+  if (tickHandle) clearInterval(tickHandle);
+  tickHandle = setInterval(tick, 500);
+  tick();
+}
+function tick() {
+  if (!state.startedAt || state.submitted) return;
+  const left = QUIZ_MS - (Date.now() - state.startedAt);
+  paintTime(left);
+  if (left <= 0) submitAll();
+}
+function paintTime(ms) {
+  const display = document.getElementById('time-left');
+  const mins = Math.max(0, Math.floor(ms / 60000));
+  const secs = Math.max(0, Math.floor((ms % 60000) / 1000));
+  display.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+  display.classList.remove('warn','crit');
+  if (ms <= 60_000)       display.classList.add('crit');
+  else if (ms <= 180_000) display.classList.add('warn');
+}
+
+async function submitAll() {
+  if (state.submitted) return;
+  state.submitted = true;
+  if (tickHandle) clearInterval(tickHandle);
+
+  document.getElementById('btn-submit-all').disabled = true;
+  document.getElementById('btn-submit-all').textContent = 'Marking…';
+
+  // Mark all in parallel via AI; fall back if no key
+  const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  if (!key) {
+    ITEMS.forEach((_, idx) => { aiResults[idx] = 'No Gemini key set. Open How-to-use to add one, then retry.'; });
+  } else {
+    await Promise.all(ITEMS.map((it, idx) => markOne(idx, it).catch(e => { aiResults[idx] = 'Marker error: ' + (e?.message || e); })));
+  }
+
+  // Render feedback inline + total scorecard
+  let totalGot = 0;
+  let totalMax = 0;
+  ITEMS.forEach((it, idx) => {
+    const fbEl = document.querySelector(`.feedback[data-idx="${idx}"]`);
+    if (fbEl) {
+      fbEl.classList.add('show');
+      fbEl.querySelector('pre').textContent = aiResults[idx] || '(no marker pass)';
+    }
+    const m = (aiResults[idx] || '').match(/MARK:\s*(\d+)\s*\/\s*(\d+)/);
+    if (m) { totalGot += Number(m[1]); totalMax += Number(m[2]); }
+    else   { totalMax += 2; }
+  });
+
+  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('synthesis');
+
+  const r = document.getElementById('result-pane');
+  r.style.display = 'block';
+  r.innerHTML = `
+    <div class="scorecard">
+      <h3>Synthesis Sprint — Scorecard</h3>
+      <div class="num">${totalGot} / ${totalMax}</div>
+      <div style="color:var(--muted);font-size:.85rem;margin-top:.55rem;">Each item: 1 mark grammar + 1 mark meaning. Scroll up to read the marker's per-item feedback.</div>
+      <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;">
+        <a class="btn btn-primary" href="./">Retry</a>
+        <a class="btn btn-secondary" href="../">← Hub</a>
+        <a class="btn btn-secondary" href="../topics/synthesis/">Open Synthesis topic</a>
+      </div>
+    </div>
+  `;
+  document.getElementById('btn-submit-all').style.display = 'none';
+  r.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function markOne(idx, it) {
+  const ans = (answers[idx] || '').trim();
+  const sys = 'You are an experienced PSLE English Language examiner marking Synthesis & Transformation items. Each item is 2 marks: 1 for grammar (form, accuracy) and 1 for meaning (does it preserve the original meaning exactly?). Plain text only. No markdown. Output EXACTLY:\nMARK: <x>/2\nGRAMMAR: <ok|partial|missing> — <1 short reason>\nMEANING: <ok|partial|missing> — <1 short reason>\nFIX: <one-sentence model rewrite if not full marks>';
+  const prompt = `PATTERN: ${it.pattern}\nSOURCE: ${it.source}\nREQUIRED PREFIX: "${it.prefix}"\nRUBRIC: ${it.rubric}\n\nSTUDENT ANSWER: """${ans || '(blank)'}"""`;
+  aiResults[idx] = await window.askGemini({ system: sys, prompt, temperature: 0.25, maxTokens: 250, thinkingBudget: 0 });
+}
+
+init();
+</script>
+</body>
+</html>

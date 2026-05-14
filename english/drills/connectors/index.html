@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connectors Drill — PSLE English Studio</title>
+  <link rel="stylesheet" href="../../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 760px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+    .hero h1 { font-size: 1.55rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 1.25rem; }
+  </style>
+</head>
+<body>
+<header class="page-header">
+  <a href="../../" class="back-link">← Hub</a>
+  <strong style="color: var(--text);">Connectors Drill</strong>
+  <span style="color: var(--muted); font-size: .82rem;">Cross-paper · ~28 items · 5–10 minutes</span>
+</header>
+<main>
+  <div class="hero">
+    <h1>Connectors Drill</h1>
+    <p>
+      Connectors are the invisible scaffolding of a high-band piece. <em>However</em>, <em>despite</em>,
+      <em>furthermore</em>, <em>as a result</em> — each has a job, a register, and a position rule. Get them
+      right and your writing reads as ONE argument, not a list. Drill until you don't have to think.
+    </p>
+  </div>
+  <div id="drill-container"></div>
+</main>
+
+<script src="../../shared.js"></script>
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/drill.js"></script>
+<script>
+const CONNECTORS = [
+  { prompt: "Which connector is grammatically WRONG? 'Despite ___, we played football.'",
+    options: ["Despite the rain", "Despite it was raining", "Despite being tired", "Despite the heat"],
+    correct: 1, explanation: "'Despite' must be followed by a NOUN or -ING form, never a full clause. Use 'Although it was raining' for a clause." },
+  { prompt: "Choose the most natural connector: 'I was tired. _____, I kept going.'",
+    options: ["Moreover", "Nevertheless", "In addition", "Furthermore"],
+    correct: 1, explanation: "Context = contrast (tired vs kept going). 'Nevertheless' = 'despite that'. Moreover/In addition/Furthermore all ADD a point in the same direction." },
+  { prompt: "Which connector signals CAUSE-AND-EFFECT?",
+    options: ["However", "As a result", "Furthermore", "On the other hand"],
+    correct: 1, explanation: "'As a result' = consequence. 'However' = contrast; 'Furthermore' = adding; 'On the other hand' = contrast." },
+  { prompt: "Which is the FORMAL way to say 'but'?",
+    options: ["However", "Yet", "Though", "But also"],
+    correct: 0, explanation: "'However' is the formal register equivalent of 'but'. Reserve 'but' for mid-sentence or informal pieces." },
+  { prompt: "Fix the error: 'In spite of he was tired, he kept working.'",
+    options: ["In spite of his tiredness, he kept working.", "In spite of being tired, he kept working.", "Both of the above.", "Neither — the original is fine."],
+    correct: 2, explanation: "'In spite of' (like 'despite') takes a NOUN or -ING form. Both fixes are correct PSLE-acceptable rewrites." },
+  { prompt: "Which connector lists items in SEQUENCE?",
+    options: ["Firstly... Secondly... Finally...", "Moreover... Furthermore... Also...", "However... Although... But...", "Therefore... Thus... So..."],
+    correct: 0, explanation: "'Firstly / Secondly / Finally' (or 'First / Then / Lastly') marks sequence. The other sets add, contrast, or conclude." },
+  { prompt: "Pick the connector for adding a SUPPORTING point: 'Recycling saves resources. _____, it teaches discipline.'",
+    options: ["However", "Furthermore", "On the contrary", "Nonetheless"],
+    correct: 1, explanation: "'Furthermore' adds a same-direction point. The other three flip direction." },
+  { prompt: "Pick the connector that introduces an EXAMPLE: '_____, you could try playing chess.'",
+    options: ["However", "For instance", "Therefore", "Although"],
+    correct: 1, explanation: "'For instance' = 'for example'. Use to introduce a concrete illustration." },
+  { prompt: "Which connector signals a CONCLUSION?",
+    options: ["In conclusion", "However", "Although", "Furthermore"],
+    correct: 0, explanation: "'In conclusion' / 'To sum up' / 'In summary' = wrap-up. Useful for SBC and structured answers but easily overused in stories — pick a sensory image ending instead." },
+  { prompt: "Where does 'However' go in: 'The bus was full _____ I waited for the next one.'",
+    options: ["before 'I'", "before 'the bus'", "before 'waited'", "at the end"],
+    correct: 0, explanation: "'However' connects two sentences. Standard pattern: '. However, I waited...' OR ', however, I waited...' but NOT 'The bus was full however I waited' (run-on)." },
+  { prompt: "Fix: 'Because of he was late, the teacher was upset.'",
+    options: ["Because of his being late", "Because he was late", "Owing to he was late", "Both A and B"],
+    correct: 3, explanation: "'Because of' takes a noun/gerund; 'Because' takes a clause. So 'Because he was late...' (clause) or 'Because of his lateness/being late...' (noun)." },
+  { prompt: "Which connector signals a CONTRAST inside a sentence?",
+    options: ["whereas", "moreover", "therefore", "consequently"],
+    correct: 0, explanation: "'Whereas' = contrast inside a sentence: 'I like coffee, whereas my sister prefers tea.' 'However' is the sentence-opener equivalent." },
+  { prompt: "Pick the best link: 'She studied hard for the test, _____ she did not do well.'",
+    options: ["because", "however,", "and", "but"],
+    correct: 3, explanation: "'But' is the simplest mid-sentence contrast and works here. 'However' would need a comma+period structure. 'Because' is wrong (no cause-effect)." },
+  { prompt: "Which connector pair is formal for 'but also'?",
+    options: ["Not only... but also...", "Also... but also...", "Furthermore... also...", "However... as well..."],
+    correct: 0, explanation: "'Not only X but also Y' is a balanced formal structure. Famous example: 'Not only does it save energy, but it also teaches responsibility.'" },
+  { prompt: "Fix the connector: 'I forgot my umbrella, _____ I got wet.' (formal)",
+    options: ["because of", "consequently", "although", "in contrast"],
+    correct: 1, explanation: "'Consequently' = as a result, formal register. 'Because of' would need 'because of THAT' (still informal). 'Although' and 'in contrast' don't fit the cause-effect." },
+  { prompt: "Pick the connector that REINFORCES with stronger emphasis: 'The plan saves money. _____, it improves morale.'",
+    options: ["Moreover", "Also", "However", "Although"],
+    correct: 0, explanation: "'Moreover' is the formal heavyweight for adding a point. 'Also' works but is weaker; 'However' and 'Although' contrast." },
+  { prompt: "Which connector says 'in fact, the opposite'?",
+    options: ["On the contrary", "Moreover", "Therefore", "In summary"],
+    correct: 0, explanation: "'On the contrary' rejects what was just said and asserts the opposite. Common AL1 pivot phrase." },
+  { prompt: "Choose the BEST formal way to start a CONCLUSION paragraph:",
+    options: ["In conclusion,", "So,", "Anyway,", "Lastly to summarise,"],
+    correct: 0, explanation: "'In conclusion' is the standard formal opener. 'So' is too casual; 'Anyway' is conversational; the last is grammatically off." },
+  { prompt: "Which connector is best for 'in the same way'?",
+    options: ["Similarly", "On the other hand", "However", "Although"],
+    correct: 0, explanation: "'Similarly' draws a parallel: 'Reading widens vocabulary. Similarly, watching documentaries broadens general knowledge.'" },
+  { prompt: "Which connector PARTIALLY agrees before disagreeing?",
+    options: ["Although it is true that...", "On the contrary,...", "Furthermore,...", "As a result,..."],
+    correct: 0, explanation: "'Although it is true that X, Y...' = the polite concession move. Useful in SBC for showing balanced thinking." },
+  { prompt: "Pick the connector that means 'because of this': 'It rained. _____, we cancelled the picnic.'",
+    options: ["Therefore", "However", "Although", "On the other hand"],
+    correct: 0, explanation: "'Therefore' = consequence, formal. Alternatives: 'Thus', 'Hence', 'Consequently', 'As a result'." },
+  { prompt: "Choose the WRONG use: '_____ I was tired, I went to bed early.'",
+    options: ["Because", "As", "Since", "Therefore"],
+    correct: 3, explanation: "'Therefore' shows the EFFECT, not the cause. 'I was tired, therefore I went to bed early' is correct. 'Therefore I was tired, I went to bed' is wrong." },
+  { prompt: "Which is the SHORT formal way to say 'in addition'?",
+    options: ["Plus,", "Also,", "Moreover,", "And also,"],
+    correct: 2, explanation: "'Moreover' is one word, formal, and tighter than 'in addition'. 'Plus' is informal; 'and also' is redundant." },
+  { prompt: "Pick the connector that EMPHASISES the unexpected: 'He was the youngest, _____ he won.'",
+    options: ["yet", "and", "or", "so"],
+    correct: 0, explanation: "'Yet' = nevertheless, surprise. Concise, mid-sentence-friendly. 'He was the youngest, yet he won.' AL1 connector." },
+  { prompt: "Which connector best fits: 'There were no buses. _____, I walked.'",
+    options: ["Hence", "Although", "Whereas", "Furthermore"],
+    correct: 0, explanation: "'Hence' = as a result, formal-tight. 'Therefore' and 'Thus' work too." },
+  { prompt: "Pick the best opener for a CONCESSION + RESPONSE: '_____ tablets are convenient, books are still better for focus.'",
+    options: ["While", "Therefore", "Furthermore", "However,"],
+    correct: 0, explanation: "'While' opens a concession clause: 'While X, Y'. Different from 'However' which needs two sentences." },
+  { prompt: "Choose the BEST connector for an oral answer: 'I think we should keep PE classes. _____, exercise improves focus in maths.'",
+    options: ["Plus,", "For one thing,", "However,", "Although,"],
+    correct: 1, explanation: "'For one thing' is the natural spoken equivalent of 'firstly' — perfect for SBC PEEL answers." },
+  { prompt: "Which set of connectors is OVERUSED at PSLE and should be varied?",
+    options: ["First, Second, Third — used in every paragraph.", "Although, Whereas, Despite — alternating.", "However, Moreover, Therefore — once each.", "For example, In addition, As a result."],
+    correct: 0, explanation: "Mechanical 'First, Second, Third' across every paragraph signals AL2 thinking. AL1 weaves connectors organically: 'Firstly, ... Furthermore, ... Finally, ...'" },
+];
+
+if (window.EnglishDrill && window.EnglishDrill.mount) {
+  window.EnglishDrill.mount('connectors', 'Connectors Drill', CONNECTORS);
+}
+if (typeof Progress !== 'undefined' && Progress.recordVisit) Progress.recordVisit('grammar');
+</script>
+</body>
+</html>

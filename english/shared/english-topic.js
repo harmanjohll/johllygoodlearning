@@ -123,6 +123,47 @@
     `;
   }
 
+  // Quick recap — pulls the matching Cheat Card from shared/content/cheatcards.json
+  // and inserts a compact recap block ABOVE the Learn content. Built dynamically so
+  // we do not have to touch all 12 topic page templates.
+  async function renderQuickRecap(topicId) {
+    const learnHost = el('learn-content');
+    if (!learnHost) return;
+    let cards;
+    try {
+      const r = await fetch('../../shared/content/cheatcards.json', { cache: 'no-cache' });
+      cards = (await r.json()).cards || [];
+    } catch (_) { return; }
+    const card = cards.find(c => c.id === topicId);
+    if (!card) return;
+
+    const wrap = document.createElement('details');
+    wrap.id = 'quick-recap';
+    wrap.open = true;
+    wrap.style.cssText = 'background:var(--card);border:1px solid var(--border);border-radius:11px;padding:1rem 1.25rem;margin-bottom:1.25rem;';
+    wrap.innerHTML = `
+      <summary style="cursor:pointer;display:flex;align-items:center;gap:.55rem;list-style:none;">
+        <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">⚡ Quick recap</span>
+        <span style="font-size:.74rem;color:var(--muted);">From the Cheat Card · click to fold</span>
+        <span style="flex:1;"></span>
+        <a href="../../cards/#card-${card.id}" style="font-size:.72rem;color:var(--accent);text-decoration:none;">→ Open full card</a>
+      </summary>
+      <div style="margin-top:.75rem;">
+        <div style="font-size:.86rem;color:var(--muted);line-height:1.55;margin-bottom:.75rem;font-style:italic;">${card.subtitle}</div>
+        <ol style="padding-left:1.4rem;margin:0 0 .85rem;color:var(--text);font-size:.88rem;line-height:1.55;">
+          ${card.musts.map(m => `<li style="margin-bottom:.35rem;">${m}</li>`).join('')}
+        </ol>
+        <div style="background:var(--surface);border-left:3px solid var(--accent);border-radius:6px;padding:.6rem .85rem;margin-bottom:.55rem;font-size:.84rem;line-height:1.55;">
+          <span style="font-size:.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">Worked example</span><br>
+          <span style="color:#f87171;">${card.worked.before}</span><br>
+          <span style="color:var(--muted);">↓</span> <span style="color:#4ade80;font-weight:600;">${card.worked.after}</span>
+        </div>
+        <div style="font-size:.82rem;color:var(--text);line-height:1.55;">${card.mnemonic}</div>
+      </div>
+    `;
+    learnHost.parentNode.insertBefore(wrap, learnHost);
+  }
+
   function setTopicHeader(topic, topicId) {
     const titleEl = el('topic-title');
     const blurbEl = el('topic-blurb');
@@ -161,6 +202,7 @@
     renderKeyQuestions(topic);
     renderGlossary(topic);
     renderLearn(topic);
+    renderQuickRecap(topicId);
     renderCommonTraps(topic);
     renderMasteryCheckpoints(topic);
     renderSummary(topic);

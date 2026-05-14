@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editing Sprint — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 760px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+
+    .hero h1 { font-size: 1.55rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 1.25rem; }
+
+    .timer-bar {
+      position: sticky; top: 0; z-index: 30;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: .65rem 1rem; margin-bottom: 1rem;
+    }
+    .timer-bar .time-left {
+      font-family: 'IBM Plex Mono', ui-monospace, monospace; font-weight: 700;
+      font-size: 1.4rem; color: var(--accent); letter-spacing: .05em;
+    }
+    .timer-bar .time-left.warn { color: #fbbf24; }
+    .timer-bar .time-left.crit { color: #f87171; animation: pulse 1s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+    .passage {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.25rem 1.5rem; margin-bottom: 1rem;
+    }
+    .passage .title { font-size: .92rem; font-weight: 700; color: var(--text); margin-bottom: .85rem; }
+    .lines { font-size: .95rem; line-height: 1.85; color: var(--text); }
+    .line {
+      display: grid; grid-template-columns: 1.6rem 1fr auto auto;
+      gap: .55rem; align-items: center;
+      padding: .35rem .5rem; border-radius: 6px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .line:last-child { border-bottom: 0; }
+    .line .num { color: var(--muted); font-weight: 700; text-align: right; font-size: .82rem; }
+    .line .text { color: var(--text); }
+    .line .text .wrong { color: #f87171; text-decoration: underline; text-decoration-style: wavy; text-decoration-color: #f87171; font-weight: 700; }
+    .line input.fix {
+      width: 9rem; background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); border-radius: 6px; padding: .25rem .5rem; font-size: .85rem; font-family: inherit;
+    }
+    .line input.fix:focus { outline: none; border-color: var(--accent); }
+    .line .verdict { font-size: .75rem; font-weight: 700; min-width: 1.6rem; text-align: center; }
+    .line.right .verdict { color: #4ade80; }
+    .line.wrong .verdict { color: #f87171; }
+
+    .scorecard {
+      background: linear-gradient(135deg, #14302b 0%, #1e1835 100%);
+      border: 1px solid var(--accent);
+      border-radius: 12px; padding: 1.5rem;
+      text-align: center;
+    }
+    .scorecard .num { font-size: 3rem; font-weight: 800; color: var(--accent); font-family: 'IBM Plex Mono', monospace; }
+    .scorecard .qual { font-size: 1rem; color: var(--text); margin: .25rem 0 1rem; }
+    .scorecard .row { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+
+    .nav-row { display: flex; gap: .55rem; justify-content: flex-end; flex-wrap: wrap; margin-top: 1rem; }
+    .start-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
+    .start-card h2 { margin-bottom: .5rem; }
+    .start-card p  { color: var(--muted); font-size: .92rem; margin-bottom: 1rem; line-height: 1.65; }
+    .pill { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .25rem .65rem; font-size: .72rem; margin: .15rem; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../" class="back-link">← Hub</a>
+  <strong style="color: var(--text);">Editing Sprint</strong>
+  <span style="color: var(--muted); font-size: .82rem;">Paper 2 · 10 marks · 8 minutes</span>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Editing Sprint</h1>
+    <p>
+      The full Paper 2 Editing format in one focused drill. Ten numbered errors, mixed grammar and spelling.
+      Type ONE correct word in each box. Auto-marked the moment time ends (or you submit). The fastest path
+      to 10/10 here is reading every line aloud in your head before typing.
+    </p>
+  </div>
+
+  <div id="start-pane">
+    <div class="start-card">
+      <h2>Ready?</h2>
+      <p>Eight minutes on the clock. Each error is ONE word. Spelling errors trip the eye; grammar errors trip the ear. Trust both.</p>
+      <p>
+        <span class="pill">10 items · 1 mark each</span>
+        <span class="pill">Mix: grammar + spelling</span>
+        <span class="pill">8 min</span>
+      </p>
+      <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="btn-start">Start the sprint</button>
+        <button class="btn btn-secondary" id="btn-untimed">Untimed practice</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="quiz-pane" style="display:none;">
+    <div class="timer-bar">
+      <span class="time-left" id="time-left">8:00</span>
+      <span style="color:var(--muted);font-size:.85rem;" id="score-meta">0 / 10</span>
+      <span style="flex:1;"></span>
+      <button class="btn btn-secondary" id="btn-submit" style="font-size:.82rem;padding:.4rem .8rem;">Submit now</button>
+    </div>
+
+    <div class="passage" id="passage"></div>
+  </div>
+
+  <div id="result-pane" style="display:none;"></div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script>
+const QUIZ_MS = 8 * 60 * 1000;
+
+const PASSAGE = {
+  title: "An afternoon at the bird park",
+  lines: [
+    { num: 1,  wrong: "writted",     correct: ["wrote"],       text: "Last Sunday, I {WRONG} a long letter to my grandmother about our trip to the bird park.", why: "Simple past of 'write' is 'wrote'." },
+    { num: 2,  wrong: "childrens",   correct: ["children"],    text: "There were many {WRONG} from my Primary 6 class who came along.",                          why: "'Children' is already plural; never add -s." },
+    { num: 3,  wrong: "neccessary",  correct: ["necessary"],   text: "It was {WRONG} to bring an umbrella because the weather forecast warned of rain.",         why: "Spelling: ONE c, double s. Mnemonic: 'one Collar, two Sleeves'." },
+    { num: 4,  wrong: "more better", correct: ["better","much better"], text: "The new bird park is {WRONG} than the old one in Jurong.",                       why: "'Better' is already comparative; 'more better' is double-comparative." },
+    { num: 5,  wrong: "amoung",      correct: ["among"],       text: "{WRONG} the most popular exhibits is the South-East Asian aviary.",                       why: "Spelling: a-m-o-n-g, no second u." },
+    { num: 6,  wrong: "have ate",    correct: ["had eaten","ate","eaten"], text: "By the time we reached the parrot show, we {WRONG} our packed lunch already.", why: "Past perfect (had eaten) for the earlier of two past events. 'Ate' alone is also acceptable in this context if the marker accepts simpler past." },
+    { num: 7,  wrong: "embarassed", correct: ["embarrassed"],  text: "When the macaw landed on my head, I felt {WRONG} but everyone laughed kindly.",            why: "Spelling: double r, double s. 'Embarrassed' is the most-misspelt PSLE word." },
+    { num: 8,  wrong: "alot",        correct: ["a lot"],       text: "We learnt {WRONG} about how birds use their beaks for different kinds of food.",           why: "'A lot' is ALWAYS two words. 'Alot' is not a word in English." },
+    { num: 9,  wrong: "their",       correct: ["there"],       text: "We sat down by the lake and noticed that {WRONG} were ducks swimming nearby.",             why: "Context = 'there were' (existence). 'Their' is the possessive (their nest, their wings)." },
+    { num: 10, wrong: "depended of", correct: ["depended on"], text: "Whether we could finish the trail {WRONG} how heavy the afternoon rain would be.",         why: "'Depend ON' is the correct preposition pair. Common ESL trap: 'depend of' / 'depend with'." },
+  ],
+};
+
+let state = { startedAt: null, timed: true, answers: {}, submitted: false };
+let tickHandle = null;
+
+function init() {
+  document.getElementById('btn-start').addEventListener('click',   () => startQuiz(true));
+  document.getElementById('btn-untimed').addEventListener('click', () => startQuiz(false));
+  document.getElementById('btn-submit').addEventListener('click', () => { if (!state.submitted && confirm('Submit now?')) submit(); });
+}
+
+function startQuiz(timed) {
+  state.timed = timed;
+  state.startedAt = Date.now();
+  document.getElementById('start-pane').style.display = 'none';
+  document.getElementById('quiz-pane').style.display  = 'block';
+  renderPassage();
+  if (timed) startTicker();
+  else document.getElementById('time-left').textContent = '∞';
+}
+
+function renderPassage() {
+  const wrap = document.getElementById('passage');
+  wrap.innerHTML = `<div class="title">${PASSAGE.title}</div><div class="lines" id="lines"></div>`;
+  const lines = document.getElementById('lines');
+  PASSAGE.lines.forEach(line => {
+    const row = document.createElement('div');
+    row.className = 'line';
+    row.dataset.num = line.num;
+    const textHTML = line.text.replace('{WRONG}', `<span class="wrong">${line.wrong}</span>`);
+    row.innerHTML = `
+      <div class="num">${line.num}.</div>
+      <div class="text">${textHTML}</div>
+      <input type="text" class="fix" placeholder="correct word" autocomplete="off" data-num="${line.num}">
+      <div class="verdict"></div>
+    `;
+    row.querySelector('input').addEventListener('input', e => { state.answers[line.num] = e.target.value.trim(); });
+    lines.appendChild(row);
+  });
+}
+
+function startTicker() {
+  if (tickHandle) clearInterval(tickHandle);
+  tickHandle = setInterval(tick, 500);
+  tick();
+}
+function tick() {
+  if (!state.startedAt || state.submitted) return;
+  const left = QUIZ_MS - (Date.now() - state.startedAt);
+  paintTime(left);
+  if (left <= 0) submit();
+}
+function paintTime(ms) {
+  const display = document.getElementById('time-left');
+  const mins = Math.max(0, Math.floor(ms / 60000));
+  const secs = Math.max(0, Math.floor((ms % 60000) / 1000));
+  display.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+  display.classList.remove('warn','crit');
+  if (ms <= 60_000)       display.classList.add('crit');
+  else if (ms <= 180_000) display.classList.add('warn');
+}
+
+function submit() {
+  if (state.submitted) return;
+  state.submitted = true;
+  if (tickHandle) clearInterval(tickHandle);
+
+  let got = 0;
+  PASSAGE.lines.forEach(line => {
+    const val = (state.answers[line.num] || '').toLowerCase().trim();
+    const ok  = (line.correct || []).map(x => x.toLowerCase());
+    const right = !!val && ok.includes(val);
+    if (right) got += 1;
+    const row = document.querySelector(`.line[data-num="${line.num}"]`);
+    if (!row) return;
+    row.classList.toggle('right', right);
+    row.classList.toggle('wrong', !right);
+    const v = row.querySelector('.verdict');
+    v.textContent = right ? '✓' : '✗';
+    const input = row.querySelector('input');
+    input.disabled = true;
+  });
+  document.getElementById('score-meta').textContent = `${got} / 10`;
+
+  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('editing');
+
+  const qual =
+    got === 10 ? 'Perfect. AL1 editor.' :
+    got >= 8  ? 'On the AL1/AL2 line.' :
+    got >= 5  ? 'Halfway. Review the misses below.' :
+                'Lots to learn. Read the explanations and try the untimed version.';
+
+  let reviewHTML = '<div class="passage" style="margin-top:1.5rem;"><div class="title" style="margin-bottom:.85rem;color:var(--accent);">Review every line</div>';
+  PASSAGE.lines.forEach(line => {
+    const ans = state.answers[line.num] || '';
+    const ok = (line.correct || []).map(x => x.toLowerCase());
+    const right = ok.includes(ans.toLowerCase());
+    reviewHTML += `<div style="border-top:1px solid var(--border);padding-top:.55rem;margin-top:.55rem;">
+      <div style="font-size:.82rem;color:var(--muted);">Line ${line.num} · <span style="color:${right ? '#4ade80' : '#f87171'};">${right ? '✓' : '✗'}</span></div>
+      <div style="font-size:.88rem;color:var(--text);margin:.2rem 0;">${line.text.replace('{WRONG}', `<span style="color:#f87171;font-weight:700;">${line.wrong}</span>`)}</div>
+      <div style="font-size:.82rem;color:var(--accent);">Accept: ${line.correct.join(' / ')}</div>
+      <div style="font-size:.78rem;color:var(--muted);margin-top:.2rem;line-height:1.55;">${line.why}</div>
+    </div>`;
+  });
+  reviewHTML += '</div>';
+
+  document.getElementById('result-pane').style.display = 'block';
+  document.getElementById('result-pane').innerHTML = `
+    <div class="scorecard">
+      <div class="num">${got} / 10</div>
+      <div class="qual">${qual}</div>
+      <div class="row">
+        <a class="btn btn-primary" href="./">Retry this sprint</a>
+        <a class="btn btn-secondary" href="../">← Back to hub</a>
+        <a class="btn btn-secondary" href="../topics/editing/">Open Editing topic</a>
+      </div>
+    </div>
+    ${reviewHTML}
+  `;
+  document.getElementById('quiz-pane').style.display = 'none';
+}
+
+init();
+</script>
+</body>
+</html>
