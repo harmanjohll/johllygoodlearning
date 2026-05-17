@@ -91,6 +91,23 @@
     </p>
   </div>
 
+  <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+    <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
+    <span style="font-size:.84rem;color:var(--muted);">One curated passage below. Want a fresh one?</span>
+    <span style="flex:1;"></span>
+    <select id="edit-gen-theme" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.82rem;font-family:inherit;">
+      <option>A day at the hawker centre</option>
+      <option>A school sports day</option>
+      <option>A trip to the library</option>
+      <option>A family outing</option>
+      <option>An ordinary weekday morning</option>
+      <option>A community event at the void deck</option>
+    </select>
+    <button class="btn btn-primary" id="edit-gen-btn" style="font-size:.78rem;padding:.35rem .85rem;">+ Generate passage</button>
+    <button class="btn btn-secondary" id="edit-gen-clear" style="font-size:.78rem;padding:.35rem .85rem;display:none;">Reset to curated</button>
+  </div>
+  <div id="edit-gen-status" style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem;min-height:1rem;"></div>
+
   <div id="start-pane">
     <div class="start-card">
       <h2>Ready?</h2>
@@ -123,10 +140,11 @@
 
 <script src="../shared.js"></script>
 <script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
 <script>
 const QUIZ_MS = 8 * 60 * 1000;
 
-const PASSAGE = {
+let PASSAGE = {
   title: "An afternoon at the bird park",
   lines: [
     { num: 1,  wrong: "writted",     correct: ["wrote"],       text: "Last Sunday, I {WRONG} a long letter to my grandmother about our trip to the bird park.", why: "Simple past of 'write' is 'wrote'." },
@@ -263,6 +281,104 @@ function submit() {
 }
 
 init();
+
+// ── AI passage generator ─────────────────────────────────
+const EDIT_GEN_CACHE_KEY = 'jgl.english.editing.generated';
+const EDIT_CURATED = JSON.parse(JSON.stringify(PASSAGE));
+
+(function rehydrateEditing() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(EDIT_GEN_CACHE_KEY) || 'null');
+    if (cached && Array.isArray(cached.lines)) {
+      PASSAGE = cached;
+      document.getElementById('edit-gen-clear').style.display = 'inline-block';
+      document.getElementById('edit-gen-status').textContent = 'Showing AI-generated passage from your last session.';
+    }
+  } catch {}
+})();
+
+document.getElementById('edit-gen-btn').addEventListener('click', async () => {
+  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  const status = document.getElementById('edit-gen-status');
+  if (!k) { status.textContent = 'No Gemini key set.'; return; }
+  if (state.startedAt && !state.submitted) {
+    if (!confirm('Replace the passage and reset the clock?')) return;
+  }
+  const theme = document.getElementById('edit-gen-theme').value;
+  status.textContent = `Generating a fresh passage on "${theme.toLowerCase()}"…`;
+  document.getElementById('edit-gen-btn').disabled = true;
+  try {
+    const p = await generateEditingPassage(theme);
+    PASSAGE = p;
+    try { localStorage.setItem(EDIT_GEN_CACHE_KEY, JSON.stringify(p)); } catch {}
+    document.getElementById('edit-gen-clear').style.display = 'inline-block';
+    status.textContent = `New passage ready: "${p.title}". Start the sprint to begin.`;
+    // Reset state and UI back to start-pane so the new passage runs cleanly.
+    state = { startedAt: null, timed: true, answers: {}, submitted: false };
+    document.getElementById('start-pane').style.display = '';
+    document.getElementById('quiz-pane').style.display = 'none';
+    document.getElementById('result-pane').style.display = 'none';
+    document.getElementById('result-pane').innerHTML = '';
+  } catch (e) {
+    status.textContent = 'Generator error: ' + (e?.message || e);
+  } finally {
+    document.getElementById('edit-gen-btn').disabled = false;
+  }
+});
+
+document.getElementById('edit-gen-clear').addEventListener('click', () => {
+  if (!confirm('Reset to the curated passage?')) return;
+  try { localStorage.removeItem(EDIT_GEN_CACHE_KEY); } catch {}
+  PASSAGE = JSON.parse(JSON.stringify(EDIT_CURATED));
+  document.getElementById('edit-gen-clear').style.display = 'none';
+  document.getElementById('edit-gen-status').textContent = '';
+});
+
+async function generateEditingPassage(theme) {
+  const sys = 'You are a PSLE English Paper 2 Editing item writer. Output VALID JSON ONLY — no markdown, no commentary. Primary 6 level. Singapore-natural settings.';
+  const prompt = `Generate ONE Editing passage on the theme: "${theme}".
+
+The passage has 10 numbered errors mixed: approximately FIVE grammar errors and FIVE spelling errors. Each error must be a single wrong word that the student replaces with a single correct word.
+
+Output JSON with EXACTLY:
+{
+  "title": "<short title, 4-7 words>",
+  "lines": [
+    {
+      "num": 1,
+      "wrong": "<the single wrong word, exact form as it appears>",
+      "correct": ["<the canonical correct word>", "<optional alternate>"],
+      "text": "<one sentence containing the placeholder {WRONG} where the wrong word goes>",
+      "why": "<one-sentence reason this is wrong (grammar rule or spelling rule)>"
+    },
+    ... 9 more lines, numbered 2 through 10 ...
+  ]
+}
+
+Constraints:
+- The text field MUST contain the literal placeholder "{WRONG}" exactly once where the wrong word appears.
+- The "wrong" word, in context, must be clearly incorrect — not just stylistic.
+- Approximate split: 5 grammar errors (tense, SVA, articles, prepositions, pronouns, plurals, double-comparatives) and 5 spelling errors (commonly misspelt at Primary 6: necessary, embarrassed, amount, separate, occurred, receive, etc.).
+- Each sentence reads naturally apart from the one error.
+- Don't use the same wrong word twice.
+- No emoji.`;
+
+  const json = await window.askGemini({
+    system: sys, prompt,
+    temperature: 0.55, maxTokens: 2200, thinkingBudget: 0,
+    responseMimeType: 'application/json', asJson: true,
+  });
+  if (!json || !Array.isArray(json.lines) || json.lines.length < 5) throw new Error('Unexpected response shape.');
+  // Defensive: ensure every line has the right fields
+  const lines = json.lines.slice(0, 10).map((ln, idx) => ({
+    num: typeof ln.num === 'number' ? ln.num : (idx + 1),
+    wrong: String(ln.wrong || ''),
+    correct: Array.isArray(ln.correct) ? ln.correct.map(String) : [String(ln.correct || '')],
+    text: String(ln.text || '').includes('{WRONG}') ? ln.text : (`${ln.text || ''} {WRONG}`),
+    why: String(ln.why || ''),
+  }));
+  return { title: json.title || 'AI-generated passage', lines };
+}
 </script>
 </body>
 </html>

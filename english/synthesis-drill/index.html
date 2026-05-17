@@ -100,6 +100,15 @@
     No Gemini API key. You can still draft answers; AI marking and the scorecard need a key.
   </div>
 
+  <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+    <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
+    <span style="font-size:.84rem;color:var(--muted);">Five curated items below. Want a fresh five?</span>
+    <span style="flex:1;"></span>
+    <button class="btn btn-primary" id="syn-gen-btn" style="font-size:.78rem;padding:.35rem .85rem;">+ Generate 5 fresh items</button>
+    <button class="btn btn-secondary" id="syn-gen-clear" style="font-size:.78rem;padding:.35rem .85rem;display:none;">Reset to curated</button>
+  </div>
+  <div id="syn-gen-status" style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem;min-height:1rem;"></div>
+
   <div id="start-pane">
     <div class="start-card">
       <h2>Ready?</h2>
@@ -135,7 +144,7 @@
 <script>
 const QUIZ_MS = 12 * 60 * 1000;
 
-const ITEMS = [
+let ITEMS = [
   {
     pattern: 'Reported speech',
     source: '"I will help you with your homework after dinner," Aaron said to me.',
@@ -321,6 +330,103 @@ async function markOne(idx, it) {
 }
 
 init();
+
+// ── AI items generator ───────────────────────────────────
+const SYN_GEN_CACHE_KEY = 'jgl.english.synthesis.generated';
+const SYN_CURATED = JSON.parse(JSON.stringify(ITEMS));
+
+(function rehydrateSyn() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(SYN_GEN_CACHE_KEY) || 'null');
+    if (cached && Array.isArray(cached) && cached.length) {
+      ITEMS = cached;
+      document.getElementById('syn-gen-clear').style.display = 'inline-block';
+      document.getElementById('syn-gen-status').textContent = 'Showing AI-generated items from your last session.';
+    }
+  } catch {}
+})();
+
+document.getElementById('syn-gen-btn').addEventListener('click', async () => {
+  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  const status = document.getElementById('syn-gen-status');
+  if (!k) { status.textContent = 'No Gemini key set.'; return; }
+  if (state.startedAt && !state.submitted) {
+    if (!confirm('Replace the items and reset the clock?')) return;
+  }
+  status.textContent = 'Generating five fresh Synthesis items…';
+  document.getElementById('syn-gen-btn').disabled = true;
+  try {
+    const items = await generateSynItems();
+    ITEMS = items;
+    try { localStorage.setItem(SYN_GEN_CACHE_KEY, JSON.stringify(items)); } catch {}
+    document.getElementById('syn-gen-clear').style.display = 'inline-block';
+    status.textContent = `Five fresh items ready. Start the sprint to begin.`;
+    state = { startedAt: null, submitted: false, timed: true };
+    Object.keys(answers).forEach(k => delete answers[k]);
+    Object.keys(aiResults).forEach(k => delete aiResults[k]);
+    document.getElementById('start-pane').style.display = '';
+    document.getElementById('quiz-pane').style.display = 'none';
+    document.getElementById('result-pane').style.display = 'none';
+    document.getElementById('result-pane').innerHTML = '';
+  } catch (e) {
+    status.textContent = 'Generator error: ' + (e?.message || e);
+  } finally {
+    document.getElementById('syn-gen-btn').disabled = false;
+  }
+});
+
+document.getElementById('syn-gen-clear').addEventListener('click', () => {
+  if (!confirm('Reset to the curated items?')) return;
+  try { localStorage.removeItem(SYN_GEN_CACHE_KEY); } catch {}
+  ITEMS = JSON.parse(JSON.stringify(SYN_CURATED));
+  document.getElementById('syn-gen-clear').style.display = 'none';
+  document.getElementById('syn-gen-status').textContent = '';
+});
+
+async function generateSynItems() {
+  const sys = 'You are a PSLE English Paper 2 Synthesis & Transformation item writer. Output VALID JSON ONLY. Primary 6 level. Each item must preserve meaning when rewritten and have a clear single intended pattern.';
+  const prompt = `Generate FIVE Synthesis & Transformation items, ONE per pattern, in this order:
+1. Reported speech (direct -> reported)
+2. Although / Despite (combine using one of those connectors, respecting the noun-vs-clause rule)
+3. Relative clause (combine two sentences using who/which/that)
+4. Active / Passive (rewrite an active sentence in the passive)
+5. If-conditional (Type 2) (rewrite a fact-based sentence as a Type-2 conditional)
+
+Output JSON with EXACTLY:
+{
+  "items": [
+    {
+      "pattern": "Reported speech",
+      "source": "<the source sentence(s) — for reported speech, a direct quote with said/told>",
+      "prefix": "<the rewrite prefix the student is asked to start with, e.g. \\"He told me that...\\">",
+      "suggested": "<a model rewrite that earns full marks>",
+      "rubric": "<1-2 sentence rubric for marking grammar (1m) and meaning (1m)>"
+    },
+    ... 4 more, in the order above ...
+  ]
+}
+
+Constraints:
+- Singapore-friendly settings, no famous names.
+- Each "suggested" rewrite must be flawless: the student is comparing.
+- "prefix" must be the literal start of the model rewrite, e.g. "Despite", "The boy", "He told me that".
+- For the Despite item, USE "Despite" + noun/-ing (or "Although" + clause) — make sure the rule is clearly tested.
+- No emoji.`;
+
+  const json = await window.askGemini({
+    system: sys, prompt,
+    temperature: 0.7, maxTokens: 1500, thinkingBudget: 0,
+    responseMimeType: 'application/json', asJson: true,
+  });
+  if (!json || !Array.isArray(json.items) || json.items.length < 3) throw new Error('Unexpected response shape.');
+  return json.items.slice(0, 5).map(it => ({
+    pattern: it.pattern || 'Pattern',
+    source: it.source || '',
+    prefix: it.prefix || '',
+    suggested: it.suggested || '',
+    rubric: it.rubric || '1 mark grammar + 1 mark meaning.',
+  }));
+}
 </script>
 </body>
 </html>

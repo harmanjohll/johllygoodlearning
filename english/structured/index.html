@@ -203,6 +203,22 @@
     <div class="section">
       <h3>Choose a topic</h3>
       <div class="picker-row" id="composition-topic-picker"></div>
+      <div style="display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;margin-top:.55rem;">
+        <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
+        <select id="comp-gen-genre" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.82rem;font-family:inherit;">
+          <option>Difficult choice</option>
+          <option>Unexpected kindness</option>
+          <option>A lesson learnt</option>
+          <option>Loss or change</option>
+          <option>Courage</option>
+          <option>Friendship</option>
+          <option>A mystery / suspense</option>
+          <option>An ordinary day that wasn't</option>
+        </select>
+        <button class="btn btn-secondary" id="comp-gen-btn" style="font-size:.78rem;padding:.35rem .85rem;">+ Generate prompt</button>
+        <button class="btn btn-secondary" id="comp-gen-clear" style="font-size:.78rem;padding:.35rem .85rem;display:none;">Clear generated</button>
+        <span id="comp-gen-status" style="font-size:.78rem;color:var(--muted);"></span>
+      </div>
       <div class="prompt-display">
         <span class="label">Your prompt</span>
         <span id="composition-prompt-text">Loading…</span>
@@ -261,7 +277,7 @@
 <script src="../shared/pomodoro.js"></script>
 <script>
 // ── Topic + passage banks ────────────────────────────────
-const COMPOSITION_TOPICS = [
+let COMPOSITION_TOPICS = [
   { id: 'difficult-choice',  title: 'A Difficult Choice',           note: 'Write a story about a time when you had to make a difficult choice.' },
   { id: 'unexpected-friend', title: 'An Unexpected Friendship',     note: 'Write a story in which an unexpected friendship changes someone\'s life.' },
   { id: 'note-on-door',      title: 'The Note on the Door',         note: 'Write a story that begins with: "The moment I saw the note on the door, I knew something was wrong."' },
@@ -398,21 +414,100 @@ function showModelAnswer() {
 
 // ── Composition picker ───────────────────────────────────
 const compPicker = document.getElementById('composition-topic-picker');
-COMPOSITION_TOPICS.forEach((t, i) => {
-  const chip = document.createElement('button');
-  chip.className = 'picker-chip' + (i === 0 ? ' active' : '');
-  chip.textContent = t.title;
-  chip.addEventListener('click', () => {
-    compPicker.querySelectorAll('.picker-chip').forEach(x => x.classList.remove('active'));
-    chip.classList.add('active');
-    state.composition.topic = t;
-    document.getElementById('composition-prompt-text').textContent = t.note;
-    document.getElementById('composition-feedback').classList.remove('show');
+function renderCompPicker(activeId) {
+  compPicker.innerHTML = '';
+  COMPOSITION_TOPICS.forEach((t) => {
+    const chip = document.createElement('button');
+    chip.className = 'picker-chip' + (t.id === activeId ? ' active' : '');
+    chip.textContent = (t._generated ? '✨ ' : '') + t.title;
+    chip.addEventListener('click', () => {
+      compPicker.querySelectorAll('.picker-chip').forEach(x => x.classList.remove('active'));
+      chip.classList.add('active');
+      state.composition.topic = t;
+      document.getElementById('composition-prompt-text').textContent = t.note;
+      document.getElementById('composition-feedback').classList.remove('show');
+    });
+    compPicker.appendChild(chip);
   });
-  compPicker.appendChild(chip);
-});
+}
+renderCompPicker(COMPOSITION_TOPICS[0].id);
 state.composition.topic = COMPOSITION_TOPICS[0];
 document.getElementById('composition-prompt-text').textContent = COMPOSITION_TOPICS[0].note;
+
+// ── Composition prompt generator ────────────────────────────
+const COMP_GEN_CACHE_KEY = 'jgl.english.comp.prompts';
+const COMP_CURATED_COUNT = COMPOSITION_TOPICS.length;
+
+(function rehydrateCompPrompts() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(COMP_GEN_CACHE_KEY) || '[]');
+    if (cached.length) {
+      COMPOSITION_TOPICS = COMPOSITION_TOPICS.concat(cached);
+      document.getElementById('comp-gen-clear').style.display = 'inline-block';
+      renderCompPicker(COMPOSITION_TOPICS[0].id);
+    }
+  } catch {}
+})();
+
+document.getElementById('comp-gen-btn').addEventListener('click', async () => {
+  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  const status = document.getElementById('comp-gen-status');
+  if (!k) { status.textContent = 'No Gemini key set.'; return; }
+  const genre = document.getElementById('comp-gen-genre').value;
+  status.textContent = `Generating a ${genre.toLowerCase()} prompt…`;
+  document.getElementById('comp-gen-btn').disabled = true;
+  try {
+    const t = await generateCompPrompt(genre);
+    COMPOSITION_TOPICS.push(t);
+    const cached = (() => { try { return JSON.parse(localStorage.getItem(COMP_GEN_CACHE_KEY) || '[]'); } catch { return []; } })();
+    cached.push(t);
+    try { localStorage.setItem(COMP_GEN_CACHE_KEY, JSON.stringify(cached.slice(-10))); } catch {}
+    document.getElementById('comp-gen-clear').style.display = 'inline-block';
+    status.textContent = `New prompt added: "${t.title}".`;
+    renderCompPicker(t.id);
+    state.composition.topic = t;
+    document.getElementById('composition-prompt-text').textContent = t.note;
+  } catch (e) {
+    status.textContent = 'Generator error: ' + (e?.message || e);
+  } finally {
+    document.getElementById('comp-gen-btn').disabled = false;
+  }
+});
+
+document.getElementById('comp-gen-clear').addEventListener('click', () => {
+  if (!confirm('Remove AI-generated prompts? The five curated ones stay.')) return;
+  try { localStorage.setItem(COMP_GEN_CACHE_KEY, '[]'); } catch {}
+  COMPOSITION_TOPICS = COMPOSITION_TOPICS.slice(0, COMP_CURATED_COUNT);
+  document.getElementById('comp-gen-clear').style.display = 'none';
+  document.getElementById('comp-gen-status').textContent = '';
+  renderCompPicker(COMPOSITION_TOPICS[0].id);
+  state.composition.topic = COMPOSITION_TOPICS[0];
+  document.getElementById('composition-prompt-text').textContent = COMPOSITION_TOPICS[0].note;
+});
+
+async function generateCompPrompt(genre) {
+  const sys = 'You are a PSLE English Paper 1 Continuous Writing item writer. Output VALID JSON ONLY. Primary 6 level. Singapore-friendly settings. The prompt must reward sensory description, F.A.S.T. characterisation, a clear emotional beat, and an R.E.F. ending.';
+  const prompt = `Generate ONE Continuous Writing prompt on the genre: "${genre}".
+
+Output JSON with EXACTLY:
+{
+  "id": "gen-${Date.now()}",
+  "title": "<short title, 3-5 words>",
+  "note": "<the writing prompt — one or two sentences. Either an instruction (\\"Write a story about...\\") or an opening line (\\"Write a story that begins with...\\")>"
+}
+
+Constraints:
+- The prompt must be open enough that two Primary 6 students could write very different stories from it.
+- Avoid topics requiring outside knowledge (specific historical events, branded products, named famous people).
+- No emoji.`;
+  const json = await window.askGemini({
+    system: sys, prompt,
+    temperature: 0.8, maxTokens: 250, thinkingBudget: 0,
+    responseMimeType: 'application/json', asJson: true,
+  });
+  if (!json || !json.note) throw new Error('Unexpected response shape.');
+  return { id: json.id || ('gen-' + Date.now()), title: json.title || 'AI-generated prompt', note: json.note, _generated: true };
+}
 
 // ── Comprehension picker ─────────────────────────────────
 const compreh = document.getElementById('comprehension-passage-picker');
