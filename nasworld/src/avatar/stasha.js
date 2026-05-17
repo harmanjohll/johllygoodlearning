@@ -59,6 +59,15 @@
     }
   };
 
+  window.stashaZoom = function(mode) {
+    if (window.__stasha3D && typeof window.__stasha3D.setZoom === 'function') {
+      try { window.__stasha3D.setZoom(mode); } catch (e) {}
+    }
+    document.querySelectorAll('.stasha-zoom-btn').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.zoom === mode);
+    });
+  };
+
   // Mirror Lumi mood events onto Stasha when she is on screen.
   var origLumiReactTo = window.lumiReactTo;
   if (typeof origLumiReactTo === 'function') {

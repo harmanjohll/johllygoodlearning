@@ -10,12 +10,12 @@ const MALAY_TREE = {
   warna:     { id:'warna',     name:'Warna-warni',           icon:'🎨', grade:'P1 Foundation', deps:[],            desc:'Colours in Malay' },
 
   // === P1 Everyday (Bahasa Melayu) ===
-  keluarga:  { id:'keluarga',  name:'Keluarga Saya',         icon:'👪', grade:'P1 Everyday',  deps:['salam'],     desc:'Family members and relations' },
-  haiwan:    { id:'haiwan',    name:'Haiwan Kesayangan',     icon:'🐱', grade:'P1 Everyday',  deps:['warna'],     desc:'Animals and their colours' },
-  badan:     { id:'badan',     name:'Anggota Badan',         icon:'👐', grade:'P1 Everyday',  deps:['huruf'],     desc:'Body parts in Malay' },
-  makanan:   { id:'makanan',   name:'Makanan Sedap',         icon:'🍛', grade:'P1 Everyday',  deps:['haiwan'],    desc:'Food and drinks' },
+  keluarga:  { id:'keluarga',  name:'Keluarga Saya',         icon:'👪', grade:'P1 Everyday',  deps:[],     desc:'Family members and relations' },
+  haiwan:    { id:'haiwan',    name:'Haiwan Kesayangan',     icon:'🐱', grade:'P1 Everyday',  deps:[],     desc:'Animals and their colours' },
+  badan:     { id:'badan',     name:'Anggota Badan',         icon:'👐', grade:'P1 Everyday',  deps:[],     desc:'Body parts in Malay' },
+  makanan:   { id:'makanan',   name:'Makanan Sedap',         icon:'🍛', grade:'P1 Everyday',  deps:[],     desc:'Food and drinks' },
 
   // === P1 Stretch (Bahasa Melayu) ===
-  hari:      { id:'hari',      name:'Hari & Cuaca',          icon:'☀️',  grade:'P1 Stretch',   deps:['nombor'],    desc:'Days of the week and weather' },
-  ayat:      { id:'ayat',      name:'Ayat Mudah',            icon:'✍️', grade:'P1 Stretch',   deps:['keluarga','makanan'], desc:'Build simple Malay sentences' }
+  hari:      { id:'hari',      name:'Hari & Cuaca',          icon:'☀️',  grade:'P1 Stretch',   deps:[],     desc:'Days of the week and weather' },
+  ayat:      { id:'ayat',      name:'Ayat Mudah',            icon:'✍️', grade:'P1 Stretch',   deps:[],     desc:'Build simple Malay sentences' }
 };

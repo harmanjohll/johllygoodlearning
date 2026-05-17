@@ -701,6 +701,24 @@ body {
 .stasha-outfit { bottom: 30%; left: 50%; transform: translateX(-50%); font-size: 38px; opacity: 0.85; }
 .stasha-pet    { bottom: 8%; right: 8%; font-size: 44px; animation: float 3s ease-in-out infinite; }
 
+.stasha-zoom-row { display: flex; gap: 6px; justify-content: center; margin: 14px 0 0; flex-wrap: wrap; }
+.stasha-zoom-btn {
+  background: rgba(37,27,94,0.6); border: 1px solid rgba(181,123,255,0.3);
+  color: var(--text-primary); padding: 6px 12px; border-radius: 999px;
+  font-family: var(--font-body); font-size: 12px; cursor: pointer; transition: all 0.2s;
+}
+.stasha-zoom-btn:hover { background: rgba(255,215,0,0.15); }
+.stasha-zoom-btn.active { background: rgba(255,215,0,0.25); border-color: var(--gold); color: var(--gold); font-weight: 700; }
+
+.tryon-row {
+  background: rgba(255,123,219,0.08); border: 1px solid rgba(255,123,219,0.25);
+  border-radius: var(--radius-md); padding: 12px 14px; margin: 10px 0 14px;
+  text-align: center;
+}
+.tryon-row.active { background: rgba(255,123,219,0.18); border-color: rgba(255,123,219,0.55); }
+.tryon-note { font-size: 13px; color: var(--text-primary); margin-bottom: 8px; line-height: 1.5; }
+.tryon-buttons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
 .stasha-name { font-family: var(--font-display); font-size: 26px; color: var(--gold); margin: 14px 0 4px; }
 .stasha-bio { font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; }
 .stasha-actions { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
@@ -3397,6 +3415,28 @@ body {
     let renderer, scene, camera, vrm, clock, currentCanvas;
     let blinkAccum = 2, expressionTimer = 0;
     let waveActive = false, waveTimer = 0;
+    let currentZoom = 'chest';   // 'face' | 'chest' | 'full'
+    let headWorldPos = null;     // captured after model loads
+    let baseY = 1.0;             // approximate body centre (set after load)
+
+    function applyZoom(mode) {
+      if (!camera || !headWorldPos) return;
+      currentZoom = mode;
+      // Use the captured head position as the reference frame.
+      const hx = headWorldPos.x, hy = headWorldPos.y, hz = headWorldPos.z;
+      if (mode === 'face') {
+        camera.position.set(hx, hy - 0.02, hz + 0.55);
+        camera.lookAt(hx, hy - 0.02, hz);
+      } else if (mode === 'full') {
+        // Full body — pull back, target mid-torso
+        camera.position.set(hx, baseY, hz + 2.7);
+        camera.lookAt(hx, baseY - 0.05, hz);
+      } else {
+        // chest (default) — head + shoulders + chest, room for hair / outfit overlays
+        camera.position.set(hx, hy - 0.30, hz + 1.5);
+        camera.lookAt(hx, hy - 0.32, hz);
+      }
+    }
 
     async function init(canvas) {
       if (currentCanvas === canvas && vrm) return;
@@ -3407,8 +3447,8 @@ body {
       renderer.outputColorSpace = THREE.SRGBColorSpace;
 
       scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(28, 1, 0.1, 20);
-      camera.position.set(0, 1.3, 1.4);
+      camera = new THREE.PerspectiveCamera(30, 1, 0.1, 20);
+      camera.position.set(0, 1.0, 2.0);
 
       scene.add(new THREE.AmbientLight(0xffffff, 0.85));
       const dir = new THREE.DirectionalLight(0xffffff, 0.55);
@@ -3439,14 +3479,14 @@ body {
           try { VRMUtils.removeUnnecessaryJoints(gltf.scene); } catch(_) {}
           try { VRMUtils.rotateVRM0(vrm); } catch(_) {}
           scene.add(vrm.scene);
-          // Frame on the head
+          // Capture head position once, in world space
           const head = vrm.humanoid?.getBoneNode('head');
+          headWorldPos = new THREE.Vector3(0, 1.4, 0);
           if (head) {
-            const pos = new THREE.Vector3();
-            head.getWorldPosition(pos);
-            camera.position.set(pos.x, pos.y - 0.05, pos.z + 0.78);
-            camera.lookAt(pos.x, pos.y - 0.04, pos.z);
+            head.getWorldPosition(headWorldPos);
+            baseY = headWorldPos.y - 0.6; // approximate mid-torso
           }
+          applyZoom(currentZoom);
           clock = new THREE.Clock();
           tick();
           resolve();
@@ -3519,7 +3559,7 @@ body {
       }
     }
 
-    window.__stasha3D = { init, react };
+    window.__stasha3D = { init, react, setZoom: applyZoom };
   } catch (e) {
     console.warn('Stasha 3D module failed to load — using 2D fallback.', e);
   }

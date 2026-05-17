@@ -148,6 +148,36 @@ function wardrobeEquip(itemId) {
   renderWardrobe(); // re-render shop to reflect new equipped state
 }
 
+function isTryOnMode() { return window._tryOnMode === true; }
+function toggleTryOnMode() {
+  var w = getWardrobeState();
+  if (!isTryOnMode()) {
+    // Entering try-on: save real equipped
+    w.equippedReal = Object.assign({}, w.equipped);
+    window._tryOnMode = true;
+    if (typeof lumiSay === 'function') lumiSay('Try-On Mode! Tap anything to see Stasha wear it. No stars used.');
+  } else {
+    // Exiting: restore real
+    if (w.equippedReal) {
+      w.equipped = Object.assign({}, w.equippedReal);
+      delete w.equippedReal;
+    }
+    window._tryOnMode = false;
+    if (typeof lumiSay === 'function') lumiSay('Back to your real outfit!');
+  }
+  saveState();
+  if (typeof renderStashaOverlays === 'function') renderStashaOverlays();
+  renderWardrobe();
+}
+function resetTryOnPreview() {
+  var w = getWardrobeState();
+  if (!isTryOnMode() || !w.equippedReal) return;
+  w.equipped = Object.assign({}, w.equippedReal);
+  saveState();
+  if (typeof renderStashaOverlays === 'function') renderStashaOverlays();
+  renderWardrobe();
+}
+
 function renderWardrobe() {
   var container = document.getElementById('wardrobe-content');
   if (!container) return;
@@ -202,6 +232,18 @@ function renderWardrobe() {
   header += '</div>';
   header += '<div class="wardrobe-intro">Earn stars and finish adventures to unlock new looks. Tap a tab to browse.</div>';
 
+  // Try-On Mode banner
+  var tryOnBtn = isTryOnMode()
+    ? '<button class="lesson-btn lesson-btn-done" onclick="toggleTryOnMode()">✅ Exit Try-On (keep my real outfit)</button>' +
+      '<button class="lesson-btn" onclick="resetTryOnPreview()">↺ Reset preview</button>'
+    : '<button class="lesson-btn" onclick="toggleTryOnMode()">🎀 Enter Try-On Mode (preview any item)</button>';
+  header += '<div class="tryon-row' + (isTryOnMode() ? ' active' : '') + '">';
+  header += (isTryOnMode()
+    ? '<div class="tryon-note">🎀 <strong>Try-On Mode is on.</strong> Tap anything to preview. Stars and unlocks are off. Your real outfit is saved.</div>'
+    : '<div class="tryon-note">Want to see how things look before earning them?</div>');
+  header += '<div class="tryon-buttons">' + tryOnBtn + '</div>';
+  header += '</div>';
+
   container.innerHTML = header + tabBar + body;
 
   // Wire tab clicks
@@ -212,7 +254,7 @@ function renderWardrobe() {
     };
   });
 
-  // Wire item clicks (buy or equip)
+  // Wire item clicks (buy or equip, or preview in try-on mode)
   container.querySelectorAll('.wardrobe-item').forEach(function(el) {
     var id = el.dataset.id;
     var item = WARDROBE_ITEMS.find(function(x) { return x.id === id; });
@@ -220,6 +262,19 @@ function renderWardrobe() {
     var unlocked = wardrobeIsUnlocked(item);
     var isOwned = owned.has(id);
     el.onclick = function() {
+      if (isTryOnMode()) {
+        // Preview-equip without earning or spending
+        var ws = getWardrobeState();
+        if (ws.equipped[item.cat] === id) {
+          if (['hair','outfit','pet'].indexOf(item.cat) !== -1) ws.equipped[item.cat] = null;
+        } else {
+          ws.equipped[item.cat] = id;
+        }
+        saveState();
+        if (typeof renderStashaOverlays === 'function') renderStashaOverlays();
+        renderWardrobe();
+        return;
+      }
       if (!unlocked && !isOwned) {
         if (typeof lumiSay === 'function') lumiSay('Locked! Hint: ' + wardrobeUnlockText(item));
         return;
@@ -294,6 +349,12 @@ function renderStashaScreen() {
   html += '<div class="stasha-name">Stasha 💖</div>';
   html += '<div class="stasha-bio">Anastasia\'s avatar. The better you do, the more she gets to wear.</div>';
 
+  html += '<div class="stasha-zoom-row">';
+  html += '<button class="stasha-zoom-btn" data-zoom="face" onclick="stashaZoom(\'face\')">😊 Face</button>';
+  html += '<button class="stasha-zoom-btn active" data-zoom="chest" onclick="stashaZoom(\'chest\')">👕 Chest-up</button>';
+  html += '<button class="stasha-zoom-btn" data-zoom="full" onclick="stashaZoom(\'full\')">🧍 Full body</button>';
+  html += '</div>';
+
   html += '<div class="stasha-actions">';
   html += '<button class="lesson-btn lesson-btn-done" onclick="showScreen(\'wardrobe\')">👗 Open Wardrobe (' + ownedCount + '/' + totalCount + ')</button>';
   html += '<button class="lesson-btn" onclick="stashaWave()">👋 Say Hi</button>';
@@ -351,6 +412,8 @@ function stashaWave() {
   }
 }
 
+window.toggleTryOnMode = toggleTryOnMode;
+window.resetTryOnPreview = resetTryOnPreview;
 window.renderWardrobe = renderWardrobe;
 window.renderStashaScreen = renderStashaScreen;
 window.renderStashaOverlays = renderStashaOverlays;
