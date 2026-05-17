@@ -169,9 +169,10 @@ function updateDailyTreats() {
   var qotd = (typeof getQuoteOfTheDay === 'function') ? getQuoteOfTheDay() : null;
 
   var html = '<div class="daily-treats">';
+  var ttsB = (typeof ttsButton === 'function') ? ttsButton : function(){return '';};
   if (wotd) {
     html += '<div class="treat-card" onclick="claimWotd()">' +
-      '<div class="treat-card-label">📚 Word of the Day</div>' +
+      '<div class="treat-card-label">📚 Word of the Day ' + ttsB(wotd.word + '. ' + wotd.def + '. Example: ' + wotd.sentence, 'en-US', 'Hear word') + '</div>' +
       '<div class="treat-card-headline">' + wotd.word + '</div>' +
       '<div class="treat-card-sub">' + wotd.def + '</div>' +
       '<div class="treat-card-extra">' + wotd.sentence + '</div>' +
@@ -179,7 +180,7 @@ function updateDailyTreats() {
   }
   if (iotd) {
     html += '<div class="treat-card">' +
-      '<div class="treat-card-label">💬 Idiom of the Day</div>' +
+      '<div class="treat-card-label">💬 Idiom of the Day ' + ttsB(iotd.idiom + '. It means: ' + iotd.meaning + '. Example: ' + iotd.example, 'en-US', 'Hear idiom') + '</div>' +
       '<div class="treat-card-headline">"' + iotd.idiom + '"</div>' +
       '<div class="treat-card-sub">' + iotd.meaning + '</div>' +
       '<div class="treat-card-extra">' + iotd.example + '</div>' +
@@ -187,7 +188,7 @@ function updateDailyTreats() {
   }
   if (qotd) {
     html += '<div class="treat-card">' +
-      '<div class="treat-card-label">✨ Quote of the Day</div>' +
+      '<div class="treat-card-label">✨ Quote of the Day ' + ttsB(qotd.quote + '. By ' + qotd.who, 'en-US', 'Hear quote') + '</div>' +
       '<div class="treat-card-headline">"' + qotd.quote + '"</div>' +
       '<div class="treat-card-sub">— ' + qotd.who + '</div>' +
     '</div>';

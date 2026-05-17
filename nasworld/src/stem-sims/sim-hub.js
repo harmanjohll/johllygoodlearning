@@ -6,7 +6,8 @@ var SIM_REGISTRY = null;
 function getSimRegistry() {
   if (SIM_REGISTRY) return SIM_REGISTRY;
   SIM_REGISTRY = {};
-  [simPushPull, simPlant, simShadow, simRecycle, simFloat].forEach(function(s) {
+  [simPushPull, simPlant, simShadow, simRecycle, simFloat,
+   simBalance, simMagnets, simLiving, simWater].forEach(function(s) {
     if (s) SIM_REGISTRY[s.id] = s;
   });
   return SIM_REGISTRY;

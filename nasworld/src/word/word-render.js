@@ -85,7 +85,8 @@ function renderPhonicsInitial(card, q) {
 }
 
 function renderSightPick(card, q) {
-  var html = '<div class="question-text">Find the word:</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.targetWord, 'en-US', 'Hear the word') : '';
+  var html = '<div class="question-text">Find the word: ' + tts + '</div>';
   html += '<div style="font-size:42px;margin:16px 0;font-family:var(--font-display);color:var(--gold)">' + q.targetWord + '</div>';
   html += '<div class="answer-options">' + q.options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:24px">' + o + '</button>';
@@ -95,7 +96,8 @@ function renderSightPick(card, q) {
 }
 
 function renderSightFlash(card, q) {
-  var html = '<div class="question-text">Remember this word!</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.targetWord, 'en-US', 'Hear the word') : '';
+  var html = '<div class="question-text">Remember this word! ' + tts + '</div>';
   html += '<div id="flash-word" style="font-size:48px;margin:16px 0;font-family:var(--font-display);color:var(--gold);transition:opacity 0.5s">' + q.targetWord + '</div>';
   html += '<div id="flash-options" style="display:none">';
   html += '<div class="question-text" style="font-size:20px">Which word did you see?</div>';

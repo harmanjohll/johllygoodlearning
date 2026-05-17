@@ -946,103 +946,174 @@ body {
 @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes sink-drop { 0% { transform: translateY(-130px); opacity: 0.3; } 100% { transform: translateY(0); opacity: 1; } }
 
-/* === SIGN STUDIO === */
-.world-card.sign-studio .world-card-icon { animation: float 4s ease-in-out infinite; }
-.sign-title { font-family: var(--font-display); color: var(--gold); text-align: center; margin: 8px 0; }
-.sign-blurb { text-align: center; color: var(--text-secondary); padding: 0 16px; margin: 0 0 10px; font-size: 13px; line-height: 1.5; }
-.sign-honest {
-  background: rgba(255, 207, 100, 0.1); border: 1px solid rgba(255, 207, 100, 0.35);
-  color: #ffe7a8; padding: 10px 14px; margin: 10px 12px; border-radius: var(--radius-md);
-  font-size: 12px; line-height: 1.5;
+/* === TTS — speaker buttons === */
+.tts-btn {
+  background: rgba(123,179,255,0.15); border: 1px solid rgba(123,179,255,0.35);
+  color: var(--text-primary); border-radius: 999px;
+  padding: 2px 8px; font-size: 14px; cursor: pointer;
+  vertical-align: middle; margin-left: 4px;
+  transition: all .2s;
 }
-.sign-progress { text-align: center; color: var(--text-primary); margin: 12px 0; font-size: 14px; }
-.sign-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px; padding: 0 12px;
-}
-.sign-card {
-  background: rgba(37,27,94,0.5); border: 2px solid rgba(123,179,255,0.25);
-  border-radius: var(--radius-lg); padding: 16px 12px;
-  text-align: center; cursor: pointer; transition: all 0.25s;
-}
-.sign-card:hover { transform: translateY(-3px); border-color: var(--gold); }
-.sign-card.taught { border-color: rgba(74,222,128,0.45); background: rgba(74,222,128,0.08); }
-.sign-card-emoji { font-size: 44px; margin-bottom: 4px; }
-.sign-card-label { font-family: var(--font-display); color: var(--gold); margin-bottom: 4px; }
-.sign-card-why { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; min-height: 32px; }
-.sign-card-status { font-size: 12px; color: var(--text-primary); padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); }
+.tts-btn:hover { background: rgba(255,215,0,0.25); border-color: var(--gold); transform: scale(1.1); }
+.tts-btn:active { transform: scale(0.95); }
 
-/* Sign Builder */
-.sign-ref {
-  background: rgba(123,179,255,0.12); border: 1px solid rgba(123,179,255,0.3);
-  padding: 10px 14px; margin: 10px 12px; border-radius: var(--radius-md);
-  font-size: 13px; line-height: 1.5; color: var(--text-primary);
+/* === BALANCE SIM === */
+.balance-beam { display: flex; flex-direction: column; align-items: center; }
+.balance-svg { width: 100%; max-width: 360px; }
+#balance-bar { transform-origin: 0 0; transition: transform 0.5s ease; }
+.balance-result {
+  margin-top: 8px; color: var(--text-primary); font-size: 14px;
+  background: rgba(255,255,255,0.06); border-radius: 999px;
+  padding: 6px 14px; display: inline-block;
 }
-.sign-ref a { color: var(--gold); text-decoration: underline; }
-.sign-note {
-  background: rgba(123,179,255,0.08); padding: 8px 14px;
-  margin: 0 12px 12px; border-radius: var(--radius-md);
-  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+.balance-tray {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  margin: 14px 0 8px;
 }
-.sign-preview {
-  margin: 18px auto; padding: 16px; max-width: 320px;
-  background: rgba(37,27,94,0.5); border: 1px solid rgba(255,215,0,0.25);
-  border-radius: var(--radius-lg); text-align: center;
+.balance-item {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.3);
+  border-radius: var(--radius-md); padding: 8px;
+  text-align: center; cursor: grab; user-select: none;
 }
-.sign-preview-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; }
-.sign-stasha {
-  position: relative; width: 200px; height: 240px; margin: 0 auto;
-  background: linear-gradient(180deg, #fce4f1 0%, #f5d6e8 100%);
+.balance-item:active { cursor: grabbing; }
+.balance-item-emoji { font-size: 28px; }
+.balance-item-name { font-size: 11px; color: var(--text-primary); }
+.balance-controls { display: flex; justify-content: center; margin-top: 8px; }
+
+/* === MAGNETS SIM === */
+.magnet-field {
+  position: relative;
+  height: 360px;
+  background: linear-gradient(135deg, #1a1147 0%, #2a1f5d 100%);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 2px solid rgba(181,123,255,0.3);
+}
+.magnet-item {
+  position: absolute;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: var(--radius-sm); padding: 6px;
+  text-align: center; width: 80px;
+  transition: all 0.2s;
+}
+.magnet-item:nth-child(1) { top: 12%; left: 10%; }
+.magnet-item:nth-child(2) { top: 16%; left: 60%; }
+.magnet-item:nth-child(3) { top: 38%; left: 30%; }
+.magnet-item:nth-child(4) { top: 52%; left: 72%; }
+.magnet-item:nth-child(5) { top: 68%; left: 14%; }
+.magnet-item:nth-child(6) { top: 75%; left: 55%; }
+.magnet-item:nth-child(7) { top: 28%; left: 80%; }
+.magnet-item:nth-child(8) { top: 60%; left: 5%; }
+.magnet-item.stuck { border-color: var(--gold); background: rgba(255,215,0,0.2); transform: scale(1.05); }
+.magnet-item.tested { opacity: 0.55; }
+.magnet-emoji { font-size: 28px; }
+.magnet-name { font-size: 10px; color: var(--text-primary); }
+.magnet-tool {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 60px; height: 60px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,123,219,0.18); border: 2px solid var(--pink);
+  border-radius: 50%; font-size: 36px;
+  cursor: grab; touch-action: none; user-select: none;
+  z-index: 10;
+}
+.magnet-tool:active { cursor: grabbing; }
+
+/* === LIVING vs NON-LIVING SIM === */
+.living-tray {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px;
+  background: rgba(255,255,255,0.04); border-radius: var(--radius-md);
+  min-height: 100px;
+}
+.living-item {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.3);
+  border-radius: var(--radius-md); padding: 8px;
+  text-align: center; cursor: grab; transition: all .2s;
+}
+.living-item:hover { transform: translateY(-2px); }
+.living-item:active { cursor: grabbing; }
+.living-item.placed { background: rgba(74,222,128,0.2); border-color: var(--success); }
+.living-item.shake { animation: shake 0.4s ease; }
+.living-emoji { font-size: 28px; }
+.living-name { font-size: 11px; color: var(--text-primary); }
+.living-cols {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.living-col { border-radius: var(--radius-md); padding: 10px; min-height: 140px; }
+.living-col.living-yes { background: rgba(74,222,128,0.1); border: 2px solid rgba(74,222,128,0.35); }
+.living-col.living-no  { background: rgba(188,198,204,0.1); border: 2px solid rgba(188,198,204,0.35); }
+.living-col-title { font-weight: 700; color: var(--text-primary); margin-bottom: 8px; text-align: center; }
+.living-col-body {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 6px; min-height: 80px;
+}
+.living-col-body.hover { background: rgba(255,255,255,0.06); }
+
+/* === WATER CYCLE SIM === */
+.water-scene {
+  position: relative; height: 260px;
+  background: linear-gradient(180deg, #87b8e8 0%, #c8e6f8 60%, #5fa9d4 60%, #2a7eb5 100%);
   border-radius: var(--radius-md); overflow: hidden;
+  margin-bottom: 12px;
 }
-.sign-stasha-body {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%); font-size: 120px;
+.water-sun {
+  position: absolute; top: 12px; right: 16px;
+  font-size: 36px; animation: sun-pulse-slow 4s ease-in-out infinite;
 }
-.sign-stasha-hand {
-  position: absolute; font-size: 32px; z-index: 5;
-  transform: translate(-50%, -50%); transition: top 0.6s, left 0.6s;
+@keyframes sun-pulse-slow { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+.water-cloud {
+  position: absolute; top: 18%; left: 40%;
+  font-size: 48px; opacity: 0; transition: opacity 0.8s;
 }
-.sign-stasha-hand.move-up      { animation: sign-move-up 1.2s ease-in-out; }
-.sign-stasha-hand.move-down    { animation: sign-move-down 1.2s ease-in-out; }
-.sign-stasha-hand.move-side    { animation: sign-move-side 1.2s ease-in-out; }
-.sign-stasha-hand.move-circle  { animation: sign-move-circle 1.4s ease-in-out; }
-.sign-stasha-hand.move-tap     { animation: sign-move-tap 1.0s ease-in-out; }
-.sign-stasha-hand.move-wave    { animation: sign-move-wave 1.2s ease-in-out; }
-.sign-stasha-hand.move-forward { animation: sign-move-forward 1.0s ease-out; }
-.sign-stasha-hand.move-inward  { animation: sign-move-inward 1.0s ease-out; }
-@keyframes sign-move-up      { 0%,100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -180%); } }
-@keyframes sign-move-down    { 0%,100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%,  60%); } }
-@keyframes sign-move-side    { 0%,100% { transform: translate(-50%, -50%); } 25% { transform: translate(-180%, -50%); } 75% { transform: translate(80%, -50%); } }
-@keyframes sign-move-circle  { 0%,100% { transform: translate(-50%, -50%); } 25% { transform: translate(40%, -50%); } 50% { transform: translate(-50%, 40%); } 75% { transform: translate(-180%, -50%); } }
-@keyframes sign-move-tap     { 0%,40%,80%,100% { transform: translate(-50%, -50%) scale(1); } 20%,60% { transform: translate(-50%, -50%) scale(1.25); } }
-@keyframes sign-move-wave    { 0%,100% { transform: translate(-50%, -50%) rotate(0deg); } 25% { transform: translate(-50%, -50%) rotate(-20deg); } 75% { transform: translate(-50%, -50%) rotate(20deg); } }
-@keyframes sign-move-forward { 0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0.6; } 100% { transform: translate(-50%, -50%) scale(1.4); opacity: 1; } }
-@keyframes sign-move-inward  { 0% { transform: translate(-50%, -50%) scale(1.4); opacity: 0.5; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
-.sign-play-btn { margin-top: 12px; }
+.water-cloud.show { opacity: 1; animation: cloud-drift 6s ease-in-out infinite; }
+@keyframes cloud-drift { 0%,100% { transform: translateX(0); } 50% { transform: translateX(20px); } }
+.water-vapour {
+  position: absolute; bottom: 32%; left: 10%; right: 10%; height: 100px;
+  opacity: 0; transition: opacity 0.6s;
+  pointer-events: none;
+}
+.water-vapour.show { opacity: 1; }
+.water-vapour.show::before, .water-vapour.show::after {
+  content: '💨'; position: absolute; font-size: 24px;
+  animation: vapour-rise 2.5s ease-in infinite;
+}
+.water-vapour.show::before { left: 30%; animation-delay: 0s; }
+.water-vapour.show::after  { left: 60%; animation-delay: 1s; }
+@keyframes vapour-rise { 0% { bottom: 0; opacity: 0.8; } 100% { bottom: 90px; opacity: 0; } }
+.water-rain {
+  position: absolute; top: 30%; left: 40%; width: 60px; height: 80px;
+  opacity: 0; transition: opacity 0.6s; pointer-events: none;
+}
+.water-rain.show::before {
+  content: '💧 💧 💧';  position: absolute; font-size: 18px;
+  animation: rain-fall 0.8s linear infinite;
+}
+.water-rain.show { opacity: 1; }
+@keyframes rain-fall { 0% { top: 0; opacity: 0.7; } 100% { top: 80px; opacity: 0; } }
+.water-mountain {
+  position: absolute; bottom: 32%; left: 8%; font-size: 60px;
+}
+.water-river {
+  position: absolute; bottom: 28%; left: 14%;
+  font-size: 18px; color: #fff;
+  opacity: 0; transition: opacity 0.6s;
+}
+.water-river.show { opacity: 1; }
+.water-sea {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 28%;
+  background: linear-gradient(180deg, #5fa9d4 0%, #2a7eb5 100%);
+}
+.water-stage-name {
+  font-family: var(--font-display); color: var(--gold);
+  font-size: 18px; margin-bottom: 6px;
+}
+.water-msg { color: var(--text-primary); margin-bottom: 12px; min-height: 40px; line-height: 1.5; font-size: 14px; }
 
-.sign-builder { margin: 16px 12px; }
-.sign-builder-label { font-weight: 700; color: var(--gold); margin-bottom: 12px; text-align: center; font-size: 14px; }
-.sign-picker {
-  background: rgba(37,27,94,0.4); border: 1px solid rgba(181,123,255,0.2);
-  border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px;
-}
-.sign-picker-label {
-  font-weight: 700; color: var(--text-primary); margin-bottom: 8px;
-  font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;
-}
-.sign-picker-options { display: flex; flex-wrap: wrap; gap: 6px; }
-.sign-opt {
-  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-  color: var(--text-primary); padding: 8px 12px; border-radius: 10px;
-  cursor: pointer; font-family: var(--font-body); font-size: 12px;
-  display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
-}
-.sign-opt:hover { background: rgba(255,215,0,0.1); border-color: rgba(255,215,0,0.3); }
-.sign-opt.selected { background: rgba(255,215,0,0.2); border-color: var(--gold); color: var(--gold); font-weight: 700; }
-.sign-opt-emoji { font-size: 18px; }
-.sign-opt-desc { display: block; font-size: 10px; color: var(--text-dim); margin-left: 6px; }
-.sign-save-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 18px 12px 30px; }
 
 /* === ACTIVITY SELECTION === */
 .activity-header {
@@ -3182,13 +3253,7 @@ body {
         <div class="world-card sim-hub" onclick="showScreen('sim-hub')">
           <span class="world-card-icon">&#128300;</span>
           <div class="world-card-title">STEM Lab</div>
-          <div class="world-card-desc">5 hands-on experiments: forces, plants, shadows, recycling, floating.</div>
-        </div>
-
-        <div class="world-card sign-studio" onclick="showScreen('sign-studio')">
-          <span class="world-card-icon">&#129311;</span>
-          <div class="world-card-title">Sign Studio</div>
-          <div class="world-card-desc">Teach Stasha to sign! Watch a real sign, then build it with her.</div>
+          <div class="world-card-desc">9 hands-on experiments: forces, plants, shadows, recycling, floating, balance, magnets, water cycle, and more.</div>
         </div>
         <div class="world-card garden" onclick="showScreen('garden')">
           <span class="world-card-icon">&#127800;</span>
@@ -3315,15 +3380,6 @@ body {
       <div id="sim-content"></div>
     </div>
 
-    <!-- SIGN STUDIO SCREEN -->
-    <div class="screen" id="screen-sign-studio">
-      <div id="sign-studio-content"></div>
-    </div>
-
-    <!-- SIGN BUILDER SCREEN -->
-    <div class="screen" id="screen-sign-builder">
-      <div id="sign-builder-content"></div>
-    </div>
 
     <!-- SKILL VIEW SCREEN (Learn / Explore / Quiz tabs) -->
     <div class="screen" id="screen-skill-view">

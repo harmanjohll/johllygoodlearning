@@ -59,7 +59,8 @@ function renderMalayNumber(card, q) {
 }
 
 function renderMalayNumberWord(card, q) {
-  var html = '<div class="question-text">How do you say <b>' + q.number + '</b> in Malay?</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(String(q.answer || ''), 'ms-MY', 'Hear in Malay') : '';
+  var html = '<div class="question-text">How do you say <b>' + q.number + '</b> in Malay? ' + tts + '</div>';
   html += '<div style="font-size:56px;margin:12px 0;color:var(--gold);font-weight:700">' + q.number + '</div>';
   html += _malayOptions(q, 'font-size:22px');
   html += renderHintBtn(q.hint);
@@ -67,7 +68,8 @@ function renderMalayNumberWord(card, q) {
 }
 
 function renderMalayGreet(card, q) {
-  var html = '<div class="question-text">What does <b>"' + q.prompt + '"</b> mean?</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.prompt, 'ms-MY', 'Hear in Malay') : '';
+  var html = '<div class="question-text">What does <b>"' + q.prompt + '"</b> mean? ' + tts + '</div>';
   if (q.emoji) html += '<div style="font-size:40px;margin:8px 0">' + q.emoji + '</div>';
   html += _malayOptions(q, 'font-size:18px');
   html += renderHintBtn(q.hint);
