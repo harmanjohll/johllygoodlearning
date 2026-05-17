@@ -292,13 +292,22 @@ function renderWardrobe() {
 // 2D items rendered on top of the canvas: hair, accessories, outfits as sprites,
 // pets as DOM elements, backgrounds as CSS gradients, auras as CSS shadows.
 
-// Per-item positioning. Nas drags items where she wants on Stasha and
-// then taps 🔒 to lock that spot. Tap a locked item to unlock and adjust.
-// Each item id has its own { x, y, scale, locked } saved to state.
+// Per-item positioning. Items are ANCHORED to a body landmark (a VRM
+// bone) — the 3D module projects the bone's world position to canvas
+// coords every frame, and the overlay sits at (projection + a tiny
+// 2D screen-space offset). That way, items follow Stasha when she
+// rotates or zooms, instead of floating off into empty canvas.
+//
+// Saved per item: { anchor, offsetX, offsetY, scale, locked }
+//   anchor:  bone name (head / chest / leftFoot etc.)
+//   offsetX, offsetY: percent of canvas (delta from the anchor's
+//                     projected position) — drag changes these
+//   scale:   font-size multiplier
+//   locked:  whether the toolbar shows
 var OVERLAY_DEFAULTS = {
-  hair:   { x: 50, y: 8,  scale: 1.0 },
-  outfit: { x: 50, y: 42, scale: 1.0 },
-  pet:    { x: 82, y: 88, scale: 1.0 }
+  hair:   { anchor: 'head',     offsetX: 0,  offsetY: -8, scale: 1.0 },
+  outfit: { anchor: 'chest',    offsetX: 0,  offsetY:  6, scale: 1.0 },
+  pet:    { anchor: 'leftFoot', offsetX: 14, offsetY:  0, scale: 1.0 }
 };
 
 function _ensurePositions() {
@@ -309,12 +318,27 @@ function _ensurePositions() {
 
 function getItemPos(itemId) {
   var positions = _ensurePositions();
-  if (positions[itemId]) return positions[itemId];
   var item = WARDROBE_ITEMS.find(function(x) { return x.id === itemId; });
-  var def = (item && OVERLAY_DEFAULTS[item.cat]) || { x: 50, y: 50, scale: 1.0 };
-  // Newly equipped items start UNLOCKED so Nas can position them.
-  positions[itemId] = { x: def.x, y: def.y, scale: def.scale, locked: false };
-  saveState();
+  var def = (item && OVERLAY_DEFAULTS[item.cat]) || { anchor: 'chest', offsetX: 0, offsetY: 0, scale: 1.0 };
+  var existing = positions[itemId];
+  if (!existing) {
+    positions[itemId] = { anchor: def.anchor, offsetX: def.offsetX, offsetY: def.offsetY, scale: def.scale, locked: false };
+    saveState();
+    return positions[itemId];
+  }
+  // Migrate old { x, y, scale, locked } schema (canvas % positions
+  // before the anchor system) to the new anchor-based schema. We
+  // discard old x/y since they don't translate to an anchor offset.
+  if (!existing.anchor) {
+    positions[itemId] = {
+      anchor: def.anchor,
+      offsetX: def.offsetX,
+      offsetY: def.offsetY,
+      scale: existing.scale || def.scale,
+      locked: existing.locked || false
+    };
+    saveState();
+  }
   return positions[itemId];
 }
 
@@ -342,8 +366,44 @@ function scaleItem(itemId, delta) {
 function resetItemPos(itemId) {
   var item = WARDROBE_ITEMS.find(function(x) { return x.id === itemId; });
   if (!item) return;
-  var def = OVERLAY_DEFAULTS[item.cat] || { x: 50, y: 50, scale: 1.0 };
-  updateItemPos(itemId, { x: def.x, y: def.y, scale: def.scale });
+  var def = OVERLAY_DEFAULTS[item.cat] || { anchor: 'chest', offsetX: 0, offsetY: 0, scale: 1.0 };
+  updateItemPos(itemId, { anchor: def.anchor, offsetX: def.offsetX, offsetY: def.offsetY, scale: def.scale });
+}
+
+// Per-frame hook. The 3D module calls this after every render.
+// We re-project each equipped item's anchor bone to canvas coords
+// and place the overlay there + its 2D screen offset.
+function updateOverlayPositions() {
+  var host = document.getElementById('stasha-overlay-host');
+  if (!host) return;
+  var w = getWardrobeState();
+  ['hair', 'outfit', 'pet'].forEach(function(cat) {
+    var id = w.equipped[cat];
+    if (!id) return;
+    var el = host.querySelector('.stasha-prop[data-id="' + id + '"]');
+    if (!el) return;
+    var pos = getItemPos(id);
+    var proj = (window.__stasha3D && window.__stasha3D.projectBone)
+      ? window.__stasha3D.projectBone(pos.anchor)
+      : null;
+    if (proj && !proj.behind) {
+      // Sit at the anchor's projected canvas position + per-item 2D offset.
+      var x = proj.x * 100 + (pos.offsetX || 0);
+      var y = proj.y * 100 + (pos.offsetY || 0);
+      el.style.left = x + '%';
+      el.style.top  = y + '%';
+      el.style.display = '';
+    } else if (proj && proj.behind) {
+      // The body landmark is behind the camera — hide the item.
+      el.style.display = 'none';
+    } else {
+      // No 3D loaded — fall back to fixed canvas positions.
+      var fallback = { hair: [50, 8], outfit: [50, 42], pet: [82, 88] }[cat] || [50, 50];
+      el.style.left = (fallback[0] + (pos.offsetX || 0)) + '%';
+      el.style.top  = (fallback[1] + (pos.offsetY || 0)) + '%';
+      el.style.display = '';
+    }
+  });
 }
 
 function renderStashaOverlays() {
@@ -375,9 +435,11 @@ function renderStashaOverlays() {
     var pos = getItemPos(slot.id);
     var baseSize = (slot.cat === 'outfit') ? 56 : 64;
     var fontSize = Math.round(baseSize * pos.scale);
+    // left/top are set by updateOverlayPositions on the next frame
+    // so the item starts at its anchor projection.
     html += '<div class="stasha-prop ' + (pos.locked ? 'locked' : 'unlocked') +
       '" data-id="' + slot.id + '" data-cat="' + slot.cat + '" ' +
-      'style="left:' + pos.x + '%; top:' + pos.y + '%; font-size:' + fontSize + 'px">' +
+      'style="font-size:' + fontSize + 'px">' +
       '<span class="stasha-prop-emoji">' + item.emoji + '</span>';
     if (pos.locked) {
       html += '<button class="stasha-prop-quickunlock" onclick="event.stopPropagation(); toggleItemLock(\'' + slot.id + '\')" title="Tap to adjust">🔓</button>';
@@ -393,10 +455,15 @@ function renderStashaOverlays() {
   });
   host.innerHTML = html;
   wireOverlayDragging();
+  // Run one immediate placement before the next frame, so items
+  // don't flash at (0,0) for a tick.
+  updateOverlayPositions();
 }
 
-// Drag unlocked overlays around the stage. Position is saved as a
-// percentage of the stage, so it survives canvas resizes.
+// Drag unlocked overlays. Dragging changes the 2D screen offset
+// from the item's anchor bone — so the item still tracks the bone
+// (i.e. follows her when she rotates), it just sits at a different
+// offset from the landmark.
 function wireOverlayDragging() {
   var host = document.getElementById('stasha-overlay-host');
   var stage = document.getElementById('stasha-stage');
@@ -404,36 +471,35 @@ function wireOverlayDragging() {
   host.querySelectorAll('.stasha-prop.unlocked').forEach(function(el) {
     var id = el.dataset.id;
     var dragging = false;
-    var startX = 0, startY = 0;
-    var startPosX = 0, startPosY = 0;
+    var startMouseX = 0, startMouseY = 0;
+    var startOffsetX = 0, startOffsetY = 0;
     el.addEventListener('pointerdown', function(e) {
-      // Ignore clicks on the toolbar buttons
       if (e.target.closest('.stasha-prop-toolbar')) return;
       dragging = true;
-      startX = e.clientX; startY = e.clientY;
+      startMouseX = e.clientX; startMouseY = e.clientY;
       var pos = getItemPos(id);
-      startPosX = pos.x; startPosY = pos.y;
+      startOffsetX = pos.offsetX || 0;
+      startOffsetY = pos.offsetY || 0;
       el.setPointerCapture(e.pointerId);
       e.stopPropagation();
     });
     el.addEventListener('pointermove', function(e) {
       if (!dragging) return;
       var rect = stage.getBoundingClientRect();
-      var dxPct = ((e.clientX - startX) / rect.width)  * 100;
-      var dyPct = ((e.clientY - startY) / rect.height) * 100;
-      var newX = Math.max(2, Math.min(98, startPosX + dxPct));
-      var newY = Math.max(2, Math.min(98, startPosY + dyPct));
-      el.style.left = newX + '%';
-      el.style.top  = newY + '%';
+      var dxPct = ((e.clientX - startMouseX) / rect.width)  * 100;
+      var dyPct = ((e.clientY - startMouseY) / rect.height) * 100;
+      // Update in-memory state; the per-frame positioner will
+      // re-project the anchor and add the new offset.
+      var pos = getItemPos(id);
+      pos.offsetX = Math.max(-90, Math.min(90, startOffsetX + dxPct));
+      pos.offsetY = Math.max(-90, Math.min(90, startOffsetY + dyPct));
       e.stopPropagation();
     });
     var endDrag = function(e) {
       if (!dragging) return;
       dragging = false;
-      // Persist the final position
-      var left = parseFloat(el.style.left) || startPosX;
-      var top  = parseFloat(el.style.top)  || startPosY;
-      updateItemPos(id, { x: left, y: top });
+      // Persist final offset to localStorage
+      saveState();
       e && e.stopPropagation();
     };
     el.addEventListener('pointerup', endDrag);
@@ -467,7 +533,7 @@ function renderStashaScreen() {
   html += '<div class="stasha-name">Stasha 💖</div>';
   html += '<div class="stasha-bio">Anastasia\'s avatar. The better you do, the more she gets to wear.</div>';
 
-  html += '<div class="stasha-hint">👆 Drag Stasha to rotate her. Drag her outfit items to position them — tap 🔒 when they look right. Tap 🔓 on a locked item to adjust again.</div>';
+  html += '<div class="stasha-hint">👆 Drag Stasha to rotate. Items stick to her body — drag them to adjust, tap 🔒 to lock, 🔓 to unlock.</div>';
   html += '<div class="stasha-zoom-row">';
   html += '<button class="stasha-zoom-btn" data-zoom="face" onclick="stashaZoom(\'face\')">😊 Face</button>';
   html += '<button class="stasha-zoom-btn active" data-zoom="full" onclick="stashaZoom(\'full\')">🧍 Full body</button>';
@@ -552,6 +618,9 @@ window.renderWardrobe = renderWardrobe;
 window.toggleItemLock = toggleItemLock;
 window.scaleItem = scaleItem;
 window.resetItemPos = resetItemPos;
+window.updateOverlayPositions = updateOverlayPositions;
+// Hook the 3D module's per-frame callback so item positions track bones.
+window.onStashaFrame = updateOverlayPositions;
 window.renderStashaScreen = renderStashaScreen;
 window.renderStashaOverlays = renderStashaOverlays;
 window.stashaWave = stashaWave;
