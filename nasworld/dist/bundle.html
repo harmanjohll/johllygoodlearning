@@ -3491,17 +3491,21 @@ body {
     let renderer, scene, camera, vrm, clock, currentCanvas, controls;
     let blinkAccum = 2, expressionTimer = 0;
     let waveActive = false, waveTimer = 0;
-    let currentZoom = 'chest';
+    let currentZoom = 'full';
     let headWorldPos = null;
     let baseY = 1.0;
 
-    // Rest pose — normalized humanoid: in T-pose the LEFT upper arm
-    // points along +X, the RIGHT upper arm along -X. Rotating around Z:
-    //   negative Z swings the LEFT arm down (+X → -Y)
-    //   positive Z swings the RIGHT arm down (-X → -Y)
+    // Rest pose — arms hanging down by her sides.
+    //
+    // Empirically determined for the normalized humanoid in this rig:
+    //   leftUpperArm.z  = +1.30 swings the arm DOWN (out of the +X
+    //                     T-pose direction toward -Y).
+    //   rightUpperArm.z = -1.30 swings the arm down on the other side.
+    // Small +X bend at each elbow keeps the forearms from being
+    // perfectly straight.
     const REST_POSE = {
-      leftUpperArm:  { z: -1.30 },
-      rightUpperArm: { z:  1.30 },
+      leftUpperArm:  { z:  1.30 },
+      rightUpperArm: { z: -1.30 },
       leftLowerArm:  { x:  0.10 },
       rightLowerArm: { x:  0.10 }
     };
@@ -3534,9 +3538,8 @@ body {
       currentZoom = mode;
       const hx = headWorldPos.x, hy = headWorldPos.y, hz = headWorldPos.z;
       let target, distance;
-      if (mode === 'face')      { target = new THREE.Vector3(hx,        hy,           hz); distance = 0.55; }
-      else if (mode === 'full') { target = new THREE.Vector3(hx,        baseY,        hz); distance = 2.7; }
-      else /* chest */          { target = new THREE.Vector3(hx,        hy - 0.32,    hz); distance = 1.5; }
+      if (mode === 'face') { target = new THREE.Vector3(hx, hy, hz); distance = 0.55; }
+      else /* full body */ { target = new THREE.Vector3(hx, baseY, hz); distance = 2.7; }
       // Preserve current angle, just shift target + distance
       const offset = camera.position.clone().sub(controls.target);
       if (offset.lengthSq() < 1e-6) offset.set(0, 0, 1);
@@ -13632,8 +13635,7 @@ function renderStashaScreen() {
   html += '<div class="stasha-hint">👆 Drag to rotate — left/right to spin, up/down to see top of head and shoes.</div>';
   html += '<div class="stasha-zoom-row">';
   html += '<button class="stasha-zoom-btn" data-zoom="face" onclick="stashaZoom(\'face\')">😊 Face</button>';
-  html += '<button class="stasha-zoom-btn active" data-zoom="chest" onclick="stashaZoom(\'chest\')">👕 Chest-up</button>';
-  html += '<button class="stasha-zoom-btn" data-zoom="full" onclick="stashaZoom(\'full\')">🧍 Full body</button>';
+  html += '<button class="stasha-zoom-btn active" data-zoom="full" onclick="stashaZoom(\'full\')">🧍 Full body</button>';
   html += '<button class="stasha-zoom-btn" onclick="stashaResetSpin()">↻ Face front</button>';
   html += '</div>';
 
