@@ -352,8 +352,7 @@ function renderStashaScreen() {
   html += '<div class="stasha-hint">👆 Drag to rotate — left/right to spin, up/down to see top of head and shoes.</div>';
   html += '<div class="stasha-zoom-row">';
   html += '<button class="stasha-zoom-btn" data-zoom="face" onclick="stashaZoom(\'face\')">😊 Face</button>';
-  html += '<button class="stasha-zoom-btn active" data-zoom="chest" onclick="stashaZoom(\'chest\')">👕 Chest-up</button>';
-  html += '<button class="stasha-zoom-btn" data-zoom="full" onclick="stashaZoom(\'full\')">🧍 Full body</button>';
+  html += '<button class="stasha-zoom-btn active" data-zoom="full" onclick="stashaZoom(\'full\')">🧍 Full body</button>';
   html += '<button class="stasha-zoom-btn" onclick="stashaResetSpin()">↻ Face front</button>';
   html += '</div>';
 
