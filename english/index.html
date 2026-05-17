@@ -297,7 +297,7 @@
     <div id="topic-grid"></div>
 
     <div class="footer-note">
-      <p>Built to sit alongside <a href="../lab/">/lab/ (Science)</a> and <a href="../malay/">/malay/ (Bahasa Melayu)</a>. Your Gemini API key, study streak, and effort minutes are shared across all three. Per-paper drills, model answers, and full Coach mode land in subsequent phases per <a href="../docs/english-architecture.md">docs/english-architecture.md</a>.</p>
+      <p>Built to sit alongside <a href="../lab/">/lab/ (Science)</a> and <a href="../malay/">/malay/ (Bahasa Melayu)</a>. Your Gemini API key, study streak, effort minutes, and mood log are shared across all three. Every PSLE 2026 EL section has a deep drill or sprint; nine surfaces generate fresh practice material on demand. See <a href="../docs/english-architecture.md">docs/english-architecture.md</a> for the architecture.</p>
     </div>
   </div>
 
@@ -372,9 +372,9 @@
 
     function renderCard(t) {
       const mastery = Progress.masteryPct(t.id);
-      const masteryStr = mastery > 0 ? `${mastery}% mastery` : (t.ready ? 'New' : 'Coming soon');
+      const masteryStr = mastery > 0 ? `${mastery}% mastery` : (t.ready ? 'New' : 'Not yet open');
       const url = t.ready ? `topics/${t.id}/` : '#';
-      const clickGuard = t.ready ? '' : 'onclick="event.preventDefault(); window.showToast(\'This topic page lands in a later phase.\');"';
+      const clickGuard = t.ready ? '' : 'onclick="event.preventDefault(); window.showToast(\'This topic is not yet open.\');"';
       return `
         <a class="topic-card" href="${url}" ${clickGuard}>
           <div class="topic-card-head">

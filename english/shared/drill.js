@@ -60,9 +60,9 @@
         this.container.innerHTML = `
           <div style="text-align:center;padding:2.5rem 1rem;">
             <div style="font-size:2.5rem;margin-bottom:.75rem;">🎯</div>
-            <h3 style="margin-bottom:.5rem;">Drills land in a later phase</h3>
+            <h3 style="margin-bottom:.5rem;">No drill items for this topic</h3>
             <p style="color:var(--muted);font-size:.88rem;line-height:1.55;max-width:36ch;margin:0 auto;">
-              For now, use the <strong>Quiz tab</strong> (Static or AI) or the <strong>Idioms SRS</strong> for rapid-fire practice on this topic.
+              Use the <strong>Quiz tab</strong> for AI-generated quiz items, the <strong>Idioms SRS</strong> for spaced repetition, or the relevant section <strong>Sprint</strong> from the hub.
             </p>
           </div>
         `;

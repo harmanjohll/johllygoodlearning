@@ -1,44 +1,32 @@
 # PSLE English Language Studio (`/english/`)
 
-A PSLE English Language learning Studio for Singapore Primary 6 candidates, sibling to `/malay/` (Bahasa Melayu) and `/studio/` (Science). Static HTML + vanilla JS + Google Gemini AI. **No server, no database.** Everything lives in the browser.
+A PSLE English Language learning Studio for Singapore Primary 6 candidates, sibling to `/lab/` (Science) and `/malay/` (Bahasa Melayu). Static HTML + vanilla JS + Google Gemini AI. **No server, no database.** Everything lives in the browser.
 
 ## Status
 
-**Pre-build (this commit): knowledge-base tier only.** The `/english/` site shell has not been written yet. The knowledge base under `english/knowledge-base/` is the curated foundation. The site shell is Phase 1 of the next branch.
+**Live and feature-complete for PSLE 2026.** Every section of every paper has a deep drill or sprint, and nine surfaces generate fresh practice material on demand via Gemini.
 
-See `docs/english-architecture.md` for the full Phase-1 plan (mirrors `docs/architecture.md` for `/lab/`).
-
-## What lives here today
-
-```
-english/
-├── README.md                 ← this file
-└── knowledge-base/           ← curated KBs (18 markdown files) + source/ drop zone
-    ├── SEAB_Official_EL_Format_Syllabus_2026.md   (format spine, 200 marks)
-    ├── Master_PSLE_EL_KB.md / Master_KB2.md       (AL1 craft references)
-    ├── Composition_Writing_Guide.md               (Paper 1 priority)
-    ├── Comprehension_Strategy_Guide.md            (Paper 2 priority)
-    ├── Grammar_Complete_Reference.md
-    ├── Listening_Comprehension_Guide.md           (Paper 3)
-    ├── Oral_Communication_Guide.md                (Paper 4: PACT + REAP + SBC)
-    ├── Vocabulary_Idioms_Bank.md
-    ├── Collocations_KB.md                         (170+ collocations)
-    ├── Idioms_Expanded_KB.md                      (80+ idioms with frequency tags)
-    ├── ShowDontTell_KB.md                         (45+ flat ↔ shown pairs)
-    ├── Register_KB.md                             (formal/informal markers by genre)
-    ├── Connectors_KB.md                           (60+ discourse markers)
-    ├── VisualText_Examples_KB.md                  (6 Singapore visual texts described)
-    ├── PSLE_EL_Knowledge_Schema.md                (domain tree + JSON schemas)
-    ├── PSLE_EL_Revision_Strategy.md
-    ├── Reconciliation_Notes.md                    (audit trail of KB reconciliation)
-    └── source/
-        ├── syllabus/0001_y25_sy.pdf               (SEAB EL Syllabus, canonical PDF)
-        ├── syllabus/MOE_SEAB_EL_2025_Format_Excerpts.md
-        ├── reference/Mentor_Texts.md              (3 Band-5 model essays + craft notes)
-        ├── papers/        (drop zone for past PSLE EL papers)
-        ├── workbooks/     (drop zone for publisher workbooks)
-        └── reports/       (drop zone for SEAB / MOE examiner reports)
-```
+| Component | Status |
+|---|---|
+| Hub + 12 topic pages | ✓ |
+| Compass (mood + session planner) | ✓ |
+| Daily 10 (mastery-weighted mixed test) | ✓ |
+| PSLE 2026 Countdown (20-week plan, 60 checkpoints) | ✓ |
+| Mirror (paper-readiness, mismatch nudge, wellbeing pulse, cross-site mastery) | ✓ |
+| Mega Map (with cross-paper "Bridges only" toggle) | ✓ |
+| Paper 1 simulator (timed, dual AI examiner) | ✓ |
+| Paper 2 mini simulator (60 min, auto-marked) | ✓ |
+| Section sprints: Editing, Synthesis, Grammar Cloze, Comp Cloze, Visual Text, Comp OE | ✓ |
+| Listening Practice (Web Speech, 3 curated + AI-generated) | ✓ |
+| Reading Aloud (MediaRecorder + AI coach pointer) | ✓ |
+| SBC Practice (8 stimuli + AI-generated, Coach vs Examiner mode) | ✓ |
+| Composition Builder (Examiner / Coach / Annotator modes) | ✓ |
+| Mentor Essays (3 Band-5 annotated) | ✓ |
+| Cheat Cards (4 paper-level + 12 topic-level, print-ready) | ✓ |
+| Word Lab (paste a word → calibrated AL1 card) | ✓ |
+| My Bank (saved annotated essays + word cards, patterns roll-up) | ✓ |
+| Idioms SRS (80+ idioms, SM-2 spaced) | ✓ |
+| Collocations + Connectors drills | ✓ |
 
 ## Format covered
 
@@ -54,38 +42,62 @@ PSLE English Language 2025+ syllabus (SEAB 0001), 200 marks total:
 
 See `knowledge-base/SEAB_Official_EL_Format_Syllabus_2026.md` for the full component breakdown.
 
-## Planned site layout (Phase 1, not built yet)
+## File layout
 
 ```
 english/
-├── index.html                 (hub — theme grid + streak + mastery + practice rails)
+├── index.html                 (hub — grouped CTAs + streak + plan + power-ups)
 ├── shared/
-│   ├── style.css, shared.js, storage.js, gemini.js, coach.js, content.js
-│   └── content/*.json         (projections from the markdown KBs)
-├── topics/
-│   ├── grammar/, vocab/, composition/, situational/, visual-text/
-│   ├── cloze/, editing/, synthesis/, comprehension/
-│   └── listening/, oral-reading/, oral-sbc/
-└── compass/, mirror/, review/, map/, structured/, format/, psle-tips/, how-to-use/
+│   ├── shared.js, storage.js, gemini.js, coach.js, content.js
+│   ├── drill.js, english-topic.js, spaced.js, pomodoro.js
+│   └── content/*.json         (projections of the markdown KBs)
+├── topics/                    (12 topic pages: Learn / Drill / Quiz / Mind Map)
+├── compass/, daily/, countdown/, mirror/, map/, review/
+├── structured/, simulate/, simulate-p2/, listen/, aloud/, sbc/
+├── editing/, synthesis-drill/, cloze-drill/, comp-cloze-drill/
+├── visualtext-drill/, comp-oe-drill/
+├── drills/collocations/, drills/connectors/
+├── idioms-srs/, word-lab/, bank/
+├── mentors/, cards/, strategies/, format/, how-to-use/
+└── knowledge-base/            (20+ curated markdown KBs + source/ drop zone)
 ```
 
-The full plan is in `/docs/english-architecture.md`.
-
-## Cross-site state (shared with `/lab/`, `/studio/`, `/malay/`)
+## Cross-site state (shared with `/lab/`, `/malay/`)
 
 | Key | Holds |
 |---|---|
-| `jgl.geminiKey` | **Shared** Gemini API key. One key, all four sites. |
-| `jgl.progress` | **Shared** cross-site progress (effort, sessions, wellbeing, streak) |
-| `jgl.progress.english.*` | Per-topic mastery, terms, questions for EL (Phase 1) |
+| `jgl.geminiKey` | Shared Gemini API key. One key, all three studios. |
+| `jgl.progress` | Cross-site progress (sessions, wellbeing, mood log) |
+| `english_progress` | Per-topic mastery + drill use + mind-map saves |
+| `english_meta` | Streak meta (active days, rest days used) |
+| `sciLab_progress` / `malay_progress` | Read-only inputs to the Mirror's cross-site readout |
+
+Several other studio-specific keys are documented inline in `shared/storage.js` and in the individual feature pages (e.g. `jgl.english.daily`, `jgl.english.countdown.ticks`, `jgl.english.wordlab.bank`, `jgl.english.annotator.bank`, `jgl.english.mindmap.<topicId>`).
 
 ## Running locally
 
-It's static HTML. Once Phase 1 lands, serve the repo root with any static server, then open `http://localhost:PORT/english/index.html`.
+Static HTML. Serve the repo root with any static server, then open `http://localhost:PORT/english/`.
 
 ```sh
 python -m http.server 8000
-# then http://localhost:8000/english/index.html
+# then http://localhost:8000/english/
 ```
 
 Get a free Gemini key at https://aistudio.google.com/app/apikey.
+
+## Knowledge base
+
+The studio is built on a curated knowledge base at `english/knowledge-base/`:
+
+- `SEAB_Official_EL_Format_Syllabus_2026.md` — format spine, 200 marks
+- `Master_PSLE_EL_KB.md` / `Master_KB2.md` — AL1 craft references
+- `Composition_Writing_Guide.md` — Paper 1 priority
+- `Comprehension_Strategy_Guide.md` — Paper 2 priority
+- `Grammar_Complete_Reference.md`
+- `Listening_Comprehension_Guide.md` — Paper 3
+- `Oral_Communication_Guide.md` — Paper 4 (PACT + REAP + SBC)
+- `Vocabulary_Idioms_Bank.md`, `Collocations_KB.md`, `Idioms_Expanded_KB.md`
+- `ShowDontTell_KB.md`, `Register_KB.md`, `Connectors_KB.md`
+- `VisualText_Examples_KB.md`, `ModelEssays_Annotated_KB.md`
+- `source/syllabus/0001_y25_sy.pdf` (canonical SEAB PDF)
+- `source/reference/Mentor_Texts.md` (3 Band-5 mentor essays)
