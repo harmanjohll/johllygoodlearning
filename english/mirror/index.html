@@ -121,6 +121,20 @@
     <div id="mismatch-action" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.4rem;"></div>
   </div>
 
+  <div class="section" id="wellbeing-section" style="display:none;">
+    <h3>Wellbeing pulse</h3>
+    <div class="sub" id="wellbeing-narrative">How you've felt about studying over the last fourteen days. Honest is more useful than upbeat.</div>
+    <div id="wellbeing-strip" style="display:grid;grid-template-columns:repeat(14, 1fr);gap:4px;margin:.5rem 0 .65rem;"></div>
+    <div style="display:flex;gap:.85rem;flex-wrap:wrap;font-size:.76rem;color:var(--muted);">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#f87171;vertical-align:1px;margin-right:.25rem;"></span>drained</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#fbbf24;vertical-align:1px;margin-right:.25rem;"></span>low</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#a78bfa;vertical-align:1px;margin-right:.25rem;"></span>okay</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#4ade80;vertical-align:1px;margin-right:.25rem;"></span>good</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#34d399;vertical-align:1px;margin-right:.25rem;"></span>strong</span>
+    </div>
+    <div style="font-size:.78rem;color:var(--muted);margin-top:.55rem;line-height:1.55;" id="wellbeing-tip"></div>
+  </div>
+
   <div class="section">
     <h3>Mastery by Topic</h3>
     <div class="sub">This percentage combines: visits (10), drills (30), mind maps (20), and quiz scores (40).</div>
@@ -366,6 +380,55 @@ if (totalVisits >= 4 && worstTheme !== busiestTheme && busiestShare - worstShare
     `;
   }
 }
+
+// ── Wellbeing pulse ─────────────────────────────────────────
+// Reads jgl.progress.wellbeing.recentMoodScores (most recent first by date).
+// The schema only stores scores 1-5, not dates, so we map them onto the
+// last N days (N <= 14) ending today, with a 1-day grace if Compass was
+// skipped that day.
+(function paintWellbeing() {
+  let scores = [];
+  try {
+    const p = (window.JglStorage && window.JglStorage.getProgress && window.JglStorage.getProgress()) || JSON.parse(localStorage.getItem('jgl.progress') || '{}');
+    scores = (p.wellbeing && p.wellbeing.recentMoodScores) ? p.wellbeing.recentMoodScores.slice(-14) : [];
+  } catch {}
+  if (!scores.length) return;
+
+  const COLOR = { 1: '#f87171', 2: '#fbbf24', 3: '#a78bfa', 4: '#4ade80', 5: '#34d399' };
+  const strip = document.getElementById('wellbeing-strip');
+  strip.innerHTML = '';
+  // Pad with blanks for the unfilled days
+  const pad = 14 - scores.length;
+  for (let i = 0; i < pad; i++) {
+    const cell = document.createElement('div');
+    cell.style.cssText = 'aspect-ratio:1;border-radius:3px;background:var(--surface);';
+    strip.appendChild(cell);
+  }
+  scores.forEach((s, i) => {
+    const cell = document.createElement('div');
+    cell.style.cssText = 'aspect-ratio:1;border-radius:3px;background:' + (COLOR[s] || 'var(--surface)') + ';';
+    if (i === scores.length - 1) cell.style.outline = '2px solid var(--accent)';
+    cell.title = ['', 'drained', 'low', 'okay', 'good', 'strong'][s] || '';
+    strip.appendChild(cell);
+  });
+
+  // Summary line: average + trend
+  const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+  const recent = scores.slice(-5);
+  const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
+  let tip;
+  if (scores.length >= 5 && recentAvg <= 2.2) {
+    tip = `Your last few sessions read as low or drained. That is information, not a verdict. Try a 10-minute Compass session today; pick a topic you already feel solid on.`;
+  } else if (avg >= 4) {
+    tip = `Mood is consistently good. Push one stretch session this week — Synthesis Sprint or the P1 Simulator are the high-return options.`;
+  } else if (avg >= 3) {
+    tip = `Mood is steady. The streak is the thing right now; intensity can come later.`;
+  } else {
+    tip = `Mood varies. Use the Compass to match the session to how you feel today — small wins on hard days protect the streak.`;
+  }
+  document.getElementById('wellbeing-tip').textContent = tip;
+  document.getElementById('wellbeing-section').style.display = 'block';
+})();
 
 const meta = (function(){ try { return JSON.parse(localStorage.getItem('english_meta') || '{}'); } catch { return {}; } })();
 const activeDays = new Set(meta.activeDays || []);

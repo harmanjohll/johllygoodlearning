@@ -98,6 +98,24 @@
     </p>
   </div>
 
+  <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+    <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
+    <span style="font-size:.84rem;color:var(--muted);">Two curated posters. Want a fresh one?</span>
+    <span style="flex:1;"></span>
+    <select id="gen-theme" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.82rem;font-family:inherit;">
+      <option>Road safety</option>
+      <option>Healthy eating</option>
+      <option>Recycling / environment</option>
+      <option>Reading promotion</option>
+      <option>Cyber safety</option>
+      <option>Active ageing / community</option>
+      <option>Water conservation</option>
+    </select>
+    <button class="btn btn-primary" id="btn-generate" style="font-size:.78rem;padding:.35rem .85rem;">+ Generate poster</button>
+    <button class="btn btn-secondary" id="btn-clear-generated" style="font-size:.78rem;padding:.35rem .85rem;display:none;">Clear generated</button>
+  </div>
+  <div id="gen-status" style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem;min-height:1rem;"></div>
+
   <div id="start-pane">
     <div class="start-card">
       <h2>Ready?</h2>
@@ -129,11 +147,12 @@
 
 <script src="../shared.js"></script>
 <script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
 <script>
 const QUIZ_MS = 8 * 60 * 1000;
 
 // ── Mock visual texts (no copyrighted images) ──────────────
-const STIMULI = [
+let STIMULI = [
   {
     id: 'spend-wisely',
     title: 'MAS Money Sense — "Spend Wisely, Save Daily" campaign poster',
@@ -331,6 +350,107 @@ function submit() {
 }
 
 init();
+
+// ── AI poster generator ──────────────────────────────────
+const GEN_CACHE_KEY = 'jgl.english.visualtext.generated';
+const CURATED_COUNT = STIMULI.length;
+
+(function rehydrate() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(GEN_CACHE_KEY) || '[]');
+    if (cached.length) {
+      STIMULI = STIMULI.concat(cached);
+      document.getElementById('btn-clear-generated').style.display = 'inline-block';
+    }
+  } catch {}
+})();
+
+document.getElementById('btn-generate').addEventListener('click', async () => {
+  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  const status = document.getElementById('gen-status');
+  if (!k) { status.textContent = 'No Gemini key set.'; return; }
+  if (state.startedAt && !state.submitted) {
+    if (!confirm('Add a new poster (your current attempt will be reset)?')) return;
+  }
+  const theme = document.getElementById('gen-theme').value;
+  status.textContent = `Generating a fresh ${theme.toLowerCase()} poster…`;
+  document.getElementById('btn-generate').disabled = true;
+  try {
+    const s = await generateVisualText(theme);
+    STIMULI.push(s);
+    const cached = (() => { try { return JSON.parse(localStorage.getItem(GEN_CACHE_KEY) || '[]'); } catch { return []; } })();
+    cached.push(s);
+    try { localStorage.setItem(GEN_CACHE_KEY, JSON.stringify(cached.slice(-10))); } catch {}
+    document.getElementById('btn-clear-generated').style.display = 'inline-block';
+    status.textContent = `New poster ready: "${s.title}". Start the sprint to see it.`;
+    state = { startedAt: null, submitted: false, answers: {}, timed: true };
+    document.getElementById('start-pane').style.display = '';
+    document.getElementById('quiz-pane').style.display = 'none';
+    document.getElementById('result-pane').style.display = 'none';
+    document.getElementById('result-pane').innerHTML = '';
+  } catch (e) {
+    status.textContent = 'Generator error: ' + (e?.message || e);
+  } finally {
+    document.getElementById('btn-generate').disabled = false;
+  }
+});
+
+document.getElementById('btn-clear-generated').addEventListener('click', () => {
+  if (!confirm('Remove AI-generated posters? The two curated ones stay.')) return;
+  try { localStorage.setItem(GEN_CACHE_KEY, '[]'); } catch {}
+  STIMULI = STIMULI.slice(0, CURATED_COUNT);
+  document.getElementById('btn-clear-generated').style.display = 'none';
+  document.getElementById('gen-status').textContent = '';
+});
+
+async function generateVisualText(theme) {
+  const sys = 'You are a PSLE English Paper 2 Visual Text Comprehension item writer. Output VALID JSON ONLY. Primary 6 level. Singapore-natural, realistic public campaigns. Describe the poster in text — no actual image.';
+  const prompt = `Generate ONE mock visual text item on the theme: "${theme}".
+
+Output JSON with EXACTLY:
+{
+  "id": "gen-${Date.now()}",
+  "title": "<short title naming the imagined campaign, 6-10 words>",
+  "mockHeading": "<short bold slogan, like a real poster heading>",
+  "mockBody": "<describe what is visible on the poster: images, icons, key callouts. 60-100 words.>",
+  "mockCaption": "<one line of small caption text — agency, fine print, or URL hint>",
+  "items": [
+    { "type": "Audience",  "stem": "<question>", "options": ["<A>","<B>","<C>","<D>"], "correct": <0-3>, "why": "<one-sentence why>" },
+    { "type": "Purpose",   "stem": "<question>", "options": ["<A>","<B>","<C>","<D>"], "correct": <0-3>, "why": "<one-sentence why>" },
+    { "type": "Tone",      "stem": "<question>", "options": ["<A>","<B>","<C>","<D>"], "correct": <0-3>, "why": "<one-sentence why>" },
+    { "type": "Detail",    "stem": "<question>", "options": ["<A>","<B>","<C>","<D>"], "correct": <0-3>, "why": "<one-sentence why>" },
+    { "type": "Extension", "stem": "<question>", "options": ["<A>","<B>","<C>","<D>"], "correct": <0-3>, "why": "<one-sentence why>" }
+  ]
+}
+
+Constraints:
+- The Detail question's answer must be present in mockBody or mockCaption (so it's checkable).
+- The Extension question's right answer suggests a SPECIFIC, AUDIENCE-shifted addition.
+- "correct" is a 0-based integer.
+- No emoji.`;
+
+  const json = await window.askGemini({
+    system: sys, prompt,
+    temperature: 0.7, maxTokens: 1500, thinkingBudget: 0,
+    responseMimeType: 'application/json', asJson: true,
+  });
+  if (!json || !json.mockBody || !Array.isArray(json.items)) throw new Error('Unexpected response shape.');
+  return {
+    id: json.id || ('gen-' + Date.now()),
+    title: json.title || 'AI-generated poster',
+    mockHeading: json.mockHeading || '',
+    mockBody: json.mockBody,
+    mockCaption: json.mockCaption || '',
+    items: json.items.map(it => ({
+      type: it.type || 'Detail',
+      stem: it.stem || '',
+      options: Array.isArray(it.options) ? it.options.slice(0, 4) : ['A','B','C','D'],
+      correct: typeof it.correct === 'number' ? it.correct : 0,
+      why: it.why || '',
+    })),
+    _generated: true,
+  };
+}
 </script>
 </body>
 </html>

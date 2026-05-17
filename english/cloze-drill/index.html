@@ -97,6 +97,22 @@
     </p>
   </div>
 
+  <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+    <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
+    <span style="font-size:.84rem;color:var(--muted);">One curated passage. Want a fresh one?</span>
+    <span style="flex:1;"></span>
+    <select id="gen-theme" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.82rem;font-family:inherit;">
+      <option>A trip to the library</option>
+      <option>A school CCA afternoon</option>
+      <option>A family dinner</option>
+      <option>A walk to school in the rain</option>
+      <option>A community event at the void deck</option>
+    </select>
+    <button class="btn btn-primary" id="btn-generate" style="font-size:.78rem;padding:.35rem .85rem;">+ Generate passage</button>
+    <button class="btn btn-secondary" id="btn-clear-generated" style="font-size:.78rem;padding:.35rem .85rem;display:none;">Reset to curated</button>
+  </div>
+  <div id="gen-status" style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem;min-height:1rem;"></div>
+
   <div id="start-pane">
     <div class="start-card">
       <h2>Ready?</h2>
@@ -128,12 +144,13 @@
 
 <script src="../shared.js"></script>
 <script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
 <script>
 const QUIZ_MS = 10 * 60 * 1000;
 
 // Passage: alternating strings and blank objects. Each blank carries
 // an accept-list (case-insensitive) and a `why` for review.
-const PASSAGE = {
+let PASSAGE = {
   title: 'A quiet Sunday at the wet market',
   parts: [
     "Every Sunday morning, my mother and I ",
@@ -291,6 +308,102 @@ function escapeHTML(s) {
 }
 
 init();
+
+// ── AI passage generator ─────────────────────────────────
+const GEN_CACHE_KEY = 'jgl.english.gcloze.generated';
+const CURATED = JSON.parse(JSON.stringify(PASSAGE));
+
+(function rehydrate() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(GEN_CACHE_KEY) || 'null');
+    if (cached && Array.isArray(cached.parts)) {
+      PASSAGE = cached;
+      document.getElementById('btn-clear-generated').style.display = 'inline-block';
+      document.getElementById('gen-status').textContent = 'Showing AI-generated passage from your last session.';
+    }
+  } catch {}
+})();
+
+document.getElementById('btn-generate').addEventListener('click', async () => {
+  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  const status = document.getElementById('gen-status');
+  if (!k) { status.textContent = 'No Gemini key set.'; return; }
+  if (state.startedAt && !state.submitted) {
+    if (!confirm('Replace the passage and reset the clock?')) return;
+  }
+  const theme = document.getElementById('gen-theme').value;
+  status.textContent = `Generating a fresh passage on "${theme.toLowerCase()}"…`;
+  document.getElementById('btn-generate').disabled = true;
+  try {
+    const p = await generateClozePassage(theme);
+    PASSAGE = p;
+    try { localStorage.setItem(GEN_CACHE_KEY, JSON.stringify(p)); } catch {}
+    document.getElementById('btn-clear-generated').style.display = 'inline-block';
+    status.textContent = `New passage ready: "${p.title}". Start the sprint to begin.`;
+    state = { startedAt: null, submitted: false, timed: true, answers: {} };
+    document.getElementById('start-pane').style.display = '';
+    document.getElementById('quiz-pane').style.display = 'none';
+    document.getElementById('result-pane').style.display = 'none';
+    document.getElementById('result-pane').innerHTML = '';
+  } catch (e) {
+    status.textContent = 'Generator error: ' + (e?.message || e);
+  } finally {
+    document.getElementById('btn-generate').disabled = false;
+  }
+});
+
+document.getElementById('btn-clear-generated').addEventListener('click', () => {
+  if (!confirm('Reset to the curated passage?')) return;
+  try { localStorage.removeItem(GEN_CACHE_KEY); } catch {}
+  PASSAGE = JSON.parse(JSON.stringify(CURATED));
+  document.getElementById('btn-clear-generated').style.display = 'none';
+  document.getElementById('gen-status').textContent = '';
+});
+
+async function generateClozePassage(theme) {
+  const sys = 'You are a PSLE English Paper 2 Grammar Cloze item writer. Output VALID JSON ONLY. Primary 6 level. Singapore-natural settings.';
+  const prompt = `Generate ONE Grammar Cloze passage on the theme: "${theme}".
+
+The passage is built from interleaved string segments and blank objects so it can render with input boxes. Each blank tests ONE grammar area: tense, subject-verb agreement, article, preposition, pronoun, connector, auxiliary, or quantifier.
+
+Output JSON with EXACTLY:
+{
+  "title": "<short title, 4-7 words>",
+  "parts": [
+    "<text segment ending in a space>",
+    { "id": 1, "accept": ["<canonical>", "<acceptable alternate>"], "why": "<one-sentence explanation>" },
+    "<text segment that contains the rest of the sentence>",
+    ...continue until you have EXACTLY 10 blank objects interleaved with text segments...
+  ]
+}
+
+Constraints:
+- Exactly 10 blank objects, ids 1..10 in order.
+- Each "accept" array has 1-3 strings (the canonical answer first).
+- "why" must name the grammar area being tested.
+- The passage flows as ONE coherent piece, ~120-180 words across all the text segments.
+- No emoji.`;
+
+  const json = await window.askGemini({
+    system: sys, prompt,
+    temperature: 0.55, maxTokens: 2200, thinkingBudget: 0,
+    responseMimeType: 'application/json', asJson: true,
+  });
+  if (!json || !Array.isArray(json.parts)) throw new Error('Unexpected response shape.');
+  const blanks = json.parts.filter(p => p && typeof p === 'object');
+  if (blanks.length < 5) throw new Error('Generator returned too few blanks.');
+  return {
+    title: json.title || 'AI-generated passage',
+    parts: json.parts.map(p => {
+      if (typeof p === 'string') return p;
+      return {
+        id: p.id,
+        accept: Array.isArray(p.accept) ? p.accept.map(String) : [String(p.accept || '')],
+        why: p.why || '',
+      };
+    }),
+  };
+}
 </script>
 </body>
 </html>
