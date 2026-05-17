@@ -358,6 +358,8 @@ function renderStashaScreen() {
   html += '<div class="stasha-actions">';
   html += '<button class="lesson-btn lesson-btn-done" onclick="showScreen(\'wardrobe\')">👗 Open Wardrobe (' + ownedCount + '/' + totalCount + ')</button>';
   html += '<button class="lesson-btn" onclick="stashaWave()">👋 Say Hi</button>';
+  var muted = state.preferences && state.preferences.stashaMuted;
+  html += '<button class="lesson-btn" id="stasha-mute-btn" onclick="toggleStashaMute()">' + (muted ? '🔇 Stasha muted' : '🔊 Stasha can talk') + '</button>';
   html += '</div>';
 
   // Inventory peek
@@ -402,15 +404,28 @@ function renderStashaScreen() {
     if (fb) fb.classList.remove('hidden');
   }
   renderStashaOverlays();
+  stashaScreenGreet();
 }
 
 function stashaWave() {
   if (typeof stashaReact === 'function') stashaReact('wave');
+  if (typeof stashaSayRandom === 'function') stashaSayRandom('wave');
   if (typeof lumiSay === 'function') {
     var greetings = ['Halooo!', 'Hi friend!', 'Selamat datang, princess!', 'Look at me, look at me!', 'Knock knock — Stasha here!'];
     lumiSay(greetings[Math.floor(Math.random() * greetings.length)]);
   }
 }
+
+// Trigger Stasha's opening greeting once per session per screen open.
+function stashaScreenGreet() {
+  if (window._stashaGreetedThisSession) return;
+  window._stashaGreetedThisSession = true;
+  setTimeout(function() {
+    if (typeof stashaSayRandom === 'function') stashaSayRandom('greet');
+  }, 900);
+}
+
+window.stashaScreenGreet = stashaScreenGreet;
 
 window.toggleTryOnMode = toggleTryOnMode;
 window.resetTryOnPreview = resetTryOnPreview;
