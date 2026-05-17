@@ -3485,58 +3485,73 @@ body {
   try {
     const THREE = await import('three');
     const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+    const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
     const { VRMLoaderPlugin, VRMUtils } = await import('@pixiv/three-vrm');
 
-    let renderer, scene, camera, vrm, clock, currentCanvas;
+    let renderer, scene, camera, vrm, clock, currentCanvas, controls;
     let blinkAccum = 2, expressionTimer = 0;
     let waveActive = false, waveTimer = 0;
-    let currentZoom = 'chest';   // 'face' | 'chest' | 'full'
-    let headWorldPos = null;     // captured after model loads
-    let baseY = 1.0;             // approximate body centre (set after load)
-    let baseRotY = 0;            // VRM's initial Y rotation (rotateVRM0 sets this)
-    let modelRotDelta = 0;       // user's drag-rotate offset around Y
+    let currentZoom = 'chest';
+    let headWorldPos = null;
+    let baseY = 1.0;
 
-    // Rest pose — arms by her sides instead of T-pose. Z is the
-    // axis that swings the arm in the X/Y plane. Positive Z brings
-    // the LEFT arm down (it's on +X in VRM space); negative brings
-    // the right arm down.
+    // Rest pose — normalized humanoid: in T-pose the LEFT upper arm
+    // points along +X, the RIGHT upper arm along -X. Rotating around Z:
+    //   negative Z swings the LEFT arm down (+X → -Y)
+    //   positive Z swings the RIGHT arm down (-X → -Y)
     const REST_POSE = {
-      leftUpperArm:  { z:  1.30 },
-      rightUpperArm: { z: -1.30 },
-      leftLowerArm:  { z:  0.10 },
-      rightLowerArm: { z: -0.10 },
-      leftHand:      { z:  0 },
-      rightHand:     { z:  0 }
+      leftUpperArm:  { z: -1.30 },
+      rightUpperArm: { z:  1.30 },
+      leftLowerArm:  { x:  0.10 },
+      rightLowerArm: { x:  0.10 }
     };
+    function _restBone(name) {
+      if (!vrm || !vrm.humanoid) return null;
+      try {
+        if (typeof vrm.humanoid.getNormalizedBoneNode === 'function') {
+          const n = vrm.humanoid.getNormalizedBoneNode(name);
+          if (n) return n;
+        }
+      } catch (e) {}
+      try { return vrm.humanoid.getBoneNode(name); } catch (e) { return null; }
+    }
     function applyRestPose() {
-      if (!vrm || !vrm.humanoid) return;
+      if (!vrm) return;
+      const missing = [];
       Object.keys(REST_POSE).forEach((name) => {
-        const bone = vrm.humanoid.getBoneNode(name);
-        if (!bone) return;
+        const bone = _restBone(name);
+        if (!bone) { missing.push(name); return; }
         const r = REST_POSE[name];
         if (r.x != null) bone.rotation.x = r.x;
         if (r.y != null) bone.rotation.y = r.y;
         if (r.z != null) bone.rotation.z = r.z;
       });
+      if (missing.length) console.warn('[Stasha] Missing rest-pose bones:', missing);
     }
 
     function applyZoom(mode) {
-      if (!camera || !headWorldPos) return;
+      if (!camera || !controls || !headWorldPos) return;
       currentZoom = mode;
-      // Use the captured head position as the reference frame.
       const hx = headWorldPos.x, hy = headWorldPos.y, hz = headWorldPos.z;
-      if (mode === 'face') {
-        camera.position.set(hx, hy - 0.02, hz + 0.55);
-        camera.lookAt(hx, hy - 0.02, hz);
-      } else if (mode === 'full') {
-        // Full body — pull back, target mid-torso
-        camera.position.set(hx, baseY, hz + 2.7);
-        camera.lookAt(hx, baseY - 0.05, hz);
-      } else {
-        // chest (default) — head + shoulders + chest, room for hair / outfit overlays
-        camera.position.set(hx, hy - 0.30, hz + 1.5);
-        camera.lookAt(hx, hy - 0.32, hz);
-      }
+      let target, distance;
+      if (mode === 'face')      { target = new THREE.Vector3(hx,        hy,           hz); distance = 0.55; }
+      else if (mode === 'full') { target = new THREE.Vector3(hx,        baseY,        hz); distance = 2.7; }
+      else /* chest */          { target = new THREE.Vector3(hx,        hy - 0.32,    hz); distance = 1.5; }
+      // Preserve current angle, just shift target + distance
+      const offset = camera.position.clone().sub(controls.target);
+      if (offset.lengthSq() < 1e-6) offset.set(0, 0, 1);
+      offset.normalize();
+      controls.target.copy(target);
+      camera.position.copy(target).addScaledVector(offset, distance);
+      controls.update();
+    }
+
+    function resetRotation() {
+      if (!controls || !camera) return;
+      const t = controls.target;
+      const d = camera.position.distanceTo(t);
+      camera.position.set(t.x, t.y, t.z + d);
+      controls.update();
     }
 
     async function init(canvas) {
@@ -3548,13 +3563,29 @@ body {
       renderer.outputColorSpace = THREE.SRGBColorSpace;
 
       scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(30, 1, 0.1, 20);
+      camera = new THREE.PerspectiveCamera(30, 1, 0.05, 20);
       camera.position.set(0, 1.0, 2.0);
 
-      scene.add(new THREE.AmbientLight(0xffffff, 0.85));
-      const dir = new THREE.DirectionalLight(0xffffff, 0.55);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+      const dir = new THREE.DirectionalLight(0xffffff, 0.7);
       dir.position.set(0.6, 1.6, 1.0);
       scene.add(dir);
+      const fill = new THREE.DirectionalLight(0xb8c8ff, 0.25);
+      fill.position.set(-0.6, 1.1, 0.6);
+      scene.add(fill);
+
+      // OrbitControls — full two-axis rotation around her head/torso.
+      // Pinch / wheel zoom and pan are disabled so the zoom presets stay
+      // in control of distance.
+      controls = new OrbitControls(camera, canvas);
+      controls.enableZoom = false;
+      controls.enablePan = false;
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.rotateSpeed = 0.7;
+      controls.minPolarAngle = 0.15;
+      controls.maxPolarAngle = Math.PI - 0.15;
+      controls.target.set(0, 1.0, 0);
 
       const resize = () => {
         const stage = canvas.parentElement;
@@ -3580,18 +3611,16 @@ body {
           try { VRMUtils.removeUnnecessaryJoints(gltf.scene); } catch(_) {}
           try { VRMUtils.rotateVRM0(vrm); } catch(_) {}
           scene.add(vrm.scene);
-          baseRotY = vrm.scene.rotation.y; // set by rotateVRM0 for VRM 0.x
-          modelRotDelta = 0;
-          // Capture head position once, in world space
-          const head = vrm.humanoid?.getBoneNode('head');
+
+          // Capture head position once in world space
+          const head = _restBone('head');
           headWorldPos = new THREE.Vector3(0, 1.4, 0);
           if (head) {
             head.getWorldPosition(headWorldPos);
-            baseY = headWorldPos.y - 0.6; // approximate mid-torso
+            baseY = headWorldPos.y - 0.6;
           }
           applyRestPose();
           applyZoom(currentZoom);
-          wireDragRotate(canvas);
           clock = new THREE.Clock();
           tick();
           resolve();
@@ -3599,47 +3628,10 @@ body {
       });
     }
 
-    // Drag the canvas left/right to spin Stasha. Vertical drag is ignored
-    // so she doesn't end up upside-down or sliced through the floor.
-    function wireDragRotate(canvas) {
-      let dragging = false;
-      let lastX = 0;
-      canvas.style.touchAction = 'none';
-      canvas.style.cursor = 'grab';
-      canvas.addEventListener('pointerdown', (e) => {
-        dragging = true; lastX = e.clientX;
-        canvas.setPointerCapture?.(e.pointerId);
-        canvas.style.cursor = 'grabbing';
-      });
-      canvas.addEventListener('pointermove', (e) => {
-        if (!dragging || !vrm) return;
-        const dx = e.clientX - lastX;
-        lastX = e.clientX;
-        modelRotDelta += dx * 0.012;
-        vrm.scene.rotation.y = baseRotY + modelRotDelta;
-      });
-      const stopDrag = () => {
-        dragging = false;
-        canvas.style.cursor = 'grab';
-      };
-      canvas.addEventListener('pointerup',     stopDrag);
-      canvas.addEventListener('pointercancel', stopDrag);
-      canvas.addEventListener('pointerleave',  stopDrag);
-    }
-
-    function resetRotation() {
-      modelRotDelta = 0;
-      if (vrm) vrm.scene.rotation.y = baseRotY;
-    }
-
     function tick() {
       if (!renderer || !vrm) return;
       requestAnimationFrame(tick);
       const dt = clock.getDelta();
-
-      // Breathing
-      const chest = vrm.humanoid?.getBoneNode('chest') || vrm.humanoid?.getBoneNode('spine');
-      if (chest) chest.rotation.x = Math.sin(clock.elapsedTime * 1.4) * 0.018;
 
       // Blink
       blinkAccum -= dt;
@@ -3657,8 +3649,8 @@ body {
       // restore rest pose so she doesn't snap back to T-pose.
       if (waveActive) {
         waveTimer += dt;
-        const arm = vrm.humanoid?.getBoneNode('rightUpperArm');
-        const fore = vrm.humanoid?.getBoneNode('rightLowerArm');
+        const arm = _restBone('rightUpperArm');
+        const fore = _restBone('rightLowerArm');
         if (arm) arm.rotation.z = -Math.PI * 0.55 + Math.sin(waveTimer * 8) * 0.25;
         if (fore) fore.rotation.z = -0.4;
         if (waveTimer > 1.6) {
@@ -3678,6 +3670,7 @@ body {
       }
 
       vrm.update(dt);
+      if (controls) controls.update();
       renderer.render(scene, camera);
     }
 
