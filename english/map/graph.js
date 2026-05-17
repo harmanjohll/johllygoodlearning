@@ -126,6 +126,16 @@
       });
     });
 
+    // Compute which paper(s) each topic belongs to, so phenomena can
+    // be tagged as cross-paper "bridges" (touching ≥2 of P1/P2/P3/P4).
+    const TOPIC_TO_PAPER = {
+      composition: 'P1', situational: 'P1',
+      grammar: 'P2', vocab: 'P2', 'visual-text': 'P2', cloze: 'P2',
+      editing: 'P2', synthesis: 'P2', comprehension: 'P2',
+      listening: 'P3',
+      'oral-reading': 'P4', 'oral-sbc': 'P4',
+    };
+
     // phenomena — ring 3, fan around primary topic
     STATE.data.phenomena.forEach(p => {
       const primaryId = (p.topics || [])[0];
@@ -135,9 +145,12 @@
       const spread = Math.PI / 3;
       const base = primary ? Math.atan2(primary.y - cy, primary.x - cx) : 0;
       const a = sibs.length > 1 ? base - spread / 2 + (idx / (sibs.length - 1)) * spread : base;
+      const papers = Array.from(new Set((p.topics || []).map(t => TOPIC_TO_PAPER[t]).filter(Boolean))).sort();
       addNode({
         id: p.id, kind: 'phenomenon', label: p.label,
         topics: p.topics || [], blurb: p.blurb || '',
+        papers,                   // ['P1','P2','P4'] etc.
+        isBridge: papers.length >= 2,
         x: cx + rPhen * Math.cos(a), y: cy + rPhen * Math.sin(a),
       });
     });
@@ -306,8 +319,9 @@
     sel.exit().remove();
 
     const enter = sel.enter().append('g')
-      .attr('class', d => 'node ' + d.kind)
-      .attr('data-id', d => d.id);
+      .attr('class', d => 'node ' + d.kind + (d.isBridge ? ' bridge' : ''))
+      .attr('data-id', d => d.id)
+      .attr('data-papers', d => (d.papers || []).join(','));
 
     enter.append('circle')
       .attr('r', d => nodeRadius(d))
@@ -474,6 +488,12 @@
   };
   STATE.api.nodesById = STATE.nodesById;
   STATE.api.connectedIds = connectedIds;
+
+  // Cross-paper bridge toggle. When on, non-bridge phenomena fade and
+  // non-bridge cross-link edges fade. Themes/topics stay visible.
+  STATE.api.setBridgesOnly = (on) => {
+    svg.classed('bridges-only', !!on);
+  };
 
   // ── Search + buttons wiring ──────────────────────────────
   const searchInput = document.getElementById('search');

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSLE 2026 Countdown — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 880px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+
+    .hero h1 { font-size: 1.55rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 1.25rem; }
+
+    .summary {
+      background: linear-gradient(135deg, #14302b 0%, #1e1835 100%);
+      border: 1px solid var(--accent); border-radius: 14px;
+      padding: 1.25rem 1.5rem; margin-bottom: 1.5rem;
+      display: grid; grid-template-columns: auto 1fr auto; gap: 1.25rem; align-items: center;
+    }
+    @media (max-width: 640px) { .summary { grid-template-columns: 1fr; } }
+    .countdown-num { font-family: 'IBM Plex Mono', monospace; font-size: 3.4rem; font-weight: 800; color: var(--accent); line-height: 1; }
+    .countdown-unit { font-size: .82rem; color: var(--muted); margin-top: .25rem; }
+    .countdown-meta { color: var(--text); font-size: .92rem; line-height: 1.65; }
+    .countdown-meta .head { font-weight: 700; margin-bottom: .25rem; }
+    .progress-block { font-size: .82rem; color: var(--muted); text-align: right; }
+    @media (max-width: 640px) { .progress-block { text-align: left; } }
+    .progress-block .pct { font-family: 'IBM Plex Mono', monospace; font-size: 1.5rem; color: var(--accent); font-weight: 800; }
+
+    .phase {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1rem 1.25rem; margin-bottom: 1rem;
+    }
+    .phase-head { display: flex; gap: .55rem; align-items: baseline; flex-wrap: wrap; margin-bottom: .25rem; }
+    .phase-head .pn { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-weight: 700; }
+    .phase-head .pt { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+    .phase-head .pd { font-size: .76rem; color: var(--muted); }
+    .phase-blurb { font-size: .85rem; color: var(--muted); line-height: 1.55; margin-bottom: .65rem; }
+
+    .week {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 9px;
+      padding: .65rem .85rem; margin-bottom: .5rem;
+      display: grid; grid-template-columns: 4.5rem 1fr auto; gap: .85rem; align-items: start;
+    }
+    .week.now { border-color: var(--accent); background: rgba(74,222,128,.04); }
+    .week.past { opacity: .65; }
+    .week.future { opacity: .85; }
+    .week-num { font-family: 'IBM Plex Mono', monospace; font-size: .9rem; color: var(--muted); font-weight: 700; padding-top: .15rem; }
+    .week.now .week-num { color: var(--accent); }
+    .week-body .title { font-size: .92rem; font-weight: 700; color: var(--text); margin-bottom: .25rem; }
+    .week-body .dates { font-size: .72rem; color: var(--muted); margin-bottom: .35rem; }
+
+    .checklist { list-style: none; padding: 0; margin: .25rem 0 0; }
+    .checklist li {
+      display: flex; gap: .5rem; align-items: baseline;
+      padding: .25rem 0; font-size: .85rem; color: var(--text); line-height: 1.55;
+    }
+    .checklist input[type=checkbox] { accent-color: var(--accent); margin-top: .3rem; }
+    .checklist li.done { color: var(--muted); text-decoration: line-through; }
+    .checklist li a { color: var(--accent); text-decoration: none; }
+    .checklist li a:hover { text-decoration: underline; }
+
+    .week-progress {
+      font-family: 'IBM Plex Mono', monospace; font-size: .8rem;
+      color: var(--muted); white-space: nowrap;
+    }
+    .week.now .week-progress { color: var(--accent); }
+
+    .phase-bar { display: flex; gap: 3px; margin-bottom: .65rem; }
+    .phase-bar .ph-cell { flex: 1; height: 6px; border-radius: 2px; background: var(--border); }
+    .phase-bar .ph-cell.full { background: var(--accent); }
+    .phase-bar .ph-cell.partial { background: rgba(74,222,128,.4); }
+    .phase-bar .ph-cell.now { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    .config-bar { display: flex; gap: .55rem; align-items: center; flex-wrap: wrap; background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: .55rem .85rem; margin-bottom: 1rem; font-size: .82rem; color: var(--muted); }
+    .config-bar input[type=date] { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: .25rem .45rem; font-family: inherit; font-size: .82rem; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../" class="back-link">← Hub</a>
+  <strong style="color: var(--text);">PSLE 2026 Countdown</strong>
+  <span style="color: var(--muted); font-size: .82rem;">20-week study plan with weekly checkpoints</span>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>PSLE 2026 Countdown</h1>
+    <p>
+      A 20-week run from <em>now</em> to the English papers. Each week names one focus area, links to the right
+      modes, and gives three concrete checkpoints. Tick each off as you finish; your progress is saved locally
+      and used to score the phase. <strong>Showing up beats intensity.</strong> Miss a week — fine, never miss
+      two.
+    </p>
+  </div>
+
+  <div class="config-bar">
+    <span style="font-weight:600;color:var(--text);">PSLE EL paper date</span>
+    <input type="date" id="psle-date" value="2026-09-30">
+    <span>—</span>
+    <span id="psle-date-readout"></span>
+    <span style="flex:1;"></span>
+    <button class="back-link" id="reset-ticks" style="font-size:.74rem;padding:.25rem .55rem;">Reset all checkpoints</button>
+  </div>
+
+  <div class="summary">
+    <div>
+      <div class="countdown-num" id="cd-days">—</div>
+      <div class="countdown-unit">days to go</div>
+    </div>
+    <div class="countdown-meta">
+      <div class="head" id="cd-phase-name">Loading…</div>
+      <div id="cd-phase-blurb"></div>
+    </div>
+    <div class="progress-block">
+      <div class="pct" id="cd-pct">0%</div>
+      <div>checklist completion</div>
+    </div>
+  </div>
+
+  <div id="plan-host"></div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script>
+// ── Plan model ───────────────────────────────────────────
+// Five phases × 4 weeks each = 20 weeks. Each item references a real
+// page or page-section in the studio. Items use stable IDs so the
+// localStorage ticks are durable across content edits.
+const PHASES = [
+  {
+    id: 'P1', name: 'Phase 1 — Foundations',
+    blurb: 'Lock in the AL1 craft frameworks. F.A.S.T., R.E.F., RACE, PEEL. No simulators yet.',
+    weeks: [
+      { id: 'w1', title: 'Open with sensory imagery',
+        focus: ['Composition opening hooks', 'Banned phrases'],
+        items: [
+          { id: 'w1a', label: 'Read all three mentor essays once', href: '../mentors/' },
+          { id: 'w1b', label: 'Write 1 paragraph using a sensory opening', href: '../structured/' },
+          { id: 'w1c', label: 'Daily 10 — 3 days this week', href: '../daily/' },
+        ],
+      },
+      { id: 'w2', title: 'F.A.S.T. — show every emotion',
+        focus: ['Show-don\'t-tell', 'Cheat Card: Composition'],
+        items: [
+          { id: 'w2a', label: 'Read the Composition Cheat Card', href: '../cards/' },
+          { id: 'w2b', label: 'Draft 1 composition; run the Annotator', href: '../structured/' },
+          { id: 'w2c', label: 'Save the annotated draft to your Bank', href: '../bank/' },
+        ],
+      },
+      { id: 'w3', title: 'Grammar foundations',
+        focus: ['Tense, SVA, articles, prepositions, pronouns'],
+        items: [
+          { id: 'w3a', label: 'Grammar Cloze Sprint, untimed', href: '../cloze-drill/' },
+          { id: 'w3b', label: 'Editing Sprint, untimed', href: '../editing/' },
+          { id: 'w3c', label: 'Open Grammar Foundations on the Mega Map', href: '../map/' },
+        ],
+      },
+      { id: 'w4', title: 'Comprehension OE — RACE',
+        focus: ['Restate · Answer · Cite · Explain'],
+        items: [
+          { id: 'w4a', label: 'Read the Comprehension Cheat Card', href: '../cards/' },
+          { id: 'w4b', label: 'Comprehension OE Sprint, untimed', href: '../comp-oe-drill/' },
+          { id: 'w4c', label: 'Daily 10 — 4 days this week', href: '../daily/' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'P2', name: 'Phase 2 — Build-up',
+    blurb: 'Add the technical sections. Synthesis patterns, Visual Text, vocabulary depth.',
+    weeks: [
+      { id: 'w5', title: 'Synthesis patterns',
+        focus: ['Reported speech, Despite/Although, relative, passive, conditional'],
+        items: [
+          { id: 'w5a', label: 'Read the Synthesis Cheat Card', href: '../cards/' },
+          { id: 'w5b', label: 'Synthesis Sprint × 2 attempts', href: '../synthesis-drill/' },
+          { id: 'w5c', label: 'Start Idioms SRS — 5 cards/day', href: '../idioms-srs/' },
+        ],
+      },
+      { id: 'w6', title: 'Visual Text mastery',
+        focus: ['Audience, Purpose, Tone, Detail, Extension'],
+        items: [
+          { id: 'w6a', label: 'Visual Text Sprint with curated posters', href: '../visualtext-drill/' },
+          { id: 'w6b', label: 'Generate 1 new poster, attempt it', href: '../visualtext-drill/' },
+          { id: 'w6c', label: 'Daily 10 — 5 days this week', href: '../daily/' },
+        ],
+      },
+      { id: 'w7', title: 'Vocabulary depth',
+        focus: ['Collocations, connectors, register'],
+        items: [
+          { id: 'w7a', label: 'Collocations Drill', href: '../drills/collocations/' },
+          { id: 'w7b', label: 'Connectors Drill', href: '../drills/connectors/' },
+          { id: 'w7c', label: 'Word Lab — build 3 word cards', href: '../word-lab/' },
+        ],
+      },
+      { id: 'w8', title: 'Comprehension Cloze depth',
+        focus: ['Context, collocation, grammar, register clues'],
+        items: [
+          { id: 'w8a', label: 'Comp Cloze Sprint × 1', href: '../comp-cloze-drill/' },
+          { id: 'w8b', label: 'Generate 1 new Comp Cloze passage', href: '../comp-cloze-drill/' },
+          { id: 'w8c', label: 'Review last 2 weeks via Mirror', href: '../mirror/' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'P3', name: 'Phase 3 — Mid-prep',
+    blurb: 'First timed mock papers. Listening and Oral start on the clock.',
+    weeks: [
+      { id: 'w9', title: 'First Paper 1 simulation',
+        focus: ['Situational + Continuous, 1h10m'],
+        items: [
+          { id: 'w9a', label: 'Paper 1 Simulator — full timed run', href: '../simulate/' },
+          { id: 'w9b', label: 'Save Annotator pass to your Bank', href: '../bank/' },
+          { id: 'w9c', label: 'Daily 10 every day this week', href: '../daily/' },
+        ],
+      },
+      { id: 'w10', title: 'First Paper 2 mini-sim',
+        focus: ['Booklet A + Booklet B sample, 60 min'],
+        items: [
+          { id: 'w10a', label: 'Paper 2 Mini Simulator', href: '../simulate-p2/' },
+          { id: 'w10b', label: 'Open Mirror — read paper readiness bars', href: '../mirror/' },
+          { id: 'w10c', label: 'Run sprints on the weakest 2 sections', href: '../' },
+        ],
+      },
+      { id: 'w11', title: 'Listening + Oral start',
+        focus: ['Paper 3 audio, Paper 4 Reading Aloud + SBC'],
+        items: [
+          { id: 'w11a', label: 'Listening Practice — three curated passages', href: '../listen/' },
+          { id: 'w11b', label: 'Reading Aloud — record + self-score', href: '../aloud/' },
+          { id: 'w11c', label: 'SBC Practice — pick today\'s stimulus', href: '../sbc/' },
+        ],
+      },
+      { id: 'w12', title: 'Cross-paper bridges',
+        focus: ['F.A.S.T., PEEL, RACE — bridges'],
+        items: [
+          { id: 'w12a', label: 'Mega Map — turn on "Bridges only"', href: '../map/' },
+          { id: 'w12b', label: 'Pick one bridge concept, drill both sides', href: '../map/' },
+          { id: 'w12c', label: 'Re-read the per-paper Cheat Cards', href: '../cards/' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'P4', name: 'Phase 4 — Calibration',
+    blurb: 'Repeated full simulations. The point is consistency under the clock.',
+    weeks: [
+      { id: 'w13', title: 'P1 simulation × 2',
+        focus: ['Two timed P1 attempts; compare bands'],
+        items: [
+          { id: 'w13a', label: 'P1 Simulator — attempt 1', href: '../simulate/' },
+          { id: 'w13b', label: 'P1 Simulator — attempt 2 (generated prompt)', href: '../simulate/' },
+          { id: 'w13c', label: 'Save both annotated drafts to Bank', href: '../bank/' },
+        ],
+      },
+      { id: 'w14', title: 'P2 mini × 2',
+        focus: ['Pace + accuracy; aim 40+/50'],
+        items: [
+          { id: 'w14a', label: 'P2 Mini × 1', href: '../simulate-p2/' },
+          { id: 'w14b', label: 'P2 Mini × 1 again, 5 days later', href: '../simulate-p2/' },
+          { id: 'w14c', label: 'Daily 10 every day', href: '../daily/' },
+        ],
+      },
+      { id: 'w15', title: 'Oral confidence',
+        focus: ['Reading Aloud + SBC × 3 each'],
+        items: [
+          { id: 'w15a', label: 'Reading Aloud — 3 recordings, listen back', href: '../aloud/' },
+          { id: 'w15b', label: 'SBC — 3 stimuli, ask Coach for feedback', href: '../sbc/' },
+          { id: 'w15c', label: 'Generate 1 fresh stimulus for variety', href: '../sbc/' },
+        ],
+      },
+      { id: 'w16', title: 'Listening at speed',
+        focus: ['Paper 3 — full set under timer'],
+        items: [
+          { id: 'w16a', label: 'Listening Practice — all curated passages', href: '../listen/' },
+          { id: 'w16b', label: 'Generate 2 new passages (different types)', href: '../listen/' },
+          { id: 'w16c', label: 'Review Mirror; spot any new weakness', href: '../mirror/' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'P5', name: 'Phase 5 — Polish & rest',
+    blurb: 'Light reps, mentor re-reads, Cheat Card revision. Sleep is now part of the plan.',
+    weeks: [
+      { id: 'w17', title: 'Mentor essay deep-read',
+        focus: ['F.A.S.T., R.E.F., Weather Contrast, Flashback'],
+        items: [
+          { id: 'w17a', label: 'Re-read all three mentor essays', href: '../mentors/' },
+          { id: 'w17b', label: 'Annotate one yourself, save to Bank', href: '../structured/' },
+          { id: 'w17c', label: 'Daily 10 — 5 days', href: '../daily/' },
+        ],
+      },
+      { id: 'w18', title: 'Cheat Card week',
+        focus: ['Per-paper + per-topic last-mile review'],
+        items: [
+          { id: 'w18a', label: 'Print all 12 Cheat Cards', href: '../cards/' },
+          { id: 'w18b', label: 'Read one card per day, in order', href: '../cards/' },
+          { id: 'w18c', label: 'Idioms SRS — clear all due cards', href: '../idioms-srs/' },
+        ],
+      },
+      { id: 'w19', title: 'Weakest-area sprints',
+        focus: ['Whichever sprint your Mirror flags'],
+        items: [
+          { id: 'w19a', label: 'Open Mirror — read "One honest nudge"', href: '../mirror/' },
+          { id: 'w19b', label: 'Run the relevant Sprint × 2', href: '../' },
+          { id: 'w19c', label: 'Save the second attempt to Bank', href: '../bank/' },
+        ],
+      },
+      { id: 'w20', title: 'Exam week',
+        focus: ['Sleep, light review, calm'],
+        items: [
+          { id: 'w20a', label: 'Re-read the per-paper Cheat Cards once', href: '../cards/' },
+          { id: 'w20b', label: 'Sleep 9 hours every night this week', href: '../strategies/' },
+          { id: 'w20c', label: 'On the morning of the paper: open ONE Cheat Card', href: '../cards/' },
+        ],
+      },
+    ],
+  },
+];
+
+const ITEM_KEY = 'jgl.english.countdown.ticks';
+const DATE_KEY = 'jgl.english.countdown.psleDate';
+
+function loadTicks() { try { return JSON.parse(localStorage.getItem(ITEM_KEY) || '{}'); } catch { return {}; } }
+function saveTicks(t) { try { localStorage.setItem(ITEM_KEY, JSON.stringify(t)); } catch {} }
+function loadDate() { return localStorage.getItem(DATE_KEY) || '2026-09-30'; }
+function saveDate(d) { try { localStorage.setItem(DATE_KEY, d); } catch {} }
+
+const pseleDateInput = document.getElementById('psle-date');
+pseleDateInput.value = loadDate();
+pseleDateInput.addEventListener('change', () => { saveDate(pseleDateInput.value); render(); });
+document.getElementById('reset-ticks').addEventListener('click', () => {
+  if (!confirm('Clear ALL checkpoint ticks?')) return;
+  saveTicks({});
+  render();
+});
+
+function daysUntil(dateStr) {
+  const target = new Date(dateStr + 'T00:00:00');
+  const today  = new Date(); today.setHours(0,0,0,0);
+  return Math.round((target - today) / 86400000);
+}
+
+function weeksUntil(dateStr) {
+  return Math.max(0, Math.ceil(daysUntil(dateStr) / 7));
+}
+
+function flatWeeks() {
+  const out = [];
+  PHASES.forEach(ph => ph.weeks.forEach((w, idx) => out.push({ ...w, phase: ph, gIdx: out.length })));
+  return out;
+}
+
+function currentWeekIdx() {
+  // Position the student so that the LAST week ends ON the PSLE date.
+  // If we have 20 weeks total and W weeks remain, the current week is
+  // 20 - W (clamped). When W >= 20, we're before the plan starts; when
+  // W <= 0, the plan is complete.
+  const W = weeksUntil(loadDate());
+  return Math.max(0, Math.min(20, 20 - W));
+}
+
+function render() {
+  const ticks = loadTicks();
+  const all = flatWeeks();
+  const days = daysUntil(loadDate());
+  const cwi  = currentWeekIdx();
+
+  document.getElementById('cd-days').textContent = days >= 0 ? days : Math.abs(days) + ' over';
+  document.getElementById('psle-date-readout').textContent = new Date(loadDate() + 'T00:00:00')
+    .toLocaleDateString('en-SG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Phase summary at the top
+  const currentWeek = all[Math.min(cwi, 19)];
+  if (currentWeek) {
+    document.getElementById('cd-phase-name').textContent = currentWeek.phase.name + ' · Week ' + (cwi + 1);
+    document.getElementById('cd-phase-blurb').textContent = currentWeek.phase.blurb + ' Right now: ' + currentWeek.title + '.';
+  }
+
+  // Overall checklist %
+  let totalItems = 0, doneItems = 0;
+  all.forEach(w => w.items.forEach(it => { totalItems += 1; if (ticks[it.id]) doneItems += 1; }));
+  const pct = totalItems ? Math.round((doneItems / totalItems) * 100) : 0;
+  document.getElementById('cd-pct').textContent = pct + '%';
+
+  // Render phases + weeks
+  const host = document.getElementById('plan-host');
+  host.innerHTML = '';
+  let gIdx = 0;
+  PHASES.forEach(phase => {
+    const phaseEl = document.createElement('div');
+    phaseEl.className = 'phase';
+    // Phase progress bar: one cell per week, filled by completion ratio
+    const cells = phase.weeks.map((w, i) => {
+      const wIdx = gIdx + i;
+      const done = w.items.filter(it => ticks[it.id]).length;
+      const total = w.items.length;
+      let cls = 'ph-cell';
+      if (done === total && total > 0) cls += ' full';
+      else if (done > 0)               cls += ' partial';
+      if (wIdx === cwi)                cls += ' now';
+      return `<div class="${cls}" title="Week ${wIdx + 1}: ${done}/${total}"></div>`;
+    }).join('');
+
+    const weeksHTML = phase.weeks.map((w, i) => {
+      const wIdx = gIdx + i;
+      const status = wIdx < cwi ? 'past' : (wIdx === cwi ? 'now' : 'future');
+      const startDay = (wIdx + 1) * 7;
+      const startDate = new Date(loadDate() + 'T00:00:00');
+      startDate.setDate(startDate.getDate() - (20 * 7) + (wIdx) * 7);
+      const endDate = new Date(startDate); endDate.setDate(endDate.getDate() + 6);
+      const datesStr = startDate.toLocaleDateString('en-SG', { day: 'numeric', month: 'short' }) + ' – ' +
+                       endDate.toLocaleDateString('en-SG', { day: 'numeric', month: 'short' });
+
+      const itemsHTML = w.items.map(it => {
+        const checked = !!ticks[it.id];
+        return `
+          <li class="${checked ? 'done' : ''}">
+            <input type="checkbox" data-id="${it.id}" ${checked ? 'checked' : ''}>
+            <span><a href="${it.href}">${escapeHTML(it.label)}</a></span>
+          </li>
+        `;
+      }).join('');
+
+      const done = w.items.filter(it => ticks[it.id]).length;
+      const total = w.items.length;
+
+      return `
+        <div class="week ${status}" data-w="${w.id}">
+          <div class="week-num">W${wIdx + 1}${wIdx === cwi ? ' →' : ''}</div>
+          <div class="week-body">
+            <div class="title">${escapeHTML(w.title)}</div>
+            <div class="dates">${datesStr}${w.focus ? ' · ' + w.focus.map(escapeHTML).join(' · ') : ''}</div>
+            <ul class="checklist">${itemsHTML}</ul>
+          </div>
+          <div class="week-progress">${done}/${total}</div>
+        </div>
+      `;
+    }).join('');
+
+    phaseEl.innerHTML = `
+      <div class="phase-head">
+        <span class="pn">${phase.id}</span>
+        <span class="pt">${escapeHTML(phase.name)}</span>
+        <span class="pd">· weeks ${gIdx + 1}–${gIdx + phase.weeks.length}</span>
+      </div>
+      <div class="phase-bar">${cells}</div>
+      <div class="phase-blurb">${escapeHTML(phase.blurb)}</div>
+      ${weeksHTML}
+    `;
+    host.appendChild(phaseEl);
+    gIdx += phase.weeks.length;
+  });
+
+  // Bind checkboxes
+  host.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const ticks = loadTicks();
+      ticks[cb.dataset.id] = cb.checked;
+      saveTicks(ticks);
+      // Cheap re-render to update counts and percentage
+      render();
+    });
+  });
+}
+
+function escapeHTML(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+render();
+</script>
+</body>
+</html>

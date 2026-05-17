@@ -83,10 +83,28 @@
     .node.focus circle { stroke-width: 3.6; }
     .node.match circle { stroke: #fde68a !important; stroke-width: 2.5; }
 
+    /* Cross-paper bridge nodes — a small ring of highlight so they read
+       as different even before the bridges-only toggle is on. */
+    .node.bridge circle { stroke-width: 2.4; }
+    .node.bridge text { font-weight: 700; }
+
+    /* Bridges-only mode: anything that is NOT a theme, a topic, or a
+       bridge phenomenon fades. Edges where both endpoints aren't visible
+       also fade. */
+    #svg.bridges-only g.node.phenomenon:not(.bridge) circle { opacity: .08; }
+    #svg.bridges-only g.node.phenomenon:not(.bridge) text   { opacity: .12; }
+    #svg.bridges-only path.edge:not(.cross)                { opacity: .08; }
+
     .edge { fill: none; stroke-width: 1.2; opacity: .55; transition: opacity .35s ease, stroke-width .35s ease; }
     .edge.cross { stroke-dasharray: 4 3; }
     .edge.dim { opacity: .12; }
     .edge.active { opacity: 1; stroke-width: 2.2; }
+
+    #bridges-btn.active {
+      background: rgba(74,222,128,.10);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
 
     .tooltip {
       position: absolute; pointer-events: none;
@@ -172,6 +190,7 @@
     </div>
     <span class="spacer"></span>
     <input id="search" class="search" type="search" placeholder="Search (press /)" aria-label="Search the map">
+    <button id="bridges-btn" class="btn btn-ghost" style="font-size:.7rem" title="Show only phenomena that span multiple papers">🌉 Bridges only</button>
     <button id="unpin-btn" class="btn btn-ghost" style="font-size:.7rem" title="Release all pinned nodes">Unpin all</button>
     <button id="center-btn" class="btn btn-ghost" style="font-size:.7rem" title="Reset zoom &amp; centre">Centre</button>
   </header>
@@ -242,7 +261,16 @@ function renderFocus(node) {
       <div class="progress-bar-wrap" style="margin-top:.3rem;max-width:180px;"><div class="progress-bar-fill" style="width:${pct}%;background:${colour};"></div></div>
     </div>`;
   }
-  focusCard.innerHTML = `<div class="fk">${tk}</div><div class="fl">${escapeHtml(node.label)}</div>${body ? '<div class="ft">' + escapeHtml(body) + '</div>' : ''}${masteryBlock}${link}`;
+  // Cross-paper papers tag for phenomena
+  let papersBlock = '';
+  if (node.kind === 'phenomenon' && Array.isArray(node.papers) && node.papers.length) {
+    const PAPER_COLOR = { P1: '#fb7185', P2: '#60a5fa', P3: '#e879f9', P4: '#fbbf24' };
+    const chips = node.papers.map(p => `<span style="display:inline-block;font-size:.65rem;padding:.12rem .5rem;border-radius:99px;border:1px solid ${PAPER_COLOR[p] || 'var(--border)'};color:${PAPER_COLOR[p] || 'var(--muted)'};font-weight:700;margin-right:.25rem;">${p}</span>`).join('');
+    const bridgeTag = node.isBridge ? ` <span style="font-size:.68rem;color:var(--accent);font-weight:700;">🌉 bridges ${node.papers.length} papers</span>` : '';
+    papersBlock = `<div style="margin-top:.6rem;font-size:.78rem;color:var(--muted);">${chips}${bridgeTag}</div>`;
+  }
+
+  focusCard.innerHTML = `<div class="fk">${tk}</div><div class="fl">${escapeHtml(node.label)}</div>${body ? '<div class="ft">' + escapeHtml(body) + '</div>' : ''}${papersBlock}${masteryBlock}${link}`;
 
   let probeText = '';
   if (node.kind === 'theme') {
@@ -274,6 +302,20 @@ function renderFocus(node) {
 }
 
 MM.api.onFocus = renderFocus;
+
+// Bridges-only toggle: a button up top that filters the map down to
+// cross-paper phenomena. The page tracks state itself so re-clicks
+// toggle the SVG class on/off.
+let bridgesOn = false;
+const bridgesBtn = document.getElementById('bridges-btn');
+if (bridgesBtn) {
+  bridgesBtn.addEventListener('click', () => {
+    bridgesOn = !bridgesOn;
+    MM.api.setBridgesOnly(bridgesOn);
+    bridgesBtn.classList.toggle('active', bridgesOn);
+    bridgesBtn.textContent = bridgesOn ? '🌉 Bridges on' : '🌉 Bridges only';
+  });
+}
 
 function escapeHtml(s) {
   return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
