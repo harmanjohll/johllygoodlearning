@@ -293,8 +293,8 @@ function renderWardrobe() {
 // pets as DOM elements, backgrounds as CSS gradients, auras as CSS shadows.
 
 function renderStashaOverlays() {
-  var host = document.getElementById('stasha-overlay');
-  if (!host) return;
+  // Bail if we're not on the Stasha screen (no stage element yet).
+  if (!document.getElementById('stasha-stage')) return;
   var w = getWardrobeState();
 
   var bgItem = WARDROBE_ITEMS.find(function(x) { return x.id === w.equipped.background; });

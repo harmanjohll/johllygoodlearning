@@ -708,13 +708,13 @@ body {
 .stasha-aura.aura-galaxy-aura    { box-shadow: 0 0 180px 60px rgba(181,123,255,0.5) inset, 0 0 120px rgba(123,179,255,0.4), 0 0 80px rgba(255,123,219,0.3); animation: pulse-glow 4s ease-in-out infinite; }
 
 .stasha-overlay-item {
-  position: absolute; pointer-events: none; font-size: 48px;
-  z-index: 5; transition: transform 0.3s;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  position: absolute; pointer-events: none;
+  z-index: 5; transition: transform 0.3s, top 0.3s, bottom 0.3s;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45));
 }
-.stasha-hair   { top: 8%;  left: 50%; transform: translateX(-50%); }
-.stasha-outfit { bottom: 30%; left: 50%; transform: translateX(-50%); font-size: 38px; opacity: 0.85; }
-.stasha-pet    { bottom: 8%; right: 8%; font-size: 44px; animation: float 3s ease-in-out infinite; }
+.stasha-hair   { top: 6%;  left: 50%; transform: translateX(-50%); font-size: 56px; }
+.stasha-outfit { top: 38%; left: 50%; transform: translateX(-50%); font-size: 48px; }
+.stasha-pet    { bottom: 6%; right: 10%; font-size: 56px; animation: float 3s ease-in-out infinite; }
 
 .stasha-hint {
   font-size: 11px; color: var(--text-secondary); margin: 8px 0 0;
@@ -3648,14 +3648,17 @@ body {
         blinkAccum = 2 + Math.random() * 3;
       }
 
-      // Wave animation — raise her right arm up and waggle it, then
-      // restore rest pose so she doesn't snap back to T-pose.
+      // Wave — raise her right arm UP beside her face and waggle it.
+      // The right upper arm's rest position is z = -1.30 (down). To
+      // bring it up to head height, we rotate the OTHER way: z = +π/2
+      // (~+1.57). Going further negative would swing it backwards,
+      // which is what was happening before.
       if (waveActive) {
         waveTimer += dt;
         const arm = _restBone('rightUpperArm');
         const fore = _restBone('rightLowerArm');
-        if (arm) arm.rotation.z = -Math.PI * 0.55 + Math.sin(waveTimer * 8) * 0.25;
-        if (fore) fore.rotation.z = -0.4;
+        if (arm)  arm.rotation.z  = Math.PI * 0.5 + Math.sin(waveTimer * 8) * 0.25;
+        if (fore) fore.rotation.x = 0.30;   // slight elbow bend forward
         if (waveTimer > 1.6) {
           waveActive = false;
           applyRestPose();
