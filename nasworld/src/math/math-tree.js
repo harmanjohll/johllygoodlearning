@@ -5,13 +5,14 @@
 const MATH_TREE = {
   // === P1 Foundation ===
   count:  { id:'count',  name:'Counting & Ten Frames', icon:'\uD83D\uDD1F', grade:'P1 Foundation', deps:[], desc:'Count objects and use ten frames' },
-  nbond:  { id:'nbond',  name:'Number Bonds',          icon:'\uD83D\uDD17', grade:'P1 Foundation', deps:['count'], desc:'Break numbers into parts' },
-  add:    { id:'add',    name:'Addition',               icon:'\u2795',       grade:'P1 Foundation', deps:['count'], desc:'Put numbers together' },
-  sub:    { id:'sub',    name:'Subtraction',            icon:'\u2796',       grade:'P1 Foundation', deps:['count'], desc:'Take numbers apart' },
-  cmp:    { id:'cmp',    name:'Comparing Numbers',      icon:'\u2696\uFE0F', grade:'P1 Foundation', deps:['count'], desc:'Which is bigger or smaller?' },
-  pat:    { id:'pat',    name:'Patterns',               icon:'\uD83D\uDD36', grade:'P1 Foundation', deps:['count'], desc:'Find and complete patterns' },
-  wp1:    { id:'wp1',    name:'Story Problems',         icon:'\uD83D\uDCDD', grade:'P1 Foundation', deps:['add','sub'], desc:'Solve real-world puzzles' },
+  nbond:  { id:'nbond',  name:'Number Bonds',          icon:'\uD83D\uDD17', grade:'P1 Foundation', deps:[], desc:'Break numbers into parts' },
+  add:    { id:'add',    name:'Addition',               icon:'\u2795',       grade:'P1 Foundation', deps:[], desc:'Put numbers together' },
+  sub:    { id:'sub',    name:'Subtraction',            icon:'\u2796',       grade:'P1 Foundation', deps:[], desc:'Take numbers apart' },
+  cmp:    { id:'cmp',    name:'Comparing Numbers',      icon:'\u2696\uFE0F', grade:'P1 Foundation', deps:[], desc:'Which is bigger or smaller?' },
+  pat:    { id:'pat',    name:'Patterns',               icon:'\uD83D\uDD36', grade:'P1 Foundation', deps:[], desc:'Find and complete patterns' },
+  wp1:    { id:'wp1',    name:'Story Problems',         icon:'\uD83D\uDCDD', grade:'P1 Foundation', deps:[], desc:'Solve real-world puzzles' },
   shp:    { id:'shp',    name:'Shape Explorer',         icon:'\uD83D\uDD37', grade:'P1 Foundation', deps:[], desc:'Discover 2D shapes' },
+  time1:  { id:'time1',  name:'Telling Time',           icon:'\uD83D\uDD50', grade:'P1 Foundation', deps:[], desc:'Read clocks \u2014 hour and half-hour' },
 
   // === P2 Expansion ===
   add100: { id:'add100', name:'Addition to 100',        icon:'\u2795',       grade:'P2 Expansion', deps:['add','nbond'], desc:'Add bigger numbers with regrouping' },
@@ -20,7 +21,6 @@ const MATH_TREE = {
   div:    { id:'div',    name:'Division',               icon:'\u2797',       grade:'P2 Expansion', deps:['mul'], desc:'Equal sharing and grouping' },
   frac1:  { id:'frac1',  name:'Fractions Basics',       icon:'\uD83E\uDD67', grade:'P2 Expansion', deps:['div'], desc:'Halves, thirds, quarters' },
   money:  { id:'money',  name:'Money',                  icon:'\uD83D\uDCB0', grade:'P2 Expansion', deps:['add100','sub100'], desc:'Singapore dollars and cents' },
-  time1:  { id:'time1',  name:'Time',                   icon:'\uD83D\uDD50', grade:'P2 Expansion', deps:['count'], desc:'Read clocks and tell time' },
   pgraph: { id:'pgraph', name:'Picture Graphs',         icon:'\uD83D\uDCCA', grade:'P2 Expansion', deps:['count','add'], desc:'Read and make graphs' },
   lenmass:{ id:'lenmass',name:'Length & Mass',           icon:'\uD83D\uDCCF', grade:'P2 Expansion', deps:['cmp'], desc:'Comparing and measuring' },
 

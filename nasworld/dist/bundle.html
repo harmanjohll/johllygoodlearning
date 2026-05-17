@@ -701,6 +701,24 @@ body {
 .stasha-outfit { bottom: 30%; left: 50%; transform: translateX(-50%); font-size: 38px; opacity: 0.85; }
 .stasha-pet    { bottom: 8%; right: 8%; font-size: 44px; animation: float 3s ease-in-out infinite; }
 
+.stasha-zoom-row { display: flex; gap: 6px; justify-content: center; margin: 14px 0 0; flex-wrap: wrap; }
+.stasha-zoom-btn {
+  background: rgba(37,27,94,0.6); border: 1px solid rgba(181,123,255,0.3);
+  color: var(--text-primary); padding: 6px 12px; border-radius: 999px;
+  font-family: var(--font-body); font-size: 12px; cursor: pointer; transition: all 0.2s;
+}
+.stasha-zoom-btn:hover { background: rgba(255,215,0,0.15); }
+.stasha-zoom-btn.active { background: rgba(255,215,0,0.25); border-color: var(--gold); color: var(--gold); font-weight: 700; }
+
+.tryon-row {
+  background: rgba(255,123,219,0.08); border: 1px solid rgba(255,123,219,0.25);
+  border-radius: var(--radius-md); padding: 12px 14px; margin: 10px 0 14px;
+  text-align: center;
+}
+.tryon-row.active { background: rgba(255,123,219,0.18); border-color: rgba(255,123,219,0.55); }
+.tryon-note { font-size: 13px; color: var(--text-primary); margin-bottom: 8px; line-height: 1.5; }
+.tryon-buttons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
 .stasha-name { font-family: var(--font-display); font-size: 26px; color: var(--gold); margin: 14px 0 4px; }
 .stasha-bio { font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; }
 .stasha-actions { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
@@ -3397,6 +3415,28 @@ body {
     let renderer, scene, camera, vrm, clock, currentCanvas;
     let blinkAccum = 2, expressionTimer = 0;
     let waveActive = false, waveTimer = 0;
+    let currentZoom = 'chest';   // 'face' | 'chest' | 'full'
+    let headWorldPos = null;     // captured after model loads
+    let baseY = 1.0;             // approximate body centre (set after load)
+
+    function applyZoom(mode) {
+      if (!camera || !headWorldPos) return;
+      currentZoom = mode;
+      // Use the captured head position as the reference frame.
+      const hx = headWorldPos.x, hy = headWorldPos.y, hz = headWorldPos.z;
+      if (mode === 'face') {
+        camera.position.set(hx, hy - 0.02, hz + 0.55);
+        camera.lookAt(hx, hy - 0.02, hz);
+      } else if (mode === 'full') {
+        // Full body — pull back, target mid-torso
+        camera.position.set(hx, baseY, hz + 2.7);
+        camera.lookAt(hx, baseY - 0.05, hz);
+      } else {
+        // chest (default) — head + shoulders + chest, room for hair / outfit overlays
+        camera.position.set(hx, hy - 0.30, hz + 1.5);
+        camera.lookAt(hx, hy - 0.32, hz);
+      }
+    }
 
     async function init(canvas) {
       if (currentCanvas === canvas && vrm) return;
@@ -3407,8 +3447,8 @@ body {
       renderer.outputColorSpace = THREE.SRGBColorSpace;
 
       scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(28, 1, 0.1, 20);
-      camera.position.set(0, 1.3, 1.4);
+      camera = new THREE.PerspectiveCamera(30, 1, 0.1, 20);
+      camera.position.set(0, 1.0, 2.0);
 
       scene.add(new THREE.AmbientLight(0xffffff, 0.85));
       const dir = new THREE.DirectionalLight(0xffffff, 0.55);
@@ -3439,14 +3479,14 @@ body {
           try { VRMUtils.removeUnnecessaryJoints(gltf.scene); } catch(_) {}
           try { VRMUtils.rotateVRM0(vrm); } catch(_) {}
           scene.add(vrm.scene);
-          // Frame on the head
+          // Capture head position once, in world space
           const head = vrm.humanoid?.getBoneNode('head');
+          headWorldPos = new THREE.Vector3(0, 1.4, 0);
           if (head) {
-            const pos = new THREE.Vector3();
-            head.getWorldPosition(pos);
-            camera.position.set(pos.x, pos.y - 0.05, pos.z + 0.78);
-            camera.lookAt(pos.x, pos.y - 0.04, pos.z);
+            head.getWorldPosition(headWorldPos);
+            baseY = headWorldPos.y - 0.6; // approximate mid-torso
           }
+          applyZoom(currentZoom);
           clock = new THREE.Clock();
           tick();
           resolve();
@@ -3519,7 +3559,7 @@ body {
       }
     }
 
-    window.__stasha3D = { init, react };
+    window.__stasha3D = { init, react, setZoom: applyZoom };
   } catch (e) {
     console.warn('Stasha 3D module failed to load — using 2D fallback.', e);
   }
@@ -6171,13 +6211,14 @@ function renderFlashcards(container, cards, skillId, onComplete) {
 const MATH_TREE = {
   // === P1 Foundation ===
   count:  { id:'count',  name:'Counting & Ten Frames', icon:'\uD83D\uDD1F', grade:'P1 Foundation', deps:[], desc:'Count objects and use ten frames' },
-  nbond:  { id:'nbond',  name:'Number Bonds',          icon:'\uD83D\uDD17', grade:'P1 Foundation', deps:['count'], desc:'Break numbers into parts' },
-  add:    { id:'add',    name:'Addition',               icon:'\u2795',       grade:'P1 Foundation', deps:['count'], desc:'Put numbers together' },
-  sub:    { id:'sub',    name:'Subtraction',            icon:'\u2796',       grade:'P1 Foundation', deps:['count'], desc:'Take numbers apart' },
-  cmp:    { id:'cmp',    name:'Comparing Numbers',      icon:'\u2696\uFE0F', grade:'P1 Foundation', deps:['count'], desc:'Which is bigger or smaller?' },
-  pat:    { id:'pat',    name:'Patterns',               icon:'\uD83D\uDD36', grade:'P1 Foundation', deps:['count'], desc:'Find and complete patterns' },
-  wp1:    { id:'wp1',    name:'Story Problems',         icon:'\uD83D\uDCDD', grade:'P1 Foundation', deps:['add','sub'], desc:'Solve real-world puzzles' },
+  nbond:  { id:'nbond',  name:'Number Bonds',          icon:'\uD83D\uDD17', grade:'P1 Foundation', deps:[], desc:'Break numbers into parts' },
+  add:    { id:'add',    name:'Addition',               icon:'\u2795',       grade:'P1 Foundation', deps:[], desc:'Put numbers together' },
+  sub:    { id:'sub',    name:'Subtraction',            icon:'\u2796',       grade:'P1 Foundation', deps:[], desc:'Take numbers apart' },
+  cmp:    { id:'cmp',    name:'Comparing Numbers',      icon:'\u2696\uFE0F', grade:'P1 Foundation', deps:[], desc:'Which is bigger or smaller?' },
+  pat:    { id:'pat',    name:'Patterns',               icon:'\uD83D\uDD36', grade:'P1 Foundation', deps:[], desc:'Find and complete patterns' },
+  wp1:    { id:'wp1',    name:'Story Problems',         icon:'\uD83D\uDCDD', grade:'P1 Foundation', deps:[], desc:'Solve real-world puzzles' },
   shp:    { id:'shp',    name:'Shape Explorer',         icon:'\uD83D\uDD37', grade:'P1 Foundation', deps:[], desc:'Discover 2D shapes' },
+  time1:  { id:'time1',  name:'Telling Time',           icon:'\uD83D\uDD50', grade:'P1 Foundation', deps:[], desc:'Read clocks \u2014 hour and half-hour' },
 
   // === P2 Expansion ===
   add100: { id:'add100', name:'Addition to 100',        icon:'\u2795',       grade:'P2 Expansion', deps:['add','nbond'], desc:'Add bigger numbers with regrouping' },
@@ -6186,7 +6227,6 @@ const MATH_TREE = {
   div:    { id:'div',    name:'Division',               icon:'\u2797',       grade:'P2 Expansion', deps:['mul'], desc:'Equal sharing and grouping' },
   frac1:  { id:'frac1',  name:'Fractions Basics',       icon:'\uD83E\uDD67', grade:'P2 Expansion', deps:['div'], desc:'Halves, thirds, quarters' },
   money:  { id:'money',  name:'Money',                  icon:'\uD83D\uDCB0', grade:'P2 Expansion', deps:['add100','sub100'], desc:'Singapore dollars and cents' },
-  time1:  { id:'time1',  name:'Time',                   icon:'\uD83D\uDD50', grade:'P2 Expansion', deps:['count'], desc:'Read clocks and tell time' },
   pgraph: { id:'pgraph', name:'Picture Graphs',         icon:'\uD83D\uDCCA', grade:'P2 Expansion', deps:['count','add'], desc:'Read and make graphs' },
   lenmass:{ id:'lenmass',name:'Length & Mass',           icon:'\uD83D\uDCCF', grade:'P2 Expansion', deps:['cmp'], desc:'Comparing and measuring' },
 
@@ -6772,7 +6812,7 @@ const WORD_TREE = {
   // === P1 Foundation (EL) ===
   phonics:  { id:'phonics',  name:'Phonics & CVC',      icon:'\uD83D\uDD24', grade:'P1 Foundation', deps:[],           desc:'Sound out CVC words' },
   sight:    { id:'sight',    name:'Sight Words',         icon:'\uD83D\uDC41\uFE0F', grade:'P1 Foundation', deps:[],           desc:'Read high-frequency words' },
-  spell:    { id:'spell',    name:'Spelling Bee',        icon:'\uD83D\uDC1D', grade:'P1 Foundation', deps:['phonics'],  desc:'Spell CVC words with pictures' },
+  spell:    { id:'spell',    name:'Spelling Bee',        icon:'\uD83D\uDC1D', grade:'P1 Foundation', deps:[],  desc:'Spell CVC words with pictures' },
   punct:    { id:'punct',    name:'Punctuation Power',   icon:'\u2755',       grade:'P1 Foundation', deps:[],            desc:'Full stops, question marks, commas, more' },
 
   // === P2 Expansion (EL) ===
@@ -7028,7 +7068,7 @@ const STEM_TREE = {
   living:   { id:'living',   name:'Living Things',        icon:'🌱', grade:'P1 Science',  deps:[],          desc:'Plants, animals, and habitats' },
   material: { id:'material', name:'Materials & Matter',    icon:'🧪', grade:'P1 Science',  deps:[],          desc:'Solids, liquids, and properties' },
   senses:   { id:'senses',   name:'My Five Senses',         icon:'👀', grade:'P1 Science',  deps:[],            desc:'See, hear, smell, taste, touch' },
-  plants:   { id:'plants',   name:'Plant Life Cycle',       icon:'🌻', grade:'P1 Science',  deps:['living'],    desc:'Seed, sprout, flower, seed' },
+  plants:   { id:'plants',   name:'Plant Life Cycle',       icon:'🌻', grade:'P1 Science',  deps:[],            desc:'Seed, sprout, flower, seed' },
 
   // === Science — P2 Expansion ===
   forces:   { id:'forces',   name:'Forces & Energy',      icon:'⚡',       grade:'P2 Science',  deps:['material'], desc:'Push, pull, magnets, and energy' },
@@ -7041,7 +7081,7 @@ const STEM_TREE = {
 
   // === Coding — P1 Foundation ===
   cseq:     { id:'cseq',     name:'Code: Sequences',      icon:'➡️', grade:'P1 Coding',   deps:[],           desc:'Step-by-step instructions' },
-  cloop:    { id:'cloop',    name:'Code: Loops',           icon:'🔁', grade:'P1 Coding',   deps:['cseq'],     desc:'Repeat actions with loops' },
+  cloop:    { id:'cloop',    name:'Code: Loops',           icon:'🔁', grade:'P1 Coding',   deps:[],           desc:'Repeat actions with loops' },
 
   // === Coding — P2 Expansion ===
   ccond:    { id:'ccond',    name:'Code: Conditionals',    icon:'🔀', grade:'P2 Coding',   deps:['cloop'],    desc:'If-then decisions' },
@@ -11243,14 +11283,14 @@ const MALAY_TREE = {
   warna:     { id:'warna',     name:'Warna-warni',           icon:'🎨', grade:'P1 Foundation', deps:[],            desc:'Colours in Malay' },
 
   // === P1 Everyday (Bahasa Melayu) ===
-  keluarga:  { id:'keluarga',  name:'Keluarga Saya',         icon:'👪', grade:'P1 Everyday',  deps:['salam'],     desc:'Family members and relations' },
-  haiwan:    { id:'haiwan',    name:'Haiwan Kesayangan',     icon:'🐱', grade:'P1 Everyday',  deps:['warna'],     desc:'Animals and their colours' },
-  badan:     { id:'badan',     name:'Anggota Badan',         icon:'👐', grade:'P1 Everyday',  deps:['huruf'],     desc:'Body parts in Malay' },
-  makanan:   { id:'makanan',   name:'Makanan Sedap',         icon:'🍛', grade:'P1 Everyday',  deps:['haiwan'],    desc:'Food and drinks' },
+  keluarga:  { id:'keluarga',  name:'Keluarga Saya',         icon:'👪', grade:'P1 Everyday',  deps:[],     desc:'Family members and relations' },
+  haiwan:    { id:'haiwan',    name:'Haiwan Kesayangan',     icon:'🐱', grade:'P1 Everyday',  deps:[],     desc:'Animals and their colours' },
+  badan:     { id:'badan',     name:'Anggota Badan',         icon:'👐', grade:'P1 Everyday',  deps:[],     desc:'Body parts in Malay' },
+  makanan:   { id:'makanan',   name:'Makanan Sedap',         icon:'🍛', grade:'P1 Everyday',  deps:[],     desc:'Food and drinks' },
 
   // === P1 Stretch (Bahasa Melayu) ===
-  hari:      { id:'hari',      name:'Hari & Cuaca',          icon:'☀️',  grade:'P1 Stretch',   deps:['nombor'],    desc:'Days of the week and weather' },
-  ayat:      { id:'ayat',      name:'Ayat Mudah',            icon:'✍️', grade:'P1 Stretch',   deps:['keluarga','makanan'], desc:'Build simple Malay sentences' }
+  hari:      { id:'hari',      name:'Hari & Cuaca',          icon:'☀️',  grade:'P1 Stretch',   deps:[],     desc:'Days of the week and weather' },
+  ayat:      { id:'ayat',      name:'Ayat Mudah',            icon:'✍️', grade:'P1 Stretch',   deps:[],     desc:'Build simple Malay sentences' }
 };
 
 // --- src/malay/malay-data.js ---
@@ -13110,6 +13150,36 @@ function wardrobeEquip(itemId) {
   renderWardrobe(); // re-render shop to reflect new equipped state
 }
 
+function isTryOnMode() { return window._tryOnMode === true; }
+function toggleTryOnMode() {
+  var w = getWardrobeState();
+  if (!isTryOnMode()) {
+    // Entering try-on: save real equipped
+    w.equippedReal = Object.assign({}, w.equipped);
+    window._tryOnMode = true;
+    if (typeof lumiSay === 'function') lumiSay('Try-On Mode! Tap anything to see Stasha wear it. No stars used.');
+  } else {
+    // Exiting: restore real
+    if (w.equippedReal) {
+      w.equipped = Object.assign({}, w.equippedReal);
+      delete w.equippedReal;
+    }
+    window._tryOnMode = false;
+    if (typeof lumiSay === 'function') lumiSay('Back to your real outfit!');
+  }
+  saveState();
+  if (typeof renderStashaOverlays === 'function') renderStashaOverlays();
+  renderWardrobe();
+}
+function resetTryOnPreview() {
+  var w = getWardrobeState();
+  if (!isTryOnMode() || !w.equippedReal) return;
+  w.equipped = Object.assign({}, w.equippedReal);
+  saveState();
+  if (typeof renderStashaOverlays === 'function') renderStashaOverlays();
+  renderWardrobe();
+}
+
 function renderWardrobe() {
   var container = document.getElementById('wardrobe-content');
   if (!container) return;
@@ -13164,6 +13234,18 @@ function renderWardrobe() {
   header += '</div>';
   header += '<div class="wardrobe-intro">Earn stars and finish adventures to unlock new looks. Tap a tab to browse.</div>';
 
+  // Try-On Mode banner
+  var tryOnBtn = isTryOnMode()
+    ? '<button class="lesson-btn lesson-btn-done" onclick="toggleTryOnMode()">✅ Exit Try-On (keep my real outfit)</button>' +
+      '<button class="lesson-btn" onclick="resetTryOnPreview()">↺ Reset preview</button>'
+    : '<button class="lesson-btn" onclick="toggleTryOnMode()">🎀 Enter Try-On Mode (preview any item)</button>';
+  header += '<div class="tryon-row' + (isTryOnMode() ? ' active' : '') + '">';
+  header += (isTryOnMode()
+    ? '<div class="tryon-note">🎀 <strong>Try-On Mode is on.</strong> Tap anything to preview. Stars and unlocks are off. Your real outfit is saved.</div>'
+    : '<div class="tryon-note">Want to see how things look before earning them?</div>');
+  header += '<div class="tryon-buttons">' + tryOnBtn + '</div>';
+  header += '</div>';
+
   container.innerHTML = header + tabBar + body;
 
   // Wire tab clicks
@@ -13174,7 +13256,7 @@ function renderWardrobe() {
     };
   });
 
-  // Wire item clicks (buy or equip)
+  // Wire item clicks (buy or equip, or preview in try-on mode)
   container.querySelectorAll('.wardrobe-item').forEach(function(el) {
     var id = el.dataset.id;
     var item = WARDROBE_ITEMS.find(function(x) { return x.id === id; });
@@ -13182,6 +13264,19 @@ function renderWardrobe() {
     var unlocked = wardrobeIsUnlocked(item);
     var isOwned = owned.has(id);
     el.onclick = function() {
+      if (isTryOnMode()) {
+        // Preview-equip without earning or spending
+        var ws = getWardrobeState();
+        if (ws.equipped[item.cat] === id) {
+          if (['hair','outfit','pet'].indexOf(item.cat) !== -1) ws.equipped[item.cat] = null;
+        } else {
+          ws.equipped[item.cat] = id;
+        }
+        saveState();
+        if (typeof renderStashaOverlays === 'function') renderStashaOverlays();
+        renderWardrobe();
+        return;
+      }
       if (!unlocked && !isOwned) {
         if (typeof lumiSay === 'function') lumiSay('Locked! Hint: ' + wardrobeUnlockText(item));
         return;
@@ -13256,6 +13351,12 @@ function renderStashaScreen() {
   html += '<div class="stasha-name">Stasha 💖</div>';
   html += '<div class="stasha-bio">Anastasia\'s avatar. The better you do, the more she gets to wear.</div>';
 
+  html += '<div class="stasha-zoom-row">';
+  html += '<button class="stasha-zoom-btn" data-zoom="face" onclick="stashaZoom(\'face\')">😊 Face</button>';
+  html += '<button class="stasha-zoom-btn active" data-zoom="chest" onclick="stashaZoom(\'chest\')">👕 Chest-up</button>';
+  html += '<button class="stasha-zoom-btn" data-zoom="full" onclick="stashaZoom(\'full\')">🧍 Full body</button>';
+  html += '</div>';
+
   html += '<div class="stasha-actions">';
   html += '<button class="lesson-btn lesson-btn-done" onclick="showScreen(\'wardrobe\')">👗 Open Wardrobe (' + ownedCount + '/' + totalCount + ')</button>';
   html += '<button class="lesson-btn" onclick="stashaWave()">👋 Say Hi</button>';
@@ -13313,6 +13414,8 @@ function stashaWave() {
   }
 }
 
+window.toggleTryOnMode = toggleTryOnMode;
+window.resetTryOnPreview = resetTryOnPreview;
 window.renderWardrobe = renderWardrobe;
 window.renderStashaScreen = renderStashaScreen;
 window.renderStashaOverlays = renderStashaOverlays;
@@ -13380,6 +13483,15 @@ window.wardrobeEquip = wardrobeEquip;
     if (window.__stasha3D && typeof window.__stasha3D.react === 'function') {
       try { window.__stasha3D.react(kind); } catch (e) { /* silent */ }
     }
+  };
+
+  window.stashaZoom = function(mode) {
+    if (window.__stasha3D && typeof window.__stasha3D.setZoom === 'function') {
+      try { window.__stasha3D.setZoom(mode); } catch (e) {}
+    }
+    document.querySelectorAll('.stasha-zoom-btn').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.zoom === mode);
+    });
   };
 
   // Mirror Lumi mood events onto Stasha when she is on screen.

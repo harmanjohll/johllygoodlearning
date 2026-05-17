@@ -7,7 +7,7 @@ const STEM_TREE = {
   living:   { id:'living',   name:'Living Things',        icon:'🌱', grade:'P1 Science',  deps:[],          desc:'Plants, animals, and habitats' },
   material: { id:'material', name:'Materials & Matter',    icon:'🧪', grade:'P1 Science',  deps:[],          desc:'Solids, liquids, and properties' },
   senses:   { id:'senses',   name:'My Five Senses',         icon:'👀', grade:'P1 Science',  deps:[],            desc:'See, hear, smell, taste, touch' },
-  plants:   { id:'plants',   name:'Plant Life Cycle',       icon:'🌻', grade:'P1 Science',  deps:['living'],    desc:'Seed, sprout, flower, seed' },
+  plants:   { id:'plants',   name:'Plant Life Cycle',       icon:'🌻', grade:'P1 Science',  deps:[],            desc:'Seed, sprout, flower, seed' },
 
   // === Science — P2 Expansion ===
   forces:   { id:'forces',   name:'Forces & Energy',      icon:'⚡',       grade:'P2 Science',  deps:['material'], desc:'Push, pull, magnets, and energy' },
@@ -20,7 +20,7 @@ const STEM_TREE = {
 
   // === Coding — P1 Foundation ===
   cseq:     { id:'cseq',     name:'Code: Sequences',      icon:'➡️', grade:'P1 Coding',   deps:[],           desc:'Step-by-step instructions' },
-  cloop:    { id:'cloop',    name:'Code: Loops',           icon:'🔁', grade:'P1 Coding',   deps:['cseq'],     desc:'Repeat actions with loops' },
+  cloop:    { id:'cloop',    name:'Code: Loops',           icon:'🔁', grade:'P1 Coding',   deps:[],           desc:'Repeat actions with loops' },
 
   // === Coding — P2 Expansion ===
   ccond:    { id:'ccond',    name:'Code: Conditionals',    icon:'🔀', grade:'P2 Coding',   deps:['cloop'],    desc:'If-then decisions' },
