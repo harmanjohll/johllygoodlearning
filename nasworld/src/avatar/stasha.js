@@ -68,6 +68,44 @@
     });
   };
 
+  // Stasha-flavoured TTS — higher pitch and slightly faster so she
+  // sounds younger than the default. Picks an en-GB or en-US voice
+  // if one is available.
+  window.stashaSpeak = function(text, opts) {
+    if (state && state.preferences && state.preferences.stashaMuted) return;
+    if (typeof ttsSpeak !== 'function') return;
+    opts = opts || {};
+    ttsSpeak(text, {
+      lang: opts.lang || 'en-GB',
+      rate: opts.rate != null ? opts.rate : 1.05,
+      pitch: opts.pitch != null ? opts.pitch : 1.45,
+      volume: 0.95
+    });
+  };
+
+  // Stasha's small phrase bank.
+  var STASHA_PHRASES = {
+    greet:   ['Hi! I am Stasha!', 'Halooo! Look at me!', 'You came back! Yay!', 'Hi friend!', 'Selamat datang! That means welcome!'],
+    wave:    ['Hi! Hi! Hi!', 'Look at me wave!', 'Helloooo!', 'Hi, princess!'],
+    pretty:  ['I love this outfit!', 'Do I look pretty?', 'Sparkly! Sparkly!', 'Wow, fancy!'],
+    correct: ['Yes! You got it!', 'Good job, friend!', 'Hooray!', 'You\'re so smart!'],
+    bye:     ['See you soon!', 'Bye-bye for now!', 'Come back tomorrow!']
+  };
+  window.stashaSayRandom = function(kind) {
+    var pool = STASHA_PHRASES[kind] || STASHA_PHRASES.greet;
+    window.stashaSpeak(pool[Math.floor(Math.random() * pool.length)]);
+  };
+
+  window.toggleStashaMute = function() {
+    if (!state.preferences) state.preferences = {};
+    state.preferences.stashaMuted = !state.preferences.stashaMuted;
+    if (typeof saveState === 'function') saveState();
+    var btn = document.getElementById('stasha-mute-btn');
+    if (btn) btn.textContent = state.preferences.stashaMuted ? '🔇 Stasha muted' : '🔊 Stasha can talk';
+    if (state.preferences.stashaMuted && typeof ttsStop === 'function') ttsStop();
+    if (typeof lumiSay === 'function') lumiSay(state.preferences.stashaMuted ? 'Stasha\'s mic is off.' : 'Stasha can talk again!');
+  };
+
   // Mirror Lumi mood events onto Stasha when she is on screen.
   var origLumiReactTo = window.lumiReactTo;
   if (typeof origLumiReactTo === 'function') {

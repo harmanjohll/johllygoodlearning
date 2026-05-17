@@ -41,6 +41,18 @@ var THREADS = {
         scene: 'End of day. Pile up the coins and add them up.',
         action: 'Back to Number World → Addition to count the takings.',
         skill: 'add', worldType: 'math'
+      },
+      {
+        id: 6, title: 'Make a Big Poster',
+        scene: 'A poster has to be loud. Cold! Sweet! Best on the street!',
+        action: 'Open Word World → Vocabulary Vault for describing words.',
+        skill: 'vocab', worldType: 'word'
+      },
+      {
+        id: 7, title: 'The Rainy Day Plan',
+        scene: 'Uh oh, it is raining. Lemonade in the rain? Or hot tea instead?',
+        action: 'Open STEM World → Earth & Weather to think it through.',
+        skill: 'earth', worldType: 'stem'
       }
     ]
   },
@@ -81,6 +93,18 @@ var THREADS = {
         scene: 'How tall today? How many leaves? Use describing words.',
         action: 'Word World → Grammar Garden for adjectives that paint pictures.',
         skill: 'grammar', worldType: 'word'
+      },
+      {
+        id: 6, title: 'Harvest Day',
+        scene: 'Tomatoes! Beans! Time to pick and count what you grew.',
+        action: 'Open Number World → Counting & Ten Frames.',
+        skill: 'count', worldType: 'math'
+      },
+      {
+        id: 7, title: 'Share the Flowers',
+        scene: 'You have flowers for Mum, Nenek, and your friend. How many each?',
+        action: 'Number World → Comparing Numbers.',
+        skill: 'cmp', worldType: 'math'
       }
     ]
   },
@@ -121,6 +145,18 @@ var THREADS = {
         scene: 'The robot is spinning in circles. Something is wrong!',
         action: 'Open STEM World → Code: Debugging.',
         skill: 'cdebug', worldType: 'stem'
+      },
+      {
+        id: 6, title: 'Give the Robot a Name',
+        scene: 'Bolt? Beepboo? Pixel? Pick a name and write it down.',
+        action: 'Word World → Spelling Bee for tricky letters.',
+        skill: 'spell', worldType: 'word'
+      },
+      {
+        id: 7, title: 'Make it Dance',
+        scene: 'Music! Loud. Soft. Fast. Slow. Program the moves to the beat.',
+        action: 'Open STEM World → Sound.',
+        skill: 'sound', worldType: 'stem'
       }
     ]
   },
@@ -157,7 +193,13 @@ var THREADS = {
         skill: 'keluarga', worldType: 'malay'
       },
       {
-        id: 5, title: 'Your Own Story',
+        id: 5, title: 'Snegurochka, the Snow Maiden',
+        scene: 'A Russian winter tale. A girl made of snow learns about being loved — and what melts in the spring.',
+        action: 'Word World → Reading Comprehension for a slow, careful read.',
+        skill: 'comprehension', worldType: 'word'
+      },
+      {
+        id: 6, title: 'Your Own Story',
         scene: 'Now you. Tell a kindness story from your family.',
         action: 'Word World → Story Garden, or Dunia Melayu → Ayat Mudah for a Malay version.',
         skill: 'story', worldType: 'word'
@@ -195,6 +237,18 @@ var THREADS = {
         scene: 'Now describe it. Was it sedap (yummy)? Pedas (spicy)?',
         action: 'Word World → Vocabulary Vault for describing words.',
         skill: 'vocab', worldType: 'word'
+      },
+      {
+        id: 5, title: 'Ask for the Bill',
+        scene: '"Kak, boleh saya minta bill, tolong?" Then count the coins back.',
+        action: 'Number World → Money to count the change.',
+        skill: 'money', worldType: 'math'
+      },
+      {
+        id: 6, title: 'What is Halal?',
+        scene: 'Some friends only eat halal food. What does that mean?',
+        action: 'Dunia Melayu → Makanan to spot the words.',
+        skill: 'makanan', worldType: 'malay'
       }
     ]
   }

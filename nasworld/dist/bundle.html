@@ -606,6 +606,21 @@ body {
   border-radius: 16px; border: 1px solid rgba(255,215,0,0.4);
   margin: 16px 0; font-family: 'Patrick Hand', cursive;
 }
+.digest-chart {
+  background: rgba(37,27,94,0.4); border: 1px solid rgba(181,123,255,0.25);
+  border-radius: var(--radius-md); padding: 14px; margin: 12px 0 4px;
+}
+.digest-chart-title { font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 10px; text-align: center; }
+.digest-bar-row { display: grid; grid-template-columns: 110px 1fr 36px; gap: 8px; align-items: center; margin-bottom: 8px; }
+.digest-bar-label { font-size: 12px; color: var(--text-primary); }
+.digest-bar-track { height: 14px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+.digest-bar-fill { height: 100%; border-radius: 999px; transition: width .4s ease; }
+.digest-bar-fill.digest-bar-math  { background: linear-gradient(90deg, #ffd166, #ffb84d); }
+.digest-bar-fill.digest-bar-word  { background: linear-gradient(90deg, #b57bff, #9251f5); }
+.digest-bar-fill.digest-bar-stem  { background: linear-gradient(90deg, #7bb3ff, #4d8de0); }
+.digest-bar-fill.digest-bar-malay { background: linear-gradient(90deg, #7bffb5, #4ade80); }
+.digest-bar-num { text-align: right; color: var(--text-secondary); font-size: 12px; }
+
 .digest-card pre {
   white-space: pre-wrap; word-wrap: break-word; font-family: 'Patrick Hand', cursive;
   font-size: 17px; line-height: 1.55;
@@ -9177,7 +9192,8 @@ function renderPhonicsFamily(card, q) {
 }
 
 function renderPhonicsInitial(card, q) {
-  var html = '<div class="question-text">What letter does this word start with?</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.word, 'en-US', 'Hear the word') : '';
+  var html = '<div class="question-text">What letter does this word start with? ' + tts + '</div>';
   html += '<div style="font-size:42px;margin:16px 0;font-family:var(--font-display);color:var(--sky)">' + q.word + '</div>';
   html += '<div class="answer-options">' + q.options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:28px;font-weight:700">' + o + '</button>';
@@ -9259,7 +9275,8 @@ function renderGrammarMCQ(card, q) {
 }
 
 function renderVocabMeaning(card, q) {
-  var html = '<div class="question-text">What does <strong style="color:var(--gold)">' + q.word + '</strong> mean?</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.word + '. Example sentence: ' + q.sentence, 'en-US', 'Hear the word + example') : '';
+  var html = '<div class="question-text">What does <strong style="color:var(--gold)">' + q.word + '</strong> mean? ' + tts + '</div>';
   html += '<div class="story-prompt" style="font-size:18px;margin:12px 0">"' + q.sentence + '"</div>';
   html += '<div class="answer-options">' + q.options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(\'' + escapeQuote(o) + '\', \'' + escapeQuote(q.answer) + '\', this)" style="font-size:16px">' + o + '</button>';
@@ -9269,7 +9286,8 @@ function renderVocabMeaning(card, q) {
 }
 
 function renderVocabWord(card, q) {
-  var html = '<div class="question-text">Which word means:</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.meaning, 'en-US', 'Hear the meaning') : '';
+  var html = '<div class="question-text">Which word means: ' + tts + '</div>';
   html += '<div style="font-size:20px;color:var(--mint);margin:12px 0;font-style:italic">"' + q.meaning + '"</div>';
   html += '<div class="answer-options">' + q.options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:20px">' + o + '</button>';
@@ -9279,7 +9297,8 @@ function renderVocabWord(card, q) {
 }
 
 function renderSentenceBuild(card, q) {
-  var html = '<div class="question-text">Put the words in order to make a sentence!</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.answer, 'en-US', 'Hear the sentence') : '';
+  var html = '<div class="question-text">Put the words in order to make a sentence! ' + tts + '</div>';
   html += '<div id="sentence-result" style="min-height:48px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px;margin:12px 0;font-size:22px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center"></div>';
   html += '<div id="sentence-bank" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0">';
   q.words.forEach(function(w) {
@@ -9297,7 +9316,8 @@ function renderSentenceBuild(card, q) {
 // ===================== P3 RENDERERS =====================
 
 function renderComprehensionMCQ(card, q) {
-  var html = '<div style="font-size:16px;font-weight:700;color:var(--gold);margin-bottom:8px">\uD83D\uDCD6 ' + q.title + '</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.title + '. ' + q.text + '. ' + q.question, 'en-US', 'Read the whole passage') : '';
+  var html = '<div style="font-size:16px;font-weight:700;color:var(--gold);margin-bottom:8px">\uD83D\uDCD6 ' + q.title + ' ' + tts + '</div>';
   html += '<div class="story-prompt" style="font-size:16px;line-height:1.6;max-height:140px;overflow-y:auto;text-align:left;padding:12px 16px">' + q.text + '</div>';
   html += '<div class="question-text" style="font-size:18px;margin-top:16px">' + q.question + '</div>';
   html += '<div class="answer-options" style="flex-direction:column">' + q.options.map(function(o) {
@@ -12417,6 +12437,18 @@ var THREADS = {
         scene: 'End of day. Pile up the coins and add them up.',
         action: 'Back to Number World → Addition to count the takings.',
         skill: 'add', worldType: 'math'
+      },
+      {
+        id: 6, title: 'Make a Big Poster',
+        scene: 'A poster has to be loud. Cold! Sweet! Best on the street!',
+        action: 'Open Word World → Vocabulary Vault for describing words.',
+        skill: 'vocab', worldType: 'word'
+      },
+      {
+        id: 7, title: 'The Rainy Day Plan',
+        scene: 'Uh oh, it is raining. Lemonade in the rain? Or hot tea instead?',
+        action: 'Open STEM World → Earth & Weather to think it through.',
+        skill: 'earth', worldType: 'stem'
       }
     ]
   },
@@ -12457,6 +12489,18 @@ var THREADS = {
         scene: 'How tall today? How many leaves? Use describing words.',
         action: 'Word World → Grammar Garden for adjectives that paint pictures.',
         skill: 'grammar', worldType: 'word'
+      },
+      {
+        id: 6, title: 'Harvest Day',
+        scene: 'Tomatoes! Beans! Time to pick and count what you grew.',
+        action: 'Open Number World → Counting & Ten Frames.',
+        skill: 'count', worldType: 'math'
+      },
+      {
+        id: 7, title: 'Share the Flowers',
+        scene: 'You have flowers for Mum, Nenek, and your friend. How many each?',
+        action: 'Number World → Comparing Numbers.',
+        skill: 'cmp', worldType: 'math'
       }
     ]
   },
@@ -12497,6 +12541,18 @@ var THREADS = {
         scene: 'The robot is spinning in circles. Something is wrong!',
         action: 'Open STEM World → Code: Debugging.',
         skill: 'cdebug', worldType: 'stem'
+      },
+      {
+        id: 6, title: 'Give the Robot a Name',
+        scene: 'Bolt? Beepboo? Pixel? Pick a name and write it down.',
+        action: 'Word World → Spelling Bee for tricky letters.',
+        skill: 'spell', worldType: 'word'
+      },
+      {
+        id: 7, title: 'Make it Dance',
+        scene: 'Music! Loud. Soft. Fast. Slow. Program the moves to the beat.',
+        action: 'Open STEM World → Sound.',
+        skill: 'sound', worldType: 'stem'
       }
     ]
   },
@@ -12533,7 +12589,13 @@ var THREADS = {
         skill: 'keluarga', worldType: 'malay'
       },
       {
-        id: 5, title: 'Your Own Story',
+        id: 5, title: 'Snegurochka, the Snow Maiden',
+        scene: 'A Russian winter tale. A girl made of snow learns about being loved — and what melts in the spring.',
+        action: 'Word World → Reading Comprehension for a slow, careful read.',
+        skill: 'comprehension', worldType: 'word'
+      },
+      {
+        id: 6, title: 'Your Own Story',
         scene: 'Now you. Tell a kindness story from your family.',
         action: 'Word World → Story Garden, or Dunia Melayu → Ayat Mudah for a Malay version.',
         skill: 'story', worldType: 'word'
@@ -12571,6 +12633,18 @@ var THREADS = {
         scene: 'Now describe it. Was it sedap (yummy)? Pedas (spicy)?',
         action: 'Word World → Vocabulary Vault for describing words.',
         skill: 'vocab', worldType: 'word'
+      },
+      {
+        id: 5, title: 'Ask for the Bill',
+        scene: '"Kak, boleh saya minta bill, tolong?" Then count the coins back.',
+        action: 'Number World → Money to count the change.',
+        skill: 'money', worldType: 'math'
+      },
+      {
+        id: 6, title: 'What is Halal?',
+        scene: 'Some friends only eat halal food. What does that mean?',
+        action: 'Dunia Melayu → Makanan to spot the words.',
+        skill: 'makanan', worldType: 'malay'
       }
     ]
   }
@@ -13504,6 +13578,8 @@ function renderStashaScreen() {
   html += '<div class="stasha-actions">';
   html += '<button class="lesson-btn lesson-btn-done" onclick="showScreen(\'wardrobe\')">👗 Open Wardrobe (' + ownedCount + '/' + totalCount + ')</button>';
   html += '<button class="lesson-btn" onclick="stashaWave()">👋 Say Hi</button>';
+  var muted = state.preferences && state.preferences.stashaMuted;
+  html += '<button class="lesson-btn" id="stasha-mute-btn" onclick="toggleStashaMute()">' + (muted ? '🔇 Stasha muted' : '🔊 Stasha can talk') + '</button>';
   html += '</div>';
 
   // Inventory peek
@@ -13548,15 +13624,28 @@ function renderStashaScreen() {
     if (fb) fb.classList.remove('hidden');
   }
   renderStashaOverlays();
+  stashaScreenGreet();
 }
 
 function stashaWave() {
   if (typeof stashaReact === 'function') stashaReact('wave');
+  if (typeof stashaSayRandom === 'function') stashaSayRandom('wave');
   if (typeof lumiSay === 'function') {
     var greetings = ['Halooo!', 'Hi friend!', 'Selamat datang, princess!', 'Look at me, look at me!', 'Knock knock — Stasha here!'];
     lumiSay(greetings[Math.floor(Math.random() * greetings.length)]);
   }
 }
+
+// Trigger Stasha's opening greeting once per session per screen open.
+function stashaScreenGreet() {
+  if (window._stashaGreetedThisSession) return;
+  window._stashaGreetedThisSession = true;
+  setTimeout(function() {
+    if (typeof stashaSayRandom === 'function') stashaSayRandom('greet');
+  }, 900);
+}
+
+window.stashaScreenGreet = stashaScreenGreet;
 
 window.toggleTryOnMode = toggleTryOnMode;
 window.resetTryOnPreview = resetTryOnPreview;
@@ -13636,6 +13725,44 @@ window.wardrobeEquip = wardrobeEquip;
     document.querySelectorAll('.stasha-zoom-btn').forEach(function(b) {
       b.classList.toggle('active', b.dataset.zoom === mode);
     });
+  };
+
+  // Stasha-flavoured TTS — higher pitch and slightly faster so she
+  // sounds younger than the default. Picks an en-GB or en-US voice
+  // if one is available.
+  window.stashaSpeak = function(text, opts) {
+    if (state && state.preferences && state.preferences.stashaMuted) return;
+    if (typeof ttsSpeak !== 'function') return;
+    opts = opts || {};
+    ttsSpeak(text, {
+      lang: opts.lang || 'en-GB',
+      rate: opts.rate != null ? opts.rate : 1.05,
+      pitch: opts.pitch != null ? opts.pitch : 1.45,
+      volume: 0.95
+    });
+  };
+
+  // Stasha's small phrase bank.
+  var STASHA_PHRASES = {
+    greet:   ['Hi! I am Stasha!', 'Halooo! Look at me!', 'You came back! Yay!', 'Hi friend!', 'Selamat datang! That means welcome!'],
+    wave:    ['Hi! Hi! Hi!', 'Look at me wave!', 'Helloooo!', 'Hi, princess!'],
+    pretty:  ['I love this outfit!', 'Do I look pretty?', 'Sparkly! Sparkly!', 'Wow, fancy!'],
+    correct: ['Yes! You got it!', 'Good job, friend!', 'Hooray!', 'You\'re so smart!'],
+    bye:     ['See you soon!', 'Bye-bye for now!', 'Come back tomorrow!']
+  };
+  window.stashaSayRandom = function(kind) {
+    var pool = STASHA_PHRASES[kind] || STASHA_PHRASES.greet;
+    window.stashaSpeak(pool[Math.floor(Math.random() * pool.length)]);
+  };
+
+  window.toggleStashaMute = function() {
+    if (!state.preferences) state.preferences = {};
+    state.preferences.stashaMuted = !state.preferences.stashaMuted;
+    if (typeof saveState === 'function') saveState();
+    var btn = document.getElementById('stasha-mute-btn');
+    if (btn) btn.textContent = state.preferences.stashaMuted ? '🔇 Stasha muted' : '🔊 Stasha can talk';
+    if (state.preferences.stashaMuted && typeof ttsStop === 'function') ttsStop();
+    if (typeof lumiSay === 'function') lumiSay(state.preferences.stashaMuted ? 'Stasha\'s mic is off.' : 'Stasha can talk again!');
   };
 
   // Mirror Lumi mood events onto Stasha when she is on screen.
@@ -18414,29 +18541,42 @@ function _parentDigestAllSkills() {
   );
 }
 
+function _parentDigestWorldOf(skillId) {
+  if (typeof MATH_TREE  !== 'undefined' && MATH_TREE[skillId])  return 'math';
+  if (typeof WORD_TREE  !== 'undefined' && WORD_TREE[skillId])  return 'word';
+  if (typeof STEM_TREE  !== 'undefined' && STEM_TREE[skillId])  return 'stem';
+  if (typeof MALAY_TREE !== 'undefined' && MALAY_TREE[skillId]) return 'malay';
+  return null;
+}
+
 function _parentDigestCompose() {
   var trees = _parentDigestAllSkills();
   var consolidated = [];
   var stillHard = [];
+  var growing = [];   // 40-79% mastery, attempted at least twice — "on her way"
+  var attemptsByWorld = { math: 0, word: 0, stem: 0, malay: 0 };
+  var masteredByWorld = { math: 0, word: 0, stem: 0, malay: 0 };
+  var totalAttempts = 0;
+
   Object.keys(trees).forEach(function(id) {
     var s = state.skills && state.skills[id];
     if (!s || (s.totalAttempts || 0) === 0) return;
-    if ((s.mastery || 0) >= 80) consolidated.push(trees[id]);
-    if ((s.mastery || 0) < 40 && (s.totalAttempts || 0) >= 3) stillHard.push(trees[id]);
+    var w = _parentDigestWorldOf(id);
+    if (w) attemptsByWorld[w] += s.totalAttempts || 0;
+    totalAttempts += s.totalAttempts || 0;
+    if ((s.mastery || 0) >= 80) { consolidated.push(trees[id]); if (w) masteredByWorld[w]++; }
+    else if ((s.mastery || 0) >= 40) growing.push(trees[id]);
+    else if ((s.totalAttempts || 0) >= 3) stillHard.push(trees[id]);
   });
 
   var click = consolidated[Math.floor(Math.random() * consolidated.length)];
+  var grow  = growing[Math.floor(Math.random() * growing.length)];
   var hard  = stillHard[Math.floor(Math.random() * stillHard.length)];
 
-  var minutes = 0;
-  var moodHist = (state.compass && state.compass.moodHistory) ? state.compass.moodHistory : [];
-  var weekStart = new Date(); weekStart.setDate(weekStart.getDate() - 7);
-  moodHist.forEach(function(entry) {
-    if (new Date(entry.date) >= weekStart) minutes += 10;
-  });
-  minutes += (state.visitHistory || []).filter(function(d) {
-    return new Date(d) >= weekStart;
-  }).length * 5;
+  // Better minutes estimate: ~25 seconds per question attempt + 2 min per sim play.
+  var simPlays = 0;
+  if (state.simPlays) Object.keys(state.simPlays).forEach(function(k){ simPlays += state.simPlays[k]; });
+  var minutes = Math.round((totalAttempts * 25 + simPlays * 120) / 60);
 
   var threadsDone = 0;
   if (state.threads) {
@@ -18445,16 +18585,32 @@ function _parentDigestCompose() {
     });
   }
 
+  // Mood summary (last 7 mood entries)
+  var moods = ((state.compass && state.compass.moodHistory) || []).slice(-7);
+  var moodCounts = {};
+  moods.forEach(function(m) { moodCounts[m.mood] = (moodCounts[m.mood] || 0) + 1; });
+  var topMood = Object.keys(moodCounts).sort(function(a,b){return moodCounts[b]-moodCounts[a];})[0];
+
   return {
     name: state.name || 'Anastasia',
     minutes: minutes,
+    totalAttempts: totalAttempts,
+    simPlays: simPlays,
     consolidatedCount: consolidated.length,
+    growingCount: growing.length,
+    attemptsByWorld: attemptsByWorld,
+    masteredByWorld: masteredByWorld,
     clicked: click ? (click.icon + ' ' + click.name) : null,
+    growing: grow ? (grow.icon + ' ' + grow.name) : null,
     stillHard: hard ? (hard.icon + ' ' + hard.name) : null,
     threadsDoneThisWeek: threadsDone,
-    starter: hard ? ('Ask: "Show me what you do when ' + hard.name.toLowerCase() + ' feels tricky?"') :
-                    click ? ('Ask: "What did you find out about ' + click.name.toLowerCase() + '?"') :
-                            'Ask: "What was the best part of Nasworld this week?"'
+    topMood: topMood || null,
+    moodCount: moods.length,
+    starter:
+      hard  ? ('Ask: "Show me what you do when ' + hard.name.toLowerCase() + ' feels tricky?"') :
+      grow  ? ('Ask: "Tell me what you learned about ' + grow.name.toLowerCase() + '."') :
+      click ? ('Ask: "What did you find out about ' + click.name.toLowerCase() + '?"') :
+              'Ask: "What was the best part of Nasworld this week?"'
   };
 }
 
@@ -18485,17 +18641,55 @@ function renderParentDigest() {
       return start.toLocaleDateString(undefined, opts) + ' – ' + end.toLocaleDateString(undefined, opts);
     })();
 
+    var worldLabels = { math: 'Number World', word: 'Word World', stem: 'STEM World', malay: 'Dunia Melayu' };
+    var worldLine = '';
+    var worldsActive = [];
+    Object.keys(d.attemptsByWorld).forEach(function(w) {
+      if (d.attemptsByWorld[w] > 0) {
+        worldsActive.push('  · ' + worldLabels[w] + ': ' + d.attemptsByWorld[w] + ' questions, ' + d.masteredByWorld[w] + ' skill' + (d.masteredByWorld[w] === 1 ? '' : 's') + ' mastered');
+      }
+    });
+    if (worldsActive.length) worldLine = '• Activity by world:\n' + worldsActive.join('\n') + '\n';
+
+    var moodLine = '';
+    if (d.topMood && d.moodCount >= 3) {
+      var moodEmoji = { drained: '🪫', low: '😕', okay: '🙂', good: '😄', strong: '💪' }[d.topMood] || '🙂';
+      moodLine = '• How she felt most often: ' + moodEmoji + ' ' + d.topMood + ' (out of ' + d.moodCount + ' check-ins)\n';
+    }
+
     var bodyText =
       'Anastasia\'s Nasworld week (' + weekLabel + ')\n\n' +
-      '• Minutes practised: ' + d.minutes + '\n' +
-      '• Skills consolidated: ' + d.consolidatedCount + '\n' +
+      '• Minutes practised: ~' + d.minutes + '\n' +
+      '• Questions answered: ' + d.totalAttempts + '\n' +
+      (d.simPlays > 0 ? '• Hands-on experiments played: ' + d.simPlays + '\n' : '') +
+      '• Skills mastered: ' + d.consolidatedCount + '   |   Skills growing: ' + d.growingCount + '\n' +
+      worldLine +
+      moodLine +
       (d.clicked ? '• One thing that clicked: ' + d.clicked + '\n' : '') +
+      (d.growing ? '• On her way: ' + d.growing + '\n' : '') +
       (d.stillHard ? '• One thing still hard: ' + d.stillHard + '\n' : '') +
       (d.threadsDoneThisWeek ? '• Real-world adventure chapters finished: ' + d.threadsDoneThisWeek + '\n' : '') +
       '\nConversation starter: ' + d.starter + '\n\n' +
       '(Anastasia chose to share this. Please celebrate effort, not just answers.)';
 
     html += '<div class="digest-card"><pre id="digest-text">' + bodyText.replace(/</g, '&lt;') + '</pre></div>';
+    // Small bar chart of activity by world
+    var maxAtt = Math.max.apply(null, Object.keys(d.attemptsByWorld).map(function(k){return d.attemptsByWorld[k];}).concat([1]));
+    if (maxAtt > 0) {
+      html += '<div class="digest-chart">';
+      html += '<div class="digest-chart-title">Where her time went this week</div>';
+      Object.keys(d.attemptsByWorld).forEach(function(w) {
+        var n = d.attemptsByWorld[w];
+        if (n === 0) return;
+        var pct = Math.round(n / maxAtt * 100);
+        html += '<div class="digest-bar-row">' +
+          '<div class="digest-bar-label">' + worldLabels[w] + '</div>' +
+          '<div class="digest-bar-track"><div class="digest-bar-fill digest-bar-' + w + '" style="width:' + pct + '%"></div></div>' +
+          '<div class="digest-bar-num">' + n + '</div>' +
+        '</div>';
+      });
+      html += '</div>';
+    }
     html += '<div class="digest-actions">';
     html += '<button class="lesson-btn lesson-btn-done" onclick="parentDigestCopy()">📋 Copy to clipboard</button>';
     html += '<button class="lesson-btn" onclick="window.print()">🖨️ Print this</button>';
