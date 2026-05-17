@@ -1,10 +1,12 @@
 /* =========================================================
    /english/shared/coach.js
-   Cross-mode Coach voice for PSLE English. Phase 1 exports a
-   voice prelude only; later phases add per-mode prompt
-   builders (situational, composition, comprehension, oral,
-   visual-text, editing, synthesis, etc.). Voice principles
-   mirror CLAUDE.md §12.
+   Cross-mode Coach voice for PSLE English. Exports the shared
+   VOICE prelude that every Coach-mode prompt prepends (used by
+   Composition Builder, SBC, Reading Aloud, Annotator, etc.).
+   Mode-specific prompt bodies live next to each mode page;
+   the voice prelude is the single source of truth so the tone
+   is consistent across the studio. Principles mirror
+   CLAUDE.md §12.
    ========================================================= */
 
 (function (global) {

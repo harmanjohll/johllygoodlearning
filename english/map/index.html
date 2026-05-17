@@ -227,6 +227,7 @@
 
 <script src="../shared.js"></script>
 <script src="../shared/storage.js"></script>
+<script src="../shared/lab.js"></script>
 <script src="../shared/coach.js"></script>
 <script src="./graph.js"></script>
 <script>
@@ -320,6 +321,27 @@ if (bridgesBtn) {
 function escapeHtml(s) {
   return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
+
+// Deep-link support: #focus=<nodeId> focuses that node once the graph
+// has loaded. Used by per-topic Mind Map tabs that link here.
+function applyHashFocus() {
+  const m = (location.hash || '').match(/focus=([\w-]+)/);
+  if (!m) return;
+  const id = m[1];
+  // The graph loads async; poll briefly for the node to appear.
+  let tries = 0;
+  const tick = () => {
+    tries += 1;
+    if (MM.api.nodesById && MM.api.nodesById.has(id)) {
+      MM.api.focusNode(id);
+    } else if (tries < 20) {
+      setTimeout(tick, 100);
+    }
+  };
+  tick();
+}
+window.addEventListener('hashchange', applyHashFocus);
+applyHashFocus();
 </script>
 </body>
 </html>

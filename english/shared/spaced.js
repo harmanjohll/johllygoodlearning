@@ -1,8 +1,8 @@
 /* =========================================================
    /english/shared/spaced.js
-   Scaffold for the SM-2-style scheduler (CLAUDE.md §8.3).
-   Phase 1 exports stubs that compute deterministic next-due
-   dates; later phases replace them with the real scheduler.
+   SM-2-style scheduler (CLAUDE.md §8.3). Used by /idioms-srs/
+   and the Review queue. Doubling intervals on success
+   (1, 2, 4, 8, 16, 30 days), reset to 1 day on miss.
    Verbatim copy of /malay/shared/spaced.js and
    /studio/shared/spaced.js — single source of truth.
    ========================================================= */
