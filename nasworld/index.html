@@ -765,10 +765,11 @@ body {
 .stasha-prop-btn:hover { transform: scale(1.1); }
 .stasha-prop-btn.lock { background: rgba(255, 215, 0, 0.95); }
 
-/* Tiny unlock button on locked items */
+/* Tiny unlock button on locked items — always visible at low opacity
+   so touch users can tap it (hover doesn't work on touch). */
 .stasha-prop-quickunlock {
   position: absolute;
-  top: -12px; right: -12px;
+  top: -10px; right: -10px;
   width: 26px; height: 26px;
   background: rgba(20, 12, 50, 0.92);
   border: 1px solid rgba(255, 215, 0, 0.6);
@@ -777,12 +778,13 @@ body {
   font-size: 12px;
   line-height: 1;
   pointer-events: auto;
-  opacity: 0;
-  transition: opacity 0.2s;
+  opacity: 0.55;
+  transition: opacity 0.2s, transform 0.2s;
 }
 .stasha-prop.locked:hover .stasha-prop-quickunlock,
 .stasha-prop.locked:active .stasha-prop-quickunlock {
   opacity: 1;
+  transform: scale(1.1);
 }
 
 .stasha-hint {
@@ -3747,6 +3749,11 @@ body {
       vrm.update(dt);
       if (controls) controls.update();
       renderer.render(scene, camera);
+      // Per-frame hook so the wardrobe layer can re-project bone
+      // positions to 2D screen coords and stick items to landmarks.
+      if (typeof window.onStashaFrame === 'function') {
+        try { window.onStashaFrame(); } catch (e) { /* silent */ }
+      }
     }
 
     function react(kind) {
@@ -3765,7 +3772,33 @@ body {
       }
     }
 
-    window.__stasha3D = { init, react, setZoom: applyZoom, resetRotation };
+    // Project a bone's world position to canvas-relative screen coords.
+    // Returns { x, y, behind } where x, y are 0..1 (left→right, top→bottom)
+    // of the canvas, and `behind` is true if the bone is behind the camera
+    // (so the overlay layer can hide its item).
+    function projectBone(boneName) {
+      if (!vrm || !camera) return null;
+      let bone = null;
+      try {
+        if (typeof vrm.humanoid.getNormalizedBoneNode === 'function') {
+          bone = vrm.humanoid.getNormalizedBoneNode(boneName);
+        }
+      } catch (e) {}
+      if (!bone) {
+        try { bone = vrm.humanoid.getBoneNode(boneName); } catch (e) {}
+      }
+      if (!bone) return null;
+      const pos = new THREE.Vector3();
+      bone.getWorldPosition(pos);
+      const v = pos.clone().project(camera);
+      return {
+        x: (v.x + 1) * 0.5,
+        y: (1 - v.y) * 0.5,
+        behind: v.z >= 1 || v.z <= -1
+      };
+    }
+
+    window.__stasha3D = { init, react, setZoom: applyZoom, resetRotation, projectBone };
   } catch (e) {
     console.warn('Stasha 3D module failed to load — using 2D fallback.', e);
   }
