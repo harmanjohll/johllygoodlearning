@@ -813,7 +813,7 @@ const ANNOT_LEGEND = [
   ['OK', 'lg-ok'],
 ];
 
-function renderAnnotator(targetEl, annotations) {
+function renderAnnotator(targetEl, annotations, context) {
   if (!Array.isArray(annotations) || !annotations.length) {
     targetEl.innerHTML = '<p>No annotations produced. Try a longer draft.</p>';
     targetEl.style.display = 'block';
@@ -854,6 +854,14 @@ function renderAnnotator(targetEl, annotations) {
         `).join('')}
       </div>
     ` : '<p style="color:var(--grammar);margin-top:1rem;font-size:.88rem;">No issues to flag — every sentence checked out.</p>'}
+    ${context ? `
+      <div style="display:flex;gap:.55rem;align-items:center;margin-top:1.1rem;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:.85rem;">
+        <button class="btn btn-primary" id="annot-save-btn" style="font-size:.78rem;padding:.4rem .85rem;">📌 Save to Bank</button>
+        <a class="btn btn-secondary" href="../bank/" style="font-size:.78rem;padding:.4rem .85rem;">→ Open my Bank</a>
+        <span style="flex:1;"></span>
+        <span style="font-size:.78rem;color:var(--muted);" id="annot-save-status"></span>
+      </div>
+    ` : ''}
   `;
   // Click-to-highlight cross-link between sentence underlines and issue cards
   const sents  = targetEl.querySelectorAll('.annot-sent');
@@ -866,6 +874,35 @@ function renderAnnotator(targetEl, annotations) {
   }
   sents.forEach(s => s.addEventListener('click', () => focusIdx(s.dataset.idx)));
   issuesNodes.forEach(n => n.addEventListener('click', () => focusIdx(n.dataset.idx)));
+
+  // Save-to-Bank handler
+  const saveBtn = targetEl.querySelector('#annot-save-btn');
+  if (saveBtn && context) {
+    saveBtn.addEventListener('click', () => {
+      try {
+        const bank = JSON.parse(localStorage.getItem('jgl.english.annotator.bank') || '[]');
+        bank.push({
+          id:          'ann-' + Date.now(),
+          savedAtIso:  new Date().toISOString(),
+          task:        context.task,                 // 'composition' | 'comprehension'
+          topic:       context.topic || '',
+          question:    context.question || '',
+          draft:       context.draft || '',
+          annotations,
+          counts,
+          issueCount:  issues.length,
+        });
+        localStorage.setItem('jgl.english.annotator.bank', JSON.stringify(bank.slice(-50)));
+        const s = targetEl.querySelector('#annot-save-status');
+        if (s) s.textContent = '✓ Saved. Track patterns in your Bank.';
+        saveBtn.disabled = true;
+      } catch (e) {
+        const s = targetEl.querySelector('#annot-save-status');
+        if (s) s.textContent = 'Save failed: ' + (e?.message || e);
+      }
+    });
+  }
+
   targetEl.style.display = 'block';
 }
 
@@ -903,7 +940,11 @@ document.getElementById('composition-submit').addEventListener('click', async ()
         asJson: true,
         thinkingBudget: 0,
       });
-      renderAnnotator(annotEl, Array.isArray(json) ? json : (json.annotations || []));
+      renderAnnotator(annotEl, Array.isArray(json) ? json : (json.annotations || []), {
+        task:  'composition',
+        topic: state.composition.topic?.note || '',
+        draft,
+      });
     } else {
       const text = await callGemini(compositionExaminerPrompt(state.composition.topic, draft));
       renderFeedback(fb, text);
@@ -959,7 +1000,12 @@ document.getElementById('comprehension-submit').addEventListener('click', async 
         asJson: true,
         thinkingBudget: 0,
       });
-      renderAnnotator(annotEl, Array.isArray(json) ? json : (json.annotations || []));
+      renderAnnotator(annotEl, Array.isArray(json) ? json : (json.annotations || []), {
+        task:     'comprehension',
+        question: q?.text || '',
+        topic:    state.comprehension.passage?.title || '',
+        draft:    answer,
+      });
     } else {
       const text = await callGemini(comprehensionExaminerPrompt(state.comprehension.passage, q, answer));
       renderFeedback(fb, text);
