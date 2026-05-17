@@ -68,6 +68,12 @@
     });
   };
 
+  window.stashaResetSpin = function() {
+    if (window.__stasha3D && typeof window.__stasha3D.resetRotation === 'function') {
+      try { window.__stasha3D.resetRotation(); } catch (e) {}
+    }
+  };
+
   // Stasha-flavoured TTS — higher pitch and slightly faster so she
   // sounds younger than the default. Picks an en-GB or en-US voice
   // if one is available.

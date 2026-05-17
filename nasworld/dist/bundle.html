@@ -716,7 +716,11 @@ body {
 .stasha-outfit { bottom: 30%; left: 50%; transform: translateX(-50%); font-size: 38px; opacity: 0.85; }
 .stasha-pet    { bottom: 8%; right: 8%; font-size: 44px; animation: float 3s ease-in-out infinite; }
 
-.stasha-zoom-row { display: flex; gap: 6px; justify-content: center; margin: 14px 0 0; flex-wrap: wrap; }
+.stasha-hint {
+  font-size: 11px; color: var(--text-secondary); margin: 8px 0 0;
+  text-align: center; opacity: 0.85;
+}
+.stasha-zoom-row { display: flex; gap: 6px; justify-content: center; margin: 8px 0 0; flex-wrap: wrap; }
 .stasha-zoom-btn {
   background: rgba(37,27,94,0.6); border: 1px solid rgba(181,123,255,0.3);
   color: var(--text-primary); padding: 6px 12px; border-radius: 999px;
@@ -3489,6 +3493,32 @@ body {
     let currentZoom = 'chest';   // 'face' | 'chest' | 'full'
     let headWorldPos = null;     // captured after model loads
     let baseY = 1.0;             // approximate body centre (set after load)
+    let baseRotY = 0;            // VRM's initial Y rotation (rotateVRM0 sets this)
+    let modelRotDelta = 0;       // user's drag-rotate offset around Y
+
+    // Rest pose — arms by her sides instead of T-pose. Z is the
+    // axis that swings the arm in the X/Y plane. Positive Z brings
+    // the LEFT arm down (it's on +X in VRM space); negative brings
+    // the right arm down.
+    const REST_POSE = {
+      leftUpperArm:  { z:  1.30 },
+      rightUpperArm: { z: -1.30 },
+      leftLowerArm:  { z:  0.10 },
+      rightLowerArm: { z: -0.10 },
+      leftHand:      { z:  0 },
+      rightHand:     { z:  0 }
+    };
+    function applyRestPose() {
+      if (!vrm || !vrm.humanoid) return;
+      Object.keys(REST_POSE).forEach((name) => {
+        const bone = vrm.humanoid.getBoneNode(name);
+        if (!bone) return;
+        const r = REST_POSE[name];
+        if (r.x != null) bone.rotation.x = r.x;
+        if (r.y != null) bone.rotation.y = r.y;
+        if (r.z != null) bone.rotation.z = r.z;
+      });
+    }
 
     function applyZoom(mode) {
       if (!camera || !headWorldPos) return;
@@ -3550,6 +3580,8 @@ body {
           try { VRMUtils.removeUnnecessaryJoints(gltf.scene); } catch(_) {}
           try { VRMUtils.rotateVRM0(vrm); } catch(_) {}
           scene.add(vrm.scene);
+          baseRotY = vrm.scene.rotation.y; // set by rotateVRM0 for VRM 0.x
+          modelRotDelta = 0;
           // Capture head position once, in world space
           const head = vrm.humanoid?.getBoneNode('head');
           headWorldPos = new THREE.Vector3(0, 1.4, 0);
@@ -3557,12 +3589,47 @@ body {
             head.getWorldPosition(headWorldPos);
             baseY = headWorldPos.y - 0.6; // approximate mid-torso
           }
+          applyRestPose();
           applyZoom(currentZoom);
+          wireDragRotate(canvas);
           clock = new THREE.Clock();
           tick();
           resolve();
         }, undefined, reject);
       });
+    }
+
+    // Drag the canvas left/right to spin Stasha. Vertical drag is ignored
+    // so she doesn't end up upside-down or sliced through the floor.
+    function wireDragRotate(canvas) {
+      let dragging = false;
+      let lastX = 0;
+      canvas.style.touchAction = 'none';
+      canvas.style.cursor = 'grab';
+      canvas.addEventListener('pointerdown', (e) => {
+        dragging = true; lastX = e.clientX;
+        canvas.setPointerCapture?.(e.pointerId);
+        canvas.style.cursor = 'grabbing';
+      });
+      canvas.addEventListener('pointermove', (e) => {
+        if (!dragging || !vrm) return;
+        const dx = e.clientX - lastX;
+        lastX = e.clientX;
+        modelRotDelta += dx * 0.012;
+        vrm.scene.rotation.y = baseRotY + modelRotDelta;
+      });
+      const stopDrag = () => {
+        dragging = false;
+        canvas.style.cursor = 'grab';
+      };
+      canvas.addEventListener('pointerup',     stopDrag);
+      canvas.addEventListener('pointercancel', stopDrag);
+      canvas.addEventListener('pointerleave',  stopDrag);
+    }
+
+    function resetRotation() {
+      modelRotDelta = 0;
+      if (vrm) vrm.scene.rotation.y = baseRotY;
     }
 
     function tick() {
@@ -3586,7 +3653,8 @@ body {
         blinkAccum = 2 + Math.random() * 3;
       }
 
-      // Wave animation
+      // Wave animation — raise her right arm up and waggle it, then
+      // restore rest pose so she doesn't snap back to T-pose.
       if (waveActive) {
         waveTimer += dt;
         const arm = vrm.humanoid?.getBoneNode('rightUpperArm');
@@ -3595,8 +3663,7 @@ body {
         if (fore) fore.rotation.z = -0.4;
         if (waveTimer > 1.6) {
           waveActive = false;
-          if (arm) arm.rotation.z = 0;
-          if (fore) fore.rotation.z = 0;
+          applyRestPose();
         }
       }
 
@@ -3630,7 +3697,7 @@ body {
       }
     }
 
-    window.__stasha3D = { init, react, setZoom: applyZoom };
+    window.__stasha3D = { init, react, setZoom: applyZoom, resetRotation };
   } catch (e) {
     console.warn('Stasha 3D module failed to load — using 2D fallback.', e);
   }
@@ -13569,10 +13636,12 @@ function renderStashaScreen() {
   html += '<div class="stasha-name">Stasha 💖</div>';
   html += '<div class="stasha-bio">Anastasia\'s avatar. The better you do, the more she gets to wear.</div>';
 
+  html += '<div class="stasha-hint">👆 Drag to spin her round and see her from every side.</div>';
   html += '<div class="stasha-zoom-row">';
   html += '<button class="stasha-zoom-btn" data-zoom="face" onclick="stashaZoom(\'face\')">😊 Face</button>';
   html += '<button class="stasha-zoom-btn active" data-zoom="chest" onclick="stashaZoom(\'chest\')">👕 Chest-up</button>';
   html += '<button class="stasha-zoom-btn" data-zoom="full" onclick="stashaZoom(\'full\')">🧍 Full body</button>';
+  html += '<button class="stasha-zoom-btn" onclick="stashaResetSpin()">↻ Face front</button>';
   html += '</div>';
 
   html += '<div class="stasha-actions">';
@@ -13725,6 +13794,12 @@ window.wardrobeEquip = wardrobeEquip;
     document.querySelectorAll('.stasha-zoom-btn').forEach(function(b) {
       b.classList.toggle('active', b.dataset.zoom === mode);
     });
+  };
+
+  window.stashaResetSpin = function() {
+    if (window.__stasha3D && typeof window.__stasha3D.resetRotation === 'function') {
+      try { window.__stasha3D.resetRotation(); } catch (e) {}
+    }
   };
 
   // Stasha-flavoured TTS — higher pitch and slightly faster so she
