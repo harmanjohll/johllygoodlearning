@@ -61,12 +61,6 @@ function showScreen(screenId) {
   if (screenId === 'sim-hub' && typeof renderSimHub === 'function') {
     renderSimHub();
   }
-  if (screenId === 'sign-studio' && typeof renderSignStudio === 'function') {
-    renderSignStudio();
-  }
-  if (screenId === 'sign-builder' && typeof renderSignBuilder === 'function') {
-    renderSignBuilder();
-  }
   if (screenId === 'garden') {
     if (typeof renderGardenIsland === 'function') renderGardenIsland();
     renderGarden();

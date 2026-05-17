@@ -946,103 +946,174 @@ body {
 @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes sink-drop { 0% { transform: translateY(-130px); opacity: 0.3; } 100% { transform: translateY(0); opacity: 1; } }
 
-/* === SIGN STUDIO === */
-.world-card.sign-studio .world-card-icon { animation: float 4s ease-in-out infinite; }
-.sign-title { font-family: var(--font-display); color: var(--gold); text-align: center; margin: 8px 0; }
-.sign-blurb { text-align: center; color: var(--text-secondary); padding: 0 16px; margin: 0 0 10px; font-size: 13px; line-height: 1.5; }
-.sign-honest {
-  background: rgba(255, 207, 100, 0.1); border: 1px solid rgba(255, 207, 100, 0.35);
-  color: #ffe7a8; padding: 10px 14px; margin: 10px 12px; border-radius: var(--radius-md);
-  font-size: 12px; line-height: 1.5;
+/* === TTS — speaker buttons === */
+.tts-btn {
+  background: rgba(123,179,255,0.15); border: 1px solid rgba(123,179,255,0.35);
+  color: var(--text-primary); border-radius: 999px;
+  padding: 2px 8px; font-size: 14px; cursor: pointer;
+  vertical-align: middle; margin-left: 4px;
+  transition: all .2s;
 }
-.sign-progress { text-align: center; color: var(--text-primary); margin: 12px 0; font-size: 14px; }
-.sign-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px; padding: 0 12px;
-}
-.sign-card {
-  background: rgba(37,27,94,0.5); border: 2px solid rgba(123,179,255,0.25);
-  border-radius: var(--radius-lg); padding: 16px 12px;
-  text-align: center; cursor: pointer; transition: all 0.25s;
-}
-.sign-card:hover { transform: translateY(-3px); border-color: var(--gold); }
-.sign-card.taught { border-color: rgba(74,222,128,0.45); background: rgba(74,222,128,0.08); }
-.sign-card-emoji { font-size: 44px; margin-bottom: 4px; }
-.sign-card-label { font-family: var(--font-display); color: var(--gold); margin-bottom: 4px; }
-.sign-card-why { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; min-height: 32px; }
-.sign-card-status { font-size: 12px; color: var(--text-primary); padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); }
+.tts-btn:hover { background: rgba(255,215,0,0.25); border-color: var(--gold); transform: scale(1.1); }
+.tts-btn:active { transform: scale(0.95); }
 
-/* Sign Builder */
-.sign-ref {
-  background: rgba(123,179,255,0.12); border: 1px solid rgba(123,179,255,0.3);
-  padding: 10px 14px; margin: 10px 12px; border-radius: var(--radius-md);
-  font-size: 13px; line-height: 1.5; color: var(--text-primary);
+/* === BALANCE SIM === */
+.balance-beam { display: flex; flex-direction: column; align-items: center; }
+.balance-svg { width: 100%; max-width: 360px; }
+#balance-bar { transform-origin: 0 0; transition: transform 0.5s ease; }
+.balance-result {
+  margin-top: 8px; color: var(--text-primary); font-size: 14px;
+  background: rgba(255,255,255,0.06); border-radius: 999px;
+  padding: 6px 14px; display: inline-block;
 }
-.sign-ref a { color: var(--gold); text-decoration: underline; }
-.sign-note {
-  background: rgba(123,179,255,0.08); padding: 8px 14px;
-  margin: 0 12px 12px; border-radius: var(--radius-md);
-  font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+.balance-tray {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  margin: 14px 0 8px;
 }
-.sign-preview {
-  margin: 18px auto; padding: 16px; max-width: 320px;
-  background: rgba(37,27,94,0.5); border: 1px solid rgba(255,215,0,0.25);
-  border-radius: var(--radius-lg); text-align: center;
+.balance-item {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.3);
+  border-radius: var(--radius-md); padding: 8px;
+  text-align: center; cursor: grab; user-select: none;
 }
-.sign-preview-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; }
-.sign-stasha {
-  position: relative; width: 200px; height: 240px; margin: 0 auto;
-  background: linear-gradient(180deg, #fce4f1 0%, #f5d6e8 100%);
+.balance-item:active { cursor: grabbing; }
+.balance-item-emoji { font-size: 28px; }
+.balance-item-name { font-size: 11px; color: var(--text-primary); }
+.balance-controls { display: flex; justify-content: center; margin-top: 8px; }
+
+/* === MAGNETS SIM === */
+.magnet-field {
+  position: relative;
+  height: 360px;
+  background: linear-gradient(135deg, #1a1147 0%, #2a1f5d 100%);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 2px solid rgba(181,123,255,0.3);
+}
+.magnet-item {
+  position: absolute;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: var(--radius-sm); padding: 6px;
+  text-align: center; width: 80px;
+  transition: all 0.2s;
+}
+.magnet-item:nth-child(1) { top: 12%; left: 10%; }
+.magnet-item:nth-child(2) { top: 16%; left: 60%; }
+.magnet-item:nth-child(3) { top: 38%; left: 30%; }
+.magnet-item:nth-child(4) { top: 52%; left: 72%; }
+.magnet-item:nth-child(5) { top: 68%; left: 14%; }
+.magnet-item:nth-child(6) { top: 75%; left: 55%; }
+.magnet-item:nth-child(7) { top: 28%; left: 80%; }
+.magnet-item:nth-child(8) { top: 60%; left: 5%; }
+.magnet-item.stuck { border-color: var(--gold); background: rgba(255,215,0,0.2); transform: scale(1.05); }
+.magnet-item.tested { opacity: 0.55; }
+.magnet-emoji { font-size: 28px; }
+.magnet-name { font-size: 10px; color: var(--text-primary); }
+.magnet-tool {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 60px; height: 60px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,123,219,0.18); border: 2px solid var(--pink);
+  border-radius: 50%; font-size: 36px;
+  cursor: grab; touch-action: none; user-select: none;
+  z-index: 10;
+}
+.magnet-tool:active { cursor: grabbing; }
+
+/* === LIVING vs NON-LIVING SIM === */
+.living-tray {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px;
+  background: rgba(255,255,255,0.04); border-radius: var(--radius-md);
+  min-height: 100px;
+}
+.living-item {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.3);
+  border-radius: var(--radius-md); padding: 8px;
+  text-align: center; cursor: grab; transition: all .2s;
+}
+.living-item:hover { transform: translateY(-2px); }
+.living-item:active { cursor: grabbing; }
+.living-item.placed { background: rgba(74,222,128,0.2); border-color: var(--success); }
+.living-item.shake { animation: shake 0.4s ease; }
+.living-emoji { font-size: 28px; }
+.living-name { font-size: 11px; color: var(--text-primary); }
+.living-cols {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.living-col { border-radius: var(--radius-md); padding: 10px; min-height: 140px; }
+.living-col.living-yes { background: rgba(74,222,128,0.1); border: 2px solid rgba(74,222,128,0.35); }
+.living-col.living-no  { background: rgba(188,198,204,0.1); border: 2px solid rgba(188,198,204,0.35); }
+.living-col-title { font-weight: 700; color: var(--text-primary); margin-bottom: 8px; text-align: center; }
+.living-col-body {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 6px; min-height: 80px;
+}
+.living-col-body.hover { background: rgba(255,255,255,0.06); }
+
+/* === WATER CYCLE SIM === */
+.water-scene {
+  position: relative; height: 260px;
+  background: linear-gradient(180deg, #87b8e8 0%, #c8e6f8 60%, #5fa9d4 60%, #2a7eb5 100%);
   border-radius: var(--radius-md); overflow: hidden;
+  margin-bottom: 12px;
 }
-.sign-stasha-body {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%); font-size: 120px;
+.water-sun {
+  position: absolute; top: 12px; right: 16px;
+  font-size: 36px; animation: sun-pulse-slow 4s ease-in-out infinite;
 }
-.sign-stasha-hand {
-  position: absolute; font-size: 32px; z-index: 5;
-  transform: translate(-50%, -50%); transition: top 0.6s, left 0.6s;
+@keyframes sun-pulse-slow { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+.water-cloud {
+  position: absolute; top: 18%; left: 40%;
+  font-size: 48px; opacity: 0; transition: opacity 0.8s;
 }
-.sign-stasha-hand.move-up      { animation: sign-move-up 1.2s ease-in-out; }
-.sign-stasha-hand.move-down    { animation: sign-move-down 1.2s ease-in-out; }
-.sign-stasha-hand.move-side    { animation: sign-move-side 1.2s ease-in-out; }
-.sign-stasha-hand.move-circle  { animation: sign-move-circle 1.4s ease-in-out; }
-.sign-stasha-hand.move-tap     { animation: sign-move-tap 1.0s ease-in-out; }
-.sign-stasha-hand.move-wave    { animation: sign-move-wave 1.2s ease-in-out; }
-.sign-stasha-hand.move-forward { animation: sign-move-forward 1.0s ease-out; }
-.sign-stasha-hand.move-inward  { animation: sign-move-inward 1.0s ease-out; }
-@keyframes sign-move-up      { 0%,100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -180%); } }
-@keyframes sign-move-down    { 0%,100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%,  60%); } }
-@keyframes sign-move-side    { 0%,100% { transform: translate(-50%, -50%); } 25% { transform: translate(-180%, -50%); } 75% { transform: translate(80%, -50%); } }
-@keyframes sign-move-circle  { 0%,100% { transform: translate(-50%, -50%); } 25% { transform: translate(40%, -50%); } 50% { transform: translate(-50%, 40%); } 75% { transform: translate(-180%, -50%); } }
-@keyframes sign-move-tap     { 0%,40%,80%,100% { transform: translate(-50%, -50%) scale(1); } 20%,60% { transform: translate(-50%, -50%) scale(1.25); } }
-@keyframes sign-move-wave    { 0%,100% { transform: translate(-50%, -50%) rotate(0deg); } 25% { transform: translate(-50%, -50%) rotate(-20deg); } 75% { transform: translate(-50%, -50%) rotate(20deg); } }
-@keyframes sign-move-forward { 0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0.6; } 100% { transform: translate(-50%, -50%) scale(1.4); opacity: 1; } }
-@keyframes sign-move-inward  { 0% { transform: translate(-50%, -50%) scale(1.4); opacity: 0.5; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
-.sign-play-btn { margin-top: 12px; }
+.water-cloud.show { opacity: 1; animation: cloud-drift 6s ease-in-out infinite; }
+@keyframes cloud-drift { 0%,100% { transform: translateX(0); } 50% { transform: translateX(20px); } }
+.water-vapour {
+  position: absolute; bottom: 32%; left: 10%; right: 10%; height: 100px;
+  opacity: 0; transition: opacity 0.6s;
+  pointer-events: none;
+}
+.water-vapour.show { opacity: 1; }
+.water-vapour.show::before, .water-vapour.show::after {
+  content: '💨'; position: absolute; font-size: 24px;
+  animation: vapour-rise 2.5s ease-in infinite;
+}
+.water-vapour.show::before { left: 30%; animation-delay: 0s; }
+.water-vapour.show::after  { left: 60%; animation-delay: 1s; }
+@keyframes vapour-rise { 0% { bottom: 0; opacity: 0.8; } 100% { bottom: 90px; opacity: 0; } }
+.water-rain {
+  position: absolute; top: 30%; left: 40%; width: 60px; height: 80px;
+  opacity: 0; transition: opacity 0.6s; pointer-events: none;
+}
+.water-rain.show::before {
+  content: '💧 💧 💧';  position: absolute; font-size: 18px;
+  animation: rain-fall 0.8s linear infinite;
+}
+.water-rain.show { opacity: 1; }
+@keyframes rain-fall { 0% { top: 0; opacity: 0.7; } 100% { top: 80px; opacity: 0; } }
+.water-mountain {
+  position: absolute; bottom: 32%; left: 8%; font-size: 60px;
+}
+.water-river {
+  position: absolute; bottom: 28%; left: 14%;
+  font-size: 18px; color: #fff;
+  opacity: 0; transition: opacity 0.6s;
+}
+.water-river.show { opacity: 1; }
+.water-sea {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 28%;
+  background: linear-gradient(180deg, #5fa9d4 0%, #2a7eb5 100%);
+}
+.water-stage-name {
+  font-family: var(--font-display); color: var(--gold);
+  font-size: 18px; margin-bottom: 6px;
+}
+.water-msg { color: var(--text-primary); margin-bottom: 12px; min-height: 40px; line-height: 1.5; font-size: 14px; }
 
-.sign-builder { margin: 16px 12px; }
-.sign-builder-label { font-weight: 700; color: var(--gold); margin-bottom: 12px; text-align: center; font-size: 14px; }
-.sign-picker {
-  background: rgba(37,27,94,0.4); border: 1px solid rgba(181,123,255,0.2);
-  border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px;
-}
-.sign-picker-label {
-  font-weight: 700; color: var(--text-primary); margin-bottom: 8px;
-  font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;
-}
-.sign-picker-options { display: flex; flex-wrap: wrap; gap: 6px; }
-.sign-opt {
-  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-  color: var(--text-primary); padding: 8px 12px; border-radius: 10px;
-  cursor: pointer; font-family: var(--font-body); font-size: 12px;
-  display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
-}
-.sign-opt:hover { background: rgba(255,215,0,0.1); border-color: rgba(255,215,0,0.3); }
-.sign-opt.selected { background: rgba(255,215,0,0.2); border-color: var(--gold); color: var(--gold); font-weight: 700; }
-.sign-opt-emoji { font-size: 18px; }
-.sign-opt-desc { display: block; font-size: 10px; color: var(--text-dim); margin-left: 6px; }
-.sign-save-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 18px 12px 30px; }
 
 /* === ACTIVITY SELECTION === */
 .activity-header {
@@ -3182,13 +3253,7 @@ body {
         <div class="world-card sim-hub" onclick="showScreen('sim-hub')">
           <span class="world-card-icon">&#128300;</span>
           <div class="world-card-title">STEM Lab</div>
-          <div class="world-card-desc">5 hands-on experiments: forces, plants, shadows, recycling, floating.</div>
-        </div>
-
-        <div class="world-card sign-studio" onclick="showScreen('sign-studio')">
-          <span class="world-card-icon">&#129311;</span>
-          <div class="world-card-title">Sign Studio</div>
-          <div class="world-card-desc">Teach Stasha to sign! Watch a real sign, then build it with her.</div>
+          <div class="world-card-desc">9 hands-on experiments: forces, plants, shadows, recycling, floating, balance, magnets, water cycle, and more.</div>
         </div>
         <div class="world-card garden" onclick="showScreen('garden')">
           <span class="world-card-icon">&#127800;</span>
@@ -3315,15 +3380,6 @@ body {
       <div id="sim-content"></div>
     </div>
 
-    <!-- SIGN STUDIO SCREEN -->
-    <div class="screen" id="screen-sign-studio">
-      <div id="sign-studio-content"></div>
-    </div>
-
-    <!-- SIGN BUILDER SCREEN -->
-    <div class="screen" id="screen-sign-builder">
-      <div id="sign-builder-content"></div>
-    </div>
 
     <!-- SKILL VIEW SCREEN (Learn / Explore / Quiz tabs) -->
     <div class="screen" id="screen-skill-view">
@@ -9131,7 +9187,8 @@ function renderPhonicsInitial(card, q) {
 }
 
 function renderSightPick(card, q) {
-  var html = '<div class="question-text">Find the word:</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.targetWord, 'en-US', 'Hear the word') : '';
+  var html = '<div class="question-text">Find the word: ' + tts + '</div>';
   html += '<div style="font-size:42px;margin:16px 0;font-family:var(--font-display);color:var(--gold)">' + q.targetWord + '</div>';
   html += '<div class="answer-options">' + q.options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:24px">' + o + '</button>';
@@ -9141,7 +9198,8 @@ function renderSightPick(card, q) {
 }
 
 function renderSightFlash(card, q) {
-  var html = '<div class="question-text">Remember this word!</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.targetWord, 'en-US', 'Hear the word') : '';
+  var html = '<div class="question-text">Remember this word! ' + tts + '</div>';
   html += '<div id="flash-word" style="font-size:48px;margin:16px 0;font-family:var(--font-display);color:var(--gold);transition:opacity 0.5s">' + q.targetWord + '</div>';
   html += '<div id="flash-options" style="display:none">';
   html += '<div class="question-text" style="font-size:20px">Which word did you see?</div>';
@@ -12002,7 +12060,8 @@ function renderMalayNumber(card, q) {
 }
 
 function renderMalayNumberWord(card, q) {
-  var html = '<div class="question-text">How do you say <b>' + q.number + '</b> in Malay?</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(String(q.answer || ''), 'ms-MY', 'Hear in Malay') : '';
+  var html = '<div class="question-text">How do you say <b>' + q.number + '</b> in Malay? ' + tts + '</div>';
   html += '<div style="font-size:56px;margin:12px 0;color:var(--gold);font-weight:700">' + q.number + '</div>';
   html += _malayOptions(q, 'font-size:22px');
   html += renderHintBtn(q.hint);
@@ -12010,7 +12069,8 @@ function renderMalayNumberWord(card, q) {
 }
 
 function renderMalayGreet(card, q) {
-  var html = '<div class="question-text">What does <b>"' + q.prompt + '"</b> mean?</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.prompt, 'ms-MY', 'Hear in Malay') : '';
+  var html = '<div class="question-text">What does <b>"' + q.prompt + '"</b> mean? ' + tts + '</div>';
   if (q.emoji) html += '<div style="font-size:40px;margin:8px 0">' + q.emoji + '</div>';
   html += _malayOptions(q, 'font-size:18px');
   html += renderHintBtn(q.hint);
@@ -12928,6 +12988,90 @@ function metaReflectAfter(skillId, onDone) {
 
 window.metaConfidenceBefore = metaConfidenceBefore;
 window.metaReflectAfter = metaReflectAfter;
+
+// --- src/core/tts.js ---
+// ============================================================
+//  TTS — Browser-native text-to-speech.
+//  Tap a 🔊 button anywhere and the matching text reads itself.
+//  Helpful for a P1 reader who can't yet sound out every word.
+// ============================================================
+
+(function() {
+  var ttsSupported = !!(window.speechSynthesis && window.SpeechSynthesisUtterance);
+  var voicesCache = [];
+
+  function loadVoices() {
+    if (!ttsSupported) return;
+    voicesCache = window.speechSynthesis.getVoices() || [];
+  }
+
+  function ensureVoices(cb) {
+    if (!ttsSupported) { cb(); return; }
+    loadVoices();
+    if (voicesCache.length > 0) { cb(); return; }
+    window.speechSynthesis.addEventListener('voiceschanged', function once() {
+      window.speechSynthesis.removeEventListener('voiceschanged', once);
+      loadVoices();
+      cb();
+    });
+    // Kick the engine on browsers that need it.
+    window.speechSynthesis.getVoices();
+    // Fallback in case the event never fires
+    setTimeout(function() { loadVoices(); cb(); }, 400);
+  }
+
+  function pickVoice(lang) {
+    if (voicesCache.length === 0) return null;
+    var exact = voicesCache.find(function(v) { return v.lang === lang; });
+    if (exact) return exact;
+    var prefix = lang.split('-')[0];
+    var prefixMatch = voicesCache.find(function(v) { return v.lang.indexOf(prefix) === 0; });
+    if (prefixMatch) return prefixMatch;
+    return voicesCache[0];
+  }
+
+  function speak(text, opts) {
+    if (!ttsSupported || !text) {
+      if (typeof lumiSay === 'function') lumiSay('Sorry — this browser can\'t read aloud.');
+      return;
+    }
+    opts = opts || {};
+    window.speechSynthesis.cancel();
+    ensureVoices(function() {
+      var utt = new SpeechSynthesisUtterance(text);
+      utt.lang  = opts.lang  || 'en-US';
+      utt.rate  = opts.rate  || 0.85;
+      utt.pitch = opts.pitch || 1.05;
+      utt.volume = opts.volume != null ? opts.volume : 1;
+      var v = pickVoice(utt.lang);
+      if (v) utt.voice = v;
+      window.speechSynthesis.speak(utt);
+    });
+  }
+
+  function stop() {
+    if (ttsSupported) window.speechSynthesis.cancel();
+  }
+
+  // Small helper: build a tappable speaker button. Sanitises the text.
+  function ttsButton(text, lang, label) {
+    if (!ttsSupported) return '';
+    var safe = String(text).replace(/'/g, "\\'").replace(/\n/g, ' ');
+    return '<button class="tts-btn" title="' + (label || 'Read aloud') + '" ' +
+      'onclick="event.stopPropagation(); ttsSpeak(\'' + safe + '\', \'' + (lang || 'en-US') + '\')">🔊</button>';
+  }
+
+  window.ttsSpeak = speak;
+  window.ttsStop  = stop;
+  window.ttsButton = ttsButton;
+  window.ttsSupported = ttsSupported;
+
+  // Pre-warm on page load
+  if (ttsSupported) {
+    setTimeout(loadVoices, 50);
+    setTimeout(loadVoices, 800);
+  }
+})();
 
 // --- src/avatar/wardrobe-data.js ---
 // ============================================================
@@ -14173,6 +14317,455 @@ var simFloat = (function() {
   return { id: 'float', name: 'Float or Sink?', emoji: '🌊', skill: 'material', render: render, dispose: dispose };
 })();
 
+// --- src/stem-sims/sim-balance.js ---
+// ============================================================
+//  STEM SIM 6 — BALANCE / SEESAW
+//  Drag items onto the pans. Heavier side tips down.
+//  Skill: lenmass (Length & Mass — comparison)
+// ============================================================
+
+var simBalance = (function() {
+  var ITEMS = [
+    { id: 'feather',  emoji: '🪶', name: 'Feather',   mass: 1 },
+    { id: 'apple',    emoji: '🍎', name: 'Apple',     mass: 4 },
+    { id: 'book',     emoji: '📚', name: 'Big Book',  mass: 8 },
+    { id: 'orange',   emoji: '🍊', name: 'Orange',    mass: 3 },
+    { id: 'rock',     emoji: '🪨', name: 'Rock',      mass: 10 },
+    { id: 'banana',   emoji: '🍌', name: 'Banana',    mass: 2 },
+    { id: 'pumpkin',  emoji: '🎃', name: 'Pumpkin',   mass: 12 },
+    { id: 'pencil',   emoji: '✏️', name: 'Pencil',    mass: 1 }
+  ];
+  var state = null;
+
+  function render(container) {
+    var pool = ITEMS.slice().sort(function(){return Math.random()-0.5;}).slice(0,6);
+    state = { left: [], right: [], pool: pool, rounds: 0, target: 4, completed: false };
+    container.innerHTML =
+      '<button class="back-btn" onclick="openSimHub()">← Back to STEM Lab</button>' +
+      '<h2 class="sim-title">⚖️ Balance Beam</h2>' +
+      '<p class="sim-blurb">Drag items onto the pans. Which side is heavier? The heavier side tips down!</p>' +
+      '<div class="sim-stage">' +
+        '<div class="balance-beam">' +
+          '<svg viewBox="-180 -80 360 220" class="balance-svg">' +
+            '<line x1="0" y1="0" x2="0" y2="100" stroke="#bb9bff" stroke-width="6" />' +
+            '<polygon points="-20,100 20,100 0,140" fill="#7b3aff" />' +
+            '<g id="balance-bar"><line x1="-140" y1="0" x2="140" y2="0" stroke="#ffd166" stroke-width="6" stroke-linecap="round" />' +
+              '<line x1="-140" y1="0" x2="-140" y2="40" stroke="#ffd166" stroke-width="3" />' +
+              '<line x1="140" y1="0" x2="140" y2="40" stroke="#ffd166" stroke-width="3" />' +
+              '<ellipse cx="-140" cy="50" rx="50" ry="10" fill="rgba(255,255,255,0.18)" stroke="#ffd166" stroke-width="2" />' +
+              '<ellipse cx="140"  cy="50" rx="50" ry="10" fill="rgba(255,255,255,0.18)" stroke="#ffd166" stroke-width="2" />' +
+              '<text id="balance-left-emoji"  x="-140" y="35" text-anchor="middle" font-size="32"></text>' +
+              '<text id="balance-right-emoji" x="140"  y="35" text-anchor="middle" font-size="32"></text>' +
+            '</g>' +
+          '</svg>' +
+          '<div class="balance-result" id="balance-result">Empty — drop something on a pan!</div>' +
+        '</div>' +
+        '<div class="balance-tray" id="balance-tray"></div>' +
+        '<div class="balance-controls">' +
+          '<button class="lesson-btn" onclick="simBalanceReset()">↻ Reset pans</button>' +
+        '</div>' +
+        '<div class="sim-meter" id="balance-meter">Comparisons: <strong>0 / 4</strong></div>' +
+      '</div>';
+    renderTray();
+    renderBeam();
+    wireDrop();
+  }
+
+  function renderTray() {
+    var tray = document.getElementById('balance-tray');
+    if (!tray) return;
+    tray.innerHTML = state.pool.map(function(it) {
+      return '<div class="balance-item" draggable="true" data-id="' + it.id + '">' +
+        '<div class="balance-item-emoji">' + it.emoji + '</div>' +
+        '<div class="balance-item-name">' + it.name + '</div></div>';
+    }).join('');
+    tray.querySelectorAll('.balance-item').forEach(function(el) {
+      el.addEventListener('dragstart', function(e) { e.dataTransfer.setData('text/plain', el.dataset.id); });
+      el.addEventListener('click', function() { addToLighterPan(el.dataset.id); });
+    });
+  }
+
+  function wireDrop() {
+    var bar = document.querySelector('.balance-svg');
+    if (!bar) return;
+    bar.addEventListener('dragover', function(e) { e.preventDefault(); });
+    bar.addEventListener('drop', function(e) {
+      e.preventDefault();
+      var id = e.dataTransfer.getData('text/plain');
+      var rect = bar.getBoundingClientRect();
+      var midX = rect.left + rect.width / 2;
+      addToPan(id, e.clientX < midX ? 'left' : 'right');
+    });
+  }
+  function addToLighterPan(id) {
+    var L = totalMass(state.left), R = totalMass(state.right);
+    addToPan(id, L <= R ? 'left' : 'right');
+  }
+  function addToPan(id, side) {
+    var it = ITEMS.find(function(x){return x.id === id;});
+    if (!it) return;
+    state[side].push(it);
+    renderBeam();
+  }
+  function totalMass(arr) { return arr.reduce(function(s,it){return s + it.mass;}, 0); }
+
+  function renderBeam() {
+    var L = totalMass(state.left), R = totalMass(state.right);
+    var bar = document.getElementById('balance-bar');
+    if (bar) {
+      var diff = L - R;
+      // Cap tilt at ±12 degrees
+      var angle = Math.max(-12, Math.min(12, diff * 1.5));
+      bar.setAttribute('transform', 'rotate(' + angle + ' 0 0)');
+    }
+    var leftEmoji = document.getElementById('balance-left-emoji');
+    var rightEmoji = document.getElementById('balance-right-emoji');
+    if (leftEmoji)  leftEmoji.textContent  = state.left.map(function(i){return i.emoji;}).join('');
+    if (rightEmoji) rightEmoji.textContent = state.right.map(function(i){return i.emoji;}).join('');
+
+    var result = document.getElementById('balance-result');
+    if (result) {
+      if (L === 0 && R === 0) result.textContent = 'Empty — drop something on a pan!';
+      else if (L === R) result.innerHTML = '⚖️ <strong>Balanced!</strong> Same mass on both sides.';
+      else if (L > R) result.innerHTML = '⬅️ Left is heavier (' + L + ' vs ' + R + ').';
+      else result.innerHTML = '➡️ Right is heavier (' + R + ' vs ' + L + ').';
+      // Each unique non-empty state counts as a comparison.
+      if (L > 0 || R > 0) {
+        var sig = L + '|' + R;
+        if (state._lastSig !== sig) {
+          state._lastSig = sig;
+          state.rounds++;
+          var meter = document.getElementById('balance-meter');
+          if (meter) meter.innerHTML = 'Comparisons: <strong>' + Math.min(state.rounds, state.target) + ' / ' + state.target + '</strong>';
+          if (state.rounds >= state.target && !state.completed) finishSim();
+        }
+      }
+    }
+  }
+
+  function reset() { state.left = []; state.right = []; renderBeam(); }
+
+  function finishSim() {
+    if (state.completed) return;
+    state.completed = true;
+    if (typeof grantSimReward === 'function') grantSimReward('lenmass', 'Balance beam mastered!');
+    var stage = document.querySelector('.sim-stage');
+    if (stage) stage.innerHTML += '<div class="sim-win">⚖️ Mass is how much "stuff" something has. Heavier mass = pan tips down. Try equal masses to balance! <button class="lesson-btn" onclick="openSimHub()">More Lab →</button></div>';
+  }
+
+  function dispose() { state = null; }
+
+  window.simBalanceReset = reset;
+  return { id: 'balance', name: 'Balance Beam', emoji: '⚖️', skill: 'lenmass', render: render, dispose: dispose };
+})();
+
+// --- src/stem-sims/sim-magnets.js ---
+// ============================================================
+//  STEM SIM 7 — MAGNETS
+//  Drag a magnet over items. Magnetic ones stick. Others don't.
+//  Skill: forces
+// ============================================================
+
+var simMagnets = (function() {
+  var ITEMS = [
+    { id: 'paperclip', emoji: '📎', name: 'Paperclip', magnetic: true },
+    { id: 'nail',      emoji: '🔩', name: 'Iron Nail', magnetic: true },
+    { id: 'key',       emoji: '🔑', name: 'Steel Key', magnetic: true },
+    { id: 'pin',       emoji: '📌', name: 'Pin',       magnetic: true },
+    { id: 'pencil',    emoji: '✏️', name: 'Pencil',    magnetic: false },
+    { id: 'eraser',    emoji: '🧽', name: 'Eraser',    magnetic: false },
+    { id: 'coin',      emoji: '🪙', name: 'Coin (brass)', magnetic: false },
+    { id: 'leaf',      emoji: '🍃', name: 'Leaf',      magnetic: false }
+  ];
+  var state = null;
+
+  function render(container) {
+    state = { stuck: [], tested: 0, target: 6, completed: false };
+    container.innerHTML =
+      '<button class="back-btn" onclick="openSimHub()">← Back to STEM Lab</button>' +
+      '<h2 class="sim-title">🧲 Magnets</h2>' +
+      '<p class="sim-blurb">Drag the magnet over each item. Which ones stick?</p>' +
+      '<div class="sim-stage">' +
+        '<div class="magnet-field" id="magnet-field">' +
+          ITEMS.map(function(it){
+            return '<div class="magnet-item" data-id="' + it.id + '" data-mag="' + it.magnetic + '">' +
+              '<div class="magnet-emoji">' + it.emoji + '</div>' +
+              '<div class="magnet-name">' + it.name + '</div></div>';
+          }).join('') +
+          '<div id="magnet-tool" class="magnet-tool">🧲</div>' +
+        '</div>' +
+        '<div class="sim-meter" id="magnet-meter">Items tested: <strong>0 / 6</strong></div>' +
+        '<p class="sim-blurb-sm">💡 Magnets pull on iron and steel. Other metals (like brass coins) and most non-metals don\'t feel it.</p>' +
+      '</div>';
+    wireDrag();
+  }
+
+  function wireDrag() {
+    var tool = document.getElementById('magnet-tool');
+    var field = document.getElementById('magnet-field');
+    if (!tool || !field) return;
+    var dragging = false;
+    tool.addEventListener('pointerdown', function(e) {
+      dragging = true;
+      tool.setPointerCapture(e.pointerId);
+    });
+    tool.addEventListener('pointermove', function(e) {
+      if (!dragging) return;
+      var rect = field.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      tool.style.left = (x - 30) + 'px';
+      tool.style.top  = (y - 30) + 'px';
+      checkProximity(x, y);
+    });
+    tool.addEventListener('pointerup', function() { dragging = false; });
+  }
+
+  function checkProximity(x, y) {
+    var field = document.getElementById('magnet-field');
+    if (!field) return;
+    var fieldRect = field.getBoundingClientRect();
+    field.querySelectorAll('.magnet-item').forEach(function(el) {
+      var rect = el.getBoundingClientRect();
+      var cx = rect.left - fieldRect.left + rect.width / 2;
+      var cy = rect.top  - fieldRect.top  + rect.height / 2;
+      var d = Math.hypot(cx - x, cy - y);
+      if (d < 70) {
+        var id = el.dataset.id;
+        var isMag = el.dataset.mag === 'true';
+        if (state.stuck.indexOf(id) !== -1) return;
+        if (isMag) {
+          state.stuck.push(id);
+          el.classList.add('stuck');
+          if (typeof spawnParticles === 'function') {
+            spawnParticles(rect.left + rect.width/2, rect.top, 4, '⚡');
+          }
+          if (typeof lumiSay === 'function') lumiSay(ITEMS.find(function(i){return i.id===id;}).name + ' STUCK to the magnet!');
+        } else {
+          el.classList.add('tested');
+          if (typeof lumiSay === 'function') lumiSay(ITEMS.find(function(i){return i.id===id;}).name + ' — no pull. Not magnetic!');
+        }
+        state.tested++;
+        var meter = document.getElementById('magnet-meter');
+        if (meter) meter.innerHTML = 'Items tested: <strong>' + Math.min(state.tested, state.target) + ' / ' + state.target + '</strong>';
+        if (state.tested >= state.target && !state.completed) finishSim();
+      }
+    });
+  }
+
+  function finishSim() {
+    state.completed = true;
+    if (typeof grantSimReward === 'function') grantSimReward('forces', 'Magnet detective!');
+    var stage = document.querySelector('.sim-stage');
+    if (stage) stage.innerHTML += '<div class="sim-win">🧲 Magnets pull on iron and steel — that\'s why paperclips, nails, and keys stick. Wood, plastic, brass and rubber don\'t feel the pull. <button class="lesson-btn" onclick="openSimHub()">More Lab →</button></div>';
+  }
+
+  function dispose() { state = null; }
+
+  return { id: 'magnets', name: 'Magnets', emoji: '🧲', skill: 'forces', render: render, dispose: dispose };
+})();
+
+// --- src/stem-sims/sim-living.js ---
+// ============================================================
+//  STEM SIM 8 — LIVING vs NON-LIVING
+//  Sort items into two columns.
+//  Skill: living
+// ============================================================
+
+var simLiving = (function() {
+  var ALL = [
+    { id: 'cat',     emoji: '🐱', name: 'Cat',     living: true,  hint: 'Eats, grows, breathes.' },
+    { id: 'tree',    emoji: '🌳', name: 'Tree',    living: true,  hint: 'Grows, needs water and sun.' },
+    { id: 'flower',  emoji: '🌻', name: 'Flower',  living: true,  hint: 'Grows from a seed.' },
+    { id: 'butterfly', emoji: '🦋', name: 'Butterfly', living: true, hint: 'Eats nectar, lays eggs.' },
+    { id: 'fish',    emoji: '🐟', name: 'Fish',    living: true,  hint: 'Breathes through gills.' },
+    { id: 'frog',    emoji: '🐸', name: 'Frog',    living: true,  hint: 'Tadpole → frog. Definitely alive!' },
+    { id: 'rock',    emoji: '🪨', name: 'Rock',    living: false, hint: 'Does not grow or eat.' },
+    { id: 'chair',   emoji: '🪑', name: 'Chair',   living: false, hint: 'Made from wood, but no longer alive.' },
+    { id: 'phone',   emoji: '📱', name: 'Phone',   living: false, hint: 'Needs a battery, not food!' },
+    { id: 'cloud',   emoji: '☁️', name: 'Cloud',   living: false, hint: 'Water vapour. Moves, but not alive.' },
+    { id: 'spoon',   emoji: '🥄', name: 'Spoon',   living: false, hint: 'A tool. Doesn\'t grow.' },
+    { id: 'ball',    emoji: '⚽', name: 'Ball',    living: false, hint: 'A toy. No heartbeat!' }
+  ];
+  var state = null;
+
+  function render(container) {
+    var items = ALL.slice().sort(function(){return Math.random()-0.5;}).slice(0,8);
+    state = { items: items, sorted: 0, target: items.length, completed: false };
+    container.innerHTML =
+      '<button class="back-btn" onclick="openSimHub()">← Back to STEM Lab</button>' +
+      '<h2 class="sim-title">🌱 Living or Non-Living?</h2>' +
+      '<p class="sim-blurb">Drag each item to the right column. Living things grow, eat, and breathe!</p>' +
+      '<div class="sim-stage">' +
+        '<div class="living-tray" id="living-tray">' +
+          items.map(function(it){
+            return '<div class="living-item" draggable="true" data-id="' + it.id + '" data-living="' + it.living + '">' +
+              '<div class="living-emoji">' + it.emoji + '</div>' +
+              '<div class="living-name">' + it.name + '</div></div>';
+          }).join('') +
+        '</div>' +
+        '<div class="living-cols">' +
+          '<div class="living-col living-yes" data-living="true"><div class="living-col-title">🌱 Living</div><div class="living-col-body" data-living="true"></div></div>' +
+          '<div class="living-col living-no" data-living="false"><div class="living-col-title">🪨 Non-Living</div><div class="living-col-body" data-living="false"></div></div>' +
+        '</div>' +
+        '<div class="sim-meter" id="living-meter">Sorted: <strong>0 / ' + state.target + '</strong></div>' +
+      '</div>';
+
+    var draggables = container.querySelectorAll('.living-item');
+    draggables.forEach(function(el) {
+      el.addEventListener('dragstart', function(e) {
+        e.dataTransfer.setData('text/plain', el.dataset.id);
+      });
+      el.addEventListener('click', function() {
+        // Mobile tap: cycle through (move to first empty)
+        var living = el.dataset.living === 'true';
+        dropItem(el.dataset.id, living);
+      });
+    });
+    container.querySelectorAll('.living-col-body').forEach(function(col) {
+      col.addEventListener('dragover', function(e) { e.preventDefault(); col.classList.add('hover'); });
+      col.addEventListener('dragleave', function() { col.classList.remove('hover'); });
+      col.addEventListener('drop', function(e) {
+        e.preventDefault(); col.classList.remove('hover');
+        var id = e.dataTransfer.getData('text/plain');
+        var living = col.dataset.living === 'true';
+        dropItem(id, living);
+      });
+    });
+  }
+
+  function dropItem(id, intoLiving) {
+    var it = ALL.find(function(x){return x.id === id;});
+    if (!it) return;
+    var el = document.querySelector('.living-item[data-id="' + id + '"]');
+    if (!el || el.classList.contains('placed')) return;
+    var correct = it.living === intoLiving;
+    if (correct) {
+      var col = document.querySelector('.living-col-body[data-living="' + intoLiving + '"]');
+      if (col) col.appendChild(el);
+      el.classList.add('placed');
+      state.sorted++;
+      if (typeof lumiReactTo === 'function') lumiReactTo('correct');
+      if (typeof spawnParticles === 'function') {
+        var r = el.getBoundingClientRect();
+        spawnParticles(r.left + r.width/2, r.top + r.height/2, 3, '✨');
+      }
+      var meter = document.getElementById('living-meter');
+      if (meter) meter.innerHTML = 'Sorted: <strong>' + state.sorted + ' / ' + state.target + '</strong>';
+      if (state.sorted >= state.target && !state.completed) finishSim();
+    } else {
+      if (typeof lumiSay === 'function') lumiSay('Hmm — ' + it.name + '? ' + it.hint);
+      if (typeof playSound === 'function') playSound('wrong');
+      el.classList.add('shake');
+      setTimeout(function(){ el.classList.remove('shake'); }, 400);
+    }
+  }
+
+  function finishSim() {
+    state.completed = true;
+    if (typeof grantSimReward === 'function') grantSimReward('living', 'You can spot life!');
+    var stage = document.querySelector('.sim-stage');
+    if (stage) stage.innerHTML += '<div class="sim-win">🌱 Living things grow, breathe, eat, and have babies. Non-living things don\'t do any of those. <button class="lesson-btn" onclick="openSimHub()">More Lab →</button></div>';
+  }
+
+  function dispose() { state = null; }
+
+  return { id: 'living', name: 'Living or Non-Living', emoji: '🌱', skill: 'living', render: render, dispose: dispose };
+})();
+
+// --- src/stem-sims/sim-water.js ---
+// ============================================================
+//  STEM SIM 9 — WATER CYCLE
+//  Watch and learn: sun heats water → evaporates → cloud → rain → river → sea.
+//  Tap to advance through each stage.
+//  Skill: earth
+// ============================================================
+
+var simWater = (function() {
+  var STAGES = [
+    { id: 'start',     name: '☀️ Start',        msg: 'Tap to start the water cycle. The sun warms the sea.' },
+    { id: 'evaporate', name: '💨 Evaporation',   msg: 'Heat turns water into invisible vapour. It rises up.' },
+    { id: 'condense',  name: '☁️ Condensation', msg: 'High up, the vapour cools and gathers into clouds.' },
+    { id: 'rain',      name: '🌧️ Precipitation', msg: 'Heavy clouds drop the water as rain.' },
+    { id: 'flow',      name: '🏞️ Collection',   msg: 'Rain flows down rivers, back to the sea. The cycle starts again!' },
+    { id: 'done',      name: '🔁 Cycle complete', msg: 'You watched the whole cycle. The same water keeps going around forever.' }
+  ];
+  var state = null;
+
+  function render(container) {
+    state = { stageIdx: 0, completed: false };
+    container.innerHTML =
+      '<button class="back-btn" onclick="openSimHub()">← Back to STEM Lab</button>' +
+      '<h2 class="sim-title">💧 Water Cycle</h2>' +
+      '<p class="sim-blurb">Tap "Next" to follow the water on its journey.</p>' +
+      '<div class="sim-stage">' +
+        '<div class="water-scene">' +
+          '<div class="water-sun">☀️</div>' +
+          '<div class="water-cloud" id="water-cloud">☁️</div>' +
+          '<div class="water-vapour"  id="water-vapour"></div>' +
+          '<div class="water-rain"   id="water-rain"></div>' +
+          '<div class="water-mountain">⛰️</div>' +
+          '<div class="water-river"  id="water-river">~~~</div>' +
+          '<div class="water-sea"></div>' +
+        '</div>' +
+        '<div class="water-stage-name" id="water-stage-name"></div>' +
+        '<div class="water-msg" id="water-msg"></div>' +
+        '<button class="lesson-btn lesson-btn-done" id="water-next">▶ Next stage</button>' +
+        '<div class="sim-meter" id="water-meter">Stage: <strong>1 / ' + STAGES.length + '</strong></div>' +
+      '</div>';
+    document.getElementById('water-next').onclick = next;
+    showStage();
+  }
+
+  function showStage() {
+    var s = STAGES[state.stageIdx];
+    var nameEl = document.getElementById('water-stage-name');
+    var msgEl = document.getElementById('water-msg');
+    var meter = document.getElementById('water-meter');
+    var vapour = document.getElementById('water-vapour');
+    var cloud  = document.getElementById('water-cloud');
+    var rain   = document.getElementById('water-rain');
+    var river  = document.getElementById('water-river');
+    var next   = document.getElementById('water-next');
+
+    if (nameEl) nameEl.textContent = s.name;
+    if (msgEl)  msgEl.textContent  = s.msg;
+    if (meter)  meter.innerHTML    = 'Stage: <strong>' + (state.stageIdx + 1) + ' / ' + STAGES.length + '</strong>';
+
+    if (vapour) vapour.className = 'water-vapour' + (s.id === 'evaporate' ? ' show' : '');
+    if (cloud)  cloud.className  = 'water-cloud'  + (['condense','rain','flow','done'].indexOf(s.id) !== -1 ? ' show' : '');
+    if (rain)   rain.className   = 'water-rain'   + (['rain','flow','done'].indexOf(s.id) !== -1 ? ' show' : '');
+    if (river)  river.className  = 'water-river'  + (['flow','done'].indexOf(s.id) !== -1 ? ' show' : '');
+
+    if (next) {
+      if (state.stageIdx >= STAGES.length - 1) {
+        next.textContent = '🎉 Done!';
+        if (!state.completed) finishSim();
+      } else {
+        next.textContent = '▶ Next stage';
+      }
+    }
+  }
+  function next() {
+    if (state.stageIdx < STAGES.length - 1) {
+      state.stageIdx++;
+      showStage();
+      if (typeof lumiReactTo === 'function') lumiReactTo('correct');
+    }
+  }
+
+  function finishSim() {
+    state.completed = true;
+    if (typeof grantSimReward === 'function') grantSimReward('earth', 'Water cycle understood!');
+    var stage = document.querySelector('.sim-stage');
+    if (stage) stage.innerHTML += '<div class="sim-win">💧 Same water cycles forever: sea → vapour → cloud → rain → river → sea. The water you drink today might once have been in a dinosaur! <button class="lesson-btn" onclick="openSimHub()">More Lab →</button></div>';
+  }
+
+  function dispose() { state = null; }
+
+  return { id: 'water', name: 'Water Cycle', emoji: '💧', skill: 'earth', render: render, dispose: dispose };
+})();
+
 // --- src/stem-sims/sim-hub.js ---
 // ============================================================
 //  STEM SIM HUB — Index + reward bridge
@@ -14182,7 +14775,8 @@ var SIM_REGISTRY = null;
 function getSimRegistry() {
   if (SIM_REGISTRY) return SIM_REGISTRY;
   SIM_REGISTRY = {};
-  [simPushPull, simPlant, simShadow, simRecycle, simFloat].forEach(function(s) {
+  [simPushPull, simPlant, simShadow, simRecycle, simFloat,
+   simBalance, simMagnets, simLiving, simWater].forEach(function(s) {
     if (s) SIM_REGISTRY[s.id] = s;
   });
   return SIM_REGISTRY;
@@ -14275,323 +14869,6 @@ window.openSim = openSim;
 window.openSimHub = openSimHub;
 window.renderSimHub = renderSimHub;
 window.grantSimReward = grantSimReward;
-
-// --- src/signs/sign-studio.js ---
-// ============================================================
-//  SIGN STUDIO v1 — Anastasia teaches Stasha to sign.
-//
-//  Lego-style sign builder. She picks the four real linguistic
-//  parameters of any sign: handshape, location, movement, orientation.
-//  Stasha "tries it back" by playing an animation built from those
-//  parameters. Anastasia can refine, save, or share with a parent.
-//
-//  IMPORTANT: This is NOT a sign-language authority. Every sign links
-//  to a verified reference (SADeaf SgSL Sign Bank or YouTube channel
-//  flagged by parent). The app is a practice partner and memory
-//  bank — what Anastasia and Stasha worked out together.
-// ============================================================
-
-var HANDSHAPES = [
-  { id: 'flat',    name: 'Flat hand',  emoji: '✋', desc: 'All five fingers together, palm flat' },
-  { id: 'fist',    name: 'Fist',       emoji: '✊', desc: 'Closed hand, fingers curled in' },
-  { id: 'point',   name: 'Point',      emoji: '☝️', desc: 'Index finger out, others curled' },
-  { id: 'peace',   name: 'Peace',      emoji: '✌️', desc: 'Two fingers in a V' },
-  { id: 'ok',      name: 'OK / O',     emoji: '👌', desc: 'Thumb and finger forming a circle' },
-  { id: 'open',    name: 'Open 5',     emoji: '🖐️', desc: 'Five fingers spread out' },
-  { id: 'thumbsup',name: 'Thumbs up',  emoji: '👍', desc: 'Fist with thumb pointing up' },
-  { id: 'claw',    name: 'Claw',       emoji: '🦅', desc: 'Curled fingers like a claw' },
-  { id: 'L',       name: 'L-shape',    emoji: '🔫', desc: 'Thumb and index forming an L' },
-  { id: 'babyO',   name: 'Baby O',     emoji: '🤏', desc: 'Small circle with thumb + index' }
-];
-
-var LOCATIONS = [
-  { id: 'forehead', name: 'Forehead',  desc: 'Hand near the brow' },
-  { id: 'temple',   name: 'Temple',    desc: 'Side of the head' },
-  { id: 'mouth',    name: 'Mouth',     desc: 'In front of the lips' },
-  { id: 'chin',     name: 'Chin',      desc: 'Below the mouth' },
-  { id: 'chest',    name: 'Chest',     desc: 'Centre of the chest' },
-  { id: 'shoulder', name: 'Shoulder',  desc: 'Top of the shoulder' },
-  { id: 'neutral',  name: 'Neutral',   desc: 'In front of body, mid height' },
-  { id: 'otherhand',name: 'Other hand',desc: 'Touching or near the other hand' }
-];
-
-var MOVEMENTS = [
-  { id: 'still',   name: 'Still',         desc: 'Stay put' },
-  { id: 'up',      name: 'Up',            desc: 'Move upward' },
-  { id: 'down',    name: 'Down',          desc: 'Move downward' },
-  { id: 'side',    name: 'Sideways',      desc: 'Move side to side' },
-  { id: 'circle',  name: 'Circle',        desc: 'Small circle' },
-  { id: 'tap',     name: 'Tap',           desc: 'Tap twice' },
-  { id: 'wave',    name: 'Wave',          desc: 'Wave the hand' },
-  { id: 'forward', name: 'Forward',       desc: 'Move away from body' },
-  { id: 'inward',  name: 'Inward',        desc: 'Move toward body' }
-];
-
-var ORIENTATIONS = [
-  { id: 'palm-up',     name: 'Palm up' },
-  { id: 'palm-down',   name: 'Palm down' },
-  { id: 'palm-in',     name: 'Palm inward' },
-  { id: 'palm-out',    name: 'Palm outward (facing other person)' },
-  { id: 'palm-side',   name: 'Palm sideways' }
-];
-
-// Sign suggestions (small starter set — Anastasia picks one or invents her own).
-// Each suggestion provides a reference URL placeholder (parent fills in) and
-// optionally a "preset" that pre-fills the builder.
-var SIGN_SUGGESTIONS = [
-  {
-    id: 'hello',
-    label: 'HELLO',
-    emoji: '👋',
-    why: 'Greet Stasha when you open the app.',
-    refUrl: 'https://signbank.sg',
-    preset: { handshape: 'flat', location: 'temple', movement: 'side', orientation: 'palm-out' },
-    note: 'Many signs for HELLO exist. Check signbank.sg or ask a deaf friend which feels right for you.'
-  },
-  {
-    id: 'thank-you',
-    label: 'THANK YOU',
-    emoji: '🙏',
-    why: 'Use after a streak of correct answers.',
-    refUrl: 'https://signbank.sg',
-    preset: { handshape: 'flat', location: 'chin', movement: 'forward', orientation: 'palm-in' }
-  },
-  {
-    id: 'good',
-    label: 'GOOD / WELL DONE',
-    emoji: '👍',
-    why: 'A small milestone reward.',
-    refUrl: 'https://signbank.sg',
-    preset: { handshape: 'thumbsup', location: 'neutral', movement: 'still', orientation: 'palm-side' }
-  },
-  {
-    id: 'more',
-    label: 'MORE',
-    emoji: '➕',
-    why: 'Between questions when she wants another go.',
-    refUrl: 'https://signbank.sg',
-    preset: { handshape: 'babyO', location: 'neutral', movement: 'tap', orientation: 'palm-in' }
-  },
-  {
-    id: 'try-again',
-    label: 'TRY AGAIN',
-    emoji: '🔄',
-    why: 'Gentle reminder after a wrong answer.',
-    refUrl: 'https://signbank.sg',
-    preset: { handshape: 'point', location: 'neutral', movement: 'circle', orientation: 'palm-side' }
-  },
-  {
-    id: 'i-love-you',
-    label: 'I LOVE YOU',
-    emoji: '💖',
-    why: 'For rest days and end of long sessions.',
-    refUrl: 'https://signbank.sg',
-    preset: { handshape: 'L', location: 'neutral', movement: 'still', orientation: 'palm-out' },
-    note: 'Universal Sign Language ILY: thumb + index + pinky out.'
-  },
-  {
-    id: 'one', label: 'ONE', emoji: '1️⃣', why: 'Numbers for Math World.', refUrl: 'https://signbank.sg',
-    preset: { handshape: 'point', location: 'neutral', movement: 'still', orientation: 'palm-out' }
-  },
-  {
-    id: 'two', label: 'TWO', emoji: '2️⃣', why: 'Numbers for Math World.', refUrl: 'https://signbank.sg',
-    preset: { handshape: 'peace', location: 'neutral', movement: 'still', orientation: 'palm-out' }
-  }
-];
-
-function getSignsState() {
-  if (!state.signs) {
-    state.signs = {
-      // taught[suggestionId] = { handshape, location, movement, orientation, signedAt, note }
-      taught: {},
-      parentVerified: {}
-    };
-  }
-  return state.signs;
-}
-
-function renderSignStudio() {
-  var c = document.getElementById('sign-studio-content');
-  if (!c) return;
-  var signs = getSignsState();
-  var taughtCount = Object.keys(signs.taught || {}).length;
-  var total = SIGN_SUGGESTIONS.length;
-
-  var html = '<button class="back-btn" onclick="showScreen(\'home\')">← Back to Home</button>';
-  html += '<h2 class="sign-title">🤟 Sign Studio</h2>';
-  html += '<p class="sign-blurb">Teach Stasha to sign! Watch a real sign first, then build it together. <strong>Stasha learns from you.</strong></p>';
-  html += '<div class="sign-honest">⚠️ This is a practice partner, not a sign-language teacher. Always watch the real sign first. If you\'re unsure, ask a deaf friend or a parent.</div>';
-  html += '<div class="sign-progress">Signs taught: <strong>' + taughtCount + ' / ' + total + '</strong></div>';
-
-  html += '<div class="sign-grid">';
-  SIGN_SUGGESTIONS.forEach(function(s) {
-    var taught = !!signs.taught[s.id];
-    var verified = !!signs.parentVerified[s.id];
-    html += '<div class="sign-card' + (taught ? ' taught' : '') + '" onclick="openSignBuilder(\'' + s.id + '\')">' +
-      '<div class="sign-card-emoji">' + s.emoji + '</div>' +
-      '<div class="sign-card-label">' + s.label + '</div>' +
-      '<div class="sign-card-why">' + s.why + '</div>' +
-      '<div class="sign-card-status">' +
-        (taught ? (verified ? '✅ Verified by parent' : '🎓 Taught') : '✨ Tap to teach') +
-      '</div>' +
-    '</div>';
-  });
-  html += '</div>';
-
-  c.innerHTML = html;
-}
-
-function openSignBuilder(suggestionId) {
-  var sug = SIGN_SUGGESTIONS.find(function(s) { return s.id === suggestionId; });
-  if (!sug) return;
-  var signs = getSignsState();
-  var current = signs.taught[suggestionId] || sug.preset || {
-    handshape: 'flat', location: 'neutral', movement: 'still', orientation: 'palm-out'
-  };
-  window._signBuilderState = { suggestionId: suggestionId, current: Object.assign({}, current) };
-  showScreen('sign-builder');
-  renderSignBuilder();
-}
-
-function renderSignBuilder() {
-  var c = document.getElementById('sign-builder-content');
-  if (!c || !window._signBuilderState) return;
-  var st = window._signBuilderState;
-  var sug = SIGN_SUGGESTIONS.find(function(s) { return s.id === st.suggestionId; });
-  if (!sug) return;
-  var cur = st.current;
-
-  var html = '<button class="back-btn" onclick="showScreen(\'sign-studio\')">← Back to Sign Studio</button>';
-  html += '<h2 class="sign-title">' + sug.emoji + ' Teach Stasha: ' + sug.label + '</h2>';
-  html += '<p class="sign-blurb">' + sug.why + '</p>';
-  html += '<div class="sign-ref">📺 <strong>Step 1: Watch the real sign.</strong> <a href="' + sug.refUrl + '" target="_blank" rel="noopener">Open signbank.sg in a new tab →</a></div>';
-  if (sug.note) html += '<div class="sign-note">💡 ' + sug.note + '</div>';
-
-  // Live preview of Stasha
-  html += '<div class="sign-preview">';
-  html += '<div class="sign-preview-label">Step 2: Watch Stasha sign it</div>';
-  html += '<div class="sign-stasha">';
-  html += '<div class="sign-stasha-body">👧</div>';
-  html += '<div class="sign-stasha-hand" id="sign-hand">' + (HANDSHAPES.find(function(h){return h.id === cur.handshape;}) || HANDSHAPES[0]).emoji + '</div>';
-  html += '</div>';
-  html += '<button class="lesson-btn sign-play-btn" onclick="playSignPreview()">▶ Stasha, try it!</button>';
-  html += '</div>';
-
-  // Builder
-  html += '<div class="sign-builder">';
-  html += '<div class="sign-builder-label">Step 3: Build it (the four parts of any sign)</div>';
-
-  html += _buildPicker('Handshape', 'handshape', HANDSHAPES, cur.handshape, true);
-  html += _buildPicker('Location', 'location', LOCATIONS, cur.location, false);
-  html += _buildPicker('Movement', 'movement', MOVEMENTS, cur.movement, false);
-  html += _buildPicker('Orientation', 'orientation', ORIENTATIONS, cur.orientation, false);
-
-  html += '</div>';
-
-  // Save + verify actions
-  html += '<div class="sign-save-row">';
-  html += '<button class="lesson-btn lesson-btn-done" onclick="saveTaughtSign()">💾 Save — Stasha remembers this!</button>';
-  html += '<button class="lesson-btn" onclick="markParentVerified()">👩‍👧 Parent-verify</button>';
-  html += '</div>';
-
-  c.innerHTML = html;
-}
-
-function _buildPicker(label, key, options, currentValue, showEmoji) {
-  var html = '<div class="sign-picker">';
-  html += '<div class="sign-picker-label">' + label + '</div>';
-  html += '<div class="sign-picker-options">';
-  options.forEach(function(o) {
-    var sel = (o.id === currentValue) ? ' selected' : '';
-    html += '<button class="sign-opt' + sel + '" onclick="pickSign(\'' + key + '\', \'' + o.id + '\')">';
-    if (showEmoji && o.emoji) html += '<span class="sign-opt-emoji">' + o.emoji + '</span> ';
-    html += o.name;
-    if (o.desc) html += '<span class="sign-opt-desc">' + o.desc + '</span>';
-    html += '</button>';
-  });
-  html += '</div></div>';
-  return html;
-}
-
-function pickSign(key, value) {
-  if (!window._signBuilderState) return;
-  window._signBuilderState.current[key] = value;
-  renderSignBuilder();
-}
-
-function playSignPreview() {
-  if (!window._signBuilderState) return;
-  var cur = window._signBuilderState.current;
-  var hand = document.getElementById('sign-hand');
-  if (!hand) return;
-  // Set handshape emoji
-  var hs = HANDSHAPES.find(function(h) { return h.id === cur.handshape; });
-  hand.textContent = hs ? hs.emoji : '✋';
-
-  // Position based on location
-  var positions = {
-    forehead:  { top: '8%',  left: '50%' },
-    temple:    { top: '14%', left: '72%' },
-    mouth:     { top: '36%', left: '50%' },
-    chin:      { top: '44%', left: '50%' },
-    chest:     { top: '54%', left: '50%' },
-    shoulder:  { top: '40%', left: '74%' },
-    neutral:   { top: '60%', left: '50%' },
-    otherhand: { top: '60%', left: '30%' }
-  };
-  var pos = positions[cur.location] || positions.neutral;
-  hand.style.top = pos.top;
-  hand.style.left = pos.left;
-  hand.style.transition = 'none';
-  // Force reflow then animate movement
-  hand.offsetHeight; // eslint-disable-line
-  hand.style.transition = 'transform 1.2s ease-in-out';
-  hand.className = 'sign-stasha-hand move-' + cur.movement;
-  // Re-trigger animation
-  hand.classList.remove('move-' + cur.movement);
-  void hand.offsetWidth;
-  hand.classList.add('move-' + cur.movement);
-
-  if (typeof stashaReact === 'function') stashaReact('happy');
-  if (typeof lumiSay === 'function') lumiSay('Stasha is signing!');
-}
-
-function saveTaughtSign() {
-  if (!window._signBuilderState) return;
-  var st = window._signBuilderState;
-  var signs = getSignsState();
-  var firstTime = !signs.taught[st.suggestionId];
-  signs.taught[st.suggestionId] = Object.assign({}, st.current, { savedAt: new Date().toISOString() });
-  saveState();
-  if (firstTime) {
-    state.tokens = (state.tokens || 0) + 12;
-    if (typeof lumiReactTo === 'function') lumiReactTo('correct');
-    if (typeof spawnParticles === 'function') spawnParticles(window.innerWidth/2, window.innerHeight/3, 10, '🌟');
-    if (typeof lumiSay === 'function') lumiSay('Stasha learned a new sign from you! +12 stars.');
-    saveState();
-    if (typeof updateTokenDisplay === 'function') updateTokenDisplay();
-  } else {
-    if (typeof lumiSay === 'function') lumiSay('Stasha\'s sign updated!');
-  }
-}
-
-function markParentVerified() {
-  if (!window._signBuilderState) return;
-  if (!confirm('Has a parent or deaf friend confirmed this sign matches the reference? Click OK if yes.')) return;
-  var signs = getSignsState();
-  signs.parentVerified[window._signBuilderState.suggestionId] = new Date().toISOString();
-  saveState();
-  if (typeof lumiSay === 'function') lumiSay('Verified! Stasha will use this sign confidently.');
-  renderSignBuilder();
-}
-
-window.renderSignStudio = renderSignStudio;
-window.renderSignBuilder = renderSignBuilder;
-window.openSignBuilder = openSignBuilder;
-window.pickSign = pickSign;
-window.playSignPreview = playSignPreview;
-window.saveTaughtSign = saveTaughtSign;
-window.markParentVerified = markParentVerified;
 
 // --- src/challenges/star-trials.js ---
 // ============================================================
@@ -17066,9 +17343,10 @@ function updateDailyTreats() {
   var qotd = (typeof getQuoteOfTheDay === 'function') ? getQuoteOfTheDay() : null;
 
   var html = '<div class="daily-treats">';
+  var ttsB = (typeof ttsButton === 'function') ? ttsButton : function(){return '';};
   if (wotd) {
     html += '<div class="treat-card" onclick="claimWotd()">' +
-      '<div class="treat-card-label">📚 Word of the Day</div>' +
+      '<div class="treat-card-label">📚 Word of the Day ' + ttsB(wotd.word + '. ' + wotd.def + '. Example: ' + wotd.sentence, 'en-US', 'Hear word') + '</div>' +
       '<div class="treat-card-headline">' + wotd.word + '</div>' +
       '<div class="treat-card-sub">' + wotd.def + '</div>' +
       '<div class="treat-card-extra">' + wotd.sentence + '</div>' +
@@ -17076,7 +17354,7 @@ function updateDailyTreats() {
   }
   if (iotd) {
     html += '<div class="treat-card">' +
-      '<div class="treat-card-label">💬 Idiom of the Day</div>' +
+      '<div class="treat-card-label">💬 Idiom of the Day ' + ttsB(iotd.idiom + '. It means: ' + iotd.meaning + '. Example: ' + iotd.example, 'en-US', 'Hear idiom') + '</div>' +
       '<div class="treat-card-headline">"' + iotd.idiom + '"</div>' +
       '<div class="treat-card-sub">' + iotd.meaning + '</div>' +
       '<div class="treat-card-extra">' + iotd.example + '</div>' +
@@ -17084,7 +17362,7 @@ function updateDailyTreats() {
   }
   if (qotd) {
     html += '<div class="treat-card">' +
-      '<div class="treat-card-label">✨ Quote of the Day</div>' +
+      '<div class="treat-card-label">✨ Quote of the Day ' + ttsB(qotd.quote + '. By ' + qotd.who, 'en-US', 'Hear quote') + '</div>' +
       '<div class="treat-card-headline">"' + qotd.quote + '"</div>' +
       '<div class="treat-card-sub">— ' + qotd.who + '</div>' +
     '</div>';
@@ -18324,12 +18602,6 @@ function showScreen(screenId) {
   }
   if (screenId === 'sim-hub' && typeof renderSimHub === 'function') {
     renderSimHub();
-  }
-  if (screenId === 'sign-studio' && typeof renderSignStudio === 'function') {
-    renderSignStudio();
-  }
-  if (screenId === 'sign-builder' && typeof renderSignBuilder === 'function') {
-    renderSignBuilder();
   }
   if (screenId === 'garden') {
     if (typeof renderGardenIsland === 'function') renderGardenIsland();
