@@ -292,33 +292,153 @@ function renderWardrobe() {
 // 2D items rendered on top of the canvas: hair, accessories, outfits as sprites,
 // pets as DOM elements, backgrounds as CSS gradients, auras as CSS shadows.
 
+// Per-item positioning. Nas drags items where she wants on Stasha and
+// then taps 🔒 to lock that spot. Tap a locked item to unlock and adjust.
+// Each item id has its own { x, y, scale, locked } saved to state.
+var OVERLAY_DEFAULTS = {
+  hair:   { x: 50, y: 8,  scale: 1.0 },
+  outfit: { x: 50, y: 42, scale: 1.0 },
+  pet:    { x: 82, y: 88, scale: 1.0 }
+};
+
+function _ensurePositions() {
+  if (!state.wardrobe) getWardrobeState();
+  if (!state.wardrobe.positions) state.wardrobe.positions = {};
+  return state.wardrobe.positions;
+}
+
+function getItemPos(itemId) {
+  var positions = _ensurePositions();
+  if (positions[itemId]) return positions[itemId];
+  var item = WARDROBE_ITEMS.find(function(x) { return x.id === itemId; });
+  var def = (item && OVERLAY_DEFAULTS[item.cat]) || { x: 50, y: 50, scale: 1.0 };
+  // Newly equipped items start UNLOCKED so Nas can position them.
+  positions[itemId] = { x: def.x, y: def.y, scale: def.scale, locked: false };
+  saveState();
+  return positions[itemId];
+}
+
+function updateItemPos(itemId, patch) {
+  var positions = _ensurePositions();
+  positions[itemId] = Object.assign({}, getItemPos(itemId), patch);
+  saveState();
+  renderStashaOverlays();
+}
+
+function toggleItemLock(itemId) {
+  var pos = getItemPos(itemId);
+  updateItemPos(itemId, { locked: !pos.locked });
+  if (typeof lumiSay === 'function') {
+    lumiSay(pos.locked ? 'Unlocked. Drag it around!' : 'Locked in! It will stay there.');
+  }
+}
+
+function scaleItem(itemId, delta) {
+  var pos = getItemPos(itemId);
+  var s = Math.max(0.4, Math.min(2.5, pos.scale + delta));
+  updateItemPos(itemId, { scale: s });
+}
+
+function resetItemPos(itemId) {
+  var item = WARDROBE_ITEMS.find(function(x) { return x.id === itemId; });
+  if (!item) return;
+  var def = OVERLAY_DEFAULTS[item.cat] || { x: 50, y: 50, scale: 1.0 };
+  updateItemPos(itemId, { x: def.x, y: def.y, scale: def.scale });
+}
+
 function renderStashaOverlays() {
   // Bail if we're not on the Stasha screen (no stage element yet).
-  if (!document.getElementById('stasha-stage')) return;
+  var stage = document.getElementById('stasha-stage');
+  if (!stage) return;
   var w = getWardrobeState();
 
+  // Background + aura (these stay where the CSS puts them).
   var bgItem = WARDROBE_ITEMS.find(function(x) { return x.id === w.equipped.background; });
-  var auraItem = WARDROBE_ITEMS.find(function(x) { return x.id === w.equipped.aura; });
-  var hairItem = WARDROBE_ITEMS.find(function(x) { return x.id === w.equipped.hair; });
-  var outfitItem = WARDROBE_ITEMS.find(function(x) { return x.id === w.equipped.outfit; });
-  var petItem = WARDROBE_ITEMS.find(function(x) { return x.id === w.equipped.pet; });
-
-  var stage = document.getElementById('stasha-stage');
-  if (stage) {
-    stage.className = 'stasha-stage bg-' + (bgItem ? bgItem.id : 'bedroom');
-  }
-
+  stage.className = 'stasha-stage bg-' + (bgItem ? bgItem.id : 'bedroom');
+  var auraItem = WARDROBE_ITEMS.find(function(x) { return x.id === w.equipped.auraId || x.id === w.equipped.aura; });
   var aura = document.getElementById('stasha-aura');
   if (aura) aura.className = 'stasha-aura aura-' + (auraItem ? auraItem.id : 'soft-sparkle');
 
-  var hairEl = document.getElementById('stasha-hair');
-  if (hairEl) hairEl.textContent = hairItem ? hairItem.emoji : '';
+  // Build draggable + resizable overlays for hair / outfit / pet.
+  var host = document.getElementById('stasha-overlay-host');
+  if (!host) return;
+  var slots = [
+    { cat: 'hair',   id: w.equipped.hair },
+    { cat: 'outfit', id: w.equipped.outfit },
+    { cat: 'pet',    id: w.equipped.pet }
+  ];
+  var html = '';
+  slots.forEach(function(slot) {
+    if (!slot.id) return;
+    var item = WARDROBE_ITEMS.find(function(x) { return x.id === slot.id; });
+    if (!item) return;
+    var pos = getItemPos(slot.id);
+    var baseSize = (slot.cat === 'outfit') ? 56 : 64;
+    var fontSize = Math.round(baseSize * pos.scale);
+    html += '<div class="stasha-prop ' + (pos.locked ? 'locked' : 'unlocked') +
+      '" data-id="' + slot.id + '" data-cat="' + slot.cat + '" ' +
+      'style="left:' + pos.x + '%; top:' + pos.y + '%; font-size:' + fontSize + 'px">' +
+      '<span class="stasha-prop-emoji">' + item.emoji + '</span>';
+    if (pos.locked) {
+      html += '<button class="stasha-prop-quickunlock" onclick="event.stopPropagation(); toggleItemLock(\'' + slot.id + '\')" title="Tap to adjust">🔓</button>';
+    } else {
+      html += '<div class="stasha-prop-toolbar" onpointerdown="event.stopPropagation()">' +
+        '<button class="stasha-prop-btn" onclick="event.stopPropagation(); scaleItem(\'' + slot.id + '\', -0.15)" title="Smaller">➖</button>' +
+        '<button class="stasha-prop-btn" onclick="event.stopPropagation(); scaleItem(\'' + slot.id + '\',  0.15)" title="Bigger">➕</button>' +
+        '<button class="stasha-prop-btn" onclick="event.stopPropagation(); resetItemPos(\'' + slot.id + '\')" title="Reset position">↺</button>' +
+        '<button class="stasha-prop-btn lock" onclick="event.stopPropagation(); toggleItemLock(\'' + slot.id + '\')" title="Lock it here">🔒</button>' +
+      '</div>';
+    }
+    html += '</div>';
+  });
+  host.innerHTML = html;
+  wireOverlayDragging();
+}
 
-  var outfitEl = document.getElementById('stasha-outfit');
-  if (outfitEl) outfitEl.textContent = outfitItem ? outfitItem.emoji : '';
-
-  var petEl = document.getElementById('stasha-pet');
-  if (petEl) petEl.textContent = petItem ? petItem.emoji : '';
+// Drag unlocked overlays around the stage. Position is saved as a
+// percentage of the stage, so it survives canvas resizes.
+function wireOverlayDragging() {
+  var host = document.getElementById('stasha-overlay-host');
+  var stage = document.getElementById('stasha-stage');
+  if (!host || !stage) return;
+  host.querySelectorAll('.stasha-prop.unlocked').forEach(function(el) {
+    var id = el.dataset.id;
+    var dragging = false;
+    var startX = 0, startY = 0;
+    var startPosX = 0, startPosY = 0;
+    el.addEventListener('pointerdown', function(e) {
+      // Ignore clicks on the toolbar buttons
+      if (e.target.closest('.stasha-prop-toolbar')) return;
+      dragging = true;
+      startX = e.clientX; startY = e.clientY;
+      var pos = getItemPos(id);
+      startPosX = pos.x; startPosY = pos.y;
+      el.setPointerCapture(e.pointerId);
+      e.stopPropagation();
+    });
+    el.addEventListener('pointermove', function(e) {
+      if (!dragging) return;
+      var rect = stage.getBoundingClientRect();
+      var dxPct = ((e.clientX - startX) / rect.width)  * 100;
+      var dyPct = ((e.clientY - startY) / rect.height) * 100;
+      var newX = Math.max(2, Math.min(98, startPosX + dxPct));
+      var newY = Math.max(2, Math.min(98, startPosY + dyPct));
+      el.style.left = newX + '%';
+      el.style.top  = newY + '%';
+      e.stopPropagation();
+    });
+    var endDrag = function(e) {
+      if (!dragging) return;
+      dragging = false;
+      // Persist the final position
+      var left = parseFloat(el.style.left) || startPosX;
+      var top  = parseFloat(el.style.top)  || startPosY;
+      updateItemPos(id, { x: left, y: top });
+      e && e.stopPropagation();
+    };
+    el.addEventListener('pointerup', endDrag);
+    el.addEventListener('pointercancel', endDrag);
+  });
 }
 
 // ===== Stasha screen renderer =====
@@ -341,15 +461,13 @@ function renderStashaScreen() {
   html +=     '<div class="stasha-fallback-name">Stasha</div>';
   html +=     '<div class="stasha-fallback-note">3D loader busy — Stasha is here in spirit. Wardrobe still works!</div>';
   html +=   '</div>';
-  html +=   '<div id="stasha-hair" class="stasha-overlay-item stasha-hair"></div>';
-  html +=   '<div id="stasha-outfit" class="stasha-overlay-item stasha-outfit"></div>';
-  html +=   '<div id="stasha-pet" class="stasha-overlay-item stasha-pet"></div>';
+  html +=   '<div id="stasha-overlay-host" class="stasha-overlay-host"></div>';
   html += '</div>';
 
   html += '<div class="stasha-name">Stasha 💖</div>';
   html += '<div class="stasha-bio">Anastasia\'s avatar. The better you do, the more she gets to wear.</div>';
 
-  html += '<div class="stasha-hint">👆 Drag to rotate — left/right to spin, up/down to see top of head and shoes.</div>';
+  html += '<div class="stasha-hint">👆 Drag Stasha to rotate her. Drag her outfit items to position them — tap 🔒 when they look right. Tap 🔓 on a locked item to adjust again.</div>';
   html += '<div class="stasha-zoom-row">';
   html += '<button class="stasha-zoom-btn" data-zoom="face" onclick="stashaZoom(\'face\')">😊 Face</button>';
   html += '<button class="stasha-zoom-btn active" data-zoom="full" onclick="stashaZoom(\'full\')">🧍 Full body</button>';
@@ -431,6 +549,9 @@ window.stashaScreenGreet = stashaScreenGreet;
 window.toggleTryOnMode = toggleTryOnMode;
 window.resetTryOnPreview = resetTryOnPreview;
 window.renderWardrobe = renderWardrobe;
+window.toggleItemLock = toggleItemLock;
+window.scaleItem = scaleItem;
+window.resetItemPos = resetItemPos;
 window.renderStashaScreen = renderStashaScreen;
 window.renderStashaOverlays = renderStashaOverlays;
 window.stashaWave = stashaWave;
