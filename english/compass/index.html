@@ -166,6 +166,44 @@ function masteryFor(p) {
   return Math.min(s, 100);
 }
 
+// ── Cross-site read (Lab + Malay) ────────────────────────
+// Aggregates each sibling subject's overall mastery from its localStorage
+// store. Returns null if there is no signal (no topics touched).
+function siteAggregate(key) {
+  let raw;
+  try { raw = JSON.parse(localStorage.getItem(key) || '{}'); } catch { raw = {}; }
+  const ids = Object.keys(raw);
+  if (!ids.length) return null;
+  let sum = 0, visited = 0;
+  ids.forEach(id => {
+    const p = raw[id] || {};
+    if ((p.visitCount || 0) > 0) visited += 1;
+    sum += masteryFor(p);
+  });
+  return { topics: ids.length, visited, avgMastery: Math.round(sum / ids.length) };
+}
+
+function renderCrossSiteCue(englishFocusPct) {
+  const sites = [
+    { key: 'sciLab_progress', label: 'Science (Lab)', emoji: '🔬', href: '../../lab/' },
+    { key: 'malay_progress',  label: 'Bahasa Melayu', emoji: '🌺', href: '../../malay/' },
+  ];
+  const present = sites.map(s => ({ ...s, agg: siteAggregate(s.key) })).filter(s => s.agg);
+  if (!present.length) return '';
+  // Find sibling subject with mastery <= focusPct - 15, lowest-mastery first
+  const weaker = present.filter(s => s.agg.avgMastery <= (englishFocusPct - 15)).sort((a, b) => a.agg.avgMastery - b.agg.avgMastery)[0];
+  if (!weaker) {
+    // No sibling significantly weaker — still show a small "Across studios" line if we have data
+    return `<div style="margin-top:.55rem;padding-top:.55rem;border-top:1px dashed var(--border);font-size:.76rem;color:var(--muted);">Across studios: ${present.map(s => s.emoji + ' ' + s.label + ' ' + s.agg.avgMastery + '%').join(' &middot; ')}.</div>`;
+  }
+  return `
+    <div style="margin-top:.55rem;padding-top:.55rem;border-top:1px dashed var(--border);font-size:.78rem;color:var(--muted);line-height:1.5;">
+      <strong style="color:var(--text);">Worth noting:</strong> ${weaker.emoji} ${weaker.label} is at ${weaker.agg.avgMastery}% overall, ${Math.max(0, englishFocusPct - weaker.agg.avgMastery)} points behind your English pick. If today's English session is short, you might bookmark a Lab/Malay session for tomorrow.
+      <a href="${weaker.href}" style="color:var(--accent);text-decoration:none;margin-left:.35rem;">→ ${weaker.label}</a>
+    </div>
+  `;
+}
+
 function progressFor(id) {
   try { return (typeof Progress !== 'undefined') ? Progress.get(id) : {}; }
   catch { return {}; }
@@ -265,6 +303,7 @@ function renderProposal() {
     <h4>${mp.mode} · ${mp.len} minutes</h4>
     ${mp.lead}<br><br>${kindBlurb}
     <div style="margin-top:.6rem;font-size:.8rem;color:var(--muted);">${THEME_LABEL[t.theme]} · ${f.why}</div>
+    ${renderCrossSiteCue(t.pct)}
   `;
   document.getElementById('step-proposal').style.display = 'block';
   document.getElementById('step-intention').style.display = 'block';
