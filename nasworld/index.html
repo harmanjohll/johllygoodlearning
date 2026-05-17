@@ -707,14 +707,83 @@ body {
 .stasha-aura.aura-supernova-aura { box-shadow: 0 0 160px 50px rgba(255,215,0,0.65) inset, 0 0 100px rgba(255,123,219,0.4); animation: pulse-glow 2s ease-in-out infinite; }
 .stasha-aura.aura-galaxy-aura    { box-shadow: 0 0 180px 60px rgba(181,123,255,0.5) inset, 0 0 120px rgba(123,179,255,0.4), 0 0 80px rgba(255,123,219,0.3); animation: pulse-glow 4s ease-in-out infinite; }
 
-.stasha-overlay-item {
-  position: absolute; pointer-events: none;
-  z-index: 5; transition: transform 0.3s, top 0.3s, bottom 0.3s;
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45));
+/* === Stasha equipped props (drag-position + scale + lock per item) === */
+.stasha-overlay-host {
+  position: absolute; inset: 0; pointer-events: none; z-index: 5;
 }
-.stasha-hair   { top: 6%;  left: 50%; transform: translateX(-50%); font-size: 56px; }
-.stasha-outfit { top: 38%; left: 50%; transform: translateX(-50%); font-size: 48px; }
-.stasha-pet    { bottom: 6%; right: 10%; font-size: 56px; animation: float 3s ease-in-out infinite; }
+.stasha-prop {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  line-height: 1;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45));
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+.stasha-prop:active { cursor: grabbing; }
+.stasha-prop.locked {
+  cursor: default;
+}
+.stasha-prop.locked .stasha-prop-emoji { transition: transform 0.2s; }
+.stasha-prop.locked:hover .stasha-prop-emoji { transform: scale(1.08); }
+.stasha-prop.unlocked {
+  outline: 2px dashed rgba(255, 215, 0, 0.95);
+  outline-offset: 6px;
+  border-radius: 8px;
+  background: rgba(255, 215, 0, 0.06);
+}
+.stasha-prop-emoji {
+  display: inline-block;
+  pointer-events: none;
+}
+
+/* Tiny toolbar that appears on unlocked items */
+.stasha-prop-toolbar {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, 14px);
+  display: flex; gap: 4px;
+  background: rgba(20, 12, 50, 0.92);
+  border: 1px solid rgba(255, 215, 0, 0.6);
+  border-radius: 999px;
+  padding: 4px 6px;
+  pointer-events: auto;
+  white-space: nowrap;
+  font-size: 14px;
+  z-index: 10;
+}
+.stasha-prop-btn {
+  background: #fef9ee; border: none;
+  border-radius: 50%;
+  width: 30px; height: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 14px; line-height: 1;
+  transition: transform 0.15s;
+}
+.stasha-prop-btn:hover { transform: scale(1.1); }
+.stasha-prop-btn.lock { background: rgba(255, 215, 0, 0.95); }
+
+/* Tiny unlock button on locked items */
+.stasha-prop-quickunlock {
+  position: absolute;
+  top: -12px; right: -12px;
+  width: 26px; height: 26px;
+  background: rgba(20, 12, 50, 0.92);
+  border: 1px solid rgba(255, 215, 0, 0.6);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.stasha-prop.locked:hover .stasha-prop-quickunlock,
+.stasha-prop.locked:active .stasha-prop-quickunlock {
+  opacity: 1;
+}
 
 .stasha-hint {
   font-size: 11px; color: var(--text-secondary); margin: 8px 0 0;
