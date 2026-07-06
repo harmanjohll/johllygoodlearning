@@ -12,8 +12,8 @@ import { Store } from './engine/storage.js';
 import { GAMES, CATEGORIES, gameById } from './engine/registry.js';
 import { REGIONS, COUNTRIES, BY_ISO } from './data/countries.js';
 import { RANKS, RANK_ORDER } from './data/tiers.js';
-import { subjectPool } from './engine/pool.js';
-import { BADGES } from './engine/gamification.js';
+import { subjectPool, buildContext } from './engine/pool.js';
+import { BADGES, touchStreak, applyTurn, awardBadge } from './engine/gamification.js';
 import * as worldmap from './engine/worldmap.js';
 import { sound } from './engine/sound.js';
 import { challengeFor, todayIso } from './data/challenges.js';
@@ -25,7 +25,7 @@ const backBtn = document.getElementById('backBtn');
 const REGION_META = Object.fromEntries(REGIONS.map(r => [r.id, r]));
 const REGION_VAR = { europe: '--r-europe', africa: '--r-africa', asia: '--r-asia', americas: '--r-americas', oceania: '--r-oceania' };
 const CAT_VAR = { Countries: '--stamp-teal', Flags: '--stamp-blue', Capitals: '--stamp-red' };
-const BADGE_EMOJI = { 'first-steps': '🥾', globetrotter: '🌍', comeback: '💪', 'week-streak': '📅', cartographer: '🧭' };
+const BADGE_EMOJI = { 'first-steps': '🥾', globetrotter: '🌍', comeback: '💪', 'week-streak': '📅', cartographer: '🧭', 'memory-master': '🃏', speedster: '⚡' };
 
 // Session-setup draft (lives only while arranging a game).
 const draft = {
@@ -38,10 +38,15 @@ const draft = {
 };
 
 let session = null;
+let boardRun = null;          // active board-game run (kind:'board'), else null
 let sessionStampEvents = [];  // stamps/badges earned this session, for the results page
 
 // ── helpers ─────────────────────────────────────────────────
-function screen(node) { clear(app); app.appendChild(node); window.scrollTo(0, 0); }
+let screenCleanup = null;   // runs when the screen changes (stops stray timers)
+function screen(node) {
+  if (screenCleanup) { try { screenCleanup(); } catch {} screenCleanup = null; }
+  clear(app); app.appendChild(node); window.scrollTo(0, 0);
+}
 function showBack(show) { backBtn.style.visibility = show ? 'visible' : 'hidden'; }
 function regionColor(id) { return `var(${REGION_VAR[id] || '--stamp-teal'})`; }
 
@@ -58,6 +63,7 @@ function travellerChip(p, { selected, onClick, showRank = true } = {}) {
 // ── HOME ─────────────────────────────────────────────────────
 function renderHome() {
   showBack(false);
+  boardRun = null;
   const players = Profiles.list();
   const root = el('div');
 
@@ -315,6 +321,14 @@ async function beginSession() {
     if (!worldmap.isReady() && !worldmap.failed()) { renderMapLoading(); await worldmap.ready(); }
     if (worldmap.failed()) { toast('The world map could not load. Try another game.'); Router.go('setup'); return; }
   }
+  if (game.kind === 'board') {
+    session = null;
+    boardRun = { game, playerIds: draft.players.slice(), region: draft.region, idx: 0, results: [], seedBase: (draft.seed != null ? draft.seed : Math.floor(performance.now())) >>> 0 };
+    sessionStampEvents = [];
+    Router.go('play');
+    return;
+  }
+  boardRun = null;
   let teams = null;
   if (draft.mode === 'teams') {
     teams = { kids: Object.assign([], { label: 'Kids' }), parents: Object.assign([], { label: 'Grown-ups' }) };
@@ -340,9 +354,95 @@ function renderMapLoading() {
 
 // ── PLAY ─────────────────────────────────────────────────────
 function renderPlay() {
+  if (boardRun) { showBack(true); boardNext(); return; }
   if (!session) { Router.go('home'); return; }
   showBack(true);
   nextStep();
+}
+
+// ── Board games (self-contained; players play in sequence) ───
+function boardNext() {
+  if (boardRun.idx >= boardRun.playerIds.length) { renderBoardResults(); return; }
+  const myRun = boardRun;
+  const profile = Profiles.get(boardRun.playerIds[boardRun.idx]);
+  const startBoard = () => {
+    const seed = (boardRun.seedBase * 2654435761 + boardRun.idx * 40503) >>> 0;
+    const ctx = buildContext({ rankId: profile.rank, region: boardRun.region, seed });
+    const arena = el('div', { class: 'arena' }, [
+      el('div', { class: 'turn-banner' }, [
+        el('div', { class: 'turn-who' }, [el('span', { class: 'tv-emoji', text: profile.emoji }), el('span', { text: profile.name }), el('span', { class: 'turn-rank', text: RANKS[profile.rank].name })]),
+        el('div', { class: 'turn-progress', text: `${boardRun.idx + 1} / ${boardRun.playerIds.length}` }),
+      ]),
+    ]);
+    const card = el('div', { class: 'sheet q-card' });
+    arena.appendChild(card);
+    screen(arena);
+    let done = false;
+    boardRun.game.run(card, ctx, (result) => {
+      if (done || boardRun !== myRun) return; done = true;
+      applyBoardResult(profile, result || {}, boardRun.game.id);
+      boardRun.results.push({ playerId: profile.id, name: profile.name, emoji: profile.emoji, score: (result && result.score) || 0, detail: (result && result.detail) || '' });
+      boardRun.idx++;
+      const cont = el('button', { class: 'btn btn-primary', style: { display: 'block', margin: '18px auto 0' }, text: boardRun.idx >= boardRun.playerIds.length ? 'See results' : 'Next player', onclick: boardNext });
+      card.appendChild(el('div', { class: 'feedback ok' }, [
+        el('div', { class: 'fb-head', text: 'Round done' }),
+        el('div', { class: 'fb-detail', text: `${profile.name}: ${(result && result.detail) || ''}` }),
+        el('div', { class: 'fb-points', text: '+' + ((result && result.score) || 0) + ' pts' }),
+        cont,
+      ]));
+      sound.win();
+    });
+  };
+  if (boardRun.playerIds.length > 1) renderPassInterstitialFor(profile, boardRun.idx, boardRun.playerIds.length, startBoard);
+  else startBoard();
+}
+
+function applyBoardResult(profile, result, gameId) {
+  touchStreak(profile);
+  (result.correctIsos || []).forEach(iso => {
+    const c = BY_ISO[iso]; if (!c) return;
+    const events = applyTurn(profile, { correct: true, region: c.region, iso, rankId: profile.rank, scored: { xpGained: 6 }, gameId });
+    (events || []).forEach(e => { if (['stamp', 'region', 'badge', 'level'].includes(e.type)) sessionStampEvents.push(e); });
+  });
+  let earned = null;
+  if (gameId === 'flags/memory-match' && result.correct >= (result.total || 1)) earned = awardBadge(profile, 'memory-master');
+  if (gameId === 'names/speed-sweep' && (result.correct || 0) >= 10) earned = awardBadge(profile, 'speedster');
+  if (earned) sessionStampEvents.push(earned);
+}
+
+function renderPassInterstitialFor(p, idx, total, onReady) {
+  screen(el('div', { class: 'arena' }, [
+    el('div', { class: 'sheet q-card', style: { textAlign: 'center', padding: '48px 24px' } }, [
+      el('div', { class: 'eyebrow', text: `Player ${idx + 1} of ${total}` }),
+      el('div', { style: { fontSize: '3.4rem', margin: '10px 0' }, text: p.emoji }),
+      el('h2', { class: 'q-region', text: `${p.name}, you’re up` }),
+      el('button', { class: 'btn btn-primary btn-lg', style: { marginTop: '20px' }, text: 'I’m ready', onclick: onReady }),
+    ]),
+  ]));
+}
+
+function renderBoardResults() {
+  showBack(false);
+  const game = gameById(boardRun.game.id);
+  const standings = boardRun.results.slice().sort((a, b) => b.score - a.score);
+  const root = el('div');
+  sound.win();
+  root.appendChild(el('div', { class: 'section-head' }, [el('div', {}, [el('div', { class: 'eyebrow', text: 'Mission complete' }), el('h2', { text: 'Mission report' })])]));
+  const main = el('div', { class: 'bp-main' }, [el('div', { class: 'bp-label', text: game.title + ' · ' + (boardRun.region === 'all' ? 'Whole world' : REGION_META[boardRun.region].name) }), el('div', { class: 'bp-title', text: 'Scores' })]);
+  standings.forEach((s, i) => main.appendChild(el('div', { class: 'bp-row' + (i === 0 ? ' win' : '') }, [
+    el('span', {}, [el('span', { style: { marginRight: '8px' }, text: s.emoji }), el('span', { text: (i === 0 ? '🏆 ' : '') + s.name })]),
+    el('span', { class: 'bp-rank', text: s.score + ' pts' }),
+  ])));
+  const stamps = sessionStampEvents.filter(e => e.type === 'stamp');
+  const stub = el('div', { class: 'bp-stub' }, [el('div', { class: 'bp-label', text: 'Stamps earned' }), el('div', { style: { fontFamily: 'var(--font-mono)', fontSize: '2.2rem', fontWeight: '700' }, text: String(stamps.length) })]);
+  root.appendChild(el('div', { class: 'boarding-pass' }, [main, stub]));
+  root.appendChild(el('div', { class: 'cover-cta', style: { marginTop: '24px' } }, [
+    el('button', { class: 'btn btn-primary', text: 'Play again', onclick: () => { boardRun.idx = 0; boardRun.results = []; sessionStampEvents = []; Router.go('play'); } }),
+    el('button', { class: 'btn btn-ghost', text: 'Change game', onclick: () => Router.go('setup') }),
+    el('button', { class: 'btn btn-ghost', text: 'Home', onclick: () => Router.go('home') }),
+  ]));
+  Store.clearSession();
+  screen(root);
 }
 
 function nextStep() {
@@ -389,7 +489,7 @@ function renderTurn(turn) {
 
   let answered = false;
   function submit(value, meta = {}) {
-    if (answered) return;
+    if (answered || !session) return;
     answered = true;
     timer.stop();
     const res = session.submitAnswer(value, meta);
@@ -402,6 +502,7 @@ function renderTurn(turn) {
   turn.game.render(turn.question, mount, turn.ctx, submit);
   screen(arena);
   timer.start();
+  screenCleanup = () => timer.stop();
 }
 
 function showFeedback(qcard, res, turn) {
