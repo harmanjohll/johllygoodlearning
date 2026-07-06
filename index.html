@@ -3,84 +3,159 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#140a2e">
 <title>Jolly Good Learning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #140a2e;
+    --ink: #fff;
+  }
+  html { background: var(--bg); }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    color: #fff;
+    font-family: 'Nunito', system-ui, sans-serif;
+    min-height: 100vh; color: var(--ink); overflow-x: hidden; position: relative;
+    background:
+      radial-gradient(50% 40% at 15% 10%, rgba(168,85,247,.5), transparent 60%),
+      radial-gradient(45% 45% at 88% 15%, rgba(34,211,238,.42), transparent 60%),
+      radial-gradient(50% 45% at 80% 92%, rgba(236,72,153,.4), transparent 60%),
+      radial-gradient(45% 45% at 12% 88%, rgba(245,158,11,.32), transparent 60%),
+      var(--bg);
   }
-  h1 { font-size: 2.2rem; margin-bottom: 8px; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-  .subtitle { opacity: 0.85; margin-bottom: 40px; font-size: 1.1rem; }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
-    max-width: 900px;
-    width: 100%;
+  /* floating blobs */
+  .blob { position: fixed; border-radius: 50%; filter: blur(70px); opacity: .5; z-index: 0; pointer-events: none; }
+  .blob.b1 { width: 420px; height: 420px; background: #7c3aed; top: -120px; left: -80px; animation: drift1 18s ease-in-out infinite; }
+  .blob.b2 { width: 380px; height: 380px; background: #06b6d4; bottom: -120px; right: -60px; animation: drift2 22s ease-in-out infinite; }
+  @keyframes drift1 { 50% { transform: translate(80px, 60px) scale(1.15); } }
+  @keyframes drift2 { 50% { transform: translate(-70px, -50px) scale(1.1); } }
+
+  .wrap { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 44px 22px 72px; }
+
+  header { text-align: center; margin-bottom: 34px; }
+  .kicker { font-family: 'Fredoka', sans-serif; font-weight: 600; letter-spacing: .32em; text-transform: uppercase; font-size: .78rem; color: rgba(255,255,255,.7); }
+  h1 {
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: clamp(2.6rem, 8vw, 4.6rem); line-height: 1; margin: 8px 0 10px;
+    background: linear-gradient(100deg, #fef08a, #f0abfc 40%, #67e8f9 75%, #86efac);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 6px 30px rgba(0,0,0,.25);
   }
-  .card {
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    padding: 28px 24px;
-    text-decoration: none;
-    color: #fff;
-    transition: transform 0.2s, background 0.2s;
-    border: 1px solid rgba(255,255,255,0.2);
+  .subtitle { font-size: 1.06rem; color: rgba(255,255,255,.82); font-weight: 600; }
+  .wave { display: inline-block; animation: wave 2.4s ease-in-out infinite; transform-origin: 70% 70%; }
+  @keyframes wave { 0%,60%,100% { transform: rotate(0); } 10% { transform: rotate(16deg); } 20% { transform: rotate(-8deg); } 30% { transform: rotate(14deg); } 40% { transform: rotate(-4deg); } }
+
+  .bento { display: grid; gap: 16px; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 200px);
+    grid-template-areas:
+      "atlas atlas sci   sci"
+      "atlas atlas nas   math"
+      "malay music eng   young"; }
+
+  .tile {
+    position: relative; border-radius: 24px; padding: 22px; text-decoration: none; color: #fff; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;
+    background: var(--g); box-shadow: 0 18px 40px -18px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.25);
+    border: 1px solid rgba(255,255,255,.16);
+    transition: transform .18s cubic-bezier(.2,.8,.3,1.2), box-shadow .2s;
+    opacity: 0; transform: translateY(16px) scale(.98); animation: pop .5s forwards;
   }
-  .card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.25); }
-  .card-icon { font-size: 2.5rem; margin-bottom: 12px; }
-  .card-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; }
-  .card-desc { font-size: 0.9rem; opacity: 0.8; line-height: 1.4; }
+  @keyframes pop { to { opacity: 1; transform: none; } }
+  .tile::before { content: ''; position: absolute; inset: 0; background: radial-gradient(80% 60% at 80% 0%, rgba(255,255,255,.28), transparent 60%); pointer-events: none; }
+  .tile:hover { transform: translateY(-6px) scale(1.015); box-shadow: 0 28px 54px -20px rgba(0,0,0,.7); }
+  .tile:hover .emoji { transform: rotate(-8deg) scale(1.12); }
+  .tile:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .emoji { font-size: 2.6rem; filter: drop-shadow(0 4px 10px rgba(0,0,0,.3)); transition: transform .2s; align-self: flex-start; margin-bottom: auto; }
+  .tile h2 { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 1.5rem; line-height: 1.05; }
+  .tile p { font-size: .92rem; color: rgba(255,255,255,.9); font-weight: 600; line-height: 1.3; }
+  .tag { position: absolute; top: 16px; right: 16px; font-family: 'Fredoka', sans-serif; font-size: .64rem; letter-spacing: .12em; text-transform: uppercase; background: rgba(0,0,0,.25); padding: 5px 10px; border-radius: 999px; }
+
+  .t-atlas { grid-area: atlas; --g: linear-gradient(150deg, #22d3ee, #6366f1 70%); }
+  .t-atlas .emoji { font-size: 4rem; }
+  .t-atlas h2 { font-size: 2.2rem; }
+  .t-sci   { grid-area: sci;   --g: linear-gradient(150deg, #10b981, #0ea5e9); }
+  .t-nas   { grid-area: nas;   --g: linear-gradient(150deg, #a855f7, #ec4899); }
+  .t-math  { grid-area: math;  --g: linear-gradient(150deg, #3b82f6, #6366f1); }
+  .t-malay { grid-area: malay; --g: linear-gradient(150deg, #ef4444, #f59e0b); }
+  .t-music { grid-area: music; --g: linear-gradient(150deg, #ec4899, #8b5cf6); }
+  .t-eng   { grid-area: eng;   --g: linear-gradient(150deg, #fb7185, #ef4444); }
+  .t-young { grid-area: young; --g: linear-gradient(150deg, #f59e0b, #84cc16); }
+
+  .tile:nth-child(1){animation-delay:.02s}.tile:nth-child(2){animation-delay:.08s}.tile:nth-child(3){animation-delay:.14s}.tile:nth-child(4){animation-delay:.2s}.tile:nth-child(5){animation-delay:.26s}.tile:nth-child(6){animation-delay:.32s}.tile:nth-child(7){animation-delay:.38s}.tile:nth-child(8){animation-delay:.44s}
+
+  footer { text-align: center; margin-top: 34px; color: rgba(255,255,255,.6); font-weight: 600; font-size: .9rem; }
+
+  @media (max-width: 880px) {
+    .bento { grid-template-columns: repeat(2, 1fr); grid-template-rows: none; grid-auto-rows: minmax(170px, auto);
+      grid-template-areas: "atlas atlas" "sci sci" "nas math" "malay music" "eng young"; }
+    .tile { min-height: 170px; }
+    .t-atlas { min-height: 230px; }
+  }
+  @media (max-width: 540px) {
+    .bento { grid-template-columns: 1fr; grid-auto-rows: minmax(140px, auto); grid-template-areas: "atlas" "sci" "nas" "math" "malay" "music" "eng" "young"; }
+    .tile { min-height: 150px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tile { animation: none; opacity: 1; transform: none; }
+    .blob, .wave { animation: none; }
+  }
 </style>
 </head>
 <body>
-  <h1>Jolly Good Learning</h1>
-  <p class="subtitle">Choose a learning adventure</p>
-  <div class="grid">
-    <a class="card" href="atlas/index.html">
-      <div class="card-icon">🧭</div>
-      <div class="card-title">Family Atlas</div>
-      <div class="card-desc">Country names, flags &amp; capitals — a world tour the whole family plays at their own level</div>
-    </a>
-    <a class="card" href="nasworld/index.html">
-      <div class="card-icon">🌟</div>
-      <div class="card-title">Nasworld</div>
-      <div class="card-desc">Anastasia's adaptive learning universe — Math, English & STEM for P1</div>
-    </a>
-    <a class="card" href="lab/index.html">
-      <div class="card-icon">🔬</div>
-      <div class="card-title">Science Lab</div>
-      <div class="card-desc">P6 Science with interactive simulations, mind maps & AI quizzes</div>
-    </a>
-    <a class="card" href="malay/index.html">
-      <div class="card-icon">🇲🇾</div>
-      <div class="card-title">Bahasa Melayu</div>
-      <div class="card-desc">PSLE Malay with tatabahasa, kosa kata, peribahasa, karangan &amp; kefahaman</div>
-    </a>
-    <a class="card" href="music.html">
-      <div class="card-icon">🎵</div>
-      <div class="card-title">Music Theory</div>
-      <div class="card-desc">Grade 5 music theory with interactive exercises</div>
-    </a>
-    <a class="card" href="younglearner.html">
-      <div class="card-icon">📚</div>
-      <div class="card-title">Young Learner</div>
-      <div class="card-desc">Early learning fundamentals and activities</div>
-    </a>
-    <a class="card" href="mathmodel/index.html">
-      <div class="card-icon">📐</div>
-      <div class="card-title">Math Model</div>
-      <div class="card-desc">Master the Singapore Model Method — bar models for word problems</div>
-    </a>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="wrap">
+    <header>
+      <div class="kicker">The Johll Family</div>
+      <h1>Jolly Good Learning</h1>
+      <p class="subtitle"><span class="wave">👋</span> Pick a world to play and learn in</p>
+    </header>
+
+    <nav class="bento">
+      <a class="tile t-atlas" href="atlas/index.html">
+        <span class="tag">New</span>
+        <span class="emoji">🧭</span>
+        <h2>Family Atlas</h2>
+        <p>Countries, flags &amp; capitals — a world tour the whole family plays, together or across devices.</p>
+      </a>
+      <a class="tile t-sci" href="lab/index.html">
+        <span class="emoji">🔬</span>
+        <h2>Science Lab</h2>
+        <p>P6 Science with simulations, mind maps &amp; AI quizzes.</p>
+      </a>
+      <a class="tile t-nas" href="nasworld/index.html">
+        <span class="emoji">🌟</span>
+        <h2>Nasworld</h2>
+        <p>Anastasia’s P1 universe — Math, English &amp; STEM.</p>
+      </a>
+      <a class="tile t-math" href="mathmodel/index.html">
+        <span class="emoji">📐</span>
+        <h2>Math Model</h2>
+        <p>Singapore bar models for word problems.</p>
+      </a>
+      <a class="tile t-malay" href="malay/index.html">
+        <span class="emoji">🇲🇾</span>
+        <h2>Bahasa Melayu</h2>
+        <p>PSLE Malay — tatabahasa, kosa kata &amp; karangan.</p>
+      </a>
+      <a class="tile t-music" href="music.html">
+        <span class="emoji">🎵</span>
+        <h2>Music Theory</h2>
+        <p>Grade 5 theory, interactive.</p>
+      </a>
+      <a class="tile t-eng" href="english/index.html">
+        <span class="emoji">📖</span>
+        <h2>English</h2>
+        <p>Grammar, comprehension &amp; writing.</p>
+      </a>
+      <a class="tile t-young" href="younglearner.html">
+        <span class="emoji">📚</span>
+        <h2>Young Learner</h2>
+        <p>Early learning fundamentals &amp; play.</p>
+      </a>
+    </nav>
+
+    <footer>Made with love for Alexey &amp; Anastasia · Non Vi Sed Arte</footer>
   </div>
 </body>
 </html>
