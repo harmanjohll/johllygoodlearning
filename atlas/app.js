@@ -15,6 +15,7 @@ import { RANKS, RANK_ORDER } from './data/tiers.js';
 import { subjectPool } from './engine/pool.js';
 import { BADGES } from './engine/gamification.js';
 import * as worldmap from './engine/worldmap.js';
+import { sound } from './engine/sound.js';
 import { challengeFor, todayIso } from './data/challenges.js';
 import { el, clear, flagImg, timerBar, toast, stampBurst } from './engine/ui.js';
 
@@ -63,13 +64,15 @@ function renderHome() {
   // Cover hero
   const chal = challengeFor();
   const cover = el('div', { class: 'cover' }, [
+    el('div', { class: 'globe-stage' }, [el('div', { class: 'globe' }, [el('div', { class: 'globe-ring' })])]),
     el('div', { class: 'cover-emblem', text: '🧭' }),
-    el('div', { class: 'eyebrow', text: 'The Johll Family' }),
+    el('div', { class: 'eyebrow', text: 'The Johll Family · Mission Control' }),
     el('h1', {}, [el('span', { class: 'foil', text: 'FAMILY ATLAS' })]),
-    el('p', { class: 'lede', text: 'A world tour for the whole family. Everyone plays the same game at their own level — collect stamps as you go.' }),
+    el('p', { class: 'lede', text: 'A world tour for the whole crew. Everyone plays the same mission at their own level — collect stamps across the planet.' }),
     el('div', { class: 'cover-cta' }, [
-      el('button', { class: 'btn btn-primary btn-lg', text: 'Start a session', onclick: () => Router.go('setup') }),
+      el('button', { class: 'btn btn-primary btn-lg', text: 'Launch a mission', onclick: () => { sound.click(); Router.go('setup'); } }),
       el('button', { class: 'btn btn-ghost', text: 'Passports', onclick: () => { if (players[0]) Router.go('passport/' + players[0].id); else openAddPlayer(); } }),
+      el('button', { class: 'btn btn-ghost', title: 'Sound', text: sound.enabled() ? '🔊' : '🔇', onclick: (e) => { const on = sound.toggle(); e.target.textContent = on ? '🔊' : '🔇'; if (on) sound.click(); } }),
     ]),
   ]);
   root.appendChild(cover);
@@ -175,50 +178,48 @@ function renderSetup() {
   showBack(true);
   const root = el('div');
   root.appendChild(el('div', { class: 'section-head' }, [
-    el('div', {}, [el('div', { class: 'eyebrow', text: 'Arrange a game' }), el('h2', { text: 'Who is playing?' })]),
+    el('div', {}, [el('div', { class: 'eyebrow', text: 'Mission briefing' }), el('h2', { text: 'Assemble the crew' })]),
   ]));
 
-  // players
-  const pWrap = el('div', { class: 'travellers setup-block' });
+  // players + inline level (tap card to join · tap the level pill to change difficulty)
+  root.appendChild(el('div', { class: 'setup-block' }, [el('span', { class: 'eyebrow', text: 'Crew · tap a card to join, tap the level to change it' })]));
+  const pWrap = el('div', { class: 'travellers' });
   function refreshPlayers() {
     clear(pWrap);
     Profiles.list().forEach(p => {
       const sel = draft.players.includes(p.id);
-      pWrap.appendChild(travellerChip(p, { selected: sel, onClick: () => {
+      const chip = el('button', { class: 'traveller' + (sel ? ' is-sel' : ''), type: 'button', onclick: () => {
+        sound.select();
         if (sel) draft.players = draft.players.filter(id => id !== p.id);
         else draft.players.push(p.id);
-        refreshPlayers(); refreshRanks(); refreshTeams(); refreshBegin();
-      } }));
+        refreshPlayers(); refreshTeams(); refreshBegin();
+      } }, [
+        el('span', { class: 'tv-emoji', text: p.emoji }),
+        el('span', {}, [
+          el('div', { class: 'tv-name', text: p.name }),
+          el('div', { class: 'tv-meta', text: 'Lvl ' + (p.level || 1) }),
+        ]),
+      ]);
+      if (sel) {
+        chip.appendChild(el('span', {
+          class: 'rank-pill', title: RANKS[p.rank].blurb,
+          text: RANKS[p.rank].emoji + ' ' + RANKS[p.rank].name,
+          onclick: (e) => {
+            e.stopPropagation();
+            const idx = RANK_ORDER.indexOf(p.rank);
+            Profiles.setRank(p.id, RANK_ORDER[(idx + 1) % RANK_ORDER.length]);
+            sound.click(); refreshPlayers(); refreshTeams();
+          },
+        }));
+      }
+      pWrap.appendChild(chip);
     });
-    pWrap.appendChild(el('button', { class: 'traveller traveller-add', type: 'button', onclick: () => openAddPlayer((p) => { draft.players.push(p.id); refreshPlayers(); refreshRanks(); refreshTeams(); refreshBegin(); }) }, [
+    pWrap.appendChild(el('button', { class: 'traveller traveller-add', type: 'button', onclick: () => openAddPlayer((p) => { draft.players.push(p.id); refreshPlayers(); refreshTeams(); refreshBegin(); }) }, [
       el('span', { class: 'tv-emoji', text: '＋' }), el('span', { class: 'tv-name', text: 'Add' }),
     ]));
   }
   root.appendChild(pWrap);
-
-  // per-player rank
-  const rankBlock = el('div', { class: 'setup-block' }, [el('span', { class: 'eyebrow', text: 'Each traveller’s level' })]);
-  const rankList = el('div');
-  rankBlock.appendChild(rankList);
-  function refreshRanks() {
-    clear(rankList);
-    const chosen = draft.players.map(id => Profiles.get(id)).filter(Boolean);
-    if (!chosen.length) { rankList.appendChild(el('p', { class: 'empty-note', text: 'Pick at least one traveller above.' })); return; }
-    chosen.forEach(p => {
-      const chips = el('div', { class: 'chips' });
-      RANK_ORDER.forEach(rid => {
-        const c = el('button', { class: 'chip' + (p.rank === rid ? ' is-sel' : ''), type: 'button', title: RANKS[rid].blurb, onclick: () => {
-          Profiles.setRank(p.id, rid); refreshRanks();
-        } }, [el('span', { text: RANKS[rid].emoji }), el('span', { text: RANKS[rid].name })]);
-        chips.appendChild(c);
-      });
-      rankList.appendChild(el('div', { class: 'player-rank-row' }, [
-        el('div', { class: 'prr-who' }, [el('span', { class: 'tv-emoji', text: p.emoji }), el('span', { text: p.name })]),
-        chips,
-      ]));
-    });
-  }
-  root.appendChild(rankBlock);
+  const refreshRanks = () => {}; // rank now lives on the crew cards
 
   // game
   const gameBlock = el('div', { class: 'setup-block' }, [el('span', { class: 'eyebrow', text: 'Game' })]);
@@ -408,14 +409,16 @@ function showFeedback(qcard, res, turn) {
   const answerText = turn.game.describe ? turn.game.describe(turn.question).answer : (subject ? subject.name : '');
   const box = el('div', { class: 'feedback ' + (res.correct ? 'ok' : 'no') });
   if (res.correct) {
-    box.appendChild(el('div', { class: 'fb-head', text: pick(['Stamped!', 'Correct!', 'Yes!']) }));
+    box.appendChild(el('div', { class: 'fb-head', text: pick(['Stamped!', 'Correct!', 'Locked in!', 'Yes!']) }));
     box.appendChild(el('div', { class: 'fb-detail', text: String(answerText) }));
     box.appendChild(el('div', { class: 'fb-points', text: '+' + res.scored.weightedScore + ' pts' }));
     stampBurst(qcard, subject ? subject.iso : '✓');
+    sound.correct(); if ((res.events || []).some(e => e.type === 'stamp')) sound.stamp();
   } else {
     const head = res.closeness > 0.6 ? 'So close' : 'Not this time';
     box.appendChild(el('div', { class: 'fb-head', text: head }));
     box.appendChild(el('div', { class: 'fb-detail', text: 'Answer: ' + String(answerText) }));
+    sound.wrong();
   }
   const cont = el('button', { class: 'btn btn-primary', style: { marginTop: '14px' }, text: res.finished ? 'See results' : 'Continue', onclick: nextStep });
   box.appendChild(cont);
@@ -470,8 +473,9 @@ function renderResults() {
   const game = gameById(session.gameId);
   const root = el('div');
 
+  sound.win();
   root.appendChild(el('div', { class: 'section-head' }, [
-    el('div', {}, [el('div', { class: 'eyebrow', text: 'Tour complete' }), el('h2', { text: 'Boarding pass' })]),
+    el('div', {}, [el('div', { class: 'eyebrow', text: 'Mission complete' }), el('h2', { text: 'Mission report' })]),
   ]));
 
   const main = el('div', { class: 'bp-main' });
