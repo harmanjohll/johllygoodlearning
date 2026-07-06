@@ -20,7 +20,19 @@ const BADGES = {
   comeback: { label: 'Comeback', desc: 'Answered right after two misses.' },
   'week-streak': { label: 'Regular Traveller', desc: 'A 7-day study streak.' },
   cartographer: { label: 'Steady Hand', desc: '25 correct answers total.' },
+  'memory-master': { label: 'Memory Master', desc: 'Cleared a Memory Match board.' },
+  speedster: { label: 'Speedster', desc: 'Named 10+ countries in one Speed Sweep.' },
 };
+
+/** Award a named badge if not already held; returns a celebration event or null. */
+export function awardBadge(profile, id) {
+  if (!BADGES[id]) return null;
+  profile.badges = profile.badges || [];
+  if (profile.badges.includes(id)) return null;
+  profile.badges.push(id);
+  Profiles.save(profile);
+  return badgeEvent(id);
+}
 
 /** Record that a player was active today; forgiving streak (a gap of 1 keeps it). */
 export function touchStreak(profile) {
