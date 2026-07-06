@@ -13,6 +13,8 @@ const CHALLENGE_GAMES = [
   'capitals/match',
   'capitals/capital-or-not',
   'names/country-round',
+  'names/map-locate',
+  'names/name-the-shape',
 ];
 
 // A tiny deterministic hash of the ISO date string, e.g. "2026-07-06".

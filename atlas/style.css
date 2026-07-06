@@ -408,6 +408,39 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.
 .empty-note { color: rgba(245,237,219,.6); font-size: .92rem; }
 .muted { color: var(--ink-soft); }
 
+/* ── Phase 2: world map & silhouettes ────────────────────── */
+:root {
+  --map-land:   #cdba8b;
+  --map-stroke: #ad9a68;
+  --map-faint:  #e3d9c0;
+}
+
+/* Name the Shape — silhouette */
+.shape-stage { display: flex; justify-content: center; margin-top: 8px; }
+.silhouette { width: min(64vw, 240px); height: 190px; display: block; }
+.silhouette-shape { fill: var(--ink); stroke: var(--paper); stroke-width: .5; }
+.silhouette-shape * { fill: inherit; }
+
+/* Map Locate + passport map */
+.map-stage { margin-top: 6px; }
+.wm { width: 100%; height: auto; max-height: 48vh; display: block; overflow: hidden; }
+.wm-land { fill: var(--map-land); stroke: var(--map-stroke); stroke-width: .35; pointer-events: none; transition: fill .12s; }
+.wm-land * { fill: inherit; stroke: inherit; }
+.wm-other { fill: var(--map-faint); }
+.wm-interactive { pointer-events: auto; cursor: pointer; }
+.wm-interactive:hover { fill: var(--gold-2); }
+.wm-land.is-correct { fill: var(--ok) !important; }
+.wm-land.is-wrong { fill: var(--no) !important; }
+.wm-hint { fill: var(--gold-2) !important; animation: mapPulse .55s ease-in-out 2; }
+@keyframes mapPulse { 0%,100% { fill: var(--map-land); } 50% { fill: var(--gold-2); } }
+.map-credit { font-family: var(--font-mono); font-size: .6rem; letter-spacing: .04em; color: var(--ink-faint); text-align: right; margin-top: 6px; }
+
+/* Passport "where you've been" map — faint land, painted stamps pop */
+.pp-map { margin-top: 10px; }
+.pp-map .wm { max-height: 40vh; }
+.pp-map .wm-land { fill: var(--map-faint); stroke: #d8ccae; }
+.pp-map .wm-painted { stroke: var(--paper); stroke-width: .4; }
+
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }

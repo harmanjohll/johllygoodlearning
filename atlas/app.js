@@ -14,6 +14,7 @@ import { REGIONS, COUNTRIES, BY_ISO } from './data/countries.js';
 import { RANKS, RANK_ORDER } from './data/tiers.js';
 import { subjectPool } from './engine/pool.js';
 import { BADGES } from './engine/gamification.js';
+import * as worldmap from './engine/worldmap.js';
 import { challengeFor, todayIso } from './data/challenges.js';
 import { el, clear, flagImg, timerBar, toast, stampBurst } from './engine/ui.js';
 
@@ -307,8 +308,12 @@ function renderSetup() {
   screen(root);
 }
 
-function beginSession() {
+async function beginSession() {
   const game = gameById(draft.gameId);
+  if (game.needsMap) {
+    if (!worldmap.isReady() && !worldmap.failed()) { renderMapLoading(); await worldmap.ready(); }
+    if (worldmap.failed()) { toast('The world map could not load. Try another game.'); Router.go('setup'); return; }
+  }
   let teams = null;
   if (draft.mode === 'teams') {
     teams = { kids: Object.assign([], { label: 'Kids' }), parents: Object.assign([], { label: 'Grown-ups' }) };
@@ -320,6 +325,16 @@ function beginSession() {
   });
   sessionStampEvents = [];
   Router.go('play');
+}
+
+function renderMapLoading() {
+  screen(el('div', { class: 'arena' }, [
+    el('div', { class: 'sheet q-card', style: { textAlign: 'center', padding: '48px 24px' } }, [
+      el('div', { style: { fontSize: '2.6rem' }, text: '🗺️' }),
+      el('h2', { class: 'q-region', text: 'Unrolling the map…' }),
+      el('p', { class: 'muted', text: 'One moment.' }),
+    ]),
+  ]));
 }
 
 // ── PLAY ─────────────────────────────────────────────────────
@@ -521,6 +536,28 @@ function renderPassport(params) {
     ]),
   ]));
 
+  // "Where you've been" map (filled async once the world map is ready)
+  if (!worldmap.failed()) {
+    const stampedIsos = p.stamps.filter(s => !s.startsWith('region:')).map(s => s.split(':')[1]);
+    const mapSheet = el('div', { class: 'sheet pp-map-sheet', style: { marginTop: '16px' } }, [
+      el('div', { class: 'region-page' }, [
+        el('h3', {}, [el('span', { text: '🧳' }), el('span', { text: 'Where you’ve been' }),
+          el('span', { class: 'rp-count', text: `  ${stampedIsos.length} countries` })]),
+        el('div', { class: 'pp-map-mount', text: '' }),
+      ]),
+    ]);
+    root.appendChild(mapSheet);
+    worldmap.ready().then(() => {
+      if (worldmap.failed()) { mapSheet.remove(); return; }
+      const paint = {};
+      stampedIsos.forEach(iso => { const c = BY_ISO[iso]; if (c && worldmap.hasCountry(iso)) paint[iso.toLowerCase()] = regionColor(c.region); });
+      const svg = worldmap.buildLocateMap({ interactive: [], paint });
+      const mountEl = mapSheet.querySelector('.pp-map-mount');
+      if (svg && mountEl) { mountEl.classList.add('pp-map'); mountEl.appendChild(svg); mountEl.appendChild(el('div', { class: 'map-credit', text: 'Map: simple-world-map, CC BY-SA 3.0' })); }
+      else if (mountEl) mountEl.appendChild(el('p', { class: 'muted', text: 'Map unavailable.' }));
+    });
+  }
+
   // badges
   if (p.badges.length) {
     const brow = el('div', { class: 'badge-row', style: { marginTop: '16px' } });
@@ -580,4 +617,5 @@ backBtn.addEventListener('click', () => {
   Router.go(path === 'setup' || path === 'results' || (path && path.startsWith('passport')) ? 'home' : 'home');
 });
 
+worldmap.loadWorldMap();  // preload so map games are ready by play time; degrades if it fails
 Router.start();
