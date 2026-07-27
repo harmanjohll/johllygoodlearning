@@ -5,6 +5,20 @@
    an English LLM prompt. No Supabase. All state local.
    ========================================================= */
 
+// ── Model id resolution ────────────────────────────────────
+// Never hardcode a Gemini model id. gemini-2.5-flash started returning
+// 404 "no longer available" on 9 July 2026, which silently broke every
+// AI feature here — including the Test Key button, which then reported
+// a perfectly good key as broken. shared/gemini.js owns the candidate
+// list and self-heals; these direct fetch call sites ask it what to use.
+function jglModelId() {
+  try {
+    return localStorage.getItem('jgl.geminiModelOk')
+        || localStorage.getItem('jgl.geminiModel')
+        || 'gemini-3.6-flash';
+  } catch (e) { return 'gemini-3.6-flash'; }
+}
+
 // ── Progress (localStorage) ────────────────────────────────
 const Progress = {
   KEY: 'english_progress',
@@ -241,7 +255,7 @@ function showAISetup() {
     statusEl.innerHTML = '<span class="ai-status-info">⏳ Testing your key with Google…</span>';
     try {
       const r = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${jglModelId()}:generateContent?key=${encodeURIComponent(key)}`,
         { method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contents: [{ parts: [{ text: 'Reply with the single word: OK' }] }] }) }
       );
@@ -510,7 +524,7 @@ Reply with ONLY a JSON array — no markdown, no code fences, no extra text:
 [{"question":"…","options":["A","B","C","D"],"correct":0,"explanation":"…"}]`;
 
     const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${jglModelId()}:generateContent?key=${encodeURIComponent(key)}`,
       { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
