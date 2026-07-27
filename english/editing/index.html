@@ -156,7 +156,7 @@
 
   <div id="quiz-pane" style="display:none;">
     <div class="timer-bar">
-      <span class="time-left" id="time-left">8:00</span>
+      <span class="time-left" id="time-left">08:00</span>
       <span style="color:var(--muted);font-size:.85rem;" id="score-meta">0 / 10</span>
       <span style="flex:1;"></span>
       <button class="btn btn-secondary" id="btn-submit" style="font-size:.82rem;padding:.4rem .8rem;">Submit now</button>
@@ -278,12 +278,43 @@ function normType(t) {
   const v = String(t == null ? '' : t).trim();
   return ERROR_TYPES.indexOf(v) !== -1 ? v : 'spelling';
 }
+// Single source of truth for marking. The scorer and the review list MUST
+// agree; when they were computed separately they disagreed on blank answers.
+function isCorrect(line, answer) {
+  const val = String(answer == null ? '' : answer).toLowerCase().trim();
+  if (!val) return false;
+  const ok = (line.correct || [])
+    .map(function (x) { return String(x == null ? '' : x).toLowerCase().trim(); })
+    .filter(Boolean);
+  return ok.indexOf(val) !== -1;
+}
+// Literal placeholder swap. String.replace treats $& / $' / $` in the
+// replacement as substitution patterns, so use a function replacer.
+function fillWrong(escapedText, replacementHTML) {
+  return String(escapedText).replace('{WRONG}', function () { return replacementHTML; });
+}
+function readLS(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v == null ? fallback : v;
+  } catch (e) { return fallback; }
+}
+function geminiKey() {
+  try {
+    if (window.JglStorage && window.JglStorage.getGeminiKey) {
+      return window.JglStorage.getGeminiKey() || readLS('jgl.geminiKey', '') || '';
+    }
+  } catch (e) { /* storage blocked — fall through */ }
+  return readLS('jgl.geminiKey', '') || '';
+}
 
 function paintFreshStat() {
   const el = document.getElementById('edit-fresh-stat');
   if (!el) return;
   const s = window.JglFresh ? JglFresh.stats(FRESH_BUCKET) : { total: 0, last7: 0 };
-  el.textContent = s.total ? (s.total + ' passages seen · ' + s.last7 + ' this week') : '';
+  el.textContent = s.total
+    ? (s.total + (s.total === 1 ? ' passage seen · ' : ' passages seen · ') + s.last7 + ' this week')
+    : '';
 }
 function paintBankLabel() {
   const el = document.getElementById('bank-label');
@@ -446,7 +477,7 @@ function renderPassage() {
     const row = document.createElement('div');
     row.className = 'line';
     row.dataset.num = line.num;
-    const textHTML = esc(line.text).replace('{WRONG}', '<span class="wrong">' + esc(line.wrong) + '</span>');
+    const textHTML = fillWrong(esc(line.text), '<span class="wrong">' + esc(line.wrong) + '</span>');
     row.innerHTML =
       '<div class="num">' + esc(line.num) + '.</div>' +
       '<div class="text">' + textHTML + '</div>' +
@@ -488,9 +519,7 @@ function submit() {
   let got = 0;
   const byType = {};
   PASSAGE.lines.forEach(function (line) {
-    const val = (state.answers[line.num] || '').toLowerCase().trim();
-    const ok  = (line.correct || []).map(function (x) { return String(x).toLowerCase(); });
-    const right = !!val && ok.indexOf(val) !== -1;
+    const right = isCorrect(line, state.answers[line.num]);
     if (right) got += 1;
 
     const t = normType(line.errorType);
@@ -529,15 +558,13 @@ function submit() {
 
   let reviewHTML = '<div class="passage" style="margin-top:1.5rem;"><div class="title" style="margin-bottom:.85rem;color:var(--accent);">Review every line</div>';
   PASSAGE.lines.forEach(function (line) {
-    const ans = state.answers[line.num] || '';
-    const ok = (line.correct || []).map(function (x) { return String(x).toLowerCase(); });
-    const right = ok.indexOf(ans.toLowerCase()) !== -1;
+    const right = isCorrect(line, state.answers[line.num]);
     const t = normType(line.errorType);
     reviewHTML += '<div style="border-top:1px solid var(--border);padding-top:.55rem;margin-top:.55rem;">' +
       '<div style="font-size:.82rem;color:var(--muted);">Line ' + esc(line.num) + ' · <span style="color:' + (right ? '#4ade80' : '#f87171') + ';">' + (right ? '✓' : '✗') + '</span>' +
         '<span class="type-tag">' + esc(TYPE_LABEL[t] || t) + '</span></div>' +
       '<div style="font-size:.88rem;color:var(--text);margin:.2rem 0;">' +
-        esc(line.text).replace('{WRONG}', '<span style="color:#f87171;font-weight:700;">' + esc(line.wrong) + '</span>') + '</div>' +
+        fillWrong(esc(line.text), '<span style="color:#f87171;font-weight:700;">' + esc(line.wrong) + '</span>') + '</div>' +
       '<div style="font-size:.82rem;color:var(--accent);">Accept: ' + esc((line.correct || []).join(' / ')) + '</div>' +
       '<div style="font-size:.78rem;color:var(--muted);margin-top:.2rem;line-height:1.55;">' + esc(line.why) + '</div>' +
     '</div>';
@@ -601,7 +628,7 @@ const EDIT_GEN_CACHE_KEY = 'jgl.english.editing.generated';
 
 (function rehydrateEditing() {
   try {
-    const cached = JSON.parse(localStorage.getItem(EDIT_GEN_CACHE_KEY) || 'null');
+    const cached = JSON.parse(readLS(EDIT_GEN_CACHE_KEY, 'null') || 'null');
     if (cached && Array.isArray(cached.lines) && cached.lines.length) {
       PASSAGE = cached;
       PASSAGE_IS_CURATED = false;
@@ -614,9 +641,12 @@ const EDIT_GEN_CACHE_KEY = 'jgl.english.editing.generated';
 })();
 
 document.getElementById('edit-gen-btn').addEventListener('click', async function () {
-  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  const k = geminiKey();
   const status = document.getElementById('edit-gen-status');
-  if (!k) { status.textContent = 'No Gemini key set.'; return; }
+  if (!k) {
+    status.textContent = 'No Gemini key set. Open Settings (top right) to add one. The curated passages work without it.';
+    return;
+  }
   if (state.startedAt && !state.submitted) {
     if (!confirm('Replace the passage and reset the clock?')) return;
   }
@@ -698,16 +728,26 @@ async function generateEditingPassage(theme) {
     responseMimeType: 'application/json', asJson: true,
   });
   if (!json || !Array.isArray(json.lines) || json.lines.length < 5) throw new Error('Unexpected response shape.');
-  const lines = json.lines.slice(0, 10).map(function (ln, idx) {
+  const lines = json.lines.slice(0, 10).map(function (ln) {
+    // Drop blanks: a line with no usable correct answer is unmarkable, and
+    // an empty string in here would silently accept an empty box.
+    const correct = (Array.isArray(ln.correct) ? ln.correct : [ln.correct])
+      .map(function (x) { return String(x == null ? '' : x).trim(); })
+      .filter(Boolean);
     return {
-      num: typeof ln.num === 'number' ? ln.num : (idx + 1),
-      wrong: String(ln.wrong || ''),
-      correct: Array.isArray(ln.correct) ? ln.correct.map(String) : [String(ln.correct || '')],
+      wrong: String(ln.wrong == null ? '' : ln.wrong).trim(),
+      correct: correct,
       errorType: normType(ln.errorType),
       text: String(ln.text || '').indexOf('{WRONG}') !== -1 ? String(ln.text) : (String(ln.text || '') + ' {WRONG}'),
       why: String(ln.why || ''),
     };
+  }).filter(function (ln) {
+    return ln.wrong && ln.correct.length;
+  }).map(function (ln, idx) {
+    ln.num = idx + 1;              // renumber so numbering stays 1..N after filtering
+    return ln;
   });
+  if (lines.length < 5) throw new Error('Too few usable lines came back. Try generating again.');
   return { title: String(json.title || 'AI-generated passage'), lines: lines };
 }
 </script>

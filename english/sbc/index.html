@@ -71,6 +71,7 @@
     .mode-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: .65rem; }
     .mode-switch button { background: var(--surface); color: var(--muted); border: 0; padding: .32rem .7rem; font-size: .76rem; font-weight: 600; cursor: pointer; font-family: inherit; }
     .mode-switch button.on { background: rgba(74,222,128,.12); color: var(--accent); }
+    .mode-note { display: none; font-size: .82rem; color: #fbbf24; line-height: 1.55; margin-bottom: .55rem; }
 
     /* ── recorder ──────────────────────────────────── */
     .speak-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .75rem .85rem; }
@@ -608,12 +609,12 @@ function renderGrid() {
       '<div class="stim-title">' + escapeHTML(s.title) + '</div>' +
       '<div class="stim-theme">' + escapeHTML(s.theme) + '</div>' +
       '<div class="stim-desc">' + escapeHTML(s.desc) + '</div>';
-    card.addEventListener('click', function () { selectStimulus(s.id); });
+    card.addEventListener('click', function () { selectStimulus(s.id, true); });
     grid.appendChild(card);
   });
 }
 
-function selectStimulus(id) {
+function selectStimulus(id, scroll) {
   const s = STIMULI.find(function (x) { return x.id === id; });
   if (!s) return;
   // Cancel anything still recording in the pane we are leaving.
@@ -627,7 +628,9 @@ function selectStimulus(id) {
   document.querySelectorAll('.stim-card').forEach(function (c) { c.classList.toggle('active', c.dataset.id === id); });
   renderWorkPane(s);
   if (window.JglFresh) JglFresh.mark('sbc', JglFresh.hash(s.scene), { title: s.title, theme: s.theme });
-  document.getElementById('work-pane').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Only scroll when the student actually picked something. Scrolling on
+  // boot buries the key warning, the mic warning and the picker itself.
+  if (scroll) document.getElementById('work-pane').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 /* ── Work pane ─────────────────────────────────────────── */
@@ -661,6 +664,7 @@ function renderWorkPane(s) {
         '<button type="button" data-mode="speak">🎙 Speak</button>' +
         '<button type="button" data-mode="type">⌨️ Type instead</button>' +
       '</div>' +
+      '<div class="mode-note"></div>' +
       '<div class="speak-panel">' +
         '<div class="rec-row">' +
           '<button type="button" class="rec-btn">● Record</button>' +
@@ -692,7 +696,10 @@ function renderWorkPane(s) {
     }
     modeBtns.forEach(function (b) {
       b.addEventListener('click', function () {
-        if (b.dataset.mode === 'speak' && !MIC.ok) { setNote(block, micReason(), 'bad'); return; }
+        // .rec-note lives inside .speak-panel, which is hidden whenever the
+        // mic is unavailable, so the reason has to go somewhere visible.
+        if (b.dataset.mode === 'speak' && !MIC.ok) { setModeNote(block, micReason()); return; }
+        setModeNote(block, '');
         setMode(b.dataset.mode);
       });
     });
@@ -723,8 +730,15 @@ function micReason() {
 }
 function setNote(block, text, cls) {
   const n = block.querySelector('.rec-note');
+  if (!n) return;
   n.className = 'rec-note' + (cls ? ' ' + cls : '');
   n.textContent = text;
+}
+function setModeNote(block, text) {
+  const n = block.querySelector('.mode-note');
+  if (!n) return;
+  n.textContent = text || '';
+  n.style.display = text ? 'block' : 'none';
 }
 
 /* ── Recording ─────────────────────────────────────────── */
@@ -748,6 +762,12 @@ function toggleRecord(block, q, idx) {
   player.removeAttribute('src');
   setNote(block, 'Recording. Speak as you would to the examiner: look up, not at the screen.', '');
 
+  // start() is async. Without this guard a second click before the mic
+  // opens builds a second recorder, orphans the first stream, and leaves
+  // the microphone indicator on for the rest of the session.
+  st.busy = true;
+  btn.disabled = true;
+
   st.rec = JglAudio.createRecorder({
     maxMs: HARD_CAP_MS + 5000,        // our own tick enforces the real cap
     onLevel: function (v) { fill.style.width = Math.round(Math.min(1, v) * 100) + '%'; },
@@ -762,10 +782,14 @@ function toggleRecord(block, q, idx) {
   });
 
   st.rec.start().then(function () {
+    st.busy = false;
+    btn.disabled = false;
     btn.classList.add('recording');
     btn.textContent = '■ Stop';
   }).catch(function (e) {
     st.rec = null;
+    st.busy = false;
+    btn.disabled = false;
     btn.classList.remove('recording');
     btn.textContent = '● Record';
     setNote(block, (e && e.message) || 'Recording could not start.', 'bad');
@@ -779,10 +803,12 @@ function finishRecording(block, q, idx) {
   const btn    = block.querySelector('.rec-btn');
   const player = block.querySelector('.playback');
   const fill   = block.querySelector('.level-fill');
+  btn.disabled = true;
 
   st.rec.stop().then(function (take) {
     st.rec = null;
     st.busy = false;
+    btn.disabled = false;
     fill.style.width = '0%';
     btn.classList.remove('recording');
     btn.textContent = '● Record again';
@@ -813,6 +839,8 @@ function finishRecording(block, q, idx) {
   }).catch(function (e) {
     st.rec = null;
     st.busy = false;
+    btn.disabled = false;
+    fill.style.width = '0%';
     btn.classList.remove('recording');
     btn.textContent = '● Record';
     setNote(block, 'Could not save that take: ' + ((e && e.message) || e), 'bad');
@@ -854,7 +882,11 @@ function answerPayload(idx, block) {
     return { audio: { base64: st.take.base64, mimeType: JglAudio.geminiMime(st.take.mimeType) }, durationMs: st.take.durationMs };
   }
   const text = (block.querySelector('textarea').value || '').trim();
-  if (!text) return { error: 'Type an answer first, or switch back to Speak and record one.' };
+  if (!text) {
+    return { error: MIC.ok
+      ? 'Type an answer first, or switch back to Speak and record one.'
+      : 'Type an answer first. Recording is unavailable on this browser, so typing is the only route here.' };
+  }
   return { text: text.slice(0, 1500) };
 }
 
@@ -1031,7 +1063,11 @@ function renderExaminer(fb, out, q, fw) {
     : clamp5(bands.ideas && bands.ideas.score) + clamp5(bands.language && bands.language.score) + clamp5(bands.engagement && bands.engagement.score)));
 
   // framework checklist
-  const present = (out.frameworkCheck && Array.isArray(out.frameworkCheck.present) ? out.frameworkCheck.present : []).map(function (x) { return String(x).toLowerCase().trim(); });
+  // An empty string here would substring-match every part and tick the
+  // whole checklist, so drop blanks before comparing.
+  const present = (out.frameworkCheck && Array.isArray(out.frameworkCheck.present) ? out.frameworkCheck.present : [])
+    .map(function (x) { return String(x == null ? '' : x).toLowerCase().trim(); })
+    .filter(Boolean);
   const fwHTML = fw.parts.map(function (p) {
     const on = present.some(function (x) { return x === p.toLowerCase() || x.indexOf(p.toLowerCase()) !== -1 || p.toLowerCase().indexOf(x) !== -1; });
     return '<span class="fw-item ' + (on ? 'yes' : 'no') + '"><span class="mk">' + (on ? '✓' : '✗') + '</span>' + escapeHTML(p) + '</span>';
@@ -1181,7 +1217,7 @@ document.getElementById('btn-generate').addEventListener('click', async function
     document.getElementById('btn-clear-generated').style.display = 'inline-block';
     status.textContent = 'New stimulus ready: ' + stim.title + '.';
     renderGrid();
-    selectStimulus(stim.id);
+    selectStimulus(stim.id, true);
   } catch (e) {
     const code = e && e.code;
     status.textContent = code === 'RATE_LIMIT'
@@ -1209,10 +1245,11 @@ document.addEventListener('visibilitychange', function () {
   if (document.visibilityState !== 'hidden') return;
   Object.keys(QSTATE).forEach(function (k) {
     const st = QSTATE[k];
-    if (st && st.rec && st.rec.isRecording()) { try { st.rec.cancel(); } catch (_) {} st.rec = null; }
+    if (st && st.rec && st.rec.isRecording()) { try { st.rec.cancel(); } catch (_) {} st.rec = null; st.busy = false; }
   });
   document.querySelectorAll('.rec-btn.recording').forEach(function (b) {
     b.classList.remove('recording');
+    b.disabled = false;
     b.textContent = '● Record';
     const note = b.closest('.speak-panel').querySelector('.rec-note');
     note.className = 'rec-note warn';
@@ -1221,7 +1258,11 @@ document.addEventListener('visibilitychange', function () {
 });
 
 // Boot
-if (!hasKey()) document.getElementById('key-warn').style.display = 'block';
+function refreshKeyNotice() {
+  document.getElementById('key-warn').style.display = hasKey() ? 'none' : 'block';
+}
+refreshKeyNotice();
+document.addEventListener('jgl:gemini-key-changed', refreshKeyNotice);
 if (!MIC.ok) {
   const w = document.getElementById('mic-warn');
   w.style.display = 'block';
@@ -1237,7 +1278,7 @@ if (!MIC.ok) {
 if (typeof Progress !== 'undefined' && Progress.recordVisit) Progress.recordVisit(TOPIC);
 renderHistory();
 renderGrid();
-selectStimulus(todayId);
+selectStimulus(todayId, false);
 })();
 </script>
 </body>

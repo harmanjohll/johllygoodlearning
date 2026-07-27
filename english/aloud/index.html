@@ -725,9 +725,15 @@
   }
 
   function resetTake() {
+    // Switching passage mid-take used to leave the mic open and score the
+    // old audio against the new passage's word count.
+    if (rec && rec.isRecording()) { try { rec.cancel(); } catch (e) {} }
+    stopping = false;
+    $('stop-btn').disabled = true;
     if (take && take.url) { try { URL.revokeObjectURL(take.url); } catch (e) {} }
     take = null;
     peakLevel = 0;
+    stopNote = '';
     $('playback').innerHTML = '';
     $('mark-btn').disabled = true;
     $('mark-status').textContent = '';
@@ -744,18 +750,41 @@
     el.innerHTML = msg;
   }
 
+  var stopping = false;
+  var stopNote = '';   // why the take ended, shown once finishTake resolves
+
+  // Every stop goes through here. JglAudio's own maxMs cap calls the raw
+  // MediaRecorder.stop(), which discards the take because nothing is waiting
+  // on the promise, so we set the module cap above ours and enforce the real
+  // one on the tick instead.
+  function doStop() {
+    if (stopping || !rec || !rec.isRecording()) return;
+    stopping = true;
+    $('stop-btn').disabled = true;
+    rec.stop().then(function (result) {
+      stopping = false;
+      finishTake(result);
+    }).catch(function (e) {
+      stopping = false;
+      $('rec-btn').disabled = false;
+      $('timer').classList.remove('live');
+      showRecError('<b>' + esc((e && e.message) || 'Could not save that recording.') + '</b>');
+    });
+  }
+
   $('rec-btn').addEventListener('click', function () {
     if (!current) return;
     resetTake();
     $('rec-btn').disabled = true;
     rec = JglAudio.createRecorder({
-      maxMs: MAX_MS,
+      maxMs: MAX_MS + 5000,   // our own tick enforces the real cap
       onLevel: setMeter,
       onTick: function (ms) {
-        $('timer').textContent = mmss(ms);
+        $('timer').textContent = mmss(Math.min(ms, MAX_MS));
         var left = MAX_MS - ms;
         $('cap-note').textContent = left < 30000 ? ('Stopping in ' + Math.max(0, Math.round(left / 1000)) + ' s') : 'Stops automatically at 3:00';
         if (ms > 3000 && peakLevel < 0.05) $('meter-label').textContent = 'The bar is not moving. Check that the right microphone is selected, and speak up.';
+        if (ms >= MAX_MS) { stopNote = 'Stopped at the three minute cap. '; doStop(); }
       }
     });
     rec.start().then(function () {
@@ -781,6 +810,7 @@
     setMeter(0);
 
     if (!result || !result.blob || result.blob.size < 1200) {
+      stopNote = '';
       showRecError('<b>That recording came back empty.</b> The microphone was open but nothing was captured. Check that the right input is selected in your system sound settings, then record again.');
       return;
     }
@@ -805,26 +835,20 @@
       showRecError('<b>The microphone barely picked anything up.</b> The file exists but it is very quiet. Play it back; if you cannot hear yourself, the examiner will not either. Move closer and record again.');
     }
     $('mark-btn').disabled = false;
-    $('mark-status').textContent = hasKey() ? 'Listen back first. Then mark it.' : 'Listen back and self-score. AI marking needs a key.';
+    $('mark-status').textContent = stopNote + (hasKey() ? 'Listen back first. Then mark it.' : 'Listen back and self-score. AI marking needs a key.');
+    stopNote = '';
 
     try { if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed(TOPIC_ID); } catch (e) {}
   }
 
-  $('stop-btn').addEventListener('click', function () {
-    if (!rec) return;
-    $('stop-btn').disabled = true;
-    rec.stop().then(finishTake).catch(function (e) {
-      $('rec-btn').disabled = false;
-      showRecError('<b>' + esc((e && e.message) || 'Could not save that recording.') + '</b>');
-    });
-  });
+  $('stop-btn').addEventListener('click', doStop);
 
   // iOS mutes capture when the tab goes to the background, which produces
   // a silent file and a confidently wrong transcript. Stop rather than lie.
   document.addEventListener('visibilitychange', function () {
     if (document.hidden && rec && rec.isRecording()) {
-      $('stop-btn').click();
-      $('mark-status').textContent = 'Recording stopped because you left the page.';
+      stopNote = 'Stopped because you left the page. ';
+      doStop();
     }
   });
 
@@ -924,9 +948,10 @@
       asJson: true
     }, modelOpt())).then(function (res) {
       lastMark = tidyMark(res);
-      renderMark(lastMark);
+      // Persist before rendering: a hiccup while drawing must not lose the mark.
       saveAttempt(lastMark);
       renderHistory();
+      renderMark(lastMark);
       renderCalibration();
       $('mark-status').textContent = 'Marked. Read it again with the one thing fixed.';
       try {
@@ -1027,7 +1052,7 @@
 
     $('result-body').innerHTML = html;
     $('result-panel').classList.remove('hidden');
-    $('result-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    try { $('result-panel').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
   }
 
   /* ── self scoring ────────────────────────────────── */

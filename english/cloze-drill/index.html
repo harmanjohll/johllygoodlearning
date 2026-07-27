@@ -301,6 +301,15 @@ function escapeHTML(s) {
 
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
 
+// localStorage throws outright in private-browsing / blocked-cookie modes,
+// so every read goes through here and falls back to a sane default.
+function readLS(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v === null ? fallback : v;
+  } catch (e) { return fallback; }
+}
+
 function normArea(a) {
   const s = String(a == null ? '' : a).toLowerCase().trim();
   return AREAS.indexOf(s) !== -1 ? s : '';
@@ -603,7 +612,7 @@ function submit() {
       '<div class="row">' +
         '<a class="btn btn-primary" href="./">Retry</a>' +
         '<a class="btn btn-secondary" href="../">← Hub</a>' +
-        '<a class="btn btn-secondary" href="../topics/cloze/">Open Cloze topic</a>' +
+        '<a class="btn btn-secondary" href="../topics/grammar/">Open Grammar topic</a>' +
       '</div>' +
     '</div>' +
     diagnosisHTML() +
@@ -642,9 +651,14 @@ const GEN_CACHE_KEY = 'jgl.english.gcloze.generated';
 /* ── AI passage generator ────────────────────────────────── */
 
 document.getElementById('btn-generate').addEventListener('click', async () => {
-  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  let k = '';
+  try { k = (window.JglStorage && window.JglStorage.getGeminiKey()) || ''; } catch (e) { k = ''; }
+  if (!k) k = readLS('jgl.geminiKey', '') || '';
   const status = document.getElementById('gen-status');
-  if (!k) { status.textContent = 'No Gemini key set.'; return; }
+  if (!k) {
+    status.textContent = 'No Gemini key set. Open Settings (top right) to add one. The curated passages below work without a key.';
+    return;
+  }
   if (state.startedAt && !state.submitted) {
     if (!confirm('Replace the passage and reset the clock?')) return;
   }
@@ -727,12 +741,17 @@ Constraints:
   if (!json || !Array.isArray(json.parts)) throw new Error('Unexpected response shape.');
   const blanks = json.parts.filter(p => p && typeof p === 'object');
   if (blanks.length < 5) throw new Error('Generator returned too few blanks.');
+  // Renumber the blanks ourselves. A model that omits an id, repeats one,
+  // or returns them out of order would otherwise collapse several blanks
+  // onto the same answer key and silently lose marks.
+  let blankNo = 0;
   return {
     title: json.title || 'AI-generated passage',
     parts: json.parts.map(p => {
       if (typeof p === 'string') return p;
+      blankNo += 1;
       return {
-        id: p.id,
+        id: blankNo,
         area: normArea(p.area) || deriveArea(p.why) || 'grammar',
         accept: Array.isArray(p.accept) ? p.accept.map(String) : [String(p.accept || '')],
         why: p.why || '',

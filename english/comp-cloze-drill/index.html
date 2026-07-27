@@ -176,7 +176,11 @@
 <script src="../shared/freshness.js"></script>
 <script>
 const QUIZ_MS = 15 * 60 * 1000;
-const BUCKET = 'ccloze';
+// Canonical freshness bucket for this drill, per /english/shared/freshness.js.
+// An earlier build wrote to 'ccloze', which no other page knows about; boot()
+// migrates that ledger across once.
+const BUCKET = 'compcloze';
+const LEGACY_BUCKET = 'ccloze';
 const ATTEMPTS_KEY = 'jgl.english.ccloze.attempts';
 const ATTEMPTS_CAP = 60;
 
@@ -626,6 +630,18 @@ function submit() {
 const GEN_CACHE_KEY = 'jgl.english.ccloze.generated';
 
 (function boot() {
+  // One-time move of the pre-rename ledger into the canonical bucket, so a
+  // returning student does not get served material they have already seen.
+  if (window.JglFresh) {
+    try {
+      const legacy = JglFresh.recent(LEGACY_BUCKET);
+      if (legacy.length) {
+        legacy.slice().reverse().forEach(e => JglFresh.mark(BUCKET, e.key, e.meta));
+        JglFresh.clear(LEGACY_BUCKET);
+      }
+    } catch (e) { /* ledger is best-effort; never block the page */ }
+  }
+
   // Start on a passage the student has not seen, so a repeat visit
   // does not serve the same material twice.
   const picked = window.JglFresh
@@ -651,8 +667,14 @@ const GEN_CACHE_KEY = 'jgl.english.ccloze.generated';
 
 /* ── AI passage generator ────────────────────────────────── */
 
+function geminiKey() {
+  try {
+    return (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  } catch (e) { return ''; }
+}
+
 document.getElementById('btn-generate').addEventListener('click', async () => {
-  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  const k = geminiKey();
   const status = document.getElementById('gen-status');
   if (!k) { status.textContent = 'No Gemini key set.'; return; }
   if (state.startedAt && !state.submitted) {
