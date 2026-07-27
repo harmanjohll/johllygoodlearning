@@ -1002,9 +1002,8 @@
         ta.style.position = 'fixed';
         ta.style.opacity = '0';
         document.body.appendChild(ta);
-        ta.select();
         var ok = false;
-        try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+        try { ta.select(); ok = document.execCommand('copy'); } catch (e2) { ok = false; }
         ta.remove();
         toast(ok ? 'Kit copied. Paste it into your notes.' : 'Copy blocked by the browser. Select the kit text manually.');
       }
@@ -1136,11 +1135,8 @@
         'HANDLE TYPE: ' + h.sectionLabel,
         'HANDLE: ' + h.title,
         h.detail ? 'WHAT IT IS FOR: ' + h.detail : '',
-        h.example ? 'A MODEL USE (do not copy it back to the student): ' + h.example : '',
-        '',
-        'STUDENT SENTENCE:',
-        sentence
-      ].filter(Boolean).join('\n');
+        h.example ? 'A MODEL USE (do not copy it back to the student): ' + h.example : ''
+      ].filter(Boolean).concat(['', 'STUDENT SENTENCE:', sentence]).join('\n');
 
       try {
         var res = await window.askGemini({
