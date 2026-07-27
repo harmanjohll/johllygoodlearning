@@ -233,6 +233,26 @@
       @media (max-width: 640px) { #power-ups { grid-template-columns: 1fr !important; } }
     </style>
 
+    <!-- Shown only when no Gemini key is saved on this device. The AI
+         marker, the Coach, every generator and all Oral feedback need
+         one, and previously nothing on the hub said so — you only found
+         out after clicking into a mode. -->
+    <div id="key-banner" style="display:none;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.35);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem;">
+      <div style="display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap;margin-bottom:.4rem;">
+        <span style="font-size:.68rem;color:#fbbf24;text-transform:uppercase;letter-spacing:.07em;font-weight:800;">🔑 One-time setup</span>
+      </div>
+      <p style="font-size:.9rem;color:var(--text);line-height:1.65;margin-bottom:.75rem;">
+        No AI key on this device yet. Reading and drilling all work without one, but the <strong>examiner marking</strong>,
+        the <strong>Coach</strong>, the <strong>question generators</strong> and all <strong>Oral feedback</strong> need a free
+        Google Gemini key. It takes about two minutes, needs no credit card, and the key is stored only in this browser —
+        it never reaches us.
+      </p>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <button class="hub-cta hub-cta-primary" id="key-banner-btn" style="border:0;cursor:pointer;font-family:inherit;">🔑 Add my key</button>
+        <a class="hub-cta" href="check/">🩺 Run a system check</a>
+      </div>
+    </div>
+
     <div class="hub-cta-row">
       <a class="hub-cta hub-cta-primary" href="compass/">🧭 Compass — start a session</a>
       <a class="hub-cta hub-cta-primary" href="daily/">⚡ Daily 10</a>
@@ -299,6 +319,7 @@
         <a class="hub-cta" href="strategies/">📚 Strategies</a>
         <a class="hub-cta" href="format/">📋 PSLE Format</a>
         <a class="hub-cta" href="how-to-use/">📖 How to use</a>
+        <a class="hub-cta" href="check/">🩺 System Check</a>
       </div>
     </div>
 
@@ -658,12 +679,35 @@
       document.getElementById('daily-status').style.display = 'block';
     }
 
+    // ── Key setup banner ───────────────────────────────────────
+    function paintKeyBanner() {
+      let has = '';
+      try {
+        has = (window.JglStorage && window.JglStorage.getGeminiKey && window.JglStorage.getGeminiKey())
+              || localStorage.getItem('jgl.geminiKey') || '';
+      } catch (e) { has = ''; }
+      const el = document.getElementById('key-banner');
+      if (!el) return;
+      el.style.display = has ? 'none' : 'block';
+      const btn = document.getElementById('key-banner-btn');
+      if (btn && !btn.dataset.bound) {
+        btn.dataset.bound = '1';
+        btn.addEventListener('click', () => {
+          if (typeof window.showAISetup === 'function') window.showAISetup();
+        });
+      }
+      // If the key is saved from the modal while the hub is open, hide
+      // the banner without needing a reload.
+      document.addEventListener('jgl:gemini-key-changed', () => { el.style.display = 'none'; }, { once: true });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       buildHub();
       updateStats();
       buildPlan();
       paintPowerUps();
       paintDailyStatus();
+      paintKeyBanner();
     });
   </script>
 </body>
