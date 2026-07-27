@@ -3,515 +3,1734 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Listening Practice — PSLE English Studio</title>
+  <title>Listening — Paper 3 Trainer — PSLE English Studio</title>
   <link rel="stylesheet" href="../style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     body { padding: 0; }
     .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
     .back-link:hover { background: var(--border); color: var(--text); }
-    main { max-width: 760px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    main { max-width: 820px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
 
-    .listen-hero { margin-bottom: 1.5rem; }
-    .listen-hero h1 { font-size: 1.6rem; margin-bottom: .25rem; }
-    .listen-hero p { color: var(--muted); font-size: .92rem; line-height: 1.6; }
+    .hero h1 { font-size: 1.5rem; margin-bottom: .3rem; font-family: var(--font-display); }
+    .hero p { color: var(--muted); font-size: .9rem; line-height: 1.7; }
+    .hero .facts { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .6rem; }
+    .fact { font-size: .7rem; padding: .2rem .55rem; border-radius: 99px; border: 1px solid var(--border); color: var(--muted); font-family: var(--font-mono); }
 
-    .key-warn { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.35); border-radius: 9px; padding: .65rem .95rem; font-size: .85rem; color: var(--text); margin-bottom: 1.25rem; line-height: 1.55; }
+    .notice { border-radius: 9px; padding: .65rem .95rem; font-size: .84rem; line-height: 1.6; margin: 1rem 0; }
+    .notice-amber { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.35); color: var(--text); }
+    .notice-quiet { background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
+    .notice b { color: var(--text); }
+    .hidden { display: none !important; }
 
-    .passage-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
-    .passage-meta { display: flex; gap: .5rem; align-items: center; margin-bottom: .65rem; flex-wrap: wrap; }
-    .passage-meta .num { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-weight: 700; }
-    .passage-meta .type-tag { font-size: .72rem; padding: .15rem .55rem; border-radius: 99px; background: rgba(96,165,250,.08); color: var(--comprehension); border: 1px solid var(--comprehension); font-weight: 700; }
-    .passage-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: .45rem; }
-    .passage-intro { font-size: .88rem; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; }
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.05rem 1.1rem; margin-bottom: 1rem; }
+    .panel > h2 { font-size: .72rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin-bottom: .7rem; font-weight: 700; }
+    .mini { font-size: .76rem; color: var(--muted); line-height: 1.55; }
 
-    .audio-controls { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .audio-status { font-size: .85rem; color: var(--accent); margin: .5rem 0 1rem; min-height: 1.2rem; }
-    .audio-status .listen-count { color: var(--muted); }
+    /* tabs */
+    .tabs { display: flex; gap: .35rem; margin: 1rem 0 1rem; flex-wrap: wrap; }
+    .tab { flex: 1 1 140px; background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+           border-radius: 9px; padding: .55rem .6rem; font-size: .84rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .tab small { display: block; font-weight: 500; font-size: .68rem; opacity: .8; margin-top: .1rem; }
+    .tab:hover { color: var(--text); border-color: var(--comprehension); }
+    .tab.on { background: rgba(96,165,250,.1); border-color: var(--comprehension); color: var(--comprehension); }
 
-    .question-block { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
-    .question-block.show { display: block; }
-    .qb-stem { font-size: .92rem; font-weight: 600; color: var(--text); margin-bottom: .65rem; }
-    .qb-options { display: flex; flex-direction: column; gap: .45rem; }
-    .qb-feedback { margin-top: .65rem; }
+    /* audio bar */
+    .audio-row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+    .audio-row select { background: var(--surface); color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: .42rem .5rem; font-size: .82rem; font-family: inherit; max-width: 100%; min-width: 0; flex: 1 1 200px; }
+    .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .seg button { background: var(--surface); border: 0; color: var(--muted); font-family: var(--font-mono); font-size: .76rem;
+                  padding: .42rem .6rem; cursor: pointer; border-right: 1px solid var(--border); }
+    .seg button:last-child { border-right: 0; }
+    .seg button.on { background: rgba(96,165,250,.15); color: var(--comprehension); font-weight: 700; }
+    .nowplaying { margin-top: .6rem; font-size: .82rem; color: var(--muted); min-height: 1.15rem; }
+    .nowplaying b { color: var(--accent); }
+    .bar { height: 7px; border-radius: 99px; background: var(--surface); border: 1px solid var(--border); overflow: hidden; margin-top: .4rem; }
+    .bar i { display: block; height: 100%; width: 0%; background: var(--accent); transition: width .25s linear; }
 
-    .nav-row { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 1rem; }
+    /* passage picker */
+    .pgrid { display: grid; grid-template-columns: 1fr; gap: .55rem; }
+    @media (min-width: 620px) { .pgrid { grid-template-columns: 1fr 1fr; } }
+    .pcard { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .7rem .8rem;
+             text-align: left; cursor: pointer; font-family: inherit; color: var(--text); }
+    .pcard:hover { border-color: var(--comprehension); }
+    .pcard.on { border-color: var(--comprehension); background: rgba(96,165,250,.08); }
+    .pcard .t { font-weight: 700; font-size: .88rem; line-height: 1.4; margin-bottom: .25rem; }
+    .pcard .m { font-size: .7rem; color: var(--muted); display: flex; gap: .35rem; flex-wrap: wrap; align-items: center; }
+    .tag { font-size: .66rem; padding: .12rem .45rem; border-radius: 99px; border: 1px solid; font-weight: 700; letter-spacing: .03em; }
+    .tag-type { color: var(--comprehension); border-color: var(--comprehension); background: rgba(96,165,250,.08); }
+    .tag-pic  { color: var(--vocab); border-color: var(--vocab); background: rgba(251,191,36,.08); }
+    .tag-ai   { color: var(--oral); border-color: var(--oral); background: rgba(232,121,249,.08); }
+    .tag-new  { color: var(--grammar); border-color: var(--grammar); background: rgba(52,211,153,.08); }
+    .tag-seen { color: var(--muted); border-color: var(--border); }
 
-    .done-card {
-      background: linear-gradient(135deg, #14302b 0%, #1e1835 100%);
-      border: 1px solid var(--accent);
-      border-radius: 12px; padding: 1.5rem 1.5rem;
-      text-align: center; margin-top: 1.25rem;
-    }
-    .done-card h2 { color: var(--accent); margin-bottom: .4rem; }
-    .done-card p { color: var(--text); font-size: .92rem; margin-bottom: 1rem; line-height: 1.65; }
+    /* item */
+    .item { border-top: 1px solid var(--border); padding-top: .9rem; margin-top: .9rem; }
+    .item:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+    .item-head { display: flex; gap: .5rem; align-items: baseline; flex-wrap: wrap; margin-bottom: .5rem; }
+    .item-no { font-family: var(--font-mono); font-size: .74rem; color: var(--muted); font-weight: 700; }
+    .item-stem { font-size: .95rem; font-weight: 600; color: var(--text); line-height: 1.55; flex: 1 1 100%; }
+    .opts { display: flex; flex-direction: column; gap: .4rem; }
+    .opts.pic { display: grid; grid-template-columns: 1fr; gap: .5rem; }
+    @media (min-width: 560px) { .opts.pic { grid-template-columns: 1fr 1fr; } }
+    .opt { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 9px;
+           padding: .6rem .75rem; font-size: .87rem; font-family: inherit; text-align: left; cursor: pointer; line-height: 1.5; display: flex; gap: .5rem; }
+    .opt:hover:not(:disabled) { border-color: var(--accent); }
+    .opt .ltr { font-family: var(--font-mono); font-weight: 700; color: var(--muted); flex: 0 0 auto; }
+    .opt.picked { border-color: var(--accent); background: rgba(56,189,248,.09); }
+    .opt.picked .ltr { color: var(--accent); }
+    .opt.ok { border-color: var(--grammar); background: #063b27; color: #6ee7b7; }
+    .opt.no { border-color: #ef4444; background: #3b0f0f; color: #fca5a5; }
+    .opt:disabled { cursor: default; }
+    .opts.pic .opt { flex-direction: column; gap: .3rem; border-style: dashed; min-height: 92px; }
+    .opts.pic .opt .frame { font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--vocab); font-weight: 800; }
+
+    .why { margin-top: .6rem; border-radius: 9px; padding: .6rem .75rem; font-size: .83rem; line-height: 1.6; }
+    .why-ok { background: #063b27; border: 1px solid var(--grammar); color: #a7f3d0; }
+    .why-no { background: #3b0f0f; border: 1px solid #ef4444; color: #fecaca; }
+    .why-flat { background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
+    .why b { color: inherit; }
+    .trap { display: inline-block; font-size: .64rem; letter-spacing: .07em; text-transform: uppercase; font-weight: 800;
+            border: 1px solid currentColor; border-radius: 99px; padding: .1rem .45rem; margin-right: .4rem; opacity: .9; }
+
+    /* paper phase strip */
+    .phase { display: flex; gap: .3rem; margin: .8rem 0 .7rem; flex-wrap: wrap; }
+    .ph { flex: 1 1 auto; font-size: .68rem; text-align: center; padding: .3rem .35rem; border-radius: 7px;
+          border: 1px solid var(--border); color: var(--muted); background: var(--surface); letter-spacing: .03em; }
+    .ph.on { border-color: var(--accent); color: var(--accent); background: rgba(56,189,248,.1); font-weight: 700; }
+    .ph.done { border-color: var(--grammar); color: var(--grammar); }
+    .clock { font-family: var(--font-mono); font-size: 1.6rem; font-weight: 700; color: var(--text); }
+    .clock.warn { color: var(--vocab); }
+    .paperbar { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+    .counter { font-family: var(--font-mono); font-size: .8rem; color: var(--muted); }
+
+    /* scorecard */
+    .score-head { display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap; margin-bottom: .5rem; }
+    .score-head .big { font-family: var(--font-mono); font-size: 2.2rem; font-weight: 700; color: var(--accent); }
+    .score-head .lab { font-size: .92rem; font-weight: 700; color: var(--text); }
+
+    .typebars { display: flex; flex-direction: column; gap: .5rem; }
+    .tb { display: grid; grid-template-columns: 108px 1fr 54px; gap: .5rem; align-items: center; }
+    @media (max-width: 430px) { .tb { grid-template-columns: 88px 1fr 46px; } }
+    .tb .nm { font-size: .74rem; color: var(--muted); }
+    .tb .track { height: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; overflow: hidden; }
+    .tb .track i { display: block; height: 100%; width: 0%; }
+    .tb .pc { font-family: var(--font-mono); font-size: .74rem; text-align: right; color: var(--text); }
+    .fill-good { background: var(--grammar); }
+    .fill-mid  { background: var(--vocab); }
+    .fill-low  { background: var(--composition); }
+
+    .hist { display: flex; flex-direction: column; gap: .3rem; }
+    .hrow { display: flex; gap: .6rem; align-items: baseline; font-size: .78rem; color: var(--muted); border-bottom: 1px dashed var(--border); padding-bottom: .3rem; }
+    .hrow b { color: var(--text); font-family: var(--font-mono); }
+
+    .transcript { font-size: .89rem; color: var(--text); line-height: 1.8; padding: .8rem .95rem; background: var(--surface);
+                  border-left: 3px solid var(--comprehension); border-radius: 8px; white-space: pre-line; margin-top: .7rem; }
+    .transcript .fade { color: var(--muted); opacity: .35; }
+
+    details.foldy { border: 1px solid var(--border); border-radius: 9px; padding: .55rem .75rem; background: var(--surface); margin-top: .6rem; }
+    details.foldy > summary { cursor: pointer; font-size: .8rem; font-weight: 700; color: var(--muted); }
+    details.foldy > summary:hover { color: var(--text); }
+    details.foldy .body { margin-top: .6rem; font-size: .82rem; color: var(--muted); line-height: 1.65; }
+    details.foldy .body li { margin-left: 1rem; margin-bottom: .35rem; }
+    details.foldy .body b { color: var(--text); }
+
+    .btnrow { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .9rem; }
+    .btnrow .btn { flex: 0 1 auto; }
+    .genrow { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+    .genrow select { background: var(--surface); color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: .42rem .5rem; font-size: .82rem; font-family: inherit; flex: 1 1 190px; min-width: 0; }
   </style>
 </head>
 <body>
 <header class="page-header">
-  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
-  <div style="flex:1">
-    <h1 style="font-size:1.2rem">🎧 Listening Practice</h1>
-    <div style="font-size:.76rem;color:var(--muted)">Passages played aloud via Web Speech API (browser TTS). Each text is played TWICE, just like the real exam.</div>
-  </div>
-      <span style="flex:1;"></span>
-    <span data-studio-settings-slot></span>
-  </header>
+  <a href="../" class="back-link">← Hub</a>
+  <strong style="color:var(--text);">Listening</strong>
+  <span style="color:var(--muted);font-size:.82rem;">Paper 3 trainer — 20 items, every text read twice</span>
+  <span style="flex:1;"></span>
+  <span data-studio-settings-slot></span>
+</header>
 
 <main>
-  <div class="listen-hero">
-    <h1>Practise the actual Paper 3 flow</h1>
-    <p>Each passage is read aloud TWICE by your browser's voice (Paper 3 rule). Read the question before you press Play. Use the first listen to identify your answer; the second to confirm. Track signal words: <em>however, because, first, for example, finally</em>.</p>
+  <div class="hero">
+    <h1>Paper 3: Listening Comprehension</h1>
+    <p>Twenty items, three or four options each, seven texts, and <b style="color:var(--text)">every text is read twice</b>. The questions are never read aloud, so you read them in the pause before the audio starts. Practice mode marks you item by item. Full Paper mode gives you nothing until you submit, which is what the real hall feels like.</p>
+    <div class="facts">
+      <span class="fact">20 marks</span>
+      <span class="fact">~35 min</span>
+      <span class="fact">10% of EL</span>
+      <span class="fact">items 1–7 use pictures</span>
+      <span class="fact">2 readings, no rewind</span>
+    </div>
   </div>
 
-  <div class="key-warn" id="tts-warn" style="display:none;">
-    <strong>Audio note:</strong> Your browser does not support text-to-speech, or your speaker is muted. The passage transcript will still appear below.
+  <div id="key-notice"></div>
+  <div id="tts-notice"></div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-mode="practice">Practice<small>one text, marked as you go</small></button>
+    <button class="tab" data-mode="paper">Full Paper<small>20 items, no feedback until the end</small></button>
+    <button class="tab" data-mode="progress">Diagnosis<small>which question types you miss</small></button>
   </div>
 
-  <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
-    <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
-    <span style="font-size:.84rem;color:var(--muted);">Three curated passages below. Want a fresh one in a chosen style?</span>
-    <span style="flex:1;"></span>
-    <select id="gen-type" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.82rem;font-family:inherit;">
-      <option value="Announcement">Announcement</option>
-      <option value="Conversation">Conversation</option>
-      <option value="Narrative recount">Narrative recount</option>
-      <option value="News report">News report</option>
-    </select>
-    <button class="btn btn-primary" id="btn-generate" style="font-size:.78rem;padding:.35rem .85rem;">+ Generate new passage</button>
-    <button class="btn btn-secondary" id="btn-clear-generated" style="font-size:.78rem;padding:.35rem .85rem;display:none;">Reset to curated</button>
+  <div class="panel" id="audio-panel">
+    <h2>Voice</h2>
+    <div class="audio-row">
+      <select id="voice-pick" aria-label="Reading voice"></select>
+      <span class="seg" id="rate-seg">
+        <button data-rate="0.85">0.85x</button>
+        <button data-rate="0.95" class="on">0.95x</button>
+        <button data-rate="1.05">1.05x</button>
+      </span>
+      <button class="btn btn-ghost" id="btn-test" style="font-size:.78rem;padding:.4rem .7rem;">Test</button>
+    </div>
+    <div class="nowplaying" id="nowplaying">Pick a voice. Different accents are worth rotating through, because the exam recording will not sound like your teacher.</div>
+    <div class="bar"><i id="playbar"></i></div>
   </div>
-  <div id="gen-status" style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem;min-height:1rem;"></div>
 
-  <div id="passage-host"></div>
-
-  <div id="done-host"></div>
+  <div id="view"></div>
 </main>
 
 <script src="../shared.js"></script>
 <script src="../shared/storage.js"></script>
 <script src="../shared/lab.js"></script>
 <script src="../shared/gemini.js"></script>
+<script src="../shared/freshness.js"></script>
 <script src="../shared/streak.js"></script>
 <script>
-// ── Listening passages (3 curated + AI-generated extras) ────
-let PASSAGES = [
+(function () {
+'use strict';
+
+/* =========================================================
+   0. Helpers
+   ========================================================= */
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function el(id) { return document.getElementById(id); }
+function pad2(n) { return (n < 10 ? '0' : '') + n; }
+function mmss(ms) { var s = Math.max(0, Math.floor(ms / 1000)); return Math.floor(s / 60) + ':' + pad2(s % 60); }
+function shuffled(a) { var x = a.slice(); for (var i = x.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = x[i]; x[i] = x[j]; x[j] = t; } return x; }
+var LETTERS = ['A', 'B', 'C', 'D'];
+
+var Fresh = window.JglFresh || {
+  hash: function (s) { return String(s).slice(0, 24); },
+  seen: function () { return false; }, mark: function () {}, recent: function () { return []; },
+  avoidList: function () { return []; },
+  pickUnseen: function (b, items) { return items && items[0]; },
+  stats: function () { return { total: 0, last7: 0 }; }
+};
+
+function hasKey() {
+  try {
+    if (window.JglStorage && window.JglStorage.getGeminiKey) return !!window.JglStorage.getGeminiKey();
+    return !!localStorage.getItem('jgl.geminiKey');
+  } catch (e) { return false; }
+}
+
+/* =========================================================
+   1. Question-type taxonomy and the trap dictionary
+   ========================================================= */
+var TYPES = {
+  literal:       { label: 'Literal detail',  fix: 'Write the noun, the number or the name the second you hear it. Literal items are lost to memory, not to understanding.' },
+  numericDetail: { label: 'Numbers',         fix: 'Figures get revised mid-text. Write the first number down, then keep listening for "but", "actually", "now" or "sorry".' },
+  inference:     { label: 'Inference',       fix: 'Ask what the speaker means, not what the speaker says. The answer sits one step past the words.' },
+  mainIdea:      { label: 'Main idea',       fix: 'Check the tense of every option. Two of them are usually already solved or finished. The answer is the one still unresolved.' },
+  purposeTone:   { label: 'Purpose / tone',  fix: 'When every option is a nice word, ignore the feeling and hunt for the behaviour chain: what did the person actually do, twice?' },
+  sequence:      { label: 'Sequence',        fix: 'Number the steps on the paper as you hear them: 1, 2, 3. Never try to hold an order in your head.' },
+  pictureMatch:  { label: 'Picture items',   fix: 'In the reading pause, find the ONE thing that differs between the four pictures. Then listen only for that one thing.' }
+};
+var TYPE_ORDER = ['pictureMatch', 'literal', 'numericDetail', 'inference', 'mainIdea', 'purposeTone', 'sequence'];
+
+/* =========================================================
+   2. The passage bank (curated, works with no API key)
+   Picture texts hold exactly 7 picture items between them,
+   so a full paper can put them at items 1 to 7.
+   ========================================================= */
+var BANK = [
+  /* ---------- PICTURE GROUP (items 1-7) ---------- */
   {
-    id: 'p1',
-    title: 'Announcement at the school assembly',
-    type: 'Announcement',
-    intro: 'A teacher addresses the school during morning assembly. Listen for the change in plans, the new venue, and the reason for the change.',
-    audio: `Good morning, everyone. I have an important update about this Friday's inter-class football tournament. Originally we had planned to hold the matches on the school field, but because of the heavy rain forecast for Friday afternoon, we have decided to move the entire tournament to the indoor sports hall. The schedule will remain the same: matches begin at two o'clock and end at four-thirty. Please remember to bring your team jerseys and your water bottles. We hope to see strong support from every class.`,
-    questions: [
+    id: 'pa-sportsday',
+    title: 'Sports Day arrangements',
+    type: 'School announcement',
+    picture: true,
+    intro: 'Mr Rajan gives the final arrangements over the PA system. Listen for where each class stands and what is not allowed.',
+    text: "Good morning, Primary Six. This is Mr Rajan with the final arrangements for Friday's Sports Day.\nFirst, where to stand. At the starting line, lane one is the lane nearest the drinks table. Lane one is for Charity, lane two for Integrity and lane three for Loyalty. Sorry, I must correct that. Lane three is now for Respect, and Loyalty has been moved to lane four, the lane next to the flag pole.\nSecond, the rules at the starting line. Keep both feet behind the white line until the whistle goes. Leave your water bottle on the grass bench, never on the track itself, because a bottle on the track will stop the race.\nThird, your class flag. Do not carry it while you run. Plant it in the stand beside your own lane so the photographer can see which class is which. Class monitors, collect the flags from the general office at eight o'clock sharp.",
+    items: [
       {
-        text: 'Why has the tournament been moved indoors?',
-        options: ['The school field is being repaired.', 'Heavy rain is forecast for Friday afternoon.', 'The teachers prefer indoor matches.', 'The sports hall is more comfortable.'],
+        stem: 'Which picture shows the classes in the correct lanes, from lane one to lane four?',
+        type: 'pictureMatch', trap: 'negated info',
+        options: [
+          'The drinks table, then Charity, Integrity, Loyalty, Respect standing in lanes one to four.',
+          'The drinks table, then Charity, Integrity, Respect, Loyalty standing in lanes one to four.',
+          'The flag pole, then Charity, Integrity, Respect, Loyalty standing in lanes one to four.',
+          'The drinks table, then Integrity, Charity, Respect, Loyalty standing in lanes one to four.'
+        ],
         correct: 1,
-        explanation: 'The teacher gives the reason directly: "because of the heavy rain forecast for Friday afternoon".'
+        explain: 'Mr Rajan says lane three is for Loyalty, then cancels it: "Sorry, I must correct that. Lane three is now for Respect, and Loyalty has been moved to lane four." Option A is the version before the correction, which is the classic first-mention trap. Option C swaps the landmarks: the drinks table marks lane one, the flag pole marks lane four.'
       },
       {
-        text: 'What time will the tournament begin?',
-        options: ['One o\'clock', 'Two o\'clock', 'Two-thirty', 'Four-thirty'],
-        correct: 1,
-        explanation: 'The announcement says "matches begin at two o\'clock and end at four-thirty".'
-      },
-      {
-        text: 'Which detail is NOT mentioned in the announcement?',
-        options: ['Bring your team jersey.', 'Bring your water bottle.', 'Bring your own football.', 'Schedule remains the same.'],
+        stem: "Which picture shows a pupil breaking one of Mr Rajan's rules?",
+        type: 'pictureMatch', trap: 'word-echo',
+        options: [
+          'A pupil standing with both feet behind the white line, waiting for the whistle.',
+          'A pupil placing a water bottle on the grass bench beside the track.',
+          'A pupil running down her lane holding the class flag in her hand.',
+          'A pupil planting the class flag in the stand beside her own lane.'
+        ],
         correct: 2,
-        explanation: 'Jerseys, water bottles, and the unchanged schedule are all mentioned. Bringing a football is NOT — the tournament organisers will provide it.'
+        explain: 'The rule is "Do not carry it while you run", so C is the picture of a rule being broken. A, B and D all show rules being obeyed, and all three re-use words you definitely heard (white line, water bottle, flag). Hearing the word is not the same as hearing the rule broken.'
+      },
+      {
+        stem: 'Which picture shows where a water bottle is allowed to be?',
+        type: 'pictureMatch', trap: 'negated info',
+        options: [
+          'A bottle standing upright on the track inside lane one.',
+          'A bottle on the grass bench at the side of the track.',
+          'A bottle held in the runner’s hand at the starting line.',
+          'A bottle on the drinks table at the far end of the field.'
+        ],
+        correct: 1,
+        explain: '"Leave your water bottle on the grass bench, never on the track itself." A is the negated half of that sentence, said out loud but forbidden. D echoes the drinks table, which was mentioned only as the landmark for lane one.'
       }
     ]
   },
   {
-    id: 'p2',
-    title: 'Conversation between two students',
+    id: 'tel-swim',
+    title: 'A voice message about getting to swimming',
+    type: 'Telephone message',
+    picture: true,
+    intro: 'Auntie Susan leaves Wei Ming a message. Listen for the route she wants him to take and the time she wants him to leave.',
+    text: "Hi Wei Ming, this is Auntie Susan. Sorry I missed you. I am calling about tomorrow morning.\nI will not be able to fetch you to swimming after all, so please make your own way there. From your block, walk out to the main road and turn left at the coffee shop. Keep walking past the bus stop. Do not cross at the bus stop, the lights there take forever. Cross at the zebra crossing in front of the clinic instead.\nAfter you cross, turn right. The swimming complex is the second building, the tall one with the blue roof, just behind the car park.\nThe walk takes about twelve minutes, so leave the house at eight forty. Call me when you reach. Bye.",
+    items: [
+      {
+        stem: 'Which map shows the route Auntie Susan describes?',
+        type: 'pictureMatch', trap: 'negated info',
+        options: [
+          'Left at the coffee shop, cross at the bus stop, then right to the first building.',
+          'Left at the coffee shop, past the bus stop, cross at the clinic, then right to the second building.',
+          'Right at the coffee shop, past the bus stop, cross at the clinic, then left to the second building.',
+          'Left at the coffee shop, cross at the clinic, then left to the second building.'
+        ],
+        correct: 1,
+        explain: 'The bus stop is named only to be ruled out: "Do not cross at the bus stop." A is that cancelled instruction drawn as a route. C reverses the first turn, D reverses the turn after the crossing. Every wrong route contains something you truly heard.'
+      },
+      {
+        stem: 'Which clock shows the time Wei Ming should leave the house?',
+        type: 'pictureMatch', trap: 'near-miss number',
+        options: [
+          'A clock showing eight o’clock.',
+          'A clock showing eight forty.',
+          'A clock showing eight fourteen.',
+          'A clock showing twelve minutes past eight.'
+        ],
+        correct: 1,
+        explain: '"Eight forty" and "eight fourteen" are the fifteen-versus-fifty family of traps: two syllables apart and nothing else. D turns the twelve-minute walking time into a departure time, which is a different number doing a different job.'
+      }
+    ]
+  },
+  {
+    id: 'proc-booth',
+    title: 'Setting up the recycling booth',
+    type: 'Instructions',
+    picture: true,
+    intro: 'A teacher tells the Green Club how to set up. Listen for the order of things on the table and the order of the bins.',
+    text: "Right, Green Club, listen carefully before you start setting up the recycling booth outside the canteen.\nBegin with the long table. Push it flat against the wall, not into the middle of the walkway, or the canteen aunties cannot get past. On the table, the poster board goes on the left end, the collection box in the middle, and the tray of free seedlings on the right end, where people can reach them as they walk away.\nNext, the bins. We have three: blue for paper, yellow for plastic, green for cans. Line them up in front of the table in that order, left to right. Sorry, put the green bin first this time, then blue, then yellow, because most pupils are bringing cans this week.\nFinally, tape the instruction sheet to the front of the collection box, not to the wall.",
+    items: [
+      {
+        stem: 'Which picture shows the table set up correctly?',
+        type: 'pictureMatch', trap: 'negated info',
+        options: [
+          'Poster board left, collection box middle, seedlings right, table flat against the wall.',
+          'Seedlings left, collection box middle, poster board right, table flat against the wall.',
+          'Poster board left, collection box middle, seedlings right, table out in the middle of the walkway.',
+          'Collection box left, poster board middle, seedlings right, table flat against the wall.'
+        ],
+        correct: 0,
+        explain: 'C gets every object right and the table wrong, which is why it is dangerous: "Push it flat against the wall, not into the middle of the walkway." B mirrors the order. A picture item usually turns on one detail, so find that detail before the audio starts.'
+      },
+      {
+        stem: 'Which picture shows the three bins in the correct order, left to right?',
+        type: 'pictureMatch', trap: 'negated info',
+        options: [
+          'Blue, yellow, green.',
+          'Blue, green, yellow.',
+          'Green, blue, yellow.',
+          'Yellow, blue, green.'
+        ],
+        correct: 2,
+        explain: 'The order is given, then withdrawn: "blue for paper, yellow for plastic, green for cans... Sorry, put the green bin first this time, then blue, then yellow." A is the colour list in the order it was first spoken, which is exactly the trap. The word "sorry" is your signal to rewrite the answer.'
+      }
+    ]
+  },
+
+  /* ---------- TEXT GROUP (items 8-20) ---------- */
+  {
+    id: 'int-badminton',
+    title: 'Interview with a young badminton player',
+    type: 'Interview',
+    intro: 'A radio presenter interviews Nadia Rahim. Listen for what she has got used to and what she has not.',
+    text: "Presenter: My guest this evening is Nadia Rahim, who at fourteen is the youngest player in the national youth badminton squad. Nadia, welcome.\nNadia: Thank you.\nPresenter: What has been the hardest part of the last two years?\nNadia: People expect me to say the training. The five-thirty morning sessions were terrible at first, but my body has got used to them. Sharing a court with players who are older and stronger used to frighten me too, and that has passed. What I still have not solved is the way I speak to myself after a bad match. I replay every mistake for days.\nPresenter: How do you manage it?\nNadia: My coach makes me write down one thing I did well before I am allowed to write down anything I did badly. It has not fixed it, but it helps.\nPresenter: And the goal for next year?\nNadia: The regional championships in June. Not to win. To last three rounds.",
+    items: [
+      {
+        stem: "What is Nadia's toughest challenge now?",
+        type: 'mainIdea', trap: 'true but already resolved',
+        options: [
+          'Waking up for the five-thirty morning training sessions.',
+          'Playing against players who are older and stronger.',
+          'The way she speaks to herself after a bad match.',
+          'Writing down one good thing before writing a bad one.'
+        ],
+        correct: 2,
+        explain: 'All four are genuinely in the interview, so you cannot eliminate by topic. You eliminate by tense. A is closed off with "my body has got used to them"; B with "that has passed"; D is the remedy, not the problem. Only C is still live: "What I still have not solved is..."'
+      },
+      {
+        stem: "Which word best describes how Nadia talks about herself in this interview?",
+        type: 'purposeTone', trap: 'same-valence options',
+        options: ['Grateful', 'Cheerful', 'Realistic', 'Boastful'],
+        correct: 2,
+        explain: 'Three of these are positive words, so sentiment will not sort them. Use the behaviour chain instead: she refuses the easy answer, admits a problem she has not fixed, says the coach’s method "has not fixed it, but it helps", and sets the goal as "not to win, to last three rounds." That is realistic, not merely cheerful.'
+      },
+      {
+        stem: 'What time do the morning training sessions begin?',
+        type: 'numericDetail', trap: 'near-miss number',
+        options: ['Five o’clock', 'Five-fifteen', 'Five-thirty', 'Three-thirty'],
+        correct: 2,
+        explain: '"The five-thirty morning sessions." Five-fifteen and five-thirty differ by one syllable at speed. D lifts "three" from "three rounds" at the very end, which is a number doing a completely different job.'
+      },
+      {
+        stem: 'Why does Nadia begin by saying, "People expect me to say the training"?',
+        type: 'inference', trap: 'word-echo',
+        options: [
+          'Because the training is not difficult for her at all.',
+          'Because she wants to correct an assumption before giving her real answer.',
+          'Because the presenter asked her a question about training.',
+          'Because her coach told her to talk about the training.'
+        ],
+        correct: 1,
+        explain: 'She names the expected answer in order to set it aside, then gives the real one. A overstates: she called those sessions "terrible at first". C simply echoes the word "training" from the question, which is the reflex the item is testing.'
+      }
+    ]
+  },
+  {
+    id: 'news-otters',
+    title: 'News: otters in the canal',
+    type: 'News report',
+    intro: 'A short local news bulletin. Listen for how many otters there are and why residents are told not to feed them.',
+    text: "And now the local news. A family of smooth-coated otters has been seen for the first time in the canal behind Pasir Ridge Estate. Residents reported the animals early on Sunday morning.\nThe National Parks Board says the group is not new to Singapore, but has moved about four kilometres upstream from its usual home near the river mouth, most likely following the fish.\nOfficers first counted thirteen otters. A later check confirmed eleven, including three pups.\nThe Board is asking residents to keep their distance, to keep dogs on a short lead near the water, and not to feed the animals. Feeding, an officer explained, teaches otters to approach people, and an otter that approaches people is the one most likely to be hurt.\nA talk for residents will be held at the community club this Saturday at four in the afternoon.",
+    items: [
+      {
+        stem: 'How many otters are in the family?',
+        type: 'numericDetail', trap: 'revised figure',
+        options: ['Thirteen', 'Eleven', 'Three', 'Four'],
+        correct: 1,
+        explain: 'The first figure is overturned in the very next sentence: "Officers first counted thirteen otters. A later check confirmed eleven." C is the number of pups, D is the four kilometres. Three of the four options are real numbers from the bulletin, attached to the wrong thing.'
+      },
+      {
+        stem: 'Why does the Board think the otters moved upstream?',
+        type: 'literal', trap: 'word-echo',
+        options: [
+          'Because the canal water is cleaner than the river mouth.',
+          'Because they are most likely following the fish.',
+          'Because residents near the canal have been feeding them.',
+          'Because their old home near the river mouth was destroyed.'
+        ],
+        correct: 1,
+        explain: 'The reason is stated plainly: "most likely following the fish". C re-uses "feeding", which appears later as a warning, not as a cause. A and D sound sensible but are never said, and "sounds sensible" is not evidence.'
+      },
+      {
+        stem: 'Why are residents asked not to feed the otters?',
+        type: 'inference', trap: 'word-echo',
+        options: [
+          'Because feeding makes otters lose the ability to catch fish.',
+          'Because feeding brings otters close to people, which puts the otters at risk.',
+          'Because feeding attracts dogs to the canal.',
+          'Because feeding is not allowed near the community club.'
+        ],
+        correct: 1,
+        explain: 'The chain is given in one sentence: feeding teaches otters to approach people, and the otter that approaches people "is the one most likely to be hurt". C borrows the separate rule about dogs on a lead; D borrows the community club from the last line. Both are heard words wired to the wrong idea.'
+      }
+    ]
+  },
+  {
+    id: 'conv-cca',
+    title: 'Two pupils talk about a club trial',
     type: 'Conversation',
-    intro: 'Aisha and her classmate Daniel are talking outside the science lab. Listen for what Aisha decided to do for her project, and why.',
-    audio: `Daniel: Hey Aisha, how is your science project coming along?
-Aisha: It's actually going well, thanks. I changed my topic last week, though.
-Daniel: Really? What did you change it to?
-Aisha: I was going to study how plants grow in different soils, but I realised that would take too long for the deadline. So I switched to studying how the brightness of light affects how quickly a sunflower turns toward it.
-Daniel: That sounds clever. Why sunflowers in particular?
-Aisha: Because they are the most responsive to light. My older sister suggested it. She said sunflowers track the sun every day, so the experiment would show results in just a few days, not weeks.`,
-    questions: [
+    intro: 'Priya and Haziq talk outside the hall. Listen for who did what, and how Haziq feels by the end.',
+    text: "Priya: Are you still going for the Robotics Club trial on Thursday?\nHaziq: I was, but I changed my mind. I put my name down for Art Club instead.\nPriya: Really? You talked about robotics for the whole of last term.\nHaziq: I know. The problem is that Robotics meets on Thursday and my Mandarin class is on Thursday now. It used to be Wednesday, but the centre moved it.\nPriya: I nearly dropped Choir for the same reason, actually. In the end my mother called the centre and they put me back into the Wednesday class.\nHaziq: They told me they were full.\nPriya: Ask again next week. Somebody always drops out.\nHaziq: Maybe. Honestly, though, I am not that upset. I sat in on one Art Club session last month and I liked it more than I expected.\nPriya: Then that settles it.",
+    items: [
       {
-        text: 'Why did Aisha change her project topic?',
-        options: ['She found the first topic boring.', 'The first topic would take too long for the deadline.', 'Her teacher told her to change.', 'Daniel suggested a different topic.'],
+        stem: 'Why did Haziq give up the Robotics Club trial?',
+        type: 'literal', trap: 'wrong speaker',
+        options: [
+          'He lost interest in robotics during last term.',
+          'His Mandarin class was moved onto the same day as Robotics.',
+          'Art Club met on a day that suited him better.',
+          'The Robotics Club was already full.'
+        ],
         correct: 1,
-        explanation: 'Aisha says: "I realised that would take too long for the deadline. So I switched..."'
+        explain: 'D is true of the wrong thing: "they told me they were full" is the Mandarin centre, not Robotics. A is contradicted by Priya, who says he talked about robotics all term. In dialogue items, write the initial next to every fact, because the fact is usually real and the owner is not.'
       },
       {
-        text: 'Who suggested the new topic to Aisha?',
-        options: ['Her teacher', 'Daniel', 'Her older sister', 'Her parents'],
-        correct: 2,
-        explanation: 'Aisha says: "My older sister suggested it."'
+        stem: 'Whose lesson was successfully moved back to Wednesday?',
+        type: 'literal', trap: 'wrong speaker',
+        options: [
+          "Haziq's Mandarin lesson",
+          "Priya's lesson",
+          "Priya's mother's lesson",
+          'Nobody’s lesson was moved'
+        ],
+        correct: 1,
+        explain: 'Priya’s mother made the call, but the lesson that moved was Priya’s. Haziq is the one still stuck on Thursday. Option C is the trap for anyone who logged "mother called the centre" and stopped there.'
       },
       {
-        text: 'What is Aisha studying now?',
-        options: ['How plants grow in different soils.', 'How brightness of light affects a sunflower\'s tracking.', 'How sunflowers grow taller.', 'How long sunflowers live.'],
+        stem: 'How does Haziq feel about joining Art Club by the end of the conversation?',
+        type: 'purposeTone', trap: 'first-half feeling',
+        options: [
+          'Disappointed, but willing to accept it.',
+          'Genuinely pleased, after trying a session.',
+          'Unsure whether he has made the right choice.',
+          'Annoyed with the Mandarin centre.'
+        ],
         correct: 1,
-        explanation: 'She specifies the new topic: "how the brightness of light affects how quickly a sunflower turns toward it".'
+        explain: 'The pivot word is "Honestly, though". Before it he sounds resigned; after it he says "I am not that upset" and "I liked it more than I expected". A and C are how he sounds in the first half, which is the half most pupils answer from.'
       }
     ]
   },
   {
-    id: 'p3',
-    title: 'Recount: A trip to the bird park',
+    id: 'ad-camp',
+    title: 'Advertisement: holiday workshops',
+    type: 'Advertisement',
+    intro: 'A radio advertisement for holiday workshops. Listen for the prices, the conditions and why the classes are small.',
+    text: "Looking for something better than screen time these holidays? Bright Sparks Holiday Workshops are back, at our Tampines and Jurong studios.\nChoose from three-day courses in robotics, baking or stop-motion animation. Sessions run from nine in the morning to twelve noon, Monday to Wednesday, in the first two weeks of December.\nThe full price is ninety-five dollars per child. Book before the fifteenth of November and you pay only seventy-five. Brothers and sisters booked together receive a further five dollars off each.\nEvery child takes home whatever they make, and every course ends with a short showcase for parents on the last afternoon.\nPlaces are limited to twelve children in a class, so that every child gets a turn on the equipment.\nVisit our website or call us today. Bright Sparks: three days, one skill, no screens.",
+    items: [
+      {
+        stem: 'A parent books one child on the tenth of November. How much does she pay?',
+        type: 'numericDetail', trap: 'condition attached to the number',
+        options: ['$95', '$75', '$70', '$90'],
+        correct: 1,
+        explain: 'The tenth is before the fifteenth, so the early price applies: seventy-five dollars. A is the price before the offer. C is the sibling price, which needs a second child booked at the same time. Every wrong option here is a real price under the wrong condition.'
+      },
+      {
+        stem: 'Why does the advertisement mention that a class holds only twelve children?',
+        type: 'purposeTone', trap: 'plausible but unstated',
+        options: [
+          'To warn parents that the courses are nearly full.',
+          'To present the small class as a benefit: every child gets a turn.',
+          'To explain why the price is ninety-five dollars.',
+          'To show that only twelve children signed up last year.'
+        ],
+        correct: 1,
+        explain: 'The advertisement gives its own reason: "so that every child gets a turn on the equipment". A is what advertisements often do, which is why it tempts, but it is not what this one says. Answer from the text, not from what the genre usually does.'
+      },
+      {
+        stem: 'What happens at the end of each course?',
+        type: 'literal', trap: 'word-echo',
+        options: [
+          'Children sit a short test.',
+          'There is a showcase for parents on the last afternoon.',
+          'Parents attend a talk about screen time.',
+          'Children choose a second course at a discount.'
+        ],
+        correct: 1,
+        explain: 'C echoes "screen time" from the opening line and "no screens" from the closing line, so the words are certainly in your ear. They are just not attached to anything that happens at the end of the course.'
+      }
+    ]
+  },
+  {
+    id: 'rec-observatory',
+    title: 'Recount: the night at the observatory',
     type: 'Narrative recount',
-    intro: 'A student describes a trip to the bird park. Listen for what she enjoyed most, what surprised her, and what she would do differently next time.',
-    audio: `Last Saturday, my family and I went to the bird park for the first time. I had been looking forward to seeing the African penguins, but to my surprise, my favourite part of the day turned out to be something else entirely. We attended a flight show in which trained eagles, hawks and parrots flew over our heads in formation. I had not expected the parrots to be so colourful or so loud. However, by the end of the show, my younger brother had started to cry because one of the birds flew very close to his face. If we go back, I will be sure to sit in the back row, so that he can enjoy the show without feeling scared.`,
-    questions: [
+    intro: 'A pupil describes an overnight camp. Listen for what she expected and what she actually valued.',
+    text: "I had been looking forward to the overnight camp at the observatory for a whole month, mostly because of the telescope. On the coach there, all I talked about was Saturn.\nIt clouded over at nine, and by ten the teachers admitted that nobody was going to see anything that night. I sat on the grass feeling that the whole trip had been wasted.\nThen Mr Foo brought out a box of instruments and asked who wanted to record the temperature every fifteen minutes until midnight. Only four of us stayed up. We wrote down the readings, argued about why the numbers kept dropping, and drank far too much Milo.\nI still have not seen Saturn. But when my mother asked me on Sunday what the best part was, I did not say the telescope and I did not say the food. I said the four of us on the grass with a torch and a notebook.",
+    items: [
       {
-        text: 'What had the speaker originally been looking forward to?',
-        options: ['The flight show.', 'Seeing the African penguins.', 'Feeding the parrots.', 'Visiting the gift shop.'],
+        stem: 'What is the writer mainly saying in this recount?',
+        type: 'mainIdea', trap: 'feeling from the middle of the text',
+        options: [
+          'The camp was a disappointment because the sky was cloudy.',
+          'The best part of the camp turned out to be something she had not planned for.',
+          'She finally learnt how to use a telescope properly.',
+          'Recording temperature is more useful than looking at stars.'
+        ],
         correct: 1,
-        explanation: 'She says: "I had been looking forward to seeing the African penguins". The "however" later signals her actual favourite was different.'
+        explain: 'A is exactly how she feels at ten o’clock, and the rest of the text overturns it. C is contradicted by "I still have not seen Saturn". D turns one night into a general rule, which is more than she claims. Main-idea items reward reading the last three lines hardest.'
       },
       {
-        text: 'What did she enjoy most about the visit?',
-        options: ['The African penguins.', 'The flight show.', 'The food court.', 'The gift shop.'],
+        stem: 'Why does the writer mention that only four pupils stayed up?',
+        type: 'inference', trap: 'word-echo',
+        options: [
+          'To show that the other pupils were tired.',
+          'To show that the small group shared something the others missed.',
+          'To complain that her classmates were lazy.',
+          'To explain why readings were taken every fifteen minutes.'
+        ],
         correct: 1,
-        explanation: '"my favourite part of the day turned out to be something else entirely" → the flight show.'
+        explain: 'The detail matters because of how the recount ends: "the four of us on the grass with a torch and a notebook". D reuses "fifteen minutes", which is real but answers a question nobody asked. C invents a complaint the writer never makes.'
       },
       {
-        text: 'Why does she say she would sit in the back row next time?',
-        options: ['Because the birds fly higher there.', 'Because there is more space.', 'Because her younger brother got scared when a bird flew close.', 'Because she could not see well from the front.'],
-        correct: 2,
-        explanation: 'She explains: "one of the birds flew very close to his face... so that he can enjoy the show without feeling scared."'
+        stem: 'How does the writer feel about the trip by Sunday?',
+        type: 'purposeTone', trap: 'same-valence options',
+        options: [
+          'Still disappointed about missing Saturn.',
+          'Glad, for a reason she did not expect.',
+          'Proud of the scientific results she produced.',
+          'Relieved that the camp was finally over.'
+        ],
+        correct: 1,
+        explain: 'The evidence is what she chose not to say: "I did not say the telescope and I did not say the food." C sounds close and is the near-synonym trap, but she never claims the readings were any good; the value was the company and the arguing.'
       }
     ]
   }
 ];
 
-// ── State ────────────────────────────────────────────────
-const state = {
-  pidx: 0,
-  qidx: 0,
-  listens: 0,
-  questionsRevealed: false,
-  score: 0,
-  total: 0,
-};
+/* Generated passages live alongside the curated bank. */
+var GEN_KEY = 'jgl.english.listen.generated';
+var GEN_CAP = 15;
+function loadGen() { try { var a = JSON.parse(localStorage.getItem(GEN_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+function saveGen(a) { try { localStorage.setItem(GEN_KEY, JSON.stringify(a.slice(-GEN_CAP))); } catch (e) {} }
 
-const synth = window.speechSynthesis;
-if (!synth) document.getElementById('tts-warn').style.display = 'block';
+function allPassages() { return BANK.concat(loadGen()); }
+function passageKey(p) { return Fresh.hash(p.id + '|' + (p.title || '') + '|' + String(p.text || '').slice(0, 120)); }
+function itemCount(p) { return (p.items || []).length; }
 
-function esc(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
-    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
-  ));
-}
+/* =========================================================
+   3. Speech engine
+   ========================================================= */
+var Speech = (function () {
+  var synth = window.speechSynthesis;
+  var voices = [];
+  var handle = null;
+  var keepAlive = null;
 
-function speak(text, onEnd) {
-  if (!synth) { if (onEnd) onEnd(); return null; }
-  // Cancel any in-flight utterance first
-  synth.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = 0.92;
-  u.pitch = 1.0;
-  u.volume = 1.0;
-  // Prefer an en-GB or en-US voice
-  const voices = synth.getVoices();
-  const pref = voices.find(v => /en[-_](GB|SG|AU)/i.test(v.lang)) || voices.find(v => /en/i.test(v.lang));
-  if (pref) u.voice = pref;
-  if (onEnd) u.onend = onEnd;
-  synth.speak(u);
-  return u;
-}
+  var VOICE_KEY = 'jgl.english.listen.voice';
+  var RATE_KEY = 'jgl.english.listen.rate';
 
-function renderPassage() {
-  const p = PASSAGES[state.pidx];
-  if (!p) { renderDone(); return; }
-  state.listens = 0;
-  state.qidx = 0;
-  state.questionsRevealed = false;
+  function supported() {
+    return !!(synth && typeof window.SpeechSynthesisUtterance === 'function');
+  }
+  function refresh() {
+    if (!supported()) return [];
+    try { voices = synth.getVoices() || []; } catch (e) { voices = []; }
+    return voices;
+  }
+  function english() {
+    return voices.filter(function (v) { return /^en([-_]|$)/i.test(v.lang || ''); });
+  }
+  function rank(v) {
+    var l = String(v.lang || '').replace('_', '-').toUpperCase();
+    if (l.indexOf('EN-SG') === 0) return 0;
+    if (l.indexOf('EN-GB') === 0) return 1;
+    if (l.indexOf('EN-AU') === 0) return 2;
+    if (l.indexOf('EN-IN') === 0) return 3;
+    if (l.indexOf('EN-NZ') === 0) return 4;
+    return 5;
+  }
+  function sortedEnglish() {
+    return english().slice().sort(function (a, b) {
+      var d = rank(a) - rank(b);
+      return d !== 0 ? d : String(a.name).localeCompare(String(b.name));
+    });
+  }
+  function getRate() { var r = parseFloat(localStorage.getItem(RATE_KEY) || '0.95'); return isNaN(r) ? 0.95 : r; }
+  function setRate(r) { try { localStorage.setItem(RATE_KEY, String(r)); } catch (e) {} }
+  function getVoiceURI() { return localStorage.getItem(VOICE_KEY) || ''; }
+  function setVoiceURI(u) { try { localStorage.setItem(VOICE_KEY, u || ''); } catch (e) {} }
 
-  const host = document.getElementById('passage-host');
-  host.innerHTML = `
-    <div class="passage-card">
-      <div class="passage-meta">
-        <span class="num">Passage ${state.pidx + 1} of ${PASSAGES.length}</span>
-        <span class="type-tag">${esc(p.type)}</span>
-      </div>
-      <div class="passage-title">${esc(p.title)}</div>
-      <p class="passage-intro">${esc(p.intro)}</p>
+  function chosen() {
+    var list = sortedEnglish();
+    if (!list.length) return null;
+    var uri = getVoiceURI();
+    for (var i = 0; i < list.length; i++) if (list[i].voiceURI === uri) return list[i];
+    return list[0];
+  }
+  function secondVoice(primary) {
+    var list = sortedEnglish();
+    for (var i = 0; i < list.length; i++) if (list[i] !== primary) return list[i];
+    return primary;
+  }
 
-      <div class="audio-controls">
-        <button class="btn btn-primary" id="play-btn">▶ Play first listen</button>
-        <button class="btn btn-ghost" id="stop-btn" style="display:none;">⏹ Stop</button>
-        <button class="btn btn-ghost" id="show-text-btn">📄 Show transcript</button>
-      </div>
-      <div class="audio-status" id="audio-status">Press Play. The passage will be read aloud TWICE in total.</div>
+  /* Split a passage into speakable segments. Dialogue lines keep the
+     speaker name in the audio (attribution is examinable) and switch
+     voice where a second voice exists. */
+  function segments(text) {
+    var out = [];
+    var lines = String(text || '').split('\n');
+    var speakers = [];
+    lines.forEach(function (line) {
+      line = line.trim();
+      if (!line) return;
+      var m = line.match(/^([A-Z][A-Za-z' ]{1,18}):\s*(.+)$/);
+      var who = -1, body = line;
+      if (m) {
+        var name = m[1].trim();
+        body = name + '. ' + m[2].trim();
+        if (speakers.indexOf(name) === -1) speakers.push(name);
+        who = speakers.indexOf(name);
+      }
+      sentences(body).forEach(function (s) { out.push({ who: who, text: s }); });
+    });
+    return out.length ? out : [{ who: -1, text: String(text || '') }];
+  }
+  function sentences(s) {
+    var parts = String(s).match(/[^.!?]+[.!?]*\s*/g) || [s];
+    var out = [], buf = '';
+    parts.forEach(function (p) {
+      if ((buf + p).length > 170 && buf) { out.push(buf.trim()); buf = p; }
+      else buf += p;
+    });
+    if (buf.trim()) out.push(buf.trim());
+    return out;
+  }
 
-      <div id="transcript" style="display:none;font-size:.88rem;color:var(--muted);line-height:1.7;padding:.85rem 1.05rem;background:var(--surface);border-radius:8px;margin-bottom:1rem;white-space:pre-line;">${esc(p.audio)}</div>
+  function stop() {
+    if (handle) handle.cancelled = true;
+    if (keepAlive) { clearInterval(keepAlive); keepAlive = null; }
+    if (supported()) { try { synth.cancel(); } catch (e) {} }
+    handle = null;
+  }
 
-      <div id="questions-host"></div>
-    </div>
-  `;
+  /* play(text, opts) -> starts speaking; opts.onProgress(done,total), opts.onEnd(), opts.onFallback(segments) */
+  function play(text, opts) {
+    opts = opts || {};
+    stop();
+    var segs = segments(text);
+    var h = { cancelled: false };
+    handle = h;
 
-  const playBtn = document.getElementById('play-btn');
-  const stopBtn = document.getElementById('stop-btn');
-  const showTextBtn = document.getElementById('show-text-btn');
-  const statusEl = document.getElementById('audio-status');
-
-  function onAudioEnd() {
-    state.listens += 1;
-    stopBtn.style.display = 'none';
-    if (state.listens === 1) {
-      playBtn.disabled = false;
-      playBtn.innerHTML = '▶ Play second listen';
-      statusEl.innerHTML = `<span class="listen-count">First listen complete. Press Play again for the second listen, or reveal the questions to attempt your answer.</span> <button class="btn btn-ghost" id="reveal-q-btn" style="margin-left:.5rem;font-size:.78rem;">Show questions →</button>`;
-      const rq = document.getElementById('reveal-q-btn');
-      if (rq) rq.addEventListener('click', revealQuestions);
-    } else {
-      playBtn.disabled = false;
-      playBtn.innerHTML = '↻ Replay (third time, optional)';
-      statusEl.innerHTML = `<span class="listen-count">Second listen complete. The questions are now revealed below.</span>`;
-      revealQuestions();
+    if (!supported() || !sortedEnglish().length) {
+      if (opts.onFallback) opts.onFallback(segs, h);
+      return h;
     }
-  }
 
-  function playOnce() {
-    playBtn.disabled = true;
-    stopBtn.style.display = 'inline-flex';
-    statusEl.innerHTML = `<span>🔊 Playing… listen carefully.</span>`;
-    speak(p.audio, onAudioEnd);
-  }
+    var v1 = chosen();
+    var v2 = secondVoice(v1);
+    var rate = getRate();
+    var i = 0;
 
-  playBtn.addEventListener('click', playOnce);
-  stopBtn.addEventListener('click', () => {
-    synth && synth.cancel();
-    onAudioEnd();
-  });
-  showTextBtn.addEventListener('click', () => {
-    const t = document.getElementById('transcript');
-    t.style.display = t.style.display === 'none' ? 'block' : 'none';
-  });
-}
+    if (keepAlive) clearInterval(keepAlive);
+    keepAlive = setInterval(function () {
+      if (h.cancelled) { clearInterval(keepAlive); keepAlive = null; return; }
+      try { if (synth.speaking && !synth.paused) { synth.pause(); synth.resume(); } } catch (e) {}
+    }, 9000);
 
-function revealQuestions() {
-  if (state.questionsRevealed) return;
-  state.questionsRevealed = true;
-  renderQuestion();
-}
-
-function renderQuestion() {
-  const p = PASSAGES[state.pidx];
-  const q = p.questions[state.qidx];
-  const host = document.getElementById('questions-host');
-  host.innerHTML = `
-    <div class="question-block show">
-      <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin-bottom:.5rem;">
-        <span>Question ${state.qidx + 1} of ${p.questions.length}</span>
-        <span>Score: <strong style="color:var(--grammar);">${state.score}</strong></span>
-      </div>
-      <div class="qb-stem">${esc(q.text)}</div>
-      <div class="qb-options">
-        ${q.options.map((opt, i) => `<button class="quiz-option qb-opt" data-i="${i}">${esc(opt)}</button>`).join('')}
-      </div>
-      <div class="qb-feedback feedback-box" id="qb-feedback"></div>
-    </div>
-  `;
-  host.querySelectorAll('.qb-opt').forEach(btn => {
-    btn.addEventListener('click', () => answerQuestion(parseInt(btn.dataset.i, 10)));
-  });
-}
-
-function answerQuestion(idx) {
-  const p = PASSAGES[state.pidx];
-  const q = p.questions[state.qidx];
-  const opts = document.querySelectorAll('.qb-opt');
-  const fb = document.getElementById('qb-feedback');
-  opts.forEach(b => b.disabled = true);
-  state.total += 1;
-  if (idx === q.correct) {
-    state.score += 1;
-    opts[idx].classList.add('correct');
-    fb.className = 'qb-feedback feedback-box show feedback-correct';
-    fb.innerHTML = `✅ <strong>Correct.</strong> ${esc(q.explanation)}`;
-  } else {
-    opts[idx].classList.add('wrong');
-    opts[q.correct].classList.add('correct');
-    fb.className = 'qb-feedback feedback-box show feedback-wrong';
-    fb.innerHTML = `❌ <strong>Not quite.</strong> ${esc(q.explanation)}`;
-  }
-  const next = document.createElement('button');
-  next.className = 'btn btn-primary';
-  next.style.cssText = 'margin-top:.85rem;width:100%;';
-  next.textContent = state.qidx + 1 < p.questions.length ? 'Next question →'
-                   : state.pidx + 1 < PASSAGES.length    ? 'Next passage →'
-                                                        : 'See result →';
-  next.addEventListener('click', () => {
-    if (state.qidx + 1 < p.questions.length) {
-      state.qidx += 1;
-      renderQuestion();
-    } else if (state.pidx + 1 < PASSAGES.length) {
-      state.pidx += 1;
-      renderPassage();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      renderDone();
+    function next() {
+      if (h.cancelled) return;
+      if (i >= segs.length) {
+        if (keepAlive) { clearInterval(keepAlive); keepAlive = null; }
+        if (opts.onProgress) opts.onProgress(segs.length, segs.length);
+        if (opts.onEnd) opts.onEnd();
+        return;
+      }
+      var seg = segs[i];
+      var u = new window.SpeechSynthesisUtterance(seg.text);
+      u.rate = rate;
+      u.pitch = seg.who === 1 ? 1.15 : 1.0;
+      u.volume = 1;
+      var v = seg.who === 1 ? v2 : v1;
+      if (v) u.voice = v;
+      u.onend = function () { i++; if (opts.onProgress) opts.onProgress(i, segs.length); next(); };
+      u.onerror = function () { i++; if (opts.onProgress) opts.onProgress(i, segs.length); next(); };
+      try { synth.speak(u); } catch (e) { i++; next(); }
     }
-  });
-  fb.after(next);
-}
-
-function renderDone() {
-  if (synth) synth.cancel();
-  document.getElementById('passage-host').innerHTML = '';
-  const pct = state.total ? Math.round((state.score / state.total) * 100) : 0;
-  let msg;
-  if (pct === 100) msg = '🏆 Perfect. Listening + signal-word tracking nailed.';
-  else if (pct >= 70) msg = '🎉 Strong. Revisit the missed audio passages to lock them in.';
-  else msg = '📚 Keep going. Listen for signal words (however, because, first, for example).';
-
-  document.getElementById('done-host').innerHTML = `
-    <div class="done-card">
-      <h2>✓ Practice complete</h2>
-      <p>${state.score} / ${state.total} · ${pct}% · ${PASSAGES.length} passages</p>
-      <p>${msg}</p>
-      <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;">
-        <button class="btn btn-primary" id="reset-btn">↻ Start over</button>
-        <a class="btn btn-ghost" href="../topics/listening/">📘 Open Listening topic</a>
-        <a class="btn btn-ghost" href="../index.html">← Hub</a>
-      </div>
-    </div>
-  `;
-  document.getElementById('reset-btn').addEventListener('click', () => {
-    state.pidx = 0; state.qidx = 0; state.score = 0; state.total = 0;
-    document.getElementById('done-host').innerHTML = '';
-    renderPassage();
-  });
-  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('listening');
-  if (typeof Streak !== 'undefined' && Streak.record) Streak.record();
-  if (window.EnglishStreak && typeof window.EnglishStreak.record === 'function') { try { window.EnglishStreak.record(); } catch {} }
-}
-
-// Some browsers need a voices-changed event before voices are available
-if (synth && synth.getVoices().length === 0) {
-  synth.onvoiceschanged = () => {};
-}
-
-renderPassage();
-
-// Mark visit
-if (typeof Progress !== 'undefined' && Progress.recordVisit) Progress.recordVisit('listening');
-
-// ── AI passage generator ────────────────────────────────────
-const GEN_CACHE_KEY = 'jgl.english.listen.generated';
-const CURATED_COUNT = PASSAGES.length;
-
-function loadGeneratedCache() {
-  try { return JSON.parse(localStorage.getItem(GEN_CACHE_KEY) || '[]'); } catch { return []; }
-}
-function saveGeneratedCache(arr) {
-  try { localStorage.setItem(GEN_CACHE_KEY, JSON.stringify(arr.slice(-10))); } catch {}
-}
-
-// Rehydrate any cached generated passages on load
-(function rehydrate() {
-  const cached = loadGeneratedCache();
-  if (cached.length) {
-    PASSAGES = PASSAGES.concat(cached);
-    document.getElementById('btn-clear-generated').style.display = 'inline-block';
-    state.pidx = PASSAGES.length - cached.length;
-    renderPassage();
+    if (opts.onProgress) opts.onProgress(0, segs.length);
+    next();
+    return h;
   }
+
+  /* Timed reveal, used when there is no speech engine at all. */
+  function reveal(text, opts) {
+    opts = opts || {};
+    stop();
+    var segs = segments(text);
+    var h = { cancelled: false };
+    handle = h;
+    var rate = getRate();
+    var i = 0;
+    function step() {
+      if (h.cancelled) return;
+      if (i >= segs.length) { if (opts.onEnd) opts.onEnd(); return; }
+      if (opts.onSegment) opts.onSegment(i, segs);
+      var words = segs[i].text.split(/\s+/).length;
+      var ms = Math.max(900, (words / (140 * rate)) * 60000);
+      i++;
+      if (opts.onProgress) opts.onProgress(i, segs.length);
+      setTimeout(step, ms);
+    }
+    step();
+    return h;
+  }
+
+  return {
+    supported: supported, refresh: refresh, sortedEnglish: sortedEnglish,
+    getRate: getRate, setRate: setRate, getVoiceURI: getVoiceURI, setVoiceURI: setVoiceURI,
+    play: play, reveal: reveal, stop: stop, segments: segments
+  };
 })();
 
-document.getElementById('btn-generate').addEventListener('click', async () => {
-  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
-  if (!k) {
-    document.getElementById('gen-status').textContent = 'No Gemini key set. Open How-to-use to add one.';
+/* =========================================================
+   4. Attempt history
+   ========================================================= */
+var ATT_KEY = 'jgl.english.listen.attempts';
+var ATT_CAP = 60;
+function loadAttempts() { try { var a = JSON.parse(localStorage.getItem(ATT_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+function saveAttempt(rec) {
+  var a = loadAttempts();
+  a.push(rec);
+  try { localStorage.setItem(ATT_KEY, JSON.stringify(a.slice(-ATT_CAP))); } catch (e) {}
+}
+function blankByType() { var o = {}; TYPE_ORDER.forEach(function (t) { o[t] = { right: 0, wrong: 0 }; }); return o; }
+function aggregate() {
+  var agg = blankByType();
+  loadAttempts().forEach(function (a) {
+    var bt = a && a.byType;
+    if (!bt) return;
+    Object.keys(bt).forEach(function (t) {
+      if (!agg[t]) agg[t] = { right: 0, wrong: 0 };
+      agg[t].right += (bt[t].right || 0);
+      agg[t].wrong += (bt[t].wrong || 0);
+    });
+  });
+  return agg;
+}
+function recordDone(mode, score, total, byType) {
+  saveAttempt({ iso: new Date().toISOString(), mode: mode, score: score, total: total, byType: byType });
+  try {
+    if (window.Progress && Progress.recordQuiz) Progress.recordQuiz('listening', score, total);
+    if (window.Progress && Progress.recordDrillUsed) Progress.recordDrillUsed('listening');
+    if (window.Streak && Streak.record) Streak.record();
+    if (window.EnglishStreak && window.EnglishStreak.record) window.EnglishStreak.record();
+  } catch (e) {}
+}
+
+/* =========================================================
+   5. Shared item rendering
+   ========================================================= */
+function optionsHTML(item, ctx) {
+  var pic = item.type === 'pictureMatch';
+  var html = '<div class="opts' + (pic ? ' pic' : '') + '">';
+  (item.options || []).forEach(function (opt, i) {
+    var cls = 'opt';
+    if (ctx.marked) {
+      if (i === item.correct) cls += ' ok';
+      else if (i === ctx.chosen) cls += ' no';
+    } else if (ctx.chosen === i) cls += ' picked';
+    html += '<button class="' + cls + '" data-opt="' + i + '"' + (ctx.locked ? ' disabled' : '') + '>' +
+      (pic ? '<span class="frame">Picture ' + LETTERS[i] + '</span>' : '<span class="ltr">' + LETTERS[i] + '</span>') +
+      '<span>' + esc(opt) + '</span></button>';
+  });
+  return html + '</div>';
+}
+function itemHTML(item, ctx) {
+  var label = TYPES[item.type] ? TYPES[item.type].label : 'Item';
+  return '<div class="item" data-item="' + ctx.idx + '">' +
+    '<div class="item-head">' +
+      '<span class="item-no">Q' + ctx.no + '</span>' +
+      '<span class="tag ' + (item.type === 'pictureMatch' ? 'tag-pic' : 'tag-type') + '">' + esc(label) + '</span>' +
+      '<span class="item-stem">' + esc(item.stem) + '</span>' +
+    '</div>' +
+    optionsHTML(item, ctx) +
+    '<div class="why-slot"></div>' +
+  '</div>';
+}
+function whyHTML(item, correctChosen) {
+  var trap = item.trap ? '<span class="trap">' + esc(item.trap) + '</span>' : '';
+  return '<div class="why ' + (correctChosen ? 'why-ok' : 'why-no') + '">' + trap +
+    '<b>' + (correctChosen ? 'Correct: ' : 'The answer is ') + LETTERS[item.correct] + '.</b> ' + esc(item.explain) + '</div>';
+}
+
+/* =========================================================
+   6. Audio panel wiring
+   ========================================================= */
+var playbar = el('playbar');
+var nowplaying = el('nowplaying');
+function setNow(html) { nowplaying.innerHTML = html; }
+function setBar(done, total) { playbar.style.width = (total ? Math.round((done / total) * 100) : 0) + '%'; }
+
+function buildVoicePicker() {
+  Speech.refresh();
+  var sel = el('voice-pick');
+  var list = Speech.sortedEnglish();
+  if (!Speech.supported() || !list.length) {
+    sel.innerHTML = '<option>No speech voices available</option>';
+    sel.disabled = true;
+    el('btn-test').disabled = true;
+    el('tts-notice').innerHTML =
+      '<div class="notice notice-amber"><b>No speech voices in this browser.</b> Nothing is broken. ' +
+      'Every passage will instead be revealed one sentence at a time at reading pace, and the two-reading rule still applies. ' +
+      'For real audio, try Chrome, Edge or Safari with the device volume on.</div>';
     return;
   }
-  const type = document.getElementById('gen-type').value;
-  const status = document.getElementById('gen-status');
-  status.textContent = `Generating a fresh ${type.toLowerCase()} passage…`;
-  document.getElementById('btn-generate').disabled = true;
-  try {
-    const passage = await generatePassage(type);
-    PASSAGES.push(passage);
-    const cached = loadGeneratedCache();
-    cached.push(passage);
-    saveGeneratedCache(cached);
-    status.textContent = `Fresh passage added (${type}). It is now Passage ${PASSAGES.length} of ${PASSAGES.length}.`;
-    state.pidx = PASSAGES.length - 1;
-    state.score = 0; state.total = 0;
-    renderPassage();
-    document.getElementById('btn-clear-generated').style.display = 'inline-block';
-  } catch (e) {
-    status.textContent = 'Generator error: ' + (e?.message || e);
-  } finally {
-    document.getElementById('btn-generate').disabled = false;
-  }
-});
-
-document.getElementById('btn-clear-generated').addEventListener('click', () => {
-  if (!confirm('Reset back to the three curated passages? Generated extras will be cleared.')) return;
-  saveGeneratedCache([]);
-  PASSAGES = PASSAGES.slice(0, CURATED_COUNT);
-  state.pidx = 0; state.score = 0; state.total = 0;
-  document.getElementById('btn-clear-generated').style.display = 'none';
-  document.getElementById('gen-status').textContent = '';
-  renderPassage();
-});
-
-async function generatePassage(type) {
-  const id = 'gen-' + Date.now();
-  const typeBlurb = {
-    'Announcement':       'a school-PA-style announcement (teacher addressing the school)',
-    'Conversation':       'a two-person conversation between Primary-school-aged students (use names like Aisha, Daniel, Wei Ming)',
-    'Narrative recount':  'a first-person past-tense recount (a Primary 6 student recalling one specific event)',
-    'News report':        'a short news bulletin (calm formal register, third-person)',
-  }[type] || 'a short spoken passage';
-
-  const sys = 'You are a PSLE English Paper 3 Listening Comprehension item writer. Output VALID JSON ONLY — no markdown, no commentary. The passage must be appropriate for a Primary 6 student in Singapore, around 120-180 words, natural to read aloud at conversational pace, in clean Standard English with no slang.';
-  const prompt = `Generate ONE listening passage of type: ${typeBlurb}.
-
-Output JSON with EXACTLY these fields (no others):
-{
-  "title": "<short descriptive title, 4-7 words>",
-  "type": "${type}",
-  "intro": "<one-sentence orientation for the student, naming what to listen for>",
-  "audio": "<the spoken passage, 120-180 words, clean Standard English>",
-  "questions": [
-    { "stem": "<question 1>", "options": ["<A>", "<B>", "<C>", "<D>"], "correct": <0-3>, "explain": "<one-sentence why>" },
-    { "stem": "<question 2>", "options": ["<A>", "<B>", "<C>", "<D>"], "correct": <0-3>, "explain": "<one-sentence why>" },
-    { "stem": "<question 3>", "options": ["<A>", "<B>", "<C>", "<D>"], "correct": <0-3>, "explain": "<one-sentence why>" }
-  ]
+  sel.disabled = false;
+  el('btn-test').disabled = false;
+  var cur = Speech.getVoiceURI();
+  sel.innerHTML = list.map(function (v) {
+    var lang = String(v.lang || '').replace('_', '-');
+    return '<option value="' + esc(v.voiceURI) + '"' + (v.voiceURI === cur ? ' selected' : '') + '>' +
+      esc(v.name) + ' (' + esc(lang) + ')</option>';
+  }).join('');
+  if (!cur && list[0]) Speech.setVoiceURI(list[0].voiceURI);
 }
-
-Constraints:
-- "audio" must be ONE coherent passage, NOT bullet points.
-- Each question tests one of: literal detail, inference, or main idea.
-- "correct" is a 0-based integer index.
-- Avoid topics requiring outside knowledge (current events, branded products, specific people).
-- Use Singapore-natural settings (school, hawker centre, MRT, void deck, library) where possible.`;
-
-  const json = await window.askGemini({
-    system: sys, prompt,
-    temperature: 0.7, maxTokens: 1200, thinkingBudget: 0,
-    responseMimeType: 'application/json', asJson: true,
+el('voice-pick').addEventListener('change', function () { Speech.setVoiceURI(this.value); });
+el('rate-seg').addEventListener('click', function (e) {
+  var b = e.target.closest('button[data-rate]');
+  if (!b) return;
+  Speech.setRate(parseFloat(b.dataset.rate));
+  Array.prototype.forEach.call(this.querySelectorAll('button'), function (x) { x.classList.remove('on'); });
+  b.classList.add('on');
+});
+el('btn-test').addEventListener('click', function () {
+  Speech.play('This is the voice that will read your passages. Listen to the pace, not only the accent.', {
+    onProgress: setBar,
+    onEnd: function () { setNow('Voice test finished.'); }
   });
-  if (!json || typeof json.audio !== 'string' || !Array.isArray(json.questions)) {
-    throw new Error('Generator returned an unexpected shape.');
+  setNow('<b>Testing voice…</b>');
+});
+(function initRateUI() {
+  var r = Speech.getRate();
+  Array.prototype.forEach.call(el('rate-seg').querySelectorAll('button'), function (b) {
+    b.classList.toggle('on', Math.abs(parseFloat(b.dataset.rate) - r) < 0.001);
+  });
+})();
+buildVoicePicker();
+if (Speech.supported() && window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = function () { buildVoicePicker(); };
+}
+window.addEventListener('beforeunload', function () { Speech.stop(); });
+
+/* =========================================================
+   7. Playback controller shared by both modes
+   Enforces the two-reading rule.
+   ========================================================= */
+function makePlayer(passage, host, opts) {
+  opts = opts || {};
+  var reads = 0;
+  var busy = false;
+  var revealIdx = -1;
+  var segs = Speech.segments(passage.text);
+
+  function transcriptRevealHTML() {
+    return segs.map(function (s, i) {
+      return '<span class="' + (i <= revealIdx ? '' : 'fade') + '">' + esc(s.text) + ' </span>';
+    }).join('');
   }
+  function paint() {
+    var lockText = reads >= 2 ? 'Both readings used' : (reads === 1 ? 'Play second reading' : 'Play first reading');
+    host.innerHTML =
+      '<div class="btnrow" style="margin-top:0">' +
+        '<button class="btn ' + (reads >= 2 ? 'btn-ghost' : 'btn-primary') + '" id="pl-play"' + (busy || reads >= 2 ? ' disabled' : '') + '>▶ ' + lockText + '</button>' +
+        '<button class="btn btn-ghost" id="pl-stop"' + (busy ? '' : ' disabled') + '>■ Stop</button>' +
+        (opts.allowExtra ? '<button class="btn btn-ghost" id="pl-extra"' + (reads >= 2 && !busy ? '' : ' disabled') + '>↻ Extra replay (not allowed in the exam)</button>' : '') +
+      '</div>' +
+      '<div class="mini" style="margin-top:.5rem;" id="pl-status">' +
+        (reads === 0 ? 'Read every question and every option first. Then press play.'
+         : reads === 1 ? 'One reading done. The second reading is for checking, not for starting again.'
+         : 'Two readings used. In the exam there is no third.') +
+      '</div>' +
+      '<div class="transcript" id="pl-reveal" style="display:none"></div>';
+
+    el('pl-play').addEventListener('click', function () { go(false); });
+    el('pl-stop').addEventListener('click', function () { Speech.stop(); busy = false; paint(); if (opts.onStop) opts.onStop(); });
+    if (opts.allowExtra) {
+      var ex = el('pl-extra');
+      if (ex) ex.addEventListener('click', function () { go(true); });
+    }
+  }
+  function go(extra) {
+    if (busy) return;
+    if (!extra && reads >= 2) return;
+    busy = true;
+    if (!extra) reads++;
+    paint();
+    var label = extra ? 'Extra replay' : ('Reading ' + reads + ' of 2');
+    setNow('<b>' + esc(label) + '</b> — ' + esc(passage.title));
+    var usingSpeech = Speech.supported() && Speech.sortedEnglish().length > 0;
+    if (usingSpeech) {
+      Speech.play(passage.text, {
+        onProgress: setBar,
+        onEnd: function () { busy = false; paint(); setNow(esc(label) + ' finished.'); if (opts.onReadEnd) opts.onReadEnd(reads); },
+        onFallback: startReveal
+      });
+    } else {
+      startReveal();
+    }
+    function startReveal() {
+      revealIdx = -1;
+      Speech.reveal(passage.text, {
+        onSegment: function (i) {
+          revealIdx = i;
+          var r = el('pl-reveal');
+          if (r) { r.style.display = 'block'; r.innerHTML = transcriptRevealHTML(); }
+        },
+        onProgress: setBar,
+        onEnd: function () {
+          busy = false;
+          paint();
+          setNow('Timed reveal finished. This browser has no speech voice, so the text was shown at reading pace.');
+          if (opts.onReadEnd) opts.onReadEnd(reads);
+        }
+      });
+      setNow('<b>' + esc(label) + '</b> — revealed at reading pace, because this browser has no speech voice.');
+    }
+  }
+  paint();
   return {
-    id, type, title: json.title || 'AI-generated passage',
-    intro: json.intro || '', audio: json.audio,
-    questions: json.questions.map(q => ({
-      stem: q.stem || '?',
-      options: Array.isArray(q.options) ? q.options.slice(0, 4) : ['A','B','C','D'],
-      correct: typeof q.correct === 'number' ? q.correct : 0,
-      explain: q.explain || '',
-    })),
-    _generated: true,
+    reads: function () { return reads; },
+    autoplay: function () { go(false); },
+    destroy: function () { Speech.stop(); busy = false; }
   };
 }
+
+/* =========================================================
+   8. Mode: PRACTICE
+   ========================================================= */
+var practiceState = { pid: null, answers: {}, marked: {}, player: null, revealed: false };
+
+function renderPractice() {
+  var view = el('view');
+  var list = allPassages();
+  var chosen = null;
+  for (var i = 0; i < list.length; i++) if (list[i].id === practiceState.pid) chosen = list[i];
+  if (!chosen) {
+    chosen = Fresh.pickUnseen('listen', list, passageKey) || list[0];
+    practiceState.pid = chosen.id;
+    practiceState.answers = {}; practiceState.marked = {}; practiceState.revealed = false;
+  }
+
+  view.innerHTML =
+    '<div class="panel">' +
+      '<h2>Choose a text</h2>' +
+      '<div class="pgrid" id="pgrid"></div>' +
+      '<div class="btnrow">' +
+        '<button class="btn btn-ghost" id="btn-unseen">Next text I have not done →</button>' +
+      '</div>' +
+      '<div class="genrow" style="margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--border);">' +
+        '<select id="gen-type">' +
+          '<option value="School announcement">School announcement</option>' +
+          '<option value="Conversation">Conversation (two speakers)</option>' +
+          '<option value="News report">News report</option>' +
+          '<option value="Narrative recount">Narrative recount</option>' +
+          '<option value="Instructions">Instructions / procedure</option>' +
+          '<option value="Advertisement">Advertisement</option>' +
+          '<option value="Telephone message">Telephone message</option>' +
+          '<option value="Interview">Interview</option>' +
+        '</select>' +
+        '<button class="btn btn-primary" id="btn-gen" style="font-size:.8rem;">✨ Generate a fresh passage</button>' +
+        '<button class="btn btn-ghost" id="btn-clear-gen" style="font-size:.8rem;">Clear generated</button>' +
+      '</div>' +
+      '<div class="mini" id="gen-status" style="margin-top:.5rem;min-height:1rem;"></div>' +
+    '</div>' +
+
+    '<div class="panel" id="run-panel"></div>' +
+
+    '<details class="foldy">' +
+      '<summary>The four traps that lose the marks</summary>' +
+      '<div class="body"><ul>' +
+        '<li><b>Word echo.</b> The option repeats a word you certainly heard, attached to the wrong idea. Hearing the word is not evidence.</li>' +
+        '<li><b>Mentioned then cancelled.</b> A fact is given, then overturned by <b>but</b>, <b>however</b>, <b>actually</b>, <b>instead</b> or <b>sorry</b>. The right answer usually arrives after the wrong one.</li>' +
+        '<li><b>Near-miss numbers.</b> Fifteen and fifty. Four-fifteen and four-fifty. Old price and new price. Write the figure, then listen for the revision.</li>' +
+        '<li><b>Right fact, wrong speaker.</b> In dialogue, the fact is real and the owner is not. Put an initial beside every fact you write down.</li>' +
+      '</ul></div>' +
+    '</details>';
+
+  var grid = el('pgrid');
+  grid.innerHTML = list.map(function (p) {
+    var seen = Fresh.seen('listen', passageKey(p));
+    return '<button class="pcard' + (p.id === practiceState.pid ? ' on' : '') + '" data-pid="' + esc(p.id) + '">' +
+      '<div class="t">' + esc(p.title) + '</div>' +
+      '<div class="m">' +
+        '<span class="tag tag-type">' + esc(p.type) + '</span>' +
+        (p.picture ? '<span class="tag tag-pic">picture items</span>' : '') +
+        (p.generated ? '<span class="tag tag-ai">AI</span>' : '') +
+        '<span class="tag ' + (seen ? 'tag-seen' : 'tag-new') + '">' + (seen ? 'done' : 'new') + '</span>' +
+        '<span>' + itemCount(p) + ' items</span>' +
+      '</div>' +
+    '</button>';
+  }).join('');
+
+  grid.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-pid]');
+    if (!b) return;
+    Speech.stop();
+    practiceState.pid = b.dataset.pid;
+    practiceState.answers = {}; practiceState.marked = {}; practiceState.revealed = false;
+    renderPractice();
+  });
+  el('btn-unseen').addEventListener('click', function () {
+    Speech.stop();
+    var next = Fresh.pickUnseen('listen', list, passageKey);
+    practiceState.pid = next ? next.id : list[0].id;
+    practiceState.answers = {}; practiceState.marked = {}; practiceState.revealed = false;
+    renderPractice();
+  });
+  el('btn-gen').addEventListener('click', onGenerate);
+  el('btn-clear-gen').addEventListener('click', function () {
+    if (!confirm('Remove all AI-generated passages? The eight curated texts stay.')) return;
+    saveGen([]);
+    practiceState.pid = null;
+    renderPractice();
+  });
+
+  renderPracticeRun(chosen);
+}
+
+function renderPracticeRun(p) {
+  var host = el('run-panel');
+  var total = itemCount(p);
+  host.innerHTML =
+    '<h2>' + esc(p.type) + '</h2>' +
+    '<div style="font-size:1.02rem;font-weight:700;color:var(--text);margin-bottom:.3rem;">' + esc(p.title) + '</div>' +
+    '<div class="mini" style="margin-bottom:.8rem;">' + esc(p.intro || '') + '</div>' +
+    '<div id="player-host"></div>' +
+    '<div id="items-host" style="margin-top:1rem;"></div>' +
+    '<div id="after-host"></div>';
+
+  if (practiceState.player) practiceState.player.destroy();
+  practiceState.player = makePlayer(p, el('player-host'), { allowExtra: true });
+
+  var ih = el('items-host');
+  ih.innerHTML = (p.items || []).map(function (it, i) {
+    return itemHTML(it, { idx: i, no: i + 1, chosen: practiceState.answers[i], marked: !!practiceState.marked[i], locked: !!practiceState.marked[i] });
+  }).join('');
+
+  ih.addEventListener('click', function (e) {
+    var b = e.target.closest('.opt');
+    if (!b || b.disabled) return;
+    var wrap = b.closest('[data-item]');
+    var idx = parseInt(wrap.dataset.item, 10);
+    if (practiceState.marked[idx]) return;
+    var pick = parseInt(b.dataset.opt, 10);
+    practiceState.answers[idx] = pick;
+    practiceState.marked[idx] = true;
+    var it = p.items[idx];
+    Array.prototype.forEach.call(wrap.querySelectorAll('.opt'), function (o, i) {
+      o.disabled = true;
+      o.classList.remove('picked');
+      if (i === it.correct) o.classList.add('ok');
+      else if (i === pick) o.classList.add('no');
+    });
+    wrap.querySelector('.why-slot').innerHTML = whyHTML(it, pick === it.correct);
+    checkPracticeDone(p, total);
+  });
+  checkPracticeDone(p, total, true);
+}
+
+function checkPracticeDone(p, total, quiet) {
+  var done = 0, score = 0;
+  var byType = {};
+  for (var i = 0; i < total; i++) {
+    if (practiceState.marked[i]) {
+      done++;
+      var it = p.items[i];
+      var t = it.type || 'literal';
+      if (!byType[t]) byType[t] = { right: 0, wrong: 0 };
+      if (practiceState.answers[i] === it.correct) { score++; byType[t].right++; } else { byType[t].wrong++; }
+    }
+  }
+  var after = el('after-host');
+  if (!after) return;
+  if (done < total) { if (!quiet) after.innerHTML = ''; return; }
+  if (practiceState.revealed) return;
+  practiceState.revealed = true;
+
+  Fresh.mark('listen', passageKey(p), { title: p.title, type: p.type });
+  recordDone('practice', score, total, byType);
+
+  after.innerHTML =
+    '<div class="why why-flat" style="margin-top:1rem;">' +
+      '<b>' + score + ' out of ' + total + ' on this text.</b> ' +
+      (score === total
+        ? 'Every trap dodged. Move to Full Paper mode, where nothing is marked until the end.'
+        : 'Read each explanation above and name the trap out loud before you move on. Naming it is what makes you spot it next time.') +
+    '</div>' +
+    '<div class="btnrow">' +
+      '<button class="btn btn-ghost" id="btn-transcript">📄 Show transcript</button>' +
+      '<button class="btn btn-primary" id="btn-next-text">Next text →</button>' +
+    '</div>' +
+    '<div id="transcript-host"></div>';
+
+  el('btn-transcript').addEventListener('click', function () {
+    var th = el('transcript-host');
+    if (th.innerHTML) { th.innerHTML = ''; this.textContent = '📄 Show transcript'; return; }
+    th.innerHTML = '<div class="transcript">' + esc(p.text) + '</div>';
+    this.textContent = '📄 Hide transcript';
+  });
+  el('btn-next-text').addEventListener('click', function () {
+    Speech.stop();
+    var next = Fresh.pickUnseen('listen', allPassages(), passageKey);
+    practiceState.pid = next ? next.id : null;
+    practiceState.answers = {}; practiceState.marked = {}; practiceState.revealed = false;
+    renderPractice();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+/* =========================================================
+   9. Mode: FULL PAPER
+   ========================================================= */
+var paper = null;
+var paperTimers = [];
+function clearPaperTimers() { paperTimers.forEach(function (t) { clearInterval(t); clearTimeout(t); }); paperTimers = []; }
+
+function buildPaper() {
+  var pool = allPassages();
+  var picture = shuffled(pool.filter(function (p) { return p.picture; }));
+  var textish = shuffled(pool.filter(function (p) { return !p.picture; }));
+
+  var blocks = [];
+  var picItems = 0;
+  /* items 1-7 are picture items in the real paper, so never overshoot 7 */
+  picture.forEach(function (p) {
+    var n = itemCount(p);
+    if (picItems + n <= 7) { blocks.push(p); picItems += n; }
+  });
+  var count = picItems;
+  /* four-item texts first, so 4 + 3 + 3 + 3 lands exactly on 20 */
+  textish.sort(function (a, b) { return itemCount(b) - itemCount(a); });
+  textish.forEach(function (p) {
+    var n = itemCount(p);
+    if (count + n <= 20) { blocks.push(p); count += n; }
+  });
+
+  var no = 0;
+  var flat = [];
+  var blockInfo = blocks.map(function (p) {
+    var items = (p.items || []).map(function (it, i) {
+      no++;
+      var rec = { p: p, item: it, idx: i, no: no };
+      flat.push(rec);
+      return rec;
+    });
+    return { p: p, items: items, from: items[0] ? items[0].no : 0, to: items[items.length - 1] ? items[items.length - 1].no : 0 };
+  });
+
+  return {
+    blocks: blockInfo, flat: flat, total: flat.length,
+    bi: 0, phase: 'idle', answers: {}, started: Date.now(), submitted: false, player: null
+  };
+}
+
+function renderPaper() {
+  var view = el('view');
+  if (!paper) {
+    var preview = buildPaper();
+    view.innerHTML =
+      '<div class="panel">' +
+        '<h2>Full paper</h2>' +
+        '<p class="mini" style="margin-bottom:.7rem;">' +
+          preview.blocks.length + ' texts, ' + preview.total + ' items (the real Paper 3 has 7 texts and 20 items). Picture items come first, exactly as in the real paper. ' +
+          'Each text runs: reading time for the questions, first reading, a short pause, second reading, then your answering window. ' +
+          'Nothing is marked and no transcript appears until you submit. You cannot go back to an earlier text, because the recording does not go back either.' +
+        '</p>' +
+        '<div class="notice notice-quiet" style="margin:0 0 .8rem;">Before you start: 2B pencil habits matter. In the real hall you shade an answer sheet, and a right answer in the wrong bubble scores zero. Answer each text before the next one begins.</div>' +
+        '<div class="btnrow" style="margin-top:0;"><button class="btn btn-primary" id="btn-start-paper">Start the paper</button></div>' +
+      '</div>';
+    el('btn-start-paper').addEventListener('click', function () {
+      paper = buildPaper();
+      try { if (window.Progress && Progress.recordDrillUsed) Progress.recordDrillUsed('listening'); } catch (e) {}
+      renderPaper();
+    });
+    return;
+  }
+  if (paper.submitted) { renderPaperResult(); return; }
+  renderPaperBlock();
+}
+
+function paperAnswered() { return Object.keys(paper.answers).length; }
+
+function renderPaperBlock() {
+  clearPaperTimers();
+  var b = paper.blocks[paper.bi];
+  var view = el('view');
+  view.innerHTML =
+    '<div class="panel">' +
+      '<div class="paperbar">' +
+        '<div>' +
+          '<div style="font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;">Text ' + (paper.bi + 1) + ' of ' + paper.blocks.length + '</div>' +
+          '<div style="font-weight:700;color:var(--text);font-size:.95rem;">Questions ' + b.from + ' to ' + b.to + '</div>' +
+        '</div>' +
+        '<div style="text-align:right;">' +
+          '<div class="clock" id="paper-clock">0:00</div>' +
+          '<div class="counter" id="paper-counter">' + paperAnswered() + ' / ' + paper.total + ' answered</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="phase" id="phase-strip"></div>' +
+      '<div class="mini" id="phase-msg" style="min-height:2.6rem;"></div>' +
+      '<div id="paper-player"></div>' +
+      '<div class="mini" style="margin-top:.7rem;color:var(--muted);">' + esc(b.p.intro || '') + '</div>' +
+      '<div id="paper-items" style="margin-top:1rem;"></div>' +
+      '<div class="btnrow" id="paper-nav"></div>' +
+    '</div>';
+
+  paintPhase('read');
+  var ih = el('paper-items');
+  ih.innerHTML = b.items.map(function (rec, i) {
+    return itemHTML(rec.item, { idx: i, no: rec.no, chosen: paper.answers[rec.no], marked: false, locked: false });
+  }).join('');
+  ih.addEventListener('click', function (e) {
+    var btn = e.target.closest('.opt');
+    if (!btn) return;
+    var wrap = btn.closest('[data-item]');
+    var i = parseInt(wrap.dataset.item, 10);
+    var rec = b.items[i];
+    paper.answers[rec.no] = parseInt(btn.dataset.opt, 10);
+    Array.prototype.forEach.call(wrap.querySelectorAll('.opt'), function (o) { o.classList.remove('picked'); });
+    btn.classList.add('picked');
+    el('paper-counter').textContent = paperAnswered() + ' / ' + paper.total + ' answered';
+    paintNav();
+  });
+
+  /* soft overall timer */
+  var tick = setInterval(function () {
+    var c = el('paper-clock');
+    if (!c) { clearInterval(tick); return; }
+    var ms = Date.now() - paper.started;
+    c.textContent = mmss(ms);
+    c.classList.toggle('warn', ms > 35 * 60000);
+  }, 1000);
+  paperTimers.push(tick);
+
+  startReadingPause(b);
+  paintNav();
+}
+
+function paintPhase(active) {
+  var strip = el('phase-strip');
+  if (!strip) return;
+  var order = ['read', 'r1', 'gap', 'r2', 'answer'];
+  var names = { read: 'Read the questions', r1: 'Reading 1', gap: 'Pause', r2: 'Reading 2', answer: 'Answer' };
+  var ai = order.indexOf(active);
+  strip.innerHTML = order.map(function (k, i) {
+    var cls = i < ai ? 'ph done' : (i === ai ? 'ph on' : 'ph');
+    return '<span class="' + cls + '">' + names[k] + '</span>';
+  }).join('');
+}
+
+function countdown(secs, msgFn, onDone) {
+  var left = secs;
+  var msg = el('phase-msg');
+  function paint() {
+    if (!msg) return;
+    msg.innerHTML = msgFn(left) +
+      ' <button class="btn btn-ghost" id="skip-phase" style="font-size:.72rem;padding:.2rem .55rem;margin-left:.35rem;">Ready now →</button>';
+    var sk = el('skip-phase');
+    if (sk) sk.addEventListener('click', function () { left = 0; clearInterval(t); onDone(); });
+  }
+  paint();
+  var t = setInterval(function () {
+    left--;
+    if (left <= 0) { clearInterval(t); onDone(); return; }
+    paint();
+  }, 1000);
+  paperTimers.push(t);
+}
+
+function startReadingPause(b) {
+  paintPhase('read');
+  var secs = 10 + 12 * b.items.length;
+  countdown(secs, function (left) {
+    return '<b style="color:var(--text)">Reading time: ' + left + 's.</b> Read all the stems and all the options now. ' +
+      'For picture items, find the one detail that differs between the four pictures.';
+  }, function () { playRead(b, 1); });
+}
+
+function playRead(b, n) {
+  paintPhase(n === 1 ? 'r1' : 'r2');
+  var msg = el('phase-msg');
+  if (msg) msg.innerHTML = '<b style="color:var(--accent)">Reading ' + n + ' of 2 is playing.</b> ' +
+    (n === 1 ? 'Aim for gist plus the numbers and names. Eliminate the options you can already rule out.' :
+               'This reading is for checking, especially anything that had a "but" or an "actually" in it.');
+  var ph = el('paper-player');
+  if (ph) ph.innerHTML = '<div class="mini">Audio is playing. There is no rewind.</div>';
+
+  var usingSpeech = Speech.supported() && Speech.sortedEnglish().length > 0;
+  setNow('<b>Text ' + (paper.bi + 1) + ', reading ' + n + ' of 2</b>');
+  function done() {
+    if (n === 1) { gapPhase(b); } else { answerPhase(b); }
+  }
+  if (usingSpeech) {
+    Speech.play(b.p.text, { onProgress: setBar, onEnd: done, onFallback: doReveal });
+  } else {
+    doReveal();
+  }
+  function doReveal() {
+    var segs = Speech.segments(b.p.text);
+    var shown = -1;
+    if (ph) ph.innerHTML = '<div class="transcript" id="paper-reveal"></div>';
+    Speech.reveal(b.p.text, {
+      onSegment: function (i) {
+        shown = i;
+        var r = el('paper-reveal');
+        if (r) r.innerHTML = segs.map(function (s, j) {
+          return '<span class="' + (j <= shown ? '' : 'fade') + '">' + esc(s.text) + ' </span>';
+        }).join('');
+      },
+      onProgress: setBar,
+      onEnd: function () { var r = el('paper-reveal'); if (r) r.remove(); done(); }
+    });
+  }
+}
+
+function gapPhase(b) {
+  paintPhase('gap');
+  var ph = el('paper-player');
+  if (ph) ph.innerHTML = '';
+  countdown(12, function (left) {
+    return '<b style="color:var(--text)">Pause: ' + left + 's.</b> Mark the items you are unsure of with a question mark. Do not rewrite the ones you are sure of.';
+  }, function () { playRead(b, 2); });
+}
+
+function answerPhase(b) {
+  paintPhase('answer');
+  var msg = el('phase-msg');
+  if (msg) msg.innerHTML = '<b style="color:var(--text)">Both readings are done.</b> Answer questions ' + b.from + ' to ' + b.to +
+    ' now, then move on. In the exam, dwelling on one item costs you the next two.';
+  var ph = el('paper-player');
+  if (ph) ph.innerHTML = '';
+  setNow('Waiting for your answers to text ' + (paper.bi + 1) + '.');
+  setBar(0, 1);
+  paintNav(true);
+}
+
+function paintNav(unlocked) {
+  var nav = el('paper-nav');
+  if (!nav) return;
+  var b = paper.blocks[paper.bi];
+  var unanswered = b.items.filter(function (r) { return paper.answers[r.no] == null; }).length;
+  var last = paper.bi === paper.blocks.length - 1;
+  var label = last ? 'Submit the paper' : 'Next text →';
+  nav.innerHTML =
+    '<button class="btn ' + (last ? 'btn-success' : 'btn-primary') + '" id="btn-nextblock">' + label + '</button>' +
+    '<span class="mini" style="align-self:center;">' + (unanswered ? unanswered + ' unanswered in this text' : 'all answered in this text') + '</span>';
+  el('btn-nextblock').addEventListener('click', function () {
+    if (unanswered && !confirm(unanswered + ' item(s) in this text have no answer. In the real paper a blank is a zero. Move on anyway?')) return;
+    Speech.stop();
+    clearPaperTimers();
+    if (last) { paper.submitted = true; renderPaper(); }
+    else { paper.bi++; renderPaperBlock(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  });
+}
+
+function renderPaperResult() {
+  clearPaperTimers();
+  Speech.stop();
+  var score = 0;
+  var byType = {};
+  paper.flat.forEach(function (rec) {
+    var t = rec.item.type || 'literal';
+    if (!byType[t]) byType[t] = { right: 0, wrong: 0 };
+    if (paper.answers[rec.no] === rec.item.correct) { score++; byType[t].right++; } else { byType[t].wrong++; }
+  });
+  var total = paper.total;
+  var mins = Math.round((Date.now() - paper.started) / 60000);
+
+  if (!paper.recorded) {
+    paper.recorded = true;
+    recordDone('paper', score, total, byType);
+    paper.blocks.forEach(function (b) { Fresh.mark('listen', passageKey(b.p), { title: b.p.title, type: b.p.type }); });
+  }
+
+  var pct = total ? Math.round((score / total) * 100) : 0;
+  var line = pct >= 90 ? 'That is AL1 territory on this paper. Keep rotating the voice and the accent so it does not become one recording you know.'
+    : pct >= 75 ? 'Solid. Your losses are now specific rather than general, so read the trap names below and work the weakest one.'
+    : pct >= 55 ? 'The gap is in the traps, not in your English. Work through the review below and say the trap name out loud on each miss.'
+    : 'Start with the note-taking habit: names, numbers, and an initial beside every fact in a dialogue. That alone moves this score.';
+
+  var view = el('view');
+  view.innerHTML =
+    '<div class="panel">' +
+      '<div class="score-head"><span class="big">' + score + ' / ' + total + '</span><span class="lab">' + pct + '%</span>' +
+      '<span class="mini">' + mins + ' min · ' + paper.blocks.length + ' texts</span></div>' +
+      '<p class="mini">' + esc(line) + '</p>' +
+      '<div style="margin-top:.9rem;"><div class="mini" style="margin-bottom:.4rem;font-weight:700;color:var(--text);">This paper, by question type</div>' +
+      typeBarsHTML(byType) + '</div>' +
+      '<div class="btnrow">' +
+        '<button class="btn btn-primary" id="btn-new-paper">New paper</button>' +
+        '<button class="btn btn-ghost" id="btn-see-diag">See your long-term diagnosis</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="panel"><h2>Item review</h2><div id="review-host"></div></div>';
+
+  var rh = el('review-host');
+  rh.innerHTML = paper.blocks.map(function (b, bi) {
+    var items = b.items.map(function (rec) {
+      var chosen = paper.answers[rec.no];
+      var ok = chosen === rec.item.correct;
+      return '<div class="item">' +
+        '<div class="item-head">' +
+          '<span class="item-no">Q' + rec.no + '</span>' +
+          '<span class="tag ' + (rec.item.type === 'pictureMatch' ? 'tag-pic' : 'tag-type') + '">' + esc(TYPES[rec.item.type] ? TYPES[rec.item.type].label : 'Item') + '</span>' +
+          '<span class="tag ' + (ok ? 'tag-new' : 'tag-seen') + '">' + (ok ? 'correct' : (chosen == null ? 'blank' : 'missed')) + '</span>' +
+          '<span class="item-stem">' + esc(rec.item.stem) + '</span>' +
+        '</div>' +
+        optionsHTML(rec.item, { chosen: chosen, marked: true, locked: true }) +
+        whyHTML(rec.item, ok) +
+      '</div>';
+    }).join('');
+    return '<details class="foldy"' + (bi === 0 ? ' open' : '') + '>' +
+      '<summary>Text ' + (bi + 1) + ' — ' + esc(b.p.title) + ' (Q' + b.from + '–' + b.to + ')</summary>' +
+      '<div class="body">' + items +
+        '<details class="foldy" style="margin-top:.7rem;"><summary>Transcript</summary><div class="transcript">' + esc(b.p.text) + '</div></details>' +
+      '</div>' +
+    '</details>';
+  }).join('');
+
+  el('btn-new-paper').addEventListener('click', function () { paper = null; renderPaper(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  el('btn-see-diag').addEventListener('click', function () { switchMode('progress'); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+}
+
+/* =========================================================
+   10. Mode: DIAGNOSIS
+   ========================================================= */
+function typeBarsHTML(byType) {
+  var keys = TYPE_ORDER.filter(function (t) { return byType[t] && (byType[t].right + byType[t].wrong) > 0; });
+  Object.keys(byType).forEach(function (t) { if (keys.indexOf(t) === -1 && (byType[t].right + byType[t].wrong) > 0) keys.push(t); });
+  if (!keys.length) return '<div class="mini">No items answered yet.</div>';
+  return '<div class="typebars">' + keys.map(function (t) {
+    var d = byType[t], n = d.right + d.wrong;
+    var pc = Math.round((d.right / n) * 100);
+    var fill = pc >= 80 ? 'fill-good' : pc >= 60 ? 'fill-mid' : 'fill-low';
+    return '<div class="tb">' +
+      '<span class="nm">' + esc(TYPES[t] ? TYPES[t].label : t) + '</span>' +
+      '<span class="track"><i class="' + fill + '" style="width:' + pc + '%"></i></span>' +
+      '<span class="pc">' + pc + '%</span>' +
+      '<span class="nm" style="grid-column:1/-1;font-size:.68rem;opacity:.75;">' + d.right + ' right of ' + n + '</span>' +
+    '</div>';
+  }).join('') + '</div>';
+}
+
+function renderProgress() {
+  var view = el('view');
+  var attempts = loadAttempts();
+  var agg = aggregate();
+
+  var scored = TYPE_ORDER.map(function (t) {
+    var d = agg[t] || { right: 0, wrong: 0 };
+    var n = d.right + d.wrong;
+    return { t: t, n: n, pc: n ? d.right / n : 1 };
+  }).filter(function (x) { return x.n >= 3; });
+  scored.sort(function (a, b) { return a.pc - b.pc; });
+
+  var diag;
+  if (!attempts.length) {
+    diag = 'No attempts yet. Do one text in Practice mode and this page will start telling you which trap costs you most.';
+  } else if (!scored.length) {
+    diag = 'Not enough items yet to name a weakness. Three items of a type is the minimum before a pattern means anything.';
+  } else {
+    var w = scored[0];
+    diag = 'Your weakest type is <b>' + esc(TYPES[w.t].label) + '</b> at ' + Math.round(w.pc * 100) + '% across ' + w.n + ' items. ' + esc(TYPES[w.t].fix);
+  }
+
+  var totalItems = 0, totalRight = 0;
+  attempts.forEach(function (a) { totalItems += (a.total || 0); totalRight += (a.score || 0); });
+  var freshStats = Fresh.stats('listen');
+
+  view.innerHTML =
+    '<div class="panel">' +
+      '<h2>Which question types you miss</h2>' +
+      typeBarsHTML(agg) +
+      '<div class="why why-flat" style="margin-top:.9rem;">' + diag + '</div>' +
+    '</div>' +
+
+    '<div class="panel">' +
+      '<h2>Totals</h2>' +
+      '<div class="mini">' +
+        attempts.length + ' attempt(s) · ' + totalRight + ' correct out of ' + totalItems + ' items · ' +
+        (totalItems ? Math.round((totalRight / totalItems) * 100) : 0) + '% overall<br>' +
+        'Texts seen: ' + freshStats.total + ' (' + freshStats.last7 + ' in the last 7 days). New material is generated around the ones you have already heard.' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="panel">' +
+      '<h2>Recent attempts</h2>' +
+      (attempts.length
+        ? '<div class="hist">' + attempts.slice(-12).reverse().map(function (a) {
+            var d = new Date(a.iso);
+            var when = isNaN(d.getTime()) ? '—' : (d.getDate() + '/' + (d.getMonth() + 1) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()));
+            return '<div class="hrow"><b>' + esc(String(a.score)) + '/' + esc(String(a.total)) + '</b>' +
+              '<span>' + esc(a.mode === 'paper' ? 'full paper' : 'practice') + '</span>' +
+              '<span style="flex:1"></span><span>' + esc(when) + '</span></div>';
+          }).join('') + '</div>'
+        : '<div class="mini">Nothing recorded yet.</div>') +
+      '<div class="btnrow"><button class="btn btn-ghost" id="btn-clear-hist" style="font-size:.78rem;">Clear history</button></div>' +
+    '</div>' +
+
+    '<div class="panel">' +
+      '<h2>What each type asks of you</h2>' +
+      '<div class="mini">' + TYPE_ORDER.map(function (t) {
+        return '<div style="margin-bottom:.5rem;"><b style="color:var(--text)">' + esc(TYPES[t].label) + '.</b> ' + esc(TYPES[t].fix) + '</div>';
+      }).join('') + '</div>' +
+    '</div>';
+
+  el('btn-clear-hist').addEventListener('click', function () {
+    if (!confirm('Delete your listening attempt history? The diagnosis resets to empty.')) return;
+    try { localStorage.removeItem(ATT_KEY); } catch (e) {}
+    renderProgress();
+  });
+}
+
+/* =========================================================
+   11. Generator
+   ========================================================= */
+var TYPE_BLURB = {
+  'School announcement': 'a school PA announcement given by a teacher to pupils (assembly or over the speaker)',
+  'Conversation': 'a conversation between two named speakers, written as "Name: line" on separate lines',
+  'News report': 'a short local news bulletin in third person, past tense, with attributed sources',
+  'Narrative recount': 'a first-person past-tense recount by a Primary 6 pupil about one specific event',
+  'Instructions': 'spoken instructions or a procedure with a clear order of steps and physical positions',
+  'Advertisement': 'a radio advertisement with prices, conditions, dates and a closing slogan',
+  'Telephone message': 'a one-sided voice message that opens with self-identification and contains a time, a place and a request',
+  'Interview': 'a radio interview written as "Presenter:" and the guest name on separate lines'
+};
+
+function onGenerate() {
+  var status = el('gen-status');
+  var btn = el('btn-gen');
+  var type = el('gen-type').value;
+  if (!hasKey()) {
+    status.innerHTML = 'No AI key set, so the generator is off. Everything else on this page works without it. Open Settings in the header to add a key.';
+    return;
+  }
+  btn.disabled = true;
+  status.textContent = 'Writing a fresh ' + type.toLowerCase() + '…';
+  generatePassage(type).then(function (p) {
+    var gen = loadGen();
+    gen.push(p);
+    saveGen(gen);
+    Fresh.mark('listen', passageKey(p), { title: p.title, type: p.type });
+    practiceState.pid = p.id;
+    practiceState.answers = {}; practiceState.marked = {}; practiceState.revealed = false;
+    renderPractice();
+    var s = el('gen-status');
+    if (s) s.textContent = 'Added: ' + p.title + '. It is selected below.';
+  }).catch(function (e) {
+    var s = el('gen-status');
+    var code = e && e.code;
+    s.textContent = code === 'NO_KEY' ? 'No AI key set. Open Settings in the header.'
+      : code === 'NETWORK' ? 'The network did not answer. Try again in a moment; the curated texts still work.'
+      : code === 'RATE_LIMIT' ? 'The AI is rate limited right now. Wait a minute, then try again.'
+      : 'Could not generate that one: ' + (e && e.message ? e.message : 'unknown error');
+  }).then(function () {
+    var b = el('btn-gen');
+    if (b) b.disabled = false;
+  });
+}
+
+function generatePassage(type) {
+  var avoid = Fresh.avoidList('listen', 15);
+  var wantsPictures = (type === 'Instructions' || type === 'Telephone message' || type === 'School announcement');
+  var sys =
+    'You write items for the Singapore PSLE English Paper 3 Listening Comprehension. ' +
+    'Output valid JSON only, no markdown fence, no commentary. ' +
+    'The passage must be written to be READ ALOUD to Primary 6 pupils: natural spoken register, Standard English, no slang, no emoji, Singapore settings ' +
+    '(school, hawker centre, MRT, void deck, community club, canal, library). 110 to 170 words.';
+
+  var prompt =
+    'Write ONE listening text of this kind: ' + (TYPE_BLURB[type] || type) + '.\n\n' +
+    'DISTRACTOR RULES. This is the whole point of the item set. Every item must have exactly four options, ' +
+    'and its wrong options must be built from this taxonomy:\n' +
+    '1. word-echo: the option repeats a word or phrase heard in the text, attached to the wrong idea.\n' +
+    '2. negated info: a fact is stated then cancelled later using but / however / actually / instead / sorry. The cancelled version becomes a wrong option.\n' +
+    '3. near-miss number: fifteen versus fifty, 4.15 versus 4.50, an old price versus a revised price.\n' +
+    '4. wrong speaker: in dialogue, a true fact attached to the wrong person.\n' +
+    '5. same-valence options: for tone or attitude items, make all four options positive so sentiment cannot sort them; the answer must be provable from a behaviour chain.\n' +
+    '6. true but not the question: all options are factually true, but two or three describe things already resolved or finished; only one answers the stem.\n\n' +
+    'The text MUST contain at least one retraction pivot (but / however / actually / instead / sorry) that overturns something said earlier.\n\n' +
+    (wantsPictures
+      ? 'Because this text type carries picture items in the real paper, write EVERY item with type "pictureMatch". For those items each option must be a short vivid description of what a picture would show (arrangement, route, clock face, or a person doing something), 8 to 18 words, and the four pictures must differ in exactly one controlled way.\n\n'
+      : 'Use a mix of item types from: literal, numericDetail, inference, mainIdea, purposeTone, sequence. Include at least one inference or mainIdea item.\n\n') +
+    (avoid.length
+      ? 'DO NOT generate anything similar in topic, setting, names or situation to these, which the student has already done:\n- ' + avoid.join('\n- ') + '\n\n'
+      : '') +
+    'Return JSON with exactly this shape:\n' +
+    '{"title":"short title, 4 to 7 words","intro":"one sentence telling the student what to listen for","text":"the spoken passage; for dialogue use Name: line on separate lines separated by \\n",' +
+    '"items":[{"stem":"question","options":["A","B","C","D"],"correct":0,"type":"' + (wantsPictures ? 'pictureMatch' : 'literal') + '","trap":"name the trap in two or three words","explain":"two or three sentences naming WHY the wrong options tempt, using the trap names above, and quoting the wording from the text that settles it"}]}\n\n' +
+    'Write 3 items. "correct" is a 0-based integer. Do not put the answer letter inside the stem. No emoji anywhere.';
+
+  return window.askGemini({
+    system: sys,
+    prompt: prompt,
+    temperature: 0.85,
+    maxTokens: 2000,
+    thinkingBudget: 0,
+    responseMimeType: 'application/json',
+    asJson: true
+  }).then(function (json) {
+    if (typeof json === 'string') { json = JSON.parse(json); }
+    if (!json || typeof json.text !== 'string' || !Array.isArray(json.items) || !json.items.length) {
+      throw new Error('the model returned an unexpected shape.');
+    }
+    var allowed = Object.keys(TYPES);
+    var items = json.items.map(function (q) {
+      var opts = Array.isArray(q.options) ? q.options.slice(0, 4).map(String) : [];
+      while (opts.length < 4) opts.push('(missing option)');
+      var c = parseInt(q.correct, 10);
+      if (isNaN(c) || c < 0 || c > 3) c = 0;
+      var t = allowed.indexOf(q.type) !== -1 ? q.type : (wantsPictures ? 'pictureMatch' : 'literal');
+      return {
+        stem: String(q.stem || 'Question'),
+        options: opts,
+        correct: c,
+        type: t,
+        trap: q.trap ? String(q.trap).slice(0, 40) : '',
+        explain: String(q.explain || 'Check the wording of the text against each option.')
+      };
+    });
+    return {
+      id: 'gen-' + Date.now(),
+      title: String(json.title || ('New ' + type)),
+      type: type,
+      picture: wantsPictures,
+      generated: true,
+      intro: String(json.intro || ''),
+      text: String(json.text),
+      items: items
+    };
+  });
+}
+
+/* =========================================================
+   12. Mode switching and boot
+   ========================================================= */
+function switchMode(mode) {
+  Speech.stop();
+  clearPaperTimers();
+  if (practiceState.player) { practiceState.player.destroy(); practiceState.player = null; }
+  setBar(0, 1);
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) {
+    t.classList.toggle('on', t.dataset.mode === mode);
+  });
+  el('audio-panel').classList.toggle('hidden', mode === 'progress');
+  if (mode === 'practice') renderPractice();
+  else if (mode === 'paper') renderPaper();
+  else renderProgress();
+}
+el('tabs').addEventListener('click', function (e) {
+  var b = e.target.closest('.tab');
+  if (!b) return;
+  if (paper && !paper.submitted && b.dataset.mode !== 'paper') {
+    if (!confirm('Leaving the full paper will end this attempt. Leave it?')) return;
+    paper = null;
+  }
+  switchMode(b.dataset.mode);
+});
+
+/* no-key notice */
+if (!hasKey()) {
+  el('key-notice').innerHTML =
+    '<div class="notice notice-amber"><b>No AI key set.</b> The eight curated texts, both practice modes, the marking and your diagnosis all work without one. ' +
+    'Only the "Generate a fresh passage" button needs a key. Add one from Settings in the header if you want new material.</div>';
+}
+
+try { if (window.Progress && Progress.recordVisit) Progress.recordVisit('listening'); } catch (e) {}
+switchMode('practice');
+
+})();
 </script>
 </body>
 </html>
