@@ -12,305 +12,1151 @@
     .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
     .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
     .back-link:hover { background: var(--border); color: var(--text); }
-    main { max-width: 780px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+    main { max-width: 820px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
 
-    .hero h1 { font-size: 1.6rem; margin-bottom: .25rem; }
-    .hero p  { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 1.25rem; }
+    .hero h1 { font-size: 1.55rem; margin-bottom: .3rem; font-family: var(--font-display); }
+    .hero p { color: var(--muted); font-size: .9rem; line-height: 1.7; }
 
-    .passage-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
-    .passage-meta { display: flex; gap: .5rem; align-items: center; margin-bottom: .65rem; flex-wrap: wrap; }
-    .passage-meta .num { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-weight: 700; }
-    .passage-meta .level { font-size: .7rem; padding: .15rem .55rem; border-radius: 99px; background: rgba(96,165,250,.08); color: var(--comprehension); border: 1px solid var(--comprehension); font-weight: 700; }
+    .notice { border-radius: 9px; padding: .65rem .95rem; font-size: .84rem; line-height: 1.6; margin: 1rem 0; }
+    .notice-amber { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.35); color: var(--text); }
+    .notice-red   { background: rgba(239,68,68,.07);  border: 1px solid rgba(239,68,68,.4);  color: var(--text); }
+    .notice-quiet { background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
+    .notice b { color: var(--text); }
+    .hidden { display: none !important; }
+
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.15rem; margin-bottom: 1rem; }
+    .panel > h2 { font-size: .74rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin-bottom: .75rem; font-weight: 700; }
+
+    .picker-row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+    .picker-row select, .picker-row input[type=text] {
+      background: var(--surface); color: var(--text); border: 1px solid var(--border);
+      border-radius: 8px; padding: .5rem .6rem; font-size: .85rem; font-family: inherit; flex: 1 1 220px; min-width: 0;
+    }
+    .picker-row .btn { flex: 0 0 auto; }
+    .mini { font-size: .76rem; color: var(--muted); }
+
+    .level-tag { font-size: .68rem; padding: .15rem .5rem; border-radius: 99px; font-weight: 700; border: 1px solid; letter-spacing: .04em; }
+    .lv-p5 { color: #c4b5fd; border-color: #c4b5fd66; background: #3a1e5f33; }
+    .lv-med { color: var(--comprehension); border-color: var(--comprehension); background: rgba(96,165,250,.08); }
+    .lv-hard { color: var(--composition); border-color: var(--composition); background: rgba(251,113,133,.08); }
+    .gen-tag { font-size: .68rem; padding: .15rem .5rem; border-radius: 99px; font-weight: 700; border: 1px solid var(--oral); color: var(--oral); background: rgba(232,121,249,.08); }
+
+    .preamble {
+      background: rgba(232,121,249,.06); border: 1px solid rgba(232,121,249,.3);
+      border-radius: 10px; padding: .8rem .95rem; margin-bottom: .9rem;
+    }
+    .preamble .lbl { font-size: .66rem; text-transform: uppercase; letter-spacing: .09em; color: var(--oral); font-weight: 800; display: block; margin-bottom: .3rem; }
+    .preamble p { color: var(--text); font-size: .93rem; line-height: 1.65; font-style: italic; }
+    .pact { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; margin-top: .7rem; }
+    @media (max-width: 560px) { .pact { grid-template-columns: repeat(2, 1fr); } }
+    .pact div { background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: .4rem .5rem; }
+    .pact b { display: block; font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: var(--oral); }
+    .pact span { font-size: .72rem; color: var(--muted); line-height: 1.4; }
 
     .passage-text {
-      font-size: 1rem; line-height: 1.8; color: var(--text);
-      padding: 1rem 1.25rem; background: var(--surface);
-      border-left: 3px solid var(--accent); border-radius: 6px;
-      margin-bottom: 1rem;
+      font-size: 1.02rem; line-height: 1.95; color: var(--text);
+      padding: 1rem 1.15rem; background: var(--surface);
+      border-left: 3px solid var(--accent); border-radius: 8px; margin-bottom: .8rem;
     }
     .passage-text .stress { font-weight: 700; color: var(--accent); }
-    .passage-text .pause::after { content: ' | '; color: var(--muted); font-weight: 700; }
+    .passage-text .pause::after { content: ' | '; color: var(--vocab); font-weight: 700; }
 
-    .marks-toggle { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .watch-list { display: flex; flex-wrap: wrap; gap: .4rem; }
+    .watch { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: .35rem .6rem; font-size: .8rem; cursor: pointer; color: var(--text); text-align: left; font-family: inherit; }
+    .watch:hover { border-color: var(--vocab); }
+    .watch b { color: var(--vocab); font-weight: 700; }
+    .watch .why { display: none; color: var(--muted); font-size: .74rem; margin-top: .2rem; max-width: 32ch; }
+    .watch.open .why { display: block; }
 
-    .recorder { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
-    .rec-status { font-size: .82rem; color: var(--muted); margin-left: .5rem; min-height: 1.2rem; }
-    .rec-status.live { color: #f87171; }
-    .rec-status.done { color: var(--accent); }
+    .rec-row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin-bottom: .7rem; }
+    .rec-dot { width: 9px; height: 9px; border-radius: 50%; background: #ef4444; display: inline-block; }
+    .timer { font-family: var(--font-mono); font-size: 1.35rem; font-weight: 700; color: var(--text); min-width: 4.2rem; }
+    .timer.live { color: #f87171; }
+    .meter { height: 12px; border-radius: 99px; background: var(--surface); border: 1px solid var(--border); overflow: hidden; margin: .3rem 0 .45rem; }
+    .meter i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--grammar), var(--vocab)); transition: width .06s linear; }
+    .meter-label { font-size: .72rem; color: var(--muted); }
+    audio.playback { width: 100%; margin: .6rem 0 .3rem; }
+    .wpm { display: inline-flex; align-items: center; gap: .35rem; font-size: .78rem; padding: .2rem .55rem; border-radius: 99px; border: 1px solid var(--border); color: var(--muted); }
+    .wpm.good { color: var(--grammar); border-color: var(--grammar); }
+    .wpm.warn { color: var(--vocab); border-color: var(--vocab); }
 
-    audio.playback { width: 100%; margin: .5rem 0; }
+    .scorehead { display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap; margin-bottom: .8rem; }
+    .scorehead .big { font-family: var(--font-mono); font-size: 2.1rem; font-weight: 700; color: var(--accent); }
+    .scorehead .lab { font-size: .9rem; font-weight: 700; color: var(--text); }
 
-    .self-check {
-      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .5rem;
-      background: var(--surface); padding: .75rem; border-radius: 8px;
-      margin-top: 1rem;
-    }
-    @media (max-width: 600px) { .self-check { grid-template-columns: 1fr; } }
-    .check-cell { font-size: .85rem; line-height: 1.55; }
-    .check-cell strong { display: block; color: var(--text); margin-bottom: .25rem; font-size: .82rem; }
-    .check-cell .scale { display: flex; gap: .35rem; margin-top: .35rem; }
-    .check-cell .scale button { flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--text); padding: .3rem; border-radius: 6px; font-size: .8rem; cursor: pointer; }
-    .check-cell .scale button.picked { background: var(--accent); color: #1c0c0c; border-color: var(--accent); }
+    .bands { display: grid; grid-template-columns: 1fr; gap: .6rem; }
+    @media (min-width: 700px) { .bands { grid-template-columns: repeat(3, 1fr); } }
+    .band { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .75rem .85rem; }
+    .band h4 { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: .3rem; }
+    .band .n { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; color: var(--text); }
+    .bar { height: 7px; border-radius: 99px; background: var(--border); overflow: hidden; margin: .4rem 0 .5rem; }
+    .bar i { display: block; height: 100%; background: var(--accent); }
+    .band p { font-size: .8rem; line-height: 1.6; color: var(--muted); margin-bottom: .35rem; }
+    .band p b { color: var(--text); }
 
-    .key-warn { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.35); border-radius: 9px; padding: .65rem .95rem; font-size: .85rem; color: var(--text); margin-bottom: 1.25rem; line-height: 1.55; }
-    .browser-warn { background: rgba(239,68,68,.06); border: 1px solid rgba(239,68,68,.35); border-radius: 9px; padding: .65rem .95rem; font-size: .85rem; color: var(--text); margin-bottom: 1.25rem; line-height: 1.55; display: none; }
-    .browser-warn.show { display: block; }
+    .onething { background: rgba(56,189,248,.07); border: 1px solid var(--accent); border-radius: 10px; padding: .8rem .95rem; margin: .9rem 0; }
+    .onething .lbl { font-size: .66rem; text-transform: uppercase; letter-spacing: .09em; color: var(--accent); font-weight: 800; display: block; margin-bottom: .25rem; }
+    .onething p { color: var(--text); font-size: .93rem; line-height: 1.6; }
 
-    .ai-feedback {
-      margin-top: 1rem;
-      background: linear-gradient(135deg, #14302b 0%, #1e1835 100%);
-      border: 1px solid var(--accent); border-radius: 10px;
-      padding: 1rem 1.25rem; display: none;
-    }
-    .ai-feedback.show { display: block; }
-    .ai-feedback h4 { color: var(--accent); font-size: .9rem; margin-bottom: .5rem; }
-    .ai-feedback pre { white-space: pre-wrap; font-family: inherit; font-size: .88rem; color: var(--text); line-height: 1.7; }
+    .acc { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    .acc td { padding: .35rem .4rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .acc .exp { color: var(--muted); text-decoration: line-through; }
+    .acc .heard { color: var(--text); font-weight: 600; }
+    .issue { font-size: .66rem; padding: .1rem .45rem; border-radius: 99px; border: 1px solid var(--border); color: var(--muted); white-space: nowrap; }
+    .issue.misread { color: var(--composition); border-color: var(--composition); }
+    .issue.omitted { color: var(--vocab); border-color: var(--vocab); }
+    .issue.added { color: var(--comprehension); border-color: var(--comprehension); }
+
+    .redrill { display: grid; gap: .5rem; grid-template-columns: 1fr; }
+    @media (min-width: 620px) { .redrill { grid-template-columns: 1fr 1fr; } }
+    .rd { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--vocab); border-radius: 8px; padding: .55rem .7rem; }
+    .rd b { color: var(--vocab); font-size: .9rem; }
+    .rd .say { font-family: var(--font-mono); font-size: .8rem; color: var(--text); display: block; margin: .2rem 0; }
+    .rd .why { font-size: .76rem; color: var(--muted); line-height: 1.5; }
+
+    details.block { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: .55rem .8rem; margin: .8rem 0; }
+    details.block summary { cursor: pointer; font-size: .82rem; font-weight: 600; color: var(--text); }
+    details.block .body { margin-top: .6rem; font-size: .88rem; line-height: 1.8; color: var(--muted); white-space: pre-wrap; }
+    details.block .body.mono { font-family: var(--font-mono); font-size: .82rem; color: var(--text); }
+
+    .self { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+    @media (max-width: 560px) { .self { grid-template-columns: 1fr; } }
+    .cell strong { display: block; font-size: .82rem; color: var(--text); }
+    .cell .hint { font-size: .74rem; color: var(--muted); line-height: 1.45; }
+    .scale { display: flex; gap: .3rem; margin-top: .35rem; }
+    .scale button { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: .35rem; border-radius: 6px; font-size: .8rem; cursor: pointer; font-family: inherit; }
+    .scale button.picked { background: var(--accent); color: #0f172a; border-color: var(--accent); font-weight: 700; }
+
+    .hist { display: flex; gap: .35rem; align-items: flex-end; height: 90px; overflow-x: auto; padding-bottom: .2rem; }
+    .hb { flex: 0 0 34px; display: flex; flex-direction: column; align-items: center; gap: .2rem; }
+    .hb .col { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 4px 4px 0 0; display: flex; align-items: flex-end; height: 64px; }
+    .hb .col i { display: block; width: 100%; background: var(--accent); border-radius: 3px 3px 0 0; }
+    .hb .v { font-family: var(--font-mono); font-size: .68rem; color: var(--text); }
+    .hb .d { font-size: .62rem; color: var(--muted); }
+    .trend { font-size: .82rem; color: var(--muted); line-height: 1.7; }
+    .trend b { color: var(--text); }
+    .missing { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; }
+    .mchip { background: rgba(251,113,133,.08); border: 1px solid var(--composition); color: var(--composition); border-radius: 99px; padding: .2rem .6rem; font-size: .78rem; font-weight: 600; }
+    .mchip span { color: var(--muted); font-weight: 400; }
+
+    .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -2px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
 <header class="page-header">
   <a href="../" class="back-link">← Hub</a>
-  <strong style="color: var(--text);">Reading Aloud Practice</strong>
-  <span style="color: var(--muted); font-size: .82rem;">Paper 4 · 10 marks · ~1 minute aloud</span>
-      <span style="flex:1;"></span>
-    <span data-studio-settings-slot></span>
-  </header>
+  <strong style="color:var(--text);">Reading Aloud</strong>
+  <span style="color:var(--muted);font-size:.82rem;">Paper 4 Part 1 · 15 marks · record, then be marked</span>
+  <span style="flex:1;"></span>
+  <span data-studio-settings-slot></span>
+</header>
 
 <main>
   <div class="hero">
-    <h1>Reading Aloud — Paper 4</h1>
+    <h1>Read it aloud. Hear it back. Get marked.</h1>
     <p>
-      Read a short passage aloud the way the examiner will hear it. Record yourself, then play it back. The
-      passages here come with optional <strong>stress + pause cues</strong> you can toggle on while you practise.
-      After each take, score yourself honestly on four dimensions: Pronunciation, Pace, Phrasing, Expression. The
-      whole rubric is 10 marks; aim for 9.
+      From 2025, Reading Aloud is worth <b style="color:var(--text)">15 marks</b>, and every passage comes with a
+      <b style="color:var(--text)">given situation</b> printed above it — who you are, who you are speaking to, and why.
+      The extra marks are there to catch students who ignore it and read everything in the same school voice.
+      So: read the situation, read the passage, record yourself, and let the examiner tell you what it actually heard.
     </p>
   </div>
 
-  <div class="browser-warn" id="browser-warn">
-    Your browser doesn't support audio recording on this page. Try Chrome, Edge, or Safari on your laptop.
+  <div class="notice notice-red hidden" id="mic-warn"></div>
+  <div class="notice notice-amber hidden" id="key-warn">
+    <b>No AI key set.</b> Recording, playback, pace, cues, self-scoring and your history all work without one.
+    Only the AI examiner needs a key — add it from the settings button at the top of this page.
   </div>
 
-  <div class="key-warn" id="key-warn" style="display:none;">
-    No Gemini API key set. You can still record and self-score; the AI Coach pass at the bottom needs a key.
-  </div>
+  <!-- ── Passage picker ───────────────────────────────── -->
+  <section class="panel">
+    <h2>Choose a passage</h2>
+    <div class="picker-row" style="margin-bottom:.6rem;">
+      <select id="pick"></select>
+      <button class="btn btn-ghost" id="pick-fresh" type="button">Next one I haven't read</button>
+    </div>
+    <div class="picker-row">
+      <select id="gen-level" style="flex:0 1 190px;">
+        <option value="P5 easy">P5 easy</option>
+        <option value="P6 medium" selected>P6 medium</option>
+        <option value="P6 hard">P6 hard</option>
+      </select>
+      <button class="btn btn-primary" id="gen-btn" type="button">✨ Generate a fresh passage</button>
+      <span class="mini" id="gen-status"></span>
+    </div>
+  </section>
 
-  <div id="passage-area"></div>
+  <!-- ── The passage ──────────────────────────────────── -->
+  <section class="panel">
+    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem;">
+      <h3 id="p-title" style="font-size:1.08rem;">—</h3>
+      <span id="p-level" class="level-tag lv-med">—</span>
+      <span id="p-gen" class="gen-tag hidden">generated</span>
+    </div>
 
-  <div style="margin-top:2rem;text-align:center;color:var(--muted);font-size:.85rem;">
-    Tip: record yourself on three different days, with the cues off. Listen back. The voice you hear improving is yours.
-  </div>
+    <div class="preamble">
+      <span class="lbl">Given situation — read this first</span>
+      <p id="p-preamble">—</p>
+      <div class="pact">
+        <div><b>Purpose</b><span>Why are you reading this?</span></div>
+        <div><b>Audience</b><span>Who is listening?</span></div>
+        <div><b>Context</b><span>Where, and when?</span></div>
+        <div><b>Tone</b><span id="p-tone">—</span></div>
+      </div>
+    </div>
+
+    <div class="picker-row" style="margin-bottom:.7rem;">
+      <button class="btn btn-ghost" id="cue-btn" type="button">Show stress &amp; pause cues</button>
+      <button class="btn btn-ghost" id="alt-btn" type="button">Swap the given situation</button>
+    </div>
+
+    <div class="passage-text" id="p-text">—</div>
+    <div class="mini" id="p-meta" style="margin-bottom:.9rem;">—</div>
+
+    <h2 style="font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:.5rem;font-weight:700;">Watch these words</h2>
+    <div class="watch-list" id="p-watch"></div>
+  </section>
+
+  <!-- ── Recorder ─────────────────────────────────────── -->
+  <section class="panel">
+    <h2>Record your take</h2>
+    <div class="rec-row">
+      <button class="btn btn-primary" id="rec-btn" type="button"><span class="rec-dot"></span> Record</button>
+      <button class="btn btn-danger" id="stop-btn" type="button" disabled>■ Stop</button>
+      <span class="timer" id="timer">0:00</span>
+      <span class="mini" id="cap-note">Stops automatically at 3:00</span>
+    </div>
+    <div class="meter"><i id="meter-fill"></i></div>
+    <div class="meter-label" id="meter-label">Input level. When you speak, this bar should move.</div>
+
+    <div class="notice notice-red hidden" id="rec-error" style="margin:.8rem 0 0;"></div>
+    <div id="playback"></div>
+    <div class="mini" id="mime-note" style="margin-top:.5rem;"></div>
+
+    <div class="picker-row" style="margin-top:.9rem;">
+      <button class="btn btn-primary" id="mark-btn" type="button" disabled>Mark my reading</button>
+      <span class="mini" id="mark-status"></span>
+    </div>
+    <div class="picker-row" style="margin-top:.6rem;">
+      <span class="mini">Examiner model:</span>
+      <input type="text" id="model-input" placeholder="site default" style="flex:0 1 220px;">
+      <button class="btn btn-ghost" id="model-save" type="button" style="font-size:.75rem;padding:.3rem .6rem;">Save</button>
+      <span class="mini" id="model-note"></span>
+    </div>
+  </section>
+
+  <!-- ── AI result ────────────────────────────────────── -->
+  <section class="panel hidden" id="result-panel">
+    <h2>The examiner's marks</h2>
+    <div id="result-body"></div>
+    <div class="notice notice-quiet" style="margin-bottom:0;">
+      These marks come from an AI listening to your recording against a house rubric written for this app.
+      SEAB does not publish band descriptors for Reading Aloud, so this is practice feedback, not a real exam mark.
+    </div>
+  </section>
+
+  <!-- ── Self check ───────────────────────────────────── -->
+  <section class="panel">
+    <h2>Your own marking</h2>
+    <p class="mini" style="margin-bottom:.75rem;">
+      Score yourself <b style="color:var(--text)">before</b> you press Mark. Learning to hear your own reading is
+      the skill that survives into the exam hall, where no one marks you out loud.
+    </p>
+    <div class="self" id="self-grid"></div>
+    <div class="notice notice-quiet hidden" id="calib" style="margin-bottom:0;"></div>
+  </section>
+
+  <!-- ── History ──────────────────────────────────────── -->
+  <section class="panel" id="hist-panel">
+    <h2>Your last takes</h2>
+    <div id="hist-body"></div>
+  </section>
+
+  <p class="mini" style="text-align:center;margin-top:1.5rem;line-height:1.7;">
+    The strongest drill on this page: read one passage twice under two different given situations.
+    If the two recordings sound the same, the tone marks are not being earned yet.
+  </p>
 </main>
 
 <script src="../shared.js"></script>
 <script src="../shared/storage.js"></script>
 <script src="../shared/lab.js"></script>
 <script src="../shared/gemini.js"></script>
+<script src="../shared/audio.js"></script>
+<script src="../shared/freshness.js"></script>
 <script>
-// ── Passages ──────────────────────────────────────────────
-const PASSAGES = [
-  {
-    id: 'lift',
-    level: 'P5 — easy',
-    title: 'Trapped in the lift',
-    plain:
-      "Mei Ling pressed the button again, but nothing happened. The lift was stuck between the third and fourth floors, its dim light flickering ominously. She took a deep breath and reminded herself that the alarm button was still there for a reason. \"Help! Is anyone out there?\" she called, her voice steady despite the racing of her heart.",
-    cued:
-      `<span class="stress">Mei Ling</span> pressed the button again,<span class="pause"></span>but <span class="stress">nothing</span> happened.<span class="pause"></span>The lift was <span class="stress">stuck</span> between the <span class="stress">third</span> and <span class="stress">fourth</span> floors,<span class="pause"></span>its dim light <span class="stress">flickering</span> ominously.<span class="pause"></span>She took a deep breath<span class="pause"></span>and reminded herself that the <span class="stress">alarm button</span> was still there for a reason.<span class="pause"></span>"<span class="stress">Help!</span> Is anyone out there?"<span class="pause"></span>she called,<span class="pause"></span>her voice <span class="stress">steady</span><span class="pause"></span>despite the racing of her heart.`,
-  },
-  {
-    id: 'champion',
-    level: 'P6 — medium',
-    title: 'The unlikely champion',
-    plain:
-      "When the bell rang to signal the start of the chess tournament, Adam adjusted his glasses and reminded himself that he had practised for this. His opponent, a tall boy from the visiting school, was already smiling confidently. Adam managed a quick nod and looked down at the board. Forty minutes later, with a single quiet move, he placed the white queen between two pawns and whispered, \"Checkmate.\"",
-    cued:
-      `When the bell rang to signal the <span class="stress">start</span> of the chess tournament,<span class="pause"></span>Adam adjusted his glasses<span class="pause"></span>and reminded himself that he had <span class="stress">practised</span> for this.<span class="pause"></span>His opponent,<span class="pause"></span>a <span class="stress">tall</span> boy from the visiting school,<span class="pause"></span>was already smiling <span class="stress">confidently</span>.<span class="pause"></span>Adam managed a quick nod<span class="pause"></span>and looked down at the board.<span class="pause"></span>Forty minutes later,<span class="pause"></span>with a single <span class="stress">quiet</span> move,<span class="pause"></span>he placed the <span class="stress">white queen</span> between two pawns<span class="pause"></span>and whispered,<span class="pause"></span>"<span class="stress">Check</span>mate."`,
-  },
-  {
-    id: 'thunder',
-    level: 'P6 — harder',
-    title: 'A thunderstorm at the park',
-    plain:
-      "The wind that had been whispering through the casuarinas suddenly grew teeth. Within seconds, fat drops of rain were chasing the children across the field. Mr Khoo blew his whistle three times — sharp, urgent, unmistakable. We gathered our bags and ran for the shelter, our laughter strangely louder than the thunder, as if joy itself could shoulder the storm aside.",
-    cued:
-      `The wind that had been <span class="stress">whispering</span> through the casuarinas<span class="pause"></span>suddenly grew <span class="stress">teeth</span>.<span class="pause"></span>Within seconds,<span class="pause"></span>fat drops of rain were <span class="stress">chasing</span> the children across the field.<span class="pause"></span>Mr Khoo blew his whistle three times<span class="pause"></span>— <span class="stress">sharp</span>, <span class="stress">urgent</span>, <span class="stress">un</span>mistakable.<span class="pause"></span>We gathered our bags and ran for the shelter,<span class="pause"></span>our laughter strangely <span class="stress">louder</span> than the thunder,<span class="pause"></span>as if <span class="stress">joy</span> itself could shoulder the storm aside.`,
-  },
-];
+(function () {
+  'use strict';
 
-// ── Build UI ──────────────────────────────────────────────
-const TOPIC_ID = 'oral-reading';
+  var TOPIC_ID = 'oral-reading';
+  var K_GEN = 'jgl.english.aloud.generated';
+  var K_ATT = 'jgl.english.aloud.attempts';
+  var K_MODEL = 'jgl.geminiModel';
+  var MAX_MS = 180000;
+  var WPM_LOW = 130, WPM_HIGH = 170;
 
-const recorderSupported = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
-if (!recorderSupported) document.getElementById('browser-warn').classList.add('show');
+  /* ── helpers ─────────────────────────────────────── */
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function $(id) { return document.getElementById(id); }
+  function readJSON(k, fb) { try { var v = JSON.parse(localStorage.getItem(k) || 'null'); return v == null ? fb : v; } catch (e) { return fb; } }
+  function writeJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function num(v, lo, hi) { var n = Number(v); if (!isFinite(n)) return lo; return Math.max(lo, Math.min(hi, Math.round(n))); }
+  function wordCount(s) { return String(s || '').trim().split(/\s+/).filter(Boolean).length; }
+  function mmss(ms) { var t = Math.max(0, Math.round(ms / 1000)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
+  function dm(iso) { var d = new Date(iso); return isNaN(d) ? '' : d.getDate() + '/' + (d.getMonth() + 1); }
 
-const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
-if (!key) document.getElementById('key-warn').style.display = 'block';
+  /* Passages are authored in a tiny markup:  *stressed*  and  |  at a sense-group break. */
+  function plainOf(marked) {
+    return String(marked || '').replace(/\*/g, '').replace(/\s*\|\s*/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  function cuedOf(marked) {
+    var s = esc(String(marked || ''));
+    s = s.replace(/\*([^*]+)\*/g, '<span class="stress">$1</span>');
+    s = s.replace(/\s*\|\s*/g, '<span class="pause"></span>');
+    return s;
+  }
 
-const area = document.getElementById('passage-area');
-const cuesOn = {};            // { passageId: true/false }
-const recordings = {};        // { passageId: { url, blob, durationSec } }
-const selfScores = {};        // { passageId: { pron, pace, phr, exp } }
-
-PASSAGES.forEach((p, idx) => {
-  cuesOn[p.id] = false;
-  const card = document.createElement('div');
-  card.className = 'passage-card';
-  card.innerHTML = `
-    <div class="passage-meta">
-      <span class="num">Passage ${idx + 1} of ${PASSAGES.length}</span>
-      <span class="level">${p.level}</span>
-    </div>
-    <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:.45rem;">${p.title}</h2>
-
-    <div class="passage-text" id="text-${p.id}">${p.plain}</div>
-
-    <div class="marks-toggle">
-      <button class="btn btn-secondary" id="toggle-${p.id}" style="font-size:.78rem;padding:.35rem .75rem;">Show stress &amp; pause cues</button>
-      <span style="font-size:.78rem;color:var(--muted);align-self:center;">${wordCount(p.plain)} words · target ~50–60 sec.</span>
-    </div>
-
-    <div class="recorder">
-      <button class="btn btn-primary" id="rec-${p.id}" ${recorderSupported ? '' : 'disabled'} style="font-size:.84rem;padding:.45rem .9rem;">● Record</button>
-      <button class="btn btn-secondary" id="stop-${p.id}" disabled style="font-size:.84rem;padding:.45rem .9rem;">■ Stop</button>
-      <span class="rec-status" id="status-${p.id}">Ready.</span>
-    </div>
-
-    <div id="audio-${p.id}"></div>
-
-    <div class="self-check">
-      ${[
-        ['pron','Pronunciation','Could every word be heard clearly?'],
-        ['pace','Pace','Was the speed natural — not rushed, not crawling?'],
-        ['phr', 'Phrasing','Did pauses fall at sense-group boundaries?'],
-        ['exp', 'Expression','Did the voice rise and fall with the meaning?'],
-      ].map(([k, label, hint]) => `
-        <div class="check-cell">
-          <strong>${label}</strong>
-          <span style="color:var(--muted);">${hint}</span>
-          <div class="scale" data-key="${k}" data-passage="${p.id}">
-            ${[1,2,3,4,5].map(n => `<button data-val="${n}">${n}</button>`).join('')}
-          </div>
-        </div>
-      `).join('')}
-    </div>
-
-    <button class="btn btn-secondary" id="ai-${p.id}" style="margin-top:1rem;font-size:.82rem;padding:.45rem .85rem;" disabled>Get AI coach feedback</button>
-    <div class="ai-feedback" id="ai-out-${p.id}">
-      <h4>Coach pass</h4>
-      <pre></pre>
-    </div>
-  `;
-  area.appendChild(card);
-
-  // Toggle cues
-  card.querySelector(`#toggle-${p.id}`).addEventListener('click', () => {
-    cuesOn[p.id] = !cuesOn[p.id];
-    const textEl = card.querySelector(`#text-${p.id}`);
-    textEl.innerHTML = cuesOn[p.id] ? p.cued : p.plain;
-    card.querySelector(`#toggle-${p.id}`).textContent = cuesOn[p.id] ? 'Hide cues' : 'Show stress & pause cues';
-  });
-
-  // Recording
-  let mediaRecorder = null;
-  let chunks = [];
-  let startTs = 0;
-
-  const recBtn  = card.querySelector(`#rec-${p.id}`);
-  const stopBtn = card.querySelector(`#stop-${p.id}`);
-  const status  = card.querySelector(`#status-${p.id}`);
-  const audOut  = card.querySelector(`#audio-${p.id}`);
-  const aiBtn   = card.querySelector(`#ai-${p.id}`);
-
-  recBtn.addEventListener('click', async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
-      chunks = [];
-      mediaRecorder.addEventListener('dataavailable', (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); });
-      mediaRecorder.addEventListener('stop', () => {
-        const blob = new Blob(chunks, { type: 'audio/webm' });
-        const url  = URL.createObjectURL(blob);
-        const durationSec = Math.round((Date.now() - startTs) / 1000);
-        recordings[p.id] = { url, blob, durationSec };
-        audOut.innerHTML = `<audio class="playback" controls src="${url}"></audio>
-          <div style="font-size:.78rem;color:var(--muted);">${durationSec}s recorded · ${wordsPerMin(p.plain, durationSec)} wpm.</div>`;
-        status.textContent = 'Done. Listen back, then self-score below.';
-        status.className = 'rec-status done';
-        aiBtn.disabled = false;
-        stream.getTracks().forEach(t => t.stop());
-        if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed(TOPIC_ID);
-      });
-      mediaRecorder.start();
-      startTs = Date.now();
-      recBtn.disabled = true;
-      stopBtn.disabled = false;
-      status.textContent = '● Recording... read aloud now.';
-      status.className = 'rec-status live';
-    } catch (e) {
-      status.textContent = 'Microphone permission denied or unavailable.';
-      status.className = 'rec-status';
+  /* ── the bank ────────────────────────────────────── */
+  var BANK = [
+    {
+      id: 'lift', level: 'P5 easy', title: 'Stuck between floors',
+      preamble: 'You are telling your Primary 5 class about something that happened to your neighbour in your block last week. Read it in a tense voice that settles into relief.',
+      targetTone: 'tense, then relieved',
+      marked: '*Mei Ling* pressed the button again, | but *nothing* happened. | The lift had stopped between the *third* and *fourth* floors, | and the dim light *flickered* above her head. | She took a *slow* breath | and reminded herself that the *alarm button* was there for exactly this reason. | She pressed it *firmly* | and waited. | "Hello? Is anyone *there*?" she called. | A *crackle* answered, | then a calm voice: | "We can *see* you. | Sit down and stay *still*. | We are *coming*." | Somewhere above her a door *clanged* open, | and footsteps began to *hurry* down the concrete stairs. | The lift did not move, | but Mei Ling\'s heart *finally* did.',
+      watchWords: [
+        { word: 'Mei Ling', why: 'A name. Give both syllables equal weight and do not swallow the second one.' },
+        { word: 'flickered', why: 'The -ed is a /d/ sound. Land it, or the word turns into "flicker".' },
+        { word: 'breath', why: 'Short e, and it ends in the same th as "path". Not "breathe".' },
+        { word: 'exactly', why: 'The kt cluster in the middle needs both sounds: eg-ZAKT-ly.' },
+        { word: 'crackle', why: 'Two hard k sounds. Say them separately from the l.' },
+        { word: 'answered', why: 'The w is silent: AN-serd.' }
+      ]
+    },
+    {
+      id: 'busseat', level: 'P5 easy', title: 'The last seat on the bus',
+      preamble: 'You are reading a short story to a group of Primary 1 pupils at your school\'s Reading Buddies session. Read it warmly and slowly, the way you would to a much younger child.',
+      targetTone: 'warm, gentle, unhurried',
+      marked: 'Ravi found the *last* empty seat on the crowded bus | and sank into it *gratefully*. | Two stops later, | an *elderly* man climbed on, | holding a bag of vegetables in one hand | and the rail in the *other*. | Ravi did not think about it for long. | He *stood up*, | tapped the man *gently* on the arm | and offered the seat with a small *smile*. | The man *nodded* his thanks | and sat down *slowly*. | The bus lurched forward before either of them had found their balance. | For the rest of the journey Ravi *stood*, | swaying with the bus, | feeling strangely *taller* than before.',
+      watchWords: [
+        { word: 'gratefully', why: 'Four syllables: GRATE-ful-ly. Do not compress it to "gratefly".' },
+        { word: 'vegetables', why: 'Say VEJ-ta-bles, but keep the ending crisp. It is the plural s that gets dropped.' },
+        { word: 'elderly', why: 'Three syllables, with a clear l in the middle: EL-der-ly.' },
+        { word: 'climbed', why: 'The b is silent, but the -ed is not: CLIMED.' },
+        { word: 'thanks', why: 'The th plus nks ending is the hardest cluster in the passage. Slow down for it.' },
+        { word: 'swaying', why: 'Let the vowel stretch. It is the word that carries the movement.' }
+      ]
+    },
+    {
+      id: 'kite', level: 'P5 easy', title: 'The kite that would not fly',
+      preamble: 'You are a storyteller on a children\'s morning radio programme. Read it brightly, remembering the listeners cannot see any pictures.',
+      targetTone: 'bright, vivid, encouraging',
+      marked: 'For *twenty minutes* the kite refused to leave the ground. | *Amirah* ran the length of the field, | the string *burning* her palm, | and still the paper diamond dragged behind her like a *stubborn dog*. | Her father *laughed* | and pointed at the trees. | "Watch the *leaves*," he said. | "The *wind* will tell you when." | So she *waited*. | When the branches began to *whisper*, | she ran once more, | and this time the kite *lifted*, | *climbed*, | and hung *high* above the field, | tugging at her hand as though it wanted to take her *with it*.',
+      watchWords: [
+        { word: 'refused', why: 'The -sed here is a /zd/ sound: ri-FYOOZD.' },
+        { word: 'Amirah', why: 'A name: a-MEE-rah. Stress the middle syllable.' },
+        { word: 'stubborn', why: 'Two b sounds run together. STUB-burn, not "stuborn".' },
+        { word: 'branches', why: 'The -es adds a whole syllable: BRAN-chiz.' },
+        { word: 'leaves', why: 'Ends in a v sound, not an f. Not "leafs".' },
+        { word: 'whisper', why: 'Start it quietly. The word should sound like what it means.' }
+      ]
+    },
+    {
+      id: 'chess', level: 'P6 medium', title: 'The unlikely champion',
+      preamble: 'You are announcing the result of the school chess final on the morning assembly broadcast. Read it with a quiet build-up, and let the last word land.',
+      targetTone: 'controlled, building to a quiet finish',
+      marked: 'When the bell rang to signal the *start* of the tournament, | Adam adjusted his glasses | and reminded himself that he had *practised* for exactly this. | His opponent, | a *tall* boy from the visiting school, | was already smiling *confidently* across the board. | Adam managed a *quick* nod | and looked down at his pieces. | Forty minutes later, | the smile had *gone*. | The visiting boy\'s hand *hovered*, | *retreated*, | and hovered *again*. | With a single *quiet* move, | Adam slid his white queen between two pawns, | folded his hands in his lap | and said, almost *apologetically*, | "*Check*mate."',
+      watchWords: [
+        { word: 'practised', why: 'The -sed is a /st/ sound: PRAK-tist.' },
+        { word: 'opponent', why: 'Three syllables with the stress in the middle: o-PO-nent.' },
+        { word: 'confidently', why: 'Four syllables. Do not let it collapse into "confidently" said as three.' },
+        { word: 'hovered', why: 'Short o, and a clear -d at the end.' },
+        { word: 'apologetically', why: 'Six syllables: a-po-lo-JET-i-cally. Take it slowly; rushing it is what breaks it.' },
+        { word: 'Checkmate', why: 'The last word of the passage. Give it a full stop of silence before it.' }
+      ]
+    },
+    {
+      id: 'thunder', level: 'P6 medium', title: 'A thunderstorm at the park',
+      preamble: 'You are reading a page from your own diary aloud to your English teacher, who asked to hear how you write about weather. Read it as though you are remembering it.',
+      targetTone: 'reflective, then quickening',
+      marked: 'The wind that had been *whispering* through the casuarinas | suddenly grew *teeth*. | Within seconds, | fat drops of rain were *chasing* the children across the open field. | Mr Khoo blew his whistle three times, | *sharp*, | *urgent*, | *unmistakable*, | and thirty pairs of shoes turned *at once*. | The whole field emptied in less than a *minute*. | We gathered our bags and ran for the shelter, | our laughter strangely *louder* than the thunder, | as if *joy* itself could shoulder the storm aside. | By the time we arrived, | we were *soaked* through, | *breathless*, | and none of us minded in the *least*.',
+      watchWords: [
+        { word: 'casuarinas', why: 'The trees along the beach: ka-zhoo-a-REE-nas. Five syllables.' },
+        { word: 'unmistakable', why: 'Stress the third syllable: un-mis-TAKE-a-ble.' },
+        { word: 'thunder', why: 'A hard, unvoiced th. Not "tunder".' },
+        { word: 'breathless', why: 'The th sits between two consonants. Slow the word rather than skate over it.' },
+        { word: 'soaked', why: 'The -ked ending is a /kt/ sound: SOHKT.' },
+        { word: 'drops', why: 'A plural s that is easy to lose in a run of fast words.' }
+      ]
+    },
+    {
+      id: 'hawker', level: 'P6 medium', title: 'Closing time at the hawker centre',
+      preamble: 'You are a tour guide introducing an old hawker centre to a group of overseas visitors who have just arrived in Singapore. Read it in a warm, welcoming tone.',
+      targetTone: 'warm, welcoming, a little proud',
+      marked: 'It is almost ten o\'clock, | and the hawker centre is beginning to *breathe out*. | The chilli crab stall has sold its *last* plate; | the drinks uncle is stacking chairs with a *clatter* | that everybody here has heard since *childhood*. | At the end of the row, | an old auntie *wipes down* her table for the *fourth* time, | though nobody is waiting. | She has cooked the same bowl of fishball noodles for *thirty-one years*. | Tomorrow at six she will unlock the shutter, | *light the stove*, | and do it *again*, | and the whole street will smell like *morning*.',
+      watchWords: [
+        { word: 'chilli', why: 'Two clear syllables with a short i: CHI-li.' },
+        { word: 'clatter', why: 'The word should sound like the chairs. Crisp t sounds.' },
+        { word: 'childhood', why: 'Two full syllables, both ending in a d sound you can hear.' },
+        { word: 'wipes', why: 'The plural s here is a /s/, not a /z/. It is easy to drop before "down".' },
+        { word: 'thirty-one', why: 'Unvoiced th at the front, and a clear break before "one".' },
+        { word: 'though', why: 'Voiced th plus a silent gh: THOH.' }
+      ]
+    },
+    {
+      id: 'library', level: 'P6 medium', title: 'The book that came back',
+      preamble: 'You are speaking at your school\'s Reading Week assembly, telling the whole school a true story about the library. Read it clearly, with a hint of mischief.',
+      targetTone: 'clear, light, quietly amused',
+      marked: 'In *2011*, | a boy *borrowed* a book about volcanoes from our school library | and forgot to *return* it. | He left for secondary school, | then for university, | and the book *travelled with him* in every box he packed. | Last month, | a *parcel* arrived at the general office. | Inside was the *same* book, | its spine *cracked*, | its pages *softened* by fourteen years of handling, | and a note: | "I am *sorry*. | I read it *eleven times*." | Mrs Tan has put it back on the shelf, | *exactly* where it belongs, | with the note tucked inside the cover.',
+      watchWords: [
+        { word: '2011', why: 'Read it as "two thousand and eleven", not as four separate digits.' },
+        { word: 'volcanoes', why: 'The plural takes an -oes ending: vol-KAY-nohz.' },
+        { word: 'borrowed', why: 'Short o, and the -ed is a /d/: BO-rohd.' },
+        { word: 'cracked', why: 'The -ked ending is a /kt/ sound: KRAKT.' },
+        { word: 'softened', why: 'The t is silent: SOF-fend. Almost everyone says it wrong first time.' },
+        { word: 'parcel', why: 'PAR-sel, with a clear l at the end.' }
+      ]
+    },
+    {
+      id: 'reef', level: 'P6 hard', title: 'The reef at Pulau Hantu',
+      preamble: 'You are presenting a short talk to a panel of judges at a science and environment competition. Read it precisely, with the confidence of someone who has seen it for themselves.',
+      targetTone: 'precise, confident, persuasive',
+      marked: 'Six metres below the surface, | the water at *Pulau Hantu* turns the colour of weak tea, | and most visitors assume there is *nothing* worth seeing. | They are *wrong*. | Feather stars *cling* to the ledges; | a giant clam, | *older than anybody on the boat*, | closes slowly as a shadow passes. | Our reefs survive in *silt* | that would *smother* reefs elsewhere, | which is *precisely* what makes them *extraordinary*. | They are not pale copies of the Great Barrier Reef. | They are a *harder*, more *stubborn* kind of success, | and they are *ten minutes* from a container terminal.',
+      watchWords: [
+        { word: 'Pulau Hantu', why: 'An island name: POO-lau HAN-too. Keep the two words separate.' },
+        { word: 'metres', why: 'MEE-ters. The plural s is easy to lose before "below".' },
+        { word: 'smother', why: 'Voiced th, and it rhymes with "mother", not with "other" said fast.' },
+        { word: 'precisely', why: 'pri-SICE-ly. The middle s is a /s/, not a /z/.' },
+        { word: 'extraordinary', why: 'Five syllables in speech: ik-STROR-din-ry. Do not read it letter by letter.' },
+        { word: 'terminal', why: 'The last word. Three syllables, all of them audible.' }
+      ]
+    },
+    {
+      id: 'handwriting', level: 'P6 hard', title: 'My grandmother\'s handwriting',
+      preamble: 'You are reading a tribute you wrote for your grandmother at a small family gathering. Read it slowly and steadily; the room is quiet and everyone is listening.',
+      targetTone: 'steady, tender, unhurried',
+      marked: 'My grandmother wrote her shopping lists in a *script* I could never quite read, | all loops and sudden angles, | as though the words were in a *hurry* to be somewhere else. | She left school at *eleven* | and taught herself the *rest*. | When she signed the form for my first passport, | she *practised her own name six times* | on the back of an envelope | before she wrote it on the *line*. | I *keep* that envelope. | It says more about her than any *photograph* in this room, | and I am *not ready* to throw it away.',
+      watchWords: [
+        { word: 'script', why: 'The scr cluster at the front and the pt at the back. Both need to be heard.' },
+        { word: 'though', why: 'Voiced th and a silent gh. One syllable: THOH.' },
+        { word: 'taught', why: 'The gh is silent: TAWT.' },
+        { word: 'practised', why: 'PRAK-tist. The -sed is a /st/ sound.' },
+        { word: 'envelope', why: 'EN-vuh-lohp. Stress the first syllable.' },
+        { word: 'photograph', why: 'PHO-to-graf, not "photo-graph" with equal weight on both halves.' }
+      ]
+    },
+    {
+      id: 'blackout', level: 'P6 hard', title: 'The night the lights went out',
+      preamble: 'You are a news presenter reading the opening item of the evening bulletin. Read it in a clear, measured, professional tone.',
+      targetTone: 'measured, neutral, authoritative',
+      marked: 'At twenty past eight last night, | power failed across *four blocks* in *Ang Mo Kio*, | leaving roughly *six hundred* households in darkness. | Lifts stopped *between floors*. | Traffic lights at two junctions went *dark*, | and drivers, | to their credit, | *waved one another through*. | Engineers traced the fault to a *damaged* underground cable | and restored supply by *half past eleven*. | *No injuries* were reported. | This morning, | residents described the *strangest* detail of the evening: | for two and a half hours, | the corridors were full of *neighbours who had never spoken*, | standing in doorways, | *talking*.',
+      watchWords: [
+        { word: 'Ang Mo Kio', why: 'Three separate words, three clear beats. Do not run them together.' },
+        { word: 'households', why: 'The -lds ending is a real cluster. HOUSE-holdz.' },
+        { word: 'junctions', why: 'JUNK-shuns. The plural s matters in a news register.' },
+        { word: 'engineers', why: 'Stress the last syllable: en-ji-NEERS.' },
+        { word: 'damaged', why: 'The -ged is a soft /jd/: DAM-ijd.' },
+        { word: 'strangest', why: 'The -ngest ending. Keep the st crisp.' },
+        { word: 'corridors', why: 'CO-ri-dors. Three syllables, stress on the first.' }
+      ]
     }
+  ];
+
+  var ALT_SITUATIONS = [
+    { tone: 'warm and welcoming', text: 'You are a tour guide reading this to overseas visitors who have just arrived. Read it in a warm, welcoming tone.' },
+    { tone: 'calm and measured', text: 'You are a news presenter reading this as the opening of the evening bulletin. Read it in a clear, measured tone.' },
+    { tone: 'gentle and unhurried', text: 'You are reading this to a five-year-old at bedtime. Read it gently and slowly.' },
+    { tone: 'urgent', text: 'You are a reporter at the scene, speaking live on the radio. Read it with urgency.' },
+    { tone: 'quietly proud', text: 'You are speaking at your school prize-giving, to parents and teachers. Read it with quiet pride.' },
+    { tone: 'confiding', text: 'You are telling your closest friend something you have not told anyone else. Read it quietly, as if the two of you are the only people in the room.' }
+  ];
+
+  function normalise(p) {
+    var out = {
+      id: p.id || ('gen-' + Math.random().toString(36).slice(2, 8)),
+      level: p.level || 'P6 medium',
+      title: p.title || 'Untitled passage',
+      preamble: p.preamble || '',
+      targetTone: p.targetTone || '',
+      marked: p.marked || '',
+      generated: !!p.generated,
+      watchWords: Array.isArray(p.watchWords) ? p.watchWords.filter(function (w) { return w && w.word; }).slice(0, 8) : []
+    };
+    out.text = plainOf(out.marked);
+    out.cued = cuedOf(out.marked);
+    out.words = wordCount(out.text);
+    return out;
+  }
+
+  function freshKey(p) {
+    return (window.JglFresh ? JglFresh.hash(p.title + '::' + String(p.text || '').slice(0, 40)) : p.id);
+  }
+
+  var passages = BANK.map(normalise);
+  readJSON(K_GEN, []).forEach(function (g) {
+    try { passages.push(normalise(Object.assign({}, g, { generated: true }))); } catch (e) {}
   });
 
-  stopBtn.addEventListener('click', () => {
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-    recBtn.disabled = false;
-    stopBtn.disabled = true;
+  /* ── page state ──────────────────────────────────── */
+  var current = null;
+  var cuesOn = false;
+  var rec = null;
+  var take = null;           // { blob, url, mimeType, durationMs, base64, wpm, peak }
+  var lastMark = null;
+  var self = {};             // { pron, pace, phr, exp }
+  var peakLevel = 0;
+  var altIndex = -1;
+
+  /* ── picker ──────────────────────────────────────── */
+  function buildPicker() {
+    var groups = ['P5 easy', 'P6 medium', 'P6 hard'];
+    var sel = $('pick');
+    sel.innerHTML = groups.map(function (g) {
+      var items = passages.filter(function (p) { return p.level === g; });
+      if (!items.length) return '';
+      return '<optgroup label="' + esc(g) + '">' + items.map(function (p) {
+        return '<option value="' + esc(p.id) + '">' + (p.generated ? '✨ ' : '') + esc(p.title) + '</option>';
+      }).join('') + '</optgroup>';
+    }).join('');
+    if (current) sel.value = current.id;
+  }
+
+  function levelClass(lv) {
+    if (/P5/.test(lv)) return 'lv-p5';
+    if (/hard/i.test(lv)) return 'lv-hard';
+    return 'lv-med';
+  }
+
+  function select(p, opts) {
+    current = p;
+    altIndex = -1;
+    cuesOn = false;
+    resetTake();
+    self = {};
+    lastMark = null;
+    $('result-panel').classList.add('hidden');
+    $('calib').classList.add('hidden');
+
+    $('p-title').textContent = p.title;
+    var lv = $('p-level');
+    lv.textContent = p.level;
+    lv.className = 'level-tag ' + levelClass(p.level);
+    $('p-gen').classList.toggle('hidden', !p.generated);
+    $('p-preamble').textContent = p.preamble;
+    $('p-tone').textContent = p.targetTone || 'set by the situation above';
+    renderText();
+    renderWatch();
+    renderSelf();
+    $('pick').value = p.id;
+
+    if (window.JglFresh && !(opts && opts.noMark)) {
+      try { JglFresh.mark('aloud', freshKey(p), { title: p.title, first: String(p.text).slice(0, 60) }); } catch (e) {}
+    }
+  }
+
+  function renderText() {
+    $('p-text').innerHTML = cuesOn ? current.cued : esc(current.text);
+    $('cue-btn').textContent = cuesOn ? 'Hide cues' : 'Show stress & pause cues';
+    var lo = Math.round(current.words / WPM_HIGH * 60);
+    var hi = Math.round(current.words / WPM_LOW * 60);
+    $('p-meta').textContent = current.words + ' words · aim to finish in ' + lo + '–' + hi + ' seconds (' + WPM_LOW + '–' + WPM_HIGH + ' words a minute)';
+  }
+
+  function renderWatch() {
+    var host = $('p-watch');
+    if (!current.watchWords.length) { host.innerHTML = '<span class="mini">No trap words flagged for this passage.</span>'; return; }
+    host.innerHTML = current.watchWords.map(function (w) {
+      return '<button type="button" class="watch"><b>' + esc(w.word) + '</b><span class="why">' + esc(w.why || '') + '</span></button>';
+    }).join('');
+    Array.prototype.forEach.call(host.querySelectorAll('.watch'), function (b) {
+      b.addEventListener('click', function () { b.classList.toggle('open'); });
+    });
+  }
+
+  $('cue-btn').addEventListener('click', function () { cuesOn = !cuesOn; renderText(); });
+
+  $('alt-btn').addEventListener('click', function () {
+    if (!current) return;
+    altIndex = (altIndex + 1) % ALT_SITUATIONS.length;
+    var a = ALT_SITUATIONS[altIndex];
+    current = Object.assign({}, current, { preamble: a.text, targetTone: a.tone });
+    $('p-preamble').textContent = a.text;
+    $('p-tone').textContent = a.tone;
+    $('mark-status').textContent = 'New situation. Same words. It should not sound the same.';
   });
 
-  // Self-check buttons
-  card.querySelectorAll('.scale').forEach(scale => {
-    const k  = scale.dataset.key;
-    const pid = scale.dataset.passage;
-    scale.querySelectorAll('button').forEach(b => {
-      b.addEventListener('click', () => {
-        selfScores[pid] = selfScores[pid] || {};
-        selfScores[pid][k] = Number(b.dataset.val);
-        scale.querySelectorAll('button').forEach(x => x.classList.remove('picked'));
-        b.classList.add('picked');
-      });
+  $('pick').addEventListener('change', function () {
+    var p = passages.filter(function (x) { return x.id === $('pick').value; })[0];
+    if (p) select(p);
+  });
+
+  $('pick-fresh').addEventListener('click', function () {
+    var p = null;
+    if (window.JglFresh) { try { p = JglFresh.pickUnseen('aloud', passages, freshKey); } catch (e) {} }
+    if (!p) p = passages[Math.floor(Math.random() * passages.length)];
+    select(p);
+  });
+
+  /* ── generation ──────────────────────────────────── */
+  var GEN_SYSTEM = [
+    'You write Reading Aloud passages for Part 1 of the Singapore PSLE English Paper 4 Oral Communication, 2025 format.',
+    'Every passage is preceded by a given situation: one or two sentences naming who the student is, who they are speaking to, why they are speaking, and the tone required.',
+    'Content must be suitable for a 12-year-old, set in or near Singapore, with no violence, injury, death, or distressing material.',
+    'Write in standard British English spelling. Return JSON only, with no commentary and no code fence.'
+  ].join(' ');
+
+  function genPrompt(level, avoid) {
+    var lines = [];
+    lines.push('Write ONE new Reading Aloud passage at this difficulty: ' + level + '.');
+    lines.push('');
+    lines.push('Requirements:');
+    lines.push('- The passage itself is 90 to 130 words of connected prose. Narrative or descriptive, one clear situation, a definite last line.');
+    lines.push('- Include a variety of punctuation: at least one question or piece of direct speech, and at least one comma-separated list, so there is something to read expressively.');
+    lines.push('- The "marked" field is the passage written in a small markup: wrap 8 to 14 words that should be stressed in *asterisks*, and put a vertical bar | at every sense-group break (roughly one every five to nine words). Do not use any other symbols.');
+    lines.push('- "watchWords" lists 5 to 7 words that ACTUALLY APPEAR in the passage and are pronunciation traps for a Singaporean student: silent letters, -ed or plural -s endings, th sounds, consonant clusters, multi-syllable words, or proper nouns. Each "why" is one short sentence of practical advice.');
+    lines.push('- "targetTone" is two or three words describing how it should sound.');
+    lines.push('');
+    if (avoid && avoid.length) {
+      lines.push('Do NOT generate anything similar in title, setting, character, or situation to any of these, which the student has already read:');
+      avoid.forEach(function (a) { lines.push('- ' + a); });
+      lines.push('');
+    }
+    lines.push('Return exactly this JSON shape:');
+    lines.push('{"title":"...","level":"' + level + '","preamble":"...","targetTone":"...","marked":"...","watchWords":[{"word":"...","why":"..."}]}');
+    return lines.join('\n');
+  }
+
+  $('gen-btn').addEventListener('click', function () {
+    var btn = $('gen-btn'), st = $('gen-status');
+    if (!hasKey()) { st.textContent = 'Add a Gemini key from the settings button to generate passages.'; return; }
+    var level = $('gen-level').value;
+    var avoid = [];
+    if (window.JglFresh) { try { avoid = JglFresh.avoidList('aloud', 12); } catch (e) {} }
+    btn.disabled = true;
+    st.innerHTML = '<span class="spinner"></span> Writing a passage you have not read...';
+
+    window.askGemini(Object.assign({
+      system: GEN_SYSTEM,
+      prompt: genPrompt(level, avoid),
+      temperature: 0.95,
+      maxTokens: 1600,
+      responseMimeType: 'application/json',
+      asJson: true
+    }, modelOpt())).then(function (raw) {
+      var p = normalise(Object.assign({}, raw, { level: level, generated: true, id: 'gen-' + Date.now() }));
+      if (p.words < 50) throw new Error('That came back too short. Try again.');
+      var store = readJSON(K_GEN, []);
+      store.push({ id: p.id, level: p.level, title: p.title, preamble: p.preamble, targetTone: p.targetTone, marked: p.marked, watchWords: p.watchWords });
+      writeJSON(K_GEN, store.slice(-12));
+      passages.push(p);
+      if (window.JglFresh) { try { JglFresh.mark('aloud', freshKey(p), { title: p.title, first: String(p.text).slice(0, 60) }); } catch (e) {} }
+      buildPicker();
+      select(p, { noMark: true });
+      st.textContent = 'New passage ready.';
+    }).catch(function (e) {
+      st.textContent = friendlyError(e);
+    }).then(function () {
+      btn.disabled = false;
     });
   });
 
-  // AI Coach pass
-  aiBtn.addEventListener('click', async () => {
-    const fb = card.querySelector(`#ai-out-${p.id}`);
-    const pre = fb.querySelector('pre');
-    fb.classList.add('show');
-    pre.textContent = 'Asking the Coach...';
+  /* ── key + model ─────────────────────────────────── */
+  function hasKey() {
+    try { return !!(window.JglStorage && JglStorage.getGeminiKey()) || !!localStorage.getItem('jgl.geminiKey'); }
+    catch (e) { return false; }
+  }
+  function modelOpt() {
+    var m = '';
+    try { m = localStorage.getItem(K_MODEL) || ''; } catch (e) {}
+    return m ? { model: m } : {};
+  }
+  function refreshKeyNotice() { $('key-warn').classList.toggle('hidden', hasKey()); }
+  document.addEventListener('jgl:gemini-key-changed', refreshKeyNotice);
 
-    const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
-    if (!k) { pre.textContent = 'No Gemini key set. Add one in How-to-use.'; return; }
-    const sc = selfScores[p.id] || {};
-    const rec = recordings[p.id] || {};
-    try {
-      const text = await window.askGemini({
-        system: 'You are a calm, specific PSLE English Oral coach. The student has just recorded a Reading Aloud take. You have NOT heard the audio. Use the passage, target pace, and self-scores to coach them: pick the ONE dimension most likely to be holding them back, and give a 2-3 sentence drill they can try on the next take. No emoji. No markdown. Plain text only.',
-        prompt:
-          `Passage (${wordCount(p.plain)} words): "${p.plain}"\n\n` +
-          `Recording duration: ${rec.durationSec || 'unknown'} seconds (target ${Math.round(wordCount(p.plain)/2.5)}–${Math.round(wordCount(p.plain)/2.2)} s).\n` +
-          `Self-scores out of 5: Pronunciation=${sc.pron||'?'}, Pace=${sc.pace||'?'}, Phrasing=${sc.phr||'?'}, Expression=${sc.exp||'?'}.\n\n` +
-          `Coach them in 3–5 sentences. Format:\nFOCUS: <the one dimension>\nWHY: <1 sentence>\nNEXT TAKE: <a specific drill in 2 sentences>`,
-        temperature: 0.4,
-        maxTokens: 350,
-        thinkingBudget: 0,
-      });
-      pre.textContent = text;
-    } catch (e) {
-      pre.textContent = 'Coach error: ' + (e?.message || e);
+  (function initModel() {
+    var v = '';
+    try { v = localStorage.getItem(K_MODEL) || ''; } catch (e) {}
+    $('model-input').value = v;
+    $('model-note').textContent = v ? 'Using ' + v : 'Leave blank unless the examiner reports a retired model.';
+    $('model-save').addEventListener('click', function () {
+      var t = $('model-input').value.trim();
+      try { if (t) localStorage.setItem(K_MODEL, t); else localStorage.removeItem(K_MODEL); } catch (e) {}
+      $('model-note').textContent = t ? 'Using ' + t : 'Back to the site default.';
+    });
+  })();
+
+  function friendlyError(e) {
+    var code = e && e.code, msg = (e && e.message) || String(e);
+    if (code === 'NO_KEY') return 'No Gemini key set. Add one from the settings button at the top of this page.';
+    if (code === 'NETWORK') return 'Could not reach Gemini. Check your connection and try again.';
+    if (code === 'RATE_LIMIT') return 'Gemini is rate limiting the key right now. Wait a minute, then try again.';
+    if (code === 'AUDIO_TOO_LARGE') return 'That recording is too long to send. Keep takes under three minutes.';
+    if (/no longer available|not found|404/i.test(msg)) {
+      return 'That Gemini model has been retired. Type a current model name into the Examiner model box below and save, for example gemini-flash-latest.';
+    }
+    return 'Marking failed: ' + msg;
+  }
+
+  /* ── recorder ────────────────────────────────────── */
+  var sup = window.JglAudio ? JglAudio.support() : { ok: false, reason: 'UNSUPPORTED', mimeType: '' };
+  if (!sup.ok) {
+    var w = $('mic-warn');
+    w.classList.remove('hidden');
+    if (sup.reason === 'INSECURE_CONTEXT') {
+      w.innerHTML = '<b>Recording needs a secure connection.</b> This page has to be served over https, or from localhost. On the live site (harmanjohll.github.io) it will work; opening the file directly from your hard drive will not.';
+    } else if (sup.reason === 'NO_GETUSERMEDIA') {
+      w.innerHTML = '<b>This browser will not give the page a microphone.</b> That usually means you are inside an app\'s built-in browser. Open the page in Chrome or Safari itself and it will work.';
+    } else {
+      w.innerHTML = '<b>This browser cannot record audio.</b> Try Chrome, Edge, Firefox, or Safari. Everything else on this page still works.';
+    }
+    $('rec-btn').disabled = true;
+  }
+  $('mime-note').textContent = sup.ok ? ('Recording format on this browser: ' + sup.mimeType) : '';
+
+  function setMeter(v) {
+    var pct = Math.round(Math.max(0, Math.min(1, v)) * 100);
+    $('meter-fill').style.width = pct + '%';
+    if (v > peakLevel) peakLevel = v;
+  }
+
+  function resetTake() {
+    if (take && take.url) { try { URL.revokeObjectURL(take.url); } catch (e) {} }
+    take = null;
+    peakLevel = 0;
+    $('playback').innerHTML = '';
+    $('mark-btn').disabled = true;
+    $('mark-status').textContent = '';
+    $('timer').textContent = '0:00';
+    $('timer').classList.remove('live');
+    setMeter(0);
+    $('rec-error').classList.add('hidden');
+    $('meter-label').textContent = 'Input level. When you speak, this bar should move.';
+  }
+
+  function showRecError(msg) {
+    var el = $('rec-error');
+    el.classList.remove('hidden');
+    el.innerHTML = msg;
+  }
+
+  $('rec-btn').addEventListener('click', function () {
+    if (!current) return;
+    resetTake();
+    $('rec-btn').disabled = true;
+    rec = JglAudio.createRecorder({
+      maxMs: MAX_MS,
+      onLevel: setMeter,
+      onTick: function (ms) {
+        $('timer').textContent = mmss(ms);
+        var left = MAX_MS - ms;
+        $('cap-note').textContent = left < 30000 ? ('Stopping in ' + Math.max(0, Math.round(left / 1000)) + ' s') : 'Stops automatically at 3:00';
+        if (ms > 3000 && peakLevel < 0.05) $('meter-label').textContent = 'The bar is not moving. Check that the right microphone is selected, and speak up.';
+      }
+    });
+    rec.start().then(function () {
+      $('stop-btn').disabled = false;
+      $('timer').classList.add('live');
+      $('meter-label').textContent = 'Recording. Read the passage now.';
+      $('mime-note').textContent = 'Recording format on this browser: ' + (rec.mimeType || sup.mimeType);
+    }).catch(function (e) {
+      $('rec-btn').disabled = false;
+      var extra = '';
+      if (e && e.code === 'PERM_DENIED') {
+        extra = '<br><span class="mini">Chrome or Edge: click the padlock in the address bar, set Microphone to Allow, reload. Safari on a Mac: Safari menu, Settings for This Website, Microphone, Allow. iPhone: Settings, Safari, Microphone, Ask, then reload and tap Allow.</span>';
+      }
+      showRecError('<b>' + esc((e && e.message) || 'Recording could not start.') + '</b>' + extra);
+    });
+  });
+
+  function finishTake(result) {
+    $('rec-btn').disabled = false;
+    $('stop-btn').disabled = true;
+    $('timer').classList.remove('live');
+    $('cap-note').textContent = 'Stops automatically at 3:00';
+    setMeter(0);
+
+    if (!result || !result.blob || result.blob.size < 1200) {
+      showRecError('<b>That recording came back empty.</b> The microphone was open but nothing was captured. Check that the right input is selected in your system sound settings, then record again.');
+      return;
+    }
+    var secs = Math.max(1, result.durationMs / 1000);
+    var wpm = Math.round(current.words / secs * 60);
+    take = Object.assign({}, result, { wpm: wpm, peak: peakLevel });
+
+    var cls = (wpm >= WPM_LOW && wpm <= WPM_HIGH) ? 'good' : 'warn';
+    var note = wpm > WPM_HIGH ? 'too fast — this is the single commonest way marks are lost'
+             : wpm < WPM_LOW ? 'too slow — the examiner starts to hear it as word-by-word'
+             : 'inside the target range';
+
+    $('playback').innerHTML =
+      '<audio class="playback" controls src="' + esc(result.url) + '"></audio>' +
+      '<div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">' +
+        '<span class="wpm">' + mmss(result.durationMs) + '</span>' +
+        '<span class="wpm ' + cls + '">' + wpm + ' wpm — ' + esc(note) + '</span>' +
+      '</div>';
+
+    $('mime-note').textContent = 'Recording format: ' + (result.mimeType || 'unknown') + ' · ' + Math.round(result.blob.size / 1024) + ' KB';
+    if (peakLevel < 0.06) {
+      showRecError('<b>The microphone barely picked anything up.</b> The file exists but it is very quiet. Play it back; if you cannot hear yourself, the examiner will not either. Move closer and record again.');
+    }
+    $('mark-btn').disabled = false;
+    $('mark-status').textContent = hasKey() ? 'Listen back first. Then mark it.' : 'Listen back and self-score. AI marking needs a key.';
+
+    try { if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed(TOPIC_ID); } catch (e) {}
+  }
+
+  $('stop-btn').addEventListener('click', function () {
+    if (!rec) return;
+    $('stop-btn').disabled = true;
+    rec.stop().then(finishTake).catch(function (e) {
+      $('rec-btn').disabled = false;
+      showRecError('<b>' + esc((e && e.message) || 'Could not save that recording.') + '</b>');
+    });
+  });
+
+  // iOS mutes capture when the tab goes to the background, which produces
+  // a silent file and a confidently wrong transcript. Stop rather than lie.
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden && rec && rec.isRecording()) {
+      $('stop-btn').click();
+      $('mark-status').textContent = 'Recording stopped because you left the page.';
     }
   });
-});
 
-function wordCount(s) { return (s || '').trim().split(/\s+/).filter(Boolean).length; }
-function wordsPerMin(text, secs) {
-  if (!secs) return '—';
-  return Math.round((wordCount(text) / secs) * 60);
-}
+  /* ── the examiner ────────────────────────────────── */
+  var MARK_SYSTEM = [
+    'You are marking Part 1, Reading Aloud, of the Singapore PSLE English Paper 4 Oral Communication in its 2025 format, out of 15 marks.',
+    'You have the student\'s audio recording and the exact passage they were asked to read.',
+    '',
+    'HONESTY: SEAB does not publish per-dimension band descriptors for Reading Aloud. The rubric below is a house rubric written for practice. Mark strictly against it. Never claim it is SEAB\'s marking scheme.',
+    '',
+    'The speaker is a 12-year-old Singaporean student. Expect a Singapore English accent and do not penalise accent features that leave meaning intact. Do penalise: words misread or skipped, endings dropped so the word changes, Singlish particles read into the passage, and a delivery that ignores the given situation.',
+    '',
+    'RUBRIC. Three dimensions, five marks each.',
+    '',
+    'PRONUNCIATION AND ARTICULATION (0-5)',
+    '5 Every word accurately and clearly articulated; final consonants and clusters land; unfamiliar and multi-syllable words handled confidently.',
+    '4 Clear throughout; one or two slips on harder words; meaning never obscured.',
+    '3 Generally clear, but several words misarticulated or endings dropped; the listener occasionally has to work.',
+    '2 Frequent unclear or misread words; meaning obscured in places.',
+    '1 Widely unclear; the listener loses the thread of the passage.',
+    '0 Almost nothing intelligible, or no reading attempted.',
+    '',
+    'FLUENCY, PACE AND PHRASING (0-5)',
+    '5 Steady natural pace of roughly 130 to 170 words a minute; reads in sense groups, not word by word; a longer pause at full stops and a shorter one at commas; no stumbles or restarts.',
+    '4 Mostly fluent; a couple of hesitations, or one pause in the wrong place.',
+    '3 Audibly word-by-word in places, or noticeably rushed or dragging; several pauses fall inside phrases instead of between them.',
+    '2 Frequent stumbling, restarts, or a pace that makes the passage hard to follow.',
+    '1 Halting throughout.',
+    '0 Unable to sustain reading.',
+    '',
+    'EXPRESSION AND TONAL FIT (0-5). This is judged against the given situation, which states purpose, audience, context and tone.',
+    '5 The tone clearly matches the given situation; stress falls on the words carrying the meaning; the voice rises on questions and falls on statements; it sounds like the role described, not like a default school reading voice.',
+    '4 Expressive and mostly matched to the situation; one or two flat stretches.',
+    '3 Some variation, but largely a default reading voice; the given situation is not audible in the delivery.',
+    '2 Mostly flat, with occasional stress.',
+    '1 Monotone throughout.',
+    '0 No expression at all.',
+    '',
+    'BAND LABELS by total: 13-15 "Secure", 10-12 "Competent", 7-9 "Developing", 4-6 "Emerging", 0-3 "Needs rebuilding".',
+    '',
+    'FEEDBACK RULES. Write to the student as "you". Every piece of evidence must quote what they actually said or name the exact word or line. Every "fix" is one action they can do on the next take, not a list. No emoji. No markdown. No exclamation marks. No praise that is not attached to a specific thing they did.',
+    '',
+    'Transcribe first, verbatim, including fillers, false starts and self-corrections, because the student needs to see what was actually heard. Then mark. Return JSON only.'
+  ].join('\n');
 
-if (typeof Progress !== 'undefined' && Progress.recordVisit) Progress.recordVisit(TOPIC_ID);
+  function markPrompt() {
+    var lines = [];
+    lines.push('GIVEN SITUATION shown above the passage:');
+    lines.push(current.preamble);
+    lines.push('');
+    lines.push('TARGET TONE: ' + (current.targetTone || 'as implied by the situation'));
+    lines.push('');
+    lines.push('PASSAGE AS PRINTED (' + current.words + ' words):');
+    lines.push(current.text);
+    lines.push('');
+    if (current.watchWords.length) {
+      lines.push('WORDS FLAGGED AS TRAPS in this passage: ' + current.watchWords.map(function (w) { return w.word; }).join(', '));
+      lines.push('Check each of these in the recording specifically.');
+      lines.push('');
+    }
+    lines.push('MEASURED: the take lasted ' + (take.durationMs / 1000).toFixed(1) + ' seconds, which is ' + take.wpm + ' words a minute.');
+    lines.push('');
+    lines.push('Listen to the recording and return exactly this JSON, in this key order:');
+    lines.push('{');
+    lines.push('  "transcript": "verbatim of what the student actually said",');
+    lines.push('  "accuracyNotes": [{"expected":"word or phrase as printed","heard":"what they said","issue":"misread|omitted|added|self-corrected"}],');
+    lines.push('  "bands": {');
+    lines.push('    "pronunciation": {"score":0,"evidence":"quote the exact words that decided this score","fix":"one action for the next take"},');
+    lines.push('    "fluencyPace":   {"score":0,"evidence":"...","fix":"..."},');
+    lines.push('    "expression":    {"score":0,"evidence":"...","fix":"..."}');
+    lines.push('  },');
+    lines.push('  "total": 0,');
+    lines.push('  "bandLabel": "one of the band labels",');
+    lines.push('  "wordsToRedrill": [{"word":"...","why":"what went wrong","howToSay":"a simple respelling, for example SOF-fend"}],');
+    lines.push('  "oneThing": "the single highest-leverage change for the next take, one sentence",');
+    lines.push('  "modelDelivery": "the same passage rewritten with CAPITALS on the stressed words and | at every pause"');
+    lines.push('}');
+    lines.push('');
+    lines.push('accuracyNotes should be empty if the reading was word-perfect. Do not invent errors. wordsToRedrill holds at most five words.');
+    return lines.join('\n');
+  }
+
+  $('mark-btn').addEventListener('click', function () {
+    if (!take || !current) return;
+    if (!hasKey()) { $('mark-status').textContent = 'No Gemini key set. Add one from the settings button at the top of this page.'; return; }
+    var btn = $('mark-btn');
+    btn.disabled = true;
+    $('mark-status').innerHTML = '<span class="spinner"></span> The examiner is listening...';
+
+    window.askGemini(Object.assign({
+      system: MARK_SYSTEM,
+      prompt: markPrompt(),
+      audio: { base64: take.base64, mimeType: JglAudio.geminiMime(take.mimeType) },
+      temperature: 0.3,
+      maxTokens: 4096,
+      responseMimeType: 'application/json',
+      asJson: true
+    }, modelOpt())).then(function (res) {
+      lastMark = tidyMark(res);
+      renderMark(lastMark);
+      saveAttempt(lastMark);
+      renderHistory();
+      renderCalibration();
+      $('mark-status').textContent = 'Marked. Read it again with the one thing fixed.';
+      try {
+        if (typeof Progress !== 'undefined') {
+          if (Progress.recordDrillUsed) Progress.recordDrillUsed(TOPIC_ID);
+          if (Progress.recordQuiz) Progress.recordQuiz(TOPIC_ID, lastMark.total, 15);
+        }
+        if (typeof Streak !== 'undefined' && Streak.record) Streak.record();
+      } catch (e) {}
+    }).catch(function (e) {
+      $('mark-status').textContent = friendlyError(e);
+    }).then(function () {
+      btn.disabled = false;
+    });
+  });
+
+  function tidyMark(r) {
+    r = r && typeof r === 'object' ? r : {};
+    var b = r.bands && typeof r.bands === 'object' ? r.bands : {};
+    function band(x) {
+      x = x && typeof x === 'object' ? x : {};
+      return { score: num(x.score, 0, 5), evidence: String(x.evidence || ''), fix: String(x.fix || '') };
+    }
+    var bands = { pronunciation: band(b.pronunciation), fluencyPace: band(b.fluencyPace), expression: band(b.expression) };
+    var sum = bands.pronunciation.score + bands.fluencyPace.score + bands.expression.score;
+    var total = num(r.total, 0, 15);
+    if (Math.abs(total - sum) > 1) total = sum;   // the three bands are the source of truth
+    return {
+      transcript: String(r.transcript || ''),
+      accuracyNotes: Array.isArray(r.accuracyNotes) ? r.accuracyNotes.slice(0, 12) : [],
+      bands: bands,
+      total: total,
+      bandLabel: String(r.bandLabel || labelFor(total)),
+      wordsToRedrill: Array.isArray(r.wordsToRedrill) ? r.wordsToRedrill.filter(function (w) { return w && w.word; }).slice(0, 5) : [],
+      oneThing: String(r.oneThing || ''),
+      modelDelivery: String(r.modelDelivery || '')
+    };
+  }
+
+  function labelFor(t) {
+    if (t >= 13) return 'Secure';
+    if (t >= 10) return 'Competent';
+    if (t >= 7) return 'Developing';
+    if (t >= 4) return 'Emerging';
+    return 'Needs rebuilding';
+  }
+
+  var BAND_NAMES = { pronunciation: 'Pronunciation', fluencyPace: 'Fluency & pace', expression: 'Expression & tone' };
+
+  function renderMark(m) {
+    var html = '';
+    html += '<div class="scorehead"><span class="big">' + m.total + ' / 15</span>' +
+            '<span class="lab">' + esc(m.bandLabel) + '</span>' +
+            '<span class="mini">' + esc(current.title) + ' · ' + take.wpm + ' wpm</span></div>';
+
+    if (m.oneThing) {
+      html += '<div class="onething"><span class="lbl">The one thing for your next take</span><p>' + esc(m.oneThing) + '</p></div>';
+    }
+
+    html += '<div class="bands">';
+    ['pronunciation', 'fluencyPace', 'expression'].forEach(function (k) {
+      var b = m.bands[k];
+      html += '<div class="band"><h4>' + BAND_NAMES[k] + '</h4>' +
+              '<div class="n">' + b.score + ' <span style="font-size:.8rem;color:var(--muted)">/ 5</span></div>' +
+              '<div class="bar"><i style="width:' + (b.score / 5 * 100) + '%"></i></div>' +
+              (b.evidence ? '<p><b>Heard:</b> ' + esc(b.evidence) + '</p>' : '') +
+              (b.fix ? '<p><b>Next take:</b> ' + esc(b.fix) + '</p>' : '') +
+              '</div>';
+    });
+    html += '</div>';
+
+    if (m.wordsToRedrill.length) {
+      html += '<h2 style="font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:1rem 0 .5rem;font-weight:700;">Drill these words before the next take</h2>';
+      html += '<div class="redrill">' + m.wordsToRedrill.map(function (w) {
+        return '<div class="rd"><b>' + esc(w.word) + '</b>' +
+               (w.howToSay ? '<span class="say">' + esc(w.howToSay) + '</span>' : '') +
+               (w.why ? '<span class="why">' + esc(w.why) + '</span>' : '') + '</div>';
+      }).join('') + '</div>';
+    }
+
+    if (m.accuracyNotes.length) {
+      html += '<details class="block"><summary>What you read against what was printed (' + m.accuracyNotes.length + ')</summary><div style="margin-top:.6rem;"><table class="acc">' +
+        m.accuracyNotes.map(function (a) {
+          var issue = String(a.issue || '').toLowerCase();
+          var cls = /misread/.test(issue) ? 'misread' : /omit/.test(issue) ? 'omitted' : /add/.test(issue) ? 'added' : '';
+          return '<tr><td class="exp">' + esc(a.expected || '') + '</td>' +
+                 '<td class="heard">' + esc(a.heard || '') + '</td>' +
+                 '<td><span class="issue ' + cls + '">' + esc(a.issue || '') + '</span></td></tr>';
+        }).join('') + '</table></div></details>';
+    }
+
+    if (m.transcript) {
+      html += '<details class="block"><summary>What the examiner actually heard (your transcript)</summary><div class="body">' + esc(m.transcript) + '</div></details>';
+    }
+    if (m.modelDelivery) {
+      html += '<details class="block"><summary>How it should sound — CAPITALS are stressed, | is a pause</summary><div class="body mono">' + esc(m.modelDelivery) + '</div></details>';
+    }
+
+    $('result-body').innerHTML = html;
+    $('result-panel').classList.remove('hidden');
+    $('result-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ── self scoring ────────────────────────────────── */
+  var AXES = [
+    ['pron', 'Pronunciation', 'Could every word be heard exactly as printed?'],
+    ['pace', 'Pace', 'Natural speed, neither rushed nor dragging?'],
+    ['phr', 'Phrasing', 'Did the pauses fall between sense groups, not inside them?'],
+    ['exp', 'Expression', 'Would a stranger hear the given situation in your voice?']
+  ];
+
+  function renderSelf() {
+    $('self-grid').innerHTML = AXES.map(function (a) {
+      return '<div class="cell"><strong>' + a[1] + '</strong><span class="hint">' + a[2] + '</span>' +
+             '<div class="scale" data-k="' + a[0] + '">' +
+             [1, 2, 3, 4, 5].map(function (n) { return '<button type="button" data-v="' + n + '">' + n + '</button>'; }).join('') +
+             '</div></div>';
+    }).join('');
+    Array.prototype.forEach.call($('self-grid').querySelectorAll('.scale'), function (sc) {
+      Array.prototype.forEach.call(sc.querySelectorAll('button'), function (b) {
+        b.addEventListener('click', function () {
+          self[sc.dataset.k] = Number(b.dataset.v);
+          Array.prototype.forEach.call(sc.querySelectorAll('button'), function (x) { x.classList.remove('picked'); });
+          b.classList.add('picked');
+          renderCalibration();
+        });
+      });
+    });
+  }
+
+  function selfTotal() {
+    if (!(self.pron && self.pace && self.phr && self.exp)) return null;
+    return Math.round(self.pron + (self.pace + self.phr) / 2 + self.exp);
+  }
+
+  function renderCalibration() {
+    var st = selfTotal();
+    var el = $('calib');
+    if (st == null || !lastMark) { el.classList.add('hidden'); return; }
+    var diff = st - lastMark.total;
+    var weakest = ['pronunciation', 'fluencyPace', 'expression'].reduce(function (a, b) {
+      return lastMark.bands[a].score <= lastMark.bands[b].score ? a : b;
+    });
+    var line;
+    if (diff >= 3) {
+      line = 'You gave yourself ' + st + ' / 15; the examiner gave ' + lastMark.total + ' / 15. You are marking yourself generously, and the gap sits mostly in ' + BAND_NAMES[weakest].toLowerCase() + '. Play the recording again and listen only for that.';
+    } else if (diff <= -3) {
+      line = 'You gave yourself ' + st + ' / 15; the examiner gave ' + lastMark.total + ' / 15. You are harder on yourself than the marking is. Trust the take more than the feeling you had while reading it.';
+    } else {
+      line = 'You gave yourself ' + st + ' / 15; the examiner gave ' + lastMark.total + ' / 15. Your ear is calibrated. That is worth as much as the score, because in the exam hall no one marks you out loud.';
+    }
+    el.textContent = line;
+    el.classList.remove('hidden');
+  }
+
+  /* ── history ─────────────────────────────────────── */
+  function saveAttempt(m) {
+    var arr = readJSON(K_ATT, []);
+    arr.push({
+      iso: new Date().toISOString(),
+      passageId: current.id,
+      passageTitle: current.title,
+      total: m.total,
+      bands: { pronunciation: m.bands.pronunciation.score, fluencyPace: m.bands.fluencyPace.score, expression: m.bands.expression.score },
+      wpm: take.wpm,
+      durationMs: take.durationMs,
+      self: selfTotal(),
+      redrill: m.wordsToRedrill.map(function (w) { return { word: String(w.word), why: String(w.why || '') }; })
+    });
+    writeJSON(K_ATT, arr.slice(-60));
+  }
+
+  function renderHistory() {
+    var arr = readJSON(K_ATT, []);
+    var host = $('hist-body');
+    if (!arr.length) {
+      host.innerHTML = '<p class="mini">Nothing marked yet. Record a take, press Mark my reading, and this fills in. Three takes is enough to see a line.</p>';
+      return;
+    }
+    var last = arr.slice(-10);
+    var html = '<div class="hist">' + last.map(function (a) {
+      var h = Math.max(4, Math.round(a.total / 15 * 64));
+      return '<div class="hb" title="' + esc(a.passageTitle + ' — ' + a.total + '/15') + '">' +
+             '<span class="v">' + a.total + '</span>' +
+             '<div class="col"><i style="height:' + h + 'px"></i></div>' +
+             '<span class="d">' + dm(a.iso) + '</span></div>';
+    }).join('') + '</div>';
+
+    var trends = [];
+    ['pronunciation', 'fluencyPace', 'expression'].forEach(function (k) {
+      var seq = arr.slice(-3).map(function (a) { return (a.bands && a.bands[k] != null) ? a.bands[k] : null; }).filter(function (v) { return v != null; });
+      if (seq.length >= 2) trends.push('<b>' + BAND_NAMES[k] + '</b> ' + seq.join(' → ') + ' over your last ' + seq.length + ' takes');
+    });
+    if (trends.length) html += '<div class="trend" style="margin-top:.8rem;">' + trends.join('<br>') + '</div>';
+
+    var counts = {}, whys = {};
+    arr.forEach(function (a) {
+      (a.redrill || []).forEach(function (w) {
+        var k = String(w.word || '').toLowerCase().trim();
+        if (!k) return;
+        counts[k] = (counts[k] || 0) + 1;
+        whys[k] = w.why || whys[k] || '';
+      });
+    });
+    var repeat = Object.keys(counts).filter(function (k) { return counts[k] >= 2; })
+      .sort(function (a, b) { return counts[b] - counts[a]; }).slice(0, 12);
+    if (repeat.length) {
+      html += '<h2 style="font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:1rem 0 .3rem;font-weight:700;">Words you keep missing</h2>' +
+        '<p class="mini">These have come back more than once. Say each one aloud five times before your next take.</p>' +
+        '<div class="missing">' + repeat.map(function (k) {
+          return '<span class="mchip" title="' + esc(whys[k] || '') + '">' + esc(k) + ' <span>x' + counts[k] + '</span></span>';
+        }).join('') + '</div>';
+    }
+
+    var totals = arr.map(function (a) { return a.total; });
+    var best = Math.max.apply(null, totals);
+    html += '<p class="mini" style="margin-top:.8rem;">' + arr.length + ' marked take' + (arr.length === 1 ? '' : 's') + ' so far. Best: ' + best + ' / 15.</p>';
+
+    host.innerHTML = html;
+  }
+
+  /* ── boot ────────────────────────────────────────── */
+  refreshKeyNotice();
+  buildPicker();
+  var first = null;
+  if (window.JglFresh) { try { first = JglFresh.pickUnseen('aloud', passages, freshKey); } catch (e) {} }
+  select(first || passages[0]);
+  renderHistory();
+  try { if (typeof Progress !== 'undefined' && Progress.recordVisit) Progress.recordVisit(TOPIC_ID); } catch (e) {}
+})();
 </script>
 </body>
 </html>

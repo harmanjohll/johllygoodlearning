@@ -71,6 +71,25 @@
     .start-card h2 { margin-bottom: .5rem; }
     .start-card p  { color: var(--muted); font-size: .92rem; margin-bottom: 1rem; line-height: 1.65; }
     .pill { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .25rem .65rem; font-size: .72rem; margin: .15rem; }
+
+    /* error-type diagnosis */
+    .diag { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; margin-top: 1.1rem; }
+    .diag h3 { font-size: .95rem; color: var(--text); margin-bottom: .15rem; }
+    .diag .sub { font-size: .78rem; color: var(--muted); margin-bottom: .9rem; line-height: 1.55; }
+    .tbar { display: grid; grid-template-columns: 8.5rem 1fr 4.2rem; gap: .6rem; align-items: center; margin-bottom: .45rem; font-size: .82rem; }
+    .tbar .lbl { color: var(--muted); }
+    .tbar .track { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; height: .55rem; overflow: hidden; }
+    .tbar .fill { height: 100%; border-radius: 99px; }
+    .tbar .val { text-align: right; color: var(--text); font-weight: 700; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: .76rem; }
+    .diag .verdict { margin-top: .8rem; font-size: .85rem; color: var(--text); line-height: 1.65; border-top: 1px solid var(--border); padding-top: .75rem; }
+    .fresh-stat { font-size: .76rem; color: var(--muted); }
+    .bank-bar {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: .6rem 1rem; margin-bottom: .65rem;
+      display: flex; align-items: center; gap: .65rem; flex-wrap: wrap;
+      font-size: .84rem; color: var(--muted);
+    }
+    .type-tag { font-size: .68rem; color: var(--muted); border: 1px solid var(--border); border-radius: 99px; padding: .05rem .45rem; margin-left: .4rem; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -93,9 +112,17 @@
     </p>
   </div>
 
+  <div class="bank-bar">
+    <span style="font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">Curated bank</span>
+    <span id="bank-label" style="color:var(--text);"></span>
+    <span style="flex:1;"></span>
+    <button class="btn btn-secondary" id="btn-next-passage" style="font-size:.78rem;padding:.35rem .85rem;">Next passage →</button>
+  </div>
+
   <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
     <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
-    <span style="font-size:.84rem;color:var(--muted);">One curated passage below. Want a fresh one?</span>
+    <span style="font-size:.84rem;color:var(--muted);">Three curated passages in the bank. Want a brand new one?</span>
+    <span class="fresh-stat" id="edit-fresh-stat"></span>
     <span style="flex:1;"></span>
     <select id="edit-gen-theme" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.82rem;font-family:inherit;">
       <option>A day at the hawker centre</option>
@@ -124,6 +151,7 @@
         <button class="btn btn-secondary" id="btn-untimed">Untimed practice</button>
       </div>
     </div>
+    <div id="diag-pane"></div>
   </div>
 
   <div id="quiz-pane" style="display:none;">
@@ -144,37 +172,265 @@
 <script src="../shared/storage.js"></script>
 <script src="../shared/lab.js"></script>
 <script src="../shared/gemini.js"></script>
+<script src="../shared/freshness.js"></script>
 <script>
 const QUIZ_MS = 8 * 60 * 1000;
+const FRESH_BUCKET = 'editing';
+const ATTEMPTS_KEY = 'jgl.english.editing.attempts';
+const ATTEMPTS_CAP = 60;
 
-let PASSAGE = {
-  title: "An afternoon at the bird park",
-  lines: [
-    { num: 1,  wrong: "writted",     correct: ["wrote"],       text: "Last Sunday, I {WRONG} a long letter to my grandmother about our trip to the bird park.", why: "Simple past of 'write' is 'wrote'." },
-    { num: 2,  wrong: "childrens",   correct: ["children"],    text: "There were many {WRONG} from my Primary 6 class who came along.",                          why: "'Children' is already plural; never add -s." },
-    { num: 3,  wrong: "neccessary",  correct: ["necessary"],   text: "It was {WRONG} to bring an umbrella because the weather forecast warned of rain.",         why: "Spelling: ONE c, double s. Mnemonic: 'one Collar, two Sleeves'." },
-    { num: 4,  wrong: "more better", correct: ["better","much better"], text: "The new bird park is {WRONG} than the old one in Jurong.",                       why: "'Better' is already comparative; 'more better' is double-comparative." },
-    { num: 5,  wrong: "amoung",      correct: ["among"],       text: "{WRONG} the most popular exhibits is the South-East Asian aviary.",                       why: "Spelling: a-m-o-n-g, no second u." },
-    { num: 6,  wrong: "have ate",    correct: ["had eaten","ate","eaten"], text: "By the time we reached the parrot show, we {WRONG} our packed lunch already.", why: "Past perfect (had eaten) for the earlier of two past events. 'Ate' alone is also acceptable in this context if the marker accepts simpler past." },
-    { num: 7,  wrong: "embarassed", correct: ["embarrassed"],  text: "When the macaw landed on my head, I felt {WRONG} but everyone laughed kindly.",            why: "Spelling: double r, double s. 'Embarrassed' is the most-misspelt PSLE word." },
-    { num: 8,  wrong: "alot",        correct: ["a lot"],       text: "We learnt {WRONG} about how birds use their beaks for different kinds of food.",           why: "'A lot' is ALWAYS two words. 'Alot' is not a word in English." },
-    { num: 9,  wrong: "their",       correct: ["there"],       text: "We sat down by the lake and noticed that {WRONG} were ducks swimming nearby.",             why: "Context = 'there were' (existence). 'Their' is the possessive (their nest, their wings)." },
-    { num: 10, wrong: "depended of", correct: ["depended on"], text: "Whether we could finish the trail {WRONG} how heavy the afternoon rain would be.",         why: "'Depend ON' is the correct preposition pair. Common ESL trap: 'depend of' / 'depend with'." },
-  ],
+// The nine error types the Editing paper actually tests.
+const ERROR_TYPES = ['spelling','tense','sva','article','preposition','pronoun','plural','comparative','wordForm'];
+const TYPE_LABEL = {
+  spelling: 'Spelling',
+  tense: 'Tense',
+  sva: 'Subject-verb',
+  article: 'Articles',
+  preposition: 'Prepositions',
+  pronoun: 'Pronouns',
+  plural: 'Plurals',
+  comparative: 'Comparatives',
+  wordForm: 'Word form',
 };
+const TYPE_ADVICE = {
+  spelling: 'Copy each missed word out three times, then cover it and write it from memory. Spelling is the one error type that pure repetition fixes.',
+  tense: 'Before you answer, find the time signal in the sentence: last week, already, by the time, every day. The signal chooses the tense for you.',
+  sva: 'Point at the real subject with your finger and ignore everything between it and the verb. One thing takes -s; many things do not.',
+  article: 'Ask two questions: is this the first time it is mentioned (a/an) or an already known one (the)? Then check the sound of the next word for a or an.',
+  preposition: 'These come in fixed pairs: depend on, good at, arrive at, listen to. Keep a running list at the back of your book and read it once a week.',
+  pronoun: 'Read the sentence without the other person. If "me went" sounds wrong, then "my friends and me went" is wrong too.',
+  plural: 'Watch the irregulars: children, feet, teeth, sheep, fish. They are already plural, so never add -s on top.',
+  comparative: 'Short word plus -er, or longer word with more. Never both. If you can say faster, you can never say more faster.',
+  wordForm: 'Decide what job the word is doing: naming a thing (excitement), describing a thing (excited), or doing something (excite). The job picks the ending.',
+};
+
+// ── Curated bank (three passages, every line typed) ───────
+const EDIT_BANK = [
+  {
+    id: 'bird-park',
+    title: "An afternoon at the bird park",
+    lines: [
+      { num: 1,  wrong: "writted",     correct: ["wrote"],       errorType: "tense",       text: "Last Sunday, I {WRONG} a long letter to my grandmother about our trip to the bird park.", why: "Simple past of 'write' is 'wrote'." },
+      { num: 2,  wrong: "childrens",   correct: ["children"],    errorType: "plural",      text: "There were many {WRONG} from my Primary 6 class who came along.",                          why: "'Children' is already plural; never add -s." },
+      { num: 3,  wrong: "neccessary",  correct: ["necessary"],   errorType: "spelling",    text: "It was {WRONG} to bring an umbrella because the weather forecast warned of rain.",         why: "Spelling: ONE c, double s. Mnemonic: 'one Collar, two Sleeves'." },
+      { num: 4,  wrong: "more better", correct: ["better","much better"], errorType: "comparative", text: "The new bird park is {WRONG} than the old one in Jurong.",                       why: "'Better' is already comparative; 'more better' is double-comparative." },
+      { num: 5,  wrong: "amoung",      correct: ["among"],       errorType: "spelling",    text: "{WRONG} the most popular exhibits is the South-East Asian aviary.",                       why: "Spelling: a-m-o-n-g, no second u." },
+      { num: 6,  wrong: "have ate",    correct: ["had eaten","ate","eaten"], errorType: "tense", text: "By the time we reached the parrot show, we {WRONG} our packed lunch already.", why: "Past perfect (had eaten) for the earlier of two past events. 'Ate' alone is also acceptable in this context if the marker accepts simpler past." },
+      { num: 7,  wrong: "embarassed", correct: ["embarrassed"],  errorType: "spelling",    text: "When the macaw landed on my head, I felt {WRONG} but everyone laughed kindly.",            why: "Spelling: double r, double s. 'Embarrassed' is the most-misspelt PSLE word." },
+      { num: 8,  wrong: "alot",        correct: ["a lot"],       errorType: "spelling",    text: "We learnt {WRONG} about how birds use their beaks for different kinds of food.",           why: "'A lot' is ALWAYS two words. 'Alot' is not a word in English." },
+      { num: 9,  wrong: "their",       correct: ["there"],       errorType: "spelling",    text: "We sat down by the lake and noticed that {WRONG} were ducks swimming nearby.",             why: "Context = 'there were' (existence). 'Their' is the possessive (their nest, their wings)." },
+      { num: 10, wrong: "depended of", correct: ["depended on"], errorType: "preposition", text: "Whether we could finish the trail {WRONG} how heavy the afternoon rain would be.",         why: "'Depend ON' is the correct preposition pair. Common ESL trap: 'depend of' / 'depend with'." },
+    ],
+  },
+  {
+    id: 'sports-day',
+    title: "Sports day on the school field",
+    lines: [
+      { num: 1,  wrong: "hold",      correct: ["holds"],     errorType: "sva",         text: "Every year, our school {WRONG} a sports day on the field beside the canal.",        why: "The subject 'our school' is singular, so the verb takes -s: holds." },
+      { num: 2,  wrong: "me",        correct: ["I"],         errorType: "pronoun",     text: "My friends and {WRONG} arrived early to help set up the water station.",            why: "Remove the other people: 'me arrived' is wrong, so it must be 'I'." },
+      { num: 3,  wrong: "a",         correct: ["an"],        errorType: "article",     text: "The teacher gave each of us {WRONG} umbrella to keep in our bags.",                  why: "'Umbrella' starts with a vowel sound, so the article is 'an'." },
+      { num: 4,  wrong: "excitement",correct: ["excited"],   errorType: "wordForm",    text: "We were very {WRONG} when the starting whistle blew for the first race.",            why: "After 'were very' you need an adjective (excited), not a noun (excitement)." },
+      { num: 5,  wrong: "more fast", correct: ["faster"],    errorType: "comparative", text: "Our relay team ran {WRONG} than they did last year.",                               why: "Short adjectives take -er: faster. Never 'more fast'." },
+      { num: 6,  wrong: "carry",     correct: ["carried"],   errorType: "tense",       text: "Last Monday, our class {WRONG} the school flag for the opening march.",              why: "'Last Monday' signals the simple past: carried." },
+      { num: 7,  wrong: "boxs",      correct: ["boxes"],     errorType: "plural",      text: "Two {WRONG} of chilled water were placed at every corner of the field.",            why: "Nouns ending in -x take -es in the plural: boxes." },
+      { num: 8,  wrong: "disipline", correct: ["discipline"],errorType: "spelling",    text: "The principal praised our {WRONG} and our teamwork during the march past.",          why: "Spelling: d-i-s-c-i-p-l-i-n-e. The c after dis is silent but it is there." },
+      { num: 9,  wrong: "on",        correct: ["in"],        errorType: "preposition", text: "We were told to wait {WRONG} the shade until our event was called.",                 why: "You wait IN the shade, not on it." },
+      { num: 10, wrong: "sucessful", correct: ["successful"],errorType: "spelling",    text: "Everyone agreed that it had been a {WRONG} afternoon.",                              why: "Spelling: double c, double s. Successful." },
+    ],
+  },
+  {
+    id: 'wet-market',
+    title: "A morning at the wet market",
+    lines: [
+      { num: 1,  wrong: "goes",        correct: ["go"],        errorType: "sva",         text: "My mother and I {WRONG} to the wet market every Saturday morning.",                  why: "'My mother and I' is plural, so the verb has no -s: go." },
+      { num: 2,  wrong: "leaved",      correct: ["left"],      errorType: "tense",       text: "Last week we {WRONG} home earlier than usual because of the school holidays.",      why: "'Leave' is irregular. Its simple past is 'left', not 'leaved'." },
+      { num: 3,  wrong: "hers",        correct: ["her"],       errorType: "pronoun",     text: "She always brings {WRONG} own basket so that we use fewer plastic bags.",            why: "Before a noun you need 'her'. 'Hers' stands alone, with no noun after it." },
+      { num: 4,  wrong: "fishes",      correct: ["fish"],      errorType: "plural",      text: "The fishmonger sold us three {WRONG} for six dollars.",                              why: "'Fish' stays the same in the plural when you mean several of the same kind." },
+      { num: 5,  wrong: "a",           correct: ["the"],       errorType: "article",     text: "We walked to {WRONG} end of the row where the vegetable stall is.",                   why: "There is only one such end and both of us know which, so it takes 'the'." },
+      { num: 6,  wrong: "more cheaper",correct: ["cheaper"],   errorType: "comparative", text: "The vegetables there are much {WRONG} than those in the supermarket.",                why: "'Cheaper' is already comparative; adding 'more' doubles it." },
+      { num: 7,  wrong: "for",         correct: ["of"],        errorType: "preposition", text: "My mother chatted with the stallholder about the rising price {WRONG} vegetables.",   why: "The fixed pair is 'the price OF something'." },
+      { num: 8,  wrong: "difficulty",  correct: ["difficult"], errorType: "wordForm",    text: "It was quite {WRONG} to carry the heavy bags all the way home.",                      why: "After 'It was quite' you need an adjective (difficult), not a noun (difficulty)." },
+      { num: 9,  wrong: "seperate",    correct: ["separate"],  errorType: "spelling",    text: "We had to {WRONG} the fish from the vegetables inside the basket.",                   why: "Spelling: there is a rat in sepARATe. s-e-p-a-r-a-t-e." },
+      { num: 10, wrong: "recieve",     correct: ["receive"],   errorType: "spelling",    text: "At the counter, my mother waited to {WRONG} her change before we left.",              why: "Spelling: i before e except after c. Receive." },
+    ],
+  },
+];
+
+let curatedIdx = 0;
+let PASSAGE = null;
+let PASSAGE_IS_CURATED = true;
+let attemptMarked = false;
 
 let state = { startedAt: null, timed: true, answers: {}, submitted: false };
 let tickHandle = null;
 
+// ── small helpers ─────────────────────────────────────────
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function bankKey(p) {
+  return window.JglFresh ? JglFresh.normKey(p.id || p.title) : String(p.id || p.title);
+}
+function cloneDeep(o) { return JSON.parse(JSON.stringify(o)); }
+function normType(t) {
+  const v = String(t == null ? '' : t).trim();
+  return ERROR_TYPES.indexOf(v) !== -1 ? v : 'spelling';
+}
+
+function paintFreshStat() {
+  const el = document.getElementById('edit-fresh-stat');
+  if (!el) return;
+  const s = window.JglFresh ? JglFresh.stats(FRESH_BUCKET) : { total: 0, last7: 0 };
+  el.textContent = s.total ? (s.total + ' passages seen · ' + s.last7 + ' this week') : '';
+}
+function paintBankLabel() {
+  const el = document.getElementById('bank-label');
+  if (!el) return;
+  if (PASSAGE_IS_CURATED) {
+    el.textContent = PASSAGE.title + '  (' + (curatedIdx + 1) + ' of ' + EDIT_BANK.length + ')';
+  } else {
+    el.textContent = PASSAGE.title + '  (AI-generated)';
+  }
+}
+
+// ── attempt history ───────────────────────────────────────
+function readAttempts() {
+  try {
+    const a = JSON.parse(localStorage.getItem(ATTEMPTS_KEY) || '[]');
+    return Array.isArray(a) ? a : [];
+  } catch (e) { return []; }
+}
+function saveAttempt(rec) {
+  try {
+    const all = readAttempts();
+    all.push(rec);
+    localStorage.setItem(ATTEMPTS_KEY, JSON.stringify(all.slice(-ATTEMPTS_CAP)));
+  } catch (e) { /* quota — degrade quietly */ }
+}
+
+function aggregateByType() {
+  const agg = {};
+  ERROR_TYPES.forEach(function (t) { agg[t] = { got: 0, total: 0 }; });
+  readAttempts().forEach(function (a) {
+    const bt = (a && a.byType) || {};
+    Object.keys(bt).forEach(function (t) {
+      if (!agg[t]) agg[t] = { got: 0, total: 0 };
+      const v = bt[t] || {};
+      agg[t].got += Number(v.got) || 0;
+      agg[t].total += Number(v.total) || 0;
+    });
+  });
+  return agg;
+}
+
+function renderDiagnosis() {
+  const pane = document.getElementById('diag-pane');
+  if (!pane) return;
+  const attempts = readAttempts();
+  if (!attempts.length) { pane.innerHTML = ''; return; }
+
+  const agg = aggregateByType();
+  const rows = ERROR_TYPES
+    .map(function (t) { return { type: t, got: agg[t].got, total: agg[t].total }; })
+    .filter(function (r) { return r.total > 0; });
+
+  if (!rows.length) { pane.innerHTML = ''; return; }
+
+  rows.forEach(function (r) { r.pct = Math.round((r.got / r.total) * 100); });
+  const ordered = rows.slice().sort(function (a, b) { return a.pct - b.pct || b.total - a.total; });
+
+  let bars = '';
+  ordered.forEach(function (r) {
+    const colour = r.pct >= 80 ? '#4ade80' : (r.pct >= 55 ? '#fbbf24' : '#f87171');
+    bars += '<div class="tbar">' +
+      '<span class="lbl">' + esc(TYPE_LABEL[r.type] || r.type) + '</span>' +
+      '<span class="track"><span class="fill" style="width:' + r.pct + '%;background:' + colour + ';"></span></span>' +
+      '<span class="val">' + r.pct + '% <span style="color:var(--muted);font-weight:400;">' + r.got + '/' + r.total + '</span></span>' +
+      '</div>';
+  });
+
+  // Diagnosis: weakest type with enough evidence to be worth naming.
+  const candidates = ordered.filter(function (r) { return r.total >= 3; });
+  const weakest = candidates.length ? candidates[0] : ordered[0];
+  const totalGot = rows.reduce(function (s, r) { return s + r.got; }, 0);
+  const totalMax = rows.reduce(function (s, r) { return s + r.total; }, 0);
+  const overall = Math.round((totalGot / totalMax) * 100);
+
+  let verdict;
+  if (weakest.pct >= 85) {
+    verdict = 'No weak spot stands out. You are at ' + overall + '% across ' + attempts.length +
+      ' sprint' + (attempts.length === 1 ? '' : 's') + '. Keep generating new passages so the errors stay unfamiliar.';
+  } else {
+    verdict = '<strong>' + esc(TYPE_LABEL[weakest.type] || weakest.type) + '</strong> is your weakest type: ' +
+      weakest.got + ' out of ' + weakest.total + ' correct (' + weakest.pct + '%), against ' + overall +
+      '% overall. ' + esc(TYPE_ADVICE[weakest.type] || '');
+  }
+
+  pane.innerHTML =
+    '<div class="diag">' +
+      '<h3>Where your marks go</h3>' +
+      '<div class="sub">Accuracy by error type across ' + attempts.length + ' sprint' + (attempts.length === 1 ? '' : 's') + ', weakest first.</div>' +
+      bars +
+      '<div class="verdict">' + verdict + '</div>' +
+    '</div>';
+}
+
+// ── boot ──────────────────────────────────────────────────
+function pickCuratedStart() {
+  let chosen = EDIT_BANK[0];
+  if (window.JglFresh) {
+    chosen = JglFresh.pickUnseen(FRESH_BUCKET, EDIT_BANK, bankKey) || EDIT_BANK[0];
+  }
+  curatedIdx = Math.max(0, EDIT_BANK.indexOf(chosen));
+  PASSAGE = cloneDeep(EDIT_BANK[curatedIdx]);
+  PASSAGE_IS_CURATED = true;
+}
+
 function init() {
-  document.getElementById('btn-start').addEventListener('click',   () => startQuiz(true));
-  document.getElementById('btn-untimed').addEventListener('click', () => startQuiz(false));
-  document.getElementById('btn-submit').addEventListener('click', () => { if (!state.submitted && confirm('Submit now?')) submit(); });
+  pickCuratedStart();
+  document.getElementById('btn-start').addEventListener('click',   function () { startQuiz(true); });
+  document.getElementById('btn-untimed').addEventListener('click', function () { startQuiz(false); });
+  document.getElementById('btn-submit').addEventListener('click', function () {
+    if (!state.submitted && confirm('Submit now?')) submit();
+  });
+  document.getElementById('btn-next-passage').addEventListener('click', function () {
+    if (state.startedAt && !state.submitted && !confirm('Switch passage and reset the clock?')) return;
+    curatedIdx = (curatedIdx + 1) % EDIT_BANK.length;
+    PASSAGE = cloneDeep(EDIT_BANK[curatedIdx]);
+    PASSAGE_IS_CURATED = true;
+    attemptMarked = false;
+    document.getElementById('edit-gen-clear').style.display = 'none';
+    document.getElementById('edit-gen-status').textContent = 'Switched to a different curated passage: "' + PASSAGE.title + '".';
+    resetToStart();
+  });
+  paintBankLabel();
+  paintFreshStat();
+  renderDiagnosis();
+}
+
+function resetToStart() {
+  if (tickHandle) clearInterval(tickHandle);
+  state = { startedAt: null, timed: true, answers: {}, submitted: false };
+  document.getElementById('start-pane').style.display = '';
+  document.getElementById('quiz-pane').style.display = 'none';
+  document.getElementById('result-pane').style.display = 'none';
+  document.getElementById('result-pane').innerHTML = '';
+  paintBankLabel();
+  paintFreshStat();
+  renderDiagnosis();
 }
 
 function startQuiz(timed) {
   state.timed = timed;
   state.startedAt = Date.now();
+  // Mark the curated passage as seen only when it is actually attempted.
+  if (PASSAGE_IS_CURATED && !attemptMarked && window.JglFresh) {
+    JglFresh.mark(FRESH_BUCKET, bankKey(PASSAGE), { title: PASSAGE.title, type: 'curated passage' });
+    attemptMarked = true;
+    paintFreshStat();
+  }
   document.getElementById('start-pane').style.display = 'none';
   document.getElementById('quiz-pane').style.display  = 'block';
   renderPassage();
@@ -184,20 +440,21 @@ function startQuiz(timed) {
 
 function renderPassage() {
   const wrap = document.getElementById('passage');
-  wrap.innerHTML = `<div class="title">${PASSAGE.title}</div><div class="lines" id="lines"></div>`;
+  wrap.innerHTML = '<div class="title">' + esc(PASSAGE.title) + '</div><div class="lines" id="lines"></div>';
   const lines = document.getElementById('lines');
-  PASSAGE.lines.forEach(line => {
+  PASSAGE.lines.forEach(function (line) {
     const row = document.createElement('div');
     row.className = 'line';
     row.dataset.num = line.num;
-    const textHTML = line.text.replace('{WRONG}', `<span class="wrong">${line.wrong}</span>`);
-    row.innerHTML = `
-      <div class="num">${line.num}.</div>
-      <div class="text">${textHTML}</div>
-      <input type="text" class="fix" placeholder="correct word" autocomplete="off" data-num="${line.num}">
-      <div class="verdict"></div>
-    `;
-    row.querySelector('input').addEventListener('input', e => { state.answers[line.num] = e.target.value.trim(); });
+    const textHTML = esc(line.text).replace('{WRONG}', '<span class="wrong">' + esc(line.wrong) + '</span>');
+    row.innerHTML =
+      '<div class="num">' + esc(line.num) + '.</div>' +
+      '<div class="text">' + textHTML + '</div>' +
+      '<input type="text" class="fix" placeholder="correct word" autocomplete="off" data-num="' + esc(line.num) + '">' +
+      '<div class="verdict"></div>';
+    row.querySelector('input').addEventListener('input', function (e) {
+      state.answers[line.num] = e.target.value.trim();
+    });
     lines.appendChild(row);
   });
 }
@@ -217,10 +474,10 @@ function paintTime(ms) {
   const display = document.getElementById('time-left');
   const mins = Math.max(0, Math.floor(ms / 60000));
   const secs = Math.max(0, Math.floor((ms % 60000) / 1000));
-  display.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+  display.textContent = mins.toString().padStart(2, '0') + ':' + secs.toString().padStart(2, '0');
   display.classList.remove('warn','crit');
-  if (ms <= 60_000)       display.classList.add('crit');
-  else if (ms <= 180_000) display.classList.add('warn');
+  if (ms <= 60000)       display.classList.add('crit');
+  else if (ms <= 180000) display.classList.add('warn');
 }
 
 function submit() {
@@ -229,78 +486,134 @@ function submit() {
   if (tickHandle) clearInterval(tickHandle);
 
   let got = 0;
-  PASSAGE.lines.forEach(line => {
+  const byType = {};
+  PASSAGE.lines.forEach(function (line) {
     const val = (state.answers[line.num] || '').toLowerCase().trim();
-    const ok  = (line.correct || []).map(x => x.toLowerCase());
-    const right = !!val && ok.includes(val);
+    const ok  = (line.correct || []).map(function (x) { return String(x).toLowerCase(); });
+    const right = !!val && ok.indexOf(val) !== -1;
     if (right) got += 1;
-    const row = document.querySelector(`.line[data-num="${line.num}"]`);
+
+    const t = normType(line.errorType);
+    if (!byType[t]) byType[t] = { got: 0, total: 0 };
+    byType[t].total += 1;
+    if (right) byType[t].got += 1;
+
+    const row = document.querySelector('.line[data-num="' + line.num + '"]');
     if (!row) return;
     row.classList.toggle('right', right);
     row.classList.toggle('wrong', !right);
     const v = row.querySelector('.verdict');
     v.textContent = right ? '✓' : '✗';
-    const input = row.querySelector('input');
-    input.disabled = true;
+    row.querySelector('input').disabled = true;
   });
-  document.getElementById('score-meta').textContent = `${got} / 10`;
+
+  const total = PASSAGE.lines.length;
+  document.getElementById('score-meta').textContent = got + ' / ' + total;
+
+  saveAttempt({
+    iso: new Date().toISOString(),
+    title: PASSAGE.title,
+    score: got,
+    total: total,
+    byType: byType,
+  });
 
   if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('editing');
 
+  const pct = total ? (got / total) : 0;
   const qual =
-    got === 10 ? 'Perfect. AL1 editor.' :
-    got >= 8  ? 'On the AL1/AL2 line.' :
-    got >= 5  ? 'Halfway. Review the misses below.' :
-                'Lots to learn. Read the explanations and try the untimed version.';
+    pct === 1   ? 'Perfect. AL1 editor.' :
+    pct >= 0.8  ? 'On the AL1/AL2 line.' :
+    pct >= 0.5  ? 'Halfway. Review the misses below.' :
+                  'Lots to learn. Read the explanations and try the untimed version.';
 
   let reviewHTML = '<div class="passage" style="margin-top:1.5rem;"><div class="title" style="margin-bottom:.85rem;color:var(--accent);">Review every line</div>';
-  PASSAGE.lines.forEach(line => {
+  PASSAGE.lines.forEach(function (line) {
     const ans = state.answers[line.num] || '';
-    const ok = (line.correct || []).map(x => x.toLowerCase());
-    const right = ok.includes(ans.toLowerCase());
-    reviewHTML += `<div style="border-top:1px solid var(--border);padding-top:.55rem;margin-top:.55rem;">
-      <div style="font-size:.82rem;color:var(--muted);">Line ${line.num} · <span style="color:${right ? '#4ade80' : '#f87171'};">${right ? '✓' : '✗'}</span></div>
-      <div style="font-size:.88rem;color:var(--text);margin:.2rem 0;">${line.text.replace('{WRONG}', `<span style="color:#f87171;font-weight:700;">${line.wrong}</span>`)}</div>
-      <div style="font-size:.82rem;color:var(--accent);">Accept: ${line.correct.join(' / ')}</div>
-      <div style="font-size:.78rem;color:var(--muted);margin-top:.2rem;line-height:1.55;">${line.why}</div>
-    </div>`;
+    const ok = (line.correct || []).map(function (x) { return String(x).toLowerCase(); });
+    const right = ok.indexOf(ans.toLowerCase()) !== -1;
+    const t = normType(line.errorType);
+    reviewHTML += '<div style="border-top:1px solid var(--border);padding-top:.55rem;margin-top:.55rem;">' +
+      '<div style="font-size:.82rem;color:var(--muted);">Line ' + esc(line.num) + ' · <span style="color:' + (right ? '#4ade80' : '#f87171') + ';">' + (right ? '✓' : '✗') + '</span>' +
+        '<span class="type-tag">' + esc(TYPE_LABEL[t] || t) + '</span></div>' +
+      '<div style="font-size:.88rem;color:var(--text);margin:.2rem 0;">' +
+        esc(line.text).replace('{WRONG}', '<span style="color:#f87171;font-weight:700;">' + esc(line.wrong) + '</span>') + '</div>' +
+      '<div style="font-size:.82rem;color:var(--accent);">Accept: ' + esc((line.correct || []).join(' / ')) + '</div>' +
+      '<div style="font-size:.78rem;color:var(--muted);margin-top:.2rem;line-height:1.55;">' + esc(line.why) + '</div>' +
+    '</div>';
   });
   reviewHTML += '</div>';
 
-  document.getElementById('result-pane').style.display = 'block';
-  document.getElementById('result-pane').innerHTML = `
-    <div class="scorecard">
-      <div class="num">${got} / 10</div>
-      <div class="qual">${qual}</div>
-      <div class="row">
-        <a class="btn btn-primary" href="./">Retry this sprint</a>
-        <a class="btn btn-secondary" href="../">← Back to hub</a>
-        <a class="btn btn-secondary" href="../topics/editing/">Open Editing topic</a>
-      </div>
-    </div>
-    ${reviewHTML}
-  `;
+  // This-sprint breakdown, so the type story is visible immediately.
+  let thisRun = '';
+  const runRows = Object.keys(byType).map(function (t) {
+    const v = byType[t];
+    return { type: t, got: v.got, total: v.total, pct: Math.round((v.got / v.total) * 100) };
+  }).sort(function (a, b) { return a.pct - b.pct; });
+  runRows.forEach(function (r) {
+    const colour = r.pct >= 80 ? '#4ade80' : (r.pct >= 55 ? '#fbbf24' : '#f87171');
+    thisRun += '<div class="tbar">' +
+      '<span class="lbl">' + esc(TYPE_LABEL[r.type] || r.type) + '</span>' +
+      '<span class="track"><span class="fill" style="width:' + r.pct + '%;background:' + colour + ';"></span></span>' +
+      '<span class="val">' + r.got + '/' + r.total + '</span>' +
+      '</div>';
+  });
+
+  const resultPane = document.getElementById('result-pane');
+  resultPane.style.display = 'block';
+  resultPane.innerHTML =
+    '<div class="scorecard">' +
+      '<div class="num">' + got + ' / ' + total + '</div>' +
+      '<div class="qual">' + qual + '</div>' +
+      '<div class="row">' +
+        '<button class="btn btn-primary" id="btn-next-after">Next passage →</button>' +
+        '<a class="btn btn-secondary" href="./">Retry this sprint</a>' +
+        '<a class="btn btn-secondary" href="../">← Back to hub</a>' +
+        '<a class="btn btn-secondary" href="../topics/editing/">Open Editing topic</a>' +
+      '</div>' +
+    '</div>' +
+    '<div class="diag"><h3>This sprint by error type</h3>' +
+      '<div class="sub">Weakest first. The same view across all your sprints sits below the start card.</div>' +
+      thisRun + '</div>' +
+    reviewHTML;
+
+  const nextBtn = document.getElementById('btn-next-after');
+  if (nextBtn) nextBtn.addEventListener('click', function () {
+    curatedIdx = (curatedIdx + 1) % EDIT_BANK.length;
+    PASSAGE = cloneDeep(EDIT_BANK[curatedIdx]);
+    PASSAGE_IS_CURATED = true;
+    attemptMarked = false;
+    document.getElementById('edit-gen-clear').style.display = 'none';
+    document.getElementById('edit-gen-status').textContent = 'Loaded the next curated passage: "' + PASSAGE.title + '".';
+    resetToStart();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
   document.getElementById('quiz-pane').style.display = 'none';
+  renderDiagnosis();
+  paintFreshStat();
 }
 
 init();
 
 // ── AI passage generator ─────────────────────────────────
 const EDIT_GEN_CACHE_KEY = 'jgl.english.editing.generated';
-const EDIT_CURATED = JSON.parse(JSON.stringify(PASSAGE));
 
 (function rehydrateEditing() {
   try {
     const cached = JSON.parse(localStorage.getItem(EDIT_GEN_CACHE_KEY) || 'null');
-    if (cached && Array.isArray(cached.lines)) {
+    if (cached && Array.isArray(cached.lines) && cached.lines.length) {
       PASSAGE = cached;
+      PASSAGE_IS_CURATED = false;
+      attemptMarked = true;
       document.getElementById('edit-gen-clear').style.display = 'inline-block';
       document.getElementById('edit-gen-status').textContent = 'Showing AI-generated passage from your last session.';
+      paintBankLabel();
     }
-  } catch {}
+  } catch (e) {}
 })();
 
-document.getElementById('edit-gen-btn').addEventListener('click', async () => {
+document.getElementById('edit-gen-btn').addEventListener('click', async function () {
   const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
   const status = document.getElementById('edit-gen-status');
   if (!k) { status.textContent = 'No Gemini key set.'; return; }
@@ -308,79 +621,94 @@ document.getElementById('edit-gen-btn').addEventListener('click', async () => {
     if (!confirm('Replace the passage and reset the clock?')) return;
   }
   const theme = document.getElementById('edit-gen-theme').value;
-  status.textContent = `Generating a fresh passage on "${theme.toLowerCase()}"…`;
+  status.textContent = 'Generating a fresh passage on "' + theme.toLowerCase() + '"…';
   document.getElementById('edit-gen-btn').disabled = true;
   try {
     const p = await generateEditingPassage(theme);
+
+    // MOVE 2: only mark once the generation has actually succeeded.
+    if (window.JglFresh) {
+      const firstBody = String((p.lines[0] && p.lines[0].text) || '').slice(0, 60);
+      JglFresh.mark(FRESH_BUCKET, JglFresh.normKey(p.title + '|' + firstBody), { title: p.title, type: theme });
+    }
+
     PASSAGE = p;
-    try { localStorage.setItem(EDIT_GEN_CACHE_KEY, JSON.stringify(p)); } catch {}
+    PASSAGE_IS_CURATED = false;
+    attemptMarked = true;
+    try { localStorage.setItem(EDIT_GEN_CACHE_KEY, JSON.stringify(p)); } catch (e) {}
     document.getElementById('edit-gen-clear').style.display = 'inline-block';
-    status.textContent = `New passage ready: "${p.title}". Start the sprint to begin.`;
-    // Reset state and UI back to start-pane so the new passage runs cleanly.
-    state = { startedAt: null, timed: true, answers: {}, submitted: false };
-    document.getElementById('start-pane').style.display = '';
-    document.getElementById('quiz-pane').style.display = 'none';
-    document.getElementById('result-pane').style.display = 'none';
-    document.getElementById('result-pane').innerHTML = '';
+    status.textContent = 'New passage ready: "' + p.title + '". Start the sprint to begin.';
+    resetToStart();
   } catch (e) {
-    status.textContent = 'Generator error: ' + (e?.message || e);
+    status.textContent = 'Generator error: ' + ((e && e.message) || e);
   } finally {
     document.getElementById('edit-gen-btn').disabled = false;
   }
 });
 
-document.getElementById('edit-gen-clear').addEventListener('click', () => {
+document.getElementById('edit-gen-clear').addEventListener('click', function () {
   if (!confirm('Reset to the curated passage?')) return;
-  try { localStorage.removeItem(EDIT_GEN_CACHE_KEY); } catch {}
-  PASSAGE = JSON.parse(JSON.stringify(EDIT_CURATED));
+  try { localStorage.removeItem(EDIT_GEN_CACHE_KEY); } catch (e) {}
+  pickCuratedStart();
+  attemptMarked = false;
   document.getElementById('edit-gen-clear').style.display = 'none';
   document.getElementById('edit-gen-status').textContent = '';
+  resetToStart();
 });
 
 async function generateEditingPassage(theme) {
+  // MOVE 1: tell the model everything this student has already seen.
+  const avoid = (window.JglFresh ? JglFresh.avoidList(FRESH_BUCKET, 12) : []);
+  const avoidBlock = avoid.length
+    ? '\n\nDo NOT produce anything similar in topic, setting, character names, or wording to any of these, which the student has already seen:\n' + avoid.map(function (a) { return '- ' + a; }).join('\n')
+    : '';
+
   const sys = 'You are a PSLE English Paper 2 Editing item writer. Output VALID JSON ONLY — no markdown, no commentary. Primary 6 level. Singapore-natural settings.';
-  const prompt = `Generate ONE Editing passage on the theme: "${theme}".
-
-The passage has 10 numbered errors mixed: approximately FIVE grammar errors and FIVE spelling errors. Each error must be a single wrong word that the student replaces with a single correct word.
-
-Output JSON with EXACTLY:
-{
-  "title": "<short title, 4-7 words>",
-  "lines": [
-    {
-      "num": 1,
-      "wrong": "<the single wrong word, exact form as it appears>",
-      "correct": ["<the canonical correct word>", "<optional alternate>"],
-      "text": "<one sentence containing the placeholder {WRONG} where the wrong word goes>",
-      "why": "<one-sentence reason this is wrong (grammar rule or spelling rule)>"
-    },
-    ... 9 more lines, numbered 2 through 10 ...
-  ]
-}
-
-Constraints:
-- The text field MUST contain the literal placeholder "{WRONG}" exactly once where the wrong word appears.
-- The "wrong" word, in context, must be clearly incorrect — not just stylistic.
-- Approximate split: 5 grammar errors (tense, SVA, articles, prepositions, pronouns, plurals, double-comparatives) and 5 spelling errors (commonly misspelt at Primary 6: necessary, embarrassed, amount, separate, occurred, receive, etc.).
-- Each sentence reads naturally apart from the one error.
-- Don't use the same wrong word twice.
-- No emoji.`;
+  const prompt = 'Generate ONE Editing passage on the theme: "' + theme + '".\n\n' +
+'The passage has 10 numbered errors mixed: approximately FIVE grammar errors and FIVE spelling errors. Each error must be a single wrong word that the student replaces with a single correct word.\n\n' +
+'Output JSON with EXACTLY:\n' +
+'{\n' +
+'  "title": "<short title, 4-7 words>",\n' +
+'  "lines": [\n' +
+'    {\n' +
+'      "num": 1,\n' +
+'      "wrong": "<the single wrong word, exact form as it appears>",\n' +
+'      "correct": ["<the canonical correct word>", "<optional alternate>"],\n' +
+'      "errorType": "<one of: spelling, tense, sva, article, preposition, pronoun, plural, comparative, wordForm>",\n' +
+'      "text": "<one sentence containing the placeholder {WRONG} where the wrong word goes>",\n' +
+'      "why": "<one-sentence reason this is wrong (grammar rule or spelling rule)>"\n' +
+'    },\n' +
+'    ... 9 more lines, numbered 2 through 10 ...\n' +
+'  ]\n' +
+'}\n\n' +
+'Constraints:\n' +
+'- The text field MUST contain the literal placeholder "{WRONG}" exactly once where the wrong word appears.\n' +
+'- The "wrong" word, in context, must be clearly incorrect — not just stylistic.\n' +
+'- "errorType" is compulsory on every line and must be EXACTLY one of these nine strings: spelling, tense, sva, article, preposition, pronoun, plural, comparative, wordForm. Use "sva" for subject-verb agreement and "wordForm" when the wrong word is the wrong part of speech (excitement instead of excited).\n' +
+'- Spread the types out: at most FIVE lines may be "spelling", and use at least FOUR different grammar types across the remaining lines.\n' +
+'- Approximate split: 5 grammar errors and 5 spelling errors (commonly misspelt at Primary 6: necessary, embarrassed, amount, separate, occurred, receive).\n' +
+'- Each sentence reads naturally apart from the one error.\n' +
+'- Do not use the same wrong word twice.\n' +
+'- Write for a 12-year-old Singaporean student: calm, specific, everyday settings.\n' +
+'- No emoji.' + avoidBlock;
 
   const json = await window.askGemini({
     system: sys, prompt,
-    temperature: 0.55, maxTokens: 2200, thinkingBudget: 0,
+    temperature: 0.75, maxTokens: 2400, thinkingBudget: 0,
     responseMimeType: 'application/json', asJson: true,
   });
   if (!json || !Array.isArray(json.lines) || json.lines.length < 5) throw new Error('Unexpected response shape.');
-  // Defensive: ensure every line has the right fields
-  const lines = json.lines.slice(0, 10).map((ln, idx) => ({
-    num: typeof ln.num === 'number' ? ln.num : (idx + 1),
-    wrong: String(ln.wrong || ''),
-    correct: Array.isArray(ln.correct) ? ln.correct.map(String) : [String(ln.correct || '')],
-    text: String(ln.text || '').includes('{WRONG}') ? ln.text : (`${ln.text || ''} {WRONG}`),
-    why: String(ln.why || ''),
-  }));
-  return { title: json.title || 'AI-generated passage', lines };
+  const lines = json.lines.slice(0, 10).map(function (ln, idx) {
+    return {
+      num: typeof ln.num === 'number' ? ln.num : (idx + 1),
+      wrong: String(ln.wrong || ''),
+      correct: Array.isArray(ln.correct) ? ln.correct.map(String) : [String(ln.correct || '')],
+      errorType: normType(ln.errorType),
+      text: String(ln.text || '').indexOf('{WRONG}') !== -1 ? String(ln.text) : (String(ln.text || '') + ' {WRONG}'),
+      why: String(ln.why || ''),
+    };
+  });
+  return { title: String(json.title || 'AI-generated passage'), lines: lines };
 }
 </script>
 </body>
