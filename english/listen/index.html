@@ -233,6 +233,19 @@ function hasKey() {
   } catch (e) { return false; }
 }
 
+/* shared.js declares Progress and Streak with top-level `const`, which creates a
+   global LEXICAL binding, not a property on window. Testing window.Progress is
+   therefore always false and silently swallows every progress write. Resolve by
+   name instead, falling back to window for any page that does attach them. */
+function progressAPI() {
+  try { if (typeof Progress !== 'undefined' && Progress) return Progress; } catch (e) {}
+  return window.Progress || null;
+}
+function streakAPI() {
+  try { if (typeof Streak !== 'undefined' && Streak) return Streak; } catch (e) {}
+  return window.Streak || null;
+}
+
 /* =========================================================
    1. Question-type taxonomy and the trap dictionary
    ========================================================= */
@@ -801,10 +814,12 @@ function aggregate() {
 function recordDone(mode, score, total, byType) {
   saveAttempt({ iso: new Date().toISOString(), mode: mode, score: score, total: total, byType: byType });
   try {
-    if (window.Progress && Progress.recordQuiz) Progress.recordQuiz('listening', score, total);
-    if (window.Progress && Progress.recordDrillUsed) Progress.recordDrillUsed('listening');
-    if (window.Streak && Streak.record) Streak.record();
-    if (window.EnglishStreak && window.EnglishStreak.record) window.EnglishStreak.record();
+    var P = progressAPI();
+    if (P && typeof P.recordQuiz === 'function') P.recordQuiz('listening', score, total);
+    if (P && typeof P.recordDrillUsed === 'function') P.recordDrillUsed('listening');
+    var S = streakAPI();
+    if (S && typeof S.record === 'function') S.record();
+    if (window.EnglishStreak && typeof window.EnglishStreak.record === 'function') window.EnglishStreak.record();
   } catch (e) {}
 }
 
@@ -868,6 +883,9 @@ function buildVoicePicker() {
   }
   sel.disabled = false;
   el('btn-test').disabled = false;
+  /* Chrome returns an empty voice list on first call, so the amber notice may
+     already be on screen. Clear it now that real voices have arrived. */
+  el('tts-notice').innerHTML = '';
   var cur = Speech.getVoiceURI();
   sel.innerHTML = list.map(function (v) {
     var lang = String(v.lang || '').replace('_', '-');
@@ -1135,11 +1153,14 @@ function checkPracticeDone(p, total, quiet) {
   var after = el('after-host');
   if (!after) return;
   if (done < total) { if (!quiet) after.innerHTML = ''; return; }
-  if (practiceState.revealed) return;
-  practiceState.revealed = true;
 
-  Fresh.mark('listen', passageKey(p), { title: p.title, type: p.type });
-  recordDone('practice', score, total, byType);
+  /* Record once, but repaint the summary on every render, otherwise coming back
+     to a finished text leaves the score and the Next text button missing. */
+  if (!practiceState.revealed) {
+    practiceState.revealed = true;
+    Fresh.mark('listen', passageKey(p), { title: p.title, type: p.type });
+    recordDone('practice', score, total, byType);
+  }
 
   after.innerHTML =
     '<div class="why why-flat" style="margin-top:1rem;">' +
@@ -1232,7 +1253,7 @@ function renderPaper() {
       '</div>';
     el('btn-start-paper').addEventListener('click', function () {
       paper = buildPaper();
-      try { if (window.Progress && Progress.recordDrillUsed) Progress.recordDrillUsed('listening'); } catch (e) {}
+      try { var P = progressAPI(); if (P && typeof P.recordDrillUsed === 'function') P.recordDrillUsed('listening'); } catch (e) {}
       renderPaper();
     });
     return;
@@ -1613,6 +1634,7 @@ function onGenerate() {
     if (s) s.textContent = 'Added: ' + p.title + '. It is selected below.';
   }).catch(function (e) {
     var s = el('gen-status');
+    if (!s) return;
     var code = e && e.code;
     s.textContent = code === 'NO_KEY' ? 'No AI key set. Open Settings in the header.'
       : code === 'NETWORK' ? 'The network did not answer. Try again in a moment; the curated texts still work.'
@@ -1625,6 +1647,9 @@ function onGenerate() {
 }
 
 function generatePassage(type) {
+  if (typeof window.askGemini !== 'function') {
+    return Promise.reject(new Error('the AI helper did not load. Reload the page and try again.'));
+  }
   var avoid = Fresh.avoidList('listen', 15);
   var wantsPictures = (type === 'Instructions' || type === 'Telephone message' || type === 'School announcement');
   var sys =
@@ -1730,7 +1755,7 @@ if (!hasKey()) {
     'Only the "Generate a fresh passage" button needs a key. Add one from Settings in the header if you want new material.</div>';
 }
 
-try { if (window.Progress && Progress.recordVisit) Progress.recordVisit('listening'); } catch (e) {}
+try { var P0 = progressAPI(); if (P0 && typeof P0.recordVisit === 'function') P0.recordVisit('listening'); } catch (e) {}
 switchMode('practice');
 
 })();

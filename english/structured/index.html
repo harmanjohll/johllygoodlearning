@@ -448,7 +448,9 @@ function renderCoachThread() {
 function showModelAnswer() {
   let modelText = '';
   if (state.task === 'composition') {
-    modelText = `<strong>Topic:</strong> "${state.composition.topic.note}"<br><br><em>No single model answer is shown for Continuous Writing — refer to the three Band-5 mentor essays in <code>ModelEssays_Annotated_KB.md</code> for fully annotated examples.</em>`;
+    // topic.note may be Gemini-generated text, so it must be escaped.
+    const note = escapeHtml((state.composition.topic && state.composition.topic.note) || '');
+    modelText = `<strong>Topic:</strong> "${note}"<br><br><em>No single model answer is shown for Continuous Writing — refer to the three Band-5 mentor essays in <code>ModelEssays_Annotated_KB.md</code> for fully annotated examples.</em>`;
   } else {
     const q = state.comprehension.passage.questions[state.comprehension.qIdx];
     modelText = `<strong>Model answer:</strong><br>${escapeHtml(q.model)}`;
@@ -473,10 +475,27 @@ function compFreshKey(t) {
 function renderCompFreshReadout() {
   const el = document.getElementById('comp-fresh-readout');
   if (!el) return;
-  const s = window.JglFresh ? JglFresh.stats('composition') : { total: 0, last7: 0 };
+  let s = { total: 0, last7: 0 };
+  if (window.JglFresh) {
+    try { s = JglFresh.stats('composition') || s; } catch (e) { /* readout is best effort */ }
+  }
   el.textContent = s.total
     ? s.total + ' prompt' + (s.total === 1 ? '' : 's') + ' seen · ' + s.last7 + ' this week'
     : '';
+}
+
+// Marks the current prompt as attempted so it drops to the back of the queue.
+// Called only after a round trip actually succeeds — a failed network call
+// must not burn a prompt the student never got feedback on.
+function markCompositionAttempted() {
+  if (!window.JglFresh || !state.composition.topic) return;
+  try {
+    JglFresh.mark('composition', compFreshKey(state.composition.topic), {
+      title: state.composition.topic.title,
+      type:  state.composition.topic._generated ? 'generated' : 'curated',
+    });
+    renderCompFreshReadout();
+  } catch (e) { /* freshness is best effort */ }
 }
 
 // ── Composition picker ───────────────────────────────────
@@ -529,7 +548,12 @@ const COMP_CURATED_COUNT = COMPOSITION_TOPICS.length;
 })();
 
 document.getElementById('comp-gen-btn').addEventListener('click', async () => {
-  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  const k = (() => {
+    try {
+      return (window.JglStorage && window.JglStorage.getGeminiKey())
+        || localStorage.getItem('jgl.geminiKey') || '';
+    } catch (e) { return ''; }
+  })();
   const status = document.getElementById('comp-gen-status');
   if (!k) { status.textContent = 'No Gemini key set.'; return; }
   const genre = document.getElementById('comp-gen-genre').value;
@@ -568,7 +592,10 @@ document.getElementById('comp-gen-clear').addEventListener('click', () => {
 });
 
 async function generateCompPrompt(genre) {
-  const avoid = (window.JglFresh ? JglFresh.avoidList('composition', 12) : []);
+  let avoid = [];
+  if (window.JglFresh) {
+    try { avoid = JglFresh.avoidList('composition', 12) || []; } catch (e) { avoid = []; }
+  }
   const avoidBlock = avoid.length
     ? '\n\nDo NOT produce anything similar in topic, setting, character names, or wording to any of these, which the student has already seen:\n' + avoid.map(a => '- ' + a).join('\n')
     : '';
@@ -910,6 +937,19 @@ function renderAnnotator(targetEl, annotations, context) {
     targetEl.style.display = 'block';
     return;
   }
+  // Model-returned fields land in HTML attributes and class names below, so pin
+  // the type to the known vocabulary and coerce the index to a real number.
+  annotations = annotations.map((a, i) => {
+    const src = (a && typeof a === 'object') ? a : {};
+    const n = Number(src.sentence_index);
+    return {
+      sentence_index: Number.isFinite(n) ? n : i,
+      sentence:       String(src.sentence == null ? '' : src.sentence),
+      type:           ANNOT_TYPES.indexOf(src.type) !== -1 ? src.type : 'OK',
+      issue:          String(src.issue == null ? '' : src.issue),
+      suggestion:     String(src.suggestion == null ? '' : src.suggestion),
+    };
+  });
   // Count by type
   const counts = {};
   annotations.forEach(a => { counts[a.type] = (counts[a.type] || 0) + 1; });
@@ -1002,16 +1042,6 @@ document.getElementById('composition-submit').addEventListener('click', async ()
   const draft = document.getElementById('composition-draft').value.trim();
   if (!draft) { showToast('Write your draft first.'); return; }
   if (!checkKey()) return;
-  // This prompt has now been attempted, so it drops to the back of the queue.
-  if (window.JglFresh && state.composition.topic) {
-    try {
-      JglFresh.mark('composition', compFreshKey(state.composition.topic), {
-        title: state.composition.topic.title,
-        type:  state.composition.topic._generated ? 'generated' : 'curated',
-      });
-      renderCompFreshReadout();
-    } catch (e) { /* freshness is best effort */ }
-  }
   const btn = document.getElementById('composition-submit');
   const fb = document.getElementById('composition-feedback');
   const annotEl = document.getElementById('annot-output');
@@ -1050,6 +1080,8 @@ document.getElementById('composition-submit').addEventListener('click', async ()
       const text = await callGemini(compositionExaminerPrompt(state.composition.topic, draft));
       renderFeedback(fb, text);
     }
+    // Only now, once the round trip has resolved, does the prompt count as attempted.
+    markCompositionAttempted();
     if (typeof Streak !== 'undefined') Streak.record();
     if (window.EnglishStreak && typeof window.EnglishStreak.record === 'function') { try { window.EnglishStreak.record(); } catch {} }
     if (typeof Progress !== 'undefined') Progress.recordVisit('composition');

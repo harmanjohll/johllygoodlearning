@@ -298,6 +298,20 @@ function escapeHTML(s) {
 
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
 
+// Reading localStorage can itself throw, not just return null: Safari with
+// cookies blocked, private mode, a third-party iframe. An unguarded read
+// here runs during boot, so a blocked store took the whole page down.
+function geminiKey() {
+  try {
+    if (window.JglStorage && typeof window.JglStorage.getGeminiKey === 'function') {
+      const k = window.JglStorage.getGeminiKey();
+      if (k) return k;
+    }
+  } catch (e) { /* storage blocked — fall through */ }
+  try { return localStorage.getItem('jgl.geminiKey') || ''; }
+  catch (e) { return ''; }
+}
+
 function passageKey(p) {
   const base = (p && p.id) ? p.id : ((p && p.title ? p.title : '') + '|' + String(p && p.body ? p.body : '').slice(0, 60));
   return window.JglFresh ? JglFresh.normKey(base) : base;
@@ -469,8 +483,7 @@ function resetToStart() {
 /* ── quiz flow ───────────────────────────────────────────── */
 
 function init() {
-  const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
-  if (!key) document.getElementById('key-warn').style.display = 'block';
+  if (!geminiKey()) document.getElementById('key-warn').style.display = 'block';
   document.getElementById('btn-start').addEventListener('click',    function () { startQuiz(true); });
   document.getElementById('btn-untimed').addEventListener('click',  function () { startQuiz(false); });
   document.getElementById('btn-submit-all').addEventListener('click', function () {
@@ -580,7 +593,7 @@ async function submitAll() {
   document.getElementById('btn-submit-all').disabled = true;
   document.getElementById('btn-submit-all').textContent = 'Marking…';
 
-  const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  const key = geminiKey();
   if (!key) {
     QUESTIONS.forEach(function (_, idx) { aiResults[idx] = 'No Gemini key set. Open How-to-use to add one, then retry.'; });
   } else {
@@ -600,9 +613,13 @@ async function submitAll() {
       fbEl.classList.add('show');
       fbEl.querySelector('pre').textContent = aiResults[idx] || '(no marker pass)';
     }
+    // The rubric owns the denominator, not the marker. Questions here are
+    // worth 2 or 3 marks, and a model that echoes "MARK: 2/2" on a 3-mark
+    // Infer would silently rewrite the paper's total and, worse, skew the
+    // command-word mastery strip that this page exists to produce.
     const m = (aiResults[idx] || '').match(/MARK:\s*(\d+)\s*\/\s*(\d+)/);
-    const got = m ? Number(m[1]) : 0;
-    const max = m ? Number(m[2]) : (Number(q.marks) || 0);
+    const max = Number(q.marks) || 0;
+    const got = m ? Math.max(0, Math.min(max, Number(m[1]) || 0)) : 0;
     if (m) marked += 1;
     totalGot += got;
     totalMax += max;
@@ -617,14 +634,30 @@ async function submitAll() {
     saveAttempt({ iso: new Date().toISOString(), total: totalGot, max: totalMax, byCmd: byCmd });
   }
 
-  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('comprehension');
+  // Progress.set writes to localStorage without a guard of its own, so a
+  // full quota or a blocked store would throw here and abort the rest of
+  // submitAll: no scorecard, no feedback. A progress ping is not worth
+  // losing the student's marked sprint over.
+  try {
+    if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('comprehension');
+  } catch (e) { /* progress is best-effort */ }
+
+  // Nothing was marked, so there is no score. Printing 0 / 12 here would
+  // read as "you scored zero" when in fact the marker never ran.
+  const scoreBlock = marked
+    ? '<div class="num">' + totalGot + ' / ' + totalMax + '</div>' +
+      '<div style="color:var(--muted);font-size:.85rem;margin-top:.55rem;">Scroll up to read the marker’s per-question feedback. Quote then explain is the difference between AL2 and AL1.</div>'
+    : '<div style="color:var(--text);font-size:.9rem;line-height:1.65;">' +
+        (key
+          ? 'The marker did not return a score this time, so there is nothing to total. Your answers are still above; open the rubric breakdown under each question and mark yourself against it.'
+          : 'No score: there is no Gemini key set, so nothing was marked. Your answers are still above. Open “Show the rubric breakdown” under each question and check yourself against it, line by line.') +
+      '</div>';
 
   const r = document.getElementById('result-pane');
   r.style.display = 'block';
   r.innerHTML =
     '<div class="scorecard">' +
-      '<div class="num">' + totalGot + ' / ' + totalMax + '</div>' +
-      '<div style="color:var(--muted);font-size:.85rem;margin-top:.55rem;">Scroll up to read the marker’s per-question feedback. Quote then explain is the difference between AL2 and AL1.</div>' +
+      scoreBlock +
       '<div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;">' +
         '<a class="btn btn-primary" href="./">Retry</a>' +
         '<a class="btn btn-secondary" href="../">← Hub</a>' +
@@ -702,10 +735,6 @@ function markGenerated(passage, label) {
   // MOVE 2: mark only after the generation has actually succeeded.
   if (!window.JglFresh) return;
   JglFresh.mark(BUCKET, JglFresh.normKey(passage.title + '|' + String(passage.body).slice(0, 60)), { title: passage.title, type: label });
-}
-
-function geminiKey() {
-  return (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
 }
 
 document.getElementById('btn-generate').addEventListener('click', async () => {

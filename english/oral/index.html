@@ -399,6 +399,19 @@
     }
     function fresh() { return window.JglFresh || null; }
 
+    /* shared.js declares Progress and Streak with top-level `const`, which creates a
+       global LEXICAL binding, not a property on window. Testing window.Progress is
+       therefore always false and silently swallows every progress write. Resolve by
+       name first, falling back to window for any page that does attach them. */
+    function progressAPI() {
+      try { if (typeof Progress !== 'undefined' && Progress) return Progress; } catch (e) {}
+      return window.Progress || null;
+    }
+    function streakAPI() {
+      try { if (typeof Streak !== 'undefined' && Streak) return Streak; } catch (e) {}
+      return window.Streak || null;
+    }
+
     /* ══════════ curated mock sets (no-key fallback) ══════════
        Four sets, each with a deliberately different tonal demand
        in the reading, and a photograph description whose theme is
@@ -972,7 +985,11 @@
           return;
         }
 
+        /* The scorecard is already built by this point; never strand the pupil on
+           the submit screen with both buttons disabled if a later step throws. */
         buildScorecard(reading, answers, errs.length).then(function () {
+          go('result');
+        }, function () {
           go('result');
         });
       });
@@ -1092,12 +1109,14 @@
         fixes: []
       };
 
+      /* Two-arg then, so the fallback covers only synthesiseFixes. A throw inside
+         persistMock must not re-run it and write the mock to history twice. */
       return synthesiseFixes().then(function (fixes) {
         mock.marks.fixes = fixes;
-        persistMock();
-      }).catch(function () {
+      }, function () {
         mock.marks.fixes = localFixes();
-        persistMock();
+      }).then(function () {
+        try { persistMock(); } catch (e) {}
       });
     }
 
@@ -1207,12 +1226,18 @@
       writeJSON(MOCKS_KEY, all.slice(-MOCKS_CAP));
 
       try {
-        if (window.Streak && Streak.record) Streak.record();
-        if (window.Progress) {
-          Progress.recordDrillUsed('oral-reading');
-          Progress.recordDrillUsed('oral-sbc');
-          if (m.readingTotal != null) Progress.recordQuiz('oral-reading', m.readingTotal, 15);
-          if (m.sbcTotal != null)     Progress.recordQuiz('oral-sbc', m.sbcTotal, 25);
+        var S = streakAPI();
+        if (S && S.record) S.record();
+        var P = progressAPI();
+        if (P) {
+          if (m.readingTotal != null) {
+            P.recordDrillUsed('oral-reading');
+            P.recordQuiz('oral-reading', m.readingTotal, 15);
+          }
+          if (m.sbcTotal != null) {
+            P.recordDrillUsed('oral-sbc');
+            P.recordQuiz('oral-sbc', m.sbcTotal, 25);
+          }
         }
       } catch (e) {}
 
@@ -1568,7 +1593,10 @@
           : '<b>This browser cannot record audio.</b> Try Chrome, Edge, or Safari. The mock still runs and still times you; only the takes and the marking need a microphone.';
       }
 
-      try { if (window.Progress) Progress.recordVisit('oral-reading'); } catch (e) {}
+      try {
+        var P = progressAPI();
+        if (P && P.recordVisit) { P.recordVisit('oral-reading'); P.recordVisit('oral-sbc'); }
+      } catch (e) {}
 
       renderRollup();
       renderHistory();

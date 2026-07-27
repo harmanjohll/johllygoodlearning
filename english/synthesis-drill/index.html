@@ -366,8 +366,21 @@ function cloneDeep(o) { return JSON.parse(JSON.stringify(o)); }
 function bankKey(s) {
   return window.JglFresh ? JglFresh.normKey(s.id || s.label) : String(s.id || s.label);
 }
+// Storage can throw outright, not just return null: Safari private
+// browsing and third-party-cookie-blocked iframes make every
+// localStorage access a SecurityError. This is the first call init()
+// makes, so an unguarded read takes the whole page down before a
+// single listener is bound.
 function getKey() {
-  return (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  try {
+    if (window.JglStorage && typeof JglStorage.getGeminiKey === 'function') {
+      const k = JglStorage.getGeminiKey();
+      if (k) return k;
+    }
+  } catch (e) { /* fall through to the raw read */ }
+  try {
+    return localStorage.getItem('jgl.geminiKey') || '';
+  } catch (e) { return ''; }
 }
 function fmtMs(ms) {
   const mins = Math.max(0, Math.floor(ms / 60000));
@@ -696,7 +709,13 @@ async function submitAll() {
     });
   }
 
-  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('synthesis');
+  // Progress.set writes to localStorage without a guard of its own, so a
+  // full quota or a blocked store would throw here and abort the rest of
+  // submitAll: no scorecard, no feedback. A progress ping is not worth
+  // losing the student's marked sprint over.
+  try {
+    if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('synthesis');
+  } catch (e) { /* progress is best-effort */ }
 
   let runBars = '';
   Object.keys(byPattern).forEach(function (p) {
@@ -710,13 +729,23 @@ async function submitAll() {
       '</div>';
   });
 
+  // Nothing was marked, so there is no score. Printing 0 / 10 here would
+  // read as "you scored zero" when in fact the marker never ran.
+  const scoreBlock = parsed
+    ? '<div class="num">' + totalGot + ' / ' + totalMax + '</div>' +
+      '<div style="color:var(--muted);font-size:.85rem;margin-top:.55rem;">Each item: 1 mark grammar + 1 mark meaning. Scroll up to read the marker’s per-item feedback.</div>'
+    : '<div style="color:var(--text);font-size:.9rem;line-height:1.65;margin-top:.35rem;">' +
+        (key
+          ? 'The marker did not return a score this time, so there is nothing to total. Your answers are still above; open each item and compare against the suggested rewrite.'
+          : 'No score: there is no Gemini key set, so nothing was marked. Your answers are still above. Open “Show a suggested rewrite” on each item and compare against it yourself, then check the rubric line underneath.') +
+      '</div>';
+
   const r = document.getElementById('result-pane');
   r.style.display = 'block';
   r.innerHTML =
     '<div class="scorecard">' +
-      '<h3>Synthesis Sprint — Scorecard</h3>' +
-      '<div class="num">' + totalGot + ' / ' + totalMax + '</div>' +
-      '<div style="color:var(--muted);font-size:.85rem;margin-top:.55rem;">Each item: 1 mark grammar + 1 mark meaning. Scroll up to read the marker’s per-item feedback.</div>' +
+      '<h3>Synthesis Sprint — ' + (parsed ? 'Scorecard' : 'Not marked') + '</h3>' +
+      scoreBlock +
       '<div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;">' +
         '<button class="btn btn-primary" id="btn-next-after">Next set →</button>' +
         '<a class="btn btn-secondary" href="./">Retry</a>' +
@@ -760,8 +789,12 @@ const SYN_GEN_CACHE_KEY = 'jgl.english.synthesis.generated';
 (function rehydrateSyn() {
   try {
     const cached = JSON.parse(localStorage.getItem(SYN_GEN_CACHE_KEY) || 'null');
-    if (cached && Array.isArray(cached) && cached.length) {
-      setItems(cached, 'AI-generated items from your last session', false);
+    // Run the cache back through the same shape check the generator uses.
+    // A stale or half-written cache would otherwise replace the curated
+    // bank with items that have no source and no prefix: unanswerable.
+    const items = Array.isArray(cached) ? normaliseItems(cached) : [];
+    if (items.length) {
+      setItems(items, 'AI-generated items from your last session', false);
       attemptMarked = true;
       document.getElementById('syn-gen-clear').style.display = 'inline-block';
       document.getElementById('syn-gen-status').textContent = 'Showing AI-generated items from your last session.';

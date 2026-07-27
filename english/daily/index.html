@@ -167,6 +167,9 @@ const TOPIC_SOURCES = [
 const PAPER_COLOR = {
   P1: '#fb7185', P2: '#60a5fa', P3: '#e879f9', P4: '#fbbf24',
 };
+// Only ever returns a colour from the fixed map above, so it is safe to
+// interpolate into a style attribute.
+function paperColor(p) { return PAPER_COLOR[p] || '#a78bfa'; }
 
 // ── State ──────────────────────────────────────────────────
 let allItems = [];          // all pooled items with metadata
@@ -186,10 +189,6 @@ function freshKeyFor(it) {
   const raw = String((it && it.prompt) || '');
   if (window.JglFresh) { try { return JglFresh.normKey(raw); } catch (e) { return raw; } }
   return raw;
-}
-function isSeenItem(it) {
-  if (!window.JglFresh) return false;
-  try { return JglFresh.seen('daily', freshKeyFor(it)); } catch (e) { return false; }
 }
 function plainPrompt(it) {
   return String((it && it.prompt) || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -245,24 +244,41 @@ async function loadAllItems() {
   }
 }
 
-// Build the candidate pool: unseen items first. Only if that leaves fewer
-// than ten do we let previously seen items back in, least recently seen
-// first, so nothing repeats until the bank genuinely runs dry.
-function buildPool() {
-  const unseen = [];
-  const already = [];
-  allItems.forEach(it => { (isSeenItem(it) ? already : unseen).push(it); });
-  poolStats = { unseen: unseen.length, total: allItems.length };
+// Build the candidate pool: unseen items first, then previously seen items
+// least-recently-seen first, so nothing repeats until the bank runs dry.
+//
+// We top the pool up to POOL_MIN rather than to exactly ten. Once every item
+// has been seen at least once (which happens after about a fortnight on a
+// 138-item bank) a ten-item pool would leave the mastery weighting and the
+// shuffle with no freedom at all: the same block of ten would come back in a
+// fixed cycle, often from only one or two topics. A surplus keeps the daily
+// mix genuinely mixed while still preferring the oldest material.
+const POOL_MIN = 40;
 
+function buildPool() {
+  // Read the ledger ONCE. JglFresh.seen() re-parses localStorage on every
+  // call, so asking it per item cost one JSON.parse per item per pick.
   let order = [];
   if (window.JglFresh) {
     try { order = JglFresh.recent('daily').map(e => String(e.key)); } catch (e) { order = []; }
   }
-  // `order` is newest first, so a HIGHER index means seen longer ago.
-  already.sort((a, b) => order.indexOf(String(freshKeyFor(b))) - order.indexOf(String(freshKeyFor(a))));
+  // `order` is newest first, so a HIGHER rank means seen longer ago.
+  const rank = new Map();
+  order.forEach((k, i) => { if (!rank.has(k)) rank.set(k, i); });
+
+  const unseen = [];
+  const already = [];
+  allItems.forEach(it => {
+    const key = String(freshKeyFor(it));
+    if (rank.has(key)) already.push({ it, r: rank.get(key) });
+    else unseen.push(it);
+  });
+  poolStats = { unseen: unseen.length, total: allItems.length };
+
+  already.sort((a, b) => b.r - a.r);   // least recently seen first
 
   const pool = unseen.slice();
-  for (let i = 0; i < already.length && pool.length < 10; i++) pool.push(already[i]);
+  for (let i = 0; i < already.length && pool.length < POOL_MIN; i++) pool.push(already[i].it);
   return pool;
 }
 
@@ -333,7 +349,18 @@ function loadStreak() {
   try { return JSON.parse(localStorage.getItem(STREAK_KEY) || '{"dates":{}}'); }
   catch { return { dates: {} }; }
 }
-function saveStreak(s) { try { localStorage.setItem(STREAK_KEY, JSON.stringify(s)); } catch {} }
+// The strip only ever reads the last fourteen days, but the dates map would
+// otherwise keep one key per day for ever. Cap it before every write.
+const STREAK_MAX_DAYS = 400;
+function saveStreak(s) {
+  try {
+    const dates = (s && s.dates) || {};
+    const keys = Object.keys(dates).sort();          // ISO dates sort chronologically
+    const trimmed = {};
+    keys.slice(-STREAK_MAX_DAYS).forEach(k => { trimmed[k] = dates[k]; });
+    localStorage.setItem(STREAK_KEY, JSON.stringify({ ...s, dates: trimmed }));
+  } catch (e) { /* quota or private mode — the quiz still scores */ }
+}
 function recordTodayScore(score) {
   const s = loadStreak();
   s.dates = s.dates || {};
@@ -363,18 +390,25 @@ function paintStreakStrip() {
   }
   const todayScore = s.dates?.[todayStr()];
   const info = document.getElementById('streak-info');
-  if (todayScore != null) {
-    info.innerHTML = `<p style="font-size:.85rem;color:var(--muted);">Today's score is already in: <strong style="color:var(--accent);">${todayScore} / 10</strong>. You can retake for review — the streak counts only the first attempt.</p>`;
-  } else {
-    info.innerHTML = '';
-  }
+  // `cur` was being computed and then dropped on the floor; the start card
+  // promises a streak but never showed one.
+  const streakLine = cur > 0
+    ? `<p style="font-size:.85rem;color:var(--muted);">Current streak: <strong style="color:var(--accent);">${cur} day${cur === 1 ? '' : 's'}</strong> at 7 or better.</p>`
+    : '';
+  const todayLine = todayScore != null
+    ? `<p style="font-size:.85rem;color:var(--muted);">Today's score is already in: <strong style="color:var(--accent);">${todayScore} / 10</strong>. You can retake for review — the streak counts only the first attempt.</p>`
+    : '';
+  info.innerHTML = streakLine + todayLine;
 }
 
 // ── Freshness readouts ────────────────────────────────────
 function renderFreshReadouts() {
   const freshEl = document.getElementById('fresh-readout');
   const poolEl  = document.getElementById('pool-readout');
-  const s = window.JglFresh ? JglFresh.stats('daily') : { total: 0, last7: 0 };
+  let s = { total: 0, last7: 0 };
+  if (window.JglFresh) {
+    try { s = JglFresh.stats('daily') || s; } catch (e) { /* ledger unreadable */ }
+  }
   if (freshEl) {
     freshEl.textContent = s.total
       ? `${s.total} question${s.total === 1 ? '' : 's'} seen · ${s.last7} this week`
@@ -445,8 +479,8 @@ function renderItems() {
     div.className = 'item';
     div.dataset.idx = idx;
     div.innerHTML = `
-      <div class="topic-tag">Q${idx + 1} · ${it.topicName} <span class="topic-pill" style="border-color:${PAPER_COLOR[it.paper]};color:${PAPER_COLOR[it.paper]};">${it.paper}</span></div>
-      <div class="stem">${it.prompt}</div>
+      <div class="topic-tag">Q${idx + 1} · ${escapeHTML(it.topicName)} <span class="topic-pill" style="border-color:${paperColor(it.paper)};color:${paperColor(it.paper)};">${escapeHTML(it.paper)}</span></div>
+      <div class="stem">${escapeHTML(it.prompt)}</div>
       <div class="options">
         ${it.options.map((opt, oi) => `<button data-opt="${oi}">${String.fromCharCode(65 + oi)}. ${escapeHTML(opt)}</button>`).join('')}
       </div>
@@ -513,7 +547,10 @@ function endQuiz() {
   const total  = todayItems.length;
 
   // Freshness: these ten have now been worked, so they drop to the back of
-  // the queue. Marked on submit, never on load.
+  // the queue. Marked on submit, never on load, and on EVERY submission
+  // rather than only the first of the day — a retake still means the student
+  // has seen these questions, and without it the pool filter in buildPool()
+  // would have nothing to filter against.
   if (window.JglFresh) {
     todayItems.forEach(it => {
       try {
@@ -537,18 +574,6 @@ function endQuiz() {
       const touched = new Set(todayItems.map(i => i.topicId));
       touched.forEach(t => Progress.recordDrillUsed(t));
     }
-  }
-
-  // Retire today's ten from the pool so tomorrow serves different items.
-  // This runs on EVERY submission, not just the first of the day — a
-  // retake still means the student has now seen these questions, and
-  // without it the seen() filter above would never have anything to
-  // filter against.
-  if (window.JglFresh) {
-    todayItems.forEach(it => {
-      try { JglFresh.mark('daily', freshKeyFor(it), { title: (it.prompt || '').slice(0, 70), type: it.topicId }); }
-      catch (e) { /* quota or private mode — freshness is a nicety */ }
-    });
   }
 
   document.getElementById('quiz-pane').style.display = 'none';
@@ -578,8 +603,8 @@ function endQuiz() {
     const sym = answers[idx] === 'right' ? '✓' : (answers[idx] === 'wrong' ? '✗' : '·');
     const symColor = answers[idx] === 'right' ? '#4ade80' : (answers[idx] === 'wrong' ? '#f87171' : 'var(--muted)');
     reviewHTML += `<div style="border-top:1px solid var(--border);padding-top:.65rem;margin-top:.65rem;">
-      <div style="font-size:.85rem;color:var(--muted);"><span style="color:${symColor};font-weight:800;">${sym}</span> Q${idx + 1} · ${it.topicName}</div>
-      <div style="font-size:.88rem;color:var(--text);line-height:1.55;margin:.2rem 0;">${it.prompt}</div>
+      <div style="font-size:.85rem;color:var(--muted);"><span style="color:${symColor};font-weight:800;">${sym}</span> Q${idx + 1} · ${escapeHTML(it.topicName)}</div>
+      <div style="font-size:.88rem;color:var(--text);line-height:1.55;margin:.2rem 0;">${escapeHTML(it.prompt)}</div>
       <div style="font-size:.82rem;color:var(--accent);">Correct: ${String.fromCharCode(65 + it.correct)}. ${escapeHTML(it.options[it.correct])}</div>
       <div style="font-size:.8rem;color:var(--muted);margin-top:.2rem;line-height:1.55;">${escapeHTML(it.explanation || '')}</div>
     </div>`;

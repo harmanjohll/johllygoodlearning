@@ -163,7 +163,7 @@
 
   <div id="quiz-pane" style="display:none;">
     <div class="timer-bar">
-      <span class="time-left" id="time-left">8:00</span>
+      <span class="time-left" id="time-left">08:00</span>
       <span style="color:var(--muted);font-size:.85rem;" id="score-meta">0 answered</span>
       <span style="flex:1;"></span>
       <button class="btn btn-secondary" id="btn-submit" style="font-size:.82rem;padding:.4rem .8rem;">Submit now</button>
@@ -313,6 +313,25 @@ function escapeHTML(s) {
   });
 }
 
+// localStorage throws outright in private-browsing / blocked-cookie modes,
+// so every read goes through here and falls back to a sane default.
+function readLS(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v == null ? fallback : v;
+  } catch (e) { return fallback; }
+}
+
+function geminiKey() {
+  try {
+    if (window.JglStorage && window.JglStorage.getGeminiKey) {
+      const k = window.JglStorage.getGeminiKey();
+      if (k) return k;
+    }
+  } catch (e) { /* storage blocked — fall through */ }
+  return readLS('jgl.geminiKey', '') || '';
+}
+
 function stimKey(s) {
   const base = (s && s.id) ? s.id : ((s && s.title ? s.title : '') + '|' + String(s && s.mockBody ? s.mockBody : '').slice(0, 60));
   return window.JglFresh ? JglFresh.normKey(base) : base;
@@ -419,31 +438,58 @@ function renderDiagHome() {
 
 /* ── curated bank rotation ───────────────────────────────── */
 
+// The bank, sorted so the poster the student is least likely to remember
+// comes first: never-seen posters lead, then the rest oldest-seen first.
+// JglFresh keeps its ledger oldest first, so a poster's index there IS its
+// recency rank, and anything absent from the ledger sorts ahead of it.
+function bankBySeen() {
+  const fresh = window.JglFresh;
+  if (!fresh) return CURATED_BANK.slice();
+  let ledger = [];
+  try {
+    ledger = fresh.recent(BUCKET).map(function (e) { return e && e.key; }).reverse();
+  } catch (e) { ledger = []; }
+  return CURATED_BANK.map(function (x, i) {
+    const rank = ledger.indexOf(String(fresh.normKey(x.id || x.title)));
+    return { x: x, rank: rank, i: i };
+  }).sort(function (a, b) { return a.rank - b.rank || a.i - b.i; })
+    .map(function (r) { return r.x; });
+}
+
+// bankOffset is what "Draw another pair" advances. It has to rotate the
+// recency-sorted bank, not the raw array: once every poster has been seen
+// the recency sort is stable, so rotating the raw array changed nothing and
+// the button silently re-served the identical pair.
 function orderedBank() {
-  const n = CURATED_BANK.length;
+  const base = bankBySeen();
+  const n = base.length;
+  if (!n) return [];
   const out = [];
-  for (let i = 0; i < n; i++) out.push(CURATED_BANK[(i + bankOffset) % n]);
+  for (let i = 0; i < n; i++) out.push(base[(i + bankOffset) % n]);
   return out;
 }
 
 function pickCurated(n) {
-  const out = [];
-  let pool = orderedBank();
-  for (let i = 0; i < n && pool.length; i++) {
-    const chosen = window.JglFresh
-      ? JglFresh.pickUnseen(BUCKET, pool, function (x) { return JglFresh.normKey(x.id || x.title); })
-      : pool[0];
-    const p = chosen || pool[0];
-    out.push(p);
-    pool = pool.filter(function (x) { return x !== p; });
-  }
-  return out;
+  return orderedBank().slice(0, Math.max(0, n));
+}
+
+// Cached posters are replayed straight into innerHTML and into the scorer,
+// so anything without a usable items array is dropped here rather than
+// throwing on Start and leaving the student on a dead page.
+function validStimulus(s) {
+  return !!s && typeof s === 'object' && Array.isArray(s.items) && s.items.length > 0
+    && s.items.every(function (it) { return it && typeof it === 'object' && Array.isArray(it.options) && it.options.length > 0; });
 }
 
 function loadGenerated() {
   try {
     const c = JSON.parse(localStorage.getItem(GEN_CACHE_KEY) || '[]');
-    return Array.isArray(c) ? c : [];
+    if (!Array.isArray(c)) return [];
+    // The answer key is stored under "<id>:<index>", so an entry without an
+    // id would collide with every other id-less entry and lose marks.
+    return c.filter(validStimulus).map(function (s, i) {
+      return s.id ? s : Object.assign({}, s, { id: 'gen-cached-' + i });
+    });
   } catch (e) { return []; }
 }
 
@@ -483,7 +529,7 @@ function resetToStart() {
   r.style.display = 'none';
   r.innerHTML = '';
   const t = document.getElementById('time-left');
-  t.textContent = '8:00';
+  t.textContent = '08:00';
   t.classList.remove('warn', 'crit');
   renderDiagHome();
 }
@@ -644,7 +690,12 @@ function submit() {
 
   saveAttempt({ iso: new Date().toISOString(), score: got, total: total, byType: byType });
 
-  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('visual-text');
+  // Progress.set writes to localStorage unguarded, so in private-browsing
+  // mode it throws and would take the scorecard down with it. The student's
+  // marks matter more than the progress ping.
+  try {
+    if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('visual-text');
+  } catch (e) { /* progress is best-effort; never block the result */ }
 
   const qual =
     got === total ? 'Perfect. Every poster gives up its answers.' :
@@ -684,9 +735,12 @@ function submit() {
 /* ── AI poster generator ─────────────────────────────────── */
 
 document.getElementById('btn-generate').addEventListener('click', async () => {
-  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  const k = geminiKey();
   const status = document.getElementById('gen-status');
-  if (!k) { status.textContent = 'No Gemini key set.'; return; }
+  if (!k) {
+    status.textContent = 'No Gemini key set. Open Settings (top right) to add one. The four curated posters work without a key.';
+    return;
+  }
   if (state.startedAt && !state.submitted) {
     if (!confirm('Load a new poster (your current attempt will be reset)?')) return;
   }

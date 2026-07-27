@@ -582,7 +582,7 @@
             + '<div class="h-meta">'
             + '<span class="tag v-' + escapeHTML(verdict) + '">' + escapeHTML(verdict) + '</span>'
             + (o.frequency ? '<span class="tag">' + escapeHTML(o.frequency) + '</span>' : '')
-            + '</div></div>' + actsHTML(item) + '</div>'
+            + '</div></div>' + actsHTML(item, !avoid) + '</div>'
             + (o.meaning ? '<p class="h-def">' + escapeHTML(o.meaning) + '</p>' : '')
             + (o.useWhen ? '<p class="h-when"><b>Use when</b> ' + escapeHTML(o.useWhen) + '</p>' : '')
             + (o.example ? '<p class="h-eg">' + escapeHTML(o.example) + '</p>' : '')
@@ -1021,17 +1021,59 @@
       try { return !!localStorage.getItem('jgl.geminiKey'); } catch (_) { return false; }
     }
 
+    /* shared.js declares Progress and Streak with top-level `const`, which makes a
+       global LEXICAL binding, not a property on window. Testing window.Progress is
+       therefore always false and silently swallows every progress write. Resolve by
+       name first, falling back to window for any page that does attach them. */
+    function progressAPI() {
+      try { if (typeof Progress !== 'undefined' && Progress) return Progress; } catch (_) {}
+      return window.Progress || null;
+    }
+    function streakAPI() {
+      try { if (typeof Streak !== 'undefined' && Streak) return Streak; } catch (_) {}
+      return window.Streak || null;
+    }
+
+    /* Titles are not unique in every section. Openers and endings are titled by
+       `type` (three entries share "participial"), and Show-Don't-Tell items are
+       titled by `emotion` (five share "fear"). Left alone the picker shows a run
+       of identical options and the student cannot tell which handle they are
+       sending to the marker. Append a short distinguishing snippet, but only for
+       the titles that actually repeat, so the common case stays clean. */
+    function tryOptionHint(it) {
+      var o = (it && it.raw) || {};
+      var t = str(o.template || o.showing || o.shown || o.telling || o.whenToUse || o.meaning || o.example)
+        .replace(/\s+/g, ' ').trim();
+      if (!t) return '';
+      return t.length > 46 ? t.slice(0, 45).trim() + '…' : t;
+    }
+    function tryOptionsHTML(list, suffixFn) {
+      var counts = {};
+      list.forEach(function (it) { counts[it.title] = (counts[it.title] || 0) + 1; });
+      return list.map(function (it) {
+        var label = str(it.title);
+        if (counts[it.title] > 1) {
+          var hint = tryOptionHint(it);
+          if (hint) label += ' — ' + hint;
+        }
+        if (suffixFn) {
+          var sfx = suffixFn(it);
+          if (sfx) label += ' — ' + sfx;
+        }
+        return '<option value="' + escapeHTML(it.id) + '">' + escapeHTML(label) + '</option>';
+      }).join('');
+    }
+
     function populateTrySelect() {
       var sel = $('trySelect');
       if (!sel) return;
       var prev = sel.value;
       var opts = [];
-      var pinnedIds = kit.map(function (e) { return e.id; }).filter(function (id) { return ITEM_BY_ID[id]; });
-      if (pinnedIds.length) {
-        opts.push('<optgroup label="From my kit">' + pinnedIds.map(function (id) {
-          var it = ITEM_BY_ID[id];
-          return '<option value="' + escapeHTML(id) + '">' + escapeHTML(it.title) + ' — ' + escapeHTML(it.sectionLabel) + '</option>';
-        }).join('') + '</optgroup>');
+      var pinned = kit.map(function (e) { return ITEM_BY_ID[e.id]; }).filter(Boolean);
+      if (pinned.length) {
+        opts.push('<optgroup label="From my kit">'
+          + tryOptionsHTML(pinned, function (it) { return str(it.sectionLabel); })
+          + '</optgroup>');
       }
       var browsable = ['idioms', 'openers', 'endings', 'values', 'snt'];
       browsable.forEach(function (key) {
@@ -1039,9 +1081,7 @@
         if (!s) return;
         var list = s.items.filter(function (it) { return str(it.raw.verdict).toLowerCase() !== 'avoid'; }).slice(0, 60);
         if (!list.length) return;
-        opts.push('<optgroup label="' + escapeHTML(s.label) + '">' + list.map(function (it) {
-          return '<option value="' + escapeHTML(it.id) + '">' + escapeHTML(it.title) + '</option>';
-        }).join('') + '</optgroup>');
+        opts.push('<optgroup label="' + escapeHTML(s.label) + '">' + tryOptionsHTML(list) + '</optgroup>');
       });
       opts.push('<option value="' + TRY_CUSTOM + '">Something else (type it myself)</option>');
       sel.innerHTML = opts.join('');
@@ -1150,8 +1190,10 @@
         });
         renderVerdict(res, h);
         try {
-          if (window.Progress && typeof window.Progress.recordDrillUsed === 'function') window.Progress.recordDrillUsed('composition');
-          if (window.Streak && typeof window.Streak.record === 'function') window.Streak.record();
+          var P = progressAPI();
+          if (P && typeof P.recordDrillUsed === 'function') P.recordDrillUsed('composition');
+          var S = streakAPI();
+          if (S && typeof S.record === 'function') S.record();
           if (window.JglFresh && typeof window.JglFresh.mark === 'function') {
             window.JglFresh.mark('handles', window.JglFresh.normKey(h.title + '|' + sentence), { label: h.title, type: h.sectionLabel });
           }
@@ -1325,7 +1367,8 @@
       populateTrySelect();
       syncPins();
       try {
-        if (window.Progress && typeof window.Progress.recordVisit === 'function') window.Progress.recordVisit('composition');
+        var P = progressAPI();
+        if (P && typeof P.recordVisit === 'function') P.recordVisit('composition');
       } catch (_) {}
     }
 
