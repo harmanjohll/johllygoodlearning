@@ -124,7 +124,7 @@
   }
 
   function createRecorder(opts) {
-    const { onLevel, onTick, maxMs = 180000 } = opts || {};
+    const { onLevel, onTick, onAutoStop, maxMs = 180000 } = opts || {};
 
     let stream = null;
     let recorder = null;
@@ -136,6 +136,7 @@
     let analyser = null;
     let srcNode = null;
     let stopping = null;      // Promise resolver bundle
+    let pendingTake = null;   // take produced by an auto-stop, not yet claimed
     let usedMime = '';
     let cancelled = false;
 
@@ -193,6 +194,7 @@
 
       cancelled = false;
       chunks = [];
+      pendingTake = null;
 
       try {
         stream = await navigator.mediaDevices.getUserMedia({
@@ -225,23 +227,39 @@
       recorder.addEventListener('stop', async () => {
         const durationMs = Date.now() - startedAt;
         teardown();
-        if (cancelled || !stopping) { chunks = []; return; }
+        // A genuine cancel() throws the audio away. Everything else must
+        // produce a take — including the maxMs auto-stop, where nobody
+        // has called stop() yet so there is no promise to resolve. If we
+        // bailed here (as an earlier version did) the student would hit
+        // the time cap and silently lose the whole recording.
+        if (cancelled) { chunks = []; return; }
         const type = usedMime || (chunks[0] && chunks[0].type) || 'audio/webm';
         const blob = new Blob(chunks, { type });
         chunks = [];
+        let take;
         try {
-          const base64 = await blobToBase64(blob);
-          stopping.resolve({
+          take = {
             blob,
             url: URL.createObjectURL(blob),
             mimeType: type,
             durationMs,
-            base64,
-          });
+            base64: await blobToBase64(blob),
+          };
         } catch (e) {
-          stopping.reject(e);
+          if (stopping) { stopping.reject(e); stopping = null; }
+          return;
         }
-        stopping = null;
+        if (stopping) {
+          stopping.resolve(take);
+          stopping = null;
+        } else {
+          // Auto-stopped. Hold the take so a later stop() still gets it,
+          // and tell the page so it can render playback immediately.
+          pendingTake = take;
+          if (typeof onAutoStop === 'function') {
+            try { onAutoStop(take); } catch (_) {}
+          }
+        }
       });
 
       // timeslice keeps Safari flushing data instead of buffering it all
@@ -272,6 +290,9 @@
 
     function stop() {
       return new Promise((resolve, reject) => {
+        // Already auto-stopped at the time cap: hand over that take
+        // rather than pretending nothing was recorded.
+        if (pendingTake) { const t = pendingTake; pendingTake = null; resolve(t); return; }
         if (!recorder || recorder.state === 'inactive') {
           reject(Object.assign(new Error('Nothing is being recorded.'), { code: 'NOT_RECORDING' }));
           return;
@@ -285,6 +306,7 @@
     function cancel() {
       cancelled = true;
       stopping = null;
+      pendingTake = null;
       try { if (recorder && recorder.state !== 'inactive') recorder.stop(); } catch (_) {}
       teardown();
       chunks = [];
