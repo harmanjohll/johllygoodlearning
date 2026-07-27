@@ -77,11 +77,30 @@
     }
     .scorecard .num { font-size: 2.6rem; font-weight: 800; color: var(--accent); font-family: 'IBM Plex Mono', monospace; }
 
+    /* Command-word mastery, across every recorded attempt */
+    .diag {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.25rem 1.5rem; margin-top: 1rem;
+    }
+    .diag h3 { font-size: .95rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .2rem; }
+    .diag .sub { font-size: .78rem; color: var(--muted); margin-bottom: .9rem; }
+    .diag .drow { display: grid; grid-template-columns: 5.6rem 1fr 5.4rem; gap: .6rem; align-items: center; margin-bottom: .45rem; font-size: .8rem; }
+    .diag .dname { color: var(--text); }
+    .diag .dtrack { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; height: .5rem; overflow: hidden; }
+    .diag .dfill { height: 100%; background: var(--accent); border-radius: 99px; }
+    .diag .dfill.mid { background: #fbbf24; }
+    .diag .dfill.low { background: #f87171; }
+    .diag .dpct { color: var(--muted); font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: .74rem; text-align: right; }
+    .diag .verdict { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--border); font-size: .86rem; line-height: 1.65; color: var(--text); }
+
     .start-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
     .start-card h2 { margin-bottom: .5rem; }
     .start-card p  { color: var(--muted); font-size: .92rem; margin-bottom: 1rem; line-height: 1.65; }
     .pill { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .25rem .65rem; font-size: .72rem; margin: .15rem; }
     .key-warn { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.35); border-radius: 9px; padding: .65rem .95rem; font-size: .85rem; color: var(--text); margin-bottom: 1.25rem; line-height: 1.55; }
+
+    .fresh-readout { font-size: .76rem; color: var(--muted); }
+    .bank-bar { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; font-size: .8rem; color: var(--muted); margin-bottom: .85rem; }
   </style>
 </head>
 <body>
@@ -102,6 +121,7 @@
       <strong>Explain</strong>, <strong>Infer</strong>, <strong>Suggest</strong>, <strong>Compare</strong>.
       Write each answer in full sentences using <strong>R.A.C.E.</strong> — Restate, Answer, Cite, Explain.
       AI Examiner marks each item with band feedback. A model answer reveals only on request.
+      Every marked run is stored, so the page can show you which command word is quietly costing you marks.
     </p>
   </div>
 
@@ -109,9 +129,10 @@
     No Gemini API key. You can still draft answers; AI marking and the scorecard need a key.
   </div>
 
-  <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+  <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:.65rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
     <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
-    <span style="font-size:.84rem;color:var(--muted);">One curated passage. Want a fresh one?</span>
+    <span style="font-size:.84rem;color:var(--muted);">Two curated passages. Want a fresh one?</span>
+    <span id="fresh-readout" class="fresh-readout"></span>
     <span style="flex:1;"></span>
     <select id="gen-style" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.82rem;font-family:inherit;">
       <option value="Narrative">Narrative</option>
@@ -120,13 +141,33 @@
     <button class="btn btn-primary" id="btn-generate" style="font-size:.78rem;padding:.35rem .85rem;">+ Generate new passage</button>
     <button class="btn btn-secondary" id="btn-clear-generated" style="font-size:.78rem;padding:.35rem .85rem;display:none;">Reset to curated</button>
   </div>
+
+  <div id="drill-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+    <span style="font-size:.66rem;color:#a78bfa;text-transform:uppercase;letter-spacing:.07em;font-weight:800;">◆ Targeted drill</span>
+    <span style="font-size:.84rem;color:var(--muted);">Weak on one command word? Drill only that one.</span>
+    <span style="flex:1;"></span>
+    <select id="drill-cmd" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.82rem;font-family:inherit;">
+      <option value="Describe">Describe</option>
+      <option value="Explain">Explain</option>
+      <option value="Infer" selected>Infer</option>
+      <option value="Suggest">Suggest</option>
+      <option value="Compare">Compare</option>
+    </select>
+    <button class="btn btn-secondary" id="btn-drill" style="font-size:.78rem;padding:.35rem .85rem;">Drill this command word only</button>
+  </div>
+
   <div id="gen-status" style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem;min-height:1rem;"></div>
+
+  <div class="bank-bar" id="bank-bar" style="display:none;">
+    <span id="bank-label"></span>
+    <button class="btn btn-secondary" id="btn-bank-next" style="font-size:.74rem;padding:.25rem .6rem;">Next passage</button>
+  </div>
 
   <div id="start-pane">
     <div class="start-card">
       <h2>Ready?</h2>
-      <p>Eighteen minutes for one passage + five questions. The clock auto-submits at zero. Be specific. Quote then explain.</p>
-      <p>
+      <p id="start-blurb">Eighteen minutes for one passage + five questions. The clock auto-submits at zero. Be specific. Quote then explain.</p>
+      <p id="start-meta">
         <span class="pill">5 items · 12 marks</span>
         <span class="pill">18 min</span>
         <span class="pill">AI Examiner · RACE</span>
@@ -136,6 +177,7 @@
         <button class="btn btn-secondary" id="btn-untimed">Untimed practice</button>
       </div>
     </div>
+    <div id="diag-home"></div>
   </div>
 
   <div id="quiz-pane" style="display:none;">
@@ -157,47 +199,288 @@
 <script src="../shared/storage.js"></script>
 <script src="../shared/lab.js"></script>
 <script src="../shared/gemini.js"></script>
+<script src="../shared/freshness.js"></script>
 <script>
-const QUIZ_MS = 18 * 60 * 1000;
+const BUCKET = 'compoe';
+const GEN_CACHE_KEY = 'jgl.english.compoe.generated';
+const ATTEMPTS_KEY  = 'jgl.english.compoe.attempts';
+const ATTEMPTS_CAP  = 60;
 
-let PASSAGE = {
-  title: 'The lift that stopped on the seventh floor',
-  body:
+const CMD_ORDER = ['Describe', 'Explain', 'Infer', 'Suggest', 'Compare'];
+
+const CMD_ADVICE = {
+  Describe: 'Describe wants what is there, in your own full sentences. Count the marks: two marks almost always means two separate observations, so give two.',
+  Explain:  'Explain wants the reason behind the fact. If your answer could stop at what happened, it is not finished. Add the because.',
+  Infer:    'Infer wants what the passage shows but never says. Name the idea, quote the words that led you there, then say how the words prove it. Most comprehension marks leak here.',
+  Suggest:  'Suggest wants your own sensible ideas that still fit the passage. Give the exact number asked for, and make each one clearly different from the other.',
+  Compare:  'Compare wants both sides plus the point of the comparison. Write about the first thing, then the second, then say what the difference or similarity shows.',
+};
+
+/* ── curated bank ────────────────────────────────────────── */
+
+const CURATED_BANK = [
+  {
+    id: 'lift-seventh-floor',
+    passage: {
+      title: 'The lift that stopped on the seventh floor',
+      body:
 "The lift stopped on the seventh floor. Mei stepped out into the corridor and froze. The door to her flat was ajar, the metal grille pushed back just enough for a hand to slip through. Her father always, ALWAYS, double-locked when he left for work. She listened. There was no sound from inside, only the faint hum of someone else's television seeping through the wall.\n\n" +
 "For a moment, Mei considered running back into the lift and pressing every button. But she had left her phone charging on her desk. Her father's number lived in that phone. So did everyone else's. She took a slow breath, then a slower step back, and forced herself to walk — not run — towards the staircase. She would knock on Aunty Geraldine's door on the sixth floor. Aunty Geraldine, retired police, would know what to do.\n\n" +
 "On the way down, Mei tried to think clearly. She had not seen any unfamiliar shoes outside her flat — but the door, the door. Her father was not the kind of man who forgot. Once, three years ago, he had driven all the way back from East Coast Park to check the front lock; he had not been wrong then either. By the time her hand was raised to knock on Aunty Geraldine's door, Mei realised her fingers were trembling. She made a small fist, breathed in, and knocked.\n\n" +
 "Aunty Geraldine opened the door in seconds, a kettle still in her other hand. \"Mei?\" she said. \"You're early today.\" Mei tried to speak but the words queued up somewhere behind her teeth and would not move. Aunty Geraldine set the kettle down. \"Show me,\" she said. That was all. They climbed the stairs together, Aunty Geraldine first, Mei behind her, both of them quiet in the way of people who are listening very, very hard.",
-};
-
-let QUESTIONS = [
-  { cmd: 'Describe', marks: 2,
-    stem: "What did Mei notice that made her freeze when she stepped out of the lift?",
-    rubric: "TWO observations expected. Door ajar (1m); metal grille pushed back / father always double-locks (1m). Direct lift without explanation = max 1m." },
-  { cmd: 'Explain',  marks: 2,
-    stem: "Explain why Mei did not use the lift to go back down.",
-    rubric: "Two-part explanation. (a) Her phone was on her desk (1m); (b) without it she had no numbers to call, so the staircase to Aunty Geraldine was the better plan (1m)." },
-  { cmd: 'Infer',    marks: 3,
-    stem: "What does the writer's reference to the East Coast Park incident suggest about Mei's father?",
-    rubric: "Inference required: he is careful / meticulous / not forgetful (1m). Evidence cited from passage (1m). Implication for the present situation — the open door must therefore be unusual or worrying (1m)." },
-  { cmd: 'Suggest',  marks: 2,
-    stem: "Suggest TWO reasons why Mei chose to knock on Aunty Geraldine's door rather than any other neighbour's.",
-    rubric: "Two distinct reasons. Examples accepted: (a) retired police = will know what to do (1m); (b) someone she trusts / has known a long time (1m); (c) on the sixth floor = direct from the staircase (1m). Any TWO of these = full marks." },
-  { cmd: 'Compare',  marks: 3,
-    stem: "Compare how Mei behaves at the start of the passage with how she behaves by the time she reaches Aunty Geraldine's door. Use TWO details from each part of the passage.",
-    rubric: "Start: frozen, considered pressing every button, panicked (cite phrase). End: making a small fist, breathed in, knocked deliberately (cite phrase). 1m for start description; 1m for end description; 1m for the comparison/shift point (she moved from panic to deliberate action)." },
+    },
+    questions: [
+      { cmd: 'Describe', marks: 2,
+        stem: "What did Mei notice that made her freeze when she stepped out of the lift?",
+        rubric: "TWO observations expected. Door ajar (1m); metal grille pushed back / father always double-locks (1m). Direct lift without explanation = max 1m." },
+      { cmd: 'Explain',  marks: 2,
+        stem: "Explain why Mei did not use the lift to go back down.",
+        rubric: "Two-part explanation. (a) Her phone was on her desk (1m); (b) without it she had no numbers to call, so the staircase to Aunty Geraldine was the better plan (1m)." },
+      { cmd: 'Infer',    marks: 3,
+        stem: "What does the writer's reference to the East Coast Park incident suggest about Mei's father?",
+        rubric: "Inference required: he is careful / meticulous / not forgetful (1m). Evidence cited from passage (1m). Implication for the present situation — the open door must therefore be unusual or worrying (1m)." },
+      { cmd: 'Suggest',  marks: 2,
+        stem: "Suggest TWO reasons why Mei chose to knock on Aunty Geraldine's door rather than any other neighbour's.",
+        rubric: "Two distinct reasons. Examples accepted: (a) retired police = will know what to do (1m); (b) someone she trusts / has known a long time (1m); (c) on the sixth floor = direct from the staircase (1m). Any TWO of these = full marks." },
+      { cmd: 'Compare',  marks: 3,
+        stem: "Compare how Mei behaves at the start of the passage with how she behaves by the time she reaches Aunty Geraldine's door. Use TWO details from each part of the passage.",
+        rubric: "Start: frozen, considered pressing every button, panicked (cite phrase). End: making a small fist, breathed in, knocked deliberately (cite phrase). 1m for start description; 1m for end description; 1m for the comparison/shift point (she moved from panic to deliberate action)." },
+    ],
+  },
+  {
+    id: 'city-that-keeps-its-rain',
+    passage: {
+      title: 'The city that keeps its rain',
+      body:
+"Singapore has no rivers flowing in from anywhere else. Every drop of fresh water the island keeps must either fall on it as rain, be bought, be recycled, or be squeezed out of the sea. This is why so much of the country has quietly been turned into catchment: surfaces that collect rain and send it somewhere useful.\n\n" +
+"In 2008, the mouth of the Marina Channel was closed by a barrage, a long dam fitted with nine crest gates. When the tide outside is low and the water inside is high after heavy rain, the gates are opened and the excess runs out to sea. When the tide outside is high, seven enormous pumps push the water out instead. Over several years, the salt water trapped behind the barrage was gradually flushed out by rainfall, and the basin became a freshwater reservoir in the middle of the city.\n\n" +
+"The barrage does three jobs at once. It stores water. It holds the level in the basin steady, so the low-lying streets nearby flood far less often than they once did. And because the water no longer rises and falls with the tide, the basin can be used for rowing and kayaking on almost any afternoon.\n\n" +
+"Compare this with an older reservoir such as MacRitchie, which sits inside a forest and is fed by streams running down from the hills around it. MacRitchie is quiet and green, and boats with engines are not allowed on it. Marina Reservoir is loud, ringed by roads and buildings, and its catchment is mostly concrete: roofs, car parks and drains. The two look nothing alike. Yet both are doing the same stubborn work, which is holding on to rain in a country that cannot afford to let any of it run away.",
+    },
+    questions: [
+      { cmd: 'Describe', marks: 2,
+        stem: "Describe the TWO ways the barrage lets excess water out of the reservoir.",
+        rubric: "Two methods expected. (a) When the tide outside is low, the crest gates are opened and the excess runs out to sea (1m); (b) when the tide outside is high, seven pumps push the water out (1m). One method only, or a method without its tide condition, = max 1m." },
+      { cmd: 'Explain',  marks: 2,
+        stem: "Explain why the water held behind the barrage is now fresh rather than salty.",
+        rubric: "Two-part causal chain. (a) The mouth of the channel was closed by the barrage, cutting the basin off from the sea (1m); (b) over several years rainfall gradually flushed the trapped salt water out, leaving fresh water behind (1m). An answer that only says 'it rained' without the flushing over time = max 1m." },
+      { cmd: 'Infer',    marks: 3,
+        stem: "What does the passage suggest about how Singapore treats water? Support your answer with evidence from the passage.",
+        rubric: "Inference: water is treated as scarce and precious, so it is planned for carefully and nothing is wasted (1m). Evidence quoted, e.g. 'cannot afford to let any of it run away' or 'so much of the country has quietly been turned into catchment' (1m). Link explaining how the evidence shows the attitude (1m). Literal lifting with no inference = max 1m." },
+      { cmd: 'Suggest',  marks: 2,
+        stem: "Suggest TWO reasons why placing a reservoir in the middle of the city is useful to the people who live there.",
+        rubric: "Any TWO distinct reasons grounded in the passage. Accept: stored fresh water sits close to where people live (1m); nearby low-lying streets flood far less often (1m); the steady water level allows rowing and kayaking almost any afternoon (1m). Two of these = full marks." },
+      { cmd: 'Compare',  marks: 3,
+        stem: "Compare MacRitchie Reservoir with Marina Reservoir. Use TWO details from the passage for each.",
+        rubric: "MacRitchie: inside a forest, fed by streams from the hills, quiet and green, no boats with engines (1m for two details). Marina: in the middle of the city, loud, ringed by roads and buildings, catchment mostly concrete (1m for two details). 1m for the point of the comparison: they look nothing alike yet both exist to hold on to rain." },
+    ],
+  },
 ];
+
+let bankIndex = 0;
+let isGenerated = false;
+let PASSAGE = null;
+let QUESTIONS = [];
+let QUIZ_MS = 18 * 60 * 1000;
 
 const answers = {};
 const aiResults = {};
 let state = { startedAt: null, submitted: false, timed: true };
 let tickHandle = null;
 
+/* ── helpers ─────────────────────────────────────────────── */
+
+function escapeHTML(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+function passageKey(p) {
+  const base = (p && p.id) ? p.id : ((p && p.title ? p.title : '') + '|' + String(p && p.body ? p.body : '').slice(0, 60));
+  return window.JglFresh ? JglFresh.normKey(base) : base;
+}
+
+/* ── freshness readout ───────────────────────────────────── */
+
+function renderFresh() {
+  const el = document.getElementById('fresh-readout');
+  if (!el) return;
+  const s = window.JglFresh ? JglFresh.stats(BUCKET) : { total: 0, last7: 0 };
+  el.textContent = s.total ? (s.total + (s.total === 1 ? ' passage' : ' passages') + ' seen · ' + s.last7 + ' this week') : '';
+}
+
+/* ── attempt history and command-word diagnosis ──────────── */
+
+function readAttempts() {
+  try {
+    const a = JSON.parse(localStorage.getItem(ATTEMPTS_KEY) || '[]');
+    return Array.isArray(a) ? a : [];
+  } catch (e) { return []; }
+}
+
+function saveAttempt(rec) {
+  try {
+    const a = readAttempts();
+    a.push(rec);
+    localStorage.setItem(ATTEMPTS_KEY, JSON.stringify(a.slice(-ATTEMPTS_CAP)));
+  } catch (e) { /* quota — degrade quietly */ }
+}
+
+function aggregateByCmd() {
+  const totals = {};
+  readAttempts().forEach(function (a) {
+    const bc = a && a.byCmd;
+    if (!bc || typeof bc !== 'object') return;
+    Object.keys(bc).forEach(function (k) {
+      const v = bc[k] || {};
+      if (!totals[k]) totals[k] = { got: 0, max: 0 };
+      totals[k].got += Number(v.got) || 0;
+      totals[k].max += Number(v.max) || 0;
+    });
+  });
+  return totals;
+}
+
+function diagnosisHTML() {
+  const totals = aggregateByCmd();
+  const known = CMD_ORDER.slice();
+  Object.keys(totals).forEach(function (k) { if (known.indexOf(k) === -1) known.push(k); });
+
+  const rows = known.map(function (k) {
+    const t = totals[k] || { got: 0, max: 0 };
+    return { key: k, got: t.got, max: t.max, pct: t.max ? Math.round((t.got / t.max) * 100) : 0 };
+  }).filter(function (r) { return r.max > 0; });
+
+  if (!rows.length) return '';
+
+  const runs = readAttempts().length;
+  const sorted = rows.slice().sort(function (a, b) { return a.pct - b.pct || b.max - a.max; });
+
+  let html = '<div class="diag"><h3>Command word mastery</h3>' +
+    '<div class="sub">Marks earned against marks available, by command word, across all ' + runs + ' marked ' + (runs === 1 ? 'run' : 'runs') + '.</div>';
+
+  rows.forEach(function (r) {
+    const cls = r.pct < 60 ? 'low' : (r.pct < 80 ? 'mid' : '');
+    html += '<div class="drow">' +
+      '<div class="dname">' + escapeHTML(r.key) + '</div>' +
+      '<div class="dtrack"><div class="dfill ' + cls + '" style="width:' + r.pct + '%;"></div></div>' +
+      '<div class="dpct">' + r.pct + '% · ' + r.got + '/' + r.max + '</div>' +
+      '</div>';
+  });
+
+  const solid = sorted.filter(function (r) { return r.max >= 4; });
+  const weakest = solid.length ? solid[0] : null;
+
+  let verdict;
+  if (!weakest) {
+    const lowest = sorted[0];
+    verdict = 'Early days. So far your lowest command word is ' + escapeHTML(lowest.key) + ' at ' + lowest.pct +
+      ' percent (' + lowest.got + ' of ' + lowest.max + ' marks), which is too few marks to be sure. ' +
+      escapeHTML(CMD_ADVICE[lowest.key] || '');
+  } else if (weakest.pct >= 80) {
+    verdict = 'No command word is clearly weak. Your lowest is ' + escapeHTML(weakest.key) + ' at ' + weakest.pct +
+      ' percent, which is already strong. Keep the runs timed so the speed stays honest.';
+  } else {
+    verdict = 'Your weakest command word is <strong>' + escapeHTML(weakest.key) + '</strong>, at ' + weakest.pct +
+      ' percent (' + weakest.got + ' of ' + weakest.max + ' marks). ' + escapeHTML(CMD_ADVICE[weakest.key] || '') +
+      ' Use the targeted drill above and pick ' + escapeHTML(weakest.key) + '.';
+  }
+  html += '<div class="verdict">' + verdict + '</div></div>';
+  return html;
+}
+
+function renderDiagHome() {
+  const el = document.getElementById('diag-home');
+  if (el) el.innerHTML = diagnosisHTML();
+}
+
+/* ── loading passages ────────────────────────────────────── */
+
+function loadBankItem(idx) {
+  bankIndex = ((idx % CURATED_BANK.length) + CURATED_BANK.length) % CURATED_BANK.length;
+  const item = clone(CURATED_BANK[bankIndex]);
+  PASSAGE = { id: item.id, title: item.passage.title, body: item.passage.body };
+  QUESTIONS = item.questions;
+  isGenerated = false;
+  recomputeQuizMs();
+  renderBankBar();
+}
+
+function renderBankBar() {
+  const bar = document.getElementById('bank-bar');
+  const label = document.getElementById('bank-label');
+  if (!bar || !label) return;
+  if (isGenerated || CURATED_BANK.length < 2) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  label.textContent = 'Passage ' + (bankIndex + 1) + ' of ' + CURATED_BANK.length + ' — ' + PASSAGE.title;
+}
+
+function totalMarks() {
+  return QUESTIONS.reduce(function (s, q) { return s + (Number(q.marks) || 0); }, 0);
+}
+
+function recomputeQuizMs() {
+  const marks = totalMarks();
+  const mins = Math.max(6, Math.min(20, Math.round(marks * 1.5)));
+  QUIZ_MS = mins * 60000;
+  const t = document.getElementById('time-left');
+  if (t && !state.startedAt) t.textContent = String(mins).padStart(2, '0') + ':00';
+  renderStartMeta(mins, marks);
+}
+
+function renderStartMeta(mins, marks) {
+  const meta = document.getElementById('start-meta');
+  if (!meta) return;
+  meta.innerHTML =
+    '<span class="pill">' + QUESTIONS.length + ' items · ' + marks + ' marks</span>' +
+    '<span class="pill">' + mins + ' min</span>' +
+    '<span class="pill">AI Examiner · RACE</span>';
+  const blurb = document.getElementById('start-blurb');
+  if (blurb) {
+    blurb.textContent = mins + ' minutes for ' + QUESTIONS.length + ' question' + (QUESTIONS.length === 1 ? '' : 's') +
+      ' on one passage. The clock auto-submits at zero. Be specific. Quote then explain.';
+  }
+}
+
+function resetToStart() {
+  if (tickHandle) clearInterval(tickHandle);
+  tickHandle = null;
+  state = { startedAt: null, submitted: false, timed: true };
+  Object.keys(answers).forEach(function (k) { delete answers[k]; });
+  Object.keys(aiResults).forEach(function (k) { delete aiResults[k]; });
+  document.getElementById('start-pane').style.display = '';
+  document.getElementById('quiz-pane').style.display = 'none';
+  const r = document.getElementById('result-pane');
+  r.style.display = 'none';
+  r.innerHTML = '';
+  const sub = document.getElementById('btn-submit-all');
+  sub.style.display = '';
+  sub.disabled = false;
+  sub.textContent = 'Submit all for marking';
+  const t = document.getElementById('time-left');
+  t.classList.remove('warn', 'crit');
+  recomputeQuizMs();
+  renderDiagHome();
+}
+
+/* ── quiz flow ───────────────────────────────────────────── */
+
 function init() {
   const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
   if (!key) document.getElementById('key-warn').style.display = 'block';
-  document.getElementById('btn-start').addEventListener('click',     () => startQuiz(true));
-  document.getElementById('btn-untimed').addEventListener('click',  () => startQuiz(false));
-  document.getElementById('btn-submit-all').addEventListener('click', () => { if (!state.submitted && confirm('Submit all answers for marking?')) submitAll(); });
+  document.getElementById('btn-start').addEventListener('click',    function () { startQuiz(true); });
+  document.getElementById('btn-untimed').addEventListener('click',  function () { startQuiz(false); });
+  document.getElementById('btn-submit-all').addEventListener('click', function () {
+    if (!state.submitted && confirm('Submit all answers for marking?')) submitAll();
+  });
+  document.getElementById('btn-bank-next').addEventListener('click', function () {
+    loadBankItem(bankIndex + 1);
+    resetToStart();
+    document.getElementById('gen-status').textContent = 'Now showing: ' + PASSAGE.title;
+  });
 }
 
 function startQuiz(timed) {
@@ -205,59 +488,67 @@ function startQuiz(timed) {
   state.startedAt = Date.now();
   document.getElementById('start-pane').style.display = 'none';
   document.getElementById('quiz-pane').style.display  = 'block';
+
+  // MOVE 3: a curated passage counts as seen once it is actually attempted,
+  // so the next visit opens on the other one.
+  if (!isGenerated && window.JglFresh) {
+    JglFresh.mark(BUCKET, passageKey(PASSAGE), { title: PASSAGE.title, type: 'curated' });
+  }
+  renderFresh();
+
   renderPassage();
   renderQuestions();
   if (timed) startTicker(); else document.getElementById('time-left').textContent = '∞';
 }
 
 function renderPassage() {
-  document.getElementById('passage').innerHTML = `
-    <div class="title">${PASSAGE.title}</div>
-    <div class="body">${escapeHTML(PASSAGE.body)}</div>
-  `;
+  document.getElementById('passage').innerHTML =
+    '<div class="title">' + escapeHTML(PASSAGE.title) + '</div>' +
+    '<div class="body">' + escapeHTML(PASSAGE.body) + '</div>';
 }
 
 function renderQuestions() {
   const wrap = document.getElementById('questions');
   wrap.innerHTML = '';
-  QUESTIONS.forEach((q, idx) => {
+  QUESTIONS.forEach(function (q, idx) {
     const card = document.createElement('div');
     card.className = 'qcard';
     card.dataset.idx = idx;
-    card.innerHTML = `
-      <div><span class="qnum">Q${idx + 1}.</span><span class="cmd-tag">${q.cmd}</span><span class="marks-tag">${q.marks}m</span></div>
-      <div class="stem">${q.stem}</div>
-      <textarea data-idx="${idx}" placeholder="Use RACE. Restate the question. Answer plainly. Cite from the passage. Explain what that proves."></textarea>
-      <div class="row"><span class="wc">0 words</span></div>
-      <div class="feedback" data-idx="${idx}">
-        <h4>Marker pass</h4>
-        <pre></pre>
-        <div style="margin-top:.55rem;">
-          <button class="reveal-toggle">▼ Show the rubric breakdown</button>
-          <div class="reveal-block">${q.rubric}</div>
-        </div>
-      </div>
-    `;
+    card.innerHTML =
+      '<div><span class="qnum">Q' + (idx + 1) + '.</span><span class="cmd-tag">' + escapeHTML(q.cmd) + '</span>' +
+      '<span class="marks-tag">' + escapeHTML(String(q.marks)) + 'm</span></div>' +
+      '<div class="stem">' + escapeHTML(q.stem) + '</div>' +
+      '<textarea data-idx="' + idx + '" placeholder="Use RACE. Restate the question. Answer plainly. Cite from the passage. Explain what that proves."></textarea>' +
+      '<div class="row"><span class="wc">0 words</span></div>' +
+      '<div class="feedback" data-idx="' + idx + '">' +
+        '<h4>Marker pass</h4>' +
+        '<pre></pre>' +
+        '<div style="margin-top:.55rem;">' +
+          '<button class="reveal-toggle">▼ Show the rubric breakdown</button>' +
+          '<div class="reveal-block">' + escapeHTML(q.rubric) + '</div>' +
+        '</div>' +
+      '</div>';
     const ta = card.querySelector('textarea');
     const wc = card.querySelector('.wc');
-    ta.addEventListener('input', () => {
+    ta.addEventListener('input', function () {
       answers[idx] = ta.value;
       const n = ta.value.trim().split(/\s+/).filter(Boolean).length;
-      wc.textContent = `${n} word${n === 1 ? '' : 's'}`;
+      wc.textContent = n + ' word' + (n === 1 ? '' : 's');
       updateMeta();
     });
-    card.querySelector('.reveal-toggle').addEventListener('click', () => {
+    card.querySelector('.reveal-toggle').addEventListener('click', function () {
       const blk = card.querySelector('.reveal-block');
       blk.classList.toggle('show');
       card.querySelector('.reveal-toggle').textContent = blk.classList.contains('show') ? '▲ Hide rubric' : '▼ Show the rubric breakdown';
     });
     wrap.appendChild(card);
   });
+  updateMeta();
 }
 
 function updateMeta() {
-  const n = Object.values(answers).filter(v => v && v.trim()).length;
-  document.getElementById('answered-meta').textContent = `${n} / ${QUESTIONS.length} answered`;
+  const n = Object.values(answers).filter(function (v) { return v && v.trim(); }).length;
+  document.getElementById('answered-meta').textContent = n + ' / ' + QUESTIONS.length + ' answered';
 }
 
 function startTicker() {
@@ -275,10 +566,10 @@ function paintTime(ms) {
   const display = document.getElementById('time-left');
   const mins = Math.max(0, Math.floor(ms / 60000));
   const secs = Math.max(0, Math.floor((ms % 60000) / 1000));
-  display.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-  display.classList.remove('warn','crit');
-  if (ms <= 60_000)       display.classList.add('crit');
-  else if (ms <= 180_000) display.classList.add('warn');
+  display.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+  display.classList.remove('warn', 'crit');
+  if (ms <= 60000)       display.classList.add('crit');
+  else if (ms <= 180000) display.classList.add('warn');
 }
 
 async function submitAll() {
@@ -291,111 +582,205 @@ async function submitAll() {
 
   const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
   if (!key) {
-    QUESTIONS.forEach((_, idx) => { aiResults[idx] = 'No Gemini key set. Open How-to-use to add one, then retry.'; });
+    QUESTIONS.forEach(function (_, idx) { aiResults[idx] = 'No Gemini key set. Open How-to-use to add one, then retry.'; });
   } else {
-    await Promise.all(QUESTIONS.map((q, idx) => markOne(idx, q).catch(e => { aiResults[idx] = 'Marker error: ' + (e?.message || e); })));
+    await Promise.all(QUESTIONS.map(function (q, idx) {
+      return markOne(idx, q).catch(function (e) { aiResults[idx] = 'Marker error: ' + ((e && e.message) ? e.message : e); });
+    }));
   }
 
   let totalGot = 0;
   let totalMax = 0;
-  QUESTIONS.forEach((q, idx) => {
-    const fbEl = document.querySelector(`.feedback[data-idx="${idx}"]`);
+  let marked = 0;
+  const byCmd = {};
+
+  QUESTIONS.forEach(function (q, idx) {
+    const fbEl = document.querySelector('.feedback[data-idx="' + idx + '"]');
     if (fbEl) {
       fbEl.classList.add('show');
       fbEl.querySelector('pre').textContent = aiResults[idx] || '(no marker pass)';
     }
     const m = (aiResults[idx] || '').match(/MARK:\s*(\d+)\s*\/\s*(\d+)/);
-    if (m) { totalGot += Number(m[1]); totalMax += Number(m[2]); }
-    else   { totalMax += q.marks; }
+    const got = m ? Number(m[1]) : 0;
+    const max = m ? Number(m[2]) : (Number(q.marks) || 0);
+    if (m) marked += 1;
+    totalGot += got;
+    totalMax += max;
+
+    const c = q.cmd || 'Describe';
+    if (!byCmd[c]) byCmd[c] = { got: 0, max: 0 };
+    if (m) { byCmd[c].got += got; byCmd[c].max += max; }
   });
+
+  // Only a genuinely marked run belongs in the command-word history.
+  if (marked) {
+    saveAttempt({ iso: new Date().toISOString(), total: totalGot, max: totalMax, byCmd: byCmd });
+  }
 
   if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('comprehension');
 
   const r = document.getElementById('result-pane');
   r.style.display = 'block';
-  r.innerHTML = `
-    <div class="scorecard">
-      <div class="num">${totalGot} / ${totalMax}</div>
-      <div style="color:var(--muted);font-size:.85rem;margin-top:.55rem;">Scroll up to read the marker's per-question feedback. Quote then explain is the difference between AL2 and AL1.</div>
-      <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;">
-        <a class="btn btn-primary" href="./">Retry</a>
-        <a class="btn btn-secondary" href="../">← Hub</a>
-        <a class="btn btn-secondary" href="../structured/">Composition / Comprehension Builder</a>
-      </div>
-    </div>
-  `;
+  r.innerHTML =
+    '<div class="scorecard">' +
+      '<div class="num">' + totalGot + ' / ' + totalMax + '</div>' +
+      '<div style="color:var(--muted);font-size:.85rem;margin-top:.55rem;">Scroll up to read the marker’s per-question feedback. Quote then explain is the difference between AL2 and AL1.</div>' +
+      '<div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;">' +
+        '<a class="btn btn-primary" href="./">Retry</a>' +
+        '<a class="btn btn-secondary" href="../">← Hub</a>' +
+        '<a class="btn btn-secondary" href="../structured/">Composition / Comprehension Builder</a>' +
+      '</div>' +
+    '</div>' +
+    diagnosisHTML();
   document.getElementById('btn-submit-all').style.display = 'none';
   r.scrollIntoView({ behavior: 'smooth' });
 }
 
 async function markOne(idx, q) {
   const ans = (answers[idx] || '').trim();
-  const sys = `You are an experienced PSLE English Language examiner marking a Comprehension Open-Ended item. Apply the rubric strictly. Plain text only. No markdown. Output EXACTLY four lines:\nMARK: <x>/${q.marks}\nRACE: <which of Restate/Answer/Cite/Explain were done well or missed>\nWHY: <one short reason for the mark>\nFIX: <one-sentence concrete suggestion>`;
-  const prompt = `PASSAGE:\n"""\n${PASSAGE.body}\n"""\n\nQUESTION (${q.cmd}, ${q.marks} marks): ${q.stem}\n\nRUBRIC (for your reference; do NOT reveal to the student): ${q.rubric}\n\nSTUDENT ANSWER (${(ans||'').trim().split(/\s+/).filter(Boolean).length} words):\n"""${ans || '(blank)'}"""`;
+  const sys = 'You are an experienced PSLE English Language examiner marking a Comprehension Open-Ended item. Apply the rubric strictly. Plain text only. No markdown. No emoji. Write for a 12-year-old Singaporean student: calm and specific. Output EXACTLY four lines:\n' +
+    'MARK: <x>/' + q.marks + '\n' +
+    'RACE: <which of Restate/Answer/Cite/Explain were done well or missed>\n' +
+    'WHY: <one short reason for the mark>\n' +
+    'FIX: <one-sentence concrete suggestion>';
+  const wordCount = ans.split(/\s+/).filter(Boolean).length;
+  const prompt = 'PASSAGE:\n"""\n' + PASSAGE.body + '\n"""\n\n' +
+    'QUESTION (' + q.cmd + ', ' + q.marks + ' marks): ' + q.stem + '\n\n' +
+    'RUBRIC (for your reference; do NOT reveal to the student): ' + q.rubric + '\n\n' +
+    'STUDENT ANSWER (' + wordCount + ' words):\n"""' + (ans || '(blank)') + '"""';
   aiResults[idx] = await window.askGemini({ system: sys, prompt, temperature: 0.25, maxTokens: 350, thinkingBudget: 0 });
 }
 
-function escapeHTML(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-
-init();
-
-// ── AI passage generator ────────────────────────────────────
-const GEN_CACHE_KEY = 'jgl.english.compoe.generated';
-const CURATED = { passage: JSON.parse(JSON.stringify(PASSAGE)), questions: JSON.parse(JSON.stringify(QUESTIONS)) };
+/* ── boot ────────────────────────────────────────────────── */
 
 function loadGenerated() {
-  try { return JSON.parse(localStorage.getItem(GEN_CACHE_KEY) || 'null'); } catch { return null; }
+  try { return JSON.parse(localStorage.getItem(GEN_CACHE_KEY) || 'null'); } catch (e) { return null; }
 }
-function saveGenerated(o) { try { localStorage.setItem(GEN_CACHE_KEY, JSON.stringify(o)); } catch {} }
+function saveGenerated(o) {
+  try {
+    if (o === null) localStorage.removeItem(GEN_CACHE_KEY);
+    else localStorage.setItem(GEN_CACHE_KEY, JSON.stringify(o));
+  } catch (e) {}
+}
 
-(function rehydrate() {
+(function boot() {
+  // Open on a passage the student has not attempted, so a repeat visit
+  // does not serve the same material twice.
+  const picked = window.JglFresh
+    ? JglFresh.pickUnseen(BUCKET, CURATED_BANK, function (x) { return JglFresh.normKey(x.id || x.passage.title); })
+    : CURATED_BANK[0];
+  const idx = CURATED_BANK.indexOf(picked);
+  loadBankItem(idx === -1 ? 0 : idx);
+
+  init();
+  renderFresh();
+  renderDiagHome();
+
   const cached = loadGenerated();
-  if (cached && cached.passage && Array.isArray(cached.questions)) {
-    PASSAGE = cached.passage;
+  if (cached && cached.passage && Array.isArray(cached.questions) && cached.questions.length) {
+    PASSAGE = { title: cached.passage.title, body: cached.passage.body };
     QUESTIONS = cached.questions;
+    isGenerated = true;
+    recomputeQuizMs();
+    renderBankBar();
     document.getElementById('btn-clear-generated').style.display = 'inline-block';
-    document.getElementById('gen-status').textContent = 'Showing AI-generated passage from your last session.';
+    document.getElementById('gen-status').textContent = 'Showing AI-generated material from your last session.';
   }
 })();
 
+/* ── AI passage generator ────────────────────────────────── */
+
+function avoidBlock() {
+  // MOVE 1: tell the model what this student has already been shown.
+  const avoid = (window.JglFresh ? JglFresh.avoidList(BUCKET, 12) : []);
+  return avoid.length
+    ? '\n\nDo NOT produce anything similar in topic, setting, character names, or wording to any of these, which the student has already seen:\n' + avoid.map(function (a) { return '- ' + a; }).join('\n')
+    : '';
+}
+
+function markGenerated(passage, label) {
+  // MOVE 2: mark only after the generation has actually succeeded.
+  if (!window.JglFresh) return;
+  JglFresh.mark(BUCKET, JglFresh.normKey(passage.title + '|' + String(passage.body).slice(0, 60)), { title: passage.title, type: label });
+}
+
+function geminiKey() {
+  return (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+}
+
 document.getElementById('btn-generate').addEventListener('click', async () => {
-  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
-  if (!k) {
-    document.getElementById('gen-status').textContent = 'No Gemini key set. Open How-to-use to add one.';
-    return;
+  const status = document.getElementById('gen-status');
+  if (!geminiKey()) { status.textContent = 'No Gemini key set. Open How-to-use to add one.'; return; }
+  if (state.startedAt && !state.submitted) {
+    if (!confirm('Replace the passage and reset the clock?')) return;
   }
   const style = document.getElementById('gen-style').value;
-  document.getElementById('gen-status').textContent = 'Generating a fresh passage and five questions…';
+  status.textContent = 'Generating a fresh passage and five questions…';
   document.getElementById('btn-generate').disabled = true;
   try {
-    const { passage, questions } = await generateComp(style);
-    PASSAGE = passage;
-    QUESTIONS = questions;
-    saveGenerated({ passage, questions });
+    const out = await generateComp(style);
+    markGenerated(out.passage, style);
+
+    PASSAGE = out.passage;
+    QUESTIONS = out.questions;
+    isGenerated = true;
+    saveGenerated(out);
+    renderBankBar();
+    resetToStart();
+    renderFresh();
     document.getElementById('btn-clear-generated').style.display = 'inline-block';
-    document.getElementById('gen-status').textContent = 'Fresh passage ready. Start the sprint to begin.';
-    // If the student is in the middle of the quiz, re-render so the new passage shows
-    if (state.startedAt) { state.submitted = false; renderPassage(); renderQuestions(); }
+    status.textContent = 'Fresh passage ready: "' + out.passage.title + '". Start the sprint to begin.';
   } catch (e) {
-    document.getElementById('gen-status').textContent = 'Generator error: ' + (e?.message || e);
+    status.textContent = 'Generator error: ' + ((e && e.message) ? e.message : e);
   } finally {
     document.getElementById('btn-generate').disabled = false;
   }
 });
 
+document.getElementById('btn-drill').addEventListener('click', async () => {
+  const status = document.getElementById('gen-status');
+  if (!geminiKey()) { status.textContent = 'No Gemini key set. Open How-to-use to add one.'; return; }
+  if (state.startedAt && !state.submitted) {
+    if (!confirm('Replace the current questions with a targeted drill?')) return;
+  }
+  const cmd = document.getElementById('drill-cmd').value;
+  status.textContent = 'Building a short passage with three ' + cmd + ' questions…';
+  document.getElementById('btn-drill').disabled = true;
+  try {
+    const out = await generateCmdDrill(cmd);
+    markGenerated(out.passage, cmd + ' drill');
+
+    PASSAGE = out.passage;
+    QUESTIONS = out.questions;
+    isGenerated = true;
+    saveGenerated(out);
+    renderBankBar();
+    resetToStart();
+    renderFresh();
+    document.getElementById('btn-clear-generated').style.display = 'inline-block';
+    status.textContent = cmd + ' drill ready: three ' + cmd + ' questions on "' + out.passage.title + '". Start when you are set.';
+  } catch (e) {
+    status.textContent = 'Generator error: ' + ((e && e.message) ? e.message : e);
+  } finally {
+    document.getElementById('btn-drill').disabled = false;
+  }
+});
+
 document.getElementById('btn-clear-generated').addEventListener('click', () => {
-  if (!confirm('Reset back to the curated passage? The generated version will be cleared.')) return;
+  if (!confirm('Reset back to the curated passages? The generated version will be cleared.')) return;
   saveGenerated(null);
-  PASSAGE = JSON.parse(JSON.stringify(CURATED.passage));
-  QUESTIONS = JSON.parse(JSON.stringify(CURATED.questions));
+  const picked = window.JglFresh
+    ? JglFresh.pickUnseen(BUCKET, CURATED_BANK, function (x) { return JglFresh.normKey(x.id || x.passage.title); })
+    : CURATED_BANK[0];
+  const idx = CURATED_BANK.indexOf(picked);
+  loadBankItem(idx === -1 ? 0 : idx);
+  resetToStart();
   document.getElementById('btn-clear-generated').style.display = 'none';
-  document.getElementById('gen-status').textContent = '';
+  document.getElementById('gen-status').textContent = 'Back to the curated bank: ' + PASSAGE.title;
 });
 
 async function generateComp(style) {
-  const sys = 'You are a PSLE English Paper 2 Comprehension Open-Ended item writer. Output VALID JSON ONLY — no markdown, no commentary. Write at Primary 6 level in clean Standard English. Singapore-natural settings.';
+  const sys = 'You are a PSLE English Paper 2 Comprehension Open-Ended item writer. Output VALID JSON ONLY — no markdown, no commentary. Write at Primary 6 level in clean Standard English. Singapore-natural settings. No emoji.';
   const prompt = `Generate ONE comprehension item set.
 
 Style: ${style} (${style.startsWith('Narrative') ? 'a short story, ~250-350 words, with a clear emotional beat and at least one moment of inference' : 'an informative passage, ~250-350 words, with at least one cause-effect chain and at least one comparison'}).
@@ -420,24 +805,83 @@ Constraints:
 - "Infer" must require reading between the lines, not literal lifting.
 - "Compare" must point at TWO things in the passage to compare.
 - Total marks = 12. Stems must use the command word at the start: "Describe...", "Explain...", "Infer...", "Suggest...", "Compare...".
-- Avoid topics requiring outside knowledge (current events, branded products, specific people).`;
+- Write for a 12-year-old Singaporean student: calm, specific, plain sentences.
+- Avoid topics requiring outside knowledge (current events, branded products, specific people).${avoidBlock()}`;
 
   const json = await window.askGemini({
     system: sys, prompt,
     temperature: 0.7, maxTokens: 2200, thinkingBudget: 0,
     responseMimeType: 'application/json', asJson: true,
   });
-  if (!json || !json.passage || !json.passage.body || !Array.isArray(json.questions)) {
+  if (!json || !json.passage || !json.passage.body || !Array.isArray(json.questions) || !json.questions.length) {
     throw new Error('Generator returned an unexpected shape.');
   }
   return {
     passage: { title: json.passage.title || 'AI-generated passage', body: json.passage.body },
-    questions: json.questions.map(q => ({
-      cmd: q.cmd || 'Describe',
-      marks: typeof q.marks === 'number' ? q.marks : 2,
-      stem: q.stem || '',
-      rubric: q.rubric || '',
-    })),
+    questions: json.questions.map(function (q) {
+      return {
+        cmd: q.cmd || 'Describe',
+        marks: typeof q.marks === 'number' ? q.marks : 2,
+        stem: q.stem || '',
+        rubric: q.rubric || '',
+      };
+    }),
+  };
+}
+
+async function generateCmdDrill(cmd) {
+  const focus = {
+    Describe: 'Each question asks the student to set out what is there, in their own words. Every question must have two clearly separate details available in the passage.',
+    Explain:  'Each question asks WHY something happened or why someone acted as they did. The reason must be findable in the passage as a cause-effect link, not guessed.',
+    Infer:    'Each question asks for something the passage shows but never states outright: a feeling, a motive, a relationship, an attitude. The evidence must be there in the wording, so a careful reader can prove the inference by quoting.',
+    Suggest:  'Each question asks the student to propose sensible ideas of their own that still fit the passage. State clearly how many ideas are wanted.',
+    Compare:  'Each question names TWO things in the passage and asks how they differ or match. Both sides must be described in the passage.',
+  }[cmd] || '';
+
+  const sys = 'You are a PSLE English Paper 2 Comprehension Open-Ended item writer building a targeted single command word drill. Output VALID JSON ONLY — no markdown, no commentary. Primary 6 level, clean Standard English, Singapore-natural settings. No emoji.';
+  const prompt = `Generate ONE short comprehension passage and THREE questions, where EVERY question is a "${cmd}" question. Do not include any other command word.
+
+${focus}
+
+Output JSON with EXACTLY these fields:
+{
+  "passage": {
+    "title": "<4-7 word title>",
+    "body": "<the full passage, 160-220 words, clean Standard English>"
+  },
+  "questions": [
+    { "cmd": "${cmd}", "marks": <2 or 3>, "stem": "${cmd} ...", "rubric": "<marking rubric naming exactly what earns each mark>" },
+    { "cmd": "${cmd}", "marks": <2 or 3>, "stem": "${cmd} ...", "rubric": "<rubric>" },
+    { "cmd": "${cmd}", "marks": <2 or 3>, "stem": "${cmd} ...", "rubric": "<rubric>" }
+  ]
+}
+
+Constraints:
+- All three stems must begin with the word "${cmd}".
+- The three questions must test different parts of the passage, not the same detail three times.
+- Every question must be answerable from the passage alone.
+- Each rubric must say exactly what earns each mark, so a marker can be strict.
+- Write for a 12-year-old Singaporean student: calm, specific, plain sentences.
+- Avoid topics requiring outside knowledge (current events, branded products, specific people).${avoidBlock()}`;
+
+  const json = await window.askGemini({
+    system: sys, prompt,
+    temperature: 0.75, maxTokens: 1800, thinkingBudget: 0,
+    responseMimeType: 'application/json', asJson: true,
+  });
+  if (!json || !json.passage || !json.passage.body || !Array.isArray(json.questions) || !json.questions.length) {
+    throw new Error('Generator returned an unexpected shape.');
+  }
+  return {
+    passage: { title: json.passage.title || (cmd + ' drill passage'), body: json.passage.body },
+    questions: json.questions.slice(0, 3).map(function (q) {
+      return {
+        cmd: cmd,
+        marks: (typeof q.marks === 'number' && q.marks > 0) ? q.marks : 2,
+        stem: q.stem || '',
+        rubric: q.rubric || '',
+      };
+    }),
   };
 }
 </script>

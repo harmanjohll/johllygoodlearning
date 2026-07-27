@@ -1300,6 +1300,7 @@ function renderPaperBlock() {
 }
 
 function paintPhase(active) {
+  if (paper) paper.phase = active;
   var strip = el('phase-strip');
   if (!strip) return;
   var order = ['read', 'r1', 'gap', 'r2', 'answer'];
@@ -1408,6 +1409,8 @@ function paintNav(unlocked) {
     '<button class="btn ' + (last ? 'btn-success' : 'btn-primary') + '" id="btn-nextblock">' + label + '</button>' +
     '<span class="mini" style="align-self:center;">' + (unanswered ? unanswered + ' unanswered in this text' : 'all answered in this text') + '</span>';
   el('btn-nextblock').addEventListener('click', function () {
+    if (paper.phase !== 'answer' &&
+        !confirm('You have not heard both readings of this text yet. In the exam you do not get that choice. Move on anyway?')) return;
     if (unanswered && !confirm(unanswered + ' item(s) in this text have no answer. In the real paper a blank is a zero. Move on anyway?')) return;
     Speech.stop();
     clearPaperTimers();

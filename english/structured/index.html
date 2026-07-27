@@ -159,6 +159,48 @@
     .annot-legend .lg-showdonttell::before { background: #fb7185; }
     .annot-legend .lg-punctuation::before  { background: #c4b5fd; }
     .annot-legend .lg-ok::before           { background: #34d39966; }
+
+    /* ── Essay Handles panel ── */
+    .handles-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; margin-bottom: .75rem; }
+    .handles-panel > summary { cursor: pointer; padding: .55rem .9rem; font-size: .8rem; font-weight: 700; color: var(--accent); list-style: none; }
+    .handles-panel > summary::-webkit-details-marker { display: none; }
+    .handles-panel > summary::before { content: '▸  '; }
+    .handles-panel[open] > summary::before { content: '▾  '; }
+    .handles-body { padding: 0 .9rem .9rem; display: flex; flex-direction: column; gap: .85rem; }
+    .handles-group h5 { font-size: .67rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 800; margin-bottom: .3rem; }
+    .handles-hint { font-size: .74rem; color: var(--muted); line-height: 1.5; margin-bottom: .35rem; }
+    .handle-chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .handle-chip {
+      padding: .28rem .65rem; border-radius: 99px; border: 1px solid var(--border);
+      background: var(--bg); color: var(--text); font-size: .78rem; font-family: inherit;
+      cursor: pointer; text-align: left; line-height: 1.4; max-width: 100%;
+    }
+    .handle-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .handles-select {
+      background: var(--bg); color: var(--text); border: 1px solid var(--border);
+      border-radius: 6px; padding: .25rem .45rem; font-size: .78rem; font-family: inherit; margin-bottom: .4rem;
+    }
+    .handles-mini {
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      border-radius: 6px; padding: .15rem .5rem; font-size: .7rem; font-family: inherit;
+      cursor: pointer; margin-left: .35rem; text-transform: none; letter-spacing: 0; font-weight: 600;
+    }
+    .handles-mini:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ── Live draft metrics ── */
+    .metrics-row { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; margin-top: .45rem; }
+    .metric-pill {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 99px;
+      padding: .16rem .6rem; font-size: .74rem; color: var(--muted);
+      font-family: var(--font-mono, ui-monospace, monospace);
+    }
+    .banned-chip {
+      background: rgba(251,191,36,.09); border: 1px solid rgba(251,191,36,.5); color: #fcd34d;
+      border-radius: 99px; padding: .16rem .6rem; font-size: .74rem; line-height: 1.45;
+    }
+    .tell-note { font-size: .74rem; color: #fbbf24; line-height: 1.5; flex-basis: 100%; }
+    .metric-note { font-size: .74rem; color: var(--muted); line-height: 1.5; flex-basis: 100%; }
+    .fresh-readout { font-size: .76rem; color: var(--muted); }
   </style>
 </head>
 <body>
@@ -218,6 +260,8 @@
         <button class="btn btn-secondary" id="comp-gen-btn" style="font-size:.78rem;padding:.35rem .85rem;">+ Generate prompt</button>
         <button class="btn btn-secondary" id="comp-gen-clear" style="font-size:.78rem;padding:.35rem .85rem;display:none;">Clear generated</button>
         <span id="comp-gen-status" style="font-size:.78rem;color:var(--muted);"></span>
+        <span style="flex:1;"></span>
+        <span class="fresh-readout" id="comp-fresh-readout"></span>
       </div>
       <div class="prompt-display">
         <span class="label">Your prompt</span>
@@ -228,8 +272,13 @@
     <div class="section">
       <h3>Your draft</h3>
       <p style="font-size:.85rem;color:var(--muted);margin-bottom:.6rem;line-height:1.55">Aim for at least 150 words; target 200–300. Examiner mode marks against the Band 5 criteria from <code>Composition_Writing_Guide.md</code> and the three mentor essays in <code>ModelEssays_Annotated_KB.md</code>.</p>
+      <details class="handles-panel" id="handles-panel" hidden>
+        <summary>Handles — tap a chip to drop it in at your cursor</summary>
+        <div class="handles-body" id="handles-body"></div>
+      </details>
       <textarea id="composition-draft" placeholder="Start your composition here…"></textarea>
       <div class="word-counter" id="composition-counter">0 words</div>
+      <div class="metrics-row" id="comp-metrics"></div>
       <div class="actions">
         <button class="btn btn-primary" id="composition-submit">🧑‍🏫 Get Examiner Feedback</button>
         <button class="btn btn-ghost" id="composition-clear">Clear</button>
@@ -275,6 +324,7 @@
 <script src="../shared/streak.js"></script>
 <script src="../shared/lab.js"></script>
 <script src="../shared/pomodoro.js"></script>
+<script src="../shared/freshness.js"></script>
 <script>
 // ── Topic + passage banks ────────────────────────────────
 let COMPOSITION_TOPICS = [
@@ -412,8 +462,31 @@ function showModelAnswer() {
   if (nailed) nailed.remove();
 }
 
+// ── Freshness helpers (anti-repeat) ──────────────────────
+// One key per prompt, shared by the curated bank and the generator, so a
+// prompt you have already written on drops to the back of the queue.
+function compFreshKey(t) {
+  const raw = String((t && t.title) || '') + '|' + String((t && t.note) || '').slice(0, 60);
+  if (window.JglFresh) { try { return JglFresh.normKey(raw); } catch (e) { return raw; } }
+  return raw;
+}
+function renderCompFreshReadout() {
+  const el = document.getElementById('comp-fresh-readout');
+  if (!el) return;
+  const s = window.JglFresh ? JglFresh.stats('composition') : { total: 0, last7: 0 };
+  el.textContent = s.total
+    ? s.total + ' prompt' + (s.total === 1 ? '' : 's') + ' seen · ' + s.last7 + ' this week'
+    : '';
+}
+
 // ── Composition picker ───────────────────────────────────
 const compPicker = document.getElementById('composition-topic-picker');
+function selectCompTopic(t) {
+  if (!t) return;
+  state.composition.topic = t;
+  document.getElementById('composition-prompt-text').textContent = t.note;
+  document.getElementById('composition-feedback').classList.remove('show');
+}
 function renderCompPicker(activeId) {
   compPicker.innerHTML = '';
   COMPOSITION_TOPICS.forEach((t) => {
@@ -423,16 +496,11 @@ function renderCompPicker(activeId) {
     chip.addEventListener('click', () => {
       compPicker.querySelectorAll('.picker-chip').forEach(x => x.classList.remove('active'));
       chip.classList.add('active');
-      state.composition.topic = t;
-      document.getElementById('composition-prompt-text').textContent = t.note;
-      document.getElementById('composition-feedback').classList.remove('show');
+      selectCompTopic(t);
     });
     compPicker.appendChild(chip);
   });
 }
-renderCompPicker(COMPOSITION_TOPICS[0].id);
-state.composition.topic = COMPOSITION_TOPICS[0];
-document.getElementById('composition-prompt-text').textContent = COMPOSITION_TOPICS[0].note;
 
 // ── Composition prompt generator ────────────────────────────
 const COMP_GEN_CACHE_KEY = 'jgl.english.comp.prompts';
@@ -444,9 +512,20 @@ const COMP_CURATED_COUNT = COMPOSITION_TOPICS.length;
     if (cached.length) {
       COMPOSITION_TOPICS = COMPOSITION_TOPICS.concat(cached);
       document.getElementById('comp-gen-clear').style.display = 'inline-block';
-      renderCompPicker(COMPOSITION_TOPICS[0].id);
     }
   } catch {}
+})();
+
+// Open on a prompt he has not written on yet, so a repeat visit does not
+// serve the same topic every time.
+(function bootCompTopic() {
+  let first = COMPOSITION_TOPICS[0];
+  if (window.JglFresh) {
+    try { first = JglFresh.pickUnseen('composition', COMPOSITION_TOPICS, compFreshKey) || first; } catch (e) {}
+  }
+  renderCompPicker(first.id);
+  selectCompTopic(first);
+  renderCompFreshReadout();
 })();
 
 document.getElementById('comp-gen-btn').addEventListener('click', async () => {
@@ -465,8 +544,8 @@ document.getElementById('comp-gen-btn').addEventListener('click', async () => {
     document.getElementById('comp-gen-clear').style.display = 'inline-block';
     status.textContent = `New prompt added: "${t.title}".`;
     renderCompPicker(t.id);
-    state.composition.topic = t;
-    document.getElementById('composition-prompt-text').textContent = t.note;
+    selectCompTopic(t);
+    renderCompFreshReadout();
   } catch (e) {
     status.textContent = 'Generator error: ' + (e?.message || e);
   } finally {
@@ -480,12 +559,19 @@ document.getElementById('comp-gen-clear').addEventListener('click', () => {
   COMPOSITION_TOPICS = COMPOSITION_TOPICS.slice(0, COMP_CURATED_COUNT);
   document.getElementById('comp-gen-clear').style.display = 'none';
   document.getElementById('comp-gen-status').textContent = '';
-  renderCompPicker(COMPOSITION_TOPICS[0].id);
-  state.composition.topic = COMPOSITION_TOPICS[0];
-  document.getElementById('composition-prompt-text').textContent = COMPOSITION_TOPICS[0].note;
+  let next = COMPOSITION_TOPICS[0];
+  if (window.JglFresh) {
+    try { next = JglFresh.pickUnseen('composition', COMPOSITION_TOPICS, compFreshKey) || next; } catch (e) {}
+  }
+  renderCompPicker(next.id);
+  selectCompTopic(next);
 });
 
 async function generateCompPrompt(genre) {
+  const avoid = (window.JglFresh ? JglFresh.avoidList('composition', 12) : []);
+  const avoidBlock = avoid.length
+    ? '\n\nDo NOT produce anything similar in topic, setting, character names, or wording to any of these, which the student has already seen:\n' + avoid.map(a => '- ' + a).join('\n')
+    : '';
   const sys = 'You are a PSLE English Paper 1 Continuous Writing item writer. Output VALID JSON ONLY. Primary 6 level. Singapore-friendly settings. The prompt must reward sensory description, F.A.S.T. characterisation, a clear emotional beat, and an R.E.F. ending.';
   const prompt = `Generate ONE Continuous Writing prompt on the genre: "${genre}".
 
@@ -499,14 +585,18 @@ Output JSON with EXACTLY:
 Constraints:
 - The prompt must be open enough that two Primary 6 students could write very different stories from it.
 - Avoid topics requiring outside knowledge (specific historical events, branded products, named famous people).
-- No emoji.`;
+- No emoji.` + avoidBlock;
   const json = await window.askGemini({
     system: sys, prompt,
     temperature: 0.8, maxTokens: 250, thinkingBudget: 0,
     responseMimeType: 'application/json', asJson: true,
   });
   if (!json || !json.note) throw new Error('Unexpected response shape.');
-  return { id: json.id || ('gen-' + Date.now()), title: json.title || 'AI-generated prompt', note: json.note, _generated: true };
+  const topic = { id: json.id || ('gen-' + Date.now()), title: json.title || 'AI-generated prompt', note: json.note, _generated: true };
+  if (window.JglFresh) {
+    try { JglFresh.mark('composition', compFreshKey(topic), { title: topic.title, type: genre }); } catch (e) {}
+  }
+  return topic;
 }
 
 // ── Comprehension picker ─────────────────────────────────
@@ -564,7 +654,7 @@ function updateCounter(target) {
     else if (n > 0 && n < 10) ctr.classList.add('warn');
   }
 }
-document.getElementById('composition-draft').addEventListener('input', () => updateCounter('composition'));
+document.getElementById('composition-draft').addEventListener('input', () => { updateCounter('composition'); updateDraftMetrics(); });
 document.getElementById('comprehension-answer').addEventListener('input', () => updateCounter('comprehension'));
 
 // ── Clear buttons ────────────────────────────────────────
@@ -572,6 +662,7 @@ document.getElementById('composition-clear').addEventListener('click', () => {
   document.getElementById('composition-draft').value = '';
   document.getElementById('composition-feedback').classList.remove('show');
   updateCounter('composition');
+  updateDraftMetrics();
 });
 document.getElementById('comprehension-clear').addEventListener('click', () => {
   document.getElementById('comprehension-answer').value = '';
@@ -911,6 +1002,16 @@ document.getElementById('composition-submit').addEventListener('click', async ()
   const draft = document.getElementById('composition-draft').value.trim();
   if (!draft) { showToast('Write your draft first.'); return; }
   if (!checkKey()) return;
+  // This prompt has now been attempted, so it drops to the back of the queue.
+  if (window.JglFresh && state.composition.topic) {
+    try {
+      JglFresh.mark('composition', compFreshKey(state.composition.topic), {
+        title: state.composition.topic.title,
+        type:  state.composition.topic._generated ? 'generated' : 'curated',
+      });
+      renderCompFreshReadout();
+    } catch (e) { /* freshness is best effort */ }
+  }
   const btn = document.getElementById('composition-submit');
   const fb = document.getElementById('composition-feedback');
   const annotEl = document.getElementById('annot-output');
@@ -1026,6 +1127,380 @@ document.getElementById('comprehension-submit').addEventListener('click', async 
     btn.innerHTML = mode === 'coach' ? '🧭 Ask the Coach' : mode === 'annotator' ? '🔍 Annotate my answer' : '🧑‍🏫 Get Examiner Feedback';
   }
 });
+
+/* ═══════════════════════════════════════════════════════════
+   Essay Handles panel + live draft metrics
+   Handles come from ../shared/content/handles.json. If the file is
+   missing, or a section inside it is missing, that part of the panel
+   simply does not appear. Nothing here throws and nothing here needs
+   an API key.
+   ═══════════════════════════════════════════════════════════ */
+const HANDLES_URL = '../shared/content/handles.json';
+const TELLING_WORDS = ['was', 'were', 'felt', 'very', 'really', 'sad', 'happy', 'angry', 'scared'];
+const FALLBACK_BANNED = [
+  { phrase: 'I learnt a valuable lesson', instead: 'Close on one small action that proves you changed.' },
+  { phrase: 'best day of my life', instead: 'Name the single detail that made the day matter.' },
+  { phrase: 'it was all a dream', instead: 'Let the events be real and pay their consequences.' },
+  { phrase: 'raining cats and dogs', instead: 'Say what the rain did: rain drummed on the awning until we had to shout.' },
+  { phrase: 'in the nick of time', instead: 'Show the margin: the door shut two steps behind me.' },
+  { phrase: 'happily ever after', instead: 'End on the next ordinary morning and what is different about it.' },
+];
+let HANDLES = null;
+let BANNED = FALLBACK_BANNED.slice();
+
+function hArray(v) { return Array.isArray(v) ? v : []; }
+function hText(x, keys) {
+  if (typeof x === 'string') return x.trim();
+  if (!x || typeof x !== 'object') return '';
+  for (const k of keys) {
+    if (typeof x[k] === 'string' && x[k].trim()) return x[k].trim();
+  }
+  return '';
+}
+function hTrunc(s, n) {
+  const t = String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
+  return t.length > n ? t.slice(0, n - 1).trim() + '…' : t;
+}
+function hShuffle(arr) {
+  const a = hArray(arr).slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  }
+  return a;
+}
+
+// ── Insert a chip at the caret ───────────────────────────
+function insertAtCaret(text) {
+  const ta = document.getElementById('composition-draft');
+  const ins0 = String(text == null ? '' : text);
+  if (!ta || !ins0) return;
+  const start = typeof ta.selectionStart === 'number' ? ta.selectionStart : ta.value.length;
+  const end   = typeof ta.selectionEnd   === 'number' ? ta.selectionEnd   : start;
+  const before = ta.value.slice(0, start);
+  const after  = ta.value.slice(end);
+  let ins = ins0;
+  if (before && !/\s$/.test(before)) ins = ' ' + ins;
+  if (after && !/^[\s.,;:!?]/.test(after)) ins = ins + ' ';
+  ta.value = before + ins + after;
+  const caret = start + ins.length;
+  ta.focus();
+  try { ta.setSelectionRange(caret, caret); } catch (e) {}
+  updateCounter('composition');
+  updateDraftMetrics();
+}
+
+// ── Panel builders ───────────────────────────────────────
+function hChip(label, insertText, tip) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'handle-chip';
+  b.textContent = label;
+  if (tip) b.title = tip;
+  b.addEventListener('click', () => insertAtCaret(insertText));
+  return b;
+}
+function hGroup(titleText, hintText) {
+  const g = document.createElement('div');
+  g.className = 'handles-group';
+  const h = document.createElement('h5');
+  h.textContent = titleText;
+  g.appendChild(h);
+  if (hintText) {
+    const p = document.createElement('p');
+    p.className = 'handles-hint';
+    p.textContent = hintText;
+    g.appendChild(p);
+  }
+  const chips = document.createElement('div');
+  chips.className = 'handle-chips';
+  g.appendChild(chips);
+  g.chipsEl = chips;
+  return g;
+}
+
+function hNormValuesVocab(v) {
+  const fields = ['nouns', 'adjectives', 'verbs', 'adverbs', 'phrases', 'words', 'vocab', 'bank'];
+  // Round-robin across nouns, adjectives and verbs so the chip row is not
+  // eighteen nouns and nothing else.
+  const collect = (obj) => {
+    const lanes = fields
+      .map(f => hArray(obj && obj[f]).map(w => hText(w, ['word', 'term', 'text', 'phrase'])).filter(Boolean))
+      .filter(l => l.length);
+    const words = [];
+    const depth = lanes.reduce((m, l) => Math.max(m, l.length), 0);
+    for (let i = 0; i < depth; i++) {
+      lanes.forEach(l => { if (i < l.length) words.push(l[i]); });
+    }
+    return words;
+  };
+  const out = [];
+  if (Array.isArray(v)) {
+    v.forEach(e => {
+      if (!e || typeof e !== 'object') return;
+      const name = hText(e, ['value', 'name', 'label', 'title']);
+      const words = collect(e);
+      if (name && words.length) out.push({ value: name, words, note: hText(e, ['whenToUse', 'note', 'when']) });
+    });
+  } else if (v && typeof v === 'object') {
+    Object.keys(v).forEach(k => {
+      const raw = v[k];
+      let words = [];
+      if (Array.isArray(raw)) words = raw.map(w => hText(w, ['word', 'term', 'text', 'phrase'])).filter(Boolean);
+      else if (raw && typeof raw === 'object') words = collect(raw);
+      if (words.length) out.push({ value: k, words, note: hText(raw, ['whenToUse', 'note', 'when']) });
+    });
+  }
+  return out;
+}
+
+function hNormShowNotTell(v) {
+  const map = {};
+  const add = (emotion, telling, showing) => {
+    if (!emotion || !showing) return;
+    const key = String(emotion).toLowerCase();
+    if (!map[key]) map[key] = { emotion: String(emotion), pairs: [] };
+    map[key].pairs.push({ telling: telling || '', showing });
+  };
+  if (Array.isArray(v)) {
+    v.forEach(e => {
+      if (!e || typeof e !== 'object') return;
+      add(hText(e, ['emotion', 'feeling', 'label', 'name']),
+          hText(e, ['telling', 'tell', 'weak', 'avoid']),
+          hText(e, ['showing', 'show', 'instead', 'strong', 'example']));
+    });
+  } else if (v && typeof v === 'object') {
+    Object.keys(v).forEach(k => {
+      const raw = v[k];
+      if (typeof raw === 'string') add(k, '', raw);
+      else if (Array.isArray(raw)) {
+        raw.forEach(e => {
+          if (typeof e === 'string') add(k, '', e);
+          else add(k, hText(e, ['telling', 'tell']), hText(e, ['showing', 'show', 'text']));
+        });
+      } else if (raw && typeof raw === 'object') {
+        add(k, hText(raw, ['telling', 'tell']), hText(raw, ['showing', 'show', 'instead']));
+      }
+    });
+  }
+  return Object.keys(map).map(k => map[k]);
+}
+
+function hNormBanned(v) {
+  return hArray(v).map(e => {
+    if (typeof e === 'string') return { phrase: e.trim(), instead: '' };
+    if (!e || typeof e !== 'object') return null;
+    const phrase = hText(e, ['phrase', 'banned', 'text', 'term', 'avoid']);
+    const instead = hText(e, ['insteadTry', 'instead_try', 'instead', 'replacement', 'better', 'fix', 'try', 'use']);
+    return phrase ? { phrase, instead } : null;
+  }).filter(Boolean);
+}
+
+function buildHandlesPanel() {
+  const panel = document.getElementById('handles-panel');
+  const body  = document.getElementById('handles-body');
+  if (!panel || !body || !HANDLES) return;
+  body.innerHTML = '';
+  let groupCount = 0;
+
+  // 1 ── Three idioms the marker rewards
+  const rewardIdioms = hArray(HANDLES.idioms).filter(i => String((i && i.verdict) || '').toLowerCase() === 'reward');
+  if (rewardIdioms.length) {
+    const g = hGroup('Idioms that earn marks', 'Two to four in a whole composition. Dialogue is the safest place for one.');
+    const paint = () => {
+      g.chipsEl.innerHTML = '';
+      hShuffle(rewardIdioms).slice(0, 3).forEach(i => {
+        const phrase = hText(i, ['phrase', 'idiom', 'text']);
+        if (!phrase) return;
+        const meaning = hText(i, ['meaning', 'definition']);
+        const useWhen = hText(i, ['useWhen', 'when']);
+        g.chipsEl.appendChild(hChip(phrase, phrase, [meaning, useWhen].filter(Boolean).join(' · ')));
+      });
+    };
+    paint();
+    if (rewardIdioms.length > 3) {
+      const more = document.createElement('button');
+      more.type = 'button';
+      more.className = 'handles-mini';
+      more.textContent = 'Another three';
+      more.addEventListener('click', paint);
+      g.querySelector('h5').appendChild(more);
+    }
+    body.appendChild(g); groupCount++;
+  }
+
+  // 2 ── Values vocabulary, one value at a time
+  const values = hNormValuesVocab(HANDLES.valuesVocab);
+  if (values.length) {
+    const g = hGroup('Values word bank', 'Pick the value your story is really about, then borrow its words.');
+    const sel = document.createElement('select');
+    sel.className = 'handles-select';
+    values.forEach((v, i) => {
+      const o = document.createElement('option');
+      o.value = String(i);
+      o.textContent = v.value;
+      sel.appendChild(o);
+    });
+    const note = document.createElement('p');
+    note.className = 'handles-hint';
+    const paint = () => {
+      const v = values[Number(sel.value) || 0];
+      note.textContent = v && v.note ? hTrunc(v.note, 160) : '';
+      g.chipsEl.innerHTML = '';
+      if (!v) return;
+      v.words.slice(0, 18).forEach(w => g.chipsEl.appendChild(hChip(w, w)));
+    };
+    sel.addEventListener('change', paint);
+    g.insertBefore(sel, g.chipsEl);
+    g.insertBefore(note, g.chipsEl);
+    paint();
+    body.appendChild(g); groupCount++;
+  }
+
+  // 3 ── Openers
+  const openers = hArray(HANDLES.openers);
+  if (openers.length) {
+    const g = hGroup('Openers', 'Start inside a moment. Tap one, then rewrite it in your own story.');
+    hShuffle(openers).slice(0, 4).forEach(o => {
+      const text = hText(o, ['example', 'template', 'text']);
+      if (!text) return;
+      g.chipsEl.appendChild(hChip(hTrunc(text, 72), text, hText(o, ['why', 'note', 'type'])));
+    });
+    if (g.chipsEl.children.length) { body.appendChild(g); groupCount++; }
+  }
+
+  // 4 ── Endings
+  const endings = hArray(HANDLES.endings);
+  if (endings.length) {
+    const g = hGroup('Endings', 'Show the change; never announce the lesson.');
+    hShuffle(endings).slice(0, 4).forEach(o => {
+      const text = hText(o, ['example', 'template', 'text']);
+      if (!text) return;
+      g.chipsEl.appendChild(hChip(hTrunc(text, 72), text, hText(o, ['why', 'note', 'type'])));
+    });
+    if (g.chipsEl.children.length) { body.appendChild(g); groupCount++; }
+  }
+
+  // 5 ── Show, do not tell
+  const snt = hNormShowNotTell(HANDLES.showNotTell);
+  if (snt.length) {
+    const g = hGroup('Show, do not tell', 'Choose the feeling, then take the shown version instead of the flat one.');
+    const sel = document.createElement('select');
+    sel.className = 'handles-select';
+    snt.forEach((e, i) => {
+      const o = document.createElement('option');
+      o.value = String(i);
+      o.textContent = e.emotion;
+      sel.appendChild(o);
+    });
+    const tellLine = document.createElement('p');
+    tellLine.className = 'handles-hint';
+    const paint = () => {
+      const e = snt[Number(sel.value) || 0];
+      g.chipsEl.innerHTML = '';
+      if (!e) { tellLine.textContent = ''; return; }
+      const pairs = hShuffle(e.pairs).slice(0, 3);
+      const tells = pairs.map(p => p.telling).filter(Boolean);
+      tellLine.textContent = tells.length ? 'Instead of: ' + tells.slice(0, 2).join(' / ') : '';
+      pairs.forEach(p => g.chipsEl.appendChild(hChip(hTrunc(p.showing, 72), p.showing, p.telling ? 'Instead of: ' + p.telling : '')));
+    };
+    sel.addEventListener('change', paint);
+    g.insertBefore(sel, g.chipsEl);
+    g.insertBefore(tellLine, g.chipsEl);
+    paint();
+    body.appendChild(g); groupCount++;
+  }
+
+  panel.hidden = groupCount === 0;
+}
+
+// ── Live draft metrics (no AI, no key) ───────────────────
+function updateDraftMetrics() {
+  const ta  = document.getElementById('composition-draft');
+  const box = document.getElementById('comp-metrics');
+  if (!ta || !box) return;
+  const text = ta.value || '';
+  box.innerHTML = '';
+  if (!text.trim()) return;
+
+  const words = text.trim().match(/\S+/g) || [];
+  const sentences = text.split(/[.!?]+/).map(s => s.trim()).filter(Boolean);
+  const avg = sentences.length ? Math.round(words.length / sentences.length) : words.length;
+
+  const pill = (t) => {
+    const s = document.createElement('span');
+    s.className = 'metric-pill';
+    s.textContent = t;
+    box.appendChild(s);
+  };
+  pill(words.length + (words.length === 1 ? ' word' : ' words'));
+  pill(sentences.length + (sentences.length === 1 ? ' sentence' : ' sentences'));
+  pill('avg ' + avg + ' words per sentence');
+
+  // Banned phrases. If two hits overlap (a short version inside a longer
+  // one), keep only the longer, more specific hit.
+  const lower = text.toLowerCase();
+  const hits = BANNED.filter(b => b && b.phrase && lower.indexOf(String(b.phrase).toLowerCase()) !== -1);
+  hits
+    .filter(b => !hits.some(o => o !== b && o.phrase.length > b.phrase.length
+      && o.phrase.toLowerCase().indexOf(b.phrase.toLowerCase()) !== -1))
+    .forEach(b => {
+      const c = document.createElement('span');
+      c.className = 'banned-chip';
+      c.textContent = b.instead
+        ? '"' + b.phrase + '" → ' + hTrunc(b.instead, 90)
+        : '"' + b.phrase + '" → cut it';
+      if (b.instead) c.title = b.instead;
+      box.appendChild(c);
+    });
+
+  // Telling words
+  let tellTotal = 0;
+  const found = [];
+  TELLING_WORDS.forEach(w => {
+    let m = null;
+    try { m = lower.match(new RegExp('\\b' + w + '\\b', 'g')); } catch (e) { m = null; }
+    if (m && m.length) { tellTotal += m.length; found.push(w + ' ×' + m.length); }
+  });
+  if (tellTotal) {
+    const n = document.createElement('span');
+    n.className = 'tell-note';
+    n.textContent = tellTotal + ' telling word' + (tellTotal === 1 ? '' : 's') + ': ' + found.slice(0, 6).join(', ')
+      + '. Swap two of them for a face, an action, a line of speech or a thought.';
+    box.appendChild(n);
+  }
+
+  if (sentences.length >= 3 && avg >= 25) {
+    const n = document.createElement('span');
+    n.className = 'metric-note';
+    n.textContent = 'Your sentences are running long. Break one in two at the climax; short sentences carry tension.';
+    box.appendChild(n);
+  }
+}
+
+// ── Load the handles file, quietly ───────────────────────
+(function loadHandles() {
+  if (typeof fetch !== 'function') return;
+  fetch(HANDLES_URL, { cache: 'no-cache' })
+    .then(r => (r && r.ok ? r.json() : null))
+    .then(j => {
+      if (!j || typeof j !== 'object') return;
+      HANDLES = j;
+      // Merge the file's list with the built-in short forms, so "I learnt a
+      // valuable lesson" is caught even when the file stores a longer variant.
+      const nb = hNormBanned(j.bannedPhrases);
+      if (nb.length) {
+        const have = {};
+        nb.forEach(b => { have[b.phrase.toLowerCase()] = true; });
+        BANNED = nb.concat(FALLBACK_BANNED.filter(b => !have[b.phrase.toLowerCase()]));
+      }
+      try { buildHandlesPanel(); } catch (e) { /* panel stays hidden */ }
+      updateDraftMetrics();
+    })
+    .catch(() => { /* handles are optional */ });
+})();
+
+updateDraftMetrics();
 
 </script>
 </body>
