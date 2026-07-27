@@ -598,7 +598,7 @@
             + '<summary><span class="sum-main"><span class="sum-caret">▸</span>'
             + '<span class="h-title">' + escapeHTML(item.title) + '</span>'
             + '<span class="sum-sub">' + wordCount + ' words</span></span>'
-            + actsHTML(item, false) + '</summary>'
+            + actsHTML(item) + '</summary>'
             + (o.whenToUse ? '<p class="h-def">' + escapeHTML(o.whenToUse) + '</p>' : '')
             + chipGroup('Nouns', o.nouns)
             + chipGroup('Adjectives', o.adjectives)
@@ -674,7 +674,7 @@
             + '<summary><span class="sum-main"><span class="sum-caret">▸</span>'
             + '<span class="h-title">' + escapeHTML(item.title) + '</span>'
             + (arr(o.stages).length ? '<span class="sum-sub">' + arr(o.stages).length + ' stages</span>' : '')
-            + '</span>' + actsHTML(item, false) + '</summary>'
+            + '</span>' + actsHTML(item) + '</summary>'
             + (arr(o.stages).length
                 ? '<ol class="stage-list">' + arr(o.stages).map(function (s) { return '<li>' + escapeHTML(s) + '</li>'; }).join('') + '</ol>'
                 : '')
@@ -1211,6 +1211,9 @@
        Events
        ───────────────────────────────────────────── */
     document.addEventListener('click', function (e) {
+      if (e.target === $('drawerOverlay')) { closeDrawers(); return; }
+      if (!e.target || typeof e.target.closest !== 'function') return;
+
       var pinBtn = e.target.closest('[data-pin]');
       if (pinBtn) {
         e.preventDefault(); e.stopPropagation();
@@ -1246,9 +1249,7 @@
         render();
         return;
       }
-      if (e.target.closest('[data-close-drawer]') || e.target === $('drawerOverlay')) {
-        closeDrawers();
-      }
+      if (e.target.closest('[data-close-drawer]')) closeDrawers();
     });
 
     document.addEventListener('keydown', function (e) {
