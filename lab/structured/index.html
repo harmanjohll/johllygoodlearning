@@ -1038,7 +1038,7 @@ Respond with ONLY a JSON object — no markdown, no code fences:
 }`;
 
   const resp = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${jglModelId()}:generateContent?key=${encodeURIComponent(key)}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1055,7 +1055,7 @@ Respond with ONLY a JSON object — no markdown, no code fences:
   }
 
   const data = await resp.json();
-  // gemini-2.5-flash returns thought parts first; filter them out to get the actual response
+  // Gemini returns thought parts first; filter them out to get the actual response
   const responseParts = data.candidates?.[0]?.content?.parts || [];
   const text = responseParts.filter(p => !p.thought).map(p => p.text || '').join('');
   try { return JSON.parse(text); }
