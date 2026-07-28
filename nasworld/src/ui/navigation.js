@@ -34,6 +34,33 @@ function showScreen(screenId) {
   if (screenId === 'stem-world' && typeof STEM_TREE !== 'undefined') {
     renderActivityCards(STEM_TREE, 'stem-activities', 'stem');
   }
+  if (screenId === 'malay-world' && typeof MALAY_TREE !== 'undefined') {
+    renderActivityCards(MALAY_TREE, 'malay-activities', 'malay');
+  }
+  if (screenId === 'mega-map' && typeof renderMegaMap === 'function') {
+    renderMegaMap();
+  }
+  if (screenId === 'compass' && typeof renderCompass === 'function') {
+    renderCompass();
+  }
+  if (screenId === 'mirror' && typeof renderMirror === 'function') {
+    renderMirror();
+  }
+  if (screenId === 'strategies' && typeof renderStrategyLibrary === 'function') {
+    renderStrategyLibrary();
+  }
+  if (screenId === 'parent-digest' && typeof renderParentDigest === 'function') {
+    renderParentDigest();
+  }
+  if (screenId === 'stasha' && typeof renderStashaScreen === 'function') {
+    renderStashaScreen();
+  }
+  if (screenId === 'wardrobe' && typeof renderWardrobe === 'function') {
+    renderWardrobe();
+  }
+  if (screenId === 'sim-hub' && typeof renderSimHub === 'function') {
+    renderSimHub();
+  }
   if (screenId === 'garden') {
     if (typeof renderGardenIsland === 'function') renderGardenIsland();
     renderGarden();
@@ -51,9 +78,10 @@ function openSkillView(skillId, worldType) {
 
   // Look up skill name/icon
   var allTrees = Object.assign({},
-    typeof MATH_TREE !== 'undefined' ? MATH_TREE : {},
-    typeof WORD_TREE !== 'undefined' ? WORD_TREE : {},
-    typeof STEM_TREE !== 'undefined' ? STEM_TREE : {}
+    typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {},
+    typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {},
+    typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {},
+    typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}
   );
   var skill = allTrees[skillId];
   var skillName = skill ? skill.icon + ' ' + skill.name : skillId;
@@ -71,6 +99,9 @@ function openSkillView(skillId, worldType) {
   } else if (worldType === 'stem') {
     if (typeof getStemLesson === 'function') lesson = getStemLesson(skillId);
     if (typeof getStemFlashcards === 'function') flashcards = getStemFlashcards(skillId);
+  } else if (worldType === 'malay') {
+    if (typeof getMalayLesson === 'function') lesson = getMalayLesson(skillId);
+    if (typeof getMalayFlashcards === 'function') flashcards = getMalayFlashcards(skillId);
   }
 
   var hasLesson = !!lesson;
@@ -125,7 +156,7 @@ function openSkillView(skillId, worldType) {
 
   // Back button
   document.getElementById('skill-view-back').onclick = function() {
-    var worldMap = { math: 'math-world', word: 'word-world', stem: 'stem-world' };
+    var worldMap = { math: 'math-world', word: 'word-world', stem: 'stem-world', malay: 'malay-world' };
     showScreen(worldMap[worldType] || 'home');
   };
 
@@ -177,7 +208,13 @@ function openSkillView(skillId, worldType) {
         '<button class="lesson-btn lesson-btn-done" id="start-quiz-btn">Start Quiz →</button>' +
         '</div>';
       document.getElementById('start-quiz-btn').onclick = function() {
-        startGame(skillId, worldType);
+        if (typeof metaConfidenceBefore === 'function') {
+          metaConfidenceBefore(skillId, function() {
+            startGame(skillId, worldType);
+          });
+        } else {
+          startGame(skillId, worldType);
+        }
       };
     }
   }
@@ -210,9 +247,10 @@ function startGame(skillId, worldType) {
 
   // Set title
   const allTrees = Object.assign({},
-    typeof MATH_TREE !== 'undefined' ? MATH_TREE : {},
-    typeof WORD_TREE !== 'undefined' ? WORD_TREE : {},
-    typeof STEM_TREE !== 'undefined' ? STEM_TREE : {}
+    typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {},
+    typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {},
+    typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {},
+    typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}
   );
   const skill = allTrees[skillId];
   document.getElementById('game-title').textContent = skill ? skill.icon + ' ' + skill.name : skillId;
@@ -226,7 +264,8 @@ function exitGame() {
   const worldMap = {
     math: 'math-world',
     word: 'word-world',
-    stem: 'stem-world'
+    stem: 'stem-world',
+    malay: 'malay-world'
   };
   showScreen(worldMap[currentGame.worldType] || 'home');
   saveState();
@@ -271,6 +310,7 @@ function renderCurrentQuestion() {
   if (typeof renderWordQuestion === 'function' && renderWordQuestion(card, q)) return;
   if (typeof renderScienceQuestion === 'function' && renderScienceQuestion(card, q)) return;
   if (typeof renderCodeQuestion === 'function' && renderCodeQuestion(card, q)) return;
+  if (typeof renderMalayQuestion === 'function' && renderMalayQuestion(card, q)) return;
 
   // Fallback generic MCQ
   renderGenericMCQ(card, q);
@@ -308,6 +348,9 @@ function endGame() {
   }
   if (typeof lumiReactTo === 'function') {
     lumiReactTo('quizComplete', { pct: pct });
+  }
+  if (typeof metaReflectAfter === 'function') {
+    metaReflectAfter(currentGame.skillId);
   }
 
   const overlay = document.getElementById('feedback-overlay');
@@ -381,6 +424,9 @@ function generateQuestion(skillId, worldType) {
       const codeResult = generateCodeQuestion(skillId);
       if (codeResult) return codeResult;
     }
+  }
+  if (worldType === 'malay' && typeof generateMalayQuestion === 'function') {
+    return generateMalayQuestion(skillId);
   }
   // Fallback
   return { type: 'generic', text: 'Coming soon!', options: ['OK'], answer: 'OK' };

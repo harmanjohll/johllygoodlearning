@@ -48,6 +48,9 @@ var WORD_LESSONS = {
       { text: '<b>Nouns</b> are naming words.<br>They name people, animals, places, or things.<br><span style="color:var(--sky)">girl</span>, <span style="color:var(--sky)">cat</span>, <span style="color:var(--sky)">school</span>, <span style="color:var(--sky)">ball</span>', lumiTip: 'If you can touch it or see it, it\'s probably a noun!' },
       { text: '<b>Verbs</b> are doing words.<br>They tell us what someone does.<br><span style="color:var(--coral)">run</span>, <span style="color:var(--coral)">eat</span>, <span style="color:var(--coral)">sleep</span>, <span style="color:var(--coral)">play</span>', lumiTip: 'Can you act it out? Then it\'s a verb!' },
       { text: '<b>Adjectives</b> are describing words.<br>They tell us more about nouns.<br><span style="color:var(--mint)">big</span>, <span style="color:var(--mint)">happy</span>, <span style="color:var(--mint)">red</span>, <span style="color:var(--mint)">tall</span>', lumiTip: 'Adjectives answer: what kind? how many? which one?' },
+      { text: '<b>Pronouns</b> replace nouns so we don\'t repeat them.<br><i>Lina has a doll. Lina loves the doll.</i> → <i>Lina has a doll. <b>She</b> loves <b>it</b>.</i><br>Common pronouns: <b>I, you, he, she, it, we, they</b>', lumiTip: 'Use a pronoun the second time you mention something.' },
+      { text: '<b>Plurals</b> mean more than one.<br>Most words just add <b>-s</b>: cat → cats, book → books.<br>Words ending in <b>-s, -x, -ch, -sh</b> add <b>-es</b>: bus → bus<b>es</b>, fox → fox<b>es</b>.<br>A few are tricky: child → <b>children</b>, mouse → <b>mice</b>, foot → <b>feet</b>.', lumiTip: 'Listen for the hiss sound. If it hisses, use -es!' },
+      { text: '<b>Articles:</b> tiny words before a noun.<br><b>a</b> = one, used before a consonant sound: <i>a cat, a banana</i><br><b>an</b> = one, used before a vowel sound: <i>an apple, an egg</i><br><b>the</b> = a specific one: <i>the cat on the mat</i>', lumiTip: 'Hear the first sound, not the first letter. "an hour" sounds like "owur"!' },
       { type: 'sort', text: 'Sort these words into the right group!', categories: [
         { name: 'Nouns', items: ['cat', 'ball', 'tree'] },
         { name: 'Verbs', items: ['run', 'jump', 'eat'] }
@@ -126,6 +129,26 @@ var WORD_LESSONS = {
   }
 };
 
+WORD_LESSONS.punct = {
+  title: 'Punctuation',
+  icon: '❕',
+  lumiSays: 'Punctuation tells the reader how your sentence sounds. It is like the rests, drums and exclaim marks in music!',
+  steps: [
+    { text: '<b>Full stop</b> <span style="color:var(--gold);font-size:24px">.</span><br>Use it at the END of a normal sentence.<br>Examples: <i>The cat is fluffy. I like ice cream.</i>', lumiTip: 'A full stop is a tiny dot that says "I am done!"' },
+    { text: '<b>Question mark</b> <span style="color:var(--gold);font-size:24px">?</span><br>Use it at the end of a question.<br>Examples: <i>Where is my bag? Are you okay?</i>', lumiTip: 'Anytime you can answer with "yes", "no", or info — a question mark belongs.' },
+    { text: '<b>Exclamation mark</b> <span style="color:var(--gold);font-size:24px">!</span><br>Use it for surprise, loud voices, or strong feelings.<br>Examples: <i>Watch out! That was amazing!</i>', lumiTip: 'Use sparingly — too many and they lose their pop.' },
+    { text: '<b>Comma</b> <span style="color:var(--gold);font-size:24px">,</span><br>Use it for tiny pauses, lists, and after greetings.<br>Lists: <i>I packed apples, pears, plums.</i><br>Pause: <i>After lunch, we went to the park.</i><br>Greeting: <i>Dear Nenek,</i>', lumiTip: 'Read it out loud. Where you pause is usually where the comma goes.' },
+    { text: '<b>Apostrophe</b> <span style="color:var(--gold);font-size:24px">\'</span><br>Use it for shortcuts (it\'s = it is) and to show ownership (Lumi\'s sparkle = the sparkle belonging to Lumi).<br>Examples: <i>Don\'t worry. That is Anna\'s book.</i>', lumiTip: 'Shortcuts: do not → don\'t. The little flick stands in for missing letters.' },
+    { text: '<b>Quotation marks</b> <span style="color:var(--gold);font-size:24px">""</span><br>Wrap the exact words someone says.<br>Example: Mum smiled. <i>"Time for bed!"</i> she said.', lumiTip: 'Only the words spoken out loud go inside the quotes.' },
+    { text: '<b>Scenarios — same words, different punctuation:</b><br><i>You finished your homework</i> — full stop. (calm)<br><i>You finished your homework!</i> — exclamation. (surprised)<br><i>You finished your homework?</i> — question. (asking)<br>Same words, very different feeling!', lumiTip: 'Punctuation gives the sentence its voice.' },
+    { text: '<b>Where you write changes which marks you use:</b><br>📝 <b>SMS / chat to friend:</b> short sentences, lots of !!! and ?<br>📩 <b>Letter to Nenek:</b> commas after greeting, full stops, polite tone<br>📖 <b>Story:</b> all the marks — quotation marks for talking parts<br>📋 <b>List:</b> commas between items, full stop at the end', lumiTip: 'Same words, different setting, different punctuation!' },
+    { type: 'try', prompt: 'Where is my hat ___', options: ['.', '?', '!'], answer: '?', successMsg: 'It is a question, so a question mark!' },
+    { type: 'try', prompt: 'Watch out for that puddle ___', options: ['.', '?', '!'], answer: '!', successMsg: 'Strong feeling = exclamation mark!' },
+    { type: 'try', prompt: 'I packed apples ___ pears and plums.', options: [',', '.', '!'], answer: ',', successMsg: 'Commas separate items in a list!' },
+    { type: 'try', prompt: 'Which is correct?', options: ['I dont like it.', 'I don\'t like it.', 'I do not\'t like it.'], answer: 'I don\'t like it.', successMsg: 'Shortcuts use an apostrophe where letters are missing.' }
+  ]
+};
+
 function getWordLesson(skillId) {
   return WORD_LESSONS[skillId] || null;
 }
@@ -184,6 +207,19 @@ function getWordFlashcards(skillId) {
       { front: 'c + up = ?', back: 'cup ☕', image: '🔤' },
       { front: 's + un = ?', back: 'sun ☀️', image: '🔤' },
       { front: 'r + ed = ?', back: 'red 🔴', image: '🔤' }
+    ];
+  }
+
+  if (skillId === 'punct') {
+    return [
+      { front: '.', back: 'Full stop — end of a normal sentence.', image: '❕' },
+      { front: '?', back: 'Question mark — for asking.',          image: '❓' },
+      { front: '!', back: 'Exclamation mark — for strong feelings.', image: '❗' },
+      { front: ',', back: 'Comma — tiny pause, list, or after a greeting.', image: '🟡' },
+      { front: '\'',back: 'Apostrophe — shortcuts (don\'t) and ownership (Lumi\'s).', image: '➰' },
+      { front: '""',back: 'Quotation marks — wrap the words someone says aloud.', image: '🗯️' },
+      { front: ':', back: 'Colon — introduces a list or explanation.', image: '🔸' },
+      { front: ';', back: 'Semicolon — like a slightly stronger comma.', image: '🟠' }
     ];
   }
 

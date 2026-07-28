@@ -10,9 +10,98 @@ function generateScienceQuestion(skillId) {
     case 'forces':   return genForces(diff);
     case 'earth':    return genEarth(diff);
     case 'body':     return genBody(diff);
+    case 'senses':   return genSenses(diff);
+    case 'plants':   return genPlants(diff);
+    case 'animals':  return genAnimals(diff);
+    case 'seasons':  return genSeasons(diff);
+    case 'sound':    return genSound(diff);
+    case 'light':    return genLight(diff);
     default:         return null;
   }
 }
+
+// ===================== NEW SCIENCE BANKS =====================
+
+var SCIENCE_SENSES = [
+  { q:'You hear a doorbell. Which sense?', options:['Sight','Hearing','Smell','Taste'], answer:'Hearing', hint:'Ears detect sound.' },
+  { q:'You bite a lemon. Which sense?',     options:['Taste','Touch','Sight','Smell'], answer:'Taste', hint:'Tongue notices flavours.' },
+  { q:'You feel something soft. Which sense?', options:['Touch','Smell','Hearing','Sight'], answer:'Touch', hint:'Skin senses softness.' },
+  { q:'You see a rainbow. Which sense?',    options:['Sight','Hearing','Smell','Touch'], answer:'Sight', hint:'Eyes see colours.' },
+  { q:'You smell roasted chicken. Which sense?', options:['Smell','Taste','Touch','Sight'], answer:'Smell', hint:'Nose picks up scents.' },
+  { q:'Which body part is for hearing?',     options:['Ear','Eye','Nose','Tongue'], answer:'Ear', hint:'Ears are on the side of your head.' },
+  { q:'Which body part is for tasting?',     options:['Tongue','Skin','Nose','Eye'], answer:'Tongue', hint:'Your taste buds live here.' },
+  { q:'Your skin is the sense organ for...?', options:['Touch','Sight','Hearing','Smell'], answer:'Touch', hint:'Skin covers your whole body.' }
+];
+
+var SCIENCE_PLANTS = [
+  { q:'What does a plant grow from?',     options:['A seed','A rock','A leaf','A cloud'], answer:'A seed', hint:'Tiny start, big plant.' },
+  { q:'Which plant part takes in water?', options:['Roots','Petals','Leaves','Stem'], answer:'Roots', hint:'Roots grow underground.' },
+  { q:'Where does the plant make its food?', options:['Leaves','Roots','Petals','Soil'], answer:'Leaves', hint:'Leaves catch sunlight.' },
+  { q:'Which is NOT something plants need?', options:['Music','Sunlight','Water','Air'], answer:'Music', hint:'Plants do not actually need songs!' },
+  { q:'What comes between a seed and a flower?', options:['Sprout','Egg','Bird','Wave'], answer:'Sprout', hint:'A small green shoot.' },
+  { q:'What does a flower help make?',    options:['New seeds','Sunlight','Soil','Wind'], answer:'New seeds', hint:'Flowers keep the cycle going.' },
+  { q:'Which plant part holds the plant up?', options:['Stem','Petal','Root','Leaf'], answer:'Stem', hint:'It works like a backbone.' },
+  { q:'A sunflower needs sunlight to do what?', options:['Make food','Sing','Move','Sleep'], answer:'Make food', hint:'Photosynthesis in the leaves.' }
+];
+
+var SCIENCE_ANIMALS = [
+  { q:'A butterfly comes from a...?',       options:['Caterpillar','Tadpole','Chick','Egg only'], answer:'Caterpillar', hint:'Through the chrysalis stage.' },
+  { q:'What grows in the chrysalis (pupa)?', options:['A butterfly','A frog','A fish','A bird'], answer:'A butterfly', hint:'Caterpillar transforms inside.' },
+  { q:'A tadpole grows into a...?',         options:['Frog','Fish','Bird','Snake'], answer:'Frog', hint:'Loses tail, grows legs.' },
+  { q:'Chickens hatch from...?',            options:['Eggs','Pups','Chrysalises','Seeds'], answer:'Eggs', hint:'Hens lay them.' },
+  { q:'Which animal lays eggs?',            options:['Chicken','Cow','Dog','Cat'], answer:'Chicken', hint:'Birds usually lay eggs.' },
+  { q:'A baby frog (after egg) is called?', options:['Tadpole','Pupa','Chick','Sprout'], answer:'Tadpole', hint:'Lives in water, has a tail.' },
+  { q:'Order: egg, ___, butterfly. The middle stage?', options:['Caterpillar','Tadpole','Chick','Sprout'], answer:'Caterpillar', hint:'It eats lots of leaves.' },
+  { q:'Which animal does NOT come from an egg?', options:['Cow','Frog','Chicken','Butterfly'], answer:'Cow', hint:'Cows have live babies.' }
+];
+
+var SCIENCE_SEASONS = [
+  { q:'What causes day and night?',          options:['Earth spinning on its axis','Sun moving','Moon hiding','Wind blowing'], answer:'Earth spinning on its axis', hint:'Earth turns once every 24 hours.' },
+  { q:'How long does Earth take to orbit the Sun?', options:['One year','One day','One month','Seven days'], answer:'One year', hint:'One trip around = 365 days.' },
+  { q:'When the Sun shines on your side of Earth, it is...?', options:['Daytime','Night','Winter','Summer'], answer:'Daytime', hint:'Light side = day.' },
+  { q:'Singapore has mainly which two weather types?', options:['Hot and rainy','Snow and rain','Cold and dry','Snow and hot'], answer:'Hot and rainy', hint:'Tropical climate.' },
+  { q:'Which season comes after winter (in cool countries)?', options:['Spring','Autumn','Summer','Monsoon'], answer:'Spring', hint:'Things begin to grow.' },
+  { q:'The Moon makes its own light. True or false?', options:['False — it reflects the Sun','True','Only at midnight','Only in summer'], answer:'False — it reflects the Sun', hint:'Moonlight = bounced sunlight.' },
+  { q:'Which country usually has 4 distinct seasons?', options:['United Kingdom','Singapore','Indonesia','Brunei'], answer:'United Kingdom', hint:'Far from the equator.' }
+];
+
+var SCIENCE_SOUND = [
+  { q:'What makes a sound happen?',  options:['Vibration','Light','Wind only','Temperature'], answer:'Vibration', hint:'Something has to shake the air.' },
+  { q:'A drum hit hard makes a...?', options:['Loud sound','Soft sound','No sound','Sweet smell'], answer:'Loud sound', hint:'Bigger hit, bigger sound.' },
+  { q:'A whisper is a...?',          options:['Soft sound','Loud sound','High note only','Smell'], answer:'Soft sound', hint:'Tiny vibration.' },
+  { q:'Which organ helps us hear?',  options:['Ear','Eye','Nose','Skin'], answer:'Ear', hint:'On the side of your head.' },
+  { q:'Fast vibrations make...?',    options:['High pitch','Low pitch','No sound','Wind'], answer:'High pitch', hint:'Squeaky, like a whistle.' },
+  { q:'Slow vibrations make...?',    options:['Low pitch','High pitch','Hot air','No sound'], answer:'Low pitch', hint:'Deep, like a drum or a foghorn.' },
+  { q:'Can sound travel through water?', options:['Yes','No','Only in winter','Only at night'], answer:'Yes', hint:'Dolphins use it!' }
+];
+
+var SCIENCE_LIGHT = [
+  { q:'Which gives off its own light?', options:['Sun','Mirror','Moon','Window'], answer:'Sun', hint:'It is a star — it shines!' },
+  { q:'The Moon shines because it...?', options:['Reflects the Sun','Burns gas','Is hot','Has lamps'], answer:'Reflects the Sun', hint:'Moonlight is bounced sunlight.' },
+  { q:'A shadow appears when...?',      options:['Light hits an opaque object','Wind blows','Sound is loud','It is cold'], answer:'Light hits an opaque object', hint:'Light cannot pass through.' },
+  { q:'Glass is...?',                  options:['Transparent','Opaque','Translucent only','Loud'], answer:'Transparent', hint:'You see through clear glass.' },
+  { q:'A wall is...?',                 options:['Opaque','Transparent','Translucent','Loud'], answer:'Opaque', hint:'You cannot see through it.' },
+  { q:'What is NOT a light source?',    options:['A mirror','A torch','A fire','A bulb'], answer:'A mirror', hint:'Mirrors reflect, do not glow.' },
+  { q:'Your shadow points...?',         options:['Away from the light','Toward the light','Up always','Down always'], answer:'Away from the light', hint:'Stand in sun: your shadow stretches away from it.' }
+];
+
+function _scienceMCQFromBank(bank, hintLead) {
+  var item = pick(bank);
+  return {
+    type: 'science-mcq',
+    prompt: item.q,
+    options: shuffle([].concat(item.options)),
+    answer: item.answer,
+    hint: item.hint || (hintLead || 'Think it through carefully.')
+  };
+}
+
+function genSenses(diff)  { return _scienceMCQFromBank(SCIENCE_SENSES,  'Match the sense to the body part.'); }
+function genPlants(diff)  { return _scienceMCQFromBank(SCIENCE_PLANTS,  'Picture the plant.'); }
+function genAnimals(diff) { return _scienceMCQFromBank(SCIENCE_ANIMALS, 'Walk through the life cycle.'); }
+function genSeasons(diff) { return _scienceMCQFromBank(SCIENCE_SEASONS, 'Earth spins and orbits.'); }
+function genSound(diff)   { return _scienceMCQFromBank(SCIENCE_SOUND,   'Vibration is the key.'); }
+function genLight(diff)   { return _scienceMCQFromBank(SCIENCE_LIGHT,   'Light → shadow → object.'); }
 
 // ===================== SCIENCE DATA =====================
 

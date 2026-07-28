@@ -20,8 +20,46 @@ function renderWordQuestion(card, q) {
     case 'poetry-couplet':    renderPoetryCouplet(card, q); return true;
     case 'story-write':       renderStoryWrite(card, q); return true;
     case 'paragraph-write':   renderParagraphWrite(card, q); return true;
+    case 'punct-pick':        renderPunctPick(card, q); return true;
+    case 'punct-purpose':     renderPunctPurpose(card, q); return true;
+    case 'punct-scenario':    renderPunctScenario(card, q); return true;
     default: return false;
   }
+}
+
+// ===================== PUNCTUATION RENDERERS =====================
+
+function _renderPunctOptions(q, btnStyle) {
+  btnStyle = btnStyle || 'font-size:28px;font-weight:700;min-width:54px';
+  return '<div class="answer-options">' + q.options.map(function(o) {
+    var safe = String(o).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    var display = String(o).replace(/"/g, '&quot;');
+    return '<button class="answer-btn" style="' + btnStyle + '" onclick="checkAnswer(\'' + safe + '\', \'' + String(q.answer).replace(/'/g, "\\'") + '\', this)">' + display + '</button>';
+  }).join('') + '</div>';
+}
+
+function renderPunctPick(card, q) {
+  var sentenceHtml = q.sentence.replace('__', '<span style="color:var(--gold);font-weight:700;font-size:22px">__</span>');
+  var html = '<div class="question-text">Which punctuation mark fits the blank?</div>';
+  html += '<div style="font-size:20px;margin:14px 0;line-height:1.5;color:var(--text-primary)">' + sentenceHtml + '</div>';
+  html += _renderPunctOptions(q);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderPunctPurpose(card, q) {
+  var html = '<div class="question-text">' + q.prompt + '</div>';
+  html += _renderPunctOptions(q);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderPunctScenario(card, q) {
+  var html = '<div class="question-text">Pick the best mark for this setting:</div>';
+  html += '<div style="font-size:18px;margin:12px 0;padding:14px;background:rgba(255,215,0,0.08);border-radius:12px;color:var(--text-primary)">📋 ' + q.setting + '</div>';
+  html += _renderPunctOptions(q);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
 }
 
 // ===================== P1 RENDERERS =====================
@@ -37,7 +75,8 @@ function renderPhonicsFamily(card, q) {
 }
 
 function renderPhonicsInitial(card, q) {
-  var html = '<div class="question-text">What letter does this word start with?</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.word, 'en-US', 'Hear the word') : '';
+  var html = '<div class="question-text">What letter does this word start with? ' + tts + '</div>';
   html += '<div style="font-size:42px;margin:16px 0;font-family:var(--font-display);color:var(--sky)">' + q.word + '</div>';
   html += '<div class="answer-options">' + q.options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:28px;font-weight:700">' + o + '</button>';
@@ -47,7 +86,8 @@ function renderPhonicsInitial(card, q) {
 }
 
 function renderSightPick(card, q) {
-  var html = '<div class="question-text">Find the word:</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.targetWord, 'en-US', 'Hear the word') : '';
+  var html = '<div class="question-text">Find the word: ' + tts + '</div>';
   html += '<div style="font-size:42px;margin:16px 0;font-family:var(--font-display);color:var(--gold)">' + q.targetWord + '</div>';
   html += '<div class="answer-options">' + q.options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:24px">' + o + '</button>';
@@ -57,7 +97,8 @@ function renderSightPick(card, q) {
 }
 
 function renderSightFlash(card, q) {
-  var html = '<div class="question-text">Remember this word!</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.targetWord, 'en-US', 'Hear the word') : '';
+  var html = '<div class="question-text">Remember this word! ' + tts + '</div>';
   html += '<div id="flash-word" style="font-size:48px;margin:16px 0;font-family:var(--font-display);color:var(--gold);transition:opacity 0.5s">' + q.targetWord + '</div>';
   html += '<div id="flash-options" style="display:none">';
   html += '<div class="question-text" style="font-size:20px">Which word did you see?</div>';
@@ -117,7 +158,8 @@ function renderGrammarMCQ(card, q) {
 }
 
 function renderVocabMeaning(card, q) {
-  var html = '<div class="question-text">What does <strong style="color:var(--gold)">' + q.word + '</strong> mean?</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.word + '. Example sentence: ' + q.sentence, 'en-US', 'Hear the word + example') : '';
+  var html = '<div class="question-text">What does <strong style="color:var(--gold)">' + q.word + '</strong> mean? ' + tts + '</div>';
   html += '<div class="story-prompt" style="font-size:18px;margin:12px 0">"' + q.sentence + '"</div>';
   html += '<div class="answer-options">' + q.options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(\'' + escapeQuote(o) + '\', \'' + escapeQuote(q.answer) + '\', this)" style="font-size:16px">' + o + '</button>';
@@ -127,7 +169,8 @@ function renderVocabMeaning(card, q) {
 }
 
 function renderVocabWord(card, q) {
-  var html = '<div class="question-text">Which word means:</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.meaning, 'en-US', 'Hear the meaning') : '';
+  var html = '<div class="question-text">Which word means: ' + tts + '</div>';
   html += '<div style="font-size:20px;color:var(--mint);margin:12px 0;font-style:italic">"' + q.meaning + '"</div>';
   html += '<div class="answer-options">' + q.options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:20px">' + o + '</button>';
@@ -137,7 +180,8 @@ function renderVocabWord(card, q) {
 }
 
 function renderSentenceBuild(card, q) {
-  var html = '<div class="question-text">Put the words in order to make a sentence!</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.answer, 'en-US', 'Hear the sentence') : '';
+  var html = '<div class="question-text">Put the words in order to make a sentence! ' + tts + '</div>';
   html += '<div id="sentence-result" style="min-height:48px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px;margin:12px 0;font-size:22px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center"></div>';
   html += '<div id="sentence-bank" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0">';
   q.words.forEach(function(w) {
@@ -155,7 +199,8 @@ function renderSentenceBuild(card, q) {
 // ===================== P3 RENDERERS =====================
 
 function renderComprehensionMCQ(card, q) {
-  var html = '<div style="font-size:16px;font-weight:700;color:var(--gold);margin-bottom:8px">\uD83D\uDCD6 ' + q.title + '</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.title + '. ' + q.text + '. ' + q.question, 'en-US', 'Read the whole passage') : '';
+  var html = '<div style="font-size:16px;font-weight:700;color:var(--gold);margin-bottom:8px">\uD83D\uDCD6 ' + q.title + ' ' + tts + '</div>';
   html += '<div class="story-prompt" style="font-size:16px;line-height:1.6;max-height:140px;overflow-y:auto;text-align:left;padding:12px 16px">' + q.text + '</div>';
   html += '<div class="question-text" style="font-size:18px;margin-top:16px">' + q.question + '</div>';
   html += '<div class="answer-options" style="flex-direction:column">' + q.options.map(function(o) {

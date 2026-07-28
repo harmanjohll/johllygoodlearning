@@ -10,8 +10,79 @@ function generateCodeQuestion(skillId) {
     case 'ccond':  return genCodeCond(diff);
     case 'cvar':   return genCodeVar(diff);
     case 'cdebug': return genCodeDebug(diff);
+    case 'cevent': return genCodeEvent(diff);
+    case 'cfunc':  return genCodeFunc(diff);
     default:       return null;
   }
+}
+
+// ===================== EVENT & FUNCTION GENERATORS =====================
+
+var CODE_EVENT_PAIRS = [
+  { event: 'button is pressed',     action: 'play a sound' },
+  { event: 'alarm rings',           action: 'turn off the oven' },
+  { event: 'door is opened',        action: 'turn on the light' },
+  { event: 'timer reaches zero',    action: 'show a message' },
+  { event: 'sun rises',             action: 'roll up the blinds' },
+  { event: 'phone receives a text', action: 'buzz the phone' }
+];
+
+function genCodeEvent(diff) {
+  var pair = pick(CODE_EVENT_PAIRS);
+  var roll = Math.random();
+
+  if (roll < 0.5) {
+    // Pick the right action for a given event
+    var wrongs = shuffle(CODE_EVENT_PAIRS.filter(function(p) { return p.action !== pair.action; }))
+      .slice(0, 3).map(function(p) { return p.action; });
+    return {
+      type: 'code-mcq',
+      prompt: 'WHEN <b>' + pair.event + '</b> DO ___',
+      options: shuffle([pair.action].concat(wrongs)),
+      answer: pair.action,
+      hint: 'Read it like a sentence. What reaction fits the event?'
+    };
+  }
+  // Identify which choice is an event (vs a thing or a state)
+  var notEvents = ['blue colour', 'a number', 'a name', 'the wind direction'];
+  var ev = pair.event;
+  return {
+    type: 'code-mcq',
+    prompt: 'Which of these is an <b>event</b> (something that happens)?',
+    options: shuffle([ev].concat(shuffle(notEvents).slice(0, 3))),
+    answer: ev,
+    hint: 'Events are actions or moments, not things or states.'
+  };
+}
+
+function genCodeFunc(diff) {
+  var roll = Math.random();
+  if (roll < 0.5) {
+    return {
+      type: 'code-mcq',
+      prompt: 'You need to draw a square three times. What is the smartest way?',
+      options: shuffle([
+        'Make a draw_square mini-program and use it three times',
+        'Copy the same 4 lines, three times in a row',
+        'Use a different shape',
+        'Skip drawing squares'
+      ]),
+      answer: 'Make a draw_square mini-program and use it three times',
+      hint: 'A mini-program lets you reuse code without copying it.'
+    };
+  }
+  return {
+    type: 'code-mcq',
+    prompt: 'What is the BEST reason to make a mini-program?',
+    options: shuffle([
+      'Reuse the same code in many places',
+      'Make the program longer',
+      'Confuse other coders',
+      'Use up more memory'
+    ]),
+    answer: 'Reuse the same code in many places',
+    hint: 'Mini-programs are about reuse and clarity.'
+  };
 }
 
 // ===================== DATA =====================
@@ -193,8 +264,19 @@ function renderCodeQuestion(card, q) {
     case 'code-conditional': renderCodeConditional(card, q); return true;
     case 'code-variable':    renderCodeVariable(card, q); return true;
     case 'code-debug':       renderCodeDebug(card, q); return true;
+    case 'code-mcq':         renderCodeMCQ(card, q); return true;
     default: return false;
   }
+}
+
+function renderCodeMCQ(card, q) {
+  var html = '<div class="question-text">' + q.prompt + '</div>';
+  html += '<div class="answer-options">' + q.options.map(function(o) {
+    var safe = String(o).replace(/'/g, "\\'");
+    return '<button class="answer-btn" style="font-size:15px;text-align:left" onclick="checkAnswer(\'' + safe + '\', \'' + String(q.answer).replace(/'/g, "\\'") + '\', this)">' + o + '</button>';
+  }).join('') + '</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
 }
 
 function renderCodeSequence(card, q) {

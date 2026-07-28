@@ -30,7 +30,10 @@ var ACHIEVEMENTS = [
   { id: 'tryMath',    cat: 'explorer', icon: '\uD83D\uDD22',   name: 'Number Explorer',   desc: 'Try a skill in Number World',    secret: false },
   { id: 'tryWord',    cat: 'explorer', icon: '\uD83D\uDCD6',   name: 'Word Explorer',     desc: 'Try a skill in Word World',      secret: false },
   { id: 'tryStem',    cat: 'explorer', icon: '\uD83D\uDD2C',   name: 'STEM Explorer',     desc: 'Try a skill in STEM World',      secret: false },
-  { id: 'allWorlds',  cat: 'explorer', icon: '\uD83C\uDF0D',   name: 'World Traveller',   desc: 'Try skills in all 3 worlds',     secret: false },
+  { id: 'tryMalay',   cat: 'explorer', icon: '\uD83C\uDF3A',   name: 'Dunia Melayu',      desc: 'Try a skill in Dunia Melayu',    secret: false },
+  { id: 'allWorlds',  cat: 'explorer', icon: '\uD83C\uDF0D',   name: 'World Traveller',   desc: 'Try skills in all 4 worlds',     secret: false },
+  { id: 'firstThread',cat: 'explorer', icon: '\u2728',         name: 'First Adventure',   desc: 'Unlock a real-world adventure on the Mega Map', secret: false },
+  { id: 'threeThreads',cat: 'explorer',icon: '\u2728',         name: 'Adventurer',        desc: 'Unlock 3 real-world adventures', secret: false },
   { id: 'try10',      cat: 'explorer', icon: '\uD83D\uDDFA\uFE0F', name: 'Curious Mind',  desc: 'Try 10 different skills',        secret: false },
   { id: 'lesson5',    cat: 'explorer', icon: '\uD83D\uDCDA',   name: 'Lesson Lover',      desc: 'Complete 5 lessons',             secret: false },
   { id: 'lesson15',   cat: 'explorer', icon: '\uD83D\uDCDA',   name: 'Knowledge Seeker',  desc: 'Complete 15 lessons',            secret: false },
@@ -169,14 +172,25 @@ function checkAchievementsAfterQuiz(results, skillId, worldType) {
   if (state.sessionsCompleted >= 100) unlockAchievement('sessions100');
 
   // World exploration
-  if (worldType === 'math') unlockAchievement('tryMath');
-  if (worldType === 'word') unlockAchievement('tryWord');
-  if (worldType === 'stem') unlockAchievement('tryStem');
+  if (worldType === 'math')  unlockAchievement('tryMath');
+  if (worldType === 'word')  unlockAchievement('tryWord');
+  if (worldType === 'stem')  unlockAchievement('tryStem');
+  if (worldType === 'malay') unlockAchievement('tryMalay');
 
-  // All worlds
+  // All worlds (now 4)
   var a = state.achievements || [];
-  if (a.indexOf('tryMath') !== -1 && a.indexOf('tryWord') !== -1 && a.indexOf('tryStem') !== -1) {
+  if (a.indexOf('tryMath') !== -1 && a.indexOf('tryWord') !== -1 && a.indexOf('tryStem') !== -1 && a.indexOf('tryMalay') !== -1) {
     unlockAchievement('allWorlds');
+  }
+
+  // Real-world thread unlocks happen via state.threads
+  if (state.threads) {
+    var unlockedCount = 0;
+    Object.keys(state.threads).forEach(function(tid) {
+      if (state.threads[tid] && state.threads[tid].unlocked) unlockedCount++;
+    });
+    if (unlockedCount >= 1) unlockAchievement('firstThread');
+    if (unlockedCount >= 3) unlockAchievement('threeThreads');
   }
 
   // Tried N different skills

@@ -12,17 +12,20 @@ var QUEST_TEMPLATES = [
   { id: 'math3',     type: 'daily', label: 'Answer 3 Number World questions', icon: '\uD83D\uDD22', target: 3,  check: 'mathQs' },
   { id: 'word3',     type: 'daily', label: 'Answer 3 Word World questions',   icon: '\uD83D\uDCDA', target: 3,  check: 'wordQs' },
   { id: 'stem3',     type: 'daily', label: 'Answer 3 STEM World questions',   icon: '\uD83D\uDD2C', target: 3,  check: 'stemQs' },
+  { id: 'malay3',    type: 'daily', label: 'Answer 3 Dunia Melayu questions', icon: '\uD83C\uDF3A', target: 3,  check: 'malayQs' },
   { id: 'perfect1',  type: 'daily', label: 'Get a perfect score on any quiz', icon: '\uD83D\uDCAF', target: 1,  check: 'perfectQuiz' },
-  { id: 'explore2',  type: 'daily', label: 'Try 2 different skills',          icon: '\uD83D\uDDFA\uFE0F', target: 2,  check: 'uniqueSkills' }
+  { id: 'explore2',  type: 'daily', label: 'Try 2 different skills',          icon: '\uD83D\uDDFA\uFE0F', target: 2,  check: 'uniqueSkills' },
+  { id: 'twoworlds', type: 'daily', label: 'Play in 2 different worlds',      icon: '\uD83C\uDF0D', target: 2,  check: 'worldsPlayedToday' }
 ];
 
 var WEEKLY_TEMPLATES = [
   { id: 'wk_master',  type: 'weekly', label: 'Master a new skill to 80%',           icon: '\uD83C\uDF1F', target: 1, check: 'newMastery',  reward: 50 },
-  { id: 'wk_all3',    type: 'weekly', label: 'Play in all 3 worlds',                icon: '\uD83C\uDF0D', target: 3, check: 'worldsPlayed', reward: 40 },
+  { id: 'wk_all4',    type: 'weekly', label: 'Play in all 4 worlds',                icon: '\uD83C\uDF0D', target: 4, check: 'worldsPlayed', reward: 60 },
   { id: 'wk_escape',  type: 'weekly', label: 'Complete an escape room',             icon: '\uD83D\uDD13', target: 1, check: 'escapesDone',  reward: 50 },
   { id: 'wk_streak7', type: 'weekly', label: 'Get a 7-answer streak',               icon: '\uD83D\uDD25', target: 7, check: 'bestStreak',   reward: 40 },
   { id: 'wk_15q',     type: 'weekly', label: 'Answer 15 questions correctly',        icon: '\u2705',       target: 15, check: 'weekCorrect', reward: 40 },
-  { id: 'wk_learn5',  type: 'weekly', label: 'Complete 5 lessons',                   icon: '\uD83D\uDCDA', target: 5, check: 'weekLessons',  reward: 50 }
+  { id: 'wk_learn5',  type: 'weekly', label: 'Complete 5 lessons',                   icon: '\uD83D\uDCDA', target: 5, check: 'weekLessons',  reward: 50 },
+  { id: 'wk_thread',  type: 'weekly', label: 'Finish a real-world adventure chapter',icon: '\uD83C\uDF1F', target: 1, check: 'threadChapters', reward: 60 }
 ];
 
 // Daily quest tracking counters (reset each day)
@@ -34,8 +37,10 @@ var questCounters = {
   mathQs: 0,
   wordQs: 0,
   stemQs: 0,
+  malayQs: 0,
   perfectQuiz: 0,
   uniqueSkills: [],
+  worldsPlayedToday: [],
   streak: 0
 };
 
@@ -46,7 +51,8 @@ var weeklyCounters = {
   escapesDone: 0,
   bestStreak: 0,
   weekCorrect: 0,
-  weekLessons: 0
+  weekLessons: 0,
+  threadChapters: 0
 };
 
 // Pick today's quest (seeded by date for consistency)
@@ -118,13 +124,22 @@ function getWeeklyQuest() {
 // Increment quest counters (called from various hooks)
 function questRecordQuiz(worldType) {
   questCounters.quizzes++;
-  if (worldType === 'math') questCounters.mathQs++;
-  if (worldType === 'word') questCounters.wordQs++;
-  if (worldType === 'stem') questCounters.stemQs++;
+  if (worldType === 'math')  questCounters.mathQs++;
+  if (worldType === 'word')  questCounters.wordQs++;
+  if (worldType === 'stem')  questCounters.stemQs++;
+  if (worldType === 'malay') questCounters.malayQs++;
   weeklyCounters.weekCorrect++;
+  if (worldType && questCounters.worldsPlayedToday.indexOf(worldType) === -1) {
+    questCounters.worldsPlayedToday.push(worldType);
+  }
   if (worldType && weeklyCounters.worldsPlayed.indexOf(worldType) === -1) {
     weeklyCounters.worldsPlayed.push(worldType);
   }
+  updateQuestProgress();
+}
+
+function questRecordThreadChapter() {
+  weeklyCounters.threadChapters++;
   updateQuestProgress();
 }
 
@@ -183,11 +198,13 @@ function updateQuestProgress() {
       case 'lessons':      val = questCounters.lessons; break;
       case 'flashcards':   val = questCounters.flashcards; break;
       case 'reviews':      val = questCounters.reviews; break;
-      case 'mathQs':       val = questCounters.mathQs; break;
-      case 'wordQs':       val = questCounters.wordQs; break;
-      case 'stemQs':       val = questCounters.stemQs; break;
-      case 'perfectQuiz':  val = questCounters.perfectQuiz; break;
-      case 'uniqueSkills': val = questCounters.uniqueSkills.length; break;
+      case 'mathQs':            val = questCounters.mathQs; break;
+      case 'wordQs':            val = questCounters.wordQs; break;
+      case 'stemQs':            val = questCounters.stemQs; break;
+      case 'malayQs':           val = questCounters.malayQs; break;
+      case 'perfectQuiz':       val = questCounters.perfectQuiz; break;
+      case 'uniqueSkills':      val = questCounters.uniqueSkills.length; break;
+      case 'worldsPlayedToday': val = questCounters.worldsPlayedToday.length; break;
     }
     dq.progress = Math.min(val, dq.target);
     if (dq.progress >= dq.target) dq.completed = true;
@@ -198,12 +215,13 @@ function updateQuestProgress() {
   if (wq && !wq.completed) {
     var wval = 0;
     switch (wq.check) {
-      case 'newMastery':   wval = weeklyCounters.newMastery; break;
-      case 'worldsPlayed': wval = weeklyCounters.worldsPlayed.length; break;
-      case 'escapesDone':  wval = weeklyCounters.escapesDone; break;
-      case 'bestStreak':   wval = weeklyCounters.bestStreak; break;
-      case 'weekCorrect':  wval = weeklyCounters.weekCorrect; break;
-      case 'weekLessons':  wval = weeklyCounters.weekLessons; break;
+      case 'newMastery':     wval = weeklyCounters.newMastery; break;
+      case 'worldsPlayed':   wval = weeklyCounters.worldsPlayed.length; break;
+      case 'escapesDone':    wval = weeklyCounters.escapesDone; break;
+      case 'bestStreak':     wval = weeklyCounters.bestStreak; break;
+      case 'weekCorrect':    wval = weeklyCounters.weekCorrect; break;
+      case 'weekLessons':    wval = weeklyCounters.weekLessons; break;
+      case 'threadChapters': wval = weeklyCounters.threadChapters; break;
     }
     wq.progress = Math.min(wval, wq.target);
     if (wq.progress >= wq.target) wq.completed = true;

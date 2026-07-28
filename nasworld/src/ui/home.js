@@ -3,16 +3,16 @@
 // ============================================================
 
 const LUMI_GREETINGS = [
-  "Let's learn something awesome today!",
-  "Your garden is waiting to grow!",
-  "I believe in you, Anastasia!",
-  "Every challenge makes you stronger!",
-  "Ready for an adventure? Let's go!",
-  "You're getting so smart! Keep it up!",
-  "What shall we explore today?",
-  "The stars are cheering for you!",
-  "Today is going to be amazing!",
-  "Let's make your brain sparkle!"
+  "Hi boss! Where are we adventuring today?",
+  "Your brain is bigger than my whole sparkle. Let's use it!",
+  "I bet you can't beat yesterday. Prove me wrong, Anastasia!",
+  "Knock knock. Who's there? You. Inside Nasworld. Let's go.",
+  "I had three jokes ready. You picked the perfect day to hear them!",
+  "Quick warning: my sparkles are extra dazzly today. Try not to faint.",
+  "Number World? Word World? Or shall we open Dunia Melayu?",
+  "Tiny brain workout = giant brain growth. Pinkie promise.",
+  "You + me + a learning quest = unbeatable combo. Pick a world!",
+  "The garden told me it misses your flowers. Just saying."
 ];
 
 function lumiSpeak() {
@@ -53,6 +53,27 @@ function updateHomeUI() {
     const stemAvg = calculateWorldProgress(stemIds);
     document.getElementById('stem-progress').style.width = stemAvg + '%';
   }
+  if (typeof MALAY_TREE !== 'undefined') {
+    const malayIds = Object.keys(MALAY_TREE);
+    const malayAvg = calculateWorldProgress(malayIds);
+    var malayBar = document.getElementById('malay-progress');
+    if (malayBar) malayBar.style.width = malayAvg + '%';
+  }
+
+  // Mega progress: phenomena unlocked / total
+  if (typeof MEGA_PHENOMENA !== 'undefined') {
+    var totalP = MEGA_PHENOMENA.length;
+    var unlockedP = 0;
+    MEGA_PHENOMENA.forEach(function(p) {
+      if (typeof getPhenomenonUnlock === 'function' && getPhenomenonUnlock(p.id).unlocked) unlockedP++;
+    });
+    var megaPct = totalP > 0 ? (unlockedP / totalP) * 100 : 0;
+    var megaBar = document.getElementById('mega-progress');
+    if (megaBar) megaBar.style.width = megaPct + '%';
+  }
+
+  // Refresh thread-unlock state in case new skills crossed worlds since last visit
+  if (typeof maybeUnlockThreads === 'function') maybeUnlockThreads();
 
   const gardenPct = Math.min(100, (state.garden.length / 50) * 100);
   document.getElementById('garden-progress').style.width = gardenPct + '%';
@@ -135,7 +156,45 @@ function updateHomeUI() {
   }
 
   updateWotd();
+  updateDailyTreats();
   updateChallengesSection();
+}
+
+// === DAILY TREATS — WotD, IotD, QotD as a trio ===
+function updateDailyTreats() {
+  var host = document.getElementById('daily-treats-area');
+  if (!host) return;
+  var wotd = (typeof getWordOfTheDay === 'function') ? getWordOfTheDay() : null;
+  var iotd = (typeof getIdiomOfTheDay === 'function') ? getIdiomOfTheDay() : null;
+  var qotd = (typeof getQuoteOfTheDay === 'function') ? getQuoteOfTheDay() : null;
+
+  var html = '<div class="daily-treats">';
+  var ttsB = (typeof ttsButton === 'function') ? ttsButton : function(){return '';};
+  if (wotd) {
+    html += '<div class="treat-card" onclick="claimWotd()">' +
+      '<div class="treat-card-label">📚 Word of the Day ' + ttsB(wotd.word + '. ' + wotd.def + '. Example: ' + wotd.sentence, 'en-US', 'Hear word') + '</div>' +
+      '<div class="treat-card-headline">' + wotd.word + '</div>' +
+      '<div class="treat-card-sub">' + wotd.def + '</div>' +
+      '<div class="treat-card-extra">' + wotd.sentence + '</div>' +
+    '</div>';
+  }
+  if (iotd) {
+    html += '<div class="treat-card">' +
+      '<div class="treat-card-label">💬 Idiom of the Day ' + ttsB(iotd.idiom + '. It means: ' + iotd.meaning + '. Example: ' + iotd.example, 'en-US', 'Hear idiom') + '</div>' +
+      '<div class="treat-card-headline">"' + iotd.idiom + '"</div>' +
+      '<div class="treat-card-sub">' + iotd.meaning + '</div>' +
+      '<div class="treat-card-extra">' + iotd.example + '</div>' +
+    '</div>';
+  }
+  if (qotd) {
+    html += '<div class="treat-card">' +
+      '<div class="treat-card-label">✨ Quote of the Day ' + ttsB(qotd.quote + '. By ' + qotd.who, 'en-US', 'Hear quote') + '</div>' +
+      '<div class="treat-card-headline">"' + qotd.quote + '"</div>' +
+      '<div class="treat-card-sub">— ' + qotd.who + '</div>' +
+    '</div>';
+  }
+  html += '</div>';
+  host.innerHTML = html;
 }
 
 // === WORD OF THE DAY ===

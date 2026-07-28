@@ -15,8 +15,85 @@ function generateWordQuestion(skillId) {
     case 'poetry':        return genPoetry(diff);
     case 'story':         return genStory(diff);
     case 'paragraph':     return genParagraph(diff);
+    case 'punct':         return genPunct(diff);
     default:              return genPhonics(diff);
   }
+}
+
+// ===================== PUNCTUATION =====================
+
+var PUNCT_BANK = [
+  { sentence: 'Where is my school bag __',           mark: '?', kind: 'question' },
+  { sentence: 'Watch out for that puddle __',        mark: '!', kind: 'exclaim' },
+  { sentence: 'I love going to the beach __',        mark: '.', kind: 'full-stop' },
+  { sentence: 'Are you ready to go __',              mark: '?', kind: 'question' },
+  { sentence: 'That cake smells amazing __',         mark: '!', kind: 'exclaim' },
+  { sentence: 'The cat is sleeping on the mat __',   mark: '.', kind: 'full-stop' },
+  { sentence: 'Can I have a glass of water __',      mark: '?', kind: 'question' },
+  { sentence: 'Yikes, a spider __',                  mark: '!', kind: 'exclaim' },
+  { sentence: 'I packed apples __ pears and plums.', mark: ',', kind: 'comma-list' },
+  { sentence: 'After lunch __ we walked to the park.',mark: ',', kind: 'comma-pause' },
+  { sentence: 'Dear Nenek __',                       mark: ',', kind: 'comma-greet' },
+  { sentence: 'My favourite colours are red __ blue and gold.', mark: ',', kind: 'comma-list' }
+];
+
+var PUNCT_PURPOSE = [
+  { mark: '.',  purpose: 'end a normal sentence' },
+  { mark: '?',  purpose: 'end a question' },
+  { mark: '!',  purpose: 'show a strong feeling' },
+  { mark: ',',  purpose: 'pause or separate things in a list' },
+  { mark: '\'', purpose: 'show a shortcut or who owns something' },
+  { mark: '""', purpose: 'show the exact words someone says' }
+];
+
+var PUNCT_SCENARIO = [
+  { setting: 'A surprised shout to your friend',          best: '!' },
+  { setting: 'Asking Mum where your shoes are',           best: '?' },
+  { setting: 'Listing the fruits in your lunchbox',       best: ',' },
+  { setting: 'A friendly letter to Nenek',                best: ',' },
+  { setting: 'Writing "I am" in a shorter way',           best: '\'' },
+  { setting: 'Writing what your teacher said in a story', best: '""' }
+];
+
+function genPunct(diff) {
+  var roll = Math.random();
+
+  if (roll < 0.45) {
+    var item = pick(PUNCT_BANK);
+    var allMarks = ['.', '?', '!', ','];
+    var opts = shuffle(allMarks.filter(function(m) { return m !== item.mark; })).slice(0, 3);
+    return {
+      type: 'punct-pick',
+      sentence: item.sentence,
+      options: shuffle([item.mark].concat(opts)),
+      answer: item.mark,
+      hint: 'Read it aloud and listen — is it asking, exclaiming, listing, or just telling?'
+    };
+  }
+
+  if (roll < 0.75) {
+    var p = pick(PUNCT_PURPOSE);
+    var allM = PUNCT_PURPOSE.map(function(x) { return x.mark; });
+    var wrongs = shuffle(allM.filter(function(m) { return m !== p.mark; })).slice(0, 3);
+    return {
+      type: 'punct-purpose',
+      prompt: 'Which mark would you use to <b>' + p.purpose + '</b>?',
+      options: shuffle([p.mark].concat(wrongs)),
+      answer: p.mark,
+      hint: 'Think about the job each mark does.'
+    };
+  }
+
+  var s = pick(PUNCT_SCENARIO);
+  var allMS = ['.', '?', '!', ',', '\'', '""'];
+  var ws = shuffle(allMS.filter(function(m) { return m !== s.best; })).slice(0, 3);
+  return {
+    type: 'punct-scenario',
+    setting: s.setting,
+    options: shuffle([s.best].concat(ws)),
+    answer: s.best,
+    hint: 'Where you write changes what marks fit.'
+  };
 }
 
 // ===================== P1 GENERATORS =====================
