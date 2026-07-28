@@ -336,52 +336,12 @@
 
 </main>
 
+<!-- shared.js owns Streak, showToast and the Gemini key modal. This page
+     used to re-declare Streak and showToast inline; two top-level `const
+     Streak` declarations on one page is a SyntaxError, which silently
+     aborted every line of script below it and left the drill dead. -->
 <script src="../shared.js"></script>
-<script src="../shared/storage.js"></script>
-<script src="../shared/lab.js"></script>
 <script>
-// ═══════════════════════════════════════════════════════════
-//  Shared utilities (inline subset — no external dependency)
-// ═══════════════════════════════════════════════════════════
-
-const Streak = {
-  META_KEY: 'sciLab_meta',
-  _getMeta() {
-    try { return JSON.parse(localStorage.getItem(this.META_KEY)) || {}; }
-    catch { return {}; }
-  },
-  _setMeta(m) { localStorage.setItem(this.META_KEY, JSON.stringify(m)); },
-  record() {
-    const today     = new Date().toISOString().slice(0, 10);
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-    const m = this._getMeta();
-    if (m.lastActivity === today) return;
-    m.streak = (m.lastActivity === yesterday) ? (m.streak || 0) + 1 : 1;
-    m.longestStreak = Math.max(m.longestStreak || 0, m.streak);
-    m.lastActivity  = today;
-    const days = m.activeDays || [];
-    if (!days.includes(today)) days.push(today);
-    m.activeDays = days.slice(-14);
-    this._setMeta(m);
-    const milestones = [3, 7, 14, 21, 30, 50, 100];
-    if (milestones.includes(m.streak)) {
-      setTimeout(() => showToast(`\uD83D\uDD25 ${m.streak}-day streak! Outstanding dedication!`), 400);
-    }
-  }
-};
-
-function showToast(msg, durationMs = 3000) {
-  let toast = document.getElementById('global-toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'global-toast';
-    toast.className = 'toast';
-    document.body.appendChild(toast);
-  }
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), durationMs);
-}
 
 // ═══════════════════════════════════════════════════════════
 //  Vocabulary Data

@@ -138,10 +138,22 @@ const Streak = {
 // Get a free API key at: https://aistudio.google.com/app/apikey
 const AIConfig = {
   GEMINI_KEY: 'sciLab_gemini_key',
+  SHARED_KEY: 'jgl.geminiKey',   // the key the English and Malay studios use
   LEVEL_KEY:  'sciLab_levels',
 
-  getKey()  { return localStorage.getItem(this.GEMINI_KEY) || ''; },
-  setKey(k) { localStorage.setItem(this.GEMINI_KEY, k.trim()); },
+  // One key, three studios. Science was written first and stored the key
+  // under its own name; English and Malay later standardised on
+  // jgl.geminiKey. Reading both means a key entered in any studio works
+  // in all of them, and writing both keeps them in step from here on.
+  getKey()  {
+    return localStorage.getItem(this.GEMINI_KEY) ||
+           localStorage.getItem(this.SHARED_KEY) || '';
+  },
+  setKey(k) {
+    const v = String(k || '').trim();
+    localStorage.setItem(this.GEMINI_KEY, v);
+    localStorage.setItem(this.SHARED_KEY, v);
+  },
   hasKey()  { return !!this.getKey(); },
 
   getLevels() {
@@ -765,11 +777,17 @@ function initAIQuizToggle(staticQuestions = []) {
 }
 
 // ── Mind Map (vis-network wrapper) ─────────────────────────
+// Every other method is a no-op once unavailable() has run, so the tab's
+// buttons stay clickable without throwing.
 class ScienceMindMap {
   constructor(containerId, topicId, template) {
     this.containerId = containerId;
     this.topicId     = topicId;
     this.template    = template;
+    // vis-network comes from a CDN. On a network that blocks it, or with
+    // no connection, this threw a bare ReferenceError and the Mind Map tab
+    // showed an empty box with no explanation. Say what happened instead.
+    if (typeof vis === 'undefined') { this.unavailable(); return; }
     this.nodes = new vis.DataSet(template.nodes.map(n => ({ ...n })));
     this.edges = new vis.DataSet(template.edges.map(e => ({ ...e })));
     this.network = null;
@@ -777,7 +795,24 @@ class ScienceMindMap {
     this.init();
   }
 
+  // No vis-network on the page: explain it in the container the map would
+  // have filled, and mark every later call inert.
+  unavailable() {
+    this.dead = true;
+    const el = document.getElementById(this.containerId);
+    if (el) {
+      el.innerHTML =
+        '<div role="alert" style="padding:1.1rem 1.25rem;background:rgba(251,191,36,.07);' +
+        'border:1px solid rgba(251,191,36,.35);border-radius:12px;line-height:1.65;font-size:.9rem">' +
+        '<strong style="display:block;margin-bottom:.35rem">Concept map unavailable</strong>' +
+        'The map needs one file from the internet (the vis-network drawing library). ' +
+        'Your connection dropped, or a school network is blocking it. Reload once you are ' +
+        'back online. The Learn, Simulate and Quiz tabs all work without it.</div>';
+    }
+  }
+
   init() {
+    if (this.dead) return;
     const container = document.getElementById(this.containerId);
     const options = {
       nodes: {
@@ -829,6 +864,7 @@ class ScienceMindMap {
   }
 
   togglePhysics() {
+    if (this.dead) return;
     const on = !this.network.physics.physicsEnabled;
     this.network.setOptions({ physics: { enabled: on } });
     if (!on) this.network.fit();
@@ -842,15 +878,17 @@ class ScienceMindMap {
   }
 
   addNode(label) {
+    if (this.dead) return;
     const id = ++this.nodeIdCounter;
     this.nodes.add({ id, label: label || 'New Idea', color: { background: '#1e3a2a', border: '#10b981' } });
     return id;
   }
 
-  addEdge()         { this.network.addEdgeMode(); showToast('Drag from one node to another to connect. Press Esc to cancel.'); }
-  deleteSelected()  { this.nodes.remove(this.network.getSelectedNodes()); this.edges.remove(this.network.getSelectedEdges()); }
+  addEdge()         { if (this.dead) return; this.network.addEdgeMode(); showToast('Drag from one node to another to connect. Press Esc to cancel.'); }
+  deleteSelected()  { if (this.dead) return; this.nodes.remove(this.network.getSelectedNodes()); this.edges.remove(this.network.getSelectedEdges()); }
 
   save() {
+    if (this.dead) return;
     const data = { nodes: this.nodes.get(), edges: this.edges.get() };
     localStorage.setItem(`sciLab_mindmap_${this.topicId}`, JSON.stringify(data));
     Progress.recordMindMap(this.topicId);
@@ -858,6 +896,7 @@ class ScienceMindMap {
   }
 
   load() {
+    if (this.dead) return;
     try {
       const saved = JSON.parse(localStorage.getItem(`sciLab_mindmap_${this.topicId}`));
       if (saved) {
@@ -869,6 +908,7 @@ class ScienceMindMap {
   }
 
   check() {
+    if (this.dead) return;
     const required  = this.template.required || [];
     const allLabels = this.nodes.get().map(n => n.label.toLowerCase());
     const missing   = required.filter(r => !allLabels.some(l => l.includes(r.toLowerCase())));
@@ -885,6 +925,7 @@ class ScienceMindMap {
   }
 
   reset() {
+    if (this.dead) return;
     this.nodes.clear(); this.edges.clear();
     this.nodes.add(this.template.nodes.map(n => ({ ...n })));
     this.edges.add(this.template.edges.map(e => ({ ...e })));
@@ -897,11 +938,64 @@ function initBackBtn() {
   if (btn) btn.addEventListener('click', () => { window.location.href = '../../index.html'; });
 }
 
+// ── Settings button, mounted on every page ─────────────────
+// Twenty-four of the twenty-eight Science pages had no way to reach the
+// key modal, so a student who landed on a topic page first could not set
+// a key without navigating back to the hub. showAISetup() was always
+// there; only the door was missing. This mounts one, and labels it by
+// state so a missing key is visible rather than something you discover
+// by clicking Check My Map and getting nothing.
+function mountSettingsButton() {
+  // Honour an explicit slot first, matching the English and Malay studios.
+  const slots = Array.from(document.querySelectorAll('[data-studio-settings-slot]'));
+
+  if (!slots.length) {
+    const host = document.querySelector('.page-header, .assess-header, .page-header-inner');
+    if (!host) return;   // no sensible anchor; the hub has its own CTA
+    // A page whose header already carries a key control keeps it; two
+    // buttons opening the same modal would just be noise. Notices buried
+    // further down the page do not count, because the point of this
+    // button is that the door is visible before you need it.
+    if (host.querySelector('[onclick*="showAISetup"]')) return;
+    slots.push(host);
+  }
+
+  slots.forEach(slot => {
+    if (slot.dataset.studioSettingsMounted) return;
+    slot.dataset.studioSettingsMounted = '1';
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-ghost sci-settings-btn';
+    btn.style.cssText = 'font-size:.82rem;margin-left:auto;flex-shrink:0';
+    btn.addEventListener('click', () => showAISetup());
+    slot.appendChild(btn);
+
+    const paint = () => {
+      const has = AIConfig.hasKey();
+      btn.textContent = has ? '⚙️ AI' : '🔑 Add AI key';
+      btn.title = has
+        ? 'Change or remove your Gemini key'
+        : 'AI marking, AI quizzes and Check My Map need a free Gemini key';
+      btn.style.color       = has ? '' : '#fbbf24';
+      btn.style.borderColor = has ? '' : 'rgba(251,191,36,.45)';
+    };
+    paint();
+
+    // The modal writes straight to localStorage, so re-check when the
+    // page regains focus and when another tab saves a key.
+    window.addEventListener('focus', paint);
+    window.addEventListener('storage', paint);
+    document.addEventListener('click', () => setTimeout(paint, 60));
+  });
+}
+
 // ── DOMContentLoaded bootstrap ─────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initTabs();
   initGlossary();
   initBackBtn();
+  mountSettingsButton();
   // Auto-inject AI quiz toggle if quiz container has data-topic-id
   const qc = document.getElementById('quiz-container');
   if (qc && qc.dataset.topicId) {
