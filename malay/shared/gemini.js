@@ -85,6 +85,20 @@
     throw new Error('Unexpected response format from Gemini.');
   }
 
+  // Gemini accepts these inline image containers.
+  const IMAGE_MIMES = ['image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif'];
+
+  function normaliseImageMime(mt) {
+    const m = String(mt || '').toLowerCase().split(';')[0].trim();
+    if (IMAGE_MIMES.indexOf(m) !== -1) return m;
+    if (m.indexOf('jpg') !== -1 || m.indexOf('jpeg') !== -1) return 'image/jpeg';
+    if (m.indexOf('png')  !== -1) return 'image/png';
+    if (m.indexOf('webp') !== -1) return 'image/webp';
+    if (m.indexOf('heic') !== -1) return 'image/heic';
+    if (m.indexOf('heif') !== -1) return 'image/heif';
+    return 'image/jpeg';
+  }
+
   // Gemini accepts these inline audio containers. Anything else is
   // coerced to the closest match rather than rejected outright.
   const AUDIO_MIMES = ['audio/wav', 'audio/mp3', 'audio/mpeg', 'audio/aiff', 'audio/aac', 'audio/ogg', 'audio/flac', 'audio/webm', 'audio/mp4'];
@@ -112,6 +126,7 @@
       responseMimeType,
       asJson = false,
       audio,                     // { base64, mimeType } — raw base64, no data: prefix
+      image,   // { base64, mimeType } — a real photograph for SBC / Visual Text
       thinkingBudget,            // number | undefined. 0 disables extended
                                  // thinking on gemini-2.5 models so short
                                  // replies do not get clipped by the
@@ -149,6 +164,24 @@
       const target = contents[contents.length - 1];
       target.parts = [{ inlineData: { mimeType: normaliseAudioMime(audio.mimeType), data } }].concat(target.parts || []);
     }
+    // Inline image. Like audio, the media part goes FIRST so the model
+    // has the picture in context before it reads the instructions. This
+    // is what lets SBC and Visual Text run on a REAL photograph — the
+    // student looks at the same image the model does, instead of
+    // reading a description that has already done the noticing for them.
+    if (image && image.base64) {
+      const rawI = String(image.base64);
+      const commaI = rawI.indexOf('base64,');
+      const dataI = commaI === -1 ? rawI : rawI.slice(commaI + 7);
+      if (dataI.length > 18 * 1024 * 1024) {
+        const err = new Error('That picture is too large to send. Use one under about 12MB.');
+        err.code = 'IMAGE_TOO_LARGE';
+        throw err;
+      }
+      const targetI = contents[contents.length - 1];
+      targetI.parts = [{ inlineData: { mimeType: normaliseImageMime(image.mimeType), data: dataI } }].concat(targetI.parts || []);
+    }
+
 
     const body = {
       contents,
