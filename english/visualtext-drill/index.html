@@ -74,10 +74,29 @@
     .scorecard .qual { font-size: 1rem; color: var(--text); margin: .25rem 0 1rem; }
     .scorecard .row { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
 
+    /* Accuracy by question type, across every recorded attempt */
+    .diag {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.25rem 1.5rem; margin-top: 1rem;
+    }
+    .diag h3 { font-size: .95rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .2rem; }
+    .diag .sub { font-size: .78rem; color: var(--muted); margin-bottom: .9rem; }
+    .diag .drow { display: grid; grid-template-columns: 6.2rem 1fr 4.6rem; gap: .6rem; align-items: center; margin-bottom: .45rem; font-size: .8rem; }
+    .diag .dname { color: var(--text); }
+    .diag .dtrack { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; height: .5rem; overflow: hidden; }
+    .diag .dfill { height: 100%; background: var(--accent); border-radius: 99px; }
+    .diag .dfill.mid { background: #fbbf24; }
+    .diag .dfill.low { background: #f87171; }
+    .diag .dpct { color: var(--muted); font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: .74rem; text-align: right; }
+    .diag .verdict { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--border); font-size: .86rem; line-height: 1.65; color: var(--text); }
+
     .start-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
     .start-card h2 { margin-bottom: .5rem; }
     .start-card p  { color: var(--muted); font-size: .92rem; margin-bottom: 1rem; line-height: 1.65; }
     .pill { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .25rem .65rem; font-size: .72rem; margin: .15rem; }
+
+    .fresh-readout { font-size: .76rem; color: var(--muted); }
+    .set-bar { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; font-size: .8rem; color: var(--muted); margin-bottom: .85rem; }
   </style>
 </head>
 <body>
@@ -94,15 +113,17 @@
   <div class="hero">
     <h1>Visual Text Sprint</h1>
     <p>
-      Two mock posters, each with five MCQ questions covering Audience, Purpose, Tone, Detail and Extension —
-      the five PSLE Visual Text question types. The posters are described in text (no copyrighted images).
-      Read the heading and caption FIRST: tiny print often hides the answer to one question.
+      Two mock posters per run, each with five MCQ questions covering Audience, Purpose, Tone, Detail and Extension —
+      the five PSLE Visual Text question types. Four curated posters sit in the bank, and each visit serves you the
+      two you have not seen yet, so coming back does not mean doing the same paper again. The posters are described
+      in text (no copyrighted images). Read the heading and caption FIRST: tiny print often hides the answer to one question.
     </p>
   </div>
 
   <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
     <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
-    <span style="font-size:.84rem;color:var(--muted);">Two curated posters. Want a fresh one?</span>
+    <span style="font-size:.84rem;color:var(--muted);">Four curated posters. Want a fresh one?</span>
+    <span id="fresh-readout" class="fresh-readout"></span>
     <span style="flex:1;"></span>
     <select id="gen-theme" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.82rem;font-family:inherit;">
       <option>Road safety</option>
@@ -118,6 +139,11 @@
   </div>
   <div id="gen-status" style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem;min-height:1rem;"></div>
 
+  <div class="set-bar" id="set-bar" style="display:none;">
+    <span id="set-label"></span>
+    <button class="btn btn-secondary" id="btn-draw-again" style="font-size:.74rem;padding:.25rem .6rem;">Draw another pair</button>
+  </div>
+
   <div id="start-pane">
     <div class="start-card">
       <h2>Ready?</h2>
@@ -132,11 +158,12 @@
         <button class="btn btn-secondary" id="btn-untimed">Untimed practice</button>
       </div>
     </div>
+    <div id="diag-home"></div>
   </div>
 
   <div id="quiz-pane" style="display:none;">
     <div class="timer-bar">
-      <span class="time-left" id="time-left">8:00</span>
+      <span class="time-left" id="time-left">08:00</span>
       <span style="color:var(--muted);font-size:.85rem;" id="score-meta">0 answered</span>
       <span style="flex:1;"></span>
       <button class="btn btn-secondary" id="btn-submit" style="font-size:.82rem;padding:.4rem .8rem;">Submit now</button>
@@ -151,11 +178,29 @@
 <script src="../shared/storage.js"></script>
 <script src="../shared/lab.js"></script>
 <script src="../shared/gemini.js"></script>
+<script src="../shared/freshness.js"></script>
 <script>
 const QUIZ_MS = 8 * 60 * 1000;
+const BUCKET = 'visualtext';
+const SET_SIZE = 2;
+const GEN_CACHE_KEY = 'jgl.english.visualtext.generated';
+const ATTEMPTS_KEY  = 'jgl.english.visualtext.attempts';
+const ATTEMPTS_CAP  = 60;
 
-// ── Mock visual texts (no copyrighted images) ──────────────
-let STIMULI = [
+const TYPE_ORDER = ['Audience', 'Purpose', 'Tone', 'Detail', 'Extension'];
+
+const TYPE_ADVICE = {
+  Audience:  'Before you look at the options, ask who could actually DO what the poster asks. The pictures, the language level and the place the poster would hang all point at one group.',
+  Purpose:   'Purpose is the action the poster wants, not the subject it is about. Finish the sentence "after reading this, I should ___" and match that to an option.',
+  Tone:      'Tone comes from the pictures and the word choices together. Name it in two words, like calm but firm, or light and encouraging, before you read the options.',
+  Detail:    'Detail answers are always printed somewhere on the poster, often in the caption or the small print. Point at the exact words before you choose.',
+  Extension: 'Extension is the one most students drop. The right answer names a SPECIFIC new action for a DIFFERENT audience. Making the poster bigger, brighter or longer is never the answer.',
+};
+
+/* ── Mock visual texts (no copyrighted images) ──────────────
+   Four curated posters. Each run serves two, chosen through
+   JglFresh so a repeat visit does not repeat the material.   */
+const CURATED_BANK = [
   {
     id: 'spend-wisely',
     title: 'MAS Money Sense — "Spend Wisely, Save Daily" campaign poster',
@@ -204,15 +249,303 @@ let STIMULI = [
         correct: 1, why: "To reach drivers, the message must SHIFT to driver behaviour, not just amplify the existing cyclist message. 'Look twice at junctions' is a specific driver action." },
     ],
   },
+  {
+    id: 'finish-what-you-take',
+    title: 'NEA and school canteen — "Take What You Can Finish" food waste poster',
+    mockHeading: 'TAKE WHAT YOU CAN FINISH.',
+    mockBody: 'Two canteen trays photographed side by side. The left tray holds a half-eaten plate of rice, curry and vegetables, labelled "1 tray = 300g wasted". The right tray holds a clean, empty plate, labelled "1 tray = 0g wasted". A thick arrow points from the left tray to the right one. Underneath, a bar chart shows food waste from the school canteen falling from 42 bags a week in January to 19 bags a week in June. Beside the chart, one line in bold: "Ask for less rice. Come back for more if you are still hungry."',
+    mockCaption: 'A National Environment Agency and school canteen partnership. Bags weighed every Friday by the Green Club.',
+    items: [
+      { type: 'Audience',  stem: "Who is the poster MAINLY speaking to?",
+        options: ["Canteen stallholders", "Students buying food in the school canteen", "Parents packing lunch at home", "Food delivery riders"],
+        correct: 1, why: "The trays, the queue advice about rice portions and the Green Club weighing all sit inside the school canteen, so the reader is a student standing at a stall." },
+      { type: 'Purpose',   stem: "What is the MAIN purpose of the poster?",
+        options: ["To report how much the canteen earns each week", "To advertise a new canteen stall", "To get students to take portions they can actually finish", "To warn students about food poisoning"],
+        correct: 2, why: "The two trays and the bold line about asking for less rice name one specific habit, so the poster is after a change in behaviour, not information or sales." },
+      { type: 'Tone',      stem: "Which BEST describes the poster's tone?",
+        options: ["Practical and encouraging", "Angry and blaming", "Sad and hopeless", "Joking and silly"],
+        correct: 0, why: "It asks for one small doable action and shows waste already falling, so it encourages rather than scolds. Nothing on the poster blames anyone." },
+      { type: 'Detail',    stem: "By how many bags a week did canteen food waste fall between January and June?",
+        options: ["19 bags", "23 bags", "42 bags", "61 bags"],
+        correct: 1, why: "The chart shows 42 bags in January and 19 in June, so the fall is 23 bags. Detail questions often ask you to read two numbers and work with them, not copy one." },
+      { type: 'Extension', stem: "Which ONE addition would best extend this campaign to reach the STALLHOLDERS as well?",
+        options: ["Printing the poster in a larger size", "A stall-front sign offering a smaller rice portion at a lower price", "Adding more photographs of trays", "Putting the same poster in the school hall too"],
+        correct: 1, why: "Reaching a new audience means naming an action only that audience can take. A cheaper small portion is something a stallholder decides, not a student." },
+    ],
+  },
+  {
+    id: 'mozzie-wipeout',
+    title: 'NEA — "Do the Mozzie Wipeout" block notice board poster',
+    mockHeading: 'FIVE MINUTES. FIVE STEPS. NO DENGUE.',
+    mockBody: 'A cutaway drawing of an HDB flat with five spots circled in red and numbered: 1 the flower pot plate, 2 the bathroom floor trap, 3 the vase on the table, 4 the bamboo pole holder, 5 the roof gutter. Beside each circle sits a short instruction: turn the pail, remove water, change water, clear leaves, cover. Along the right edge, a calendar strip marks every Sunday with a small red mosquito icon. A footnote in small print reads: "Aedes mosquitoes can breed in water the size of a twenty-cent coin."',
+    mockCaption: 'National Environment Agency. Cases in this cluster: 37. Last updated 3 June.',
+    items: [
+      { type: 'Audience',  stem: "Who is this poster written for?",
+        options: ["Doctors treating dengue patients", "Tourists visiting Singapore", "Residents living in the flats", "Factory workers"],
+        correct: 2, why: "All five spots are inside a home and all five actions are household chores, and a block notice board is read by the people who live there." },
+      { type: 'Purpose',   stem: "What does the poster want readers to DO?",
+        options: ["Report neighbours who have mosquitoes", "Check five places at home every week", "Buy insect repellent", "Visit a doctor for a check-up"],
+        correct: 1, why: "Five numbered steps plus a calendar strip marking every Sunday add up to one repeated weekly routine, not a one-off." },
+      { type: 'Tone',      stem: "Which BEST describes the poster's tone?",
+        options: ["Calm and instructional, with an urgent edge", "Playful and joking", "Apologetic and unsure", "Bored and uninterested"],
+        correct: 0, why: "The five steps are plain and instructional, while the red circles and the live cluster count add urgency without tipping into panic." },
+      { type: 'Detail',    stem: "According to the small print, how little water can Aedes mosquitoes breed in?",
+        options: ["A full pail of water", "A full flower pot", "A roof gutter only", "Water the size of a twenty-cent coin"],
+        correct: 3, why: "The footnote answers it word for word. Small print carries at least one answer in almost every Visual Text paper, so read it before you start." },
+      { type: 'Extension', stem: "Which ONE addition would best extend the message to reach PRIMARY SCHOOL PUPILS?",
+        options: ["Making the drawing of the flat larger", "A classroom checklist pupils tick at home and bring back on Monday", "Printing the cluster count in bigger type", "Using thicker paper so the poster lasts longer"],
+        correct: 1, why: "A checklist gives pupils a small task of their own, and carrying it home and back to class moves the message into their families too." },
+    ],
+  },
 ];
 
+let STIMULI = [];
+let GENERATED = [];
+let bankOffset = 0;
 let state = { startedAt: null, submitted: false, answers: {}, timed: true };
 let tickHandle = null;
 
+/* ── helpers ─────────────────────────────────────────────── */
+
+function escapeHTML(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+// localStorage throws outright in private-browsing / blocked-cookie modes,
+// so every read goes through here and falls back to a sane default.
+function readLS(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v == null ? fallback : v;
+  } catch (e) { return fallback; }
+}
+
+function geminiKey() {
+  try {
+    if (window.JglStorage && window.JglStorage.getGeminiKey) {
+      const k = window.JglStorage.getGeminiKey();
+      if (k) return k;
+    }
+  } catch (e) { /* storage blocked — fall through */ }
+  return readLS('jgl.geminiKey', '') || '';
+}
+
+function stimKey(s) {
+  const base = (s && s.id) ? s.id : ((s && s.title ? s.title : '') + '|' + String(s && s.mockBody ? s.mockBody : '').slice(0, 60));
+  return window.JglFresh ? JglFresh.normKey(base) : base;
+}
+
+/* ── freshness readout ───────────────────────────────────── */
+
+function renderFresh() {
+  const el = document.getElementById('fresh-readout');
+  if (!el) return;
+  const s = window.JglFresh ? JglFresh.stats(BUCKET) : { total: 0, last7: 0 };
+  el.textContent = s.total ? (s.total + (s.total === 1 ? ' poster' : ' posters') + ' seen · ' + s.last7 + ' this week') : '';
+}
+
+/* ── attempt history and question-type diagnosis ─────────── */
+
+function readAttempts() {
+  try {
+    const a = JSON.parse(localStorage.getItem(ATTEMPTS_KEY) || '[]');
+    return Array.isArray(a) ? a : [];
+  } catch (e) { return []; }
+}
+
+function saveAttempt(rec) {
+  try {
+    const a = readAttempts();
+    a.push(rec);
+    localStorage.setItem(ATTEMPTS_KEY, JSON.stringify(a.slice(-ATTEMPTS_CAP)));
+  } catch (e) { /* quota — degrade quietly */ }
+}
+
+function aggregateByType() {
+  const totals = {};
+  readAttempts().forEach(function (a) {
+    const bt = a && a.byType;
+    if (!bt || typeof bt !== 'object') return;
+    Object.keys(bt).forEach(function (k) {
+      const v = bt[k] || {};
+      if (!totals[k]) totals[k] = { right: 0, wrong: 0 };
+      totals[k].right += Number(v.right) || 0;
+      totals[k].wrong += Number(v.wrong) || 0;
+    });
+  });
+  return totals;
+}
+
+function diagnosisHTML() {
+  const totals = aggregateByType();
+  const known = TYPE_ORDER.slice();
+  Object.keys(totals).forEach(function (k) { if (known.indexOf(k) === -1) known.push(k); });
+
+  const rows = known.map(function (k) {
+    const t = totals[k] || { right: 0, wrong: 0 };
+    const n = t.right + t.wrong;
+    return { key: k, n: n, pct: n ? Math.round((t.right / n) * 100) : 0 };
+  }).filter(function (r) { return r.n > 0; });
+
+  if (!rows.length) return '';
+
+  const runs = readAttempts().length;
+  const sorted = rows.slice().sort(function (a, b) { return a.pct - b.pct || b.n - a.n; });
+
+  let html = '<div class="diag"><h3>Which question type costs you marks</h3>' +
+    '<div class="sub">Accuracy by question type across all ' + runs + ' recorded ' + (runs === 1 ? 'run' : 'runs') + '.</div>';
+
+  rows.forEach(function (r) {
+    const cls = r.pct < 60 ? 'low' : (r.pct < 80 ? 'mid' : '');
+    html += '<div class="drow">' +
+      '<div class="dname">' + escapeHTML(r.key) + '</div>' +
+      '<div class="dtrack"><div class="dfill ' + cls + '" style="width:' + r.pct + '%;"></div></div>' +
+      '<div class="dpct">' + r.pct + '% · ' + r.n + '</div>' +
+      '</div>';
+  });
+
+  const solid = sorted.filter(function (r) { return r.n >= 3; });
+  const weakest = solid.length ? solid[0] : null;
+  const strongest = solid.length ? solid[solid.length - 1] : null;
+
+  let verdict;
+  if (!weakest) {
+    const lowest = sorted[0];
+    verdict = 'Early days. On the items so far, your lowest type is ' + escapeHTML(lowest.key) + ' at ' + lowest.pct +
+      ' percent across ' + lowest.n + ' item' + (lowest.n === 1 ? '' : 's') +
+      ', which is too few to be sure. One or two more runs and this will be reliable.';
+  } else if (weakest.pct >= 85) {
+    verdict = 'Nothing is clearly weak. Your lowest type is ' + escapeHTML(weakest.key) + ' at ' + weakest.pct +
+      ' percent, which is already solid. Move to timed runs and keep the reading fast.';
+  } else {
+    verdict = 'Your weakest question type is <strong>' + escapeHTML(weakest.key) + '</strong>, at ' + weakest.pct +
+      ' percent across ' + weakest.n + ' items. ' + escapeHTML(TYPE_ADVICE[weakest.key] || '');
+    if (strongest && strongest.key !== weakest.key && strongest.pct - weakest.pct >= 15) {
+      verdict += ' You are at ' + strongest.pct + ' percent on ' + escapeHTML(strongest.key) +
+        ', so the gap between your best and worst type is ' + (strongest.pct - weakest.pct) + ' points. That gap is where the marks are.';
+    }
+  }
+  html += '<div class="verdict">' + verdict + '</div></div>';
+  return html;
+}
+
+function renderDiagHome() {
+  const el = document.getElementById('diag-home');
+  if (el) el.innerHTML = diagnosisHTML();
+}
+
+/* ── curated bank rotation ───────────────────────────────── */
+
+// The bank, sorted so the poster the student is least likely to remember
+// comes first: never-seen posters lead, then the rest oldest-seen first.
+// JglFresh keeps its ledger oldest first, so a poster's index there IS its
+// recency rank, and anything absent from the ledger sorts ahead of it.
+function bankBySeen() {
+  const fresh = window.JglFresh;
+  if (!fresh) return CURATED_BANK.slice();
+  let ledger = [];
+  try {
+    ledger = fresh.recent(BUCKET).map(function (e) { return e && e.key; }).reverse();
+  } catch (e) { ledger = []; }
+  return CURATED_BANK.map(function (x, i) {
+    const rank = ledger.indexOf(String(fresh.normKey(x.id || x.title)));
+    return { x: x, rank: rank, i: i };
+  }).sort(function (a, b) { return a.rank - b.rank || a.i - b.i; })
+    .map(function (r) { return r.x; });
+}
+
+// bankOffset is what "Draw another pair" advances. It has to rotate the
+// recency-sorted bank, not the raw array: once every poster has been seen
+// the recency sort is stable, so rotating the raw array changed nothing and
+// the button silently re-served the identical pair.
+function orderedBank() {
+  const base = bankBySeen();
+  const n = base.length;
+  if (!n) return [];
+  const out = [];
+  for (let i = 0; i < n; i++) out.push(base[(i + bankOffset) % n]);
+  return out;
+}
+
+function pickCurated(n) {
+  return orderedBank().slice(0, Math.max(0, n));
+}
+
+// Cached posters are replayed straight into innerHTML and into the scorer,
+// so anything without a usable items array is dropped here rather than
+// throwing on Start and leaving the student on a dead page.
+function validStimulus(s) {
+  return !!s && typeof s === 'object' && Array.isArray(s.items) && s.items.length > 0
+    && s.items.every(function (it) { return it && typeof it === 'object' && Array.isArray(it.options) && it.options.length > 0; });
+}
+
+function loadGenerated() {
+  try {
+    const c = JSON.parse(localStorage.getItem(GEN_CACHE_KEY) || '[]');
+    if (!Array.isArray(c)) return [];
+    // The answer key is stored under "<id>:<index>", so an entry without an
+    // id would collide with every other id-less entry and lose marks.
+    return c.filter(validStimulus).map(function (s, i) {
+      return s.id ? s : Object.assign({}, s, { id: 'gen-cached-' + i });
+    });
+  } catch (e) { return []; }
+}
+
+// Each run is two posters. Newly generated posters take the front of
+// the queue; the rest of the pair is filled from the curated bank.
+function buildSet() {
+  const gen = GENERATED.slice(-SET_SIZE);
+  const need = Math.max(0, SET_SIZE - gen.length);
+  STIMULI = gen.concat(pickCurated(need));
+  const clearBtn = document.getElementById('btn-clear-generated');
+  if (clearBtn) clearBtn.style.display = gen.length ? 'inline-block' : 'none';
+  renderSetBar();
+}
+
+function renderSetBar() {
+  const bar = document.getElementById('set-bar');
+  const label = document.getElementById('set-label');
+  if (!bar || !label) return;
+  if (!STIMULI.length) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  label.textContent = 'This run: ' + STIMULI.map(function (s) {
+    return s.title + (s._generated ? ' (generated)' : '');
+  }).join('  ·  ');
+  // Redrawing only means something when a curated poster is in the pair.
+  const hasCurated = STIMULI.some(function (s) { return !s._generated; });
+  const redraw = document.getElementById('btn-draw-again');
+  if (redraw) redraw.style.display = hasCurated ? '' : 'none';
+}
+
+function resetToStart() {
+  if (tickHandle) clearInterval(tickHandle);
+  tickHandle = null;
+  state = { startedAt: null, submitted: false, answers: {}, timed: true };
+  document.getElementById('start-pane').style.display = '';
+  document.getElementById('quiz-pane').style.display = 'none';
+  const r = document.getElementById('result-pane');
+  r.style.display = 'none';
+  r.innerHTML = '';
+  const t = document.getElementById('time-left');
+  t.textContent = '08:00';
+  t.classList.remove('warn', 'crit');
+  renderDiagHome();
+}
+
+/* ── quiz flow ───────────────────────────────────────────── */
+
 function init() {
-  document.getElementById('btn-start').addEventListener('click',     () => startQuiz(true));
-  document.getElementById('btn-untimed').addEventListener('click',  () => startQuiz(false));
-  document.getElementById('btn-submit').addEventListener('click', () => { if (!state.submitted && confirm('Submit now?')) submit(); });
+  document.getElementById('btn-start').addEventListener('click',    function () { startQuiz(true); });
+  document.getElementById('btn-untimed').addEventListener('click',  function () { startQuiz(false); });
+  document.getElementById('btn-submit').addEventListener('click', function () { if (!state.submitted && confirm('Submit now?')) submit(); });
+  document.getElementById('btn-draw-again').addEventListener('click', function () {
+    bankOffset += 1;
+    buildSet();
+    resetToStart();
+    document.getElementById('gen-status').textContent = 'New pair drawn from the curated bank.';
+  });
 }
 
 function startQuiz(timed) {
@@ -220,6 +553,16 @@ function startQuiz(timed) {
   state.startedAt = Date.now();
   document.getElementById('start-pane').style.display = 'none';
   document.getElementById('quiz-pane').style.display  = 'block';
+
+  // MOVE 3: a curated poster counts as seen once it is actually attempted,
+  // not merely loaded, so the bank rotates on real practice.
+  if (window.JglFresh) {
+    STIMULI.forEach(function (s) {
+      if (s && !s._generated) JglFresh.mark(BUCKET, stimKey(s), { title: s.title, type: 'curated' });
+    });
+  }
+  renderFresh();
+
   renderAll();
   if (timed) startTicker(); else document.getElementById('time-left').textContent = '∞';
 }
@@ -227,21 +570,20 @@ function startQuiz(timed) {
 function renderAll() {
   const root = document.getElementById('content');
   root.innerHTML = '';
-  STIMULI.forEach((s, sIdx) => {
+  STIMULI.forEach(function (s, sIdx) {
     const div = document.createElement('div');
     div.className = 'stimulus';
-    div.innerHTML = `
-      <div class="stim-tag">Visual Text ${sIdx + 1} of ${STIMULI.length}</div>
-      <div class="stim-title">${s.title}</div>
-      <div class="stim-mock">
-        <div class="heading">${s.mockHeading}</div>
-        <div class="body">${s.mockBody}</div>
-        <div class="caption">${s.mockCaption}</div>
-      </div>
-      <div class="items"></div>
-    `;
+    div.innerHTML =
+      '<div class="stim-tag">Visual Text ' + (sIdx + 1) + ' of ' + STIMULI.length + '</div>' +
+      '<div class="stim-title">' + escapeHTML(s.title) + '</div>' +
+      '<div class="stim-mock">' +
+        '<div class="heading">' + escapeHTML(s.mockHeading) + '</div>' +
+        '<div class="body">' + escapeHTML(s.mockBody) + '</div>' +
+        '<div class="caption">' + escapeHTML(s.mockCaption) + '</div>' +
+      '</div>' +
+      '<div class="items"></div>';
     const items = div.querySelector('.items');
-    s.items.forEach((it, idx) => items.appendChild(renderItem(s.id, sIdx, idx, it)));
+    s.items.forEach(function (it, idx) { items.appendChild(renderItem(s.id, sIdx, idx, it)); });
     root.appendChild(div);
   });
 }
@@ -251,15 +593,18 @@ function renderItem(sid, sIdx, idx, it) {
   row.className = 'item';
   row.dataset.sid = sid;
   row.dataset.idx = idx;
-  row.innerHTML = `
-    <div><span class="qtype">${it.type}</span><span class="qnum">Q${sIdx + 1}.${idx + 1}</span></div>
-    <div class="stem">${it.stem}</div>
-    <div class="options">
-      ${it.options.map((opt, oi) => `<button data-opt="${oi}">${String.fromCharCode(65 + oi)}. ${opt}</button>`).join('')}
-    </div>
-    <div class="explain"></div>
-  `;
-  row.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => answer(sid, idx, Number(btn.dataset.opt), it)));
+  row.innerHTML =
+    '<div><span class="qtype">' + escapeHTML(it.type) + '</span><span class="qnum">Q' + (sIdx + 1) + '.' + (idx + 1) + '</span></div>' +
+    '<div class="stem">' + escapeHTML(it.stem) + '</div>' +
+    '<div class="options">' +
+      it.options.map(function (opt, oi) {
+        return '<button data-opt="' + oi + '">' + String.fromCharCode(65 + oi) + '. ' + escapeHTML(opt) + '</button>';
+      }).join('') +
+    '</div>' +
+    '<div class="explain"></div>';
+  row.querySelectorAll('button').forEach(function (btn) {
+    btn.addEventListener('click', function () { answer(sid, idx, Number(btn.dataset.opt), it); });
+  });
   return row;
 }
 
@@ -267,10 +612,10 @@ function answer(sid, idx, choice, it) {
   const key = sid + ':' + idx;
   if (state.answers[key] !== undefined) return;
   state.answers[key] = choice;
-  const row = document.querySelector(`.item[data-sid="${sid}"][data-idx="${idx}"]`);
+  const row = document.querySelector('.item[data-sid="' + sid + '"][data-idx="' + idx + '"]');
   const buttons = row.querySelectorAll('button');
   const correct = (choice === it.correct);
-  buttons.forEach((b, i) => {
+  buttons.forEach(function (b, i) {
     b.disabled = true;
     if (i === it.correct) b.classList.add(correct ? 'picked-right' : 'show-correct');
     if (i === choice && !correct) b.classList.add('picked-wrong');
@@ -282,9 +627,9 @@ function answer(sid, idx, choice, it) {
 }
 
 function updateMeta() {
-  const total = STIMULI.reduce((s, x) => s + x.items.length, 0);
+  const total = STIMULI.reduce(function (s, x) { return s + x.items.length; }, 0);
   const n = Object.keys(state.answers).length;
-  document.getElementById('score-meta').textContent = `${n} of ${total} answered`;
+  document.getElementById('score-meta').textContent = n + ' of ' + total + ' answered';
 }
 
 function startTicker() {
@@ -302,10 +647,10 @@ function paintTime(ms) {
   const display = document.getElementById('time-left');
   const mins = Math.max(0, Math.floor(ms / 60000));
   const secs = Math.max(0, Math.floor((ms % 60000) / 1000));
-  display.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-  display.classList.remove('warn','crit');
-  if (ms <= 60_000)       display.classList.add('crit');
-  else if (ms <= 180_000) display.classList.add('warn');
+  display.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+  display.classList.remove('warn', 'crit');
+  if (ms <= 60000)       display.classList.add('crit');
+  else if (ms <= 180000) display.classList.add('warn');
 }
 
 function submit() {
@@ -314,23 +659,43 @@ function submit() {
   if (tickHandle) clearInterval(tickHandle);
 
   let got = 0, total = 0;
-  STIMULI.forEach(s => s.items.forEach((it, idx) => {
-    total += 1;
-    const a = state.answers[s.id + ':' + idx];
-    if (a === it.correct) got += 1;
-    // Force-reveal any unanswered items
-    if (a === undefined) {
-      const row = document.querySelector(`.item[data-sid="${s.id}"][data-idx="${idx}"]`);
-      if (row) {
-        row.querySelectorAll('button').forEach((b, i) => { b.disabled = true; if (i === it.correct) b.classList.add('show-correct'); });
-        const exp = row.querySelector('.explain');
-        exp.textContent = it.why || '';
-        exp.classList.add('show');
-      }
-    }
-  }));
+  const byType = {};
 
-  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('visual-text');
+  STIMULI.forEach(function (s) {
+    s.items.forEach(function (it, idx) {
+      total += 1;
+      const a = state.answers[s.id + ':' + idx];
+      const right = (a === it.correct);
+      if (right) got += 1;
+
+      const t = it.type || 'Detail';
+      if (!byType[t]) byType[t] = { right: 0, wrong: 0 };
+      if (right) byType[t].right += 1; else byType[t].wrong += 1;
+
+      // Force-reveal any unanswered items
+      if (a === undefined) {
+        const row = document.querySelector('.item[data-sid="' + s.id + '"][data-idx="' + idx + '"]');
+        if (row) {
+          row.querySelectorAll('button').forEach(function (b, i) {
+            b.disabled = true;
+            if (i === it.correct) b.classList.add('show-correct');
+          });
+          const exp = row.querySelector('.explain');
+          exp.textContent = it.why || '';
+          exp.classList.add('show');
+        }
+      }
+    });
+  });
+
+  saveAttempt({ iso: new Date().toISOString(), score: got, total: total, byType: byType });
+
+  // Progress.set writes to localStorage unguarded, so in private-browsing
+  // mode it throws and would take the scorecard down with it. The student's
+  // marks matter more than the progress ping.
+  try {
+    if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('visual-text');
+  } catch (e) { /* progress is best-effort; never block the result */ }
 
   const qual =
     got === total ? 'Perfect. Every poster gives up its answers.' :
@@ -338,75 +703,89 @@ function submit() {
     got >= total / 2 ? 'Halfway. The five question types repeat every year — drill A.P.T.D.E. until reflexive.' :
                        'The misses below name the question type they missed. Drill that one first.';
 
-  document.getElementById('result-pane').style.display = 'block';
-  document.getElementById('result-pane').innerHTML = `
-    <div class="scorecard">
-      <div class="num">${got} / ${total}</div>
-      <div class="qual">${qual}</div>
-      <div class="row">
-        <a class="btn btn-primary" href="./">Retry</a>
-        <a class="btn btn-secondary" href="../">← Hub</a>
-        <a class="btn btn-secondary" href="../topics/visual-text/">Open Visual Text topic</a>
-      </div>
-    </div>
-  `;
+  const pane = document.getElementById('result-pane');
+  pane.style.display = 'block';
+  pane.innerHTML =
+    '<div class="scorecard">' +
+      '<div class="num">' + got + ' / ' + total + '</div>' +
+      '<div class="qual">' + escapeHTML(qual) + '</div>' +
+      '<div class="row">' +
+        '<a class="btn btn-primary" href="./">Retry</a>' +
+        '<a class="btn btn-secondary" href="../">← Hub</a>' +
+        '<a class="btn btn-secondary" href="../topics/visual-text/">Open Visual Text topic</a>' +
+      '</div>' +
+    '</div>' +
+    diagnosisHTML();
+  pane.scrollIntoView({ behavior: 'smooth' });
 }
 
-init();
+/* ── boot ────────────────────────────────────────────────── */
 
-// ── AI poster generator ──────────────────────────────────
-const GEN_CACHE_KEY = 'jgl.english.visualtext.generated';
-const CURATED_COUNT = STIMULI.length;
-
-(function rehydrate() {
-  try {
-    const cached = JSON.parse(localStorage.getItem(GEN_CACHE_KEY) || '[]');
-    if (cached.length) {
-      STIMULI = STIMULI.concat(cached);
-      document.getElementById('btn-clear-generated').style.display = 'inline-block';
-    }
-  } catch {}
+(function boot() {
+  GENERATED = loadGenerated();
+  buildSet();
+  init();
+  renderFresh();
+  renderDiagHome();
+  if (GENERATED.length) {
+    document.getElementById('gen-status').textContent = 'Showing your generated poster from the last session.';
+  }
 })();
 
+/* ── AI poster generator ─────────────────────────────────── */
+
 document.getElementById('btn-generate').addEventListener('click', async () => {
-  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  const k = geminiKey();
   const status = document.getElementById('gen-status');
-  if (!k) { status.textContent = 'No Gemini key set.'; return; }
+  if (!k) {
+    status.textContent = 'No Gemini key set. Open Settings (top right) to add one. The four curated posters work without a key.';
+    return;
+  }
   if (state.startedAt && !state.submitted) {
-    if (!confirm('Add a new poster (your current attempt will be reset)?')) return;
+    if (!confirm('Load a new poster (your current attempt will be reset)?')) return;
   }
   const theme = document.getElementById('gen-theme').value;
-  status.textContent = `Generating a fresh ${theme.toLowerCase()} poster…`;
+  status.textContent = 'Generating a fresh ' + theme.toLowerCase() + ' poster…';
   document.getElementById('btn-generate').disabled = true;
   try {
     const s = await generateVisualText(theme);
-    STIMULI.push(s);
-    const cached = (() => { try { return JSON.parse(localStorage.getItem(GEN_CACHE_KEY) || '[]'); } catch { return []; } })();
-    cached.push(s);
-    try { localStorage.setItem(GEN_CACHE_KEY, JSON.stringify(cached.slice(-10))); } catch {}
-    document.getElementById('btn-clear-generated').style.display = 'inline-block';
-    status.textContent = `New poster ready: "${s.title}". Start the sprint to see it.`;
-    state = { startedAt: null, submitted: false, answers: {}, timed: true };
-    document.getElementById('start-pane').style.display = '';
-    document.getElementById('quiz-pane').style.display = 'none';
-    document.getElementById('result-pane').style.display = 'none';
-    document.getElementById('result-pane').innerHTML = '';
+
+    // MOVE 2: mark only after the generation has actually succeeded.
+    if (window.JglFresh) {
+      JglFresh.mark(BUCKET, JglFresh.normKey(s.title + '|' + String(s.mockBody).slice(0, 60)), { title: s.title, type: theme });
+    }
+
+    GENERATED.push(s);
+    GENERATED = GENERATED.slice(-10);
+    try { localStorage.setItem(GEN_CACHE_KEY, JSON.stringify(GENERATED)); } catch (e) {}
+
+    buildSet();
+    resetToStart();
+    renderFresh();
+    status.textContent = 'New poster ready: "' + s.title + '". Start the sprint to see it.';
   } catch (e) {
-    status.textContent = 'Generator error: ' + (e?.message || e);
+    status.textContent = 'Generator error: ' + ((e && e.message) ? e.message : e);
   } finally {
     document.getElementById('btn-generate').disabled = false;
   }
 });
 
 document.getElementById('btn-clear-generated').addEventListener('click', () => {
-  if (!confirm('Remove AI-generated posters? The two curated ones stay.')) return;
-  try { localStorage.setItem(GEN_CACHE_KEY, '[]'); } catch {}
-  STIMULI = STIMULI.slice(0, CURATED_COUNT);
-  document.getElementById('btn-clear-generated').style.display = 'none';
-  document.getElementById('gen-status').textContent = '';
+  if (!confirm('Remove AI-generated posters? The curated bank stays.')) return;
+  GENERATED = [];
+  try { localStorage.setItem(GEN_CACHE_KEY, '[]'); } catch (e) {}
+  buildSet();
+  resetToStart();
+  document.getElementById('gen-status').textContent = 'Back to the curated bank.';
 });
 
 async function generateVisualText(theme) {
+  // MOVE 1: tell the model what this student has already been shown.
+  const avoid = (window.JglFresh ? JglFresh.avoidList(BUCKET, 12) : []);
+  const avoidBlock = avoid.length
+    ? '\n\nDo NOT produce anything similar in topic, setting, character names, or wording to any of these, which the student has already seen:\n' + avoid.map(function (a) { return '- ' + a; }).join('\n')
+    : '';
+
   const sys = 'You are a PSLE English Paper 2 Visual Text Comprehension item writer. Output VALID JSON ONLY. Primary 6 level. Singapore-natural, realistic public campaigns. Describe the poster in text — no actual image.';
   const prompt = `Generate ONE mock visual text item on the theme: "${theme}".
 
@@ -429,8 +808,9 @@ Output JSON with EXACTLY:
 Constraints:
 - The Detail question's answer must be present in mockBody or mockCaption (so it's checkable).
 - The Extension question's right answer suggests a SPECIFIC, AUDIENCE-shifted addition.
-- "correct" is a 0-based integer.
-- No emoji.`;
+- "correct" is a 0-based integer. Vary which position is correct across the five items.
+- Write for a 12-year-old Singaporean student: calm, specific, plain sentences.
+- No emoji.${avoidBlock}`;
 
   const json = await window.askGemini({
     system: sys, prompt,
@@ -444,13 +824,15 @@ Constraints:
     mockHeading: json.mockHeading || '',
     mockBody: json.mockBody,
     mockCaption: json.mockCaption || '',
-    items: json.items.map(it => ({
-      type: it.type || 'Detail',
-      stem: it.stem || '',
-      options: Array.isArray(it.options) ? it.options.slice(0, 4) : ['A','B','C','D'],
-      correct: typeof it.correct === 'number' ? it.correct : 0,
-      why: it.why || '',
-    })),
+    items: json.items.map(function (it) {
+      return {
+        type: it.type || 'Detail',
+        stem: it.stem || '',
+        options: Array.isArray(it.options) ? it.options.slice(0, 4) : ['A', 'B', 'C', 'D'],
+        correct: typeof it.correct === 'number' ? it.correct : 0,
+        why: it.why || '',
+      };
+    }),
     _generated: true,
   };
 }

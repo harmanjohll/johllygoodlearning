@@ -76,6 +76,28 @@
     .start-card p  { color: var(--muted); font-size: .92rem; margin-bottom: 1rem; line-height: 1.65; }
     .pill { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .25rem .65rem; font-size: .72rem; margin: .15rem; }
     .key-warn { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.35); border-radius: 9px; padding: .65rem .95rem; font-size: .85rem; color: var(--text); margin-bottom: 1.25rem; line-height: 1.55; }
+
+    /* pattern mastery strip */
+    .diag { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; margin-top: 1.1rem; }
+    .diag h3 { font-size: .95rem; color: var(--text); margin-bottom: .15rem; }
+    .diag .sub { font-size: .78rem; color: var(--muted); margin-bottom: .9rem; line-height: 1.55; }
+    .tbar { display: grid; grid-template-columns: 9.5rem 1fr 4.6rem; gap: .6rem; align-items: center; margin-bottom: .45rem; font-size: .82rem; }
+    .tbar .lbl { color: var(--muted); }
+    .tbar .track { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; height: .55rem; overflow: hidden; }
+    .tbar .fill { height: 100%; border-radius: 99px; }
+    .tbar .val { text-align: right; color: var(--text); font-weight: 700; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: .76rem; }
+    .diag .verdict { margin-top: .8rem; font-size: .85rem; color: var(--text); line-height: 1.65; border-top: 1px solid var(--border); padding-top: .75rem; }
+    .fresh-stat { font-size: .76rem; color: var(--muted); }
+    .bank-bar {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: .6rem 1rem; margin-bottom: .65rem;
+      display: flex; align-items: center; gap: .65rem; flex-wrap: wrap;
+      font-size: .84rem; color: var(--muted);
+    }
+    .bank-bar select {
+      background: var(--surface); color: var(--text); border: 1px solid var(--border);
+      border-radius: 6px; padding: .3rem .5rem; font-size: .82rem; font-family: inherit;
+    }
   </style>
 </head>
 <body>
@@ -102,9 +124,31 @@
     No Gemini API key. You can still draft answers; AI marking and the scorecard need a key.
   </div>
 
+  <div class="bank-bar">
+    <span style="font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">Curated bank</span>
+    <span id="bank-label" style="color:var(--text);"></span>
+    <span style="flex:1;"></span>
+    <button class="btn btn-secondary" id="btn-next-set" style="font-size:.78rem;padding:.35rem .85rem;">Next set →</button>
+  </div>
+
+  <div class="bank-bar">
+    <span style="font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">Pattern drill</span>
+    <span style="color:var(--muted);">Weak on one pattern? Do three of that pattern only.</span>
+    <span style="flex:1;"></span>
+    <select id="drill-pattern">
+      <option value="Reported speech">Reported speech</option>
+      <option value="Although / Despite">Although / Despite</option>
+      <option value="Relative clause">Relative clause</option>
+      <option value="Active / Passive">Active / Passive</option>
+      <option value="If-conditional">If-conditional</option>
+    </select>
+    <button class="btn btn-primary" id="btn-drill" style="font-size:.78rem;padding:.35rem .85rem;">Drill this pattern only</button>
+  </div>
+
   <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
     <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
-    <span style="font-size:.84rem;color:var(--muted);">Five curated items below. Want a fresh five?</span>
+    <span style="font-size:.84rem;color:var(--muted);">Three curated sets in the bank. Want a brand new five?</span>
+    <span class="fresh-stat" id="syn-fresh-stat"></span>
     <span style="flex:1;"></span>
     <button class="btn btn-primary" id="syn-gen-btn" style="font-size:.78rem;padding:.35rem .85rem;">+ Generate 5 fresh items</button>
     <button class="btn btn-secondary" id="syn-gen-clear" style="font-size:.78rem;padding:.35rem .85rem;display:none;">Reset to curated</button>
@@ -114,10 +158,10 @@
   <div id="start-pane">
     <div class="start-card">
       <h2>Ready?</h2>
-      <p>Twelve minutes for five items. The clock auto-submits at zero. Suggestions are auto-revealed only if you ask.</p>
+      <p id="start-blurb">Twelve minutes for five items. The clock auto-submits at zero. Suggestions are auto-revealed only if you ask.</p>
       <p>
-        <span class="pill">5 items × 2m = 10 marks</span>
-        <span class="pill">12 min</span>
+        <span class="pill" id="pill-items">5 items × 2m = 10 marks</span>
+        <span class="pill" id="pill-time">12 min</span>
         <span class="pill">AI Examiner</span>
       </p>
       <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;">
@@ -125,6 +169,7 @@
         <button class="btn btn-secondary" id="btn-untimed">Untimed practice</button>
       </div>
     </div>
+    <div id="diag-pane"></div>
   </div>
 
   <div id="quiz-pane" style="display:none;">
@@ -144,63 +189,396 @@
 <script src="../shared/storage.js"></script>
 <script src="../shared/lab.js"></script>
 <script src="../shared/gemini.js"></script>
+<script src="../shared/freshness.js"></script>
 <script>
-const QUIZ_MS = 12 * 60 * 1000;
+const MS_PER_ITEM = 144000;              // 2 min 24 s each, so five items = 12:00
+const FRESH_BUCKET = 'synthesis';
+const ATTEMPTS_KEY = 'jgl.english.synthesis.attempts';
+const ATTEMPTS_CAP = 60;
 
-let ITEMS = [
+// The five patterns are fixed. Everything the student writes is
+// scored back into one of them, so the weak one cannot hide.
+const PATTERNS = ['Reported speech', 'Although / Despite', 'Relative clause', 'Active / Passive', 'If-conditional'];
+const PATTERN_ADVICE = {
+  'Reported speech': 'Work through it in three fixed steps: back-shift the tense one step into the past, swap the pronouns, then move time and place words (today becomes that day, here becomes there). Do the steps in that order every time.',
+  'Although / Despite': 'Despite and In spite of take a noun or an -ing form. Although takes a full clause with its own subject and verb. Decide which one you are given before you write a single word.',
+  'Relative clause': 'Who for people, which for things, whose for belonging. If the clause is needed to identify which one you mean, use no commas. If it is extra information, fence it with commas.',
+  'Active / Passive': 'Move the object to the front, then build the verb as a form of be plus the past participle, and keep the original tense. The old subject returns at the end after by, if it matters at all.',
+  'If-conditional': 'Name the type first. Type 2 is an unreal present: if plus past simple, then would plus verb. Type 3 is a changed past: if plus had plus past participle, then would have plus past participle.',
+};
+
+function canonPattern(raw) {
+  const s = String(raw == null ? '' : raw).toLowerCase();
+  if (/condition|if\s*-?\s*clause|type\s*[123]|^if\b/.test(s)) return 'If-conditional';
+  if (/passive|active/.test(s)) return 'Active / Passive';
+  if (/relative|defining clause|who\s*\/\s*which/.test(s)) return 'Relative clause';
+  if (/although|despite|in spite|concession/.test(s)) return 'Although / Despite';
+  if (/report/.test(s)) return 'Reported speech';
+  return 'Other';
+}
+
+// ── Curated bank: three full sets, five patterns each ─────
+const SYN_BANK = [
   {
-    pattern: 'Reported speech',
-    source: '"I will help you with your homework after dinner," Aaron said to me.',
-    prefix: 'Aaron told me that...',
-    suggested: '...he would help me with my homework after dinner.',
-    rubric: 'Back-shift tense (will → would), change pronouns (you → me, your → my). 1m grammar + 1m meaning.',
+    id: 'set-classroom',
+    label: 'Set A · school and neighbourhood',
+    items: [
+      {
+        pattern: 'Reported speech',
+        source: '"I will help you with your homework after dinner," Aaron said to me.',
+        prefix: 'Aaron told me that...',
+        suggested: '...he would help me with my homework after dinner.',
+        rubric: 'Back-shift tense (will → would), change pronouns (you → me, your → my). 1m grammar + 1m meaning.',
+      },
+      {
+        pattern: 'Although / Despite',
+        source: 'It was raining heavily. We continued our football match.',
+        prefix: 'Despite...',
+        suggested: 'Despite the heavy rain, we continued our football match.',
+        rubric: '"Despite" must take a noun phrase or -ing form, never a clause. 1m grammar + 1m meaning.',
+      },
+      {
+        pattern: 'Relative clause',
+        source: 'The boy won the spelling bee. The boy is in my class.',
+        prefix: 'The boy...',
+        suggested: 'The boy who is in my class won the spelling bee.',
+        rubric: '"Who" for people, defining relative clause (no commas). 1m grammar + 1m meaning.',
+      },
+      {
+        pattern: 'Active / Passive',
+        source: 'A famous architect designed our new school hall.',
+        prefix: 'Our new school hall...',
+        suggested: 'Our new school hall was designed by a famous architect.',
+        rubric: 'Passive voice: subject becomes object, "by" + agent. Keep past tense. 1m grammar + 1m meaning.',
+      },
+      {
+        pattern: 'If-conditional (Type 2)',
+        source: 'I do not have a pet because my brother is allergic to fur.',
+        prefix: 'If my brother...',
+        suggested: 'If my brother were not allergic to fur, I would have a pet.',
+        rubric: 'Type-2 conditional: if + past simple (were/had), main clause + would + verb. 1m grammar + 1m meaning.',
+      },
+    ],
   },
   {
-    pattern: 'Although / Despite',
-    source: 'It was raining heavily. We continued our football match.',
-    prefix: 'Despite...',
-    suggested: 'Despite the heavy rain, we continued our football match.',
-    rubric: '"Despite" must take a noun phrase or -ing form, never a clause. 1m grammar + 1m meaning.',
+    id: 'set-estate',
+    label: 'Set B · around the estate',
+    items: [
+      {
+        pattern: 'Reported speech',
+        source: '"I have finished cleaning the whiteboard," Priya said to her form teacher.',
+        prefix: 'Priya told her form teacher that...',
+        suggested: '...she had finished cleaning the whiteboard.',
+        rubric: 'Back-shift the present perfect (have finished → had finished) and change the pronoun (I → she). 1m grammar + 1m meaning.',
+      },
+      {
+        pattern: 'Although / Despite',
+        source: 'The queue at the noodle stall was very long. Ravi waited patiently for his lunch.',
+        prefix: 'Although...',
+        suggested: 'Although the queue at the noodle stall was very long, Ravi waited patiently for his lunch.',
+        rubric: '"Although" takes a full clause with its own subject and verb, and the two clauses are joined by a comma. 1m grammar + 1m meaning.',
+      },
+      {
+        pattern: 'Relative clause',
+        source: 'The bicycle was left outside the lift lobby. The bicycle belongs to my neighbour.',
+        prefix: 'The bicycle...',
+        suggested: 'The bicycle which was left outside the lift lobby belongs to my neighbour.',
+        rubric: '"Which" or "that" for things; the relative clause sits right after the noun it describes. 1m grammar + 1m meaning.',
+      },
+      {
+        pattern: 'Active / Passive',
+        source: 'The town council repaired the broken swing last Tuesday.',
+        prefix: 'The broken swing...',
+        suggested: 'The broken swing was repaired by the town council last Tuesday.',
+        rubric: 'Passive in the simple past: was + past participle, then "by" + the original subject. 1m grammar + 1m meaning.',
+      },
+      {
+        pattern: 'If-conditional (Type 2)',
+        source: 'I cannot join the swimming club because I am afraid of deep water.',
+        prefix: 'If I...',
+        suggested: 'If I were not afraid of deep water, I could join the swimming club.',
+        rubric: 'Type-2 conditional: if + past simple (were), main clause + could/would + verb. The meaning stays negative-to-positive. 1m grammar + 1m meaning.',
+      },
+    ],
   },
   {
-    pattern: 'Relative clause',
-    source: 'The boy won the spelling bee. The boy is in my class.',
-    prefix: 'The boy...',
-    suggested: 'The boy who is in my class won the spelling bee.',
-    rubric: '"Who" for people, defining relative clause (no commas). 1m grammar + 1m meaning.',
-  },
-  {
-    pattern: 'Active / Passive',
-    source: 'A famous architect designed our new school hall.',
-    prefix: 'Our new school hall...',
-    suggested: 'Our new school hall was designed by a famous architect.',
-    rubric: 'Passive voice: subject becomes object, "by" + agent. Keep past tense. 1m grammar + 1m meaning.',
-  },
-  {
-    pattern: 'If-conditional (Type 2)',
-    source: 'I do not have a pet because my brother is allergic to fur.',
-    prefix: 'If my brother...',
-    suggested: 'If my brother were not allergic to fur, I would have a pet.',
-    rubric: 'Type-2 conditional: if + past simple (were/had), main clause + would + verb. 1m grammar + 1m meaning.',
+    id: 'set-outing',
+    label: 'Set C · harder turns',
+    items: [
+      {
+        pattern: 'Reported speech (question)',
+        source: '"Where did you put the class attendance file?" Mr Tan asked Siti.',
+        prefix: 'Mr Tan asked Siti where...',
+        suggested: '...she had put the class attendance file.',
+        rubric: 'Reported questions drop the question mark and return to statement word order; back-shift did put → had put and change you → she. 1m grammar + 1m meaning.',
+      },
+      {
+        pattern: 'Although / Despite',
+        source: 'Kumar had a bad cough. He still took part in the choir performance.',
+        prefix: 'Despite...',
+        suggested: 'Despite his bad cough, Kumar still took part in the choir performance.',
+        rubric: '"Despite" + noun phrase (his bad cough). Naming Kumar once is enough; the pronoun comes after. 1m grammar + 1m meaning.',
+      },
+      {
+        pattern: 'Relative clause (whose)',
+        source: 'My aunt sells kueh at the market. Her stall is beside the flower shop.',
+        prefix: 'My aunt, whose...',
+        suggested: 'My aunt, whose stall is beside the flower shop, sells kueh at the market.',
+        rubric: '"Whose" shows belonging. This is extra information about one known person, so it is fenced by two commas. 1m grammar + 1m meaning.',
+      },
+      {
+        pattern: 'Active / Passive (future)',
+        source: 'Volunteers will plant two hundred saplings along the canal next month.',
+        prefix: 'Two hundred saplings...',
+        suggested: 'Two hundred saplings will be planted along the canal by volunteers next month.',
+        rubric: 'Future passive: will be + past participle. Keep the time phrase and the agent. 1m grammar + 1m meaning.',
+      },
+      {
+        pattern: 'If-conditional (Type 3)',
+        source: 'Nadia did not bring her raincoat, so she got soaked on the way home.',
+        prefix: 'If Nadia...',
+        suggested: 'If Nadia had brought her raincoat, she would not have got soaked on the way home.',
+        rubric: 'Type-3 conditional about a changed past: if + had + past participle, main clause + would (not) have + past participle. 1m grammar + 1m meaning.',
+      },
+    ],
   },
 ];
+
+let bankIdx = 0;
+let ITEMS = [];
+let SOURCE_LABEL = '';
+let SOURCE_IS_CURATED = true;
+let attemptMarked = false;
+let quizMs = 5 * MS_PER_ITEM;
 
 const answers = {};
 const aiResults = {};
 let state = { startedAt: null, submitted: false, timed: true };
 let tickHandle = null;
 
+// ── helpers ───────────────────────────────────────────────
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function cloneDeep(o) { return JSON.parse(JSON.stringify(o)); }
+function bankKey(s) {
+  return window.JglFresh ? JglFresh.normKey(s.id || s.label) : String(s.id || s.label);
+}
+// Storage can throw outright, not just return null: Safari private
+// browsing and third-party-cookie-blocked iframes make every
+// localStorage access a SecurityError. This is the first call init()
+// makes, so an unguarded read takes the whole page down before a
+// single listener is bound.
+function getKey() {
+  try {
+    if (window.JglStorage && typeof JglStorage.getGeminiKey === 'function') {
+      const k = JglStorage.getGeminiKey();
+      if (k) return k;
+    }
+  } catch (e) { /* fall through to the raw read */ }
+  try {
+    return localStorage.getItem('jgl.geminiKey') || '';
+  } catch (e) { return ''; }
+}
+function fmtMs(ms) {
+  const mins = Math.max(0, Math.floor(ms / 60000));
+  const secs = Math.max(0, Math.floor((ms % 60000) / 1000));
+  return mins + ':' + secs.toString().padStart(2, '0');
+}
+
+function paintFreshStat() {
+  const el = document.getElementById('syn-fresh-stat');
+  if (!el) return;
+  const s = window.JglFresh ? JglFresh.stats(FRESH_BUCKET) : { total: 0, last7: 0 };
+  el.textContent = s.total ? (s.total + ' sets seen · ' + s.last7 + ' this week') : '';
+}
+function paintSourceLabel() {
+  const el = document.getElementById('bank-label');
+  if (el) el.textContent = SOURCE_LABEL;
+  const marks = ITEMS.length * 2;
+  const pi = document.getElementById('pill-items');
+  const pt = document.getElementById('pill-time');
+  if (pi) pi.textContent = ITEMS.length + ' items × 2m = ' + marks + ' marks';
+  if (pt) pt.textContent = Math.round(quizMs / 60000) + ' min';
+  const meta = document.getElementById('answered-meta');
+  if (meta) meta.textContent = '0 / ' + ITEMS.length + ' answered';
+  const tl = document.getElementById('time-left');
+  if (tl && !state.startedAt) tl.textContent = fmtMs(quizMs);
+}
+
+function setItems(items, label, isCurated) {
+  ITEMS = items;
+  SOURCE_LABEL = label;
+  SOURCE_IS_CURATED = !!isCurated;
+  quizMs = Math.max(MS_PER_ITEM, ITEMS.length * MS_PER_ITEM);
+  paintSourceLabel();
+}
+
+// ── attempt history ───────────────────────────────────────
+function readAttempts() {
+  try {
+    const a = JSON.parse(localStorage.getItem(ATTEMPTS_KEY) || '[]');
+    return Array.isArray(a) ? a : [];
+  } catch (e) { return []; }
+}
+function saveAttempt(rec) {
+  try {
+    const all = readAttempts();
+    all.push(rec);
+    localStorage.setItem(ATTEMPTS_KEY, JSON.stringify(all.slice(-ATTEMPTS_CAP)));
+  } catch (e) { /* quota — degrade quietly */ }
+}
+
+function aggregateByPattern() {
+  const agg = {};
+  PATTERNS.forEach(function (p) { agg[p] = { got: 0, max: 0 }; });
+  readAttempts().forEach(function (a) {
+    const bp = (a && a.byPattern) || {};
+    Object.keys(bp).forEach(function (p) {
+      const key = PATTERNS.indexOf(p) !== -1 ? p : canonPattern(p);
+      if (key === 'Other') return;
+      if (!agg[key]) agg[key] = { got: 0, max: 0 };
+      const v = bp[p] || {};
+      agg[key].got += Number(v.got) || 0;
+      agg[key].max += Number(v.max) || 0;
+    });
+  });
+  return agg;
+}
+
+function renderDiagnosis(targetId) {
+  const id = targetId || 'diag-pane';
+  const pane = document.getElementById(id);
+  if (!pane) return;
+  const attempts = readAttempts();
+  if (!attempts.length) { pane.innerHTML = ''; return; }
+
+  const agg = aggregateByPattern();
+  const rows = PATTERNS
+    .map(function (p) { return { pattern: p, got: agg[p].got, max: agg[p].max }; })
+    .filter(function (r) { return r.max > 0; });
+  if (!rows.length) { pane.innerHTML = ''; return; }
+
+  rows.forEach(function (r) { r.pct = Math.round((r.got / r.max) * 100); });
+  const ordered = rows.slice().sort(function (a, b) { return a.pct - b.pct || b.max - a.max; });
+
+  let bars = '';
+  PATTERNS.forEach(function (p) {
+    const r = rows.filter(function (x) { return x.pattern === p; })[0];
+    if (!r) {
+      bars += '<div class="tbar">' +
+        '<span class="lbl">' + esc(p) + '</span>' +
+        '<span class="track"></span>' +
+        '<span class="val" style="color:var(--muted);font-weight:400;">not yet</span>' +
+        '</div>';
+      return;
+    }
+    const colour = r.pct >= 80 ? '#4ade80' : (r.pct >= 55 ? '#fbbf24' : '#f87171');
+    bars += '<div class="tbar">' +
+      '<span class="lbl">' + esc(p) + '</span>' +
+      '<span class="track"><span class="fill" style="width:' + r.pct + '%;background:' + colour + ';"></span></span>' +
+      '<span class="val">' + r.pct + '% <span style="color:var(--muted);font-weight:400;">' + r.got + '/' + r.max + '</span></span>' +
+      '</div>';
+  });
+
+  const candidates = ordered.filter(function (r) { return r.max >= 4; });
+  const weakest = candidates.length ? candidates[0] : ordered[0];
+  const totalGot = rows.reduce(function (s, r) { return s + r.got; }, 0);
+  const totalMax = rows.reduce(function (s, r) { return s + r.max; }, 0);
+  const overall = Math.round((totalGot / totalMax) * 100);
+
+  let verdict;
+  if (weakest.pct >= 85) {
+    verdict = 'All five patterns are holding. You are at ' + overall + '% across ' + attempts.length +
+      ' sprint' + (attempts.length === 1 ? '' : 's') + '. Generate a fresh set so the sentences stay unfamiliar.';
+  } else {
+    verdict = '<strong>' + esc(weakest.pattern) + '</strong> is your weakest pattern: ' + weakest.got +
+      ' of ' + weakest.max + ' marks (' + weakest.pct + '%), against ' + overall + '% overall. ' +
+      esc(PATTERN_ADVICE[weakest.pattern] || '');
+  }
+
+  const btnId = 'btn-diag-drill-' + id;
+  const cta = (weakest.pct >= 85)
+    ? ''
+    : '<div style="margin-top:.7rem;"><button class="btn btn-primary" id="' + btnId + '" style="font-size:.78rem;padding:.35rem .85rem;">Drill ' + esc(weakest.pattern) + ' only</button></div>';
+
+  pane.innerHTML =
+    '<div class="diag">' +
+      '<h3>Pattern mastery</h3>' +
+      '<div class="sub">Marks earned per pattern across ' + attempts.length + ' sprint' + (attempts.length === 1 ? '' : 's') + '. Students almost always lose Synthesis marks in one or two places, not everywhere.</div>' +
+      bars +
+      '<div class="verdict">' + verdict + cta + '</div>' +
+    '</div>';
+
+  const dBtn = document.getElementById(btnId);
+  if (dBtn) dBtn.addEventListener('click', function () {
+    const sel = document.getElementById('drill-pattern');
+    if (sel) sel.value = weakest.pattern;
+    runPatternDrill();
+  });
+}
+
+// ── boot ──────────────────────────────────────────────────
+function pickCuratedStart() {
+  let chosen = SYN_BANK[0];
+  if (window.JglFresh) chosen = JglFresh.pickUnseen(FRESH_BUCKET, SYN_BANK, bankKey) || SYN_BANK[0];
+  bankIdx = Math.max(0, SYN_BANK.indexOf(chosen));
+  setItems(cloneDeep(SYN_BANK[bankIdx].items), SYN_BANK[bankIdx].label, true);
+}
+
 function init() {
-  const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
-  if (!key) document.getElementById('key-warn').style.display = 'block';
-  document.getElementById('btn-start').addEventListener('click',     () => startQuiz(true));
-  document.getElementById('btn-untimed').addEventListener('click',  () => startQuiz(false));
-  document.getElementById('btn-submit-all').addEventListener('click', () => { if (!state.submitted && confirm('Submit all answers for marking?')) submitAll(); });
+  pickCuratedStart();
+  if (!getKey()) document.getElementById('key-warn').style.display = 'block';
+  document.getElementById('btn-start').addEventListener('click',    function () { startQuiz(true); });
+  document.getElementById('btn-untimed').addEventListener('click',  function () { startQuiz(false); });
+  document.getElementById('btn-submit-all').addEventListener('click', function () {
+    if (!state.submitted && confirm('Submit all answers for marking?')) submitAll();
+  });
+  document.getElementById('btn-next-set').addEventListener('click', function () {
+    if (state.startedAt && !state.submitted && !confirm('Switch item set and reset the clock?')) return;
+    bankIdx = (bankIdx + 1) % SYN_BANK.length;
+    setItems(cloneDeep(SYN_BANK[bankIdx].items), SYN_BANK[bankIdx].label, true);
+    attemptMarked = false;
+    document.getElementById('syn-gen-clear').style.display = 'none';
+    document.getElementById('syn-gen-status').textContent = 'Switched to ' + SYN_BANK[bankIdx].label + '.';
+    resetToStart();
+  });
+  document.getElementById('btn-drill').addEventListener('click', runPatternDrill);
+  paintSourceLabel();
+  paintFreshStat();
+  renderDiagnosis();
+}
+
+function resetToStart() {
+  if (tickHandle) clearInterval(tickHandle);
+  state = { startedAt: null, submitted: false, timed: true };
+  Object.keys(answers).forEach(function (k) { delete answers[k]; });
+  Object.keys(aiResults).forEach(function (k) { delete aiResults[k]; });
+  const sb = document.getElementById('btn-submit-all');
+  sb.disabled = false;
+  sb.style.display = '';
+  sb.textContent = 'Submit all for marking';
+  document.getElementById('start-pane').style.display = '';
+  document.getElementById('quiz-pane').style.display = 'none';
+  document.getElementById('result-pane').style.display = 'none';
+  document.getElementById('result-pane').innerHTML = '';
+  document.getElementById('items').innerHTML = '';
+  paintSourceLabel();
+  paintFreshStat();
+  renderDiagnosis();
 }
 
 function startQuiz(timed) {
   state.timed = timed;
   state.startedAt = Date.now();
+  // Mark the curated set as seen only when it is actually attempted.
+  if (SOURCE_IS_CURATED && !attemptMarked && window.JglFresh) {
+    JglFresh.mark(FRESH_BUCKET, bankKey(SYN_BANK[bankIdx]), { title: SYN_BANK[bankIdx].label, type: 'curated set' });
+    attemptMarked = true;
+    paintFreshStat();
+  }
   document.getElementById('start-pane').style.display = 'none';
   document.getElementById('quiz-pane').style.display  = 'block';
   renderItems();
@@ -210,37 +588,36 @@ function startQuiz(timed) {
 function renderItems() {
   const wrap = document.getElementById('items');
   wrap.innerHTML = '';
-  ITEMS.forEach((it, idx) => {
+  ITEMS.forEach(function (it, idx) {
     const card = document.createElement('div');
     card.className = 'item';
     card.dataset.idx = idx;
-    card.innerHTML = `
-      <div class="num-tag">Q${idx + 1} of ${ITEMS.length}</div>
-      <span class="pattern">${it.pattern}</span>
-      <div class="source"><strong>Source:</strong> ${it.source}</div>
-      <div class="rewrite-prefix">Rewrite, starting with: <strong>${it.prefix}</strong></div>
-      <textarea data-idx="${idx}" placeholder="Type your full rewritten sentence here."></textarea>
-      <div class="row">
-        <span style="font-size:.78rem;color:var(--muted);" class="wc">0 words</span>
-      </div>
-      <div class="feedback" data-idx="${idx}">
-        <h4>Marker pass</h4>
-        <pre></pre>
-        <div style="margin-top:.55rem;">
-          <button class="reveal-toggle">▼ Show a suggested rewrite</button>
-          <div class="reveal-block">${it.suggested}<div style="font-size:.76rem;color:var(--muted);margin-top:.35rem;">${it.rubric}</div></div>
-        </div>
-      </div>
-    `;
+    card.innerHTML =
+      '<div class="num-tag">Q' + (idx + 1) + ' of ' + ITEMS.length + '</div>' +
+      '<span class="pattern">' + esc(it.pattern) + '</span>' +
+      '<div class="source"><strong>Source:</strong> ' + esc(it.source) + '</div>' +
+      '<div class="rewrite-prefix">Rewrite, starting with: <strong>' + esc(it.prefix) + '</strong></div>' +
+      '<textarea data-idx="' + idx + '" placeholder="Type your full rewritten sentence here."></textarea>' +
+      '<div class="row"><span style="font-size:.78rem;color:var(--muted);" class="wc">0 words</span></div>' +
+      '<div class="feedback" data-idx="' + idx + '">' +
+        '<h4>Marker pass</h4>' +
+        '<pre></pre>' +
+        '<div style="margin-top:.55rem;">' +
+          '<button class="reveal-toggle">▼ Show a suggested rewrite</button>' +
+          '<div class="reveal-block">' + esc(it.suggested) +
+            '<div style="font-size:.76rem;color:var(--muted);margin-top:.35rem;">' + esc(it.rubric) + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
     const ta = card.querySelector('textarea');
     const wc = card.querySelector('.wc');
-    ta.addEventListener('input', () => {
+    ta.addEventListener('input', function () {
       answers[idx] = ta.value;
       const n = ta.value.trim().split(/\s+/).filter(Boolean).length;
-      wc.textContent = `${n} word${n === 1 ? '' : 's'}`;
+      wc.textContent = n + ' word' + (n === 1 ? '' : 's');
       updateMeta();
     });
-    card.querySelector('.reveal-toggle').addEventListener('click', () => {
+    card.querySelector('.reveal-toggle').addEventListener('click', function () {
       const blk = card.querySelector('.reveal-block');
       blk.classList.toggle('show');
       card.querySelector('.reveal-toggle').textContent = blk.classList.contains('show') ? '▲ Hide suggested rewrite' : '▼ Show a suggested rewrite';
@@ -250,8 +627,8 @@ function renderItems() {
 }
 
 function updateMeta() {
-  const n = Object.values(answers).filter(v => v && v.trim()).length;
-  document.getElementById('answered-meta').textContent = `${n} / ${ITEMS.length} answered`;
+  const n = Object.values(answers).filter(function (v) { return v && v.trim(); }).length;
+  document.getElementById('answered-meta').textContent = n + ' / ' + ITEMS.length + ' answered';
 }
 
 function startTicker() {
@@ -261,7 +638,7 @@ function startTicker() {
 }
 function tick() {
   if (!state.startedAt || state.submitted) return;
-  const left = QUIZ_MS - (Date.now() - state.startedAt);
+  const left = quizMs - (Date.now() - state.startedAt);
   paintTime(left);
   if (left <= 0) submitAll();
 }
@@ -269,10 +646,10 @@ function paintTime(ms) {
   const display = document.getElementById('time-left');
   const mins = Math.max(0, Math.floor(ms / 60000));
   const secs = Math.max(0, Math.floor((ms % 60000) / 1000));
-  display.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+  display.textContent = mins.toString().padStart(2, '0') + ':' + secs.toString().padStart(2, '0');
   display.classList.remove('warn','crit');
-  if (ms <= 60_000)       display.classList.add('crit');
-  else if (ms <= 180_000) display.classList.add('warn');
+  if (ms <= 60000)       display.classList.add('crit');
+  else if (ms <= 180000) display.classList.add('warn');
 }
 
 async function submitAll() {
@@ -280,55 +657,127 @@ async function submitAll() {
   state.submitted = true;
   if (tickHandle) clearInterval(tickHandle);
 
-  document.getElementById('btn-submit-all').disabled = true;
-  document.getElementById('btn-submit-all').textContent = 'Marking…';
+  const submitBtn = document.getElementById('btn-submit-all');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Marking…';
 
-  // Mark all in parallel via AI; fall back if no key
-  const key = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  const key = getKey();
   if (!key) {
-    ITEMS.forEach((_, idx) => { aiResults[idx] = 'No Gemini key set. Open How-to-use to add one, then retry.'; });
+    ITEMS.forEach(function (_, idx) { aiResults[idx] = 'No Gemini key set. Open How-to-use to add one, then retry.'; });
   } else {
-    await Promise.all(ITEMS.map((it, idx) => markOne(idx, it).catch(e => { aiResults[idx] = 'Marker error: ' + (e?.message || e); })));
+    await Promise.all(ITEMS.map(function (it, idx) {
+      return markOne(idx, it).catch(function (e) { aiResults[idx] = 'Marker error: ' + ((e && e.message) || e); });
+    }));
   }
 
-  // Render feedback inline + total scorecard
   let totalGot = 0;
   let totalMax = 0;
-  ITEMS.forEach((it, idx) => {
-    const fbEl = document.querySelector(`.feedback[data-idx="${idx}"]`);
+  let parsed = 0;
+  const byPattern = {};
+
+  ITEMS.forEach(function (it, idx) {
+    const fbEl = document.querySelector('.feedback[data-idx="' + idx + '"]');
     if (fbEl) {
       fbEl.classList.add('show');
       fbEl.querySelector('pre').textContent = aiResults[idx] || '(no marker pass)';
     }
     const m = (aiResults[idx] || '').match(/MARK:\s*(\d+)\s*\/\s*(\d+)/);
-    if (m) { totalGot += Number(m[1]); totalMax += Number(m[2]); }
-    else   { totalMax += 2; }
+    const got = m ? Number(m[1]) : 0;
+    const max = m ? Number(m[2]) : 2;
+    totalGot += got;
+    totalMax += max;
+
+    // Only a line the marker actually returned counts towards the
+    // pattern strip. A marker error is not evidence of weakness.
+    const p = canonPattern(it.pattern);
+    if (m && p !== 'Other') {
+      parsed += 1;
+      if (!byPattern[p]) byPattern[p] = { got: 0, max: 0 };
+      byPattern[p].got += got;
+      byPattern[p].max += max;
+    }
   });
 
-  if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('synthesis');
+  // Only record a real marked run; an unmarked run would poison the strip.
+  if (key && parsed) {
+    saveAttempt({
+      iso: new Date().toISOString(),
+      total: totalGot,
+      max: totalMax,
+      label: SOURCE_LABEL,
+      byPattern: byPattern,
+    });
+  }
+
+  // Progress.set writes to localStorage without a guard of its own, so a
+  // full quota or a blocked store would throw here and abort the rest of
+  // submitAll: no scorecard, no feedback. A progress ping is not worth
+  // losing the student's marked sprint over.
+  try {
+    if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('synthesis');
+  } catch (e) { /* progress is best-effort */ }
+
+  let runBars = '';
+  Object.keys(byPattern).forEach(function (p) {
+    const v = byPattern[p];
+    const pct = v.max ? Math.round((v.got / v.max) * 100) : 0;
+    const colour = pct >= 80 ? '#4ade80' : (pct >= 55 ? '#fbbf24' : '#f87171');
+    runBars += '<div class="tbar">' +
+      '<span class="lbl">' + esc(p) + '</span>' +
+      '<span class="track"><span class="fill" style="width:' + pct + '%;background:' + colour + ';"></span></span>' +
+      '<span class="val">' + v.got + '/' + v.max + '</span>' +
+      '</div>';
+  });
+
+  // Nothing was marked, so there is no score. Printing 0 / 10 here would
+  // read as "you scored zero" when in fact the marker never ran.
+  const scoreBlock = parsed
+    ? '<div class="num">' + totalGot + ' / ' + totalMax + '</div>' +
+      '<div style="color:var(--muted);font-size:.85rem;margin-top:.55rem;">Each item: 1 mark grammar + 1 mark meaning. Scroll up to read the marker’s per-item feedback.</div>'
+    : '<div style="color:var(--text);font-size:.9rem;line-height:1.65;margin-top:.35rem;">' +
+        (key
+          ? 'The marker did not return a score this time, so there is nothing to total. Your answers are still above; open each item and compare against the suggested rewrite.'
+          : 'No score: there is no Gemini key set, so nothing was marked. Your answers are still above. Open “Show a suggested rewrite” on each item and compare against it yourself, then check the rubric line underneath.') +
+      '</div>';
 
   const r = document.getElementById('result-pane');
   r.style.display = 'block';
-  r.innerHTML = `
-    <div class="scorecard">
-      <h3>Synthesis Sprint — Scorecard</h3>
-      <div class="num">${totalGot} / ${totalMax}</div>
-      <div style="color:var(--muted);font-size:.85rem;margin-top:.55rem;">Each item: 1 mark grammar + 1 mark meaning. Scroll up to read the marker's per-item feedback.</div>
-      <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;">
-        <a class="btn btn-primary" href="./">Retry</a>
-        <a class="btn btn-secondary" href="../">← Hub</a>
-        <a class="btn btn-secondary" href="../topics/synthesis/">Open Synthesis topic</a>
-      </div>
-    </div>
-  `;
-  document.getElementById('btn-submit-all').style.display = 'none';
+  r.innerHTML =
+    '<div class="scorecard">' +
+      '<h3>Synthesis Sprint — ' + (parsed ? 'Scorecard' : 'Not marked') + '</h3>' +
+      scoreBlock +
+      '<div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;">' +
+        '<button class="btn btn-primary" id="btn-next-after">Next set →</button>' +
+        '<a class="btn btn-secondary" href="./">Retry</a>' +
+        '<a class="btn btn-secondary" href="../">← Hub</a>' +
+        '<a class="btn btn-secondary" href="../topics/synthesis/">Open Synthesis topic</a>' +
+      '</div>' +
+    '</div>' +
+    (runBars ? '<div class="diag"><h3>This sprint by pattern</h3><div class="sub">Marks earned on each pattern you just attempted.</div>' + runBars + '</div>' : '') +
+    '<div id="diag-after"></div>';
+
+  const nextBtn = document.getElementById('btn-next-after');
+  if (nextBtn) nextBtn.addEventListener('click', function () {
+    bankIdx = (bankIdx + 1) % SYN_BANK.length;
+    setItems(cloneDeep(SYN_BANK[bankIdx].items), SYN_BANK[bankIdx].label, true);
+    attemptMarked = false;
+    document.getElementById('syn-gen-clear').style.display = 'none';
+    document.getElementById('syn-gen-status').textContent = 'Loaded ' + SYN_BANK[bankIdx].label + '.';
+    resetToStart();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  submitBtn.style.display = 'none';
+  renderDiagnosis();
+  renderDiagnosis('diag-after');
+  paintFreshStat();
   r.scrollIntoView({ behavior: 'smooth' });
 }
 
 async function markOne(idx, it) {
   const ans = (answers[idx] || '').trim();
-  const sys = 'You are an experienced PSLE English Language examiner marking Synthesis & Transformation items. Each item is 2 marks: 1 for grammar (form, accuracy) and 1 for meaning (does it preserve the original meaning exactly?). Plain text only. No markdown. Output EXACTLY:\nMARK: <x>/2\nGRAMMAR: <ok|partial|missing> — <1 short reason>\nMEANING: <ok|partial|missing> — <1 short reason>\nFIX: <one-sentence model rewrite if not full marks>';
-  const prompt = `PATTERN: ${it.pattern}\nSOURCE: ${it.source}\nREQUIRED PREFIX: "${it.prefix}"\nRUBRIC: ${it.rubric}\n\nSTUDENT ANSWER: """${ans || '(blank)'}"""`;
+  const sys = 'You are an experienced PSLE English Language examiner marking Synthesis & Transformation items. Each item is 2 marks: 1 for grammar (form, accuracy) and 1 for meaning (does it preserve the original meaning exactly?). Plain text only. No markdown. No emoji. Output EXACTLY:\nMARK: <x>/2\nGRAMMAR: <ok|partial|missing> — <1 short reason>\nMEANING: <ok|partial|missing> — <1 short reason>\nFIX: <one-sentence model rewrite if not full marks>';
+  const prompt = 'PATTERN: ' + it.pattern + '\nSOURCE: ' + it.source + '\nREQUIRED PREFIX: "' + it.prefix + '"\nRUBRIC: ' + it.rubric + '\n\nSTUDENT ANSWER: """' + (ans || '(blank)') + '"""';
   aiResults[idx] = await window.askGemini({ system: sys, prompt, temperature: 0.25, maxTokens: 250, thinkingBudget: 0 });
 }
 
@@ -336,23 +785,40 @@ init();
 
 // ── AI items generator ───────────────────────────────────
 const SYN_GEN_CACHE_KEY = 'jgl.english.synthesis.generated';
-const SYN_CURATED = JSON.parse(JSON.stringify(ITEMS));
 
 (function rehydrateSyn() {
   try {
     const cached = JSON.parse(localStorage.getItem(SYN_GEN_CACHE_KEY) || 'null');
-    if (cached && Array.isArray(cached) && cached.length) {
-      ITEMS = cached;
+    // Run the cache back through the same shape check the generator uses.
+    // A stale or half-written cache would otherwise replace the curated
+    // bank with items that have no source and no prefix: unanswerable.
+    const items = Array.isArray(cached) ? normaliseItems(cached) : [];
+    if (items.length) {
+      setItems(items, 'AI-generated items from your last session', false);
+      attemptMarked = true;
       document.getElementById('syn-gen-clear').style.display = 'inline-block';
       document.getElementById('syn-gen-status').textContent = 'Showing AI-generated items from your last session.';
     }
-  } catch {}
+  } catch (e) {}
 })();
 
-document.getElementById('syn-gen-btn').addEventListener('click', async () => {
-  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+function avoidBlockFor(bucket) {
+  const avoid = (window.JglFresh ? JglFresh.avoidList(bucket, 12) : []);
+  return avoid.length
+    ? '\n\nDo NOT produce anything similar in topic, setting, character names, or wording to any of these, which the student has already seen:\n' + avoid.map(function (a) { return '- ' + a; }).join('\n')
+    : '';
+}
+
+function markGenerated(items, label, type) {
+  if (!window.JglFresh || !items.length) return;
+  const body = String(items[0].source || '').slice(0, 60);
+  JglFresh.mark(FRESH_BUCKET, JglFresh.normKey(label + '|' + body), { title: label, type: type });
+  paintFreshStat();
+}
+
+document.getElementById('syn-gen-btn').addEventListener('click', async function () {
   const status = document.getElementById('syn-gen-status');
-  if (!k) { status.textContent = 'No Gemini key set.'; return; }
+  if (!getKey()) { status.textContent = 'No Gemini key set.'; return; }
   if (state.startedAt && !state.submitted) {
     if (!confirm('Replace the items and reset the clock?')) return;
   }
@@ -360,75 +826,147 @@ document.getElementById('syn-gen-btn').addEventListener('click', async () => {
   document.getElementById('syn-gen-btn').disabled = true;
   try {
     const items = await generateSynItems();
-    ITEMS = items;
-    try { localStorage.setItem(SYN_GEN_CACHE_KEY, JSON.stringify(items)); } catch {}
+    const label = 'Fresh five: ' + String(items[0].source || '').slice(0, 48);
+    markGenerated(items, label, 'five-pattern set');
+    setItems(items, 'AI-generated five', false);
+    attemptMarked = true;
+    try { localStorage.setItem(SYN_GEN_CACHE_KEY, JSON.stringify(items)); } catch (e) {}
     document.getElementById('syn-gen-clear').style.display = 'inline-block';
-    status.textContent = `Five fresh items ready. Start the sprint to begin.`;
-    state = { startedAt: null, submitted: false, timed: true };
-    Object.keys(answers).forEach(k => delete answers[k]);
-    Object.keys(aiResults).forEach(k => delete aiResults[k]);
-    document.getElementById('start-pane').style.display = '';
-    document.getElementById('quiz-pane').style.display = 'none';
-    document.getElementById('result-pane').style.display = 'none';
-    document.getElementById('result-pane').innerHTML = '';
+    status.textContent = 'Five fresh items ready. Start the sprint to begin.';
+    resetToStart();
   } catch (e) {
-    status.textContent = 'Generator error: ' + (e?.message || e);
+    status.textContent = 'Generator error: ' + ((e && e.message) || e);
   } finally {
     document.getElementById('syn-gen-btn').disabled = false;
   }
 });
 
-document.getElementById('syn-gen-clear').addEventListener('click', () => {
+document.getElementById('syn-gen-clear').addEventListener('click', function () {
   if (!confirm('Reset to the curated items?')) return;
-  try { localStorage.removeItem(SYN_GEN_CACHE_KEY); } catch {}
-  ITEMS = JSON.parse(JSON.stringify(SYN_CURATED));
+  try { localStorage.removeItem(SYN_GEN_CACHE_KEY); } catch (e) {}
+  pickCuratedStart();
+  attemptMarked = false;
   document.getElementById('syn-gen-clear').style.display = 'none';
   document.getElementById('syn-gen-status').textContent = '';
+  resetToStart();
 });
+
+function normaliseItems(arr, forcedPattern) {
+  return arr.map(function (it) {
+    return {
+      pattern: forcedPattern || String(it.pattern || 'Pattern'),
+      source: String(it.source || ''),
+      prefix: String(it.prefix || ''),
+      suggested: String(it.suggested || ''),
+      rubric: String(it.rubric || '1 mark grammar + 1 mark meaning.'),
+    };
+  }).filter(function (it) { return it.source && it.prefix; });
+}
 
 async function generateSynItems() {
   const sys = 'You are a PSLE English Paper 2 Synthesis & Transformation item writer. Output VALID JSON ONLY. Primary 6 level. Each item must preserve meaning when rewritten and have a clear single intended pattern.';
-  const prompt = `Generate FIVE Synthesis & Transformation items, ONE per pattern, in this order:
-1. Reported speech (direct -> reported)
-2. Although / Despite (combine using one of those connectors, respecting the noun-vs-clause rule)
-3. Relative clause (combine two sentences using who/which/that)
-4. Active / Passive (rewrite an active sentence in the passive)
-5. If-conditional (Type 2) (rewrite a fact-based sentence as a Type-2 conditional)
-
-Output JSON with EXACTLY:
-{
-  "items": [
-    {
-      "pattern": "Reported speech",
-      "source": "<the source sentence(s) — for reported speech, a direct quote with said/told>",
-      "prefix": "<the rewrite prefix the student is asked to start with, e.g. \\"He told me that...\\">",
-      "suggested": "<a model rewrite that earns full marks>",
-      "rubric": "<1-2 sentence rubric for marking grammar (1m) and meaning (1m)>"
-    },
-    ... 4 more, in the order above ...
-  ]
-}
-
-Constraints:
-- Singapore-friendly settings, no famous names.
-- Each "suggested" rewrite must be flawless: the student is comparing.
-- "prefix" must be the literal start of the model rewrite, e.g. "Despite", "The boy", "He told me that".
-- For the Despite item, USE "Despite" + noun/-ing (or "Although" + clause) — make sure the rule is clearly tested.
-- No emoji.`;
+  const prompt = 'Generate FIVE Synthesis & Transformation items, ONE per pattern, in this order:\n' +
+'1. Reported speech (direct to reported)\n' +
+'2. Although / Despite (combine using one of those connectors, respecting the noun-vs-clause rule)\n' +
+'3. Relative clause (combine two sentences using who/which/that/whose)\n' +
+'4. Active / Passive (rewrite an active sentence in the passive)\n' +
+'5. If-conditional (rewrite a fact-based sentence as a Type 2 or Type 3 conditional)\n\n' +
+'Output JSON with EXACTLY:\n' +
+'{\n' +
+'  "items": [\n' +
+'    {\n' +
+'      "pattern": "Reported speech",\n' +
+'      "source": "<the source sentence(s); for reported speech, a direct quote with said/told/asked>",\n' +
+'      "prefix": "<the rewrite prefix the student must start with, for example: He told me that...>",\n' +
+'      "suggested": "<a model rewrite that earns full marks>",\n' +
+'      "rubric": "<1-2 sentence rubric for marking grammar (1m) and meaning (1m)>"\n' +
+'    },\n' +
+'    ... 4 more, in the order above ...\n' +
+'  ]\n' +
+'}\n\n' +
+'Constraints:\n' +
+'- Singapore-friendly everyday settings, no famous names.\n' +
+'- Each "suggested" rewrite must be flawless: the student is comparing against it.\n' +
+'- "prefix" must be the literal start of the model rewrite, for example: Despite, The boy, He told me that.\n' +
+'- For the Despite item, use Despite plus a noun or -ing form, or Although plus a full clause, so the rule is clearly tested.\n' +
+'- Keep the "pattern" field exactly as named in the list above.\n' +
+'- Write for a 12-year-old Singaporean student: calm and specific.\n' +
+'- No emoji.' + avoidBlockFor(FRESH_BUCKET);
 
   const json = await window.askGemini({
     system: sys, prompt,
-    temperature: 0.7, maxTokens: 1500, thinkingBudget: 0,
+    temperature: 0.85, maxTokens: 1600, thinkingBudget: 0,
     responseMimeType: 'application/json', asJson: true,
   });
   if (!json || !Array.isArray(json.items) || json.items.length < 3) throw new Error('Unexpected response shape.');
-  return json.items.slice(0, 5).map(it => ({
-    pattern: it.pattern || 'Pattern',
-    source: it.source || '',
-    prefix: it.prefix || '',
-    suggested: it.suggested || '',
-    rubric: it.rubric || '1 mark grammar + 1 mark meaning.',
-  }));
+  const items = normaliseItems(json.items.slice(0, 5));
+  if (!items.length) throw new Error('Unexpected response shape.');
+  return items;
+}
+
+// ── Single-pattern drill: three items, one weakness ───────
+async function runPatternDrill() {
+  const status = document.getElementById('syn-gen-status');
+  const sel = document.getElementById('drill-pattern');
+  const pattern = sel ? sel.value : PATTERNS[0];
+  if (!getKey()) { status.textContent = 'No Gemini key set.'; return; }
+  if (state.startedAt && !state.submitted) {
+    if (!confirm('Replace the items with a ' + pattern + ' drill and reset the clock?')) return;
+  }
+  const btn = document.getElementById('btn-drill');
+  status.textContent = 'Generating three ' + pattern + ' items…';
+  btn.disabled = true;
+  try {
+    const items = await generatePatternDrill(pattern);
+    const label = pattern + ' drill: ' + String(items[0].source || '').slice(0, 40);
+    markGenerated(items, label, pattern + ' drill');
+    setItems(items, pattern + ' drill (3 items)', false);
+    attemptMarked = true;
+    document.getElementById('syn-gen-clear').style.display = 'inline-block';
+    status.textContent = 'Three ' + pattern + ' items ready. Start the sprint to begin.';
+    resetToStart();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (e) {
+    status.textContent = 'Drill error: ' + ((e && e.message) || e);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function generatePatternDrill(pattern) {
+  const sys = 'You are a PSLE English Paper 2 Synthesis & Transformation item writer. Output VALID JSON ONLY. Primary 6 level. Every item must test the one pattern you are given, and must preserve meaning when rewritten.';
+  const prompt = 'Generate THREE Synthesis & Transformation items that ALL test ONE pattern only: ' + pattern + '.\n\n' +
+'The three items must get gradually harder: the first is a plain textbook case, the second adds a small twist, the third is the kind that catches Primary 6 students out.\n\n' +
+'Output JSON with EXACTLY:\n' +
+'{\n' +
+'  "items": [\n' +
+'    {\n' +
+'      "pattern": "' + pattern + '",\n' +
+'      "source": "<the source sentence(s)>",\n' +
+'      "prefix": "<the literal start of the model rewrite>",\n' +
+'      "suggested": "<a model rewrite that earns full marks>",\n' +
+'      "rubric": "<1-2 sentences naming the exact rule being tested, for grammar (1m) and meaning (1m)>"\n' +
+'    },\n' +
+'    ... 2 more ...\n' +
+'  ]\n' +
+'}\n\n' +
+'Constraints:\n' +
+'- All three items test ' + pattern + ' and nothing else.\n' +
+'- Singapore-friendly everyday settings, no famous names.\n' +
+'- Each "suggested" rewrite must be flawless: the student is comparing against it.\n' +
+'- The rubric must name the rule plainly, so the student learns the rule and not just the answer.\n' +
+'- Write for a 12-year-old Singaporean student: calm and specific.\n' +
+'- No emoji.' + avoidBlockFor(FRESH_BUCKET);
+
+  const json = await window.askGemini({
+    system: sys, prompt,
+    temperature: 0.85, maxTokens: 1200, thinkingBudget: 0,
+    responseMimeType: 'application/json', asJson: true,
+  });
+  if (!json || !Array.isArray(json.items) || !json.items.length) throw new Error('Unexpected response shape.');
+  const items = normaliseItems(json.items.slice(0, 3), pattern);
+  if (!items.length) throw new Error('Unexpected response shape.');
+  return items;
 }
 </script>
 </body>

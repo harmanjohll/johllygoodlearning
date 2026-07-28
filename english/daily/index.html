@@ -78,6 +78,8 @@
     .pill { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .25rem .65rem; font-size: .72rem; margin: .15rem; }
 
     .skip-row { display: flex; justify-content: space-between; gap: .5rem; margin: 1rem 0 0; flex-wrap: wrap; }
+
+    .fresh-line { font-size: .76rem; color: var(--muted); margin: .15rem 0; line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -94,8 +96,8 @@
   <div class="hero">
     <h1>Today's Daily 10</h1>
     <p>
-      Ten mixed questions drawn from every section of the English papers. The set is the same for everyone
-      today — a fresh ten land tomorrow. Aim for 7 out of 10 to keep the daily streak alive.
+      Ten mixed questions drawn from every section of the English papers. Questions you have already answered
+      are held back, so a fresh ten land each day. Aim for 7 out of 10 to keep the daily streak alive.
     </p>
   </div>
 
@@ -110,9 +112,14 @@
         <span class="pill">Auto-marked</span>
         <span class="pill">10 min</span>
       </p>
+      <div class="fresh-line" id="fresh-readout"></div>
+      <div class="fresh-line" id="pool-readout"></div>
       <div class="skip-row" style="justify-content:center;">
         <button class="btn btn-primary" id="btn-start">Start the Daily 10</button>
         <button class="btn btn-secondary" id="btn-skip-timer">Start without timer (review mode)</button>
+      </div>
+      <div class="skip-row" style="justify-content:center;margin-top:.5rem;">
+        <button class="btn btn-ghost" id="btn-reshuffle" style="font-size:.78rem;padding:.35rem .85rem;">🔀 Shuffle me a different ten</button>
       </div>
     </div>
   </div>
@@ -138,6 +145,7 @@
 <script src="../shared.js"></script>
 <script src="../shared/storage.js"></script>
 <script src="../shared/lab.js"></script>
+<script src="../shared/freshness.js"></script>
 <script>
 const STREAK_KEY = 'jgl.english.daily';   // { dates: { 'YYYY-MM-DD': score } }
 const QUIZ_MS    = 10 * 60 * 1000;
@@ -159,6 +167,9 @@ const TOPIC_SOURCES = [
 const PAPER_COLOR = {
   P1: '#fb7185', P2: '#60a5fa', P3: '#e879f9', P4: '#fbbf24',
 };
+// Only ever returns a colour from the fixed map above, so it is safe to
+// interpolate into a style attribute.
+function paperColor(p) { return PAPER_COLOR[p] || '#a78bfa'; }
 
 // ── State ──────────────────────────────────────────────────
 let allItems = [];          // all pooled items with metadata
@@ -168,6 +179,20 @@ let startedAt = null;
 let timed = true;
 let tickHandle = null;
 let cursor = 0;
+let shuffleOffset = 0;                 // bumped by "Shuffle me a different ten"
+let poolStats = { unseen: 0, total: 0 };
+
+// ── Freshness (anti-repeat) ────────────────────────────────
+// Every item carries its own key, hashed from its prompt, so the same
+// question does not come back on consecutive days.
+function freshKeyFor(it) {
+  const raw = String((it && it.prompt) || '');
+  if (window.JglFresh) { try { return JglFresh.normKey(raw); } catch (e) { return raw; } }
+  return raw;
+}
+function plainPrompt(it) {
+  return String((it && it.prompt) || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
@@ -219,20 +244,60 @@ async function loadAllItems() {
   }
 }
 
-function pickTodayItems() {
-  if (allItems.length < 10) {
-    todayItems = allItems;
+// Build the candidate pool: unseen items first, then previously seen items
+// least-recently-seen first, so nothing repeats until the bank runs dry.
+//
+// We top the pool up to POOL_MIN rather than to exactly ten. Once every item
+// has been seen at least once (which happens after about a fortnight on a
+// 138-item bank) a ten-item pool would leave the mastery weighting and the
+// shuffle with no freedom at all: the same block of ten would come back in a
+// fixed cycle, often from only one or two topics. A surplus keeps the daily
+// mix genuinely mixed while still preferring the oldest material.
+const POOL_MIN = 40;
+
+function buildPool() {
+  // Read the ledger ONCE. JglFresh.seen() re-parses localStorage on every
+  // call, so asking it per item cost one JSON.parse per item per pick.
+  let order = [];
+  if (window.JglFresh) {
+    try { order = JglFresh.recent('daily').map(e => String(e.key)); } catch (e) { order = []; }
+  }
+  // `order` is newest first, so a HIGHER rank means seen longer ago.
+  const rank = new Map();
+  order.forEach((k, i) => { if (!rank.has(k)) rank.set(k, i); });
+
+  const unseen = [];
+  const already = [];
+  allItems.forEach(it => {
+    const key = String(freshKeyFor(it));
+    if (rank.has(key)) already.push({ it, r: rank.get(key) });
+    else unseen.push(it);
+  });
+  poolStats = { unseen: unseen.length, total: allItems.length };
+
+  already.sort((a, b) => b.r - a.r);   // least recently seen first
+
+  const pool = unseen.slice();
+  for (let i = 0; i < already.length && pool.length < POOL_MIN; i++) pool.push(already[i].it);
+  return pool;
+}
+
+function pickTodayItems(seedOffset) {
+  const off = typeof seedOffset === 'number' ? seedOffset : 0;
+  const pool = buildPool();
+  if (pool.length < 10) {
+    todayItems = pool.slice();
     return;
   }
   const targetN = 10;
-  const seed = dayOfYear() + 7919;
+  const seed = (dayOfYear() + 7919 + off) >>> 0;
 
   // ── Mastery-weighted bucketing ──
   // Build per-topic buckets of items (shuffled deterministically by day).
   // Then pick round-robin from topics in mastery-ascending order, so weakest
   // topics contribute first. Cap 2 items per topic.
   const byTopic = {};
-  allItems.forEach(it => { (byTopic[it.topicId] = byTopic[it.topicId] || []).push(it); });
+  pool.forEach(it => { (byTopic[it.topicId] = byTopic[it.topicId] || []).push(it); });
   Object.keys(byTopic).forEach(tid => { byTopic[tid] = seededShuffle(byTopic[tid], seed + tid.charCodeAt(0)); });
 
   // Mastery per topic, ascending (weakest first). Tie-break with topic id for
@@ -265,7 +330,7 @@ function pickTodayItems() {
 
   // Fallback: if topics are too sparse, just keep filling from any topic
   if (pick.length < targetN) {
-    const allShuffled = seededShuffle(allItems, seed);
+    const allShuffled = seededShuffle(pool, seed);
     for (const it of allShuffled) {
       if (pick.includes(it)) continue;
       pick.push(it);
@@ -284,7 +349,18 @@ function loadStreak() {
   try { return JSON.parse(localStorage.getItem(STREAK_KEY) || '{"dates":{}}'); }
   catch { return { dates: {} }; }
 }
-function saveStreak(s) { try { localStorage.setItem(STREAK_KEY, JSON.stringify(s)); } catch {} }
+// The strip only ever reads the last fourteen days, but the dates map would
+// otherwise keep one key per day for ever. Cap it before every write.
+const STREAK_MAX_DAYS = 400;
+function saveStreak(s) {
+  try {
+    const dates = (s && s.dates) || {};
+    const keys = Object.keys(dates).sort();          // ISO dates sort chronologically
+    const trimmed = {};
+    keys.slice(-STREAK_MAX_DAYS).forEach(k => { trimmed[k] = dates[k]; });
+    localStorage.setItem(STREAK_KEY, JSON.stringify({ ...s, dates: trimmed }));
+  } catch (e) { /* quota or private mode — the quiz still scores */ }
+}
 function recordTodayScore(score) {
   const s = loadStreak();
   s.dates = s.dates || {};
@@ -314,23 +390,38 @@ function paintStreakStrip() {
   }
   const todayScore = s.dates?.[todayStr()];
   const info = document.getElementById('streak-info');
-  if (todayScore != null) {
-    info.innerHTML = `<p style="font-size:.85rem;color:var(--muted);">Today's score is already in: <strong style="color:var(--accent);">${todayScore} / 10</strong>. You can retake for review — the streak counts only the first attempt.</p>`;
-  } else {
-    info.innerHTML = '';
+  // `cur` was being computed and then dropped on the floor; the start card
+  // promises a streak but never showed one.
+  const streakLine = cur > 0
+    ? `<p style="font-size:.85rem;color:var(--muted);">Current streak: <strong style="color:var(--accent);">${cur} day${cur === 1 ? '' : 's'}</strong> at 7 or better.</p>`
+    : '';
+  const todayLine = todayScore != null
+    ? `<p style="font-size:.85rem;color:var(--muted);">Today's score is already in: <strong style="color:var(--accent);">${todayScore} / 10</strong>. You can retake for review — the streak counts only the first attempt.</p>`
+    : '';
+  info.innerHTML = streakLine + todayLine;
+}
+
+// ── Freshness readouts ────────────────────────────────────
+function renderFreshReadouts() {
+  const freshEl = document.getElementById('fresh-readout');
+  const poolEl  = document.getElementById('pool-readout');
+  let s = { total: 0, last7: 0 };
+  if (window.JglFresh) {
+    try { s = JglFresh.stats('daily') || s; } catch (e) { /* ledger unreadable */ }
+  }
+  if (freshEl) {
+    freshEl.textContent = s.total
+      ? `${s.total} question${s.total === 1 ? '' : 's'} seen · ${s.last7} this week`
+      : '';
+  }
+  if (poolEl) {
+    poolEl.textContent = poolStats.total
+      ? `Pool: ${poolStats.unseen} unseen of ${poolStats.total} total`
+      : '';
   }
 }
 
-// ── Boot ──────────────────────────────────────────────────
-async function init() {
-  document.getElementById('btn-start').addEventListener('click',     () => startQuiz(true));
-  document.getElementById('btn-skip-timer').addEventListener('click', () => startQuiz(false));
-  document.getElementById('btn-end-early').addEventListener('click', () => { if (confirm('End now and see the scorecard?')) endQuiz(); });
-  document.getElementById('btn-end').addEventListener('click',       endQuiz);
-
-  paintStreakStrip();
-  await loadAllItems();
-  pickTodayItems();
+function refreshStartCard() {
   if (!todayItems.length) {
     document.getElementById('start-title').textContent = 'Cannot load items.';
     document.getElementById('start-blurb').textContent = 'Try reloading the page — the daily test needs the topic content files to be reachable.';
@@ -344,6 +435,28 @@ async function init() {
     } catch {}
     document.getElementById('pill-paper-mix').textContent = `${distinctTopics} topics today${weightedHint}`;
   }
+  renderFreshReadouts();
+}
+
+// ── Boot ──────────────────────────────────────────────────
+async function init() {
+  document.getElementById('btn-start').addEventListener('click',     () => startQuiz(true));
+  document.getElementById('btn-skip-timer').addEventListener('click', () => startQuiz(false));
+  document.getElementById('btn-end-early').addEventListener('click', () => { if (confirm('End now and see the scorecard?')) endQuiz(); });
+  document.getElementById('btn-end').addEventListener('click',       endQuiz);
+  document.getElementById('btn-reshuffle').addEventListener('click', () => {
+    if (!allItems.length) return;
+    shuffleOffset += 101;
+    pickTodayItems(shuffleOffset);
+    refreshStartCard();
+    const blurb = document.getElementById('start-blurb');
+    if (blurb) blurb.textContent = 'A different ten, still unseen questions first. Ten minutes on the clock, instant feedback after each answer.';
+  });
+
+  paintStreakStrip();
+  await loadAllItems();
+  pickTodayItems(0);
+  refreshStartCard();
 }
 
 function startQuiz(useTimer) {
@@ -366,8 +479,8 @@ function renderItems() {
     div.className = 'item';
     div.dataset.idx = idx;
     div.innerHTML = `
-      <div class="topic-tag">Q${idx + 1} · ${it.topicName} <span class="topic-pill" style="border-color:${PAPER_COLOR[it.paper]};color:${PAPER_COLOR[it.paper]};">${it.paper}</span></div>
-      <div class="stem">${it.prompt}</div>
+      <div class="topic-tag">Q${idx + 1} · ${escapeHTML(it.topicName)} <span class="topic-pill" style="border-color:${paperColor(it.paper)};color:${paperColor(it.paper)};">${escapeHTML(it.paper)}</span></div>
+      <div class="stem">${escapeHTML(it.prompt)}</div>
       <div class="options">
         ${it.options.map((opt, oi) => `<button data-opt="${oi}">${String.fromCharCode(65 + oi)}. ${escapeHTML(opt)}</button>`).join('')}
       </div>
@@ -433,6 +546,23 @@ function endQuiz() {
   const got    = Object.values(answers).filter(v => v === 'right').length;
   const total  = todayItems.length;
 
+  // Freshness: these ten have now been worked, so they drop to the back of
+  // the queue. Marked on submit, never on load, and on EVERY submission
+  // rather than only the first of the day — a retake still means the student
+  // has seen these questions, and without it the pool filter in buildPool()
+  // would have nothing to filter against.
+  if (window.JglFresh) {
+    todayItems.forEach(it => {
+      try {
+        JglFresh.mark('daily', freshKeyFor(it), {
+          title: plainPrompt(it).slice(0, 70),
+          topic: it.topicName || it.topicId || '',
+          type:  it.paper || '',
+        });
+      } catch (e) { /* freshness is best effort */ }
+    });
+  }
+
   // Record the score, but only if this is the FIRST attempt for today
   const streak = loadStreak();
   const todayKey = todayStr();
@@ -473,8 +603,8 @@ function endQuiz() {
     const sym = answers[idx] === 'right' ? '✓' : (answers[idx] === 'wrong' ? '✗' : '·');
     const symColor = answers[idx] === 'right' ? '#4ade80' : (answers[idx] === 'wrong' ? '#f87171' : 'var(--muted)');
     reviewHTML += `<div style="border-top:1px solid var(--border);padding-top:.65rem;margin-top:.65rem;">
-      <div style="font-size:.85rem;color:var(--muted);"><span style="color:${symColor};font-weight:800;">${sym}</span> Q${idx + 1} · ${it.topicName}</div>
-      <div style="font-size:.88rem;color:var(--text);line-height:1.55;margin:.2rem 0;">${it.prompt}</div>
+      <div style="font-size:.85rem;color:var(--muted);"><span style="color:${symColor};font-weight:800;">${sym}</span> Q${idx + 1} · ${escapeHTML(it.topicName)}</div>
+      <div style="font-size:.88rem;color:var(--text);line-height:1.55;margin:.2rem 0;">${escapeHTML(it.prompt)}</div>
       <div style="font-size:.82rem;color:var(--accent);">Correct: ${String.fromCharCode(65 + it.correct)}. ${escapeHTML(it.options[it.correct])}</div>
       <div style="font-size:.8rem;color:var(--muted);margin-top:.2rem;line-height:1.55;">${escapeHTML(it.explanation || '')}</div>
     </div>`;

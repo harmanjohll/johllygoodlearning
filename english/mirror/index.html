@@ -111,6 +111,13 @@
     <div class="theme-legend" id="theme-legend"></div>
   </div>
 
+  <div class="section" id="marks-section" style="display:none;">
+    <h3>Your marks on the real scale</h3>
+    <div class="sub">Not a mastery percentage — these are actual marks out of the real PSLE allocation, taken from the sprints and simulators you have completed. Best score first, then your most recent, so you can see whether you are holding your level.</div>
+    <div id="marks-rows"></div>
+    <div id="marks-projection" style="margin-top:.85rem;padding-top:.75rem;border-top:1px solid var(--border);font-size:.85rem;color:var(--text);line-height:1.6;"></div>
+  </div>
+
   <div class="section" id="paper-readiness-section">
     <h3>Paper-by-paper readiness</h3>
     <div class="sub">Mastery across the topics that make up each of the four papers. This is the closest the Mirror gets to a PSLE forecast — and it's still only a rough one.</div>
@@ -312,6 +319,88 @@ all.slice().sort((a, b) => b.pct - a.pct).forEach(x => {
   `;
   list.appendChild(row);
 });
+
+// ── Marks on the real scale ─────────────────────────────────
+// Every timed mode now persists its attempts on the real PSLE mark
+// scale rather than as an abstract mastery %. This section reads those
+// stores directly. All reads are defensive: a store is absent until the
+// student has actually done that mode once.
+(function paintMarks() {
+  function readArr(key) {
+    try { const v = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(v) ? v : []; }
+    catch { return []; }
+  }
+  // score extractor is per-store because each mode names its field for
+  // its own rubric; max is the real PSLE allocation for that component.
+  const SOURCES = [
+    { key: 'jgl.english.oral.mocks',        label: 'Paper 4 · Full mock oral',   max: 40, paper: 'P4', get: a => a.total,               href: '../oral/' },
+    { key: 'jgl.english.aloud.attempts',    label: 'P4 · Reading Aloud',         max: 15, paper: 'P4', get: a => a.total,               href: '../aloud/' },
+    { key: 'jgl.english.sbc.attempts',      label: 'P4 · Stimulus Conversation', max: 15, paper: 'P4', get: a => a.total,               href: '../sbc/' },
+    { key: 'jgl.english.listen.attempts',   label: 'Paper 3 · Listening',        max: 20, paper: 'P3', get: a => a.score, maxFrom: a => a.total, href: '../listen/' },
+    { key: 'jgl.english.editing.attempts',  label: 'P2 · Editing',               max: 10, paper: 'P2', get: a => a.score, maxFrom: a => a.total, href: '../editing/' },
+    { key: 'jgl.english.gcloze.attempts',   label: 'P2 · Grammar Cloze',         max: 10, paper: 'P2', get: a => a.score, maxFrom: a => a.total, href: '../cloze-drill/' },
+    { key: 'jgl.english.ccloze.attempts',   label: 'P2 · Comprehension Cloze',   max: 15, paper: 'P2', get: a => a.score, maxFrom: a => a.total, href: '../comp-cloze-drill/' },
+    { key: 'jgl.english.synthesis.attempts',label: 'P2 · Synthesis',             max: 10, paper: 'P2', get: a => a.total, maxFrom: a => a.max,   href: '../synthesis-drill/' },
+    { key: 'jgl.english.visualtext.attempts',label:'P2 · Visual Text',           max: 10, paper: 'P2', get: a => a.score, maxFrom: a => a.total, href: '../visualtext-drill/' },
+    { key: 'jgl.english.compoe.attempts',   label: 'P2 · Comprehension OE',      max: 20, paper: 'P2', get: a => a.total, maxFrom: a => a.max,   href: '../comp-oe-drill/' },
+  ];
+  const PAPER_TINT = { P1: '#fb7185', P2: '#60a5fa', P3: '#e879f9', P4: '#fbbf24' };
+
+  const rows = [];
+  SOURCES.forEach(s => {
+    const arr = readArr(s.key).filter(a => a && typeof s.get(a) === 'number' && !isNaN(s.get(a)));
+    if (!arr.length) return;
+    const max = (s.maxFrom && typeof s.maxFrom(arr[arr.length - 1]) === 'number' && s.maxFrom(arr[arr.length - 1]) > 0)
+      ? s.maxFrom(arr[arr.length - 1]) : s.max;
+    const scores = arr.map(a => s.get(a));
+    const best = Math.max.apply(null, scores);
+    const last = scores[scores.length - 1];
+    const pct  = max ? Math.round((best / max) * 100) : 0;
+    rows.push({ ...s, max, n: arr.length, best, last, pct });
+  });
+
+  if (!rows.length) return;   // nothing attempted yet — stay hidden
+
+  const host = document.getElementById('marks-rows');
+  rows.forEach(r => {
+    const tint = PAPER_TINT[r.paper] || 'var(--accent)';
+    const trend = r.n < 2 ? '' : (r.last > r.best - 0.001 ? ' ▲ at your best'
+                    : r.last >= r.best * 0.85 ? ' ≈ holding'
+                    : ' ▼ below your best');
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <span class="name">${r.label}
+        <span style="font-size:.72rem;color:var(--muted);font-weight:500;">${r.n} attempt${r.n === 1 ? '' : 's'}${trend}</span>
+      </span>
+      <span class="bar"><span class="bar-fill" style="width:${Math.min(100, r.pct)}%;background:${tint};"></span></span>
+      <span class="pct" style="color:${tint};">${r.best}/${r.max}</span>
+      <a href="${r.href}" style="font-size:.74rem;color:var(--muted);text-decoration:none;border-left:1px solid var(--border);padding-left:.6rem;margin-left:.35rem;">→</a>
+    `;
+    host.appendChild(row);
+  });
+
+  // Rough projected total across whatever has actually been attempted.
+  const gotBest = rows.reduce((s, r) => s + r.best, 0);
+  const outOf   = rows.reduce((s, r) => s + r.max, 0);
+  const pct     = outOf ? Math.round((gotBest / outOf) * 100) : 0;
+  // PSLE EL AL bands are scored on the full 200. We only project across
+  // what has been attempted, and we say so plainly rather than implying
+  // a grade the data cannot support.
+  const band = pct >= 90 ? 'AL1 territory on what you have attempted'
+             : pct >= 85 ? 'AL1/AL2 borderline on what you have attempted'
+             : pct >= 75 ? 'AL2 territory on what you have attempted'
+             : pct >= 65 ? 'AL3 territory on what you have attempted'
+             :             'below AL3 on what you have attempted';
+  const weakest = rows.slice().sort((a, b) => a.pct - b.pct)[0];
+  document.getElementById('marks-projection').innerHTML =
+    `Across the ${rows.length} component${rows.length === 1 ? '' : 's'} you have attempted, your best marks total ` +
+    `<strong style="color:var(--accent);font-family:var(--font-mono,monospace);">${gotBest}/${outOf}</strong> (${pct}%) — ${band}. ` +
+    `This is not a PSLE prediction; it only covers what you have sat. ` +
+    (weakest ? `Your weakest attempted component is <strong>${weakest.label}</strong> at ${weakest.best}/${weakest.max}. <a href="${weakest.href}" style="color:var(--accent);text-decoration:none;">Drill it →</a>` : '');
+
+  document.getElementById('marks-section').style.display = 'block';
+})();
 
 // ── Paper-by-paper readiness ────────────────────────────────
 const PAPER_MAP = {

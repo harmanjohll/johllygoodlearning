@@ -72,11 +72,35 @@
     .review .blank-row .your.wrong { color: #f87171; }
     .review .blank-row .ok { color: var(--accent); }
     .review .blank-row .why { color: var(--muted); font-size: .8rem; grid-column: 2 / span 2; margin-top: .15rem; line-height: 1.55; }
+    .review .area-tag {
+      display: inline-block; font-size: .68rem; padding: .1rem .4rem; border-radius: 99px;
+      background: rgba(129,140,248,.08); color: #a5b4fc; border: 1px solid #4c51bf;
+      font-weight: 700; margin-right: .35rem; vertical-align: 2px;
+    }
+
+    /* Weakness diagnosis across every past attempt */
+    .diag {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.25rem 1.5rem; margin-top: 1rem;
+    }
+    .diag h3 { font-size: .95rem; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .2rem; }
+    .diag .sub { font-size: .78rem; color: var(--muted); margin-bottom: .9rem; }
+    .diag .drow { display: grid; grid-template-columns: 6.8rem 1fr 4.6rem; gap: .6rem; align-items: center; margin-bottom: .45rem; font-size: .8rem; }
+    .diag .dname { color: var(--text); text-transform: capitalize; }
+    .diag .dtrack { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; height: .5rem; overflow: hidden; }
+    .diag .dfill { height: 100%; background: var(--accent); border-radius: 99px; }
+    .diag .dfill.mid { background: #fbbf24; }
+    .diag .dfill.low { background: #f87171; }
+    .diag .dpct { color: var(--muted); font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: .74rem; text-align: right; }
+    .diag .verdict { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--border); font-size: .86rem; line-height: 1.65; color: var(--text); }
 
     .start-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
     .start-card h2 { margin-bottom: .5rem; }
     .start-card p  { color: var(--muted); font-size: .92rem; margin-bottom: 1rem; line-height: 1.65; }
     .pill { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .25rem .65rem; font-size: .72rem; margin: .15rem; }
+
+    .fresh-readout { font-size: .76rem; color: var(--muted); }
+    .bank-bar { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; font-size: .8rem; color: var(--muted); margin-bottom: .85rem; }
   </style>
 </head>
 <body>
@@ -101,7 +125,8 @@
 
   <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
     <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
-    <span style="font-size:.84rem;color:var(--muted);">One curated passage. Want a fresh one?</span>
+    <span style="font-size:.84rem;color:var(--muted);">Three curated passages. Want a fresh one?</span>
+    <span id="fresh-readout" class="fresh-readout"></span>
     <span style="flex:1;"></span>
     <select id="gen-theme" style="background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.82rem;font-family:inherit;">
       <option>A trip to the library</option>
@@ -114,6 +139,11 @@
     <button class="btn btn-secondary" id="btn-clear-generated" style="font-size:.78rem;padding:.35rem .85rem;display:none;">Reset to curated</button>
   </div>
   <div id="gen-status" style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem;min-height:1rem;"></div>
+
+  <div class="bank-bar" id="bank-bar">
+    <span id="bank-label"></span>
+    <button class="btn btn-secondary" id="btn-bank-next" style="font-size:.74rem;padding:.25rem .7rem;">next</button>
+  </div>
 
   <div id="start-pane">
     <div class="start-card">
@@ -148,45 +178,296 @@
 <script src="../shared/storage.js"></script>
 <script src="../shared/lab.js"></script>
 <script src="../shared/gemini.js"></script>
+<script src="../shared/freshness.js"></script>
 <script>
 const QUIZ_MS = 10 * 60 * 1000;
+const BUCKET = 'gcloze';
+const ATTEMPTS_KEY = 'jgl.english.gcloze.attempts';
+const ATTEMPTS_CAP = 60;
 
-// Passage: alternating strings and blank objects. Each blank carries
-// an accept-list (case-insensitive) and a `why` for review.
-let PASSAGE = {
-  title: 'A quiet Sunday at the wet market',
-  parts: [
-    "Every Sunday morning, my mother and I ",
-    { id: 1, accept: ['walk', 'go'],                     why: "Habit / routine → simple present. With 'every Sunday', use 'walk' or 'go'." },
-    " down to the wet market near our block. By the time we arrive at seven, the stalls ",
-    { id: 2, accept: ['have', 'are'],                    why: "Auxiliary for the perfect/continuous coming next. 'have already begun' or 'are already busy'." },
-    " already begun bustling with regulars. The fishmonger waves at us ",
-    { id: 3, accept: ['as', 'because', 'when'],          why: "Reason / time connector — 'as he sees us' / 'because he sees us' / 'when he sees us'." },
-    " he has been keeping the freshest yellowtail aside. ",
-    { id: 4, accept: ['Although', 'Though', 'While'],    why: "Contrast connector — the next clause sets up a 'but' relationship." },
-    " the market is crowded, my mother always knows exactly which stalls ",
-    { id: 5, accept: ['to', "we'll", "we", "I"],         why: "Infinitive 'to visit' OR contraction 'we'll' (we will). The most common natural fit is 'to'." },
-    " visit first. ",
-    { id: 6, accept: ['She', 'My mother', 'Mother'],     why: "Subject pronoun continuing the previous sentence's referent." },
-    " has been buying from these stalls ",
-    { id: 7, accept: ['for', 'over'],                    why: "Preposition signalling duration — 'for thirty years' / 'over thirty years'." },
-    " thirty years. The aunties greet her by name, and ",
-    { id: 8, accept: ['occasionally', 'sometimes'],      why: "Frequency adverb — the gift-giving is not every time, just now and then." },
-    " they slip an extra bunch of coriander into her basket. Loyalty, ",
-    { id: 9, accept: ['as', 'so'],                       why: "Comparative/result connector — 'as I learnt' (as a result of all of this) is most natural here." },
-    " I have learnt over the years, is its own quiet currency at the market. When she came home empty-handed last week, the fishmonger himself ",
-    { id: 10, accept: ['delivered', 'brought', 'sent'],  why: "Past tense, transitive — 'delivered the fish', 'brought the fish', 'sent the fish'. Past-tense form required by 'last week'." },
-    " the fish to our door. He had not been told. He had simply known.",
-  ],
+// Curated bank. Each passage: alternating strings and blank objects.
+// Every blank carries an accept-list (case-insensitive), a `why` for
+// review, and an `area` naming the grammar point being tested.
+const CURATED_BANK = [
+  {
+    id: 'gcloze-wet-market',
+    title: 'A quiet Sunday at the wet market',
+    parts: [
+      "Every Sunday morning, my mother and I ",
+      { id: 1, area: 'tense',       accept: ['walk', 'go'],                     why: "Habit / routine → simple present. With 'every Sunday', use 'walk' or 'go'." },
+      " down to the wet market near our block. By the time we arrive at seven, the stalls ",
+      { id: 2, area: 'tense',       accept: ['have'],                           why: "Present perfect: 'have already begun'. The past participle 'begun' must take HAVE, never BE — 'are already begun' is not English." },
+      " already begun bustling with regulars. The fishmonger waves at us ",
+      { id: 3, area: 'connector',   accept: ['as', 'because', 'when'],          why: "Reason / time connector — 'as he sees us' / 'because he sees us' / 'when he sees us'." },
+      " he has been keeping the freshest yellowtail aside. ",
+      { id: 4, area: 'connector',   accept: ['Although', 'Though', 'While'],    why: "Contrast connector — the next clause sets up a 'but' relationship." },
+      " the market is crowded, my mother always knows exactly which stalls ",
+      { id: 5, area: 'grammar',     accept: ['to', "we'll", 'we'],              why: "Infinitive 'to visit' is the natural fit after 'knows exactly which stalls'. 'we'll' and 'we' also work; 'I' does not, because the sentence is about what MOTHER knows." },
+      " visit first. ",
+      { id: 6, area: 'pronoun',     accept: ['She', 'Mother'],                  why: "Subject pronoun carrying over the referent from the previous sentence. One word only, so 'She' is the natural fit." },
+      " has been buying from these stalls ",
+      { id: 7, area: 'preposition', accept: ['for', 'over'],                    why: "Preposition signalling duration — 'for thirty years' / 'over thirty years'." },
+      " thirty years. The aunties greet her by name, and ",
+      { id: 8, area: 'grammar',     accept: ['occasionally', 'sometimes'],      why: "Frequency adverb — the gift-giving is not every time, just now and then." },
+      " they slip an extra bunch of coriander into her basket. Loyalty, ",
+      { id: 9, area: 'connector',   accept: ['as'],                             why: "'as I have learnt' is a comment clause folded into the sentence. 'so' cannot do this job — 'Loyalty, so I have learnt, is...' is not English." },
+      " I have learnt over the years, is its own quiet currency at the market. When she came home empty-handed last week, the fishmonger himself ",
+      { id: 10, area: 'tense',      accept: ['delivered', 'brought', 'sent'],   why: "Past tense, transitive — 'delivered the fish', 'brought the fish', 'sent the fish'. Past-tense form required by 'last week'." },
+      " the fish to our door. He had not been told. He had simply known.",
+    ],
+  },
+
+  {
+    id: 'gcloze-recycling-project',
+    title: 'The class recycling project',
+    parts: [
+      "Last term, our class ",
+      { id: 1, area: 'tense',       accept: ['started', 'began', 'launched'],   why: "Past simple, fixed by the time marker 'Last term'. The whole report looks back on a finished project." },
+      " a recycling project for the whole school. We placed ",
+      { id: 2, area: 'article',     accept: ['a', 'one'],                       why: "Article before the singular countable noun 'blue bin'. 'A' is correct before a consonant sound." },
+      " blue bin outside every classroom and asked pupils to sort their paper before dropping it in. ",
+      { id: 3, area: 'preposition', accept: ['At', 'In'],                       why: "Preposition of time before 'the start'. 'At the start' is the standard form." },
+      " the start, the results were disappointing. Many pupils ",
+      { id: 4, area: 'agreement',   accept: ['were'],                           why: "'Many pupils' is plural, so the past continuous auxiliary must be 'were', never 'was'." },
+      " still dropping clean paper into the general rubbish bin. ",
+      { id: 5, area: 'connector',   accept: ['Therefore', 'Hence', 'Consequently'], why: "A result connector: the poor start is the reason for the change that follows." },
+      ", we changed our approach. Each class chose two monitors, and ",
+      { id: 6, area: 'pronoun',     accept: ['they'],                           why: "Subject pronoun standing in for the plural noun 'two monitors'." },
+      " checked the bins at the end of every day. Within a month, the weight of paper collected ",
+      { id: 7, area: 'tense',       accept: ['had', 'has'],                     why: "Past perfect auxiliary with 'doubled', because the doubling was already complete at that point in the past." },
+      " doubled. Our teacher reminded us that a project only works ",
+      { id: 8, area: 'connector',   accept: ['if', 'when'],                     why: "A condition connector links the project working to everyone taking part." },
+      " everyone takes part, not just the monitors. The school office now sends the collected paper to a recycling plant ",
+      { id: 9, area: 'preposition', accept: ['in', 'at'],                       why: "Preposition of place before a named area. 'In Tuas' says which part of Singapore the plant sits in." },
+      " Tuas. Small habits, our teacher said, ",
+      { id: 10, area: 'agreement',  accept: ['are', 'become'],                  why: "The subject 'small habits' is plural, so the present tense verb must be 'are', not 'is'." },
+      " the ones that last.",
+    ],
+  },
+
+  {
+    id: 'gcloze-first-ride',
+    title: 'The first ride at East Coast Park',
+    parts: [
+      "The first time my father took me cycling ",
+      { id: 1, area: 'preposition', accept: ['at', 'to'],                       why: "Preposition of place before a named park. 'At East Coast Park' says where the cycling happened." },
+      " East Coast Park, I was seven and completely certain that I ",
+      { id: 2, area: 'tense',       accept: ['would', 'could'],                 why: "A modal is needed inside a reported thought in a past narrative: 'certain that I would fall'." },
+      " fall. He held the back of the seat and ran beside me, ",
+      { id: 3, area: 'tense',       accept: ['shouting', 'calling', 'yelling'], why: "Present participle after the main verb, to show two actions happening at the same time." },
+      " instructions I could barely hear over the wind. ",
+      { id: 4, area: 'article',     accept: ['Every', 'Each'],                  why: "Determiner before the singular countable noun 'time'. 'Every time' means on all occasions." },
+      " time I wobbled, he steadied me. ",
+      { id: 5, area: 'connector',   accept: ['Then', 'Suddenly', 'Soon'],       why: "A time connector moves the recount forward to the next moment." },
+      ", halfway along the track, he let go without telling me. I did not notice ",
+      { id: 6, area: 'preposition', accept: ['for'],                            why: "Preposition of duration before a length of time: 'for a full minute'." },
+      " a full minute. By the time I turned my head, my father ",
+      { id: 7, area: 'agreement',   accept: ['was'],                            why: "The singular subject 'my father' takes 'was' in the past continuous, never 'were'." },
+      " standing far behind me with both arms in the air. ",
+      { id: 8, area: 'connector',   accept: ['Although', 'Though', 'While'],    why: "Contrast connector: cycling alone successfully sits against panicking a second later." },
+      " I had been cycling on my own for a whole minute, I panicked the second I realised it, and ",
+      { id: 9, area: 'pronoun',     accept: ['I'],                              why: "Subject pronoun opening the final clause; the person who fell is the narrator." },
+      " landed in the grass. My knee bled, but I got up again, and I ",
+      { id: 10, area: 'tense',      accept: ['have'],                           why: "Present perfect: 'have never forgotten' links a past event to how the narrator feels now." },
+      " never forgotten the feeling of that first minute alone.",
+    ],
+  },
+];
+
+const AREAS = ['tense', 'agreement', 'article', 'preposition', 'pronoun', 'connector', 'grammar'];
+
+const AREA_ADVICE = {
+  tense:       "Find the time word in the sentence first, then choose the verb form that matches it.",
+  agreement:   "Point at the real subject of the verb, then decide whether it is one thing or many before you write.",
+  article:     "Ask whether the noun is one countable thing, and whether the reader already knows which one.",
+  preposition: "Learn prepositions inside whole phrases, not on their own. Keep a short list of the three you keep missing.",
+  pronoun:     "Read backwards until you find the exact noun the pronoun stands for, then check number and person.",
+  connector:   "Name the relationship first: adding, contrasting, causing, or timing. Then pick the word.",
+  grammar:     "Read the whole sentence aloud with your answer inside it. If it sounds wrong, it usually is.",
 };
 
+let PASSAGE = null;
+let bankIndex = 0;
+let isGenerated = false;
 let state = { startedAt: null, submitted: false, timed: true, answers: {} };
 let tickHandle = null;
+let metaHandle = null;
+
+/* ── small helpers ───────────────────────────────────────── */
+
+function escapeHTML(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+// localStorage throws outright in private-browsing / blocked-cookie modes,
+// so every read goes through here and falls back to a sane default.
+function readLS(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v === null ? fallback : v;
+  } catch (e) { return fallback; }
+}
+
+function normArea(a) {
+  const s = String(a == null ? '' : a).toLowerCase().trim();
+  return AREAS.indexOf(s) !== -1 ? s : '';
+}
+
+// Derive the grammar area from the blank's own explanation text.
+function deriveArea(why) {
+  const t = String(why == null ? '' : why).toLowerCase();
+  if (/agreement|subject-verb|subject verb|singular|plural/.test(t)) return 'agreement';
+  if (/preposition/.test(t)) return 'preposition';
+  if (/pronoun/.test(t)) return 'pronoun';
+  if (/connector|connective|conjunction|contrast|linking word/.test(t)) return 'connector';
+  if (/article|determiner/.test(t)) return 'article';
+  if (/tense|past simple|present simple|perfect|continuous|participle|infinitive|auxiliary|modal|verb form/.test(t)) return 'tense';
+  return 'grammar';
+}
+
+function areaOf(b) { return normArea(b && b.area) || deriveArea(b && b.why) || 'grammar'; }
+
+function blanksOf(p) { return (p && Array.isArray(p.parts) ? p.parts : []).filter(x => x && typeof x === 'object'); }
+
+function firstBody(p) {
+  const parts = (p && Array.isArray(p.parts)) ? p.parts : [];
+  for (let i = 0; i < parts.length; i++) {
+    if (typeof parts[i] === 'string' && parts[i].trim()) return parts[i].trim();
+  }
+  return '';
+}
+
+function passageKey(p) {
+  const base = (p && p.id) ? p.id : ((p && p.title ? p.title : '') + '|' + firstBody(p).slice(0, 60));
+  return window.JglFresh ? JglFresh.normKey(base) : base;
+}
+
+/* ── freshness readout ───────────────────────────────────── */
+
+function renderFresh() {
+  const el = document.getElementById('fresh-readout');
+  if (!el) return;
+  const s = window.JglFresh ? JglFresh.stats(BUCKET) : { total: 0, last7: 0 };
+  el.textContent = s.total ? (s.total + ' passages seen · ' + s.last7 + ' this week') : '';
+}
+
+/* ── attempt history ─────────────────────────────────────── */
+
+function readAttempts() {
+  try {
+    const a = JSON.parse(localStorage.getItem(ATTEMPTS_KEY) || '[]');
+    return Array.isArray(a) ? a : [];
+  } catch (e) { return []; }
+}
+
+function saveAttempt(rec) {
+  try {
+    const a = readAttempts();
+    a.push(rec);
+    localStorage.setItem(ATTEMPTS_KEY, JSON.stringify(a.slice(-ATTEMPTS_CAP)));
+  } catch (e) { /* quota — degrade quietly */ }
+}
+
+function aggregateByArea() {
+  const totals = {};
+  readAttempts().forEach(a => {
+    const bc = a && a.byClue;
+    if (!bc || typeof bc !== 'object') return;
+    Object.keys(bc).forEach(k => {
+      const v = bc[k] || {};
+      if (!totals[k]) totals[k] = { right: 0, wrong: 0 };
+      totals[k].right += Number(v.right) || 0;
+      totals[k].wrong += Number(v.wrong) || 0;
+    });
+  });
+  return totals;
+}
+
+function diagnosisHTML() {
+  const totals = aggregateByArea();
+  const rows = Object.keys(totals).map(k => {
+    const t = totals[k];
+    const n = t.right + t.wrong;
+    return { key: k, n: n, pct: n ? Math.round((t.right / n) * 100) : 0 };
+  }).filter(r => r.n > 0).sort((a, b) => a.pct - b.pct || b.n - a.n);
+
+  if (!rows.length) return '';
+
+  const runs = readAttempts().length;
+  let html = '<div class="diag"><h3>Where your marks go</h3>' +
+    '<div class="sub">Accuracy by grammar area across all ' + runs + ' recorded ' + (runs === 1 ? 'run' : 'runs') + '.</div>';
+
+  rows.forEach(r => {
+    const cls = r.pct < 60 ? 'low' : (r.pct < 80 ? 'mid' : '');
+    html += '<div class="drow">' +
+      '<div class="dname">' + escapeHTML(r.key) + '</div>' +
+      '<div class="dtrack"><div class="dfill ' + cls + '" style="width:' + r.pct + '%;"></div></div>' +
+      '<div class="dpct">' + r.pct + '% · ' + r.n + '</div>' +
+      '</div>';
+  });
+
+  const solid = rows.filter(r => r.n >= 3);
+  const weakest = solid.length ? solid[0] : null;
+  let verdict;
+  if (!weakest) {
+    verdict = 'Not enough blanks yet to call a weak spot. Do two more runs and the pattern will show.';
+  } else if (weakest.pct >= 85) {
+    verdict = 'Nothing is clearly weak. Your lowest area is ' + escapeHTML(weakest.key) + ' at ' + weakest.pct +
+      ' percent, which is already solid. Move to timed runs and keep the speed honest.';
+  } else {
+    verdict = 'Your weakest area is <strong>' + escapeHTML(weakest.key) + '</strong>, at ' + weakest.pct +
+      ' percent across ' + weakest.n + ' blanks. ' + escapeHTML(AREA_ADVICE[weakest.key] || AREA_ADVICE.grammar);
+  }
+  html += '<div class="verdict">' + verdict + '</div></div>';
+  return html;
+}
+
+/* ── curated bank ────────────────────────────────────────── */
+
+function loadBankPassage(idx) {
+  bankIndex = ((idx % CURATED_BANK.length) + CURATED_BANK.length) % CURATED_BANK.length;
+  PASSAGE = clone(CURATED_BANK[bankIndex]);
+  isGenerated = false;
+  renderBankBar();
+}
+
+function renderBankBar() {
+  const bar = document.getElementById('bank-bar');
+  const label = document.getElementById('bank-label');
+  if (!bar || !label) return;
+  if (isGenerated || CURATED_BANK.length < 2) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  label.textContent = 'Passage ' + (bankIndex + 1) + ' of ' + CURATED_BANK.length + ' — ' + PASSAGE.title;
+}
+
+/* ── quiz flow ───────────────────────────────────────────── */
+
+function resetToStart() {
+  if (tickHandle) clearInterval(tickHandle);
+  if (metaHandle) clearInterval(metaHandle);
+  tickHandle = null;
+  metaHandle = null;
+  state = { startedAt: null, submitted: false, timed: true, answers: {} };
+  document.getElementById('start-pane').style.display = '';
+  document.getElementById('quiz-pane').style.display = 'none';
+  const r = document.getElementById('result-pane');
+  r.style.display = 'none';
+  r.innerHTML = '';
+  document.getElementById('time-left').textContent = '10:00';
+  document.getElementById('time-left').classList.remove('warn', 'crit');
+}
 
 function init() {
-  document.getElementById('btn-start').addEventListener('click',     () => startQuiz(true));
+  document.getElementById('btn-start').addEventListener('click',    () => startQuiz(true));
   document.getElementById('btn-untimed').addEventListener('click',  () => startQuiz(false));
   document.getElementById('btn-submit').addEventListener('click', () => { if (!state.submitted && confirm('Submit now?')) submit(); });
+  document.getElementById('btn-bank-next').addEventListener('click', () => {
+    loadBankPassage(bankIndex + 1);
+    resetToStart();
+    document.getElementById('gen-status').textContent = 'Now showing: ' + PASSAGE.title;
+  });
 }
 
 function startQuiz(timed) {
@@ -195,13 +476,21 @@ function startQuiz(timed) {
   document.getElementById('start-pane').style.display = 'none';
   document.getElementById('quiz-pane').style.display  = 'block';
   renderPassage();
+
+  // Mark curated passages only when the student actually attempts one.
+  if (!isGenerated && window.JglFresh) {
+    JglFresh.mark(BUCKET, passageKey(PASSAGE), { title: PASSAGE.title, type: 'curated' });
+    renderFresh();
+  }
+
   if (timed) startTicker(); else document.getElementById('time-left').textContent = '∞';
-  setInterval(updateMeta, 1500);
+  if (metaHandle) clearInterval(metaHandle);
+  metaHandle = setInterval(updateMeta, 1500);
 }
 
 function renderPassage() {
   const wrap = document.getElementById('passage');
-  wrap.innerHTML = `<div class="title">${PASSAGE.title}</div>`;
+  wrap.innerHTML = '<div class="title">' + escapeHTML(PASSAGE.title) + '</div>';
   const body = document.createElement('div');
   body.style.cssText = 'line-height:2.15;';
   PASSAGE.parts.forEach(piece => {
@@ -211,7 +500,7 @@ function renderPassage() {
       input.type = 'text';
       input.className = 'blank';
       input.dataset.id = piece.id;
-      input.placeholder = `(${piece.id})`;
+      input.placeholder = '(' + piece.id + ')';
       input.autocomplete = 'off';
       input.addEventListener('input', () => { state.answers[piece.id] = input.value.trim(); updateMeta(); });
       body.appendChild(input);
@@ -221,10 +510,10 @@ function renderPassage() {
 }
 
 function updateMeta() {
-  const blanks = PASSAGE.parts.filter(p => typeof p === 'object');
+  const blanks = blanksOf(PASSAGE);
   let n = 0;
   blanks.forEach(b => { if ((state.answers[b.id] || '').trim()) n += 1; });
-  document.getElementById('filled-meta').textContent = `${n} / ${blanks.length} filled`;
+  document.getElementById('filled-meta').textContent = n + ' / ' + blanks.length + ' filled';
 }
 
 function startTicker() {
@@ -242,25 +531,33 @@ function paintTime(ms) {
   const display = document.getElementById('time-left');
   const mins = Math.max(0, Math.floor(ms / 60000));
   const secs = Math.max(0, Math.floor((ms % 60000) / 1000));
-  display.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-  display.classList.remove('warn','crit');
-  if (ms <= 60_000)       display.classList.add('crit');
-  else if (ms <= 180_000) display.classList.add('warn');
+  display.textContent = mins.toString().padStart(2, '0') + ':' + secs.toString().padStart(2, '0');
+  display.classList.remove('warn', 'crit');
+  if (ms <= 60000)       display.classList.add('crit');
+  else if (ms <= 180000) display.classList.add('warn');
 }
 
 function submit() {
   if (state.submitted) return;
   state.submitted = true;
   if (tickHandle) clearInterval(tickHandle);
+  if (metaHandle) clearInterval(metaHandle);
 
-  const blanks = PASSAGE.parts.filter(p => typeof p === 'object');
+  const blanks = blanksOf(PASSAGE);
+  const byClue = {};
   let got = 0;
+
   blanks.forEach(b => {
     const val = (state.answers[b.id] || '').toLowerCase().trim();
-    const ok  = (b.accept || []).map(x => x.toLowerCase());
-    const right = !!val && ok.includes(val);
+    const ok  = (b.accept || []).map(x => String(x).toLowerCase());
+    const right = !!val && ok.indexOf(val) !== -1;
     if (right) got += 1;
-    const input = document.querySelector(`.blank[data-id="${b.id}"]`);
+
+    const area = areaOf(b);
+    if (!byClue[area]) byClue[area] = { right: 0, wrong: 0 };
+    if (right) byClue[area].right += 1; else byClue[area].wrong += 1;
+
+    const input = document.querySelector('.blank[data-id="' + b.id + '"]');
     if (input) {
       input.disabled = true;
       input.classList.toggle('right', right);
@@ -270,111 +567,158 @@ function submit() {
 
   if (typeof Progress !== 'undefined' && Progress.recordDrillUsed) Progress.recordDrillUsed('grammar');
 
+  saveAttempt({
+    iso: new Date().toISOString(),
+    title: PASSAGE.title,
+    score: got,
+    total: blanks.length,
+    byClue: byClue,
+  });
+
   const qual =
     got === blanks.length ? 'Perfect. AL1 grammar instinct.' :
     got >= blanks.length - 2 ? 'On the AL1/AL2 line. Look at the two misses below.' :
     got >= blanks.length / 2 ? 'Halfway. Re-read every WHY below — patterns repeat.' :
                                 'Read the WHYs below, then retry with the untimed mode.';
 
-  let reviewHTML = '<div class="review"><h3>Review every blank</h3>';
+  // Misses by area for this run
+  const missByArea = {};
+  Object.keys(byClue).forEach(k => { if (byClue[k].wrong) missByArea[k] = byClue[k].wrong; });
+  const missLines = Object.keys(missByArea).sort((a, b) => missByArea[b] - missByArea[a])
+    .map(k => '<span style="font-size:.78rem;color:var(--muted);">' + missByArea[k] + '× ' + escapeHTML(k) + '</span>')
+    .join(' &middot; ');
+
+  let reviewHTML = '<div class="review"><h3>Review every blank</h3>' +
+    (missLines ? '<div style="margin-bottom:.55rem;">Misses this run: ' + missLines + '</div>' : '');
   blanks.forEach(b => {
     const val = state.answers[b.id] || '';
-    const right = (b.accept || []).map(x => x.toLowerCase()).includes(val.toLowerCase());
-    reviewHTML += `<div class="blank-row">
-      <div class="n">${b.id}.</div>
-      <div class="your ${right ? 'right' : 'wrong'}">${right ? '✓' : '✗'} "${escapeHTML(val) || '(blank)'}"</div>
-      <div class="ok">Accept: ${b.accept.join(' / ')}</div>
-      <div class="why">${escapeHTML(b.why)}</div>
-    </div>`;
+    const right = (b.accept || []).map(x => String(x).toLowerCase()).indexOf(val.toLowerCase()) !== -1 && !!val.trim();
+    reviewHTML += '<div class="blank-row">' +
+      '<div class="n">' + b.id + '.</div>' +
+      '<div><span class="area-tag">' + escapeHTML(areaOf(b)) + '</span>' +
+        '<span class="your ' + (right ? 'right' : 'wrong') + '">' + (right ? '✓' : '✗') + ' "' + (escapeHTML(val) || '(blank)') + '"</span></div>' +
+      '<div class="ok">Accept: ' + escapeHTML((b.accept || []).join(' / ')) + '</div>' +
+      '<div class="why">' + escapeHTML(b.why) + '</div>' +
+    '</div>';
   });
   reviewHTML += '</div>';
 
   const r = document.getElementById('result-pane');
   r.style.display = 'block';
-  r.innerHTML = `
-    <div class="scorecard">
-      <div class="num">${got} / ${blanks.length}</div>
-      <div class="qual">${qual}</div>
-      <div class="row">
-        <a class="btn btn-primary" href="./">Retry</a>
-        <a class="btn btn-secondary" href="../">← Hub</a>
-        <a class="btn btn-secondary" href="../topics/cloze/">Open Cloze topic</a>
-      </div>
-    </div>
-    ${reviewHTML}
-  `;
+  r.innerHTML =
+    '<div class="scorecard">' +
+      '<div class="num">' + got + ' / ' + blanks.length + '</div>' +
+      '<div class="qual">' + qual + '</div>' +
+      '<div class="row">' +
+        '<a class="btn btn-primary" href="./">Retry</a>' +
+        '<a class="btn btn-secondary" href="../">← Hub</a>' +
+        '<a class="btn btn-secondary" href="../topics/grammar/">Open Grammar topic</a>' +
+      '</div>' +
+    '</div>' +
+    diagnosisHTML() +
+    reviewHTML;
   r.scrollIntoView({ behavior: 'smooth' });
 }
 
-function escapeHTML(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
+/* ── boot ────────────────────────────────────────────────── */
 
-init();
-
-// ── AI passage generator ─────────────────────────────────
 const GEN_CACHE_KEY = 'jgl.english.gcloze.generated';
-const CURATED = JSON.parse(JSON.stringify(PASSAGE));
 
-(function rehydrate() {
+(function boot() {
+  // Start on a passage the student has not seen, so a repeat visit
+  // does not serve the same material twice.
+  const picked = window.JglFresh
+    ? JglFresh.pickUnseen(BUCKET, CURATED_BANK, function (x) { return JglFresh.normKey(x.id || x.title); })
+    : CURATED_BANK[0];
+  const idx = CURATED_BANK.indexOf(picked);
+  loadBankPassage(idx === -1 ? 0 : idx);
+
+  init();
+  renderFresh();
+
   try {
     const cached = JSON.parse(localStorage.getItem(GEN_CACHE_KEY) || 'null');
     if (cached && Array.isArray(cached.parts)) {
       PASSAGE = cached;
+      isGenerated = true;
+      renderBankBar();
       document.getElementById('btn-clear-generated').style.display = 'inline-block';
       document.getElementById('gen-status').textContent = 'Showing AI-generated passage from your last session.';
     }
-  } catch {}
+  } catch (e) { /* ignore a corrupt cache */ }
 })();
 
+/* ── AI passage generator ────────────────────────────────── */
+
 document.getElementById('btn-generate').addEventListener('click', async () => {
-  const k = (window.JglStorage && window.JglStorage.getGeminiKey()) || localStorage.getItem('jgl.geminiKey') || '';
+  let k = '';
+  try { k = (window.JglStorage && window.JglStorage.getGeminiKey()) || ''; } catch (e) { k = ''; }
+  if (!k) k = readLS('jgl.geminiKey', '') || '';
   const status = document.getElementById('gen-status');
-  if (!k) { status.textContent = 'No Gemini key set.'; return; }
+  if (!k) {
+    status.textContent = 'No Gemini key set. Open Settings (top right) to add one. The curated passages below work without a key.';
+    return;
+  }
   if (state.startedAt && !state.submitted) {
     if (!confirm('Replace the passage and reset the clock?')) return;
   }
   const theme = document.getElementById('gen-theme').value;
-  status.textContent = `Generating a fresh passage on "${theme.toLowerCase()}"…`;
+  status.textContent = 'Generating a fresh passage on "' + theme.toLowerCase() + '"…';
   document.getElementById('btn-generate').disabled = true;
   try {
     const p = await generateClozePassage(theme);
+
+    // MOVE 2: only mark once the generation has actually succeeded.
+    if (window.JglFresh) {
+      JglFresh.mark(BUCKET, JglFresh.normKey(p.title + '|' + firstBody(p).slice(0, 60)), { title: p.title, type: theme });
+    }
+
     PASSAGE = p;
-    try { localStorage.setItem(GEN_CACHE_KEY, JSON.stringify(p)); } catch {}
+    isGenerated = true;
+    renderBankBar();
+    try { localStorage.setItem(GEN_CACHE_KEY, JSON.stringify(p)); } catch (e) {}
     document.getElementById('btn-clear-generated').style.display = 'inline-block';
-    status.textContent = `New passage ready: "${p.title}". Start the sprint to begin.`;
-    state = { startedAt: null, submitted: false, timed: true, answers: {} };
-    document.getElementById('start-pane').style.display = '';
-    document.getElementById('quiz-pane').style.display = 'none';
-    document.getElementById('result-pane').style.display = 'none';
-    document.getElementById('result-pane').innerHTML = '';
+    resetToStart();
+    status.textContent = 'New passage ready: "' + p.title + '". Start the sprint to begin.';
+    renderFresh();
   } catch (e) {
-    status.textContent = 'Generator error: ' + (e?.message || e);
+    status.textContent = 'Generator error: ' + ((e && e.message) ? e.message : e);
   } finally {
     document.getElementById('btn-generate').disabled = false;
   }
 });
 
 document.getElementById('btn-clear-generated').addEventListener('click', () => {
-  if (!confirm('Reset to the curated passage?')) return;
-  try { localStorage.removeItem(GEN_CACHE_KEY); } catch {}
-  PASSAGE = JSON.parse(JSON.stringify(CURATED));
+  if (!confirm('Reset to the curated passages?')) return;
+  try { localStorage.removeItem(GEN_CACHE_KEY); } catch (e) {}
+  const picked = window.JglFresh
+    ? JglFresh.pickUnseen(BUCKET, CURATED_BANK, function (x) { return JglFresh.normKey(x.id || x.title); })
+    : CURATED_BANK[0];
+  const idx = CURATED_BANK.indexOf(picked);
+  loadBankPassage(idx === -1 ? 0 : idx);
+  resetToStart();
   document.getElementById('btn-clear-generated').style.display = 'none';
-  document.getElementById('gen-status').textContent = '';
+  document.getElementById('gen-status').textContent = 'Back to the curated bank: ' + PASSAGE.title;
 });
 
 async function generateClozePassage(theme) {
+  // MOVE 1: tell the model what this student has already been shown.
+  const avoid = (window.JglFresh ? JglFresh.avoidList(BUCKET, 12) : []);
+  const avoidBlock = avoid.length
+    ? '\n\nDo NOT produce anything similar in topic, setting, character names, or wording to any of these, which the student has already seen:\n' + avoid.map(a => '- ' + a).join('\n')
+    : '';
+
   const sys = 'You are a PSLE English Paper 2 Grammar Cloze item writer. Output VALID JSON ONLY. Primary 6 level. Singapore-natural settings.';
   const prompt = `Generate ONE Grammar Cloze passage on the theme: "${theme}".
 
-The passage is built from interleaved string segments and blank objects so it can render with input boxes. Each blank tests ONE grammar area: tense, subject-verb agreement, article, preposition, pronoun, connector, auxiliary, or quantifier.
+The passage is built from interleaved string segments and blank objects so it can render with input boxes. Each blank tests ONE grammar area: tense, agreement, article, preposition, pronoun, or connector.
 
 Output JSON with EXACTLY:
 {
   "title": "<short title, 4-7 words>",
   "parts": [
     "<text segment ending in a space>",
-    { "id": 1, "accept": ["<canonical>", "<acceptable alternate>"], "why": "<one-sentence explanation>" },
+    { "id": 1, "area": "tense", "accept": ["<canonical>", "<acceptable alternate>"], "why": "<one-sentence explanation>" },
     "<text segment that contains the rest of the sentence>",
     ...continue until you have EXACTLY 10 blank objects interleaved with text segments...
   ]
@@ -382,10 +726,12 @@ Output JSON with EXACTLY:
 
 Constraints:
 - Exactly 10 blank objects, ids 1..10 in order.
+- "area" is EXACTLY one of: "tense", "agreement", "article", "preposition", "pronoun", "connector", "grammar". Use "grammar" only when none of the others fit.
 - Each "accept" array has 1-3 strings (the canonical answer first).
-- "why" must name the grammar area being tested.
+- "why" must name the grammar area being tested, in one sentence a 12-year-old can follow.
+- Spread the areas: do not use the same "area" for more than three of the ten blanks.
 - The passage flows as ONE coherent piece, ~120-180 words across all the text segments.
-- No emoji.`;
+- No emoji.${avoidBlock}`;
 
   const json = await window.askGemini({
     system: sys, prompt,
@@ -395,12 +741,18 @@ Constraints:
   if (!json || !Array.isArray(json.parts)) throw new Error('Unexpected response shape.');
   const blanks = json.parts.filter(p => p && typeof p === 'object');
   if (blanks.length < 5) throw new Error('Generator returned too few blanks.');
+  // Renumber the blanks ourselves. A model that omits an id, repeats one,
+  // or returns them out of order would otherwise collapse several blanks
+  // onto the same answer key and silently lose marks.
+  let blankNo = 0;
   return {
     title: json.title || 'AI-generated passage',
     parts: json.parts.map(p => {
       if (typeof p === 'string') return p;
+      blankNo += 1;
       return {
-        id: p.id,
+        id: blankNo,
+        area: normArea(p.area) || deriveArea(p.why) || 'grammar',
         accept: Array.isArray(p.accept) ? p.accept.map(String) : [String(p.accept || '')],
         why: p.why || '',
       };

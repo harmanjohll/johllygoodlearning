@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Check — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 760px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+
+    .hero h1 { font-size: 1.55rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 1.5rem; }
+
+    .check {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.15rem 1.35rem; margin-bottom: 1rem;
+    }
+    .check-head { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; margin-bottom: .35rem; }
+    .check-head .n { font-size: .66rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; font-weight: 800; }
+    .check-head h2 { font-size: 1.02rem; margin: 0; }
+    .check-head .verdict { margin-left: auto; font-size: .8rem; font-weight: 700; }
+    .verdict.pass { color: #4ade80; }
+    .verdict.fail { color: #f87171; }
+    .verdict.warn { color: #fbbf24; }
+    .verdict.idle { color: var(--muted); font-weight: 500; }
+    .check .why { font-size: .85rem; color: var(--muted); line-height: 1.6; margin-bottom: .75rem; }
+    .check .detail {
+      font-size: .8rem; line-height: 1.6; color: var(--text);
+      background: var(--surface); border-left: 3px solid var(--border);
+      border-radius: 6px; padding: .55rem .8rem; margin-top: .65rem;
+      white-space: pre-wrap; display: none;
+    }
+    .check .detail.show { display: block; }
+    .check .detail.ok   { border-left-color: #4ade80; }
+    .check .detail.bad  { border-left-color: #f87171; }
+    .check .detail.mid  { border-left-color: #fbbf24; }
+    .check .row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+
+    .meter { height: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; overflow: hidden; flex: 1; min-width: 140px; }
+    .meter .fill { height: 100%; width: 0%; background: var(--accent); border-radius: 99px; transition: width .06s linear; }
+    .meter.hot .fill { background: #4ade80; }
+
+    .summary {
+      background: linear-gradient(135deg, #14302b 0%, #1e1835 100%);
+      border: 1px solid var(--accent); border-radius: 12px;
+      padding: 1.15rem 1.35rem; margin-bottom: 1.25rem;
+    }
+    .summary h3 { color: var(--accent); font-size: 1rem; margin-bottom: .4rem; }
+    .summary p { font-size: .88rem; color: var(--text); line-height: 1.65; margin: 0; }
+
+    code { background: var(--surface); border: 1px solid var(--border); padding: .05rem .3rem; border-radius: 4px; font-size: .8rem; color: var(--accent); }
+    audio { width: 100%; margin-top: .6rem; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../" class="back-link">← Hub</a>
+  <strong style="color: var(--text);">System Check</strong>
+  <span style="color: var(--muted); font-size: .82rem;">Ten seconds to confirm the Oral modes will work</span>
+  <span style="flex:1;"></span>
+  <span data-studio-settings-slot></span>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>System Check</h1>
+    <p>
+      Four checks. Run them once on each device you plan to study on. Nothing here is sent anywhere except the
+      two tests that deliberately call Google, and your API key never leaves this browser.
+    </p>
+  </div>
+
+  <div class="summary" id="summary">
+    <h3>Not run yet</h3>
+    <p>Press <strong>Run all checks</strong> below. The microphone test will ask for permission — that prompt is expected.</p>
+  </div>
+
+  <div class="row" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+    <button class="btn btn-primary" id="run-all">Run all checks</button>
+    <button class="btn btn-secondary" id="open-settings-btn">Open key settings</button>
+  </div>
+
+  <!-- 1 ------------------------------------------------------------------ -->
+  <div class="check">
+    <div class="check-head">
+      <span class="n">Check 1</span>
+      <h2>Browser and connection</h2>
+      <span class="verdict idle" id="v1">not run</span>
+    </div>
+    <div class="why">Recording needs a secure connection and a browser that supports capture. This check also reports which audio format your browser will produce, because that differs between Chrome and Safari.</div>
+    <div class="detail" id="d1"></div>
+  </div>
+
+  <!-- 2 ------------------------------------------------------------------ -->
+  <div class="check">
+    <div class="check-head">
+      <span class="n">Check 2</span>
+      <h2>Microphone</h2>
+      <span class="verdict idle" id="v2">not run</span>
+    </div>
+    <div class="why">Records three seconds and plays it back. Watch the bar move while you speak — if it stays flat, your device is sending a different microphone than you think.</div>
+    <div class="row">
+      <button class="btn btn-secondary" id="mic-btn">Record 3 seconds</button>
+      <div class="meter" id="meter"><div class="fill" id="meter-fill"></div></div>
+    </div>
+    <div class="detail" id="d2"></div>
+    <div id="playback"></div>
+  </div>
+
+  <!-- 3 ------------------------------------------------------------------ -->
+  <div class="check">
+    <div class="check-head">
+      <span class="n">Check 3</span>
+      <h2>API key</h2>
+      <span class="verdict idle" id="v3">not run</span>
+    </div>
+    <div class="why">Sends one tiny request to Google to confirm your saved key is accepted. If you have not added a key yet, use the settings button at the top of any page.</div>
+    <div class="detail" id="d3"></div>
+  </div>
+
+  <!-- 4 ------------------------------------------------------------------ -->
+  <div class="check">
+    <div class="check-head">
+      <span class="n">Check 4</span>
+      <h2>The examiner can hear you</h2>
+      <span class="verdict idle" id="v4">not run</span>
+    </div>
+    <div class="why">The one that matters. Sends your three-second recording to Gemini and asks it to transcribe it. If the transcript matches roughly what you said, every Oral mode in the studio will work. Run check 2 first.</div>
+    <div class="row"><button class="btn btn-secondary" id="hear-btn" disabled>Send my recording to the examiner</button></div>
+    <div class="detail" id="d4"></div>
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/lab.js"></script>
+<script src="../shared/gemini.js"></script>
+<script src="../shared/audio.js"></script>
+<script>
+(function () {
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function setVerdict(n, state, text) {
+    var el = $('v' + n);
+    el.className = 'verdict ' + state;
+    el.textContent = text;
+  }
+  function setDetail(n, tone, html) {
+    var el = $('d' + n);
+    el.className = 'detail show ' + tone;
+    el.innerHTML = html;
+  }
+
+  var results = { 1: null, 2: null, 3: null, 4: null };
+  var take = null;   // last recording
+
+  function key() {
+    try {
+      if (window.JglStorage && window.JglStorage.getGeminiKey) return window.JglStorage.getGeminiKey() || '';
+      return localStorage.getItem('jgl.geminiKey') || '';
+    } catch (e) { return ''; }
+  }
+
+  // ── 1. browser + connection ────────────────────────────────
+  function check1() {
+    var sup = window.JglAudio ? window.JglAudio.support() : { ok: false, reason: 'NO_MODULE', mimeType: '' };
+    var ua = navigator.userAgent;
+    var name = /Edg\//.test(ua) ? 'Edge'
+             : /Chrome\//.test(ua) && !/Edg\//.test(ua) ? 'Chrome'
+             : /Firefox\//.test(ua) ? 'Firefox'
+             : /Safari\//.test(ua) ? 'Safari' : 'this browser';
+    var secure = window.isSecureContext === true ||
+                 ['localhost', '127.0.0.1'].indexOf(location.hostname) !== -1;
+
+    var lines = [];
+    lines.push('Browser detected: <strong>' + esc(name) + '</strong>');
+    lines.push('Secure connection (https or localhost): <strong>' + (secure ? 'yes' : 'NO') + '</strong>');
+    lines.push('MediaRecorder available: <strong>' + (typeof MediaRecorder !== 'undefined' ? 'yes' : 'NO') + '</strong>');
+    lines.push('Audio format your browser will record: <code>' + esc(sup.mimeType || 'unknown') + '</code>');
+
+    if (sup.ok) {
+      results[1] = true;
+      setVerdict(1, 'pass', 'pass');
+      setDetail(1, 'ok', lines.join('<br>') + '<br><br>This browser can record. The studio sends Gemini the format shown above automatically, so you do not need to change anything.');
+    } else {
+      results[1] = false;
+      setVerdict(1, 'fail', 'fail');
+      var fix = sup.reason === 'INSECURE_CONTEXT'
+        ? 'The page is not on a secure connection. Open the studio over <strong>https</strong> (the published site) rather than from a local file, and recording will work.'
+        : 'This browser does not expose audio recording. Try Chrome, Edge, or Safari.';
+      setDetail(1, 'bad', lines.join('<br>') + '<br><br>' + fix);
+    }
+  }
+
+  // ── 2. microphone ──────────────────────────────────────────
+  function check2() {
+    return new Promise(function (resolve) {
+      if (!window.JglAudio) {
+        results[2] = false; setVerdict(2, 'fail', 'fail');
+        setDetail(2, 'bad', 'The audio module did not load. Reload the page.');
+        return resolve();
+      }
+      var btn = $('mic-btn');
+      var peak = 0;
+      btn.disabled = true;
+      btn.textContent = 'Recording…';
+      setVerdict(2, 'idle', 'recording…');
+
+      var rec = window.JglAudio.createRecorder({
+        maxMs: 3000,
+        onLevel: function (v) {
+          if (v > peak) peak = v;
+          $('meter-fill').style.width = Math.round(v * 100) + '%';
+          $('meter').classList.toggle('hot', v > 0.06);
+        },
+        onTick: function (ms) { btn.textContent = 'Recording… ' + (3 - Math.floor(ms / 1000)); }
+      });
+
+      rec.start().then(function () {
+        return new Promise(function (r) { setTimeout(r, 3100); });
+      }).then(function () {
+        return rec.stop();
+      }).then(function (t) {
+        take = t;
+        $('meter-fill').style.width = '0%';
+        btn.disabled = false; btn.textContent = 'Record again';
+        $('playback').innerHTML = '<audio controls src="' + t.url + '"></audio>';
+        $('hear-btn').disabled = false;
+
+        var kb = Math.round((t.base64.length * 3 / 4) / 1024);
+        var lines = [
+          'Recorded: <strong>' + (t.durationMs / 1000).toFixed(1) + ' s</strong>',
+          'Format: <code>' + esc(t.mimeType) + '</code> — sent to Gemini as <code>' + esc(window.JglAudio.geminiMime(t.mimeType)) + '</code>',
+          'Size: about <strong>' + kb + ' KB</strong>',
+          'Loudest level detected: <strong>' + Math.round(peak * 100) + '%</strong>'
+        ];
+        if (peak < 0.04) {
+          results[2] = false; setVerdict(2, 'warn', 'no sound');
+          setDetail(2, 'mid', lines.join('<br>') + '<br><br>The bar barely moved, so almost no sound reached the page. Check that the right microphone is selected in your system sound settings and that it is not muted, then record again. Play the clip above to confirm.');
+        } else {
+          results[2] = true; setVerdict(2, 'pass', 'pass');
+          setDetail(2, 'ok', lines.join('<br>') + '<br><br>Sound is reaching the page. Play the clip above to check it sounds like you.');
+        }
+        resolve();
+      }).catch(function (e) {
+        btn.disabled = false; btn.textContent = 'Record 3 seconds';
+        results[2] = false; setVerdict(2, 'fail', 'fail');
+        var code = e && e.code ? e.code : '';
+        var extra = code === 'PERM_DENIED'
+          ? '<br><br>Click the padlock or camera icon in the address bar, set Microphone to <strong>Allow</strong>, then reload this page.'
+          : '';
+        setDetail(2, 'bad', esc(e && e.message ? e.message : String(e)) + extra);
+        resolve();
+      });
+    });
+  }
+
+  // ── 3. API key ─────────────────────────────────────────────
+  function check3() {
+    var k = key();
+    if (!k) {
+      results[3] = false; setVerdict(3, 'warn', 'no key');
+      setDetail(3, 'mid', 'No API key saved on this device yet. Click <strong>Open key settings</strong> above, follow the two-minute steps, then run this check again. Everything that does not use AI works without a key.');
+      return Promise.resolve();
+    }
+    setVerdict(3, 'idle', 'testing…');
+    return window.askGemini({ prompt: 'Reply with the single word: OK', maxTokens: 8, temperature: 0 })
+      .then(function (txt) {
+        results[3] = true; setVerdict(3, 'pass', 'pass');
+        setDetail(3, 'ok', 'Google accepted the key. It replied: <strong>' + esc(String(txt).trim().slice(0, 40)) + '</strong>');
+      })
+      .catch(function (e) {
+        results[3] = false; setVerdict(3, 'fail', 'fail');
+        var msg = e && e.message ? e.message : String(e);
+        var hint = e && e.code === 'RATE_LIMIT'
+          ? '<br><br>That is a quota limit, not a bad key. Wait a while, or create a second key in Google AI Studio.'
+          : /api key|invalid/i.test(msg)
+            ? '<br><br>The key was not recognised. Re-copy it from Google AI Studio — it should start with <code>AIza</code> and have no spaces.'
+            : '';
+        setDetail(3, 'bad', esc(msg) + hint);
+      });
+  }
+
+  // ── 4. end-to-end: can the examiner hear you ───────────────
+  function check4() {
+    if (!take) {
+      setVerdict(4, 'warn', 'needs check 2');
+      setDetail(4, 'mid', 'Run check 2 first so there is a recording to send.');
+      return Promise.resolve();
+    }
+    if (!key()) {
+      setVerdict(4, 'warn', 'no key');
+      setDetail(4, 'mid', 'Add an API key first, then run this check.');
+      return Promise.resolve();
+    }
+    setVerdict(4, 'idle', 'sending…');
+    setDetail(4, 'mid', 'Uploading about ' + Math.round((take.base64.length * 3 / 4) / 1024) + ' KB of audio and asking Gemini to transcribe it…');
+
+    return window.askGemini({
+      system: 'You transcribe short audio clips. Reply with valid JSON only.',
+      prompt: 'Transcribe this audio exactly. Return JSON: {"transcript":"<what you heard, verbatim>","audible":true or false}. If you hear no speech at all, set audible to false and transcript to an empty string.',
+      audio: { base64: take.base64, mimeType: window.JglAudio.geminiMime(take.mimeType) },
+      responseMimeType: 'application/json',
+      asJson: true,
+      maxTokens: 400,
+      temperature: 0
+    }).then(function (res) {
+      var t = (res && res.transcript ? String(res.transcript) : '').trim();
+      if (t) {
+        results[4] = true; setVerdict(4, 'pass', 'pass');
+        setDetail(4, 'ok', 'Gemini heard:<br><br><strong>"' + esc(t) + '"</strong><br><br>If that is roughly what you said, every Oral mode will work — Reading Aloud, SBC, and the full mock all use this exact path.');
+      } else {
+        results[4] = false; setVerdict(4, 'warn', 'no speech heard');
+        setDetail(4, 'mid', 'The upload worked and Gemini replied, but it heard no speech. Record check 2 again, speaking a clear full sentence close to the microphone.');
+      }
+    }).catch(function (e) {
+      results[4] = false; setVerdict(4, 'fail', 'fail');
+      var msg = e && e.message ? e.message : String(e);
+      var hint = e && e.code === 'AUDIO_TOO_LARGE'
+        ? '<br><br>The clip was too big. That should not happen on a three-second test — reload and try again.'
+        : '<br><br>If this fails while check 3 passes, the key is fine but the audio upload was rejected. Tell Claude the exact message above.';
+      setDetail(4, 'bad', esc(msg) + hint);
+    });
+  }
+
+  // ── summary ────────────────────────────────────────────────
+  function summarise() {
+    var s = $('summary');
+    var pass = Object.keys(results).filter(function (k2) { return results[k2] === true; }).length;
+    var ranAll = results[1] !== null && results[2] !== null && results[3] !== null;
+    if (!ranAll) return;
+
+    var h, p;
+    if (results[4] === true) {
+      h = 'All clear — you are ready to practise Oral';
+      p = 'Recording works on this device and the examiner model can hear you. Start with <a href="../aloud/" style="color:var(--accent);">Reading Aloud</a>, then try a full mock in the <a href="../oral/" style="color:var(--accent);">Oral Studio</a>.';
+    } else if (results[1] && results[2] && !key()) {
+      h = 'Microphone works — add a key to unlock marking';
+      p = 'Recording and playback are fine on this device. Add a free Gemini key from the settings button to turn on examiner feedback. Everything that is not AI-marked already works.';
+    } else if (results[1] && results[2] && results[3]) {
+      h = 'Microphone and key both work';
+      p = 'Run check 4 to confirm the examiner can actually hear the recording. That is the last link in the chain.';
+    } else if (!results[1]) {
+      h = 'This browser or connection cannot record';
+      p = 'See check 1 for the specific reason and fix. The written modes all still work.';
+    } else {
+      h = 'Something needs attention';
+      p = 'Check the red entries below — each one names the exact fix. ' + pass + ' of 4 checks passed.';
+    }
+    s.innerHTML = '<h3>' + h + '</h3><p>' + p + '</p>';
+  }
+
+  // ── wiring ─────────────────────────────────────────────────
+  $('run-all').addEventListener('click', function () {
+    check1();
+    check2().then(check3).then(function () {
+      summarise();
+      if (results[2] && results[3]) return check4().then(summarise);
+    });
+  });
+  $('mic-btn').addEventListener('click', function () { check2().then(summarise); });
+  $('hear-btn').addEventListener('click', function () { check4().then(summarise); });
+  $('open-settings-btn').addEventListener('click', function () {
+    if (typeof window.showAISetup === 'function') window.showAISetup();
+    else alert('Open any page and use the Settings button at the top right.');
+  });
+
+  // Run the passive check immediately — it needs no permission.
+  check1();
+})();
+</script>
+</body>
+</html>

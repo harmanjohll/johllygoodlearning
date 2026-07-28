@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Essay Handles — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 820px; margin: 0 auto; padding: 1.25rem 1.25rem 6rem; }
+
+    /* ── Intro ── */
+    .intro { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--composition); border-radius: 12px; padding: .9rem 1.1rem; margin-bottom: 1rem; }
+    .intro p { font-size: .85rem; line-height: 1.6; }
+    .intro summary { cursor: pointer; font-size: .78rem; font-weight: 700; color: var(--composition); margin-top: .6rem; list-style: none; }
+    .intro summary::-webkit-details-marker { display: none; }
+    .intro summary::before { content: '▸ '; display: inline-block; transition: transform .18s; }
+    .intro details[open] summary::before { content: '▾ '; }
+    .intro ul { margin: .6rem 0 0; padding-left: 1.1rem; }
+    .intro li { font-size: .8rem; color: var(--muted); line-height: 1.55; margin-bottom: .35rem; }
+
+    /* ── Daily three ── */
+    .daily { margin-bottom: 1.25rem; }
+    .daily-head { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; margin-bottom: .55rem; }
+    .daily-head h2 { font-family: var(--font-display, serif); font-size: 1.05rem; }
+    .daily-head span { font-size: .72rem; color: var(--muted); }
+    .daily-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .65rem; }
+    .daily-card { background: var(--card); border: 1px solid var(--border); border-top: 2px solid var(--composition); border-radius: 11px; padding: .75rem .85rem; display: flex; flex-direction: column; gap: .35rem; }
+    .daily-card .d-kind { font-size: .62rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; color: var(--composition); }
+    .daily-card .d-title { font-size: .92rem; font-weight: 700; color: var(--text); line-height: 1.35; }
+    .daily-card .d-body { font-size: .78rem; color: var(--muted); line-height: 1.5; }
+    .daily-card .d-eg { font-size: .78rem; color: #cbd5e1; font-style: italic; line-height: 1.5; border-left: 2px solid var(--border); padding-left: .55rem; }
+    .daily-card .d-foot { margin-top: auto; padding-top: .4rem; }
+
+    /* ── Toolbar ── */
+    .toolbar { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin-bottom: .8rem; }
+    .search-wrap { position: relative; flex: 1 1 220px; min-width: 0; }
+    .search-wrap input {
+      width: 100%; background: var(--surface); border: 1.5px solid var(--border); color: var(--text);
+      border-radius: 9px; padding: .6rem .9rem .6rem 2.1rem; font-size: .88rem; outline: none;
+      font-family: inherit; transition: border-color .15s;
+    }
+    .search-wrap input:focus { border-color: var(--composition); }
+    .search-wrap .s-icon { position: absolute; left: .7rem; top: 50%; transform: translateY(-50%); font-size: .85rem; opacity: .6; pointer-events: none; }
+    .search-clear { position: absolute; right: .45rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); cursor: pointer; font-size: .95rem; padding: .2rem .35rem; border-radius: 5px; display: none; }
+    .search-clear.show { display: block; }
+    .search-clear:hover { color: var(--text); background: var(--border); }
+    .tool-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 9px; padding: .6rem .9rem; font-size: .82rem; font-weight: 700; cursor: pointer; white-space: nowrap; font-family: inherit; }
+    .tool-btn:hover { border-color: var(--composition); }
+
+    /* ── Tabs ── */
+    .h-tabs { display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: 1rem; padding-bottom: .75rem; border-bottom: 1px solid var(--border); }
+    .h-tab {
+      padding: .4rem .75rem; border-radius: 99px; border: 1px solid var(--border); background: transparent;
+      color: var(--muted); font-size: .78rem; font-weight: 700; cursor: pointer; transition: all .15s; font-family: inherit;
+    }
+    .h-tab:hover { color: var(--text); border-color: var(--composition); }
+    .h-tab.active { background: var(--composition); border-color: var(--composition); color: #1a0a10; }
+    .h-tab .t-count { opacity: .7; font-weight: 600; font-size: .72rem; }
+
+    /* ── Filter chips ── */
+    .filters { display: flex; flex-direction: column; gap: .45rem; margin-bottom: 1rem; }
+    .filter-row { display: flex; gap: .35rem; flex-wrap: wrap; align-items: center; }
+    .filter-row .f-label { font-size: .66rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 800; color: var(--muted); margin-right: .2rem; }
+    .fchip {
+      padding: .25rem .65rem; border-radius: 99px; border: 1px solid var(--border); background: transparent;
+      color: var(--muted); font-size: .73rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s;
+    }
+    .fchip:hover { color: var(--text); }
+    .fchip.active { background: var(--surface2, var(--surface)); color: var(--text); border-color: var(--accent); }
+    .fchip.active[data-verdict="reward"] { border-color: var(--grammar); color: var(--grammar); }
+    .fchip.active[data-verdict="safe"] { border-color: var(--accent); color: var(--accent); }
+    .fchip.active[data-verdict="avoid"] { border-color: #fbbf24; color: #fbbf24; }
+
+    /* ── Cards ── */
+    .h-list { display: flex; flex-direction: column; gap: .7rem; }
+    .h-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: .85rem 1rem; }
+    .h-card.avoid { border-color: #fbbf2455; background: #241d08; }
+    .h-card-top { display: flex; gap: .6rem; align-items: flex-start; justify-content: space-between; }
+    .h-title { font-size: .98rem; font-weight: 700; color: var(--text); line-height: 1.35; }
+    .h-card.avoid .h-title { color: #fcd34d; }
+    .h-acts { display: flex; gap: .3rem; flex-shrink: 0; }
+    .icon-btn {
+      background: transparent; border: 1px solid var(--border); border-radius: 7px; cursor: pointer;
+      font-size: .8rem; line-height: 1; padding: .35rem .45rem; color: var(--muted); font-family: inherit; transition: all .15s;
+    }
+    .icon-btn:hover { border-color: var(--composition); color: var(--text); }
+    .icon-btn.pinned { border-color: var(--composition); background: #3a1620; color: #fda4af; }
+    .h-meta { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .3rem; }
+    .tag { font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: .12rem .45rem; border-radius: 99px; border: 1px solid var(--border); color: var(--muted); }
+    .tag.v-reward { color: var(--grammar); border-color: var(--grammar); }
+    .tag.v-safe { color: var(--accent); border-color: var(--accent); }
+    .tag.v-avoid { color: #fbbf24; border-color: #fbbf24; }
+    .tag.dim { color: var(--comprehension); border-color: #60a5fa66; }
+    .h-def { font-size: .84rem; color: var(--muted); line-height: 1.55; margin-top: .5rem; }
+    .h-when { font-size: .79rem; color: var(--muted); line-height: 1.55; margin-top: .4rem; }
+    .h-when b { color: #cbd5e1; font-weight: 700; }
+    .h-eg { font-size: .82rem; color: #cbd5e1; font-style: italic; line-height: 1.55; margin-top: .5rem; border-left: 2px solid var(--composition); padding-left: .6rem; white-space: pre-line; }
+    .h-note { font-size: .76rem; color: var(--muted); line-height: 1.5; margin-top: .5rem; opacity: .9; }
+    .h-tmpl { font-family: var(--font-mono, monospace); font-size: .77rem; color: var(--vocab); background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: .45rem .6rem; margin-top: .5rem; line-height: 1.5; word-break: break-word; }
+    .h-instead { margin-top: .55rem; background: #1c2a1e; border: 1px solid var(--grammar); border-radius: 8px; padding: .5rem .7rem; font-size: .8rem; color: #a7f3d0; line-height: 1.55; }
+    .h-instead b { display: block; font-size: .62rem; text-transform: uppercase; letter-spacing: .08em; color: var(--grammar); margin-bottom: .2rem; }
+    .h-from { font-size: .64rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; color: var(--composition); margin-bottom: .3rem; }
+
+    /* ── Chips (word banks) ── */
+    .chip-group { margin-top: .6rem; }
+    .chip-group-label { font-size: .64rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; color: var(--muted); margin-bottom: .3rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: .3rem; }
+    .chip { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: .2rem .6rem; font-size: .76rem; color: #cbd5e1; line-height: 1.45; }
+    .chip.strong { color: var(--grammar); border-color: #34d39944; }
+    .phrase-list { display: flex; flex-direction: column; gap: .3rem; margin-top: .35rem; }
+    .phrase-item { font-size: .8rem; color: #cbd5e1; line-height: 1.5; padding-left: .7rem; border-left: 2px solid var(--border); }
+    .reflect-block { margin-top: .65rem; background: #2a121a; border: 1px solid #fb718544; border-radius: 9px; padding: .6rem .75rem; }
+    .reflect-block .rb-label { font-size: .62rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; color: var(--composition); margin-bottom: .3rem; }
+    .reflect-block p { font-size: .82rem; color: #fecdd3; line-height: 1.6; margin-bottom: .3rem; font-style: italic; }
+    .reflect-block p:last-child { margin-bottom: 0; }
+
+    /* ── Details cards ── */
+    details.h-card > summary { cursor: pointer; list-style: none; display: flex; align-items: flex-start; justify-content: space-between; gap: .6rem; }
+    details.h-card > summary::-webkit-details-marker { display: none; }
+    .sum-main { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; min-width: 0; }
+    .sum-caret { color: var(--composition); font-size: .8rem; transition: transform .18s; display: inline-block; }
+    details[open] > summary .sum-caret { transform: rotate(90deg); }
+    .sum-sub { font-size: .72rem; color: var(--muted); font-weight: 600; }
+
+    /* ── Show don't tell ── */
+    .snt-group { margin-bottom: 1rem; }
+    .snt-head { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; color: var(--composition); margin-bottom: .45rem; }
+    .snt-pair { background: var(--card); border: 1px solid var(--border); border-radius: 11px; padding: .7rem .85rem; margin-bottom: .5rem; }
+    .snt-row { display: flex; gap: .5rem; align-items: flex-start; }
+    .snt-row .snt-mark { font-size: .78rem; flex-shrink: 0; width: 1.15rem; text-align: center; font-weight: 800; }
+    .snt-flat { color: #94a3b8; font-size: .82rem; line-height: 1.5; text-decoration: line-through; text-decoration-color: #64748b; }
+    .snt-shown { color: #e2e8f0; font-size: .85rem; line-height: 1.6; }
+    .snt-mid { border-top: 1px dashed var(--border); margin: .5rem 0; }
+    .snt-foot { display: flex; justify-content: space-between; align-items: center; gap: .5rem; margin-top: .5rem; }
+
+    /* ── Ordered list (structures) ── */
+    .stage-list { margin: .55rem 0 0; padding-left: 1.15rem; }
+    .stage-list li { font-size: .81rem; color: #cbd5e1; line-height: 1.55; margin-bottom: .3rem; }
+
+    /* ── Sticky kit button ── */
+    .kit-fab {
+      position: fixed; right: 1rem; bottom: 1rem; z-index: 90;
+      background: var(--composition); color: #1a0a10; border: none; border-radius: 99px;
+      padding: .7rem 1.15rem; font-size: .85rem; font-weight: 800; cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0,0,0,.5); font-family: inherit;
+    }
+    .kit-fab:hover { filter: brightness(1.08); }
+
+    /* ── Drawer ── */
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200; display: none; }
+    .drawer-overlay.open { display: block; }
+    .drawer {
+      position: fixed; right: 0; top: 0; bottom: 0; width: min(440px, 100%);
+      background: var(--bg); border-left: 1px solid var(--border); z-index: 201;
+      display: none; flex-direction: column; box-shadow: -20px 0 60px rgba(0,0,0,.6);
+    }
+    .drawer.open { display: flex; }
+    .drawer-head { padding: .9rem 1.1rem; border-bottom: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; gap: .6rem; }
+    .drawer-head h3 { font-size: .98rem; flex: 1; color: var(--text); }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 1rem 1.1rem 2rem; }
+    .drawer-foot { padding: .8rem 1.1rem; border-top: 1px solid var(--border); background: var(--surface); display: flex; gap: .5rem; flex-wrap: wrap; }
+    .kit-section-label { font-size: .64rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; color: var(--composition); margin: .9rem 0 .4rem; }
+    .kit-section-label:first-child { margin-top: 0; }
+    .kit-item { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: .55rem .7rem; margin-bottom: .4rem; display: flex; gap: .5rem; align-items: flex-start; }
+    .kit-item .ki-text { flex: 1; min-width: 0; }
+    .kit-item .ki-title { font-size: .85rem; font-weight: 700; color: var(--text); line-height: 1.4; }
+    .kit-item .ki-sub { font-size: .74rem; color: var(--muted); line-height: 1.45; margin-top: .15rem; }
+
+    /* ── Try it ── */
+    .ti-field { margin-bottom: .85rem; }
+    .ti-label { display: block; font-size: .68rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 800; color: var(--muted); margin-bottom: .35rem; }
+    .ti-input, .ti-select, .ti-textarea {
+      width: 100%; background: var(--surface); border: 1.5px solid var(--border); color: var(--text);
+      border-radius: 9px; padding: .6rem .8rem; font-size: .88rem; outline: none; font-family: inherit; line-height: 1.55;
+    }
+    .ti-input:focus, .ti-select:focus, .ti-textarea:focus { border-color: var(--composition); }
+    .ti-textarea { resize: vertical; min-height: 92px; }
+    .ti-count { font-size: .7rem; color: var(--muted); text-align: right; margin-top: .2rem; font-family: var(--font-mono, monospace); }
+    .ti-count.over { color: #f87171; }
+    .ti-handle-box { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--composition); border-radius: 9px; padding: .6rem .75rem; margin-bottom: .85rem; }
+    .ti-handle-box .tb-phrase { font-size: .9rem; font-weight: 700; color: var(--text); }
+    .ti-handle-box .tb-sub { font-size: .77rem; color: var(--muted); line-height: 1.5; margin-top: .2rem; }
+    .notice { border-radius: 9px; padding: .65rem .8rem; font-size: .8rem; line-height: 1.55; margin-bottom: .85rem; }
+    .notice.amber { background: #2a1f05; border: 1px solid #f59e0b66; color: #fcd34d; }
+    .notice.rose { background: #2a1015; border: 1px solid #fb718566; color: #fda4af; }
+    .verdict-box { border-radius: 10px; padding: .8rem .9rem; margin-top: .9rem; border: 1px solid var(--border); background: var(--card); }
+    .verdict-box .vb-head { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; }
+    .verdict-box .vb-pill { font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; padding: .18rem .55rem; border-radius: 99px; }
+    .vb-nailed { color: var(--grammar); border: 1px solid var(--grammar); background: #0a2a1c; }
+    .vb-close { color: #fbbf24; border: 1px solid #fbbf24; background: #241d08; }
+    .vb-missed { color: #fda4af; border: 1px solid var(--composition); background: #2a1015; }
+    .verdict-box .vb-why { font-size: .84rem; color: #cbd5e1; line-height: 1.6; }
+    .vb-up-label { font-size: .62rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; color: var(--composition); margin: .7rem 0 .25rem; }
+    .vb-upgrade { font-size: .86rem; color: #e2e8f0; line-height: 1.65; font-style: italic; border-left: 2px solid var(--composition); padding-left: .6rem; }
+    .vb-next { font-size: .78rem; color: var(--muted); margin-top: .7rem; line-height: 1.5; }
+    .vb-next b { color: #cbd5e1; }
+
+    .empty { text-align: center; padding: 2.5rem 1rem; color: var(--muted); font-size: .87rem; line-height: 1.6; }
+    .load-state { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: .88rem; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    :focus-visible { outline: 2px solid var(--composition); outline-offset: 2px; }
+
+    @media (max-width: 480px) {
+      main { padding: 1rem .85rem 6rem; }
+      .page-header { padding: .75rem .9rem; gap: .6rem; }
+      .daily-grid { grid-template-columns: 1fr; }
+      .h-tab { font-size: .74rem; padding: .35rem .6rem; }
+      .kit-fab { right: .7rem; bottom: .7rem; padding: .6rem 1rem; font-size: .8rem; }
+      .drawer { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <a href="../" class="back-link">← Hub</a>
+    <strong style="color:var(--text);">Essay Handles</strong>
+    <span style="color:var(--muted);font-size:.82rem;">Elevation devices for Continuous Writing</span>
+    <span style="flex:1;"></span>
+    <span data-studio-settings-slot></span>
+  </header>
+
+  <main>
+    <div class="intro">
+      <p>Continuous Writing is 36 marks: 18 for Content, 18 for Language. These are the handles that lift a Band 2 script into Band 1. Pin the ones you will actually use, then practise them in a sentence.</p>
+      <details id="rulesBox" hidden>
+        <summary>Deployment rules</summary>
+        <ul id="rulesList"></ul>
+      </details>
+    </div>
+
+    <section class="daily" id="dailySection" hidden>
+      <div class="daily-head">
+        <h2>Today's three handles</h2>
+        <span id="dailyDate"></span>
+      </div>
+      <div class="daily-grid" id="dailyGrid"></div>
+    </section>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="s-icon" aria-hidden="true">🔍</span>
+        <label class="sr-only" for="searchInput">Search all handles</label>
+        <input type="search" id="searchInput" placeholder="Search every section…" autocomplete="off">
+        <button class="search-clear" id="searchClear" type="button" aria-label="Clear search">✕</button>
+      </div>
+      <button class="tool-btn" id="openTryBtn" type="button">✍️ Use it in a sentence</button>
+    </div>
+
+    <nav class="h-tabs" id="tabBar" aria-label="Handle sections"></nav>
+
+    <div id="content"><div class="load-state">Loading handles…</div></div>
+  </main>
+
+  <button class="kit-fab" id="kitFab" type="button" aria-haspopup="dialog">📌 My Kit (<span id="kitCount">0</span>)</button>
+
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+
+  <!-- Kit drawer -->
+  <aside class="drawer" id="kitDrawer" role="dialog" aria-modal="true" aria-labelledby="kitDrawerTitle">
+    <div class="drawer-head">
+      <h3 id="kitDrawerTitle">My Kit</h3>
+      <button class="icon-btn" type="button" data-close-drawer aria-label="Close">✕</button>
+    </div>
+    <div class="drawer-body" id="kitBody"></div>
+    <div class="drawer-foot">
+      <button class="tool-btn" id="copyKitBtn" type="button">Copy kit as text</button>
+      <button class="tool-btn" id="clearKitBtn" type="button">Clear kit</button>
+    </div>
+  </aside>
+
+  <!-- Try it drawer -->
+  <aside class="drawer" id="tryDrawer" role="dialog" aria-modal="true" aria-labelledby="tryDrawerTitle">
+    <div class="drawer-head">
+      <h3 id="tryDrawerTitle">Use it in a sentence</h3>
+      <button class="icon-btn" type="button" data-close-drawer aria-label="Close">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div id="tryNotice"></div>
+      <div class="ti-field">
+        <label class="ti-label" for="trySelect">Pick a handle</label>
+        <select class="ti-select" id="trySelect"></select>
+      </div>
+      <div class="ti-field" id="tryCustomField" hidden>
+        <label class="ti-label" for="tryCustom">Type the handle</label>
+        <input class="ti-input" id="tryCustom" placeholder="e.g. bite the bullet" maxlength="120">
+      </div>
+      <div class="ti-handle-box" id="tryHandleBox" hidden></div>
+      <div class="ti-field">
+        <label class="ti-label" for="trySentence">Your sentence</label>
+        <textarea class="ti-textarea" id="trySentence" maxlength="300" placeholder="Write one sentence that uses the handle inside a real story moment."></textarea>
+        <div class="ti-count" id="tryCount">0 / 300</div>
+      </div>
+      <button class="tool-btn" id="tryCheckBtn" type="button" style="width:100%;background:var(--composition);color:#1a0a10;border-color:var(--composition);">Check my sentence</button>
+      <div id="tryResult"></div>
+    </div>
+  </aside>
+
+  <script src="../shared.js"></script>
+  <script src="../shared/storage.js"></script>
+  <script src="../shared/lab.js"></script>
+  <script src="../shared/gemini.js"></script>
+  <script src="../shared/freshness.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    /* ─────────────────────────────────────────────
+       Utilities
+       ───────────────────────────────────────────── */
+    function escapeHTML(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function slug(s) {
+      return String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
+    }
+    function arr(v) { return Array.isArray(v) ? v.filter(function (x) { return x != null; }) : []; }
+    function str(v) { return typeof v === 'string' ? v : (v == null ? '' : String(v)); }
+    function $(id) { return document.getElementById(id); }
+    function toast(msg) {
+      var t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      requestAnimationFrame(function () { t.classList.add('show'); });
+      setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); }, 350); }, 2200);
+    }
+
+    /* ─────────────────────────────────────────────
+       Kit store
+       ───────────────────────────────────────────── */
+    var KIT_KEY = 'jgl.english.handles.kit';
+    var kit = [];
+
+    function loadKit() {
+      try {
+        var raw = JSON.parse(localStorage.getItem(KIT_KEY) || '[]');
+        kit = Array.isArray(raw) ? raw.filter(function (e) { return e && e.id; }) : [];
+      } catch (_) { kit = []; }
+    }
+    function saveKit() {
+      try { localStorage.setItem(KIT_KEY, JSON.stringify(kit)); } catch (_) { /* quota */ }
+    }
+    function isPinned(id) { return kit.some(function (e) { return e.id === id; }); }
+    function togglePin(id) {
+      var item = ITEM_BY_ID[id];
+      if (!item) return false;
+      var i = kit.findIndex(function (e) { return e.id === id; });
+      if (i !== -1) { kit.splice(i, 1); saveKit(); syncPins(); return false; }
+      kit.push({ id: id, section: item.section, sectionLabel: item.sectionLabel, title: item.title, copy: item.copy, iso: new Date().toISOString() });
+      saveKit(); syncPins(); return true;
+    }
+    function unpin(id) {
+      var i = kit.findIndex(function (e) { return e.id === id; });
+      if (i !== -1) { kit.splice(i, 1); saveKit(); syncPins(); }
+    }
+    function syncPins() {
+      $('kitCount').textContent = String(kit.length);
+      document.querySelectorAll('[data-pin]').forEach(function (b) {
+        var on = isPinned(b.getAttribute('data-pin'));
+        b.classList.toggle('pinned', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        b.title = on ? 'Unpin from My Kit' : 'Pin to My Kit';
+      });
+      if ($('kitDrawer').classList.contains('open')) renderKit();
+      populateTrySelect();
+    }
+
+    /* ─────────────────────────────────────────────
+       Data
+       ───────────────────────────────────────────── */
+    var DATA = null;
+    var ITEMS = [];          // flat, searchable
+    var ITEM_BY_ID = {};
+    var SECTIONS = [];       // [{key,label,items}]
+    var activeTab = null;
+    var query = '';
+    var fVerdict = 'all';
+    var fFreq = 'all';
+
+    /* Item factory. Every item carries:
+       id, section, sectionLabel, kind, title, copy (plain text for the kit), search, raw */
+    function mkItem(section, sectionLabel, kind, idSeed, title, copy, searchBits, raw) {
+      var id = section + ':' + slug(idSeed);
+      var n = 2;
+      while (ITEM_BY_ID[id]) { id = section + ':' + slug(idSeed) + '-' + n; n++; }
+      var it = {
+        id: id, section: section, sectionLabel: sectionLabel, kind: kind,
+        title: title, copy: copy,
+        search: searchBits.filter(Boolean).join(' • ').toLowerCase(),
+        raw: raw
+      };
+      ITEM_BY_ID[id] = it;
+      ITEMS.push(it);
+      return it;
+    }
+
+    function buildSections(d) {
+      var out = [];
+
+      /* ── Idioms ── */
+      var idioms = arr(d.idioms).filter(function (x) { return x && (x.phrase || x.text); });
+      if (idioms.length) {
+        var items = idioms.map(function (o) {
+          var phrase = str(o.phrase || o.text);
+          return mkItem('idioms', 'Idioms', 'idiom', phrase, phrase,
+            phrase + ' — ' + str(o.meaning) + (o.example ? '\n  e.g. ' + str(o.example) : ''),
+            [phrase, o.meaning, o.useWhen, o.example, o.note, o.verdict, o.frequency, arr(o.themes).join(' ')],
+            o);
+        });
+        out.push({ key: 'idioms', label: 'Idioms', items: items });
+      }
+
+      /* ── Values vocab ── */
+      var values = arr(d.valuesVocab).filter(function (x) { return x && x.value; });
+      if (values.length) {
+        var vItems = values.map(function (o) {
+          var name = str(o.value);
+          var banks = ['nouns', 'adjectives', 'verbs', 'phrases'].map(function (k) {
+            return arr(o[k]).length ? k + ': ' + arr(o[k]).join(', ') : '';
+          }).filter(Boolean).join('\n  ');
+          return mkItem('values', 'Values Vocab', 'value', name, name,
+            name + '\n  ' + banks + (arr(o.reflectionLines).length ? '\n  reflection: ' + arr(o.reflectionLines)[0] : ''),
+            [name, o.whenToUse, arr(o.nouns).join(' '), arr(o.adjectives).join(' '), arr(o.verbs).join(' '),
+             arr(o.phrases).join(' '), arr(o.reflectionLines).join(' ')],
+            o);
+        });
+        out.push({ key: 'values', label: 'Values Vocab', items: vItems });
+      }
+
+      /* ── Show don't tell ── */
+      var snt = arr(d.showNotTell).filter(function (x) { return x && (x.showing || x.shown); });
+      if (snt.length) {
+        var sItems = snt.map(function (o) {
+          var flat = str(o.telling || o.flat);
+          var shown = str(o.showing || o.shown);
+          return mkItem('snt', "Show-Don't-Tell", 'snt', str(o.emotion) + '-' + flat, str(o.emotion || 'pair'),
+            'Not: ' + flat + '\n  But: ' + shown,
+            [o.emotion, flat, shown, o.dimension, arr(o.channels).join(' ')],
+            o);
+        });
+        out.push({ key: 'snt', label: "Show-Don't-Tell", items: sItems });
+      }
+
+      /* ── Strong verbs = weakToStrong + sensoryVerbs ── */
+      var verbItems = [];
+      arr(d.weakToStrong).forEach(function (o) {
+        if (!o || !o.weak) return;
+        var strong = arr(o.strong);
+        verbItems.push(mkItem('verbs', 'Strong Verbs', 'weak2strong', 'w-' + str(o.weak), str(o.weak),
+          'instead of "' + str(o.weak) + '": ' + strong.join(', '),
+          [o.weak, strong.join(' '), o.note], o));
+      });
+      var sv = d.sensoryVerbs;
+      if (sv && typeof sv === 'object' && !Array.isArray(sv)) {
+        Object.keys(sv).forEach(function (k) {
+          var words = arr(sv[k]);
+          if (!words.length) return;
+          verbItems.push(mkItem('verbs', 'Strong Verbs', 'sensory', 's-' + k, k + ' words',
+            k + ' words: ' + words.join(', '),
+            [k, words.join(' ')], { sense: k, words: words }));
+        });
+      }
+      if (verbItems.length) out.push({ key: 'verbs', label: 'Strong Verbs', items: verbItems });
+
+      /* ── Openers ── */
+      var openers = arr(d.openers).filter(function (x) { return x && (x.type || x.template); });
+      if (openers.length) {
+        var oItems = openers.map(function (o) {
+          var t = str(o.type || 'opener');
+          return mkItem('openers', 'Openers', 'opener', t, t,
+            t + ' — ' + str(o.template) + (o.example ? '\n  e.g. ' + str(o.example) : ''),
+            [t, o.template, o.example, o.why, o.warning], o);
+        });
+        out.push({ key: 'openers', label: 'Openers', items: oItems });
+      }
+
+      /* ── Transitions ── */
+      var trans = arr(d.transitions).filter(function (x) { return x && (x.function || x.options); });
+      if (trans.length) {
+        var tItems = trans.map(function (o) {
+          var f = str(o.function || 'linking');
+          return mkItem('transitions', 'Transitions', 'transition', f, f,
+            f + ': ' + arr(o.options).join(', '),
+            [f, arr(o.options).join(' '), o.note], o);
+        });
+        out.push({ key: 'transitions', label: 'Transitions', items: tItems });
+      }
+
+      /* ── Endings ── */
+      var endings = arr(d.endings).filter(function (x) { return x && (x.type || x.template); });
+      if (endings.length) {
+        var eItems = endings.map(function (o) {
+          var t = str(o.type || 'ending');
+          return mkItem('endings', 'Endings', 'ending', t, t,
+            t + ' — ' + str(o.template) + (o.example ? '\n  e.g. ' + str(o.example) : ''),
+            [t, o.template, o.example, o.why], o);
+        });
+        out.push({ key: 'endings', label: 'Endings', items: eItems });
+      }
+
+      /* ── Structures (+ dialogue craft, climax techniques) ── */
+      var structItems = [];
+      arr(d.structures).forEach(function (o) {
+        if (!o || !o.name) return;
+        structItems.push(mkItem('structures', 'Structures', 'structure', 'st-' + str(o.name), str(o.name),
+          str(o.name) + ': ' + arr(o.stages).join(' → '),
+          [o.name, arr(o.stages).join(' '), o.howToUse, o.worksBestFor, o.usedFor, o.origin], o));
+      });
+      arr(d.dialogueCraft).forEach(function (o) {
+        if (!o || !o.move) return;
+        structItems.push(mkItem('structures', 'Structures', 'dialogue', 'dc-' + str(o.move), str(o.move),
+          str(o.move) + '\n  ' + str(o.example),
+          [o.move, o.example, o.why], o));
+      });
+      arr(d.climaxTechniques).forEach(function (o) {
+        if (!o || !o.name) return;
+        structItems.push(mkItem('structures', 'Structures', 'climax', 'cx-' + str(o.name), str(o.name),
+          str(o.name) + ': ' + str(o.how) + (o.example ? '\n  e.g. ' + str(o.example) : ''),
+          [o.name, o.how, o.example], o));
+      });
+      if (structItems.length) out.push({ key: 'structures', label: 'Structures', items: structItems });
+
+      /* ── Banned = bannedPhrases + any idiom flagged avoid ── */
+      var bannedItems = [];
+      arr(d.bannedPhrases).forEach(function (o) {
+        if (!o || !o.phrase) return;
+        bannedItems.push(mkItem('banned', 'Banned', 'banned', 'b-' + str(o.phrase), str(o.phrase),
+          'AVOID: ' + str(o.phrase) + '\n  instead: ' + str(o.insteadTry),
+          [o.phrase, o.why, o.insteadTry, o.reason, o.category], o));
+      });
+      idioms.filter(function (o) { return str(o.verdict).toLowerCase() === 'avoid'; }).forEach(function (o) {
+        var p = str(o.phrase || o.text);
+        bannedItems.push(mkItem('banned', 'Banned', 'banned', 'bi-' + p, p,
+          'AVOID: ' + p + '\n  instead: ' + str(o.note),
+          [p, o.meaning, o.note, o.banReason], { phrase: p, why: str(o.banReason || o.meaning), insteadTry: str(o.note) }));
+      });
+      if (bannedItems.length) out.push({ key: 'banned', label: 'Banned', items: bannedItems });
+
+      return out;
+    }
+
+    /* ─────────────────────────────────────────────
+       Card renderers
+       ───────────────────────────────────────────── */
+    function actsHTML(item, extra) {
+      return '<div class="h-acts">'
+        + '<button class="icon-btn" type="button" data-pin="' + escapeHTML(item.id) + '" aria-pressed="false" title="Pin to My Kit">📌</button>'
+        + (extra === false ? '' : '<button class="icon-btn" type="button" data-try="' + escapeHTML(item.id) + '" title="Use it in a sentence">✍️</button>')
+        + '</div>';
+    }
+    function chipsHTML(words, cls) {
+      return '<div class="chips">' + arr(words).map(function (w) {
+        return '<span class="chip' + (cls ? ' ' + cls : '') + '">' + escapeHTML(w) + '</span>';
+      }).join('') + '</div>';
+    }
+    function chipGroup(label, words, cls) {
+      if (!arr(words).length) return '';
+      return '<div class="chip-group"><div class="chip-group-label">' + escapeHTML(label) + '</div>' + chipsHTML(words, cls) + '</div>';
+    }
+
+    function renderCard(item, showFrom) {
+      var o = item.raw || {};
+      var from = showFrom ? '<div class="h-from">' + escapeHTML(item.sectionLabel) + '</div>' : '';
+
+      switch (item.kind) {
+
+        case 'idiom': {
+          var verdict = str(o.verdict).toLowerCase() || 'safe';
+          var avoid = verdict === 'avoid';
+          var instead = avoid ? str(o.insteadTry || o.note) : '';
+          return '<article class="h-card' + (avoid ? ' avoid' : '') + '">' + from
+            + '<div class="h-card-top"><div style="min-width:0">'
+            + '<h3 class="h-title">' + escapeHTML(item.title) + '</h3>'
+            + '<div class="h-meta">'
+            + '<span class="tag v-' + escapeHTML(verdict) + '">' + escapeHTML(verdict) + '</span>'
+            + (o.frequency ? '<span class="tag">' + escapeHTML(o.frequency) + '</span>' : '')
+            + '</div></div>' + actsHTML(item, !avoid) + '</div>'
+            + (o.meaning ? '<p class="h-def">' + escapeHTML(o.meaning) + '</p>' : '')
+            + (o.useWhen ? '<p class="h-when"><b>Use when</b> ' + escapeHTML(o.useWhen) + '</p>' : '')
+            + (o.example ? '<p class="h-eg">' + escapeHTML(o.example) + '</p>' : '')
+            + (avoid && instead
+                ? '<div class="h-instead"><b>Instead try</b>' + escapeHTML(instead) + '</div>'
+                : (o.note ? '<p class="h-note">' + escapeHTML(o.note) + '</p>' : ''))
+            + '</article>';
+        }
+
+        case 'value': {
+          var wordCount = ['nouns', 'adjectives', 'verbs'].reduce(function (n, k) { return n + arr(o[k]).length; }, 0);
+          return '<details class="h-card">' + from
+            + '<summary><span class="sum-main"><span class="sum-caret">▸</span>'
+            + '<span class="h-title">' + escapeHTML(item.title) + '</span>'
+            + '<span class="sum-sub">' + wordCount + ' words</span></span>'
+            + actsHTML(item) + '</summary>'
+            + (o.whenToUse ? '<p class="h-def">' + escapeHTML(o.whenToUse) + '</p>' : '')
+            + chipGroup('Nouns', o.nouns)
+            + chipGroup('Adjectives', o.adjectives)
+            + chipGroup('Verbs', o.verbs, 'strong')
+            + (arr(o.phrases).length
+                ? '<div class="chip-group"><div class="chip-group-label">Phrases</div><div class="phrase-list">'
+                  + arr(o.phrases).map(function (p) { return '<div class="phrase-item">' + escapeHTML(p) + '</div>'; }).join('')
+                  + '</div></div>'
+                : '')
+            + (arr(o.reflectionLines).length
+                ? '<div class="reflect-block"><div class="rb-label">Model reflection lines</div>'
+                  + arr(o.reflectionLines).map(function (p) { return '<p>' + escapeHTML(p) + '</p>'; }).join('')
+                  + '</div>'
+                : (o.example ? '<p class="h-eg">' + escapeHTML(o.example) + '</p>' : ''))
+            + '</details>';
+        }
+
+        case 'snt': {
+          var flat = str(o.telling || o.flat);
+          var shown = str(o.showing || o.shown);
+          var dim = str(o.dimension) || arr(o.channels).join(', ');
+          return '<div class="snt-pair">' + from
+            + '<div class="snt-row"><span class="snt-mark" style="color:#f87171">✕</span><span class="snt-flat">' + escapeHTML(flat) + '</span></div>'
+            + '<div class="snt-mid"></div>'
+            + '<div class="snt-row"><span class="snt-mark" style="color:#34d399">✓</span><span class="snt-shown">' + escapeHTML(shown) + '</span></div>'
+            + '<div class="snt-foot">'
+            + '<span class="h-meta">' + (dim ? '<span class="tag dim">F.A.S.T. · ' + escapeHTML(dim) + '</span>' : '')
+            + (showFrom && o.emotion ? '<span class="tag">' + escapeHTML(o.emotion) + '</span>' : '') + '</span>'
+            + actsHTML(item) + '</div></div>';
+        }
+
+        case 'weak2strong':
+          return '<article class="h-card">' + from
+            + '<div class="h-card-top"><div style="min-width:0">'
+            + '<h3 class="h-title">Instead of &ldquo;' + escapeHTML(item.title) + '&rdquo;</h3></div>'
+            + actsHTML(item) + '</div>'
+            + chipsHTML(o.strong, 'strong')
+            + (o.note ? '<p class="h-note">' + escapeHTML(o.note) + '</p>' : '')
+            + '</article>';
+
+        case 'sensory':
+          return '<article class="h-card">' + from
+            + '<div class="h-card-top"><div style="min-width:0">'
+            + '<h3 class="h-title">' + escapeHTML(item.title) + '</h3>'
+            + '<div class="h-meta"><span class="tag">' + arr(o.words).length + ' verbs</span></div></div>'
+            + actsHTML(item) + '</div>'
+            + chipsHTML(o.words)
+            + '</article>';
+
+        case 'opener':
+        case 'ending':
+          return '<article class="h-card">' + from
+            + '<div class="h-card-top"><div style="min-width:0">'
+            + '<h3 class="h-title">' + escapeHTML(item.title) + '</h3></div>'
+            + actsHTML(item) + '</div>'
+            + (o.template ? '<div class="h-tmpl">' + escapeHTML(o.template) + '</div>' : '')
+            + (o.example ? '<p class="h-eg">' + escapeHTML(o.example) + '</p>' : '')
+            + (o.why ? '<p class="h-note">' + escapeHTML(o.why) + '</p>' : '')
+            + (o.warning ? '<div class="h-instead" style="background:#241d08;border-color:#fbbf24;color:#fcd34d"><b style="color:#fbbf24">Careful</b>' + escapeHTML(o.warning) + '</div>' : '')
+            + '</article>';
+
+        case 'transition':
+          return '<article class="h-card">' + from
+            + '<div class="h-card-top"><div style="min-width:0">'
+            + '<h3 class="h-title">For ' + escapeHTML(item.title) + '</h3></div>'
+            + actsHTML(item) + '</div>'
+            + chipsHTML(o.options)
+            + (o.note ? '<p class="h-note">' + escapeHTML(o.note) + '</p>' : '')
+            + '</article>';
+
+        case 'structure':
+          return '<details class="h-card">' + from
+            + '<summary><span class="sum-main"><span class="sum-caret">▸</span>'
+            + '<span class="h-title">' + escapeHTML(item.title) + '</span>'
+            + (arr(o.stages).length ? '<span class="sum-sub">' + arr(o.stages).length + ' stages</span>' : '')
+            + '</span>' + actsHTML(item) + '</summary>'
+            + (arr(o.stages).length
+                ? '<ol class="stage-list">' + arr(o.stages).map(function (s) { return '<li>' + escapeHTML(s) + '</li>'; }).join('') + '</ol>'
+                : '')
+            + (o.howToUse ? '<p class="h-when" style="margin-top:.6rem"><b>How to use it</b> ' + escapeHTML(o.howToUse) + '</p>' : '')
+            + (o.worksBestFor || o.usedFor ? '<p class="h-note"><b style="color:#cbd5e1">Best for:</b> ' + escapeHTML(o.worksBestFor || o.usedFor) + '</p>' : '')
+            + '</details>';
+
+        case 'dialogue':
+          return '<article class="h-card">' + from
+            + '<div class="h-card-top"><div style="min-width:0">'
+            + '<h3 class="h-title">' + escapeHTML(item.title) + '</h3>'
+            + '<div class="h-meta"><span class="tag">dialogue</span></div></div>'
+            + actsHTML(item) + '</div>'
+            + (o.example ? '<p class="h-eg">' + escapeHTML(o.example) + '</p>' : '')
+            + (o.why ? '<p class="h-note">' + escapeHTML(o.why) + '</p>' : '')
+            + '</article>';
+
+        case 'climax':
+          return '<article class="h-card">' + from
+            + '<div class="h-card-top"><div style="min-width:0">'
+            + '<h3 class="h-title">' + escapeHTML(item.title) + '</h3>'
+            + '<div class="h-meta"><span class="tag">climax</span></div></div>'
+            + actsHTML(item) + '</div>'
+            + (o.how ? '<p class="h-def">' + escapeHTML(o.how) + '</p>' : '')
+            + (o.example ? '<p class="h-eg">' + escapeHTML(o.example) + '</p>' : '')
+            + '</article>';
+
+        case 'banned':
+          return '<article class="h-card avoid">' + from
+            + '<div class="h-card-top"><div style="min-width:0">'
+            + '<h3 class="h-title">' + escapeHTML(item.title) + '</h3>'
+            + '<div class="h-meta"><span class="tag v-avoid">avoid</span>'
+            + (o.category ? '<span class="tag">' + escapeHTML(o.category) + '</span>' : '') + '</div></div>'
+            + '<div class="h-acts"><button class="icon-btn" type="button" data-pin="' + escapeHTML(item.id) + '" aria-pressed="false" title="Pin to My Kit">📌</button></div>'
+            + '</div>'
+            + (o.why || o.reason ? '<p class="h-def">' + escapeHTML(o.why || o.reason) + '</p>' : '')
+            + (o.insteadTry ? '<div class="h-instead"><b>Instead try</b>' + escapeHTML(o.insteadTry) + '</div>' : '')
+            + '</article>';
+
+        default:
+          return '<article class="h-card">' + from
+            + '<div class="h-card-top"><div style="min-width:0"><h3 class="h-title">' + escapeHTML(item.title) + '</h3></div>'
+            + actsHTML(item) + '</div></article>';
+      }
+    }
+
+    /* ─────────────────────────────────────────────
+       Rendering panes
+       ───────────────────────────────────────────── */
+    function renderTabs() {
+      $('tabBar').innerHTML = SECTIONS.map(function (s) {
+        return '<button class="h-tab' + (s.key === activeTab ? ' active' : '') + '" type="button" data-tab="' + escapeHTML(s.key) + '">'
+          + escapeHTML(s.label) + ' <span class="t-count">' + s.items.length + '</span></button>';
+      }).join('');
+    }
+
+    function renderSearchResults() {
+      var q = query.toLowerCase();
+      var hits = ITEMS.filter(function (it) { return it.search.indexOf(q) !== -1 || it.title.toLowerCase().indexOf(q) !== -1; });
+      if (!hits.length) {
+        $('content').innerHTML = '<div class="empty">Nothing matches &ldquo;' + escapeHTML(query) + '&rdquo;. Try a shorter word, or an emotion like <em>fear</em>.</div>';
+        return;
+      }
+      var capped = hits.slice(0, 120);
+      $('content').innerHTML =
+        '<p class="h-note" style="margin:0 0 .7rem">' + hits.length + ' match' + (hits.length === 1 ? '' : 'es')
+        + (hits.length > capped.length ? ', showing the first ' + capped.length : '') + ' across ' + new Set(hits.map(function (h) { return h.section; })).size + ' sections.</p>'
+        + '<div class="h-list">' + capped.map(function (it) { return renderCard(it, true); }).join('') + '</div>';
+      syncPins();
+    }
+
+    function renderIdiomsPane(section) {
+      var chipsRow = function (label, key, values, current) {
+        return '<div class="filter-row"><span class="f-label">' + escapeHTML(label) + '</span>'
+          + ['all'].concat(values).map(function (v) {
+              return '<button class="fchip' + (v === current ? ' active' : '') + '" type="button" data-filter="' + key + '" data-value="' + escapeHTML(v) + '"'
+                + (key === 'verdict' ? ' data-verdict="' + escapeHTML(v) + '"' : '') + '>' + escapeHTML(v === 'all' ? 'All' : v) + '</button>';
+            }).join('')
+          + '</div>';
+      };
+      var verdicts = [], freqs = [];
+      section.items.forEach(function (it) {
+        var v = str(it.raw.verdict).toLowerCase(); if (v && verdicts.indexOf(v) === -1) verdicts.push(v);
+        var f = str(it.raw.frequency).toLowerCase(); if (f && freqs.indexOf(f) === -1) freqs.push(f);
+      });
+      var order = ['reward', 'safe', 'avoid'];
+      verdicts.sort(function (a, b) { return (order.indexOf(a) + 1 || 9) - (order.indexOf(b) + 1 || 9); });
+      var forder = ['rare', 'moderate', 'common'];
+      freqs.sort(function (a, b) { return (forder.indexOf(a) + 1 || 9) - (forder.indexOf(b) + 1 || 9); });
+
+      var shown = section.items.filter(function (it) {
+        if (fVerdict !== 'all' && str(it.raw.verdict).toLowerCase() !== fVerdict) return false;
+        if (fFreq !== 'all' && str(it.raw.frequency).toLowerCase() !== fFreq) return false;
+        return true;
+      });
+
+      $('content').innerHTML =
+        '<div class="filters">'
+        + (verdicts.length ? chipsRow('Verdict', 'verdict', verdicts, fVerdict) : '')
+        + (freqs.length ? chipsRow('How common', 'freq', freqs, fFreq) : '')
+        + '</div>'
+        + '<p class="h-note" style="margin:0 0 .7rem">' + shown.length + ' of ' + section.items.length + ' idioms. Two to four in a whole composition. Zero beats three forced ones.</p>'
+        + (shown.length
+            ? '<div class="h-list">' + shown.map(function (it) { return renderCard(it, false); }).join('') + '</div>'
+            : '<div class="empty">No idioms with that combination. Loosen a filter.</div>');
+      syncPins();
+    }
+
+    function renderSntPane(section) {
+      var groups = {};
+      var order = [];
+      section.items.forEach(function (it) {
+        var e = str(it.raw.emotion) || 'other';
+        if (!groups[e]) { groups[e] = []; order.push(e); }
+        groups[e].push(it);
+      });
+      $('content').innerHTML =
+        '<p class="h-note" style="margin:0 0 .8rem">Naming the feeling with a fancier word is still telling. Show it through what the body does, what the mind says, or what the senses pick up.</p>'
+        + order.map(function (e) {
+            return '<section class="snt-group"><div class="snt-head">' + escapeHTML(e) + ' · ' + groups[e].length + '</div>'
+              + groups[e].map(function (it) { return renderCard(it, false); }).join('') + '</section>';
+          }).join('');
+      syncPins();
+    }
+
+    function renderVerbsPane(section) {
+      var w2s = section.items.filter(function (it) { return it.kind === 'weak2strong'; });
+      var sens = section.items.filter(function (it) { return it.kind === 'sensory'; });
+      var html = '<p class="h-note" style="margin:0 0 .8rem">One strong verb replaces a weak verb plus two adverbs. Pick for the mood, not for the length of the word.</p>';
+      if (w2s.length) {
+        html += '<div class="snt-head">Weak verb → strong verb</div><div class="h-list" style="margin-bottom:1.1rem">'
+          + w2s.map(function (it) { return renderCard(it, false); }).join('') + '</div>';
+      }
+      if (sens.length) {
+        html += '<div class="snt-head">Sensory verb banks</div><div class="h-list">'
+          + sens.map(function (it) { return renderCard(it, false); }).join('') + '</div>';
+      }
+      $('content').innerHTML = html;
+      syncPins();
+    }
+
+    function renderStructuresPane(section) {
+      var byKind = { structure: [], dialogue: [], climax: [] };
+      section.items.forEach(function (it) { if (byKind[it.kind]) byKind[it.kind].push(it); });
+      var html = '';
+      if (byKind.structure.length) {
+        html += '<div class="snt-head">Story plans</div><div class="h-list" style="margin-bottom:1.1rem">'
+          + byKind.structure.map(function (it) { return renderCard(it, false); }).join('') + '</div>';
+      }
+      if (byKind.climax.length) {
+        html += '<div class="snt-head">Climax techniques</div><div class="h-list" style="margin-bottom:1.1rem">'
+          + byKind.climax.map(function (it) { return renderCard(it, false); }).join('') + '</div>';
+      }
+      if (byKind.dialogue.length) {
+        html += '<div class="snt-head">Dialogue craft</div><div class="h-list">'
+          + byKind.dialogue.map(function (it) { return renderCard(it, false); }).join('') + '</div>';
+      }
+      $('content').innerHTML = html || '<div class="empty">No structures in this pack.</div>';
+      syncPins();
+    }
+
+    function renderPlainPane(section, intro) {
+      $('content').innerHTML =
+        (intro ? '<p class="h-note" style="margin:0 0 .8rem">' + escapeHTML(intro) + '</p>' : '')
+        + '<div class="h-list">' + section.items.map(function (it) { return renderCard(it, false); }).join('') + '</div>';
+      syncPins();
+    }
+
+    var PANE_INTRO = {
+      values: 'The value has to happen in the plot. Use these words while the character is acting, then let the reflection line land without announcing the moral.',
+      openers: 'Three different openings for the same topic is the drill. Write an action one, a dialogue one, and a sensory one, then keep the best.',
+      transitions: 'Then, next, after that: those three are why a script reads flat. These carry logic and feeling at the same time.',
+      endings: 'Three to six sentences. Resolve the conflict, show the change through an action, and leave one thing the marker remembers.',
+      banned: 'These are the phrases the marker has already read this morning. Each one has a replacement that does the same job better.'
+    };
+
+    function render() {
+      if (query.trim().length >= 2) { renderSearchResults(); return; }
+      var section = SECTIONS.filter(function (s) { return s.key === activeTab; })[0];
+      if (!section) { $('content').innerHTML = '<div class="empty">Nothing to show.</div>'; return; }
+      if (section.key === 'idioms') return renderIdiomsPane(section);
+      if (section.key === 'snt') return renderSntPane(section);
+      if (section.key === 'verbs') return renderVerbsPane(section);
+      if (section.key === 'structures') return renderStructuresPane(section);
+      renderPlainPane(section, PANE_INTRO[section.key]);
+    }
+
+    /* ─────────────────────────────────────────────
+       Daily three
+       ───────────────────────────────────────────── */
+    function epochDay() {
+      var now = new Date();
+      var local = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return Math.floor(local.getTime() / 86400000);
+    }
+
+    function renderDaily() {
+      var day = epochDay();
+      var picks = [];
+
+      var idiomSection = SECTIONS.filter(function (s) { return s.key === 'idioms'; })[0];
+      if (idiomSection) {
+        var pool = idiomSection.items.filter(function (it) { return str(it.raw.verdict).toLowerCase() !== 'avoid'; });
+        if (!pool.length) pool = idiomSection.items;
+        if (pool.length) {
+          var it = pool[day % pool.length];
+          picks.push({ kind: 'Idiom', item: it, body: str(it.raw.meaning), eg: str(it.raw.example) });
+        }
+      }
+      var valSection = SECTIONS.filter(function (s) { return s.key === 'values'; })[0];
+      if (valSection && valSection.items.length) {
+        var vi = valSection.items[(day * 3 + 1) % valSection.items.length];
+        var phrases = arr(vi.raw.phrases);
+        picks.push({
+          kind: 'Values vocab', item: vi,
+          body: arr(vi.raw.adjectives).slice(0, 5).join(' · '),
+          eg: phrases.length ? phrases[day % phrases.length] : str(vi.raw.whenToUse).slice(0, 120)
+        });
+      }
+      var sntSection = SECTIONS.filter(function (s) { return s.key === 'snt'; })[0];
+      if (sntSection && sntSection.items.length) {
+        var si = sntSection.items[(day * 7 + 2) % sntSection.items.length];
+        picks.push({
+          kind: "Show, don't tell", item: si,
+          body: 'Not: ' + str(si.raw.telling || si.raw.flat),
+          eg: str(si.raw.showing || si.raw.shown)
+        });
+      }
+      if (!picks.length) return;
+
+      $('dailySection').hidden = false;
+      $('dailyDate').textContent = new Date().toLocaleDateString('en-SG', { weekday: 'long', day: 'numeric', month: 'short' });
+      $('dailyGrid').innerHTML = picks.map(function (p) {
+        return '<article class="daily-card">'
+          + '<span class="d-kind">' + escapeHTML(p.kind) + '</span>'
+          + '<span class="d-title">' + escapeHTML(p.item.title) + '</span>'
+          + (p.body ? '<span class="d-body">' + escapeHTML(p.body) + '</span>' : '')
+          + (p.eg ? '<span class="d-eg">' + escapeHTML(p.eg) + '</span>' : '')
+          + '<span class="d-foot">'
+          + '<button class="icon-btn" type="button" data-pin="' + escapeHTML(p.item.id) + '" aria-pressed="false" title="Pin to My Kit">📌 Pin</button> '
+          + '<button class="icon-btn" type="button" data-try="' + escapeHTML(p.item.id) + '" title="Use it in a sentence">✍️ Try</button>'
+          + '</span></article>';
+      }).join('');
+    }
+
+    /* ─────────────────────────────────────────────
+       Drawers
+       ───────────────────────────────────────────── */
+    function openDrawer(id) {
+      closeDrawers();
+      $(id).classList.add('open');
+      $('drawerOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      if (id === 'kitDrawer') renderKit();
+    }
+    function closeDrawers() {
+      $('kitDrawer').classList.remove('open');
+      $('tryDrawer').classList.remove('open');
+      $('drawerOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function renderKit() {
+      var body = $('kitBody');
+      if (!kit.length) {
+        body.innerHTML = '<div class="empty">Nothing pinned yet. Tap 📌 on any handle to build the short list you will actually revise.</div>';
+        return;
+      }
+      var groups = {};
+      var order = [];
+      kit.forEach(function (e) {
+        var lbl = e.sectionLabel || e.section || 'Handles';
+        if (!groups[lbl]) { groups[lbl] = []; order.push(lbl); }
+        groups[lbl].push(e);
+      });
+      body.innerHTML = order.map(function (lbl) {
+        return '<div class="kit-section-label">' + escapeHTML(lbl) + ' · ' + groups[lbl].length + '</div>'
+          + groups[lbl].map(function (e) {
+              var live = ITEM_BY_ID[e.id];
+              var sub = live ? live.copy : (e.copy || '');
+              return '<div class="kit-item"><div class="ki-text">'
+                + '<div class="ki-title">' + escapeHTML(e.title || '') + '</div>'
+                + (sub ? '<div class="ki-sub">' + escapeHTML(sub) + '</div>' : '')
+                + '</div>'
+                + '<button class="icon-btn" type="button" data-unpin="' + escapeHTML(e.id) + '" title="Remove from kit">✕</button>'
+                + '</div>';
+            }).join('');
+      }).join('');
+    }
+
+    function kitAsText() {
+      if (!kit.length) return '';
+      var groups = {};
+      var order = [];
+      kit.forEach(function (e) {
+        var lbl = e.sectionLabel || e.section || 'Handles';
+        if (!groups[lbl]) { groups[lbl] = []; order.push(lbl); }
+        groups[lbl].push(e);
+      });
+      var lines = ['MY ESSAY HANDLES KIT', new Date().toLocaleDateString('en-SG'), ''];
+      order.forEach(function (lbl) {
+        lines.push(lbl.toUpperCase());
+        groups[lbl].forEach(function (e) {
+          var live = ITEM_BY_ID[e.id];
+          lines.push('- ' + (live ? live.copy : (e.copy || e.title || '')));
+        });
+        lines.push('');
+      });
+      return lines.join('\n').trim();
+    }
+
+    async function copyKit() {
+      var text = kitAsText();
+      if (!text) { toast('Nothing pinned yet.'); return; }
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+          toast('Kit copied. Paste it into your notes.');
+          return;
+        }
+        throw new Error('no clipboard');
+      } catch (_) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        var ok = false;
+        try { ta.select(); ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+        ta.remove();
+        toast(ok ? 'Kit copied. Paste it into your notes.' : 'Copy blocked by the browser. Select the kit text manually.');
+      }
+    }
+
+    /* ─────────────────────────────────────────────
+       Try it — AI drill
+       ───────────────────────────────────────────── */
+    var TRY_CUSTOM = '__custom__';
+
+    function hasKey() {
+      try {
+        if (window.JglStorage && typeof window.JglStorage.getGeminiKey === 'function') return !!window.JglStorage.getGeminiKey();
+      } catch (_) {}
+      try { return !!localStorage.getItem('jgl.geminiKey'); } catch (_) { return false; }
+    }
+
+    /* shared.js declares Progress and Streak with top-level `const`, which makes a
+       global LEXICAL binding, not a property on window. Testing window.Progress is
+       therefore always false and silently swallows every progress write. Resolve by
+       name first, falling back to window for any page that does attach them. */
+    function progressAPI() {
+      try { if (typeof Progress !== 'undefined' && Progress) return Progress; } catch (_) {}
+      return window.Progress || null;
+    }
+    function streakAPI() {
+      try { if (typeof Streak !== 'undefined' && Streak) return Streak; } catch (_) {}
+      return window.Streak || null;
+    }
+
+    /* Titles are not unique in every section. Openers and endings are titled by
+       `type` (three entries share "participial"), and Show-Don't-Tell items are
+       titled by `emotion` (five share "fear"). Left alone the picker shows a run
+       of identical options and the student cannot tell which handle they are
+       sending to the marker. Append a short distinguishing snippet, but only for
+       the titles that actually repeat, so the common case stays clean. */
+    function tryOptionHint(it) {
+      var o = (it && it.raw) || {};
+      var t = str(o.template || o.showing || o.shown || o.telling || o.whenToUse || o.meaning || o.example)
+        .replace(/\s+/g, ' ').trim();
+      if (!t) return '';
+      return t.length > 46 ? t.slice(0, 45).trim() + '…' : t;
+    }
+    function tryOptionsHTML(list, suffixFn) {
+      var counts = {};
+      list.forEach(function (it) { counts[it.title] = (counts[it.title] || 0) + 1; });
+      return list.map(function (it) {
+        var label = str(it.title);
+        if (counts[it.title] > 1) {
+          var hint = tryOptionHint(it);
+          if (hint) label += ' — ' + hint;
+        }
+        if (suffixFn) {
+          var sfx = suffixFn(it);
+          if (sfx) label += ' — ' + sfx;
+        }
+        return '<option value="' + escapeHTML(it.id) + '">' + escapeHTML(label) + '</option>';
+      }).join('');
+    }
+
+    function populateTrySelect() {
+      var sel = $('trySelect');
+      if (!sel) return;
+      var prev = sel.value;
+      var opts = [];
+      var pinned = kit.map(function (e) { return ITEM_BY_ID[e.id]; }).filter(Boolean);
+      if (pinned.length) {
+        opts.push('<optgroup label="From my kit">'
+          + tryOptionsHTML(pinned, function (it) { return str(it.sectionLabel); })
+          + '</optgroup>');
+      }
+      var browsable = ['idioms', 'openers', 'endings', 'values', 'snt'];
+      browsable.forEach(function (key) {
+        var s = SECTIONS.filter(function (x) { return x.key === key; })[0];
+        if (!s) return;
+        var list = s.items.filter(function (it) { return str(it.raw.verdict).toLowerCase() !== 'avoid'; }).slice(0, 60);
+        if (!list.length) return;
+        opts.push('<optgroup label="' + escapeHTML(s.label) + '">' + tryOptionsHTML(list) + '</optgroup>');
+      });
+      opts.push('<option value="' + TRY_CUSTOM + '">Something else (type it myself)</option>');
+      sel.innerHTML = opts.join('');
+      if (prev) {
+        var still = Array.prototype.some.call(sel.options, function (o) { return o.value === prev; });
+        if (still) sel.value = prev;
+      }
+      onTrySelectChange();
+    }
+
+    function currentHandle() {
+      var sel = $('trySelect');
+      if (!sel) return null;
+      if (sel.value === TRY_CUSTOM) {
+        var txt = $('tryCustom').value.trim();
+        return txt ? { title: txt, section: 'custom', sectionLabel: 'Your own handle', detail: '', example: '' } : null;
+      }
+      var it = ITEM_BY_ID[sel.value];
+      if (!it) return null;
+      var o = it.raw || {};
+      var detail = '';
+      var example = '';
+      switch (it.kind) {
+        case 'idiom': detail = str(o.meaning) + (o.useWhen ? ' Use when: ' + str(o.useWhen) : ''); example = str(o.example); break;
+        case 'opener':
+        case 'ending': detail = str(o.template) + (o.why ? ' ' + str(o.why) : ''); example = str(o.example); break;
+        case 'value':
+          detail = 'Value: ' + it.title + '. Word bank: ' + arr(o.adjectives).slice(0, 6).concat(arr(o.verbs).slice(0, 6)).join(', ');
+          example = arr(o.phrases)[0] || '';
+          break;
+        case 'snt':
+          detail = 'Show the emotion "' + str(o.emotion) + '" instead of naming it. Flat version to avoid: ' + str(o.telling || o.flat);
+          example = str(o.showing || o.shown);
+          break;
+        case 'weak2strong': detail = 'Replace the weak verb "' + it.title + '" with a precise one: ' + arr(o.strong).join(', '); example = ''; break;
+        case 'sensory': detail = 'Use one of these ' + it.title + ': ' + arr(o.words).slice(0, 14).join(', '); break;
+        case 'transition': detail = 'A transition for ' + it.title + ': ' + arr(o.options).join(', '); break;
+        case 'structure': detail = str(o.howToUse); break;
+        case 'dialogue': detail = str(o.why); example = str(o.example); break;
+        case 'climax': detail = str(o.how); example = str(o.example); break;
+        default: detail = it.copy;
+      }
+      return { title: it.title, section: it.section, sectionLabel: it.sectionLabel, detail: detail, example: example, id: it.id };
+    }
+
+    function onTrySelectChange() {
+      var isCustom = $('trySelect').value === TRY_CUSTOM;
+      $('tryCustomField').hidden = !isCustom;
+      var h = currentHandle();
+      var box = $('tryHandleBox');
+      if (!h) { box.hidden = true; return; }
+      box.hidden = false;
+      box.innerHTML = '<div class="tb-phrase">' + escapeHTML(h.title) + '</div>'
+        + (h.detail ? '<div class="tb-sub">' + escapeHTML(h.detail) + '</div>' : '')
+        + (h.example ? '<div class="tb-sub" style="font-style:italic;margin-top:.3rem">Model: ' + escapeHTML(h.example) + '</div>' : '');
+    }
+
+    var TRY_SYSTEM = [
+      'You are a Singapore PSLE English marker coaching a Primary 6 student on Continuous Writing (36 marks: Content 18, Language 18).',
+      'The student has written ONE sentence that is meant to use a specific writing handle. Judge only whether that handle is used properly and whether the sentence would earn Band 1 language.',
+      'Band 1 means: the handle carries meaning rather than decorating the sentence; the emotion is shown through body, thought or sense rather than named; the verb is precise; there is one concrete detail a real writer would have chosen.',
+      'Rules for your reply:',
+      '- Name the exact evidence from the student sentence. Quote the words you are judging.',
+      '- Name exactly ONE next action, never a list.',
+      '- No emoji. No praise words like great, wonderful, amazing, well done. No exclamation marks.',
+      '- No hyphens or dashes. Use commas, semicolons and colons.',
+      '- "why" must be one sentence, under 30 words.',
+      '- "upgrade" is the student sentence rewritten at Band 1 with the handle properly anchored in a concrete moment. Keep the student idea and setting. Under 40 words.',
+      '- "nextHandle" is one short related handle to attempt next, named in three words or fewer.',
+      'Return only JSON: {"verdict":"nailed|close|missed","why":"","upgrade":"","nextHandle":""}'
+    ].join('\n');
+
+    async function runCheck() {
+      var h = currentHandle();
+      var sentence = $('trySentence').value.trim();
+      var out = $('tryResult');
+      if (!h) { out.innerHTML = '<div class="notice rose">Pick a handle first.</div>'; return; }
+      if (sentence.length < 8) { out.innerHTML = '<div class="notice rose">Write a full sentence first. One line is enough, but it has to be a sentence.</div>'; return; }
+      if (!hasKey()) {
+        out.innerHTML = '<div class="notice amber">No AI key set, so the check cannot run. Everything else on this page still works. Open Settings to add a key.</div>';
+        return;
+      }
+
+      var btn = $('tryCheckBtn');
+      btn.disabled = true;
+      var label = btn.textContent;
+      btn.textContent = 'Checking…';
+      out.innerHTML = '<div class="notice amber">Marking your sentence…</div>';
+
+      var prompt = [
+        'HANDLE TYPE: ' + h.sectionLabel,
+        'HANDLE: ' + h.title,
+        h.detail ? 'WHAT IT IS FOR: ' + h.detail : '',
+        h.example ? 'A MODEL USE (do not copy it back to the student): ' + h.example : ''
+      ].filter(Boolean).concat(['', 'STUDENT SENTENCE:', sentence]).join('\n');
+
+      try {
+        var res = await window.askGemini({
+          system: TRY_SYSTEM,
+          prompt: prompt,
+          temperature: 0.4,
+          maxTokens: 300,
+          thinkingBudget: 0,
+          responseMimeType: 'application/json',
+          asJson: true
+        });
+        renderVerdict(res, h);
+        try {
+          var P = progressAPI();
+          if (P && typeof P.recordDrillUsed === 'function') P.recordDrillUsed('composition');
+          var S = streakAPI();
+          if (S && typeof S.record === 'function') S.record();
+          if (window.JglFresh && typeof window.JglFresh.mark === 'function') {
+            window.JglFresh.mark('handles', window.JglFresh.normKey(h.title + '|' + sentence), { label: h.title, type: h.sectionLabel });
+          }
+        } catch (_) { /* progress is best effort */ }
+      } catch (err) {
+        var code = err && err.code;
+        var msg;
+        if (code === 'NO_KEY') msg = 'No AI key set. Open Settings to add one. Browsing and pinning still work without it.';
+        else if (code === 'NETWORK') msg = 'Could not reach the marker. Check your connection and try again.';
+        else if (code === 'RATE_LIMIT') msg = 'Too many checks in a row. Wait about a minute, then try again.';
+        else msg = 'The check did not come back. Try again, or shorten your sentence.';
+        out.innerHTML = '<div class="notice rose">' + escapeHTML(msg) + '</div>';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = label;
+      }
+    }
+
+    function renderVerdict(res, h) {
+      var r = (res && typeof res === 'object') ? res : {};
+      var v = str(r.verdict).toLowerCase();
+      if (['nailed', 'close', 'missed'].indexOf(v) === -1) v = 'close';
+      var words = { nailed: 'Nailed it', close: 'Close', missed: 'Missed' };
+      $('tryResult').innerHTML =
+        '<div class="verdict-box">'
+        + '<div class="vb-head"><span class="vb-pill vb-' + v + '">' + escapeHTML(words[v]) + '</span>'
+        + '<span class="sum-sub">' + escapeHTML(h.title) + '</span></div>'
+        + (r.why ? '<p class="vb-why">' + escapeHTML(r.why) + '</p>' : '')
+        + (r.upgrade ? '<div class="vb-up-label">Same idea, Band 1</div><p class="vb-upgrade">' + escapeHTML(r.upgrade) + '</p>' : '')
+        + (r.nextHandle ? '<p class="vb-next"><b>Try next:</b> ' + escapeHTML(r.nextHandle) + '</p>' : '')
+        + '</div>';
+    }
+
+    function openTryFor(id) {
+      populateTrySelect();
+      if (id && ITEM_BY_ID[id]) {
+        var sel = $('trySelect');
+        var found = Array.prototype.some.call(sel.options, function (o) { return o.value === id; });
+        if (!found) {
+          var it = ITEM_BY_ID[id];
+          var opt = document.createElement('option');
+          opt.value = id;
+          opt.textContent = it.title + ' — ' + it.sectionLabel;
+          sel.insertBefore(opt, sel.firstChild);
+        }
+        sel.value = id;
+      }
+      onTrySelectChange();
+      $('tryResult').innerHTML = '';
+      $('tryNotice').innerHTML = hasKey() ? ''
+        : '<div class="notice amber">No AI key set yet. You can still browse, pin and copy handles; only this check needs a key. Open Settings to add one.</div>';
+      openDrawer('tryDrawer');
+      setTimeout(function () { $('trySentence').focus(); }, 60);
+    }
+
+    /* ─────────────────────────────────────────────
+       Events
+       ───────────────────────────────────────────── */
+    document.addEventListener('click', function (e) {
+      if (e.target === $('drawerOverlay')) { closeDrawers(); return; }
+      if (!e.target || typeof e.target.closest !== 'function') return;
+
+      var pinBtn = e.target.closest('[data-pin]');
+      if (pinBtn) {
+        e.preventDefault(); e.stopPropagation();
+        var added = togglePin(pinBtn.getAttribute('data-pin'));
+        toast(added ? 'Pinned to My Kit.' : 'Removed from My Kit.');
+        return;
+      }
+      var tryBtn = e.target.closest('[data-try]');
+      if (tryBtn) {
+        e.preventDefault(); e.stopPropagation();
+        openTryFor(tryBtn.getAttribute('data-try'));
+        return;
+      }
+      var unpinBtn = e.target.closest('[data-unpin]');
+      if (unpinBtn) {
+        e.preventDefault();
+        unpin(unpinBtn.getAttribute('data-unpin'));
+        renderKit();
+        return;
+      }
+      var tab = e.target.closest('[data-tab]');
+      if (tab) {
+        activeTab = tab.getAttribute('data-tab');
+        if ($('searchInput').value) { $('searchInput').value = ''; query = ''; $('searchClear').classList.remove('show'); }
+        renderTabs(); render();
+        return;
+      }
+      var fchip = e.target.closest('[data-filter]');
+      if (fchip) {
+        var which = fchip.getAttribute('data-filter');
+        var val = fchip.getAttribute('data-value');
+        if (which === 'verdict') fVerdict = val; else fFreq = val;
+        render();
+        return;
+      }
+      if (e.target.closest('[data-close-drawer]')) closeDrawers();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeDrawers();
+    });
+
+    $('searchInput').addEventListener('input', function (e) {
+      query = e.target.value;
+      $('searchClear').classList.toggle('show', !!query);
+      render();
+    });
+    $('searchClear').addEventListener('click', function () {
+      $('searchInput').value = ''; query = '';
+      $('searchClear').classList.remove('show');
+      render();
+      $('searchInput').focus();
+    });
+    $('kitFab').addEventListener('click', function () { openDrawer('kitDrawer'); });
+    $('copyKitBtn').addEventListener('click', copyKit);
+    $('clearKitBtn').addEventListener('click', function () {
+      if (!kit.length) { toast('Kit is already empty.'); return; }
+      kit = []; saveKit(); syncPins(); renderKit();
+      toast('Kit cleared.');
+    });
+    $('openTryBtn').addEventListener('click', function () { openTryFor(null); });
+    $('trySelect').addEventListener('change', onTrySelectChange);
+    $('tryCustom').addEventListener('input', onTrySelectChange);
+    $('trySentence').addEventListener('input', function (e) {
+      var n = e.target.value.length;
+      var c = $('tryCount');
+      c.textContent = n + ' / 300';
+      c.classList.toggle('over', n >= 300);
+    });
+    $('tryCheckBtn').addEventListener('click', runCheck);
+
+    /* ─────────────────────────────────────────────
+       Boot
+       ───────────────────────────────────────────── */
+    function renderRules(meta) {
+      var rules = arr(meta && meta.deploymentRules);
+      if (!rules.length) return;
+      $('rulesBox').hidden = false;
+      $('rulesList').innerHTML = rules.map(function (r) { return '<li>' + escapeHTML(r) + '</li>'; }).join('');
+    }
+
+    async function boot() {
+      loadKit();
+      $('kitCount').textContent = String(kit.length);
+      try {
+        var res = await fetch('../shared/content/handles.json', { cache: 'no-cache' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        DATA = await res.json();
+      } catch (err) {
+        $('content').innerHTML = '<div class="notice amber">The handles pack could not be loaded. '
+          + 'If you opened this file directly from disk, run the site through a local server instead. '
+          + 'Your pinned kit is safe.</div>';
+        return;
+      }
+      if (!DATA || typeof DATA !== 'object') {
+        $('content').innerHTML = '<div class="notice amber">The handles pack is empty.</div>';
+        return;
+      }
+      renderRules(DATA.meta);
+      SECTIONS = buildSections(DATA);
+      if (!SECTIONS.length) {
+        $('content').innerHTML = '<div class="notice amber">No handle sections found in the pack yet. Check back once the content pack lands.</div>';
+        return;
+      }
+      activeTab = SECTIONS[0].key;
+      renderDaily();
+      renderTabs();
+      render();
+      populateTrySelect();
+      syncPins();
+      try {
+        var P = progressAPI();
+        if (P && typeof P.recordVisit === 'function') P.recordVisit('composition');
+      } catch (_) {}
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot, { once: true });
+    } else {
+      boot();
+    }
+  })();
+  </script>
+</body>
+</html>
