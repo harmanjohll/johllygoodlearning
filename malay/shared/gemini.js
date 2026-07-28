@@ -6,8 +6,42 @@
    ========================================================= */
 
 (function (global) {
-  const DEFAULT_MODEL = 'gemini-2.5-flash';
+  // Model selection.
+  //
+  // gemini-2.5-flash began returning HTTP 404 "no longer available" on
+  // 9 July 2026 — ahead of its own published 16 October shutdown date —
+  // which silently killed every AI feature in this studio, including the
+  // Test Key button, which then reported valid keys as broken. So we do
+  // not trust any single hardcoded id to stay alive.
+  //
+  // Order: an explicit arg, then a user override, then whatever last
+  // worked on this device, then the current default, then a rolling
+  // alias Google repoints on each Flash release, then older generations.
+  // A retirement 404 walks to the next candidate and the winner is
+  // remembered, so the studio heals itself without an edit.
+  const DEFAULT_MODEL = 'gemini-3.6-flash';
+  const FALLBACK_MODELS = ['gemini-flash-latest', 'gemini-3.5-flash', 'gemini-2.0-flash'];
+  const MODEL_PREF_KEY  = 'jgl.geminiModel';
+  const MODEL_OK_KEY    = 'jgl.geminiModelOk';
   const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
+
+  function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (_) { return ''; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (_) {} }
+
+  function isRetiredModelError(status, message) {
+    if (status !== 404) return false;
+    const m = String(message || '').toLowerCase();
+    return m.indexOf('no longer available') !== -1 ||
+           m.indexOf('not found') !== -1 ||
+           m.indexOf('is not supported') !== -1 ||
+           m.indexOf('deprecated') !== -1;
+  }
+
+  function modelCandidates(explicit) {
+    const list = [explicit, lsGet(MODEL_PREF_KEY), lsGet(MODEL_OK_KEY), DEFAULT_MODEL].concat(FALLBACK_MODELS);
+    const seen = {};
+    return list.filter(m => m && !seen[m] && (seen[m] = true));
+  }
 
   function resolveKey() {
     // JglStorage is the canonical reader (checks both jgl.geminiKey
@@ -95,34 +129,60 @@
     };
     if (system) body.systemInstruction = { parts: [{ text: system }] };
 
-    const url = `${BASE_URL}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+    // Walk the candidate models. A retirement 404 means that id is gone,
+    // so try the next. Anything else (bad key, rate limit, network) fails
+    // immediately — retrying another model would not help and burns quota.
+    const candidates = modelCandidates(opts && opts.model);
+    let lastErr = null;
 
-    let resp;
-    try {
-      resp = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-    } catch (networkErr) {
-      const err = new Error('Could not reach Gemini. Check your internet connection.');
-      err.code = 'NETWORK';
-      err.cause = networkErr;
-      throw err;
-    }
+    for (let i = 0; i < candidates.length; i++) {
+      const candidate = candidates[i];
+      const url = `${BASE_URL}/${encodeURIComponent(candidate)}:generateContent?key=${encodeURIComponent(key)}`;
 
-    if (!resp.ok) {
+      let resp;
+      try {
+        resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+      } catch (networkErr) {
+        const err = new Error('Could not reach Gemini. Check your internet connection.');
+        err.code = 'NETWORK';
+        err.cause = networkErr;
+        throw err;
+      }
+
+      if (resp.ok) {
+        if (lsGet(MODEL_OK_KEY) !== candidate) lsSet(MODEL_OK_KEY, candidate);
+        const data = await resp.json();
+        const text = extractText(data);
+        return asJson ? parseJsonLoose(text) : text;
+      }
+
       const payload = await resp.json().catch(() => ({}));
-      const msg = payload.error?.message || `API error ${resp.status}`;
+      const msg = (payload.error && payload.error.message) || `API error ${resp.status}`;
+
+      if (isRetiredModelError(resp.status, msg) && i < candidates.length - 1) {
+        if (lsGet(MODEL_OK_KEY) === candidate) lsSet(MODEL_OK_KEY, '');
+        lastErr = msg;
+        continue;
+      }
+
       const err = new Error(msg);
-      err.code = resp.status === 429 ? 'RATE_LIMIT' : 'API_ERROR';
+      err.code = resp.status === 429 ? 'RATE_LIMIT'
+               : resp.status === 404 ? 'MODEL_GONE'
+               : 'API_ERROR';
       err.status = resp.status;
       throw err;
     }
 
-    const data = await resp.json();
-    const text = extractText(data);
-    return asJson ? parseJsonLoose(text) : text;
+    const err = new Error(
+      'None of the available Gemini models responded. Google may have retired the model this app uses. ' +
+      'Last message: ' + (lastErr || 'unknown') + '. Tried: ' + candidates.join(', ') + '.'
+    );
+    err.code = 'MODEL_GONE';
+    throw err;
   }
 
   global.askGemini = askGemini;
