@@ -196,6 +196,25 @@
     <div class="hist-weak" id="hist-weak"></div>
   </div>
 
+  <div style="background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:1rem 1.15rem;margin-bottom:1rem;">
+    <div style="display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap;margin-bottom:.35rem;">
+      <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">🖼 Real photo mode</span>
+      <span style="font-size:.74rem;color:var(--muted);">the closest thing to the actual exam</span>
+    </div>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.65;margin-bottom:.75rem;">
+      In the real Paper 4 the examiner shows you a <strong>photograph</strong> and you work it out yourself. The written
+      scenes below already describe what to notice, which is useful for practising the <em>answer</em> but does the
+      <em>looking</em> for you. Put a real picture in here instead and the examiner model sees exactly what you see.
+      Any photo works: something on the way home, a family picture, a scene from a book.
+    </p>
+    <div id="photo-in"></div>
+    <div id="photo-actions" style="display:none;gap:.5rem;flex-wrap:wrap;margin-top:.8rem;">
+      <button class="btn btn-primary" id="photo-build" style="font-size:.8rem;padding:.42rem .85rem;">Build three questions from this photo</button>
+      <button class="btn btn-secondary" id="photo-clear" style="font-size:.8rem;padding:.42rem .85rem;">Remove photo</button>
+      <span id="photo-status" style="font-size:.78rem;color:var(--muted);align-self:center;"></span>
+    </div>
+  </div>
+
   <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
     <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">✨ Generator</span>
     <span style="font-size:.84rem;color:var(--muted);">Twelve curated scenes. Want a fresh one?</span>
@@ -217,6 +236,7 @@
 <script src="../shared/gemini.js"></script>
 <script src="../shared/audio.js"></script>
 <script src="../shared/freshness.js"></script>
+<script src="../shared/imagein.js"></script>
 <script>
 (function () {
 'use strict';
@@ -642,8 +662,11 @@ function renderWorkPane(s) {
   pane.innerHTML =
     '<h2 style="font-size:1.15rem;margin-bottom:.35rem;">' + escapeHTML(s.title) + '</h2>' +
     '<div style="font-size:.78rem;color:var(--muted);margin-bottom:.85rem;">Theme: ' + escapeHTML(s.theme) +
-    ' · Since 2025 the stimulus is a real photograph with no words on it, so read the scene, then look away and speak.</div>' +
-    '<div class="scene"><strong>The photograph:</strong> ' + escapeHTML(s.scene) + '</div>' +
+    (s._photo ? ' · your own photograph' : ' · Since 2025 the stimulus is a real photograph with no words on it, so read the scene, then look away and speak.') + '</div>' +
+    (s._photo && s._photo.url
+      ? '<img src="' + s._photo.url + '" alt="The photograph you are describing" style="max-width:100%;border-radius:10px;border:1px solid var(--border);display:block;margin-bottom:.85rem;">' +
+        '<div style="font-size:.78rem;color:var(--muted);margin-bottom:.85rem;">Look at it, then look away and speak. The examiner model is looking at this same photo.</div>'
+      : '<div class="scene"><strong>The photograph:</strong> ' + escapeHTML(s.scene) + '</div>') +
     '<div id="questions"></div>';
 
   const qWrap = pane.querySelector('#questions');
@@ -906,8 +929,15 @@ async function runAI(stim, q, idx, mode, block) {
     (payload.audio ? 'Listening to your recording and marking it. This takes a few seconds.' : 'Marking your typed answer.') + '</pre>';
 
   const fw = FRAMEWORKS[q.framework] || FRAMEWORKS['PEEL'];
+  // When the stimulus came from a real photo, send the photo itself and
+  // say so, rather than feeding the model our own description of it.
+  if (stim._photo && stim._photo.base64) {
+    payload.image = { base64: stim._photo.base64, mimeType: stim._photo.mimeType };
+  }
   const context =
-    'PHOTOGRAPH (described, not shown to you): ' + stim.scene + '\n\n' +
+    (stim._photo
+      ? 'PHOTOGRAPH: the actual photograph the student is looking at is attached as an image. Judge the answer against what is genuinely visible in it.\n\n'
+      : 'PHOTOGRAPH (described, not shown to you): ' + stim.scene + '\n\n') +
     'QUESTION ' + (idx + 1) + ' of 3 (' + q.kind + '): ' + q.stem + '\n' +
     'EXPECTED FRAMEWORK: ' + q.framework + ' — parts: ' + fw.parts.join(', ') + '. ' + fw.blurb + '\n' +
     'TARGET LENGTH: about ' + q.targetSec + ' seconds of speech.\n' +
@@ -947,7 +977,7 @@ async function runCoach(fb, context, payload, q) {
 
   const out = await askJsonResilient({
     system: system, prompt: prompt,
-    audio: payload.audio, temperature: 0.6, maxTokens: 1400,
+    audio: payload.audio, image: payload.image, temperature: 0.6, maxTokens: 1400,
     responseMimeType: 'application/json', asJson: true,
   });
 
@@ -1001,7 +1031,7 @@ async function runExaminer(fb, context, payload, q, stim, idx) {
 
   const out = await askJsonResilient({
     system: system, prompt: prompt,
-    audio: payload.audio, temperature: 0.3, maxTokens: 2600,
+    audio: payload.audio, image: payload.image, temperature: 0.3, maxTokens: 2600,
     responseMimeType: 'application/json', asJson: true,
   });
 
@@ -1279,6 +1309,95 @@ if (typeof Progress !== 'undefined' && Progress.recordVisit) Progress.recordVisi
 renderHistory();
 renderGrid();
 selectStimulus(todayId, false);
+
+/* ── Real photo mode ───────────────────────────────────────
+   The examiner shows a photograph; a written scene does the noticing
+   for the student. Here they supply the picture, Gemini looks at it,
+   writes the three questions from what is actually in frame, and the
+   same image rides along with every marking call. */
+(function photoMode() {
+  const host = document.getElementById('photo-in');
+  if (!host || !window.JglImageIn) return;
+  const actions = document.getElementById('photo-actions');
+  const statusEl = document.getElementById('photo-status');
+  let picked = null;
+
+  const ctl = JglImageIn.mount(host, {
+    label: 'Your photograph',
+    hint: 'Take or choose a real photo. People doing something is best — the questions get better when there is a moment to read.',
+    onPick: function (pic) { picked = pic; actions.style.display = 'flex'; statusEl.textContent = ''; }
+  });
+
+  document.getElementById('photo-clear').addEventListener('click', function () {
+    picked = null; ctl.clear(); actions.style.display = 'none'; statusEl.textContent = '';
+  });
+
+  document.getElementById('photo-build').addEventListener('click', async function () {
+    if (!picked) return;
+    if (!hasKey()) { statusEl.textContent = 'Add a Gemini key from Settings first — the questions are written by looking at your photo.'; return; }
+    const btn = this;
+    btn.disabled = true;
+    statusEl.textContent = 'Looking at your photo and writing three questions…';
+    try {
+      const out = await askJsonResilient({
+        system:
+          'You are a PSLE English Paper 4 Oral item writer. You are given a real photograph. ' +
+          'Write a Stimulus-Based Conversation set from what is ACTUALLY visible in it — never invent objects, ' +
+          'people or text that are not there. ' + VOICE_RULES + ' Output valid JSON only.',
+        prompt:
+          'Look at the attached photograph and produce a three-question SBC set for a 12-year-old Singaporean student.\n' +
+          'Question 1 asks them to describe what they see and infer from it. Question 2 asks about their own related ' +
+          'experience. Question 3 asks a broader opinion on the theme.\n\n' +
+          'Return JSON exactly:\n' +
+          '{"title":"<short title for this photo, 4-8 words>",' +
+          '"theme":"<one theme label>",' +
+          '"desc":"<one sentence card summary>",' +
+          '"scene":"<what is genuinely visible, 40-70 words — used only as a fallback if the picture fails to load>",' +
+          '"questions":[' +
+          '{"kind":"Observe and infer","framework":"OIR","targetSec":30,"stem":"...","hint":"...","model":"..."},' +
+          '{"kind":"Personal experience","framework":"PEEL","targetSec":45,"stem":"...","hint":"...","model":"..."},' +
+          '{"kind":"Wider opinion","framework":"PEEL","targetSec":60,"stem":"...","hint":"...","model":"..."}]}',
+        image: { base64: picked.base64, mimeType: picked.mimeType },
+        temperature: 0.6, maxTokens: 2000,
+        responseMimeType: 'application/json', asJson: true
+      });
+
+      if (!out || !Array.isArray(out.questions) || !out.questions.length) {
+        throw new Error('The model did not return a usable set. Try a clearer photo.');
+      }
+
+      const stim = {
+        id: 'photo-' + Date.now(),
+        title: out.title || 'Your photograph',
+        theme: out.theme || 'Your photo',
+        desc: out.desc || 'A photograph you supplied.',
+        scene: out.scene || '',
+        questions: out.questions.slice(0, 3).map(function (q) {
+          return {
+            kind: q.kind || 'Observe and infer',
+            framework: FRAMEWORKS[q.framework] ? q.framework : 'PEEL',
+            targetSec: Number(q.targetSec) || 45,
+            stem: q.stem || '',
+            hint: q.hint || '',
+            model: q.model || ''
+          };
+        }),
+        _photo: { base64: picked.base64, mimeType: picked.mimeType, url: picked.url },
+        _generated: true
+      };
+
+      STIMULI.push(stim);
+      renderGrid();
+      selectStimulus(stim.id, true);
+      statusEl.textContent = 'Three questions ready from your photo.';
+    } catch (e) {
+      statusEl.textContent = 'Could not read that photo: ' + ((e && e.message) || e);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+
 })();
 </script>
 </body>
