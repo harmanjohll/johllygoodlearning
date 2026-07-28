@@ -170,6 +170,24 @@
         <span class="chip" id="chip-segar-bual"></span>
       </div>
 
+      <div style="background:var(--card);border:1px solid var(--peribahasa);border-radius:12px;padding:1rem 1.15rem;margin-bottom:1rem;">
+        <div style="display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap;margin-bottom:.35rem;">
+          <span style="font-size:.66rem;color:var(--peribahasa);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">🖼 Mod gambar sebenar</span>
+        </div>
+        <p style="font-size:.85rem;color:var(--muted);line-height:1.65;margin-bottom:.75rem;">
+          Dalam peperiksaan sebenar anda menonton <strong>video</strong>. Kami tidak dapat memainkan video di sini,
+          tetapi <strong>gambar sebenar</strong> jauh lebih dekat dengan tugasan itu daripada perenggan yang sudah
+          memberitahu anda apa yang perlu diperhatikan. Ambil gambar sesuatu di sekeliling anda, dan pemeriksa akan
+          melihat gambar yang sama.
+        </p>
+        <div id="gambar-in"></div>
+        <div id="gambar-actions" style="display:none;gap:.5rem;flex-wrap:wrap;margin-top:.8rem;">
+          <button class="btn btn-primary" id="gambar-build" style="font-size:.8rem;padding:.42rem .85rem;">Bina tiga soalan daripada gambar ini</button>
+          <button class="btn btn-secondary" id="gambar-clear" style="font-size:.8rem;padding:.42rem .85rem;">Buang gambar</button>
+          <span id="gambar-status" style="font-size:.78rem;color:var(--muted);align-self:center;"></span>
+        </div>
+      </div>
+
       <div class="petikan" id="rang-video" style="border-left-color:var(--kefahaman);"></div>
       <div style="font-size:.76rem;color:var(--muted);margin-bottom:1rem;line-height:1.6;">
         Dalam peperiksaan sebenar anda menonton video pendek. Di sini video itu diterangkan dengan teliti —
@@ -194,6 +212,7 @@
 <script src="../shared/gemini.js"></script>
 <script src="../shared/audio.js"></script>
 <script src="../shared/freshness.js"></script>
+<script src="../shared/imagein.js"></script>
 <script>
 (function () {
   'use strict';
@@ -584,7 +603,10 @@
     var r = rangKini;
     $('rang-tajuk').textContent = r.tajuk;
     $('rang-meta').textContent = 'Tema: ' + r.tema + ' · tiga soalan, 30 markah';
-    $('rang-video').innerHTML = '<strong style="color:var(--kefahaman)">Video:</strong> ' + esc(r.video);
+    $('rang-video').innerHTML = (r._gambar && r._gambar.url)
+      ? '<img src="' + r._gambar.url + '" alt="Gambar rangsangan anda" style="max-width:100%;border-radius:9px;border:1px solid var(--border);display:block;">' +
+        '<div style="font-size:.78rem;color:var(--muted);margin-top:.5rem;">Pemeriksa melihat gambar yang sama. Lihat, kemudian jawab dengan suara anda.</div>'
+      : '<strong style="color:var(--kefahaman)">Video:</strong> ' + esc(r.video);
     statSegar('lisan-bual', $('chip-segar-bual'));
 
     $('soalan-host').innerHTML = r.soalan.map(function (s, i) {
@@ -670,7 +692,9 @@
         'Balas dalam Bahasa Melayu mudah untuk murid darjah enam. Tiada emoji. Puji strategi, bukan sifat.';
 
       var arahan =
-        'Rangsangan video: ' + rangKini.video + '\n\n' +
+        (rangKini._gambar
+          ? 'Rangsangan: gambar sebenar yang dilihat murid dilampirkan. Nilai jawapan berdasarkan apa yang benar-benar kelihatan di dalamnya.\n\n'
+          : 'Rangsangan video: ' + rangKini.video + '\n\n') +
         'Soalan (' + soalan.tangga + '): ' + soalan.teks + '\n' +
         'Panduan struktur yang sepatutnya diikut: ' + soalan.panduan + '\n\n' +
         'Dengar jawapan murid, kemudian balas JSON sahaja:\n' +
@@ -688,6 +712,7 @@
       window.askGemini({
         system: sistem, prompt: arahan,
         audio: { base64: take.base64, mimeType: JglAudio.geminiMime(take.mimeType) },
+        image: (rangKini._gambar ? { base64: rangKini._gambar.base64, mimeType: rangKini._gambar.mimeType } : undefined),
         responseMimeType: 'application/json', asJson: true, maxTokens: 1800, temperature: 0.35
       }).then(function (r) {
         var b = r.bands || {};
@@ -754,6 +779,85 @@
   lukisSejarahBaca();
   lukisSejarahBual();
   var p0 = P(); if (p0 && p0.recordVisit) p0.recordVisit(TOPIK);
+
+  // ── Mod gambar sebenar ───────────────────────────────────
+  // Kertas 4 menggunakan video. Kami tidak dapat memainkan video di
+  // laman statik, tetapi gambar sebenar mengekalkan kemahiran yang
+  // sebenarnya diuji: memerhati sendiri, bukan membaca perihalan yang
+  // sudah memberitahu apa yang perlu dilihat.
+  (function modGambar() {
+    var host = $('gambar-in');
+    if (!host || !window.JglImageIn) return;
+    var actions = $('gambar-actions'), statusEl = $('gambar-status');
+    var picked = null;
+
+    var ctl = JglImageIn.mount(host, {
+      label: 'Gambar rangsangan',
+      hint: 'Ambil gambar sesuatu yang ada orang melakukan sesuatu — gambar sebegitu menghasilkan soalan yang lebih baik.',
+      onPick: function (pic) { picked = pic; actions.style.display = 'flex'; statusEl.textContent = ''; }
+    });
+
+    $('gambar-clear').addEventListener('click', function () {
+      picked = null; ctl.clear(); actions.style.display = 'none'; statusEl.textContent = '';
+    });
+
+    $('gambar-build').addEventListener('click', function () {
+      if (!picked) return;
+      if (!kunci()) { statusEl.textContent = 'Tetapkan kunci Gemini dahulu — soalan ditulis dengan melihat gambar anda.'; return; }
+      var btn = this; btn.disabled = true;
+      statusEl.textContent = 'Melihat gambar anda dan menulis tiga soalan…';
+
+      window.askGemini({
+        system:
+          'Anda penulis item Lisan PSLE Bahasa Melayu (Singapura), bahagian Perbualan Berasaskan Rangsangan. ' +
+          'Anda diberi gambar sebenar. Tulis soalan HANYA berdasarkan apa yang benar-benar kelihatan dalam gambar itu. ' +
+          'Jangan reka orang, objek atau tulisan yang tiada. Guna Bahasa Melayu yang sesuai untuk murid darjah enam. ' +
+          'Tiada emoji. Balas JSON sahaja.',
+        prompt:
+          'Lihat gambar yang dilampirkan, kemudian hasilkan set tiga soalan mengikut tangga rasmi:\n' +
+          'Soalan 1 tentang apa yang dilihat dalam gambar. Soalan 2 tentang pengalaman peribadi murid yang berkaitan. ' +
+          'Soalan 3 tentang tema itu daripada sudut masyarakat.\n\n' +
+          'Balas JSON tepat begini:\n' +
+          '{"tajuk":"<tajuk pendek untuk gambar ini, 4-8 patah perkataan>",' +
+          '"tema":"<satu label tema>",' +
+          '"video":"<apa yang benar-benar kelihatan, 40-70 patah perkataan — digunakan hanya jika gambar gagal dimuatkan>",' +
+          '"soalan":[' +
+          '{"tangga":"Soalan 1 · Apa yang dilihat","markah":8,"saat":30,"teks":"...","panduan":"..."},' +
+          '{"tangga":"Soalan 2 · Pengalaman peribadi","markah":10,"saat":45,"teks":"...","panduan":"..."},' +
+          '{"tangga":"Soalan 3 · Sudut masyarakat","markah":12,"saat":60,"teks":"...","panduan":"..."}]}',
+        image: { base64: picked.base64, mimeType: picked.mimeType },
+        responseMimeType: 'application/json', asJson: true, maxTokens: 1600, temperature: 0.6
+      }).then(function (out) {
+        if (!out || !Array.isArray(out.soalan) || !out.soalan.length) {
+          throw new Error('Model tidak menghasilkan set yang boleh digunakan. Cuba gambar yang lebih jelas.');
+        }
+        var r = {
+          id: 'gambar-' + Date.now(),
+          tajuk: out.tajuk || 'Gambar anda',
+          tema: out.tema || 'Gambar anda',
+          video: out.video || '',
+          soalan: out.soalan.slice(0, 3).map(function (s, i) {
+            return {
+              tangga: s.tangga || ('Soalan ' + (i + 1)),
+              markah: Number(s.markah) || [8, 10, 12][i] || 10,
+              saat: Number(s.saat) || [30, 45, 60][i] || 45,
+              teks: s.teks || '',
+              panduan: s.panduan || ''
+            };
+          }),
+          _gambar: { base64: picked.base64, mimeType: picked.mimeType, url: picked.url }
+        };
+        RANGSANGAN.push(r);
+        rangKini = r;
+        lukisRangsangan();
+        if (window.JglFresh) JglFresh.mark('lisan-bual', JglFresh.normKey(r.id), { title: r.tajuk });
+        statusEl.textContent = 'Tiga soalan sedia daripada gambar anda.';
+      }).catch(function (e) {
+        statusEl.textContent = 'Tidak dapat membaca gambar itu: ' + ((e && e.message) || e);
+      }).then(function () { btn.disabled = false; });
+    });
+  })();
+
 })();
 </script>
 </body>
