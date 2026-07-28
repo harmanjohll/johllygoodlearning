@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lisan (Kertas 4) | Studio Bahasa Melayu PSLE</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    main { max-width: 820px; margin: 0 auto; padding: 1.25rem 1.25rem 3rem; }
+
+    .hero h1 { font-size: 1.5rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .9rem; line-height: 1.7; margin-bottom: 1.1rem; }
+
+    .tabs { display: flex; gap: .4rem; border-bottom: 1px solid var(--border); margin-bottom: 1.1rem; flex-wrap: wrap; }
+    .tab { background: transparent; border: 0; padding: .6rem .9rem; color: var(--muted); font-size: .9rem; font-weight: 700; cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--peribahasa); border-bottom-color: var(--peribahasa); }
+    .pane { display: none; } .pane.active { display: block; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.35rem; margin-bottom: 1rem; }
+    .card h2 { font-size: 1.02rem; margin-bottom: .3rem; }
+    .card .meta { color: var(--muted); font-size: .8rem; margin-bottom: .85rem; }
+
+    .petikan {
+      font-size: 1.02rem; line-height: 2; color: var(--text);
+      background: var(--surface); border-left: 3px solid var(--peribahasa);
+      border-radius: 6px; padding: 1rem 1.2rem; margin-bottom: .9rem;
+    }
+    .petikan .tekan { font-weight: 800; color: var(--peribahasa); }
+    .petikan .jeda::after { content: ' | '; color: var(--muted); font-weight: 700; }
+
+    .cue-row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin-bottom: .9rem; }
+    .chip { display: inline-block; font-size: .72rem; padding: .2rem .55rem; border-radius: 99px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
+    .chip.warn { border-color: #fbbf24; color: #fbbf24; }
+
+    .rec-row { display: flex; gap: .55rem; flex-wrap: wrap; align-items: center; margin-bottom: .6rem; }
+    .meter { height: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; overflow: hidden; flex: 1; min-width: 130px; }
+    .meter .fill { height: 100%; width: 0%; background: var(--peribahasa); transition: width .06s linear; }
+    .rec-status { font-size: .8rem; color: var(--muted); min-height: 1.15rem; }
+    .rec-status.live { color: #f87171; } .rec-status.done { color: var(--accent); }
+    audio { width: 100%; margin-top: .5rem; }
+
+    .hasil { display: none; margin-top: 1rem; }
+    .hasil.show { display: block; }
+    .skor-besar { font-family: var(--font-mono, monospace); font-size: 2.4rem; font-weight: 800; color: var(--peribahasa); line-height: 1; }
+    .band { display: grid; grid-template-columns: 8.5rem 1fr 3.2rem; gap: .6rem; align-items: center; margin-bottom: .5rem; font-size: .84rem; }
+    .band .lbl { color: var(--muted); }
+    .band .track { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; height: .55rem; overflow: hidden; }
+    .band .bfill { height: 100%; border-radius: 99px; background: var(--peribahasa); }
+    .band .val { text-align: right; font-family: var(--font-mono, monospace); font-weight: 700; color: var(--text); font-size: .78rem; }
+    .bukti { font-size: .8rem; color: var(--muted); line-height: 1.6; margin: .1rem 0 .6rem 0; padding-left: .2rem; }
+
+    .satu-perkara { background: linear-gradient(135deg, #2a1a35 0%, #1a2033 100%); border: 1px solid var(--peribahasa); border-radius: 10px; padding: .85rem 1.05rem; margin: .85rem 0; }
+    .satu-perkara .lbl { font-size: .64rem; color: var(--peribahasa); text-transform: uppercase; letter-spacing: .08em; font-weight: 800; margin-bottom: .3rem; }
+    .satu-perkara .txt { font-size: .92rem; color: var(--text); line-height: 1.65; }
+
+    details.transkrip { margin-top: .7rem; }
+    details.transkrip summary { cursor: pointer; color: var(--peribahasa); font-size: .82rem; font-weight: 600; }
+    details.transkrip .body { margin-top: .45rem; padding: .65rem .85rem; background: var(--surface); border-radius: 6px; font-size: .87rem; line-height: 1.7; color: var(--text); white-space: pre-wrap; }
+
+    .sebutan-item { display: grid; grid-template-columns: auto 1fr; gap: .55rem; padding: .45rem 0; border-bottom: 1px solid var(--border); font-size: .84rem; }
+    .sebutan-item:last-child { border-bottom: 0; }
+    .sebutan-item .kata { font-weight: 800; color: #f87171; white-space: nowrap; }
+
+    .soalan { border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem; }
+    .soalan:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+    .soalan .tag { font-size: .64rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 800; color: var(--kefahaman); margin-bottom: .25rem; }
+    .soalan .teks { font-size: .93rem; color: var(--text); line-height: 1.6; margin-bottom: .4rem; font-weight: 600; }
+    .soalan .panduan { font-size: .8rem; color: var(--muted); line-height: 1.6; margin-bottom: .6rem; }
+
+    .amaran { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.35); border-radius: 9px; padding: .65rem .95rem; font-size: .84rem; color: var(--text); margin-bottom: 1rem; line-height: 1.6; }
+    .nota-rubrik { font-size: .75rem; color: var(--muted); line-height: 1.55; margin-top: .8rem; padding-top: .6rem; border-top: 1px solid var(--border); }
+    .sejarah { display: flex; gap: 3px; align-items: flex-end; height: 44px; margin: .5rem 0; }
+    .sejarah .bar { flex: 1; background: var(--peribahasa); border-radius: 2px 2px 0 0; min-height: 3px; opacity: .8; }
+    .btn-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <button class="back-link" onclick="window.location.href='../index.html'">← Hub</button>
+  <div style="flex:1">
+    <h1 style="font-size:1.2rem">🎙 Lisan (Kertas 4)</h1>
+    <div style="font-size:.76rem;color:var(--muted)">50 markah · 25% daripada gred PSLE Bahasa Melayu. Rakam suara anda, dengar semula, dapatkan maklum balas.</div>
+  </div>
+  <span data-studio-settings-slot></span>
+</header>
+
+<main>
+  <div class="hero">
+    <p>
+      Kertas 4 ialah <strong>satu-satunya kertas yang tidak boleh dilatih dengan menulis</strong>. Halaman ini
+      merakam suara anda melalui mikrofon, kemudian menghantar rakaman itu kepada pemeriksa AI yang
+      <em>benar-benar mendengar</em> — ia menulis semula apa yang anda sebut, bukan meneka daripada markah
+      sendiri. Baca transkrip itu. Jurang antara apa yang anda <em>sangka</em> anda sebut dan apa yang keluar
+      sebenarnya ialah pelajaran paling berharga di sini.
+    </p>
+  </div>
+
+  <div class="amaran" id="amaran-kunci" style="display:none;">
+    Kunci API Gemini belum ditetapkan. Rakaman, main semula dan panduan sebutan tetap berfungsi tanpa kunci —
+    hanya pemeriksaan AI memerlukannya. Tekan butang tetapan di atas untuk menambah kunci percuma.
+  </div>
+  <div class="amaran" id="amaran-mik" style="display:none;"></div>
+
+  <div class="tabs">
+    <button class="tab active" data-pane="baca">📖 Membaca Kuat · 20 m</button>
+    <button class="tab" data-pane="bual">💬 Perbualan Berasaskan Rangsangan · 30 m</button>
+  </div>
+
+  <!-- ── MEMBACA KUAT ───────────────────────────────────── -->
+  <div class="pane active" id="pane-baca">
+    <div class="card">
+      <h2 id="petikan-tajuk">—</h2>
+      <div class="meta" id="petikan-meta">—</div>
+
+      <div class="cue-row">
+        <button class="btn btn-secondary" id="btn-cue" style="font-size:.78rem;padding:.35rem .8rem;">Tunjuk tekanan &amp; jeda</button>
+        <button class="btn btn-secondary" id="btn-petikan-lain" style="font-size:.78rem;padding:.35rem .8rem;">Petikan lain</button>
+        <span class="chip" id="chip-kiraan"></span>
+        <span class="chip" id="chip-segar"></span>
+      </div>
+
+      <div class="petikan" id="petikan-teks"></div>
+
+      <div style="font-size:.78rem;color:var(--muted);margin-bottom:.5rem;">
+        <strong style="color:var(--text);">Perangkap sebutan dalam petikan ini:</strong>
+      </div>
+      <div id="perangkap" style="margin-bottom:1rem;"></div>
+
+      <div class="rec-row">
+        <button class="btn btn-primary" id="baca-rec" style="font-size:.84rem;padding:.45rem .9rem;">● Rakam</button>
+        <button class="btn btn-secondary" id="baca-stop" disabled style="font-size:.84rem;padding:.45rem .9rem;">■ Berhenti</button>
+        <div class="meter"><div class="fill" id="baca-meter"></div></div>
+      </div>
+      <div class="rec-status" id="baca-status">Sedia.</div>
+      <div id="baca-main"></div>
+
+      <div class="btn-row" style="margin-top:.8rem;">
+        <button class="btn btn-primary" id="baca-nilai" disabled style="font-size:.84rem;padding:.45rem .9rem;">Nilai bacaan saya</button>
+        <span class="rec-status" id="baca-nilai-status"></span>
+      </div>
+
+      <div class="hasil" id="baca-hasil"></div>
+    </div>
+
+    <div class="card" id="baca-sejarah-card" style="display:none;">
+      <h2>Perkembangan anda</h2>
+      <div class="meta">Sepuluh percubaan terakhir, daripada 20 markah.</div>
+      <div class="sejarah" id="baca-sejarah"></div>
+      <div id="baca-trend" style="font-size:.84rem;color:var(--text);line-height:1.65;"></div>
+      <div id="baca-kata-ulang" style="margin-top:.6rem;"></div>
+    </div>
+  </div>
+
+  <!-- ── PERBUALAN ──────────────────────────────────────── -->
+  <div class="pane" id="pane-bual">
+    <div class="card">
+      <h2 id="rang-tajuk">—</h2>
+      <div class="meta" id="rang-meta">—</div>
+
+      <div class="cue-row">
+        <button class="btn btn-secondary" id="btn-rang-lain" style="font-size:.78rem;padding:.35rem .8rem;">Rangsangan lain</button>
+        <span class="chip" id="chip-segar-bual"></span>
+      </div>
+
+      <div class="petikan" id="rang-video" style="border-left-color:var(--kefahaman);"></div>
+      <div style="font-size:.76rem;color:var(--muted);margin-bottom:1rem;line-height:1.6;">
+        Dalam peperiksaan sebenar anda menonton video pendek. Di sini video itu diterangkan dengan teliti —
+        bayangkannya, kemudian jawab seperti biasa.
+      </div>
+
+      <div id="soalan-host"></div>
+    </div>
+
+    <div class="card" id="bual-sejarah-card" style="display:none;">
+      <h2>Perkembangan anda</h2>
+      <div class="meta">Sepuluh jawapan terakhir, daripada 10 markah setiap satu.</div>
+      <div class="sejarah" id="bual-sejarah"></div>
+      <div id="bual-trend" style="font-size:.84rem;color:var(--text);line-height:1.65;"></div>
+    </div>
+  </div>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/lab.js"></script>
+<script src="../shared/gemini.js"></script>
+<script src="../shared/audio.js"></script>
+<script src="../shared/freshness.js"></script>
+<script>
+(function () {
+  'use strict';
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  // shared.js declares Progress/Streak with top-level const, which is a
+  // lexical binding and NOT a window property — testing window.Progress
+  // is always false and silently swallows every write.
+  function P() { try { return (typeof Progress !== 'undefined') ? Progress : (window.Progress || null); } catch (e) { return null; } }
+  function S() { try { return (typeof Streak !== 'undefined') ? Streak : (window.Streak || null); } catch (e) { return null; } }
+  function kunci() {
+    try {
+      if (window.JglStorage && window.JglStorage.getGeminiKey) return window.JglStorage.getGeminiKey() || '';
+      return localStorage.getItem('jgl.geminiKey') || '';
+    } catch (e) { return ''; }
+  }
+  function bacaLS(k, fallback) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+  function tulisLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+  var TOPIK = 'lisan';
+  var MAX_BACA_MS = 150000;
+  var MAX_BUAL_MS = 120000;
+
+  // Petikan are authored in a compact markup: *tekanan* and | jeda.
+  // The plain text and the cued HTML are BOTH derived from this single
+  // source, so a cue can never drift from the words being read, and any
+  // AI-supplied text is escaped before the markup is expanded.
+  function teksBiasa(src) { return src.replace(/\*/g, '').replace(/\s*\|\s*/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function teksCue(src) {
+    return esc(src)
+      .replace(/\*([^*]+)\*/g, '<span class="tekan">$1</span>')
+      .replace(/\s*\|\s*/g, '<span class="jeda"></span> ');
+  }
+
+  // ── Bank petikan (Membaca Kuat) ──────────────────────────
+  // Setiap petikan mengandungi perangkap sebutan Bahasa Melayu yang
+  // sebenar: e pepet lawan e taling, hentian glotis pada -k akhir,
+  // diftong ai/au/oi, sengau ng/ny, dan h yang mesti didengar.
+  var PETIKAN = [
+    {
+      id: 'pasar',
+      tahap: 'Sederhana',
+      tajuk: 'Pagi di pasar basah',
+      nada: 'Tenang dan mesra, seperti bercerita kepada rakan.',
+      src: "Setiap pagi *Sabtu*, emak akan membawa saya ke pasar basah | berhampiran blok kami. " +
+           "Bau ikan *segar* bercampur dengan wangi daun ketumbar | menyambut kami di pintu masuk. " +
+           "Emak tahu setiap gerai, | dan setiap peniaga tahu nama emak. " +
+           "\"Hari ini ikan *kembung* murah,\" kata Pak Samad sambil tersenyum. " +
+           "Saya memegang bakul yang semakin *berat*, | tetapi hati saya ringan.",
+      perangkap: [
+        { kata: 'emak', nota: 'e pepet, bukan e taling. Sebut "əmak" — bukan "émak".' },
+        { kata: 'segar', nota: 'e taling di sini. Bezakan dengan e pepet dalam "emak".' },
+        { kata: 'basah', nota: 'h akhir mesti kedengaran. Bukan "basa".' },
+        { kata: 'kembung', nota: 'sengau ng penuh di hujung, bukan "kembun".' },
+        { kata: 'berat', nota: 't akhir jelas; e pepet pada suku kata pertama.' },
+        { kata: 'ketumbar', nota: 'r bergetar ringan di hujung, jangan digugurkan.' },
+      ],
+    },
+    {
+      id: 'hujan',
+      tahap: 'Mudah',
+      tajuk: 'Hujan pada waktu petang',
+      nada: 'Perlahan dan bertenang; sesuai untuk gambaran suasana.',
+      src: "Petang itu langit bertukar *kelabu* dengan tiba-tiba. | Angin bertiup kencang | " +
+           "sehingga daun-daun pokok *rambutan* di belakang rumah bergoyang kuat. " +
+           "Saya cepat-cepat mengangkat kain yang sedang dijemur. | " +
+           "Titis pertama jatuh ke atas *bahu* saya, | sejuk dan tajam. " +
+           "Dalam masa seminit sahaja, | hujan turun dengan *lebat*.",
+      perangkap: [
+        { kata: 'kelabu', nota: 'e pepet pada suku kata pertama: "kəlabu".' },
+        { kata: 'bahu', nota: 'h di tengah mesti kedengaran. Bukan "bau".' },
+        { kata: 'rambutan', nota: 'sebut penuh; jangan jadikan "rambutn".' },
+        { kata: 'lebat', nota: 'e pepet, t akhir jelas.' },
+        { kata: 'seminit', nota: 'e pepet; jangan sebut "seh-minit".' },
+      ],
+    },
+    {
+      id: 'perpustakaan',
+      tahap: 'Mencabar',
+      tajuk: 'Sudut membaca di perpustakaan',
+      nada: 'Formal tetapi mesra, seperti memberi taklimat kepada kelas.',
+      src: "Perpustakaan *awam* di kawasan kami baru sahaja dibuka semula | selepas diubah suai. " +
+           "Sudut bacaan kanak-kanak kini lebih *luas*, | dengan kerusi rendah dan lampu kuning yang lembut. " +
+           "Setiap petang Rabu, | seorang pustakawan akan membacakan cerita rakyat | kepada murid-murid *tadika*. " +
+           "Mereka duduk bersila di atas tikar, | mata mereka tidak berkelip. " +
+           "Bagi saya, | itulah bunyi paling *indah* di seluruh bangunan itu.",
+      perangkap: [
+        { kata: 'perpustakaan', nota: 'lima suku kata: per-pus-ta-ka-an. Jangan dimampatkan.' },
+        { kata: 'awam', nota: 'diftong au? Tidak — a-wam. Jangan sebut "aum".' },
+        { kata: 'luas', nota: 'dua suku kata: lu-as, bukan "lwas".' },
+        { kata: 'tadika', nota: 'setiap vokal jelas: ta-di-ka.' },
+        { kata: 'indah', nota: 'h akhir kedengaran; sengau n sebelum d.' },
+        { kata: 'berkelip', nota: 'dua e pepet berturut-turut: bər-kə-lip.' },
+      ],
+    },
+  ];
+
+  // ── Bank rangsangan (Perbualan) ──────────────────────────
+  // Kertas 4 menggunakan VIDEO. Tiga soalan mengikut tangga rasmi:
+  // (1) apa yang ditonton, (2) pengalaman peribadi, (3) sudut
+  // masyarakat / negara.
+  var RANGSANGAN = [
+    {
+      id: 'kitar-semula',
+      tema: 'Alam sekitar',
+      tajuk: 'Tong kitar semula yang penuh melimpah',
+      video: "Video menunjukkan tiga tong kitar semula di bawah sebuah blok flat pada waktu petang. " +
+             "Tong biru untuk kertas sudah penuh sehingga kotak-kotak kadbod tumpah ke atas lantai. " +
+             "Dua orang murid sekolah rendah berjalan melaluinya sambil membawa beg. Seorang daripada " +
+             "mereka berhenti, menunjuk ke arah timbunan itu, dan berkata sesuatu kepada rakannya. " +
+             "Di latar belakang, seorang pak cik menunggang basikal berlalu tanpa berhenti.",
+      soalan: [
+        { tangga: 'Soalan 1 · Apa yang ditonton', markah: 8, saat: 30,
+          teks: 'Apakah yang berlaku dalam video tadi?',
+          panduan: 'Nyatakan satu pemerhatian jelas, kemudian satu butiran kecil. Dua hingga tiga ayat sudah cukup.' },
+        { tangga: 'Soalan 2 · Pengalaman peribadi', markah: 10, saat: 45,
+          teks: 'Pernahkah kamu melihat keadaan seperti ini di kawasan kamu? Ceritakan.',
+          panduan: 'Satu peristiwa khusus sahaja. Di mana, bila, apa yang kamu buat, dan bagaimana perasaan kamu.' },
+        { tangga: 'Soalan 3 · Sudut masyarakat', markah: 12, saat: 60,
+          teks: 'Pada pendapat kamu, apakah yang boleh dilakukan untuk menggalakkan penduduk mengitar semula dengan lebih baik?',
+          panduan: 'Ambil satu pendirian, beri sebab, beri contoh khusus, kemudian kaitkan semula kepada soalan.' },
+      ],
+    },
+    {
+      id: 'warga-emas',
+      tema: 'Kemasyarakatan',
+      tajuk: 'Membantu warga emas menyeberang jalan',
+      video: "Video menunjukkan sebuah lintasan pejalan kaki berhampiran pasar. Lampu isyarat hijau " +
+             "berkelip menandakan masa hampir tamat. Seorang nenek berjalan perlahan sambil membawa dua " +
+             "beg plastik yang berat. Seorang remaja lelaki berhenti, mengambil salah satu beg itu, " +
+             "dan berjalan seiring dengannya sehingga sampai ke seberang. Nenek itu tersenyum dan " +
+             "menepuk lengan remaja tersebut.",
+      soalan: [
+        { tangga: 'Soalan 1 · Apa yang ditonton', markah: 8, saat: 30,
+          teks: 'Ceritakan apa yang kamu lihat dalam video itu.',
+          panduan: 'Terangkan perbuatan utama dahulu, kemudian satu butiran yang menunjukkan perasaan.' },
+        { tangga: 'Soalan 2 · Pengalaman peribadi', markah: 10, saat: 45,
+          teks: 'Ceritakan satu masa kamu membantu orang lain, atau dibantu oleh orang lain.',
+          panduan: 'Satu kejadian khusus. Jangan bercerita secara umum.' },
+        { tangga: 'Soalan 3 · Sudut masyarakat', markah: 12, saat: 60,
+          teks: 'Mengapakah sikap tolong-menolong penting dalam masyarakat kita hari ini?',
+          panduan: 'Pendirian, sebab, contoh, kaitkan semula. Sebut nilai murni jika sesuai.' },
+      ],
+    },
+    {
+      id: 'masa-skrin',
+      tema: 'Gaya hidup',
+      tajuk: 'Keluarga di gerai makan, semua memegang telefon',
+      video: "Video menunjukkan sebuah keluarga empat orang duduk di meja gerai makan pada waktu malam. " +
+             "Makanan sudah terhidang di atas meja tetapi belum disentuh. Kedua-dua ibu bapa dan " +
+             "kedua-dua anak sedang memandang telefon masing-masing. Anak yang paling kecil menyentuh " +
+             "lengan ibunya dua kali, tetapi ibunya hanya mengangguk tanpa mengalihkan pandangan.",
+      soalan: [
+        { tangga: 'Soalan 1 · Apa yang ditonton', markah: 8, saat: 30,
+          teks: 'Apakah yang kamu perhatikan dalam video itu?',
+          panduan: 'Pemerhatian utama, kemudian satu butiran kecil yang bermakna.' },
+        { tangga: 'Soalan 2 · Pengalaman peribadi', markah: 10, saat: 45,
+          teks: 'Bagaimanakah keluarga kamu menggunakan telefon semasa waktu makan?',
+          panduan: 'Jujur dan khusus. Satu contoh sebenar lebih baik daripada jawapan sempurna.' },
+        { tangga: 'Soalan 3 · Sudut masyarakat', markah: 12, saat: 60,
+          teks: 'Pada pendapat kamu, adakah penggunaan telefon menjejaskan hubungan kekeluargaan?',
+          panduan: 'Ambil pendirian yang jelas. Akui sudut yang bertentangan, kemudian pertahankan pendirian kamu.' },
+      ],
+    },
+  ];
+
+  // ── Pilih bahan tanpa berulang ───────────────────────────
+  function pilih(bucket, senarai) {
+    if (window.JglFresh && JglFresh.pickUnseen) {
+      return JglFresh.pickUnseen(bucket, senarai, function (x) { return JglFresh.normKey(x.id); }) || senarai[0];
+    }
+    return senarai[0];
+  }
+  function tanda(bucket, item, meta) {
+    if (window.JglFresh) JglFresh.mark(bucket, JglFresh.normKey(item.id), meta || { title: item.tajuk });
+  }
+  function statSegar(bucket, el) {
+    if (!window.JglFresh || !el) return;
+    var s = JglFresh.stats(bucket);
+    el.textContent = s.total ? (s.total + ' dilihat · ' + s.last7 + ' minggu ini') : '';
+  }
+
+  // ── Tab ──────────────────────────────────────────────────
+  document.querySelectorAll('.tab').forEach(function (t) {
+    t.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(function (x) { x.classList.toggle('active', x === t); });
+      document.querySelectorAll('.pane').forEach(function (p) { p.classList.toggle('active', p.id === 'pane-' + t.dataset.pane); });
+    });
+  });
+
+  // ── Amaran awal ──────────────────────────────────────────
+  if (!kunci()) $('amaran-kunci').style.display = 'block';
+  var sokongan = window.JglAudio ? JglAudio.support() : { ok: false, reason: 'NO_MODULE' };
+  if (!sokongan.ok) {
+    var a = $('amaran-mik');
+    a.style.display = 'block';
+    a.innerHTML = sokongan.reason === 'INSECURE_CONTEXT'
+      ? '<strong>Rakaman memerlukan sambungan selamat.</strong> Buka laman ini melalui https (tapak yang diterbitkan) dan bukan daripada fail tempatan.'
+      : '<strong>Pelayar ini tidak menyokong rakaman audio.</strong> Cuba Chrome, Edge atau Safari.';
+  }
+
+  // ── MEMBACA KUAT ─────────────────────────────────────────
+  var petikanKini = null, cueOn = false, rakamanBaca = null, recBaca = null;
+
+  function lukisPetikan() {
+    var p = petikanKini;
+    $('petikan-tajuk').textContent = p.tajuk;
+    $('petikan-meta').textContent = p.tahap + ' · Nada sasaran: ' + p.nada;
+    $('petikan-teks').innerHTML = cueOn ? teksCue(p.src) : esc(teksBiasa(p.src));
+    var bil = teksBiasa(p.src).split(/\s+/).filter(Boolean).length;
+    $('chip-kiraan').textContent = bil + ' patah perkataan · sasaran ~' + Math.round(bil / 2.2) + ' saat';
+    $('perangkap').innerHTML = p.perangkap.map(function (w) {
+      return '<div class="sebutan-item"><span class="kata">' + esc(w.kata) + '</span><span>' + esc(w.nota) + '</span></div>';
+    }).join('');
+    statSegar('lisan-baca', $('chip-segar'));
+  }
+
+  $('btn-cue').addEventListener('click', function () {
+    cueOn = !cueOn;
+    this.textContent = cueOn ? 'Sembunyikan tekanan & jeda' : 'Tunjuk tekanan & jeda';
+    lukisPetikan();
+  });
+  $('btn-petikan-lain').addEventListener('click', function () {
+    tanda('lisan-baca', petikanKini);
+    petikanKini = pilih('lisan-baca', PETIKAN);
+    cueOn = false;
+    $('btn-cue').textContent = 'Tunjuk tekanan & jeda';
+    $('baca-hasil').classList.remove('show');
+    lukisPetikan();
+  });
+
+  $('baca-rec').addEventListener('click', function () {
+    if (!window.JglAudio) return;
+    var btn = this;
+    recBaca = JglAudio.createRecorder({
+      maxMs: MAX_BACA_MS,
+      onLevel: function (v) { $('baca-meter').style.width = Math.round(v * 100) + '%'; },
+      onTick: function (ms) { $('baca-status').textContent = '● Merakam… ' + (ms / 1000).toFixed(0) + ' saat'; },
+      onAutoStop: function (t) { selesaiBaca(t); }
+    });
+    recBaca.start().then(function () {
+      btn.disabled = true; $('baca-stop').disabled = false;
+      $('baca-status').className = 'rec-status live';
+      $('baca-status').textContent = '● Merakam… baca dengan kuat sekarang.';
+    }).catch(function (e) {
+      $('baca-status').className = 'rec-status';
+      $('baca-status').textContent = e && e.message ? e.message : 'Rakaman gagal bermula.';
+    });
+  });
+  $('baca-stop').addEventListener('click', function () {
+    if (!recBaca) return;
+    recBaca.stop().then(selesaiBaca).catch(function (e) {
+      $('baca-status').textContent = e && e.message ? e.message : 'Gagal menghentikan rakaman.';
+    });
+  });
+
+  function selesaiBaca(t) {
+    rakamanBaca = t;
+    $('baca-rec').disabled = false; $('baca-stop').disabled = true;
+    $('baca-meter').style.width = '0%';
+    $('baca-status').className = 'rec-status done';
+    var bil = teksBiasa(petikanKini.src).split(/\s+/).filter(Boolean).length;
+    var ppm = t.durationMs ? Math.round((bil / (t.durationMs / 1000)) * 60) : 0;
+    var nota = (ppm > 0 && ppm < 100) ? ' — agak perlahan' : (ppm > 165 ? ' — agak laju' : ' — kadar yang baik');
+    $('baca-status').textContent = 'Selesai · ' + (t.durationMs / 1000).toFixed(1) + ' saat · ' + ppm + ' patah/minit' + nota;
+    $('baca-main').innerHTML = '<audio controls src="' + t.url + '"></audio>';
+    $('baca-nilai').disabled = false;
+    tanda('lisan-baca', petikanKini);
+    statSegar('lisan-baca', $('chip-segar'));
+  }
+
+  $('baca-nilai').addEventListener('click', function () {
+    if (!rakamanBaca) return;
+    if (!kunci()) { $('baca-nilai-status').textContent = 'Kunci Gemini belum ditetapkan.'; return; }
+    var btn = this; btn.disabled = true;
+    $('baca-nilai-status').textContent = 'Pemeriksa sedang mendengar…';
+
+    var sistem =
+      'Anda pemeriksa lisan PSLE Bahasa Melayu (Singapura), bahagian Membaca Kuat, 20 markah. ' +
+      'PENTING: MOE tidak menerbitkan deskriptor band rasmi. Rubrik ini ialah rubrik dalaman studio ini. ' +
+      'Jangan sekali-kali mendakwa ia rubrik rasmi MOE atau SEAB. ' +
+      'Nilai TIGA perkara, 0 hingga 5 setiap satu, kemudian jumlah diskalakan kepada 20. ' +
+      'SEBUTAN: ketepatan bunyi Melayu — e pepet lawan e taling, hentian glotis pada -k akhir, ' +
+      'sengau ng/ny, h yang mesti kedengaran di tengah dan hujung kata, r bergetar, vokal penuh. ' +
+      'KELANCARAN: kadar bacaan, jeda pada kumpulan makna, pemulihan selepas tersasar. ' +
+      'INTONASI DAN NADA: naik turun suara, penekanan pada kata penting, kesesuaian dengan nada sasaran. ' +
+      'Balas dalam Bahasa Melayu yang mudah difahami murid darjah enam. Tiada emoji. Jujur dan khusus.';
+
+    var arahan =
+      'Petikan yang sepatutnya dibaca:\n"""\n' + teksBiasa(petikanKini.src) + '\n"""\n\n' +
+      'Nada sasaran: ' + petikanKini.nada + '\n' +
+      'Kata yang sering tersalah sebut dalam petikan ini: ' +
+      petikanKini.perangkap.map(function (w) { return w.kata; }).join(', ') + '\n\n' +
+      'Dengar rakaman itu, kemudian balas JSON sahaja dengan bentuk ini:\n' +
+      '{"transkrip":"<apa yang murid sebut, verbatim>",' +
+      '"bands":{"sebutan":{"skor":0,"bukti":"<petik perkataan sebenar daripada transkrip>","betulkan":"<satu tindakan>"},' +
+      '"kelancaran":{"skor":0,"bukti":"...","betulkan":"..."},' +
+      '"intonasi":{"skor":0,"bukti":"...","betulkan":"..."}},' +
+      '"jumlah":0,"label":"<gambaran ringkas tahap>",' +
+      '"sebutanSalah":[{"kata":"...","masalah":"...","caraSebut":"..."}],' +
+      '"satuPerkara":"<satu perubahan paling berkesan untuk cubaan seterusnya, satu ayat>"}\n' +
+      'Letak "transkrip" DAHULU supaya penilaian berdasarkan apa yang benar-benar didengar. ' +
+      '"jumlah" mestilah daripada 20.';
+
+    window.askGemini({
+      system: sistem, prompt: arahan,
+      audio: { base64: rakamanBaca.base64, mimeType: JglAudio.geminiMime(rakamanBaca.mimeType) },
+      responseMimeType: 'application/json', asJson: true, maxTokens: 2000, temperature: 0.3
+    }).then(function (r) {
+      lukisHasilBaca(r);
+      simpanBaca(r);
+      var p = P();
+      if (p) { if (p.recordDrillUsed) p.recordDrillUsed(TOPIK); if (p.recordQuiz) p.recordQuiz(TOPIK, Number(r.jumlah) || 0, 20); }
+      var s = S(); if (s && s.record) { try { s.record(); } catch (e) {} }
+      $('baca-nilai-status').textContent = 'Selesai. Baca transkrip dahulu.';
+    }).catch(function (e) {
+      $('baca-nilai-status').textContent = 'Ralat: ' + (e && e.message ? e.message : e);
+    }).then(function () { btn.disabled = false; });
+  });
+
+  function bandRow(nama, b) {
+    var sk = Math.max(0, Math.min(5, Number(b && b.skor) || 0));
+    return '<div class="band"><span class="lbl">' + nama + '</span>' +
+           '<span class="track"><span class="bfill" style="width:' + (sk / 5 * 100) + '%"></span></span>' +
+           '<span class="val">' + sk + '/5</span></div>' +
+           '<div class="bukti">' + esc((b && b.bukti) || '') +
+           ((b && b.betulkan) ? ' <strong style="color:var(--accent)">Betulkan:</strong> ' + esc(b.betulkan) : '') + '</div>';
+  }
+
+  function lukisHasilBaca(r) {
+    var b = r.bands || {};
+    var jumlah = Math.max(0, Math.min(20, Number(r.jumlah) || 0));
+    var salah = Array.isArray(r.sebutanSalah) ? r.sebutanSalah : [];
+    $('baca-hasil').className = 'hasil show';
+    $('baca-hasil').innerHTML =
+      '<div class="skor-besar">' + jumlah + ' / 20</div>' +
+      '<div style="color:var(--muted);font-size:.85rem;margin-bottom:.9rem;">' + esc(r.label || '') + '</div>' +
+      (r.satuPerkara ? '<div class="satu-perkara"><div class="lbl">Satu perkara untuk cubaan seterusnya</div><div class="txt">' + esc(r.satuPerkara) + '</div></div>' : '') +
+      bandRow('Sebutan', b.sebutan) + bandRow('Kelancaran', b.kelancaran) + bandRow('Intonasi &amp; nada', b.intonasi) +
+      (salah.length ? '<div style="margin-top:.8rem;font-size:.8rem;color:var(--muted);"><strong style="color:var(--text)">Kata untuk dilatih semula:</strong></div>' +
+        salah.map(function (w) {
+          return '<div class="sebutan-item"><span class="kata">' + esc(w.kata) + '</span><span>' + esc(w.masalah || '') +
+                 (w.caraSebut ? ' <em style="color:var(--accent)">→ ' + esc(w.caraSebut) + '</em>' : '') + '</span></div>';
+        }).join('') : '') +
+      '<details class="transkrip"><summary>Lihat transkrip — apa yang pemeriksa dengar</summary><div class="body">' +
+        esc(r.transkrip || '(tiada transkrip)') + '</div></details>' +
+      '<div class="nota-rubrik">Markah ini daripada rubrik dalaman studio, bukan rubrik rasmi MOE. Gunakannya untuk melihat arah perkembangan, bukan sebagai ramalan gred.</div>';
+  }
+
+  function simpanBaca(r) {
+    var arr = bacaLS('jgl.malay.lisan.baca', []);
+    arr.push({ iso: new Date().toISOString(), petikan: petikanKini.id, tajuk: petikanKini.tajuk,
+               jumlah: Number(r.jumlah) || 0,
+               salah: (Array.isArray(r.sebutanSalah) ? r.sebutanSalah : []).map(function (w) { return w.kata; }) });
+    tulisLS('jgl.malay.lisan.baca', arr.slice(-60));
+    lukisSejarahBaca();
+  }
+
+  function lukisSejarahBaca() {
+    var arr = bacaLS('jgl.malay.lisan.baca', []);
+    if (!arr.length) return;
+    $('baca-sejarah-card').style.display = 'block';
+    var last = arr.slice(-10);
+    $('baca-sejarah').innerHTML = last.map(function (a) {
+      return '<div class="bar" style="height:' + Math.max(4, (a.jumlah / 20) * 44) + 'px" title="' + esc(a.tajuk) + ': ' + a.jumlah + '/20"></div>';
+    }).join('');
+    var terbaik = Math.max.apply(null, arr.map(function (a) { return a.jumlah; }));
+    var kini = last[last.length - 1].jumlah;
+    $('baca-trend').textContent = arr.length + ' percubaan · terbaik ' + terbaik + '/20 · terkini ' + kini + '/20' +
+      (kini >= terbaik ? ' — anda berada pada tahap terbaik anda.' : ' — masih di bawah tahap terbaik anda.');
+    var kira = {};
+    arr.forEach(function (a) { (a.salah || []).forEach(function (k) { kira[k] = (kira[k] || 0) + 1; }); });
+    var ulang = Object.keys(kira).filter(function (k) { return kira[k] >= 2; });
+    $('baca-kata-ulang').innerHTML = ulang.length
+      ? '<div style="font-size:.8rem;color:var(--muted);margin-bottom:.3rem;"><strong style="color:var(--text)">Kata yang berulang kali tersalah:</strong></div>' +
+        ulang.map(function (k) { return '<span class="chip warn">' + esc(k) + ' ×' + kira[k] + '</span> '; }).join('')
+      : '';
+  }
+
+  // ── PERBUALAN ────────────────────────────────────────────
+  var rangKini = null;
+
+  function lukisRangsangan() {
+    var r = rangKini;
+    $('rang-tajuk').textContent = r.tajuk;
+    $('rang-meta').textContent = 'Tema: ' + r.tema + ' · tiga soalan, 30 markah';
+    $('rang-video').innerHTML = '<strong style="color:var(--kefahaman)">Video:</strong> ' + esc(r.video);
+    statSegar('lisan-bual', $('chip-segar-bual'));
+
+    $('soalan-host').innerHTML = r.soalan.map(function (s, i) {
+      return '<div class="soalan" data-i="' + i + '">' +
+        '<div class="tag">' + esc(s.tangga) + ' · ' + s.markah + ' markah · sasaran ~' + s.saat + ' saat</div>' +
+        '<div class="teks">' + esc(s.teks) + '</div>' +
+        '<div class="panduan">' + esc(s.panduan) + '</div>' +
+        '<div class="rec-row">' +
+          '<button class="btn btn-primary bual-rec" style="font-size:.8rem;padding:.4rem .85rem;">● Rakam</button>' +
+          '<button class="btn btn-secondary bual-stop" disabled style="font-size:.8rem;padding:.4rem .85rem;">■ Berhenti</button>' +
+          '<div class="meter"><div class="fill bual-meter"></div></div>' +
+        '</div>' +
+        '<div class="rec-status bual-status">Sedia.</div>' +
+        '<div class="bual-main"></div>' +
+        '<div class="btn-row" style="margin-top:.5rem;">' +
+          '<button class="btn btn-primary bual-nilai" disabled style="font-size:.8rem;padding:.4rem .85rem;">Nilai jawapan saya</button>' +
+          '<span class="rec-status bual-nilai-status"></span>' +
+        '</div>' +
+        '<div class="hasil bual-hasil"></div>' +
+      '</div>';
+    }).join('');
+
+    Array.prototype.forEach.call(document.querySelectorAll('.soalan'), function (el) { pasangSoalan(el); });
+  }
+
+  function pasangSoalan(el) {
+    var i = Number(el.dataset.i);
+    var soalan = rangKini.soalan[i];
+    var rec = null, take = null;
+    var q = function (c) { return el.querySelector(c); };
+
+    q('.bual-rec').addEventListener('click', function () {
+      if (!window.JglAudio) return;
+      var btn = this;
+      rec = JglAudio.createRecorder({
+        maxMs: MAX_BUAL_MS,
+        onLevel: function (v) { q('.bual-meter').style.width = Math.round(v * 100) + '%'; },
+        onTick: function (ms) { q('.bual-status').textContent = '● Merakam… ' + (ms / 1000).toFixed(0) + ' / ' + soalan.saat + ' saat'; },
+        onAutoStop: function (t) { habis(t); }
+      });
+      rec.start().then(function () {
+        btn.disabled = true; q('.bual-stop').disabled = false;
+        q('.bual-status').className = 'rec-status bual-status live';
+        q('.bual-status').textContent = '● Merakam… jawab sekarang.';
+      }).catch(function (e) {
+        q('.bual-status').textContent = e && e.message ? e.message : 'Rakaman gagal bermula.';
+      });
+    });
+
+    q('.bual-stop').addEventListener('click', function () {
+      if (!rec) return;
+      rec.stop().then(habis).catch(function (e) { q('.bual-status').textContent = e.message || 'Ralat.'; });
+    });
+
+    function habis(t) {
+      take = t;
+      q('.bual-rec').disabled = false; q('.bual-stop').disabled = true;
+      q('.bual-meter').style.width = '0%';
+      var saat = t.durationMs / 1000;
+      var nota = saat < soalan.saat * 0.55 ? ' — terlalu pendek; bahagian yang selalu tertinggal ialah contoh'
+               : saat > soalan.saat * 1.8  ? ' — agak panjang; buang bahagian yang mengulang soalan'
+               : ' — panjang yang sesuai';
+      q('.bual-status').className = 'rec-status bual-status done';
+      q('.bual-status').textContent = 'Selesai · ' + saat.toFixed(1) + ' saat' + nota;
+      q('.bual-main').innerHTML = '<audio controls src="' + t.url + '"></audio>';
+      q('.bual-nilai').disabled = false;
+    }
+
+    q('.bual-nilai').addEventListener('click', function () {
+      if (!take) return;
+      if (!kunci()) { q('.bual-nilai-status').textContent = 'Kunci Gemini belum ditetapkan.'; return; }
+      var btn = this; btn.disabled = true;
+      q('.bual-nilai-status').textContent = 'Pemeriksa sedang mendengar…';
+
+      var sistem =
+        'Anda pemeriksa lisan PSLE Bahasa Melayu (Singapura), bahagian Perbualan Berasaskan Rangsangan. ' +
+        'PENTING: MOE tidak menerbitkan deskriptor band rasmi. Rubrik ini rubrik dalaman studio; ' +
+        'jangan dakwa ia rubrik rasmi. Nilai TIGA perkara, 0 hingga 5 setiap satu, ' +
+        'kemudian berikan jumlah daripada ' + soalan.markah + ' markah. ' +
+        'ISI DAN IDEA: ketepatan kepada soalan, kedalaman sebab, contoh yang khusus bukan umum. ' +
+        'BAHASA: kosa kata, tatabahasa, keupayaan menggunakan ayat majmuk, ketiadaan campuran bahasa Inggeris. ' +
+        'PENYAMPAIAN: kelancaran, keyakinan, sedikit kata sisipan seperti "erm" atau "macam". ' +
+        'Balas dalam Bahasa Melayu mudah untuk murid darjah enam. Tiada emoji. Puji strategi, bukan sifat.';
+
+      var arahan =
+        'Rangsangan video: ' + rangKini.video + '\n\n' +
+        'Soalan (' + soalan.tangga + '): ' + soalan.teks + '\n' +
+        'Panduan struktur yang sepatutnya diikut: ' + soalan.panduan + '\n\n' +
+        'Dengar jawapan murid, kemudian balas JSON sahaja:\n' +
+        '{"transkrip":"<verbatim>",' +
+        '"bands":{"isi":{"skor":0,"bukti":"<petik daripada transkrip murid>","betulkan":"..."},' +
+        '"bahasa":{"skor":0,"bukti":"...","betulkan":"..."},' +
+        '"penyampaian":{"skor":0,"bukti":"...","betulkan":"..."}},' +
+        '"jumlah":0,' +
+        '"kataSisipan":0,' +
+        '"campurInggeris":["<perkataan Inggeris yang digunakan, jika ada>"],' +
+        '"naikTaraf":[{"disebut":"<frasa murid>","tukarKepada":"<frasa Melayu yang lebih baik>","sebab":"..."}],' +
+        '"satuPerkara":"<satu tindakan paling berkesan, satu ayat>"}\n' +
+        'Letak "transkrip" DAHULU. "jumlah" daripada ' + soalan.markah + '.';
+
+      window.askGemini({
+        system: sistem, prompt: arahan,
+        audio: { base64: take.base64, mimeType: JglAudio.geminiMime(take.mimeType) },
+        responseMimeType: 'application/json', asJson: true, maxTokens: 1800, temperature: 0.35
+      }).then(function (r) {
+        var b = r.bands || {};
+        var jumlah = Math.max(0, Math.min(soalan.markah, Number(r.jumlah) || 0));
+        var naik = Array.isArray(r.naikTaraf) ? r.naikTaraf : [];
+        var eng = Array.isArray(r.campurInggeris) ? r.campurInggeris.filter(Boolean) : [];
+        var h = el.querySelector('.bual-hasil');
+        h.className = 'hasil bual-hasil show';
+        h.innerHTML =
+          '<div class="skor-besar" style="font-size:1.9rem;">' + jumlah + ' / ' + soalan.markah + '</div>' +
+          (r.satuPerkara ? '<div class="satu-perkara"><div class="lbl">Satu perkara</div><div class="txt">' + esc(r.satuPerkara) + '</div></div>' : '') +
+          bandRow('Isi &amp; idea', b.isi) + bandRow('Bahasa', b.bahasa) + bandRow('Penyampaian', b.penyampaian) +
+          (Number(r.kataSisipan) > 4 ? '<div style="font-size:.8rem;color:#fbbf24;margin-top:.4rem;">Kata sisipan dikesan: ' + Number(r.kataSisipan) + '. Gantikan dengan hentian sebentar — diam lebih baik daripada "erm".</div>' : '') +
+          (eng.length ? '<div style="font-size:.8rem;color:#fbbf24;margin-top:.4rem;">Perkataan Inggeris yang tercampur: ' + eng.map(esc).join(', ') + '. Cari padanan Melayu sebelum cubaan seterusnya.</div>' : '') +
+          (naik.length ? '<div style="margin-top:.7rem;font-size:.8rem;color:var(--muted);"><strong style="color:var(--text)">Naik taraf ayat anda:</strong></div>' +
+            naik.map(function (u) {
+              return '<div class="sebutan-item"><span class="kata" style="color:#fbbf24">' + esc(u.disebut || '') + '</span>' +
+                     '<span><strong style="color:var(--accent)">' + esc(u.tukarKepada || '') + '</strong> — ' + esc(u.sebab || '') + '</span></div>';
+            }).join('') : '') +
+          '<details class="transkrip"><summary>Lihat transkrip — apa yang pemeriksa dengar</summary><div class="body">' +
+            esc(r.transkrip || '(tiada transkrip)') + '</div></details>' +
+          '<div class="nota-rubrik">Rubrik dalaman studio, bukan rubrik rasmi MOE.</div>';
+
+        var arr = bacaLS('jgl.malay.lisan.bual', []);
+        arr.push({ iso: new Date().toISOString(), rang: rangKini.id, soalan: i, jumlah: jumlah, maks: soalan.markah });
+        tulisLS('jgl.malay.lisan.bual', arr.slice(-60));
+        lukisSejarahBual();
+
+        var p = P();
+        if (p) { if (p.recordDrillUsed) p.recordDrillUsed(TOPIK); if (p.recordQuiz) p.recordQuiz(TOPIK, jumlah, soalan.markah); }
+        var s = S(); if (s && s.record) { try { s.record(); } catch (e) {} }
+        tanda('lisan-bual', rangKini);
+        q('.bual-nilai-status').textContent = 'Selesai.';
+      }).catch(function (e) {
+        q('.bual-nilai-status').textContent = 'Ralat: ' + (e && e.message ? e.message : e);
+      }).then(function () { btn.disabled = false; });
+    });
+  }
+
+  function lukisSejarahBual() {
+    var arr = bacaLS('jgl.malay.lisan.bual', []);
+    if (!arr.length) return;
+    $('bual-sejarah-card').style.display = 'block';
+    var last = arr.slice(-10);
+    $('bual-sejarah').innerHTML = last.map(function (a) {
+      var pct = a.maks ? a.jumlah / a.maks : 0;
+      return '<div class="bar" style="height:' + Math.max(4, pct * 44) + 'px" title="' + a.jumlah + '/' + a.maks + '"></div>';
+    }).join('');
+    var purata = arr.reduce(function (s, a) { return s + (a.maks ? a.jumlah / a.maks : 0); }, 0) / arr.length;
+    $('bual-trend').textContent = arr.length + ' jawapan dinilai · purata ' + Math.round(purata * 100) + '% daripada markah penuh.';
+  }
+
+  $('btn-rang-lain').addEventListener('click', function () {
+    tanda('lisan-bual', rangKini);
+    rangKini = pilih('lisan-bual', RANGSANGAN);
+    lukisRangsangan();
+  });
+
+  // ── Mula ─────────────────────────────────────────────────
+  petikanKini = pilih('lisan-baca', PETIKAN);
+  rangKini    = pilih('lisan-bual', RANGSANGAN);
+  lukisPetikan();
+  lukisRangsangan();
+  lukisSejarahBaca();
+  lukisSejarahBual();
+  var p0 = P(); if (p0 && p0.recordVisit) p0.recordVisit(TOPIK);
+})();
+</script>
+</body>
+</html>

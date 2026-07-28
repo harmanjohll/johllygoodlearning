@@ -85,6 +85,22 @@
     throw new Error('Unexpected response format from Gemini.');
   }
 
+  // Gemini accepts these inline audio containers. Anything else is
+  // coerced to the closest match rather than rejected outright.
+  const AUDIO_MIMES = ['audio/wav', 'audio/mp3', 'audio/mpeg', 'audio/aiff', 'audio/aac', 'audio/ogg', 'audio/flac', 'audio/webm', 'audio/mp4'];
+
+  function normaliseAudioMime(mt) {
+    const m = String(mt || '').toLowerCase().split(';')[0].trim();
+    if (AUDIO_MIMES.indexOf(m) !== -1) return m;
+    if (m.indexOf('webm') !== -1) return 'audio/webm';
+    if (m.indexOf('ogg')  !== -1) return 'audio/ogg';
+    if (m.indexOf('mp4')  !== -1 || m.indexOf('m4a') !== -1) return 'audio/mp4';
+    if (m.indexOf('aac')  !== -1) return 'audio/aac';
+    if (m.indexOf('wav')  !== -1) return 'audio/wav';
+    if (m.indexOf('mp3')  !== -1) return 'audio/mp3';
+    return 'audio/mp4';
+  }
+
   async function askGemini(opts) {
     const {
       prompt,
@@ -95,6 +111,7 @@
       model = DEFAULT_MODEL,
       responseMimeType,
       asJson = false,
+      audio,                     // { base64, mimeType } — raw base64, no data: prefix
       thinkingBudget,            // number | undefined. 0 disables extended
                                  // thinking on gemini-2.5 models so short
                                  // replies do not get clipped by the
@@ -116,6 +133,21 @@
       }));
     } else {
       contents = [{ parts: [{ text: String(prompt || '') }] }];
+    }
+
+    // Inline audio. The audio part goes FIRST so the model has the
+    // recording in context before it reads the marking instructions.
+    if (audio && audio.base64) {
+      const raw = String(audio.base64);
+      const comma = raw.indexOf('base64,');
+      const data = comma === -1 ? raw : raw.slice(comma + 7);
+      if (data.length > 18 * 1024 * 1024) {
+        const err = new Error('Rakaman itu terlalu panjang untuk dihantar. Pastikan rakaman kurang daripada tiga minit.');
+        err.code = 'AUDIO_TOO_LARGE';
+        throw err;
+      }
+      const target = contents[contents.length - 1];
+      target.parts = [{ inlineData: { mimeType: normaliseAudioMime(audio.mimeType), data } }].concat(target.parts || []);
     }
 
     const body = {

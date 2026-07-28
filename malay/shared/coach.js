@@ -1,8 +1,9 @@
 /* =========================================================
    /malay/shared/coach.js
-   Cross-mode Coach voice for PSLE Malay. Phase 1 exports a
-   voice prelude only; later phases add per-mode prompt
-   builders (vocab, peribahasa, karangan, kefahaman, structured).
+   Cross-mode Coach voice for PSLE Malay. Exports the shared VOICE
+   prelude that every Coach-mode prompt prepends (Karangan, Kefahaman,
+   Peribahasa, Lisan, Structured). Mode-specific prompt bodies live
+   beside each mode page so voice and task stay close.
    ========================================================= */
 
 (function (global) {

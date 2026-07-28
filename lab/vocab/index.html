@@ -336,6 +336,9 @@
 
 </main>
 
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/lab.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
 //  Shared utilities (inline subset — no external dependency)
@@ -764,7 +767,8 @@ function advanceQuestion() {
 }
 
 function endSession() {
-  Streak.record();
+  // Guarded: a missing Streak must never stop the student seeing their score.
+  try { if (typeof Streak !== 'undefined' && Streak.record) Streak.record(); } catch (e) {}
 
   const total = sessionQuestions.length;
   const pct   = Math.round((score / total) * 100);
