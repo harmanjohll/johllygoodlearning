@@ -115,9 +115,29 @@
     <p>
       Two mock posters per run, each with five MCQ questions covering Audience, Purpose, Tone, Detail and Extension —
       the five PSLE Visual Text question types. Four curated posters sit in the bank, and each visit serves you the
-      two you have not seen yet, so coming back does not mean doing the same paper again. The posters are described
-      in text (no copyrighted images). Read the heading and caption FIRST: tiny print often hides the answer to one question.
+      two you have not seen yet, so coming back does not mean doing the same paper again. The curated posters are
+      written out in text; for the real thing, use <strong>Real poster mode</strong> below and photograph an actual
+      one. Read the heading and the small print FIRST: tiny text often hides the answer to one question.
     </p>
+  </div>
+
+  <div style="background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:1rem 1.15rem;margin-bottom:1rem;">
+    <div style="display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap;margin-bottom:.35rem;">
+      <span style="font-size:.66rem;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;font-weight:800;">🖼 Real poster mode</span>
+      <span style="font-size:.74rem;color:var(--muted);">what the booklet actually prints</span>
+    </div>
+    <p style="font-size:.85rem;color:var(--muted);line-height:1.65;margin-bottom:.75rem;">
+      The real paper prints an actual poster, advert or infographic, and part of the skill is reading
+      <strong>layout, typography and colour</strong> — which written mock-ups cannot carry. Photograph a poster
+      at your MRT station or void deck, screenshot one, or paste an image, and the questions will be written from
+      the real thing.
+    </p>
+    <div id="poster-in"></div>
+    <div id="poster-actions" style="display:none;gap:.5rem;flex-wrap:wrap;margin-top:.8rem;">
+      <button class="btn btn-primary" id="poster-build" style="font-size:.8rem;padding:.42rem .85rem;">Build five questions from this poster</button>
+      <button class="btn btn-secondary" id="poster-clear" style="font-size:.8rem;padding:.42rem .85rem;">Remove</button>
+      <span id="poster-status" style="font-size:.78rem;color:var(--muted);align-self:center;"></span>
+    </div>
   </div>
 
   <div id="generator-bar" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
@@ -179,6 +199,7 @@
 <script src="../shared/lab.js"></script>
 <script src="../shared/gemini.js"></script>
 <script src="../shared/freshness.js"></script>
+<script src="../shared/imagein.js"></script>
 <script>
 const QUIZ_MS = 8 * 60 * 1000;
 const BUCKET = 'visualtext';
@@ -197,7 +218,7 @@ const TYPE_ADVICE = {
   Extension: 'Extension is the one most students drop. The right answer names a SPECIFIC new action for a DIFFERENT audience. Making the poster bigger, brighter or longer is never the answer.',
 };
 
-/* ── Mock visual texts (no copyrighted images) ──────────────
+/* ── Mock visual texts (fallback when no real poster is supplied) ──
    Four curated posters. Each run serves two, chosen through
    JglFresh so a repeat visit does not repeat the material.   */
 const CURATED_BANK = [
@@ -576,11 +597,13 @@ function renderAll() {
     div.innerHTML =
       '<div class="stim-tag">Visual Text ' + (sIdx + 1) + ' of ' + STIMULI.length + '</div>' +
       '<div class="stim-title">' + escapeHTML(s.title) + '</div>' +
-      '<div class="stim-mock">' +
-        '<div class="heading">' + escapeHTML(s.mockHeading) + '</div>' +
-        '<div class="body">' + escapeHTML(s.mockBody) + '</div>' +
-        '<div class="caption">' + escapeHTML(s.mockCaption) + '</div>' +
-      '</div>' +
+      (s._photo && s._photo.url
+        ? '<img src="' + s._photo.url + '" alt="The visual text you are answering on" style="max-width:100%;border-radius:10px;border:1px solid var(--border);display:block;margin-bottom:.9rem;">'
+        : '<div class="stim-mock">' +
+            '<div class="heading">' + escapeHTML(s.mockHeading) + '</div>' +
+            '<div class="body">' + escapeHTML(s.mockBody) + '</div>' +
+            '<div class="caption">' + escapeHTML(s.mockCaption) + '</div>' +
+          '</div>') +
       '<div class="items"></div>';
     const items = div.querySelector('.items');
     s.items.forEach(function (it, idx) { items.appendChild(renderItem(s.id, sIdx, idx, it)); });
@@ -836,6 +859,91 @@ Constraints:
     _generated: true,
   };
 }
+
+/* ── Real poster mode ──────────────────────────────────────
+   The booklet prints an actual poster. Layout, typography and colour
+   carry real marks, and a written mock-up cannot represent any of them.
+   Here the student photographs or pastes a real one and the five
+   questions are written from the image itself. */
+(function posterMode() {
+  const host = document.getElementById('poster-in');
+  if (!host || !window.JglImageIn) return;
+  const actions  = document.getElementById('poster-actions');
+  const statusEl = document.getElementById('poster-status');
+  let picked = null;
+
+  const ctl = JglImageIn.mount(host, {
+    label: 'Your poster',
+    hint: 'Photograph a real poster, advert or infographic, or paste a screenshot. Public health, transport and library campaigns work best.',
+    onPick: function (pic) { picked = pic; actions.style.display = 'flex'; statusEl.textContent = ''; }
+  });
+
+  document.getElementById('poster-clear').addEventListener('click', function () {
+    picked = null; ctl.clear(); actions.style.display = 'none'; statusEl.textContent = '';
+  });
+
+  document.getElementById('poster-build').addEventListener('click', async function () {
+    if (!picked) return;
+    if (!geminiKey()) { statusEl.textContent = "Add a Gemini key from Settings first — the questions are written by reading your poster."; return; }
+    const btn = this;
+    btn.disabled = true;
+    statusEl.textContent = 'Reading your poster and writing five questions…';
+    try {
+      const out = await window.askGemini({
+        system:
+          'You are a PSLE English Paper 2 Visual Text item writer. You are given a real poster or advert. ' +
+          'Write questions ONLY about what is genuinely visible in it — the wording, the images, the layout, the ' +
+          'colours, the small print. Never invent text or elements that are not there. If the poster is not in ' +
+          'English, still write the questions in English about what is visible. ' +
+          'Write for a 12-year-old Singaporean student. No emoji. No markdown. British spelling. Output valid JSON only.',
+        prompt:
+          'Look at the attached visual text and produce FIVE MCQ items, one of each type, in this order: ' +
+          'Audience, Purpose, Tone, Detail, Extension.\n' +
+          'The Detail item must be answerable only by reading something actually printed in the image. ' +
+          'The Extension item asks what else the campaign could do, with a specific audience-shifted answer as the key.\n\n' +
+          'Return JSON exactly:\n' +
+          '{"title":"<short title naming this visual text, 5-9 words>",' +
+          '"items":[{"type":"Audience","stem":"...","options":["A","B","C","D"],"correct":0,"why":"<one sentence, name the trap in the wrong options>"}, ' +
+          '... five items total in the order given ...]}',
+        image: { base64: picked.base64, mimeType: picked.mimeType },
+        temperature: 0.55, maxTokens: 2200,
+        responseMimeType: 'application/json', asJson: true
+      });
+
+      if (!out || !Array.isArray(out.items) || !out.items.length) {
+        throw new Error('The model did not return usable questions. Try a clearer, closer photo of the poster.');
+      }
+
+      const stim = {
+        id: 'poster-' + Date.now(),
+        title: out.title || 'Your poster',
+        mockHeading: '', mockBody: '', mockCaption: '',
+        items: out.items.slice(0, 5).map(function (it) {
+          return {
+            type: it.type || 'Detail',
+            stem: it.stem || '',
+            options: Array.isArray(it.options) ? it.options.slice(0, 4) : ['A', 'B', 'C', 'D'],
+            correct: typeof it.correct === 'number' ? it.correct : 0,
+            why: it.why || ''
+          };
+        }),
+        _photo: { base64: picked.base64, mimeType: picked.mimeType, url: picked.url },
+        _generated: true
+      };
+
+      GENERATED.push(stim);
+      try { localStorage.setItem(GEN_CACHE_KEY, JSON.stringify(GENERATED)); } catch (e) {}
+      if (window.JglFresh) JglFresh.mark('visualtext', JglFresh.normKey(stim.title), { title: stim.title, type: 'photo' });
+      buildSet();
+      statusEl.textContent = 'Five questions ready. Start the sprint to answer them.';
+    } catch (e) {
+      statusEl.textContent = 'Could not read that poster: ' + ((e && e.message) || e);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+
 </script>
 </body>
 </html>
