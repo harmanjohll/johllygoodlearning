@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Answer Trainer | Science Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+
+    /* ── Page header ── */
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.25rem;
+    }
+    .page-header-inner {
+      max-width: 900px; margin: 0 auto;
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    }
+    .back-link {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-size: .82rem; color: var(--muted); text-decoration: none;
+      font-weight: 600; padding: .35rem .7rem; border-radius: 7px;
+      border: 1px solid var(--border); transition: all .15s;
+    }
+    .back-link:hover { color: var(--text); border-color: var(--accent); background: var(--card); }
+    .page-header-title { flex: 1; min-width: 200px; }
+    .page-header-title h1 {
+      font-size: 1.25rem; font-weight: 800; margin-bottom: .1rem;
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .page-header-title p { font-size: .78rem; color: var(--muted); margin: 0; }
+
+    main { padding: 1.5rem 1.25rem 4rem; max-width: 900px; margin: 0 auto; }
+
+    /* ── Setup ── */
+    .setup-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem;
+    }
+    .setup-card h2 { font-size: 1rem; margin-bottom: .35rem; }
+    .setup-card .lede { font-size: .85rem; color: var(--muted); margin-bottom: 1rem; line-height: 1.55; }
+    .filter-row { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .filter-field { flex: 1 1 200px; min-width: 0; }
+    .filter-field label {
+      display: block; font-size: .72rem; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--muted); font-weight: 700; margin-bottom: .35rem;
+    }
+    .filter-field select {
+      width: 100%; padding: .55rem .7rem; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text); font-family: inherit; font-size: .88rem;
+    }
+
+    /* ── Stage rail ── */
+    .rail { display: flex; gap: .4rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .rail-step {
+      flex: 1 1 140px; min-width: 0; padding: .55rem .65rem;
+      border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface); font-size: .74rem; color: var(--muted);
+      display: flex; align-items: center; gap: .45rem; transition: all .2s;
+    }
+    .rail-step .n {
+      width: 20px; height: 20px; border-radius: 50%; flex: none;
+      display: grid; place-items: center; font-size: .7rem; font-weight: 800;
+      background: var(--border); color: var(--text);
+    }
+    .rail-step.active { border-color: var(--accent); color: var(--text); background: var(--card); }
+    .rail-step.active .n { background: var(--accent); color: #06263a; }
+    .rail-step.done .n { background: #22c55e; color: #052e16; }
+    .rail-step .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ── Question panel ── */
+    .qpanel {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;
+    }
+    .qmeta { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .8rem; }
+    .chip {
+      font-size: .68rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .04em; padding: .22rem .55rem; border-radius: 999px;
+      background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+    }
+    .chip.hide-until-decoded { visibility: hidden; }
+    .stimulus {
+      background: var(--summary-bg); border-left: 3px solid var(--accent);
+      padding: .8rem .9rem; border-radius: 0 8px 8px 0; margin-bottom: .9rem;
+      font-size: .86rem; line-height: 1.6; color: var(--text);
+    }
+    .stimulus.data { font-family: var(--font-mono); font-size: .8rem; white-space: pre-wrap; overflow-x: auto; }
+    .stem { font-size: 1rem; font-weight: 600; line-height: 1.55; }
+
+    /* ── Stage body ── */
+    .stage {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.25rem;
+    }
+    .stage h3 { font-size: .95rem; margin-bottom: .3rem; }
+    .stage .why { font-size: .8rem; color: var(--muted); margin-bottom: 1.1rem; line-height: 1.55; }
+    .task { margin-bottom: 1.4rem; }
+    .task:last-of-type { margin-bottom: .8rem; }
+    .task-q { font-size: .88rem; font-weight: 600; margin-bottom: .6rem; }
+
+    .opts { display: flex; gap: .45rem; flex-wrap: wrap; }
+    .opt {
+      padding: .5rem .8rem; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text); font-family: inherit;
+      font-size: .84rem; cursor: pointer; transition: all .15s; text-align: left;
+    }
+    .opt:hover:not(:disabled) { border-color: var(--accent); }
+    .opt.sel { border-color: var(--accent); background: var(--card); }
+    .opt.right { border-color: #22c55e; background: rgba(34,197,94,.12); color: #86efac; }
+    .opt.wrong { border-color: #ef4444; background: rgba(239,68,68,.12); color: #fca5a5; }
+    .opt:disabled { cursor: default; opacity: .95; }
+    .opt.term { font-family: var(--font-mono); font-size: .78rem; }
+
+    .verdict {
+      margin-top: .7rem; padding: .7rem .85rem; border-radius: 8px;
+      font-size: .84rem; line-height: 1.6; display: none;
+    }
+    .verdict.show { display: block; }
+    .verdict.ok  { background: rgba(34,197,94,.1);  border: 1px solid rgba(34,197,94,.35);  color: #bbf7d0; }
+    .verdict.no  { background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.35); color: #fde68a; }
+
+    /* ── Chain builder ── */
+    .chain-pool, .chain-slot { display: flex; flex-direction: column; gap: .5rem; }
+    .chain-slot { min-height: 44px; margin-bottom: .8rem; }
+    .chain-item {
+      padding: .6rem .8rem; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface); font-size: .84rem; line-height: 1.5;
+      cursor: pointer; transition: all .15s; text-align: left; width: 100%;
+      color: var(--text); font-family: inherit;
+    }
+    .chain-item:hover { border-color: var(--accent); }
+    .chain-item .idx {
+      display: inline-block; font-weight: 800; color: var(--accent);
+      margin-right: .5rem; font-size: .78rem;
+    }
+    .chain-item.right { border-color: #22c55e; background: rgba(34,197,94,.1); }
+    .chain-item.wrong { border-color: #ef4444; background: rgba(239,68,68,.1); }
+    .slot-label {
+      font-size: .72rem; text-transform: uppercase; letter-spacing: .05em;
+      color: var(--muted); font-weight: 700; margin-bottom: .4rem;
+    }
+
+    /* ── Write stage ── */
+    textarea.answer {
+      width: 100%; min-height: 130px; padding: .8rem;
+      border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text);
+      font-family: inherit; font-size: .9rem; line-height: 1.6; resize: vertical;
+    }
+    textarea.answer:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .charcount { font-size: .72rem; color: var(--muted); text-align: right; margin-top: .3rem; }
+
+    .termcheck { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .8rem; }
+    .termpill {
+      font-size: .75rem; font-family: var(--font-mono); padding: .3rem .6rem;
+      border-radius: 999px; border: 1px solid var(--border); color: var(--muted);
+    }
+    .termpill.found { border-color: #22c55e; background: rgba(34,197,94,.12); color: #86efac; }
+    .termpill.miss  { border-color: #f59e0b; background: rgba(245,158,11,.1);  color: #fde68a; }
+
+    .reveal { margin-top: 1rem; }
+    .reveal-box {
+      background: var(--summary-bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: .9rem; margin-bottom: .8rem;
+    }
+    .reveal-box h4 {
+      font-size: .74rem; text-transform: uppercase; letter-spacing: .05em;
+      color: var(--muted); margin-bottom: .5rem; font-weight: 700;
+    }
+    .reveal-box p, .reveal-box li { font-size: .86rem; line-height: 1.65; }
+    .reveal-box ul { margin: 0; padding-left: 1.1rem; }
+    .reveal-box li { margin-bottom: .3rem; }
+    .coach-reply {
+      background: var(--summary-bg); border-left: 3px solid #818cf8;
+      padding: .85rem .9rem; border-radius: 0 8px 8px 0;
+      font-size: .87rem; line-height: 1.65; margin-top: .8rem; white-space: pre-wrap;
+    }
+
+    .actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1rem; }
+    .hint {
+      font-size: .78rem; color: var(--muted); margin-top: .6rem;
+      padding-left: .7rem; border-left: 2px solid var(--border); line-height: 1.55;
+    }
+    .empty { text-align: center; padding: 2.5rem 1rem; color: var(--muted); font-size: .9rem; }
+
+    @media (max-width: 480px) {
+      .rail-step { flex: 1 1 100%; }
+      .page-header-title h1 { font-size: 1.1rem; }
+      main { padding: 1.25rem .9rem 3rem; }
+      .qpanel, .stage, .setup-card { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="page-header-inner">
+    <a href="../index.html" class="back-link" aria-label="Back to Science Studio">← Studio</a>
+    <div class="page-header-title">
+      <h1>Answer Trainer</h1>
+      <p>Decode the question, choose the words, build the chain, then write it.</p>
+    </div>
+    <button class="btn btn-ghost" onclick="showAISetup()" aria-label="Set up Gemini AI key">AI key</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- Setup -->
+  <section class="setup-card" id="setup">
+    <h2>What is this for</h2>
+    <p class="lede">
+      Booklet B marks are lost in three places: not seeing what the question actually asks,
+      reaching for an everyday word where a scientific one is required, and stating the start
+      and the end of a process while leaving out the middle. This trainer takes one question and
+      walks those three separately, before you write anything.
+    </p>
+    <div class="filter-row">
+      <div class="filter-field">
+        <label for="f-topic">Topic</label>
+        <select id="f-topic"><option value="">All topics</option></select>
+      </div>
+      <div class="filter-field">
+        <label for="f-command">Command word</label>
+        <select id="f-command">
+          <option value="">Any command word</option>
+          <option value="describe">Describe</option>
+          <option value="explain">Explain</option>
+          <option value="infer">Infer</option>
+          <option value="predict">Predict</option>
+          <option value="suggest">Suggest</option>
+          <option value="compare">Compare</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="btn-start">Start a question</button>
+  </section>
+
+  <!-- Trainer -->
+  <div id="trainer" style="display:none">
+    <div class="rail" id="rail"></div>
+    <section class="qpanel" id="qpanel"></section>
+    <section class="stage" id="stage"></section>
+  </div>
+
+  <div id="empty" class="empty" style="display:none">
+    No questions match that combination. Try a different topic or command word.
+  </div>
+
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/gemini.js"></script>
+<script src="../shared/openended.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   Answer Trainer
+   Four stages over one question. Stages 1 to 3 are fully
+   offline; only the optional coach check in stage 4 needs a key.
+   ═══════════════════════════════════════════════════════════ */
+
+const STAGES = [
+  { key: 'decode', label: 'Decode it' },
+  { key: 'words',  label: 'Choose the words' },
+  { key: 'chain',  label: 'Build the chain' },
+  { key: 'write',  label: 'Write it' },
+];
+
+const COMMAND_LABEL = {
+  describe: 'Describe', explain: 'Explain', infer: 'Infer',
+  predict: 'Predict',   suggest: 'Suggest', compare: 'Compare',
+};
+
+let bank = [];
+let q = null;               // current question
+let stageIdx = 0;
+let seen = [];              // ids served this session
+let decoded = false;        // unlocks the marks/command chips
+const state = { decode: {}, words: {}, chain: {} };
+
+/* ── Boot ─────────────────────────────────────────────── */
+(async function init() {
+  bank = await JglOpenEnded.loadAll();
+  const topics = await JglOpenEnded.topics();
+  const sel = document.getElementById('f-topic');
+  topics.forEach(t => {
+    const o = document.createElement('option');
+    o.value = t.id;
+    o.textContent = t.name + ' (' + t.count + ')';
+    sel.appendChild(o);
+  });
+  document.getElementById('btn-start').addEventListener('click', nextQuestion);
+})();
+
+async function nextQuestion() {
+  const topicId     = document.getElementById('f-topic').value || undefined;
+  const commandWord = document.getElementById('f-command').value || undefined;
+  q = await JglOpenEnded.pick({ topicId, commandWord, exclude: seen });
+  if (!q) {
+    document.getElementById('trainer').style.display = 'none';
+    document.getElementById('empty').style.display = 'block';
+    return;
+  }
+  seen.push(q.id);
+  document.getElementById('empty').style.display = 'none';
+  document.getElementById('trainer').style.display = 'block';
+  stageIdx = 0;
+  decoded = false;
+  state.decode = {}; state.words = {}; state.chain = {};
+  renderQuestion();
+  renderStage();
+  document.getElementById('qpanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ── Shared rendering ─────────────────────────────────── */
+function renderRail() {
+  document.getElementById('rail').innerHTML = STAGES.map((s, i) => `
+    <div class="rail-step ${i === stageIdx ? 'active' : ''} ${i < stageIdx ? 'done' : ''}">
+      <span class="n">${i < stageIdx ? '✓' : i + 1}</span>
+      <span class="lbl">${s.label}</span>
+    </div>`).join('');
+}
+
+function renderQuestion() {
+  const hidden = decoded ? '' : ' hide-until-decoded';
+  const stim = q.stimulus
+    ? `<div class="stimulus${q.stimulusType === 'data' ? ' data' : ''}">${esc(q.stimulus)}</div>`
+    : '';
+  document.getElementById('qpanel').innerHTML = `
+    <div class="qmeta">
+      <span class="chip">${esc(q.topicName)}</span>
+      <span class="chip${hidden}">${COMMAND_LABEL[q.commandWord]}</span>
+      <span class="chip${hidden}">${q.marks} mark${q.marks > 1 ? 's' : ''}</span>
+    </div>
+    ${stim}
+    <p class="stem">${esc(q.stem)}</p>`;
+}
+
+function renderStage() {
+  renderRail();
+  renderQuestion();
+  ({ 0: stageDecode, 1: stageWords, 2: stageChain, 3: stageWrite })[stageIdx]();
+}
+
+function advance() { stageIdx++; renderStage(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+/* ── Stage 1: DECODE ──────────────────────────────────── */
+function stageDecode() {
+  const stimOpts = ['Nothing, the question stands alone', 'A situation to reason about', 'Data to read and compare'];
+  const stimCorrect = q.stimulusType === 'none' ? 0 : (q.stimulusType === 'scenario' ? 1 : 2);
+  state.decode.stimOpts = stimOpts;
+  state.decode.stimCorrect = stimCorrect;
+
+  document.getElementById('stage').innerHTML = `
+    <h3>Stage 1 — Decode the question</h3>
+    <p class="why">Before writing a word, three things must be settled: what the question is
+      ordering you to do, how many separate points it is paying for, and what it has handed you
+      to work with. Most lost marks are decided here, not in the writing.</p>
+
+    <div class="task" id="t-cmd">
+      <p class="task-q">1. Which command word is this question using?</p>
+      <div class="opts">
+        ${JglOpenEnded.COMMAND_WORDS.map(w =>
+          `<button class="opt" data-w="${w}" onclick="answerCmd('${w}')">${COMMAND_LABEL[w]}</button>`).join('')}
+      </div>
+      <div class="verdict" id="v-cmd"></div>
+    </div>
+
+    <div class="task" id="t-marks" style="display:none">
+      <p class="task-q">2. This question is worth <strong>${q.marks} mark${q.marks > 1 ? 's' : ''}</strong>.
+        How many separate points must your answer make?</p>
+      <div class="opts">
+        ${[1,2,3,4].map(n => `<button class="opt" onclick="answerMarks(${n})">${n}</button>`).join('')}
+      </div>
+      <div class="verdict" id="v-marks"></div>
+    </div>
+
+    <div class="task" id="t-stim" style="display:none">
+      <p class="task-q">3. What has the question given you to work with?</p>
+      <div class="opts">
+        ${stimOpts.map((o, n) => `<button class="opt" data-n="${n}" onclick="answerStim(${n})">${esc(o)}</button>`).join('')}
+      </div>
+      <div class="verdict" id="v-stim"></div>
+    </div>
+
+    <div id="decode-done" style="display:none">
+      <div class="reveal-box">
+        <h4>So this question demands</h4>
+        <p>${esc(q.commandDemand)}</p>
+      </div>
+      <div class="actions"><button class="btn btn-primary" onclick="advance()">Next: choose the words →</button></div>
+    </div>`;
+}
+
+function answerCmd(w) {
+  if (state.decode.cmd) return;
+  state.decode.cmd = w;
+  const right = w === q.commandWord;
+  document.querySelectorAll('#t-cmd .opt').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.w === q.commandWord) b.classList.add('right');
+    else if (b.dataset.w === w) b.classList.add('wrong');
+  });
+  const v = document.getElementById('v-cmd');
+  v.className = 'verdict show ' + (right ? 'ok' : 'no');
+  v.textContent = right
+    ? `Yes. ${COMMAND_LABEL[q.commandWord]} it is.`
+    : `Not quite. The command word is ${COMMAND_LABEL[q.commandWord]}. Read the first verb of the stem; that is almost always the instruction.`;
+  document.getElementById('t-marks').style.display = 'block';
+}
+
+function answerMarks(n) {
+  if (state.decode.marks) return;
+  state.decode.marks = n;
+  const right = n === q.marks;
+  document.querySelectorAll('#t-marks .opt').forEach(b => {
+    b.disabled = true;
+    if (+b.textContent === q.marks) b.classList.add('right');
+    else if (+b.textContent === n) b.classList.add('wrong');
+  });
+  const v = document.getElementById('v-marks');
+  v.className = 'verdict show ' + (right ? 'ok' : 'no');
+  v.textContent = right
+    ? `Correct. ${q.marks} mark${q.marks > 1 ? 's means ' + q.marks + ' separate points' : ' means one point, made properly'}. One point per mark, every time.`
+    : `The rule is one point per mark, so ${q.marks} mark${q.marks > 1 ? 's needs ' + q.marks + ' separate points' : ' needs one point'}. Counting the marks tells you how long the answer must be.`;
+  document.getElementById('t-stim').style.display = 'block';
+}
+
+function answerStim(n) {
+  if (state.decode.stim != null) return;
+  state.decode.stim = n;
+  const correctIdx = state.decode.stimCorrect;
+  const right = n === correctIdx;
+  document.querySelectorAll('#t-stim .opt').forEach(b => {
+    b.disabled = true;
+    if (+b.dataset.n === correctIdx) b.classList.add('right');
+    else if (+b.dataset.n === n) b.classList.add('wrong');
+  });
+  const v = document.getElementById('v-stim');
+  v.className = 'verdict show ' + (right ? 'ok' : 'no');
+  v.textContent = right
+    ? (q.stimulusType === 'data'
+        ? 'Yes. When data is given, the answer must quote from it. An inference with no figures in it rarely gets full marks.'
+        : q.stimulusType === 'scenario'
+          ? 'Yes. The situation is the evidence; your answer should refer back to it rather than answering in general.'
+          : 'Yes. Nothing is given, so everything must come from what you know.')
+    : `It is: ${state.decode.stimOpts[correctIdx]}.`
+      + (q.stimulusType === 'data' ? ' When a table is given, quote from it.' : '');
+  decoded = true;
+  renderRail(); renderQuestion();
+  document.getElementById('decode-done').style.display = 'block';
+}
+
+/* ── Stage 2: CHOOSE THE WORDS ────────────────────────── */
+function stageWords() {
+  state.words = { trapIdx: 0, done: false };
+  document.getElementById('stage').innerHTML = `
+    <h3>Stage 2 — Choose the words</h3>
+    <p class="why">An examiner is reading for specific scientific terms. An answer that means the
+      right thing in everyday words often scores nothing, because the term itself is the mark.
+      First, upgrade the fuzzy phrasing. Then pick the terms this answer has to contain.</p>
+    <div class="task" id="t-trap"></div>
+    <div class="task" id="t-terms" style="display:none"></div>
+    <div id="words-done" style="display:none">
+      <div class="actions"><button class="btn btn-primary" onclick="advance()">Next: build the chain →</button></div>
+    </div>`;
+  renderTrap();
+}
+
+function renderTrap() {
+  const i = state.words.trapIdx;
+  const trap = q.fuzzyTraps[i];
+  if (!trap) { renderTermPick(); return; }
+
+  // Distractors: precise phrasings from other questions in the same topic.
+  const others = bank
+    .filter(x => x.topicId === q.topicId && x.id !== q.id)
+    .flatMap(x => x.fuzzyTraps.map(t => t.precise))
+    .filter(p => p !== trap.precise);
+  state.words.opts = shuffle([trap.precise, ...shuffle(others).slice(0, 2)]);
+
+  document.getElementById('t-trap').innerHTML = `
+    <p class="task-q">Phrase ${i + 1} of ${q.fuzzyTraps.length}. A student wrote:
+      <em style="color:#fca5a5">"${esc(trap.vague)}"</em><br>
+      Which is the version an examiner would credit?</p>
+    <div class="opts" style="flex-direction:column">
+      ${state.words.opts.map((o, n) =>
+        `<button class="opt" data-n="${n}" onclick="answerTrap(${n})">${esc(o)}</button>`).join('')}
+    </div>
+    <div class="verdict" id="v-trap"></div>`;
+}
+
+function answerTrap(n) {
+  const trap = q.fuzzyTraps[state.words.trapIdx];
+  const chosen = state.words.opts[n];
+  const right = chosen === trap.precise;
+  document.querySelectorAll('#t-trap .opt').forEach(b => {
+    b.disabled = true;
+    const val = state.words.opts[+b.dataset.n];
+    if (val === trap.precise) b.classList.add('right');
+    else if (+b.dataset.n === n) b.classList.add('wrong');
+  });
+  const v = document.getElementById('v-trap');
+  v.className = 'verdict show ' + (right ? 'ok' : 'no');
+  v.textContent = right
+    ? 'Yes. Notice what changed: a vague verb became a named process, and that is where the mark sits.'
+    : 'The credited version is highlighted. Compare it with what the student wrote and note which word carries the science.';
+  setTimeout(() => {
+    state.words.trapIdx++;
+    if (state.words.trapIdx < q.fuzzyTraps.length) renderTrap();
+    else renderTermPick();
+  }, 1400);
+}
+
+function renderTermPick() {
+  document.getElementById('t-trap').style.display = 'none';
+  const box = document.getElementById('t-terms');
+  box.style.display = 'block';
+
+  // Decoys: required terms from other topics, so they are plausible but wrong here.
+  const mine = new Set(q.requiredTerms.map(t => t.toLowerCase()));
+  const decoys = shuffle([...new Set(
+    bank.filter(x => x.topicId !== q.topicId).flatMap(x => x.requiredTerms)
+  )].filter(t => !mine.has(t.toLowerCase()))).slice(0, Math.max(3, q.requiredTerms.length));
+
+  state.words.picked = new Set();
+  const opts = shuffle([...q.requiredTerms, ...decoys]);
+  box.innerHTML = `
+    <p class="task-q">Now pick every term this answer needs. There are
+      <strong>${q.requiredTerms.length}</strong> to find.</p>
+    <div class="opts" id="termopts">
+      ${opts.map(t => `<button class="opt term" data-t="${esc(t)}" onclick="toggleTerm(this)">${esc(t)}</button>`).join('')}
+    </div>
+    <div class="actions"><button class="btn btn-primary" onclick="checkTerms()">Check my terms</button></div>
+    <div class="verdict" id="v-terms"></div>`;
+}
+
+function toggleTerm(btn) {
+  const t = btn.dataset.t;
+  if (state.words.picked.has(t)) { state.words.picked.delete(t); btn.classList.remove('sel'); }
+  else { state.words.picked.add(t); btn.classList.add('sel'); }
+}
+
+function checkTerms() {
+  const need = new Set(q.requiredTerms);
+  let hit = 0, wrong = 0;
+  document.querySelectorAll('#termopts .opt').forEach(b => {
+    const t = b.dataset.t, picked = state.words.picked.has(t);
+    b.disabled = true;
+    if (need.has(t)) { b.classList.add('right'); if (picked) hit++; }
+    else if (picked) { b.classList.add('wrong'); wrong++; }
+  });
+  const v = document.getElementById('v-terms');
+  const perfect = hit === need.size && wrong === 0;
+  v.className = 'verdict show ' + (perfect ? 'ok' : 'no');
+  v.textContent = perfect
+    ? 'All of them, and nothing spare. Those are the words that have to appear in your answer.'
+    : `You found ${hit} of ${need.size}${wrong ? ` and picked ${wrong} that belong to another topic` : ''}. `
+      + 'Every term now marked in green has to appear in your answer.';
+  document.getElementById('words-done').style.display = 'block';
+}
+
+/* ── Stage 3: BUILD THE CHAIN ─────────────────────────── */
+function stageChain() {
+  state.chain = { placed: [], pool: shuffle(q.chain.map((c, i) => ({ ...c, i }))) };
+  document.getElementById('stage').innerHTML = `
+    <h3>Stage 3 — Build the causal chain</h3>
+    <p class="why">A grade AL3 answer states where things started and where they ended. An AL1
+      answer puts the mechanism in the middle, so each step causes the next. Put these in the order
+      that makes the chain hold together.</p>
+    <div class="task">
+      <div class="slot-label">Your chain</div>
+      <div class="chain-slot" id="slot"></div>
+      <div class="slot-label">Steps, out of order</div>
+      <div class="chain-pool" id="pool"></div>
+      <div class="verdict" id="v-chain"></div>
+    </div>
+    <div id="chain-done" style="display:none">
+      <div class="actions"><button class="btn btn-primary" onclick="advance()">Next: write it →</button></div>
+    </div>`;
+  renderChain();
+}
+
+function renderChain() {
+  const slot = document.getElementById('slot'), pool = document.getElementById('pool');
+  slot.innerHTML = state.chain.placed.length
+    ? state.chain.placed.map((c, n) =>
+        `<button class="chain-item" onclick="unplace(${n})"><span class="idx">${n + 1}</span>${esc(c.text)}</button>`).join('')
+    : '<p style="font-size:.8rem;color:var(--muted);margin:0">Click the steps below in the order they happen.</p>';
+  pool.innerHTML = state.chain.pool.map((c, n) =>
+    `<button class="chain-item" onclick="place(${n})">${esc(c.text)}</button>`).join('');
+  if (!state.chain.pool.length) checkChain();
+}
+
+function place(n) {
+  state.chain.placed.push(state.chain.pool.splice(n, 1)[0]);
+  renderChain();
+}
+function unplace(n) {
+  if (state.chain.checked) return;
+  state.chain.pool.push(state.chain.placed.splice(n, 1)[0]);
+  renderChain();
+}
+
+function checkChain() {
+  state.chain.checked = true;
+  const ok = state.chain.placed.every((c, n) => c.i === n);
+  document.querySelectorAll('#slot .chain-item').forEach((b, n) => {
+    b.classList.add(state.chain.placed[n].i === n ? 'right' : 'wrong');
+  });
+  const v = document.getElementById('v-chain');
+  v.className = 'verdict show ' + (ok ? 'ok' : 'no');
+  v.innerHTML = ok
+    ? 'That is the chain. Read it top to bottom and notice that each line causes the one below it.'
+    : 'Not the order the examiner is looking for. The correct chain is:<br><br>'
+      + q.chain.map((c, n) => `<strong>${n + 1}. ${esc(c.step)}:</strong> ${esc(c.text)}`).join('<br>');
+  document.getElementById('chain-done').style.display = 'block';
+}
+
+/* ── Stage 4: WRITE IT ────────────────────────────────── */
+function stageWrite() {
+  document.getElementById('stage').innerHTML = `
+    <h3>Stage 4 — Write the answer</h3>
+    <p class="why">Now put the three together: ${q.marks} point${q.marks > 1 ? 's' : ''}, the terms you
+      picked, in the order of the chain. Write it as you would in the paper.</p>
+
+    <div class="reveal-box">
+      <h4>You are aiming for</h4>
+      <ul>
+        <li><strong>${COMMAND_LABEL[q.commandWord]}</strong>: ${esc(q.commandDemand)}</li>
+        <li><strong>${q.marks} separate point${q.marks > 1 ? 's' : ''}</strong></li>
+        <li>Using: ${q.requiredTerms.map(t => `<code>${esc(t)}</code>`).join(', ')}</li>
+      </ul>
+    </div>
+
+    <div class="task">
+      <label class="task-q" for="ans">Your answer</label>
+      <textarea class="answer" id="ans" maxlength="1500"
+        placeholder="Write your full answer here..."
+        oninput="onType()" aria-label="Your answer"></textarea>
+      <div class="charcount"><span id="cc">0</span> / 1500</div>
+      <div class="termcheck" id="termcheck"></div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="submitAnswer()">Check my answer</button>
+        <button class="btn btn-ghost" onclick="nextQuestion()">Skip to a new question</button>
+      </div>
+      <p class="hint">The term tracker above updates as you type. It only checks whether the words
+        appear, not whether you used them correctly, so it is a floor and not a ceiling.</p>
+    </div>
+
+    <div class="reveal" id="reveal" style="display:none"></div>`;
+  renderTermTracker('');
+}
+
+function onType() {
+  const t = document.getElementById('ans').value;
+  document.getElementById('cc').textContent = t.length;
+  renderTermTracker(t);
+}
+
+function renderTermTracker(text) {
+  const low = text.toLowerCase();
+  document.getElementById('termcheck').innerHTML = q.requiredTerms.map(t =>
+    `<span class="termpill ${low.includes(t.toLowerCase()) ? 'found' : ''}">${esc(t)}</span>`).join('');
+}
+
+async function submitAnswer() {
+  const text = document.getElementById('ans').value.trim();
+  if (!text) return;
+  const low = text.toLowerCase();
+  const missing = q.requiredTerms.filter(t => !low.includes(t.toLowerCase()));
+
+  document.getElementById('reveal').style.display = 'block';
+  document.getElementById('reveal').innerHTML = `
+    <div class="reveal-box">
+      <h4>Terms</h4>
+      <div class="termcheck">
+        ${q.requiredTerms.map(t => `<span class="termpill ${low.includes(t.toLowerCase()) ? 'found' : 'miss'}">${esc(t)}</span>`).join('')}
+      </div>
+      ${missing.length
+        ? `<p style="margin-top:.7rem">Missing: ${missing.map(m => `<code>${esc(m)}</code>`).join(', ')}.
+           Each of those is doing work no everyday word can do here.</p>`
+        : '<p style="margin-top:.7rem">Every required term is present.</p>'}
+    </div>
+
+    <div class="reveal-box">
+      <h4>The ${q.marks} mark point${q.marks > 1 ? 's' : ''}</h4>
+      <ul>${q.markPoints.map(m => `<li>${esc(m)}</li>`).join('')}</ul>
+    </div>
+
+    <div class="reveal-box">
+      <h4>Model answer</h4>
+      <p>${esc(q.modelAnswer)}</p>
+    </div>
+
+    <div class="reveal-box">
+      <h4>Where this question usually loses marks</h4>
+      <p>${esc(q.whyMarksLost)}</p>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="coachCheck()" id="btn-coach">Ask the coach about my answer</button>
+      <button class="btn btn-ghost" onclick="nextQuestion()">Another question →</button>
+    </div>
+    <div id="coach"></div>`;
+
+  recordAttempt(q.requiredTerms.length - missing.length, q.requiredTerms.length);
+  document.getElementById('reveal').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function coachCheck() {
+  const text = document.getElementById('ans').value.trim();
+  const btn = document.getElementById('btn-coach');
+  const out = document.getElementById('coach');
+  btn.disabled = true; btn.textContent = 'Coach is reading...';
+  out.innerHTML = '';
+
+  const system = [
+    'You are a Singapore PSLE Science tutor coaching a Primary 6 student aiming for AL1.',
+    'Voice rules, follow exactly:',
+    '- Warm and professional. Not a friend, not a cheerleader.',
+    '- Two to four sentences. One probing question at the end, never more than one.',
+    '- Praise the strategy, not the person. No openers like "Great job".',
+    '- No emoji. No hyphens or em dashes; use commas, semicolons or colons.',
+    '- Never say how you feel. Keep the focus on the student.',
+    '- Do not restate the model answer. The student has already seen it.',
+    'Coach on the gap between the draft and the mark points, in this order of priority:',
+    '1. a missing causal link in the middle of the chain,',
+    '2. an everyday word where a scientific term is required,',
+    '3. a mark point not attempted at all.',
+  ].join('\n');
+
+  const prompt = [
+    `Question (${q.marks} marks, command word ${q.commandWord}): ${q.stem}`,
+    q.stimulus ? `Stimulus: ${q.stimulus}` : '',
+    `Mark points: ${q.markPoints.map((m, i) => `(${i + 1}) ${m}`).join(' ')}`,
+    `Required terms: ${q.requiredTerms.join(', ')}`,
+    `Student's answer: ${text}`,
+    '',
+    'Identify the single biggest gap and ask one question that would lead the student to it.',
+  ].filter(Boolean).join('\n');
+
+  try {
+    const reply = await askGemini({ system, prompt, temperature: 0.5, maxTokens: 300, thinkingBudget: 0 });
+    out.innerHTML = `<div class="coach-reply">${esc(reply.trim())}</div>`;
+    btn.textContent = 'Ask again';
+  } catch (e) {
+    out.innerHTML = e && e.code === 'NO_KEY'
+      ? `<div class="coach-reply">No AI key is set, so the coach cannot read this one.
+         Everything above still works without it. <a href="#" onclick="showAISetup();return false;">Set up a Gemini key</a>.</div>`
+      : `<div class="coach-reply">The coach could not be reached just now. The mark points and model
+         answer above are the same ones it would have used.</div>`;
+    btn.textContent = 'Ask the coach about my answer';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ── Progress ─────────────────────────────────────────── */
+function recordAttempt(hit, total) {
+  try {
+    if (!window.JglStorage) return;
+    JglStorage.update(p => {
+      p.questions = p.questions || {};
+      const rec = p.questions[q.id] || { attempts: 0, bestScore: 0, lastSeenIso: null, nextDueIso: null };
+      rec.attempts++;
+      rec.bestScore = Math.max(rec.bestScore, total ? hit / total : 0);
+      rec.lastSeenIso = new Date().toISOString();
+      p.questions[q.id] = rec;
+      return p;
+    });
+  } catch (_) { /* progress is best effort; never block the trainer */ }
+}
+
+/* ── Utils ────────────────────────────────────────────── */
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function shuffle(a) {
+  const x = [...a];
+  for (let i = x.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [x[i], x[j]] = [x[j], x[i]];
+  }
+  return x;
+}
+</script>
+</body>
+</html>

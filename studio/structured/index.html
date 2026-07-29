@@ -656,6 +656,14 @@
       <span class="progress-marks-label" id="marks-running">0 marks so far</span>
     </div>
 
+    <!-- Topic filter. Hidden until the canonical bank loads and fills it. -->
+    <div id="topic-filter-wrap" style="display:none;gap:.6rem;align-items:center;margin:0 0 .9rem;font-size:.8rem;flex-wrap:wrap">
+      <label for="topic-filter" style="color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:.68rem">Topic</label>
+      <select id="topic-filter" style="padding:.38rem .6rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:inherit;font-size:.78rem;max-width:100%">
+        <option value="">All topics</option>
+      </select>
+    </div>
+
     <!-- Marking mode: Examiner (PSLE marks) vs Coach (probing dialogue) -->
     <div class="mode-segment" id="mode-segment" style="display:flex;gap:.6rem;align-items:center;margin:0 0 .9rem;font-size:.8rem;flex-wrap:wrap">
       <span style="color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em;font-size:.68rem">Marking mode</span>
@@ -823,13 +831,17 @@
 <script src="../shared/storage.js"></script>
 <script src="../shared/gemini.js"></script>
 <script src="../shared/content.js"></script>
+<script src="../shared/openended.js"></script>
 <script src="../shared/lab.js"></script>
 <script src="../shared/jarvis.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════════════
 //  QUESTIONS DATA
+//  These twelve are the offline fallback. On load they are replaced
+//  by the canonical Booklet B bank in shared/content/openended/,
+//  which covers all 24 topics. See loadCanonicalBank() below.
 // ══════════════════════════════════════════════════════════════════
-const QUESTIONS = [
+let QUESTIONS = [
   {
     id: 'q1', topic: 'Photosynthesis', command: 'EXPLAIN', marks: 2,
     stimulus: 'Plant A was placed in sunlight. Plant B was placed in a dark room for 3 days.',
@@ -1407,10 +1419,74 @@ function handleRestart() {
 }
 
 // ══════════════════════════════════════════════════════════════════
+//  CANONICAL BANK
+//  shared/content/openended/ holds 168 Booklet B questions across all
+//  24 topics, in a richer shape than this page needs. Map it down to
+//  the fields renderQuestion() and the marking prompt already use.
+// ══════════════════════════════════════════════════════════════════
+let allCanonical = [];
+
+async function loadCanonicalBank() {
+  if (!window.JglOpenEnded) return;              // script missing; keep fallback
+  try {
+    const bank = await JglOpenEnded.loadAll();
+    if (!bank || !bank.length) return;           // fetch failed; keep fallback
+    allCanonical = bank.map(q => ({
+      id:          q.id,
+      topic:       q.topicName,
+      topicId:     q.topicId,
+      command:     String(q.commandWord || '').toUpperCase(),
+      marks:       q.marks,
+      stimulus:    q.stimulus || null,
+      question:    q.stem,
+      modelAnswer: q.modelAnswer,
+      markPoints:  q.markPoints || [],
+    }));
+    QUESTIONS = allCanonical;
+    buildTopicFilter();
+  } catch (_) { /* keep the inline fallback */ }
+}
+
+function buildTopicFilter() {
+  const sel = document.getElementById('topic-filter');
+  if (!sel || !allCanonical.length) return;
+  const seen = new Map();
+  allCanonical.forEach(q => {
+    if (!seen.has(q.topicId)) seen.set(q.topicId, { name: q.topic, n: 0 });
+    seen.get(q.topicId).n++;
+  });
+  [...seen.entries()]
+    .sort((a, b) => a[1].name.localeCompare(b[1].name))
+    .forEach(([id, t]) => {
+      const o = document.createElement('option');
+      o.value = id;
+      o.textContent = `${t.name} (${t.n})`;
+      sel.appendChild(o);
+    });
+  sel.parentElement.style.display = 'flex';
+  sel.addEventListener('change', onTopicFilterChange);
+}
+
+function onTopicFilterChange() {
+  const id = document.getElementById('topic-filter').value;
+  const pool = id ? allCanonical.filter(q => q.topicId === id) : allCanonical;
+  if (!pool.length) return;
+  QUESTIONS = pool;
+  shuffledQuestions = shuffle(QUESTIONS);
+  currentIndex = 0;
+  totalMarksEarned = 0;
+  totalMarksPossible = 0;
+  questionResults.length = 0;
+  renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════════════════
 //  EVENT LISTENERS
 // ══════════════════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  // Shuffle questions on load
+document.addEventListener('DOMContentLoaded', async () => {
+  // Swap in the canonical bank, then shuffle. Falls back to the inline
+  // twelve if the bank cannot be fetched, so the page still works offline.
+  await loadCanonicalBank();
   shuffledQuestions = shuffle(QUESTIONS);
 
   // Render first question
