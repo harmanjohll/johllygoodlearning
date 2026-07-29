@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Process Skills | Science Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 1.25rem; }
+    .page-header-inner { max-width: 880px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link {
+      display: inline-flex; align-items: center; gap: .35rem; font-size: .82rem;
+      color: var(--muted); text-decoration: none; font-weight: 600;
+      padding: .35rem .7rem; border-radius: 7px; border: 1px solid var(--border); transition: all .15s;
+    }
+    .back-link:hover { color: var(--text); border-color: var(--accent); background: var(--card); }
+    .page-header-title { flex: 1; min-width: 200px; }
+    .page-header-title h1 {
+      font-size: 1.25rem; font-weight: 800; margin-bottom: .1rem;
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .page-header-title p { font-size: .78rem; color: var(--muted); margin: 0; }
+
+    main { padding: 1.5rem 1.25rem 4rem; max-width: 880px; margin: 0 auto; }
+
+    .intro {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.25rem; margin-bottom: 1.25rem;
+    }
+    .intro h2 { font-size: 1rem; margin-bottom: .35rem; }
+    .intro p { font-size: .85rem; color: var(--muted); line-height: 1.6; margin: 0; }
+
+    .tabs { display: flex; gap: .4rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .tab {
+      flex: 1 1 160px; padding: .6rem .7rem; border-radius: 9px;
+      border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+      font-family: inherit; font-size: .82rem; font-weight: 600; cursor: pointer; transition: all .15s;
+    }
+    .tab:hover { border-color: var(--accent); color: var(--text); }
+    .tab.on { border-color: var(--accent); background: var(--card); color: var(--text); }
+    .tab .sub { display: block; font-size: .68rem; font-weight: 400; color: var(--muted); margin-top: .15rem; }
+
+    .card-panel {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;
+    }
+    .toprow { display: flex; justify-content: space-between; align-items: center; gap: .6rem; margin-bottom: .8rem; flex-wrap: wrap; }
+    .chip {
+      font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+      padding: .22rem .55rem; border-radius: 999px;
+      background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+    }
+    .counter { font-size: .74rem; color: var(--muted); }
+
+    .setup {
+      background: var(--summary-bg); border-left: 3px solid var(--accent);
+      padding: .8rem .9rem; border-radius: 0 8px 8px 0; margin-bottom: .8rem;
+      font-size: .87rem; line-height: 1.6;
+    }
+    .datatable {
+      background: var(--summary-bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: .8rem .9rem; margin-bottom: .8rem;
+      font-family: var(--font-mono); font-size: .78rem; line-height: 1.7;
+      white-space: pre; overflow-x: auto;
+    }
+    .aim {
+      font-size: .85rem; margin-bottom: 1rem; padding: .6rem .8rem;
+      border: 1px dashed var(--border); border-radius: 8px; color: var(--text);
+    }
+    .aim strong { color: var(--accent); }
+    .prompt { font-size: .92rem; font-weight: 600; margin-bottom: .7rem; line-height: 1.5; }
+
+    /* Variables drill */
+    .slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin-bottom: 1rem; }
+    .slot {
+      border: 1px dashed var(--border); border-radius: 9px; padding: .6rem;
+      min-height: 84px; background: var(--surface);
+    }
+    .slot h4 {
+      font-size: .68rem; text-transform: uppercase; letter-spacing: .05em;
+      color: var(--muted); font-weight: 700; margin-bottom: .45rem;
+    }
+    .slot.active { border-color: var(--accent); border-style: solid; }
+    .slot .placed {
+      font-size: .76rem; line-height: 1.45; padding: .35rem .5rem; margin-bottom: .35rem;
+      border-radius: 6px; background: var(--card); border: 1px solid var(--border); cursor: pointer;
+    }
+    .slot .placed.right { border-color: #22c55e; background: rgba(34,197,94,.12); }
+    .slot .placed.wrong { border-color: #ef4444; background: rgba(239,68,68,.12); }
+
+    .pool { display: flex; flex-direction: column; gap: .45rem; margin-bottom: .8rem; }
+    .pool-item {
+      text-align: left; padding: .55rem .75rem; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--surface); color: var(--text);
+      font-family: inherit; font-size: .84rem; cursor: pointer; transition: all .15s; line-height: 1.45;
+    }
+    .pool-item:hover { border-color: var(--accent); }
+
+    /* Choice drills */
+    .choices { display: flex; flex-direction: column; gap: .5rem; }
+    .choice {
+      text-align: left; padding: .65rem .8rem; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--surface); color: var(--text);
+      font-family: inherit; font-size: .86rem; cursor: pointer; transition: all .15s; line-height: 1.5;
+    }
+    .choice:hover:not(:disabled) { border-color: var(--accent); }
+    .choice:disabled { cursor: default; }
+    .choice.right { border-color: #22c55e; background: rgba(34,197,94,.12); color: #bbf7d0; }
+    .choice.wrong { border-color: #ef4444; background: rgba(239,68,68,.12); color: #fca5a5; }
+
+    .feedback { margin-top: 1rem; display: none; }
+    .feedback.show { display: block; }
+    .fb-box { border-radius: 9px; padding: .85rem .95rem; margin-bottom: .7rem; }
+    .fb-box h4 {
+      font-size: .7rem; text-transform: uppercase; letter-spacing: .05em;
+      color: var(--muted); font-weight: 700; margin-bottom: .4rem;
+    }
+    .fb-box p { font-size: .86rem; line-height: 1.65; margin: 0; }
+    .fb-fix     { background: var(--summary-bg); border: 1px solid var(--border); }
+    .fb-teach   { background: rgba(129,140,248,.08); border-left: 3px solid #818cf8; border-radius: 0 9px 9px 0; }
+
+    .actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1rem; }
+    .score { font-size: .78rem; color: var(--muted); margin-top: .8rem; text-align: center; }
+
+    @media (max-width: 560px) {
+      .slots { grid-template-columns: 1fr; }
+      .tab { flex: 1 1 100%; }
+      main { padding: 1.25rem .9rem 3rem; }
+      .card-panel, .intro { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="page-header-inner">
+    <a href="../index.html" class="back-link" aria-label="Back to Science Studio">← Studio</a>
+    <div class="page-header-title">
+      <h1>Process Skills</h1>
+      <p>Variables, fair tests, and reading the data an examiner gives you.</p>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section class="intro">
+    <h2>Why this matters</h2>
+    <p>A large share of Booklet B is not about recalling facts at all. It hands you an experiment
+      and asks what was changed, what was measured, what should have been kept the same, why a
+      setup is not a fair test, or which two rows of a table prove a point. These are learnable
+      moves, and once you see the pattern they repeat across every topic.</p>
+  </section>
+
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-type="variables" onclick="setType('variables')">
+      Spot the variables<span class="sub">changed, measured, kept the same</span>
+    </button>
+    <button class="tab" data-type="fairtest" onclick="setType('fairtest')">
+      Is it a fair test?<span class="sub">find the flaw, then the fix</span>
+    </button>
+    <button class="tab" data-type="readdata" onclick="setType('readdata')">
+      Read the data<span class="sub">which comparison proves it</span>
+    </button>
+  </div>
+
+  <section class="card-panel" id="panel"></section>
+  <p class="score" id="score"></p>
+
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   Process Skills drill. Three types over one JSON bank.
+   Entirely offline; no AI key needed anywhere on this page.
+   ═══════════════════════════════════════════════════════════ */
+
+let ITEMS = [];
+let type = 'variables';
+let queue = [];
+let item = null;
+let answered = false;
+const tally = { right: 0, total: 0 };
+
+/* Variables-drill working state */
+let vState = null;
+
+(async function init() {
+  try {
+    const res = await fetch('../shared/content/process.json', { cache: 'no-cache' });
+    ITEMS = (await res.json()).items || [];
+  } catch (_) {
+    ITEMS = [];
+  }
+  setType('variables');
+})();
+
+function setType(t) {
+  type = t;
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.type === t));
+  queue = shuffle(ITEMS.filter(i => i.type === t));
+  tally.right = 0; tally.total = 0;
+  nextItem();
+}
+
+function nextItem() {
+  if (!queue.length) queue = shuffle(ITEMS.filter(i => i.type === type));
+  item = queue.shift();
+  answered = false;
+  if (!item) {
+    document.getElementById('panel').innerHTML =
+      '<p style="color:var(--muted);font-size:.9rem;text-align:center;padding:2rem 0">' +
+      'No items are available for this drill.</p>';
+    return;
+  }
+  ({ variables: renderVariables, fairtest: renderChoice, readdata: renderChoice })[type]();
+  updateScore();
+}
+
+function header() {
+  return `<div class="toprow">
+      <span class="chip">${esc(item.topic)}</span>
+      <span class="counter">${tally.total} answered${tally.total ? ` · ${tally.right} correct` : ''}</span>
+    </div>`;
+}
+
+/* ── Drill 1: variables ───────────────────────────────── */
+function renderVariables() {
+  const pool = shuffle([
+    { t: item.changed,  k: 'changed'  },
+    { t: item.measured, k: 'measured' },
+    ...item.keptSame.map(t => ({ t, k: 'same' })),
+    ...item.distractors.map(t => ({ t, k: 'none' })),
+  ]);
+  vState = { pool, changed: [], measured: [], same: [], target: 'changed' };
+
+  document.getElementById('panel').innerHTML = `
+    ${header()}
+    <div class="setup">${esc(item.setup)}</div>
+    <div class="aim"><strong>Aim:</strong> ${esc(item.aim)}</div>
+    <p class="prompt">Sort each statement into the right box. Some belong in none of them,
+      so leave those in the list.</p>
+    <div class="slots" id="slots"></div>
+    <p class="prompt" style="font-size:.8rem;font-weight:600;color:var(--muted)">
+      Click a box to select it, then click a statement to place it there.</p>
+    <div class="pool" id="pool"></div>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="checkVariables()">Check my answer</button>
+      <button class="btn btn-ghost" onclick="nextItem()">Skip</button>
+    </div>
+    <div class="feedback" id="fb"></div>`;
+  drawVariables();
+}
+
+function drawVariables() {
+  const boxes = [
+    ['changed',  'What was changed'],
+    ['measured', 'What was measured'],
+    ['same',     'What was kept the same'],
+  ];
+  document.getElementById('slots').innerHTML = boxes.map(([k, label]) => `
+    <div class="slot ${vState.target === k ? 'active' : ''}" onclick="setTarget('${k}')">
+      <h4>${label}</h4>
+      ${vState[k].map((s, i) =>
+        `<div class="placed" onclick="event.stopPropagation();unplace('${k}',${i})">${esc(s.t)}</div>`).join('')}
+    </div>`).join('');
+  document.getElementById('pool').innerHTML = vState.pool.map((s, i) =>
+    `<button class="pool-item" onclick="placeItem(${i})">${esc(s.t)}</button>`).join('');
+}
+
+function setTarget(k) { if (!answered) { vState.target = k; drawVariables(); } }
+function placeItem(i) {
+  if (answered) return;
+  vState[vState.target].push(vState.pool.splice(i, 1)[0]);
+  drawVariables();
+}
+function unplace(k, i) {
+  if (answered) return;
+  vState.pool.push(vState[k].splice(i, 1)[0]);
+  drawVariables();
+}
+
+function checkVariables() {
+  if (answered) return;
+  answered = true;
+  let ok = true;
+  ['changed', 'measured', 'same'].forEach(k => {
+    vState[k].forEach(s => { if (s.k !== k) ok = false; });
+  });
+  // Every correct statement must actually have been placed.
+  if (vState.changed.length !== 1 || vState.measured.length !== 1) ok = false;
+  if (vState.same.length !== item.keptSame.length) ok = false;
+
+  document.querySelectorAll('#slots .slot').forEach((slotEl, n) => {
+    const k = ['changed', 'measured', 'same'][n];
+    slotEl.querySelectorAll('.placed').forEach((el, i) => {
+      el.classList.add(vState[k][i].k === k ? 'right' : 'wrong');
+    });
+  });
+
+  tally.total++; if (ok) tally.right++;
+  const fb = document.getElementById('fb');
+  fb.className = 'feedback show';
+  fb.innerHTML = `
+    <div class="fb-box fb-fix">
+      <h4>${ok ? 'Correct' : 'The correct sort'}</h4>
+      <p><strong>Changed:</strong> ${esc(item.changed)}<br>
+         <strong>Measured:</strong> ${esc(item.measured)}<br>
+         <strong>Kept the same:</strong> ${item.keptSame.map(esc).join('; ')}</p>
+    </div>
+    <div class="fb-box fb-teach"><h4>What to carry forward</h4><p>${esc(item.teachingPoint)}</p></div>
+    <div class="actions"><button class="btn btn-primary" onclick="nextItem()">Next →</button></div>`;
+  updateScore();
+  fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ── Drills 2 and 3: single choice ────────────────────── */
+function renderChoice() {
+  const isFair = item.type === 'fairtest';
+  const opts = isFair ? item.flawOptions : item.options;
+  const prompt = isFair
+    ? 'This experiment is not a fair test. What is wrong with it?'
+    : item.question;
+
+  document.getElementById('panel').innerHTML = `
+    ${header()}
+    <div class="setup">${esc(item.setup)}</div>
+    ${item.table ? `<div class="datatable">${esc(item.table)}</div>` : ''}
+    <p class="prompt">${esc(prompt)}</p>
+    <div class="choices" id="choices">
+      ${opts.map((o, i) => `<button class="choice" data-i="${i}" onclick="answerChoice(${i})">${esc(o)}</button>`).join('')}
+    </div>
+    <div class="feedback" id="fb"></div>`;
+}
+
+function answerChoice(i) {
+  if (answered) return;
+  answered = true;
+  const isFair = item.type === 'fairtest';
+  const correct = isFair ? item.flawCorrect : item.correct;
+  const ok = i === correct;
+
+  document.querySelectorAll('#choices .choice').forEach(b => {
+    b.disabled = true;
+    const n = +b.dataset.i;
+    if (n === correct) b.classList.add('right');
+    else if (n === i)  b.classList.add('wrong');
+  });
+
+  tally.total++; if (ok) tally.right++;
+  const fb = document.getElementById('fb');
+  fb.className = 'feedback show';
+  fb.innerHTML = `
+    ${isFair ? `<div class="fb-box fb-fix"><h4>How to fix it</h4><p>${esc(item.fix)}</p></div>` : ''}
+    <div class="fb-box fb-teach"><h4>What to carry forward</h4><p>${esc(item.teachingPoint)}</p></div>
+    <div class="actions"><button class="btn btn-primary" onclick="nextItem()">Next →</button></div>`;
+  updateScore();
+  fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ── Shared ───────────────────────────────────────────── */
+function updateScore() {
+  document.getElementById('score').textContent = tally.total
+    ? `${tally.right} of ${tally.total} correct in this run.`
+    : '';
+}
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function shuffle(a) {
+  const x = [...a];
+  for (let i = x.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [x[i], x[j]] = [x[j], x[i]];
+  }
+  return x;
+}
+</script>
+</body>
+</html>
