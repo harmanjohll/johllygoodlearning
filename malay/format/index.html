@@ -51,8 +51,12 @@
     .paper-4 .paper-marks { color: var(--peribahasa); }
     .paper-4 .paper-sections li::before { color: var(--peribahasa); }
 
+    /* The marks table has a floor width; let it scroll inside its own box
+       rather than pushing the whole page sideways on a phone. */
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 1rem; }
     .priority-table {
       width: 100%;
+      min-width: 30rem;
       border-collapse: collapse;
       background: var(--card);
       border: 1px solid var(--border);
@@ -178,17 +182,19 @@
   </div>
 
   <h2 class="section-h">Keutamaan Markah</h2>
-  <table class="priority-table">
-    <thead>
-      <tr><th>Komponen</th><th>Markah</th><th>Wajaran</th><th>Keutamaan</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>Kertas 2 (Tatabahasa + Kefahaman)</td><td>90</td><td>45%</td><td class="priority-high">🔴 PALING TINGGI</td></tr>
-      <tr><td>Kertas 4 (Lisan)</td><td>50</td><td>25%</td><td class="priority-high">🔴 TINGGI</td></tr>
-      <tr><td>Kertas 1 (Karangan)</td><td>40</td><td>20%</td><td class="priority-medium">🟡 SEDERHANA</td></tr>
-      <tr><td>Kertas 3 (Mendengar)</td><td>20</td><td>10%</td><td class="priority-low">🟢 RENDAH</td></tr>
-    </tbody>
-  </table>
+  <div class="table-scroll">
+    <table class="priority-table">
+      <thead>
+        <tr><th>Komponen</th><th>Markah</th><th>Wajaran</th><th>Keutamaan</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Kertas 2 (Tatabahasa + Kefahaman)</td><td>90</td><td>45%</td><td class="priority-high">🔴 PALING TINGGI</td></tr>
+        <tr><td>Kertas 4 (Lisan)</td><td>50</td><td>25%</td><td class="priority-high">🔴 TINGGI</td></tr>
+        <tr><td>Kertas 1 (Karangan)</td><td>40</td><td>20%</td><td class="priority-medium">🟡 SEDERHANA</td></tr>
+        <tr><td>Kertas 3 (Mendengar)</td><td>20</td><td>10%</td><td class="priority-low">🟢 RENDAH</td></tr>
+      </tbody>
+    </table>
+  </div>
   <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem;line-height:1.6">
     Studio ini menumpukan pada Kertas 1 (Karangan) dan Kertas 2 (Tatabahasa + Kefahaman) — bahagian yang paling boleh dilatih melalui platform digital. Lisan dan Mendengar memerlukan latihan suara dan audio yang dibina di luar Studio.
   </p>

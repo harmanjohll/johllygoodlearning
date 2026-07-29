@@ -206,7 +206,28 @@
 <script src="../shared/storage.js"></script>
 <script src="../shared/lab.js"></script>
 <script src="../shared/coach.js"></script>
-<script src="./graph.js"></script>
+<script>
+// d3 comes from a CDN. If it is blocked or the connection dropped,
+// graph.js throws on its first d3 call and the page is left blank with
+// nothing but a console error. Say so in the page instead.
+if (typeof d3 === "undefined") {
+  var host = document.getElementById("svg");
+  var box  = host ? host.parentNode : document.body;
+  if (host) host.style.display = "none";
+  var note = document.createElement("div");
+  note.setAttribute("role", "alert");
+  note.style.cssText = "max-width:34rem;margin:3rem auto;padding:1.25rem 1.4rem;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.35);border-radius:12px;line-height:1.65;font-size:.92rem;";
+  note.innerHTML = '<strong style="display:block;margin-bottom:.4rem;">Peta tidak tersedia</strong>' +
+                   "Peta Besar memerlukan satu fail dari internet (pustaka lukisan d3). Sambungan anda terputus, atau rangkaian sekolah menyekatnya. Muat semula apabila anda dalam talian. Bahagian lain studio ini berfungsi tanpa internet.";
+  box.appendChild(note);
+  // The sidebar script below drives MM.api. Give it a dead stub so the
+  // page degrades to the notice instead of a second console error.
+  window.MM = { api: { nodesById: new Map(), connectedIds: function () { return []; },
+                       focusNode: function () {}, setBridgesOnly: function () {}, onFocus: null } };
+} else {
+  document.write('<scr' + 'ipt src="./graph.js"><\/scr' + 'ipt>');
+}
+</script>
 <script>
 // ── Side panel: focus card + probe + connections ─────────────
 const focusCard = document.getElementById('focus-card');

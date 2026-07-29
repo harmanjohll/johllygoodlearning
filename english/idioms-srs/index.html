@@ -18,6 +18,8 @@
       display: grid; grid-template-columns: repeat(4, 1fr); gap: .65rem;
       margin-bottom: 1.25rem;
     }
+    /* Four across pushed the row 5px past a 390px phone. */
+    @media (max-width: 460px) { .stats { grid-template-columns: repeat(2, 1fr); } }
     .stat {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 9px; padding: .7rem .85rem; text-align: center;
@@ -244,7 +246,7 @@ function writeTermProgress(id, patch) {
 }
 
 async function loadDeck() {
-  const r = await fetch('shared/content/idioms.json', { cache: 'no-cache' });
+  const r = await fetch('../shared/content/idioms.json', { cache: 'no-cache' });
   if (!r.ok) throw new Error('idioms.json fetch failed');
   const d = await r.json();
   state.cards = (d.topics.idioms.glossary || []).map(g => ({

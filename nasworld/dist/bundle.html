@@ -154,6 +154,9 @@ body {
 /* === TOP BAR === */
 .top-bar {
   display: flex; align-items: center; justify-content: space-between;
+  /* Neither side wrapped, so the right-hand controls ran 46px off a
+     390px phone and the whole page scrolled sideways. */
+  flex-wrap: wrap; row-gap: 8px;
   padding: 12px 24px;
   background: rgba(26,17,71,0.8);
   backdrop-filter: blur(20px);
@@ -161,7 +164,7 @@ body {
   position: sticky; top: 0; z-index: 100;
 }
 .top-bar-left { display: flex; align-items: center; gap: 12px; }
-.top-bar-right { display: flex; align-items: center; gap: 16px; }
+.top-bar-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 
 .home-btn {
   background: rgba(181,123,255,0.15);
