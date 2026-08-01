@@ -307,9 +307,31 @@
     }
 
     topic.id = topic.id || topicId;
+    renderSyllabusNotice(topic);
     renderKeyQuestions(cue, topic.keyQuestions);
     renderGlossary(cue, topic.glossary);
     renderKeyIdeas(topic);
+  }
+
+  /* A topic the 2026 syllabus removed still renders, but says so at the top.
+     Silently hiding it would look like a bug; leaving it unmarked would waste
+     revision time on content that cannot be examined. */
+  function renderSyllabusNotice(topic) {
+    if (topic.examinable !== false) return;
+    const host = document.querySelector('main') || document.body;
+    if (!host || document.getElementById('syllabus-notice')) return;
+    const box = document.createElement('div');
+    box.id = 'syllabus-notice';
+    box.setAttribute('role', 'note');
+    box.style.cssText = [
+      'background:rgba(245,158,11,.1)', 'border:1px solid rgba(245,158,11,.4)',
+      'border-radius:10px', 'padding:.85rem 1rem', 'margin:0 0 1.25rem',
+      'font-size:.85rem', 'line-height:1.6', 'color:#fde68a',
+    ].join(';');
+    box.innerHTML =
+      '<strong style="display:block;margin-bottom:.25rem">Not examinable at PSLE from 2026</strong>' +
+      (topic.syllabusNote || 'This topic was removed from the syllabus.');
+    host.insertBefore(box, host.firstChild);
   }
 
   if (document.readyState === 'loading') {

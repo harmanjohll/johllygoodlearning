@@ -1431,7 +1431,8 @@ async function loadCanonicalBank() {
   try {
     const bank = await JglOpenEnded.loadAll();
     if (!bank || !bank.length) return;           // fetch failed; keep fallback
-    allCanonical = bank.map(q => ({
+    // Drop content the 2026 syllabus removed, so no practice time is spent on it.
+    allCanonical = bank.filter(JglOpenEnded.examinable).map(q => ({
       id:          q.id,
       topic:       q.topicName,
       topicId:     q.topicId,
