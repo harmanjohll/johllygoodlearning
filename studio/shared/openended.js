@@ -66,38 +66,54 @@
     return inflight;
   }
 
-  async function byTopic(topicId) {
+  /* Questions on content the 2026 syllabus removed carry examinable:false.
+     They stay in the bank as background reading but are kept out of every
+     default pool, so practice time is never spent on unexaminable content.
+     Pass {includeRemoved:true} to opt back in. */
+  function examinable(q) { return q.examinable !== false; }
+
+  async function byTopic(topicId, opts) {
     const all = await loadAll();
-    return all.filter(q => q.topicId === topicId);
+    return all.filter(q => q.topicId === topicId &&
+      ((opts && opts.includeRemoved) || examinable(q)));
   }
 
-  async function byCommandWord(word) {
+  async function byCommandWord(word, opts) {
     const all = await loadAll();
-    return all.filter(q => q.commandWord === word);
+    return all.filter(q => q.commandWord === word &&
+      ((opts && opts.includeRemoved) || examinable(q)));
   }
 
-  /* Topics present in the bank, for building selectors. */
-  async function topics() {
+  /* Topics present in the bank, for building selectors. Topics whose whole
+     content was removed are omitted unless asked for. */
+  async function topics(opts) {
     const all = await loadAll();
     const seen = new Map();
     all.forEach(q => {
+      if (!(opts && opts.includeRemoved) && !examinable(q)) return;
       if (!seen.has(q.topicId)) {
-        seen.set(q.topicId, { id: q.topicId, name: q.topicName, theme: q.theme, count: 0 });
+        seen.set(q.topicId, {
+          id: q.topicId, name: q.topicName, theme: q.theme,
+          count: 0, examinable: examinable(q),
+        });
       }
       seen.get(q.topicId).count++;
     });
     return [...seen.values()].sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  /* Filtered pick. opts: {topicId, commandWord, marks, theme, exclude:[ids]} */
+  /* Filtered pick. opts: {topicId, commandWord, marks, minMarks, theme,
+     exclude:[ids], includeRemoved} */
   async function pick(opts) {
     const o = opts || {};
     const all = await loadAll();
     let pool = all.filter(q =>
+      (o.includeRemoved || examinable(q)) &&
       (!o.topicId     || q.topicId     === o.topicId) &&
       (!o.commandWord || q.commandWord === o.commandWord) &&
       (!o.theme       || q.theme       === o.theme) &&
-      (!o.marks       || q.marks       === o.marks)
+      (!o.marks       || q.marks       === o.marks) &&
+      (!o.minMarks    || q.marks       >= o.minMarks)
     );
     if (o.exclude && o.exclude.length) {
       const skip = new Set(o.exclude);
@@ -124,5 +140,6 @@
     topics,
     pick,
     byId,
+    examinable,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
