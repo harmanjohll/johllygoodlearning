@@ -81,6 +81,21 @@ function weakestSubSkills(skillId, candidates, n) {
 // ---- What each skill lets you configure --------------------------------
 
 var DRILL_OPTIONS = {
+  count: {
+    title: 'Counting & Numbers',
+    icon: '🔟',
+    ranges: [
+      { key: 'to-10',   label: 'Up to 10',   range: [1, 10] },
+      { key: 'to-20',   label: 'Up to 20',   range: [1, 20] },
+      { key: 'to-50',   label: 'Up to 50',   range: [1, 50] },
+      { key: 'to-100',  label: 'Up to 100',  range: [1, 100] },
+      { key: 'words',   label: 'Numbers in words', range: [1, 100], flag: 'words' },
+      { key: 'ordinal', label: 'First, second, third…', range: [1, 10], flag: 'ordinal' }
+    ],
+    modes: ['practice', 'speed'],
+    counts: [5, 10, 20],
+    blurb: 'Count to ten, then twenty, then all the way to a hundred.'
+  },
   mul: {
     title: 'Times Tables',
     icon: '✖️',

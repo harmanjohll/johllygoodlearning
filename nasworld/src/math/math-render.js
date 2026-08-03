@@ -6,6 +6,9 @@
 function renderMathQuestion(card, q) {
   switch (q.type) {
     case 'ten-frame-count':     renderTenFrameCount(card, q); return true;
+    case 'place-value-count':   renderPlaceValueCount(card, q); return true;
+    case 'number-word':         renderNumberWord(card, q); return true;
+    case 'ordinal-position':    renderOrdinalPosition(card, q); return true;
     case 'number-bond':         renderNumberBond(card, q); return true;
     case 'addition-concrete':   renderAdditionConcrete(card, q); return true;
     case 'addition-pictorial':  renderAdditionPictorial(card, q); return true;
@@ -59,6 +62,78 @@ function renderMathQuestion(card, q) {
 }
 
 // ===================== P1 RENDERERS =====================
+
+// Base-ten blocks: tens as rods, ones as unit cubes. This is how
+// Singapore introduces numbers past 20 — a ten-frame stops being
+// countable at that size.
+function renderPlaceValueCount(card, q) {
+  var html = '<div class="question-text">How many altogether?</div>';
+  html += '<div class="pv-blocks">';
+  html += '<div class="pv-group">';
+  for (var t = 0; t < q.tens; t++) {
+    html += '<div class="pv-rod">';
+    for (var c = 0; c < 10; c++) html += '<span class="pv-unit"></span>';
+    html += '</div>';
+  }
+  html += '</div>';
+  if (q.ones > 0) {
+    html += '<div class="pv-group pv-ones">';
+    for (var o = 0; o < q.ones; o++) html += '<span class="pv-unit loose"></span>';
+    html += '</div>';
+  }
+  html += '</div>';
+  html += '<div class="pv-caption">' + q.tens + ' ten' + (q.tens === 1 ? '' : 's') +
+          (q.ones ? ' and ' + q.ones + ' one' + (q.ones === 1 ? '' : 's') : '') + '</div>';
+
+  // Distractors target the real misconception: reading the digits the
+  // wrong way round, or losing the tens.
+  var wrong = [q.ones * 10 + q.tens, q.tens * 10, q.number + 10, q.number - 10, q.tens + q.ones];
+  var opts = [q.number];
+  wrong.forEach(function(w) {
+    if (w > 0 && w !== q.number && opts.indexOf(w) === -1 && opts.length < 4) opts.push(w);
+  });
+  while (opts.length < 4) {
+    var f = q.number + rand(-5, 5);
+    if (f > 0 && opts.indexOf(f) === -1) opts.push(f);
+  }
+  html += '<div class="answer-options">' + shuffle(opts).map(function(o) {
+    return '<button class="answer-btn" onclick="checkAnswer(' + o + ', ' + q.number + ', this)">' + o + '</button>';
+  }).join('') + '</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderNumberWord(card, q) {
+  var html = '<div class="question-text">How do you write this number in words?</div>';
+  html += '<div class="nw-number">' + q.number + '</div>';
+  var opts = [q.answer];
+  var guard = 0;
+  while (opts.length < 4 && guard++ < 50) {
+    var cand = numberToWords(Math.max(1, q.number + rand(-12, 12)));
+    if (opts.indexOf(cand) === -1) opts.push(cand);
+  }
+  html += '<div class="answer-options">' + shuffle(opts).map(function(o) {
+    return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:17px">' + o + '</button>';
+  }).join('') + '</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderOrdinalPosition(card, q) {
+  var kids = ['🧒','👧','👦','🧑','👶','🧕','👩','🙋','🧍'];
+  var html = '<div class="question-text">Who is <strong style="color:var(--gold)">' +
+             ordinalWord(q.position) + '</strong> in the queue?</div>';
+  html += '<div class="ord-queue">';
+  html += '<div class="ord-front">front →</div>';
+  for (var i = 0; i < q.queueLength; i++) {
+    html += '<button class="ord-person" onclick="checkAnswer(\'' + ordinalWord(i + 1) + '\', \'' + q.answer + '\', this)">' +
+      '<span class="ord-emoji">' + kids[i % kids.length] + '</span></button>';
+  }
+  html += '</div>';
+  html += '<div class="ord-caption">Tap the child who is ' + ordinalWord(q.position) + '.</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
 
 function renderTenFrameCount(card, q) {
   var n = q.number;

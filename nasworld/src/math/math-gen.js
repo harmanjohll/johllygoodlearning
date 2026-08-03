@@ -21,7 +21,7 @@ function generateMathQuestion(skillId, config) {
 
   switch (skillId) {
     // P1
-    case 'count': return genCount(diff);
+    case 'count': return genCount(diff, config);
     case 'nbond': return genNBond(diff, config);
     case 'add':   return genAdd(diff, config);
     case 'sub':   return genSub(diff, config);
@@ -63,10 +63,62 @@ function generateMathQuestion(skillId, config) {
 
 // ===================== P1 GENERATORS =====================
 
-function genCount(diff) {
-  const [min, max] = diff.numberRange;
-  const n = rand(min, Math.min(max, 20));
-  return { type: 'ten-frame-count', number: n, answer: n, hint: 'Count each dot carefully! Try counting in groups.' };
+function genCount(diff, config) {
+  // MOE P1 goes to 100, not 20. Ten-frames stop being readable past 20,
+  // so beyond that we switch to base-ten blocks (tens rods and ones),
+  // which is the representation Singapore actually teaches.
+  const max = (config && config.numberRange) ? config.numberRange[1]
+                                             : Math.min(diff.numberRange[1], 20);
+  const flag = config && config.flag;
+
+  // Ordinal position ("who is 3rd in the queue?") — a P1 topic that was
+  // missing from the app entirely.
+  if (flag === 'ordinal' || (!flag && max <= 20 && Math.random() < 0.2)) {
+    const queue = rand(5, 9);
+    const pos = rand(1, queue);
+    return {
+      type: 'ordinal-position', queueLength: queue, position: pos,
+      answer: ordinalWord(pos), subKey: 'ordinal',
+      hint: 'Count from the front of the queue: first, second, third...'
+    };
+  }
+
+  // Number in words ("which is forty-two?") — also a P1 requirement.
+  if (flag === 'words' || (!flag && max > 20 && Math.random() < 0.25)) {
+    const nw = rand(1, max);
+    return {
+      type: 'number-word', number: nw, answer: numberToWords(nw), subKey: 'words',
+      hint: 'Say the tens first, then the ones.'
+    };
+  }
+
+  const n = rand(1, max);
+  if (n > 20) {
+    return {
+      type: 'place-value-count', number: n, answer: n,
+      tens: Math.floor(n / 10), ones: n % 10,
+      subKey: (config && config.rangeKey) || ('1-' + max),
+      hint: 'Count the tens rods in tens, then add the loose ones.'
+    };
+  }
+  return {
+    type: 'ten-frame-count', number: n, answer: n,
+    subKey: (config && config.rangeKey) || ('1-' + max),
+    hint: 'Count each dot carefully! Try counting in groups.'
+  };
+}
+
+var ORDINAL_WORDS = ['first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth'];
+function ordinalWord(n) { return ORDINAL_WORDS[n - 1] || (n + 'th'); }
+
+var _ONES_WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine','ten',
+  'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+var _TENS_WORDS = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+function numberToWords(n) {
+  if (n < 20) return _ONES_WORDS[n];
+  if (n === 100) return 'one hundred';
+  var t = Math.floor(n / 10), o = n % 10;
+  return _TENS_WORDS[t] + (o ? '-' + _ONES_WORDS[o] : '');
 }
 
 function genNBond(diff, config) {

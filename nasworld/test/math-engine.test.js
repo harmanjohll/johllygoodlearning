@@ -312,14 +312,19 @@ const cfgTest = vm.runInContext(`
     setDrillConfig('mul',{tables:[6,7],count:20,mode:'speed'});
     var r=resolveDrillConfig('mul');
     return {before:before,resolvedTables:r.tables,count:r.count,mode:r.mode,
-            hasDrillMul:skillHasDrill('mul'),hasDrillCount:skillHasDrill('count')};
+            hasDrillMul:skillHasDrill('mul'),hasDrillCount:skillHasDrill('count'),
+            hasDrillPat:skillHasDrill('pat')};
   })()
 `, sandbox);
 ok('config: saves and resolves table selection',
    JSON.stringify(cfgTest.resolvedTables)===JSON.stringify([6,7]), JSON.stringify(cfgTest.resolvedTables));
 ok('config: question count + mode carried through',
    cfgTest.count===20 && cfgTest.mode==='speed');
-ok('config: skillHasDrill correct', cfgTest.hasDrillMul===true && cfgTest.hasDrillCount===false);
+// mul and count both have drill options; pat has none, so it should
+// fall straight through to a plain quiz.
+ok('config: skillHasDrill correct',
+   cfgTest.hasDrillMul===true && cfgTest.hasDrillCount===true && cfgTest.hasDrillPat===false,
+   JSON.stringify(cfgTest));
 
 // ---- 10. Time & money variants ----
 const timeTest = vm.runInContext(`
@@ -470,6 +475,42 @@ ok('render: 12x12 uses an array, not 144 countable emoji',
 ok('render: small facts still get true concrete emoji groups', rend.smallEmoji===12, 'emoji='+rend.smallEmoji);
 ok('render: word problems draw a bar model, hidden until asked for',
    rend.bar && rend.barHidden && rend.tag, JSON.stringify(rend));
+
+// ---- 15. P1 syllabus coverage: numbers to 100, words, ordinals ----
+const p1 = vm.runInContext(`
+  (function(){
+    var out={types:{},bad:null};
+    for(var i=0;i<300;i++){
+      var q=generateMathQuestion('count',{numberRange:[1,100],rangeKey:'to-100'});
+      out.types[q.type]=(out.types[q.type]||0)+1;
+      if(q.answer==null) out.bad='no answer';
+      if(q.type==='place-value-count' && q.tens*10+q.ones!==q.number) out.bad='tens/ones mismatch';
+      if(q.type==='place-value-count' && q.number<=20) out.bad='blocks used below 21';
+      if(q.type==='ten-frame-count' && q.number>20) out.bad='ten-frame above 20';
+    }
+    out.words=numberToWords(42)+'|'+numberToWords(7)+'|'+numberToWords(30)+'|'+numberToWords(100);
+    out.ord=ordinalWord(3);
+    var ordOK=true;
+    for(var k=0;k<80;k++){
+      var o=generateMathQuestion('count',{numberRange:[1,10],flag:'ordinal',rangeKey:'ordinal'});
+      if(o.type!=='ordinal-position'||o.position>o.queueLength) ordOK=false;
+    }
+    out.ordOK=ordOK;
+    var wOK=true;
+    for(var m=0;m<80;m++){
+      var w=generateMathQuestion('count',{numberRange:[1,100],flag:'words',rangeKey:'words'});
+      if(w.type!=='number-word'||typeof w.answer!=='string') wOK=false;
+    }
+    out.wOK=wOK;
+    return out;
+  })()
+`, sandbox);
+ok('P1: counting now reaches 100 with base-ten blocks',
+   !p1.bad && (p1.types['place-value-count']||0) > 0, p1.bad || JSON.stringify(p1.types));
+ok('P1: ten-frames only below 21, blocks only above 20', !p1.bad, p1.bad||'');
+ok('P1: number-to-words correct', p1.words==='forty-two|seven|thirty|one hundred', p1.words);
+ok('P1: ordinal questions valid', p1.ordOK && p1.ord==='third', p1.ord);
+ok('P1: number-in-words drill filter works', p1.wOK);
 
 // ---- report ----
 console.log('\n================ MATH ENGINE TEST ================\n');
