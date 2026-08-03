@@ -208,16 +208,31 @@ function closeFeedback(e) {
 
 // === HINT SYSTEM ===
 function renderHintBtn(hintText) {
-  const escaped = hintText.replace(/'/g, "\\'");
-  return '<div class="mt-2"><button class="hint-btn" onclick="showHint(this, \'' + escaped + '\')">\uD83D\uDCA1 Need a hint?</button></div>';
+  // The hint used to be interpolated into an onclick="" attribute with
+  // only single quotes escaped. Any hint containing a double quote broke
+  // the button and could inject markup \u2014 a real risk now that hints can
+  // come from an AI model. Carry it in a data attribute instead, HTML
+  // escaped, and read it back with dataset.
+  if (!hintText) return '';
+  const esc = String(hintText)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+  return '<div class="mt-2"><button class="hint-btn" data-hint="' + esc +
+         '" onclick="showHint(this)">\uD83D\uDCA1 Need a hint?</button></div>';
 }
 
 function showHint(btn, text) {
   if (currentGame.hintShown) return;
   currentGame.hintShown = true;
+  // Text now travels on the button's data attribute; the second
+  // argument is kept so any older call sites still work.
+  const hint = (btn && btn.dataset && btn.dataset.hint) || text || '';
   const hintDiv = document.createElement('div');
   hintDiv.className = 'hint-text';
-  hintDiv.textContent = '\uD83D\uDCA1 ' + text;
+  hintDiv.textContent = '\uD83D\uDCA1 ' + hint;   // textContent, so never parsed as HTML
   btn.parentElement.replaceWith(hintDiv);
   playSound('click');
 }

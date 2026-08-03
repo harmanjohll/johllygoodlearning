@@ -34,7 +34,7 @@ function aiSetModel(m) {
   try { localStorage.setItem(AI_MODEL_STORAGE, m || AI_DEFAULT_MODEL); } catch (e) {}
 }
 function aiEnabled() {
-  return !!aiGetKey() && navigator.onLine !== false;
+  return !!aiGetKey() && navigator.onLine !== false && !aiInCooldown();
 }
 
 // ---- Core fetch wrapper -------------------------------------------------
@@ -123,6 +123,50 @@ function aiSystemPrompt() {
 // ---- Local validation (never trust the model) --------------------------
 
 /**
+ * Check the model's own working and confirm it produces the answer it
+ * claims. A wrong answer key is the worst failure mode in the whole
+ * app: the child solves it correctly and is told she is wrong. Any
+ * question whose working does not evaluate to its answer is discarded.
+ *
+ * Returns true if verified OR if the working is not machine-checkable
+ * (we do not throw away a good question just because we cannot parse
+ * its prose) — but a working that IS parseable and disagrees is fatal.
+ */
+function aiVerifyArithmetic(raw) {
+  if (!raw || !raw.working) return true;          // nothing to check
+  var expr = String(raw.working);
+
+  // Take the last "= <number>" as the claimed result of the chain.
+  var parts = expr.split('=');
+  if (parts.length < 2) return true;
+  var claimed = Number(String(parts[parts.length - 1]).replace(/[^0-9.\-]/g, ''));
+  if (!isFinite(claimed)) return true;
+
+  // The answer must match what the working says it is.
+  if (Math.abs(claimed - Number(raw.answer)) > 1e-9) return false;
+
+  // Evaluate each "a OP b = c" step ourselves. No eval: a strict
+  // tokenizer, so nothing from the model is ever executed.
+  var ok = true;
+  parts.forEach(function(seg, i) {
+    if (i >= parts.length - 1) return;
+    var m = String(seg).match(/(-?\d+(?:\.\d+)?)\s*([+\-x*×\/÷])\s*(-?\d+(?:\.\d+)?)\s*$/);
+    if (!m) return;                                // unparseable step: skip
+    var a = Number(m[1]), op = m[2], b = Number(m[3]);
+    var next = Number(String(parts[i + 1]).replace(/[^0-9.\-]/g, ''));
+    if (!isFinite(next)) return;
+    var val;
+    if (op === '+') val = a + b;
+    else if (op === '-') val = a - b;
+    else if (op === 'x' || op === '*' || op === '×') val = a * b;
+    else if (op === '/' || op === '÷') { if (b === 0) { ok = false; return; } val = a / b; }
+    else return;
+    if (Math.abs(val - next) > 1e-9) ok = false;
+  });
+  return ok;
+}
+
+/**
  * Reject anything that would confuse or upset a child, or that is
  * arithmetically wrong. Returns true if the question is safe to show.
  */
@@ -146,6 +190,9 @@ function aiValidateQuestion(q, constraints) {
 
   // The text must actually contain a question.
   if (q.text.indexOf('?') === -1) return false;
+
+  // Never show a question whose own working contradicts its answer.
+  if (!aiVerifyArithmetic(q)) return false;
 
   return true;
 }
@@ -178,23 +225,38 @@ function aiTakeQuestion(skillId, config) {
   return q;
 }
 
+// Circuit breaker. Without this, a bad key or a model that keeps
+// returning rejects would retry on EVERY question, billing the parent's
+// card in a loop for nothing. Failures back off exponentially and the
+// whole AI path goes quiet until the cooldown expires.
+var _aiFails = 0;
+var _aiCooldownUntil = 0;
+
+function aiInCooldown() { return Date.now() < _aiCooldownUntil; }
+
 /**
  * Fill the queue in the background. Never throws, never blocks.
  */
 function aiPrefetch(skillId, config) {
   if (!aiEnabled()) return Promise.resolve();
+  if (aiInCooldown()) return Promise.resolve();
   var key = _aiCacheKey(skillId, config);
   if (_aiInFlight[key]) return Promise.resolve();
   if (_aiQueue[key] && _aiQueue[key].length >= 6) return Promise.resolve();
   _aiInFlight[key] = true;
 
-  return aiGenerateWordProblems(skillId, config, 5).then(function(list) {
+  return aiGenerateWordProblems(skillId, config, 6).then(function(list) {
     if (!_aiQueue[key]) _aiQueue[key] = [];
     list.forEach(function(q) { _aiQueue[key].push(q); });
     _aiInFlight[key] = false;
+    _aiFails = 0;                       // recovered
+    _aiCooldownUntil = 0;
     if (typeof aiUpdateStatusPill === 'function') aiUpdateStatusPill();
   }).catch(function(err) {
     _aiInFlight[key] = false;
+    _aiFails++;
+    // 2s, 4s, 8s, 16s, 32s, capped at 60s.
+    _aiCooldownUntil = Date.now() + Math.min(60000, 2000 * Math.pow(2, _aiFails - 1));
     _aiNoteError(err);
   });
 }
@@ -221,11 +283,17 @@ var AI_WORD_PROBLEM_SCHEMA = {
           text:      { type: 'string', description: 'The word problem. One or two short sentences ending in a question.' },
           answer:    { type: 'string', description: 'The final numeric answer only. No units, no words.' },
           hint:      { type: 'string', description: 'One short sentence nudging the child toward the method. Never gives the answer.' },
-          working:   { type: 'string', description: 'The arithmetic, e.g. "7 x 4 = 28". Shown only after answering.' },
+          working:   { type: 'string', description: 'The arithmetic ONLY, using digits and + - x / and = . For example "7 x 4 = 28" or "20 - 8 = 12". No words.' },
           structure: { type: 'string', description: 'One of: part-whole, comparison, change, groups, rate, before-after' },
-          emoji:     { type: 'string', description: 'A single emoji matching the story context.' }
+          emoji:     { type: 'string', description: 'A single emoji matching the story context.' },
+          barA:      { type: 'number', description: 'First quantity in the story, for the bar model.' },
+          barB:      { type: 'number', description: 'Second quantity in the story, for the bar model.' },
+          barALabel: { type: 'string', description: 'Two or three word label for the first quantity.' },
+          barBLabel: { type: 'string', description: 'Two or three word label for the second quantity.' },
+          unknownIs: { type: 'string', description: 'Which part the question asks for: "total", "part", or "difference".' }
         },
-        required: ['text', 'answer', 'hint', 'working', 'structure', 'emoji']
+        required: ['text', 'answer', 'hint', 'working', 'structure', 'emoji',
+                   'barA', 'barB', 'barALabel', 'barBLabel', 'unknownIs']
       }
     }
   },
@@ -281,12 +349,53 @@ function aiGenerateWordProblems(skillId, config, count) {
         working: raw.working,
         structure: raw.structure,
         emoji: raw.emoji,
+        bar: _aiBuildBar(raw),
         _ai: true
       });
     });
     if (out.length === 0) throw new Error('all-rejected');
     return out;
   });
+}
+
+/**
+ * Build renderBarModel-compatible data from the model's quantities.
+ *
+ * Note for anyone editing: `value` must carry the TRUE number even when
+ * `unknown: true`, because the renderer sizes the bars from it. The
+ * renderer prints "?" for unknown segments, so the number is never
+ * shown to the child.
+ */
+function _aiBuildBar(raw) {
+  var a = Number(raw.barA), b = Number(raw.barB);
+  if (!isFinite(a) || !isFinite(b) || a < 0 || b < 0) return null;
+  var ans = Number(raw.answer);
+  var labelA = String(raw.barALabel || 'part').slice(0, 18);
+  var labelB = String(raw.barBLabel || 'part').slice(0, 18);
+
+  if (raw.structure === 'comparison' || raw.unknownIs === 'difference') {
+    var bigger  = a >= b ? { label: labelA, value: a } : { label: labelB, value: b };
+    var smaller = a >= b ? { label: labelB, value: b } : { label: labelA, value: a };
+    return {
+      style: 'comparison',
+      bigger: bigger,
+      smaller: smaller,
+      difference: { label: 'difference', value: Math.abs(a - b), unknown: raw.unknownIs === 'difference' }
+    };
+  }
+  if (raw.unknownIs === 'part') {
+    // Whole is known; one part is being asked for.
+    return {
+      style: 'part-whole',
+      parts: [{ label: labelB, value: b }, { label: 'this part', value: ans, unknown: true }],
+      total: { label: labelA, value: a }
+    };
+  }
+  return {
+    style: 'part-whole',
+    parts: [{ label: labelA, value: a }, { label: labelB, value: b }],
+    total: { label: 'altogether', value: a + b, unknown: true }
+  };
 }
 
 /**

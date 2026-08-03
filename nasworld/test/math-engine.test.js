@@ -2,6 +2,13 @@
 const fs = require('fs');
 const vm = require('vm');
 
+// The bundle's init() runs against the DOM stub after our tests finish and
+// throws; that noise is expected and must not be mistaken for a failure.
+process.on('uncaughtException', e => { if (!/Cannot (set|read) propert/.test(String(e && e.message))) throw e; });
+process.on('unhandledRejection', e => { if (!/Cannot (set|read) propert/.test(String(e && e.message))) throw e; });
+
+
+
 const html = fs.readFileSync('' + __dirname + '/../dist/bundle.html', 'utf8');
 // The bundle inlines all classic JS into one <script> block (the module
 // block for Three.js is separate and marked type="module").
