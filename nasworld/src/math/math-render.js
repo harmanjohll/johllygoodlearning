@@ -443,7 +443,11 @@ function renderMultiplication(card, q) {
   }
 
   var html = '<div class="question-text">' + q.table + ' \u00D7 ' + q.n + ' = ?</div>';
-  if (q.isConcrete) {
+  // Counting 144 individual emoji is not concrete understanding, it is
+  // an eye test. Above ~36 items the grouped-emoji picture stops helping,
+  // so fall back to the array/grid representation which scales.
+  var totalItems = q.table * q.n;
+  if (q.isConcrete && totalItems <= 36) {
     html += '<div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0">';
     var emoji = pick(OBJECT_EMOJIS);
     for (var g = 0; g < q.n; g++) {
@@ -452,7 +456,7 @@ function renderMultiplication(card, q) {
       html += '</div>';
     }
     html += '</div>';
-  } else if (q.isPictorial) {
+  } else if (q.isPictorial || (q.isConcrete && totalItems <= 144)) {
     html += '<div class="area-grid" style="grid-template-columns:repeat(' + q.table + ', 36px);margin:12px auto;width:fit-content">';
     for (var r = 0; r < q.n; r++) for (var c = 0; c < q.table; c++) {
       html += '<div class="area-cell selected"></div>';

@@ -4521,6 +4521,22 @@ function computeMultiFactorMastery(skillId) {
     lessonScore * 20 + exploreScore * 30 + quizScore * 50
   ));
 
+  // Passive activity must not, by itself, look like competence.
+  //
+  // Opening the Learn tab and the Cards tab scored 20 + 30 = 50 with
+  // zero questions answered. That sailed past the 40% threshold that
+  // unlocks dependent skills, so a child could unlock the entire tree
+  // without answering a single question. Reading is not knowing.
+  //
+  // Until she has actually attempted some questions, cap what passive
+  // exploration can claim, below the unlock threshold.
+  if (skill.totalAttempts < 3) {
+    var passiveCap = 25;
+    // Give a little credit per attempt so early progress still shows.
+    passiveCap += skill.totalAttempts * 5;
+    mastery = Math.min(mastery, passiveCap);
+  }
+
   return mastery;
 }
 
@@ -9897,7 +9913,11 @@ function renderMultiplication(card, q) {
   }
 
   var html = '<div class="question-text">' + q.table + ' \u00D7 ' + q.n + ' = ?</div>';
-  if (q.isConcrete) {
+  // Counting 144 individual emoji is not concrete understanding, it is
+  // an eye test. Above ~36 items the grouped-emoji picture stops helping,
+  // so fall back to the array/grid representation which scales.
+  var totalItems = q.table * q.n;
+  if (q.isConcrete && totalItems <= 36) {
     html += '<div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0">';
     var emoji = pick(OBJECT_EMOJIS);
     for (var g = 0; g < q.n; g++) {
@@ -9906,7 +9926,7 @@ function renderMultiplication(card, q) {
       html += '</div>';
     }
     html += '</div>';
-  } else if (q.isPictorial) {
+  } else if (q.isPictorial || (q.isConcrete && totalItems <= 144)) {
     html += '<div class="area-grid" style="grid-template-columns:repeat(' + q.table + ', 36px);margin:12px auto;width:fit-content">';
     for (var r = 0; r < q.n; r++) for (var c = 0; c < q.table; c++) {
       html += '<div class="area-cell selected"></div>';
@@ -17216,13 +17236,23 @@ function grantSimReward(skillId, message) {
   var tokens = times === 1 ? 20 : 5;
   state.tokens = (state.tokens || 0) + tokens;
 
-  // Mastery bump
-  if (skillId && typeof state.skills === 'object') {
-    if (!state.skills[skillId]) state.skills[skillId] = { mastery: 0, totalAttempts: 0, correctAttempts: 0 };
+  // Mastery bump.
+  //
+  // This used to write state.skills[skillId] = {mastery, totalAttempts,
+  // correctAttempts} directly, bypassing getSkillState. That produced a
+  // skill record with no recentResults array, so the next quiz answer on
+  // that skill crashed in updateSkillState ("Cannot read properties of
+  // undefined (reading 'push')"). Always go through getSkillState.
+  if (skillId && typeof getSkillState === 'function') {
+    var sk = getSkillState(skillId);
     var bump = times === 1 ? 8 : 3;
-    state.skills[skillId].mastery = Math.min(100, (state.skills[skillId].mastery || 0) + bump);
-    state.skills[skillId].totalAttempts = (state.skills[skillId].totalAttempts || 0) + 1;
-    state.skills[skillId].correctAttempts = (state.skills[skillId].correctAttempts || 0) + 1;
+    sk.mastery = Math.min(100, (sk.mastery || 0) + bump);
+    // A sim is exploration, not assessment, so it is recorded on the
+    // activity record rather than faked as a correct quiz answer.
+    if (!sk.activity) sk.activity = {};
+    sk.activity.explore = true;
+    sk.activity.lastAny = Date.now();
+    sk.simPlays = (sk.simPlays || 0) + 1;
   }
 
   // Lumi reaction + token particles

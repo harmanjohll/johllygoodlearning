@@ -75,13 +75,23 @@ function grantSimReward(skillId, message) {
   var tokens = times === 1 ? 20 : 5;
   state.tokens = (state.tokens || 0) + tokens;
 
-  // Mastery bump
-  if (skillId && typeof state.skills === 'object') {
-    if (!state.skills[skillId]) state.skills[skillId] = { mastery: 0, totalAttempts: 0, correctAttempts: 0 };
+  // Mastery bump.
+  //
+  // This used to write state.skills[skillId] = {mastery, totalAttempts,
+  // correctAttempts} directly, bypassing getSkillState. That produced a
+  // skill record with no recentResults array, so the next quiz answer on
+  // that skill crashed in updateSkillState ("Cannot read properties of
+  // undefined (reading 'push')"). Always go through getSkillState.
+  if (skillId && typeof getSkillState === 'function') {
+    var sk = getSkillState(skillId);
     var bump = times === 1 ? 8 : 3;
-    state.skills[skillId].mastery = Math.min(100, (state.skills[skillId].mastery || 0) + bump);
-    state.skills[skillId].totalAttempts = (state.skills[skillId].totalAttempts || 0) + 1;
-    state.skills[skillId].correctAttempts = (state.skills[skillId].correctAttempts || 0) + 1;
+    sk.mastery = Math.min(100, (sk.mastery || 0) + bump);
+    // A sim is exploration, not assessment, so it is recorded on the
+    // activity record rather than faked as a correct quiz answer.
+    if (!sk.activity) sk.activity = {};
+    sk.activity.explore = true;
+    sk.activity.lastAny = Date.now();
+    sk.simPlays = (sk.simPlays || 0) + 1;
   }
 
   // Lumi reaction + token particles
