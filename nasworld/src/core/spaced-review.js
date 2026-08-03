@@ -90,6 +90,22 @@ function computeMultiFactorMastery(skillId) {
     lessonScore * 20 + exploreScore * 30 + quizScore * 50
   ));
 
+  // Passive activity must not, by itself, look like competence.
+  //
+  // Opening the Learn tab and the Cards tab scored 20 + 30 = 50 with
+  // zero questions answered. That sailed past the 40% threshold that
+  // unlocks dependent skills, so a child could unlock the entire tree
+  // without answering a single question. Reading is not knowing.
+  //
+  // Until she has actually attempted some questions, cap what passive
+  // exploration can claim, below the unlock threshold.
+  if (skill.totalAttempts < 3) {
+    var passiveCap = 25;
+    // Give a little credit per attempt so early progress still shows.
+    passiveCap += skill.totalAttempts * 5;
+    mastery = Math.min(mastery, passiveCap);
+  }
+
   return mastery;
 }
 

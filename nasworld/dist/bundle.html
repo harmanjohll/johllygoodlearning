@@ -1039,6 +1039,240 @@ body {
 @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes sink-drop { 0% { transform: translateY(-130px); opacity: 0.3; } 100% { transform: translateY(0); opacity: 1; } }
 
+/* === DRILL SETUP === */
+.drill-head { text-align: center; padding: 8px 16px 4px; }
+.drill-head-icon { font-size: 46px; }
+.drill-title { font-family: var(--font-display); color: var(--gold); margin: 4px 0; }
+.drill-blurb { color: var(--text-secondary); font-size: 13px; margin: 0 auto 8px; max-width: 460px; line-height: 1.5; }
+.drill-section {
+  background: rgba(37,27,94,0.45); border: 1px solid rgba(181,123,255,0.22);
+  border-radius: var(--radius-lg); padding: 14px; margin: 12px auto; max-width: 560px;
+}
+.drill-section-title { font-weight: 700; color: var(--text-primary); font-size: 14px; margin-bottom: 10px; }
+.drill-quickrow { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.drill-quick {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
+  color: var(--text-primary); border-radius: 999px; padding: 5px 12px;
+  font-family: var(--font-body); font-size: 12px; cursor: pointer;
+}
+.drill-quick:hover { background: rgba(255,215,0,0.16); }
+.drill-quick-weak { border-color: rgba(255,180,80,0.5); color: #ffd9a0; }
+
+.drill-tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px,1fr)); gap: 8px; }
+.drill-table {
+  background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-md); padding: 8px 4px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  transition: all .18s; font-family: var(--font-body);
+}
+.drill-table:hover { transform: translateY(-2px); }
+.drill-table.on { border-color: var(--gold); background: rgba(255,215,0,0.18); }
+.drill-table-num { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+.drill-table-bar { display: block; width: 100%; height: 4px; background: rgba(255,255,255,0.12); border-radius: 999px; overflow: hidden; }
+.drill-table-fill { display: block; height: 100%; background: var(--gold); border-radius: 999px; }
+.drill-table-pct { font-size: 10px; color: var(--text-dim); }
+.drill-table.weak     .drill-table-fill { background: #ff9d7b; }
+.drill-table.learning .drill-table-fill { background: #ffd166; }
+.drill-table.mastered .drill-table-fill { background: #7bffb5; }
+.drill-legend { margin-top: 10px; font-size: 11px; color: var(--text-dim); display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.dl { width: 10px; height: 10px; border-radius: 3px; display: inline-block; margin-left: 8px; }
+.dl.weak { background: #ff9d7b; } .dl.learning { background: #ffd166; } .dl.mastered { background: #7bffb5; }
+
+.drill-chiprow { display: flex; gap: 6px; flex-wrap: wrap; }
+.drill-chip {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.14);
+  color: var(--text-primary); border-radius: 999px; padding: 7px 14px;
+  font-family: var(--font-body); font-size: 13px; cursor: pointer; transition: all .18s;
+}
+.drill-chip.small { font-size: 11px; padding: 5px 10px; }
+.drill-chip:hover { background: rgba(255,215,0,0.14); }
+.drill-chip.on { background: rgba(255,215,0,0.24); border-color: var(--gold); color: var(--gold); font-weight: 700; }
+.drill-chip-pct { font-size: 10px; opacity: .75; }
+
+.drill-modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 8px; }
+.drill-mode {
+  background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-md); padding: 12px 8px; cursor: pointer; text-align: center;
+  font-family: var(--font-body); transition: all .18s;
+}
+.drill-mode:hover { transform: translateY(-2px); }
+.drill-mode.on { border-color: var(--gold); background: rgba(255,215,0,0.16); }
+.drill-mode-icon { font-size: 26px; }
+.drill-mode-label { font-weight: 700; color: var(--text-primary); font-size: 13px; margin-top: 2px; }
+.drill-mode-desc { font-size: 10px; color: var(--text-dim); margin-top: 2px; line-height: 1.3; }
+
+.drill-ai { border-color: rgba(255,215,0,0.35); }
+.drill-ai-row { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; color: var(--text-primary); font-size: 13px; }
+.drill-ai-row input { margin-top: 3px; width: 18px; height: 18px; }
+.drill-ai-sub { font-size: 11px; color: var(--text-dim); }
+.drill-themes { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; }
+
+.drill-start {
+  display: block; margin: 18px auto 30px; max-width: 560px; width: calc(100% - 24px);
+  background: linear-gradient(135deg, var(--gold), #ffb84d);
+  color: #2a1f00; border: none; border-radius: var(--radius-lg);
+  padding: 16px; font-family: var(--font-display); font-size: 19px;
+  cursor: pointer; box-shadow: 0 6px 20px rgba(255,215,0,0.28);
+}
+.drill-start:hover { transform: translateY(-2px); }
+
+/* === BAR MODEL v2 === */
+.bar-model-v2 { margin: 12px auto; max-width: 420px; }
+.bm-row { display: flex; gap: 3px; margin-bottom: 5px; }
+.bm-seg {
+  position: relative; min-height: 42px; border-radius: 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 2px solid rgba(255,255,255,0.25); box-sizing: border-box; padding: 2px;
+}
+.bm-part    { background: rgba(123,179,255,0.35); }
+.bm-part2   { background: rgba(123,255,181,0.30); }
+.bm-total   { background: rgba(181,123,255,0.30); }
+.bm-diff    { background: rgba(255,157,123,0.35); border-style: dashed; }
+.bm-unknown { background: rgba(255,215,0,0.18); border-style: dashed; border-color: var(--gold); }
+.bm-val   { font-weight: 700; color: #fff; font-size: 15px; }
+.bm-label { font-size: 9px; color: rgba(255,255,255,0.75); }
+.bm-brace { height: 8px; border-left: 2px solid rgba(255,255,255,0.3); border-right: 2px solid rgba(255,255,255,0.3);
+            border-bottom: 2px solid rgba(255,255,255,0.3); margin: 0 2px 4px; border-radius: 0 0 6px 6px; }
+.bm-total-row .bm-seg { min-height: 34px; }
+
+.wp-structure-tag {
+  display: inline-block; background: rgba(181,123,255,0.2); color: #d9c2ff;
+  border: 1px solid rgba(181,123,255,0.4); border-radius: 999px;
+  padding: 3px 12px; font-size: 11px; margin-bottom: 8px;
+}
+.wp-text { font-size: 19px; line-height: 1.55; }
+.wp-emoji { font-size: 24px; margin-right: 6px; }
+.wp-bar-toggle {
+  background: rgba(123,179,255,0.14); border: 1px solid rgba(123,179,255,0.35);
+  color: var(--text-primary); border-radius: 999px; padding: 6px 14px;
+  font-family: var(--font-body); font-size: 12px; cursor: pointer; margin: 10px auto 0; display: block;
+}
+.wp-bar-wrap.hidden { display: none; }
+
+.mf-question { font-size: 30px; }
+.mf-blank {
+  display: inline-block; min-width: 46px; border-bottom: 3px solid var(--gold);
+  color: var(--gold);
+}
+.mf-sub { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+
+/* Base-ten blocks */
+.pv-blocks { display: flex; gap: 14px; justify-content: center; align-items: flex-end; flex-wrap: wrap; margin: 14px 0 6px; }
+.pv-group { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; max-width: 260px; }
+.pv-rod {
+  display: flex; flex-direction: column; gap: 1px; padding: 2px;
+  background: rgba(123,179,255,0.15); border: 1px solid rgba(123,179,255,0.5); border-radius: 4px;
+}
+.pv-unit { width: 13px; height: 8px; background: #7bb3ff; border-radius: 2px; display: block; }
+.pv-unit.loose { background: #ffd166; width: 15px; height: 15px; }
+.pv-ones { align-self: flex-end; max-width: 90px; }
+.pv-caption { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
+
+.nw-number {
+  font-family: var(--font-display); font-size: 64px; color: var(--gold);
+  margin: 12px 0; text-align: center;
+}
+
+.ord-queue { display: flex; gap: 4px; justify-content: center; align-items: center; flex-wrap: wrap; margin: 14px 0 6px; }
+.ord-front { font-size: 11px; color: var(--text-dim); margin-right: 4px; }
+.ord-person {
+  background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.14);
+  border-radius: 10px; padding: 5px 6px; cursor: pointer; transition: all .15s;
+}
+.ord-person:hover { border-color: var(--gold); transform: translateY(-3px); }
+.ord-person.correct { border-color: var(--success); background: rgba(74,222,128,0.2); }
+.ord-person.wrong   { border-color: var(--error); background: rgba(255,107,107,0.2); }
+.ord-emoji { font-size: 30px; }
+.ord-caption { font-size: 12px; color: var(--text-secondary); }
+
+.time-match-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+  max-width: 320px; margin: 14px auto 0;
+}
+.time-match-face {
+  background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-md); padding: 6px; cursor: pointer; transition: all .18s;
+}
+.time-match-face:hover { border-color: var(--gold); transform: translateY(-2px); }
+.time-match-face.correct { border-color: var(--success); background: rgba(74,222,128,0.18); }
+.time-match-face.wrong   { border-color: var(--error); background: rgba(255,107,107,0.18); }
+
+/* === SPEED TIMER + SESSION REVIEW === */
+.speed-timer {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  background: rgba(255,215,0,0.18); border: 1px solid rgba(255,215,0,0.45);
+  color: var(--gold); border-radius: 999px; padding: 3px 12px;
+  font-family: var(--font-mono, monospace); font-size: 13px;
+}
+.end-speed { color: var(--gold); font-size: 15px; margin: 8px 0 2px; }
+.end-speed-best { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+.end-review, .end-sub {
+  background: rgba(0,0,0,0.22); border-radius: var(--radius-md);
+  padding: 10px 12px; margin: 12px 0; text-align: left;
+}
+.end-review-title { font-size: 12px; color: var(--gold); font-weight: 700; margin-bottom: 6px; }
+.end-review-row { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.end-review-row:last-child { border-bottom: none; }
+.end-review-q { font-size: 13px; color: var(--text-primary); }
+.end-review-a { font-size: 13px; color: var(--success); font-weight: 700; }
+.end-review-w { font-size: 11px; color: var(--text-dim); font-family: var(--font-mono, monospace); }
+.end-sub-row { display: grid; grid-template-columns: 34px 1fr 40px; gap: 8px; align-items: center; margin: 4px 0; }
+.end-sub-key { font-size: 13px; color: var(--text-primary); font-weight: 700; }
+.end-sub-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 999px; overflow: hidden; }
+.end-sub-fill { display: block; height: 100%; background: linear-gradient(90deg,#ff9d7b,#ffd166,#7bffb5); border-radius: 999px; }
+.end-sub-pct { font-size: 11px; color: var(--text-dim); text-align: right; }
+
+/* === SETTINGS === */
+.settings-shell { max-width: 640px; margin: 8px auto; padding: 12px; }
+.settings-title { font-family: var(--font-display); color: var(--gold); text-align: center; margin-bottom: 2px; }
+.settings-sub { text-align: center; color: var(--text-dim); font-size: 12px; margin-bottom: 16px; }
+.settings-card {
+  background: rgba(37,27,94,0.5); border: 1px solid rgba(181,123,255,0.22);
+  border-radius: var(--radius-lg); padding: 16px; margin-bottom: 14px;
+}
+.settings-card-title { font-weight: 700; color: var(--text-primary); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.settings-badge { font-size: 10px; padding: 2px 8px; border-radius: 999px; }
+.settings-badge.on  { background: rgba(74,222,128,0.2); color: #7bffb5; border: 1px solid rgba(74,222,128,0.4); }
+.settings-badge.off { background: rgba(255,255,255,0.08); color: var(--text-dim); border: 1px solid rgba(255,255,255,0.15); }
+.settings-help { font-size: 12px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 10px; }
+.settings-label { display: block; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .5px; margin: 10px 0 4px; }
+.settings-keyrow { display: flex; gap: 6px; }
+.settings-input {
+  flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 10px; padding: 10px 12px; color: var(--text-primary);
+  font-family: var(--font-mono, monospace); font-size: 13px;
+}
+.settings-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.settings-btn {
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16);
+  color: var(--text-primary); border-radius: 10px; padding: 8px 14px;
+  font-family: var(--font-body); font-size: 13px; cursor: pointer;
+}
+.settings-btn:hover { background: rgba(255,255,255,0.13); }
+.settings-btn.primary { background: rgba(255,215,0,0.2); border-color: var(--gold); color: var(--gold); }
+.settings-btn.danger  { background: rgba(255,107,107,0.14); border-color: rgba(255,107,107,0.4); color: #ff9d9d; }
+.settings-chip {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.14);
+  color: var(--text-primary); border-radius: 999px; padding: 7px 12px;
+  font-size: 12px; cursor: pointer; font-family: var(--font-body);
+}
+.settings-chip.on { background: rgba(255,215,0,0.22); border-color: var(--gold); color: var(--gold); }
+.settings-status { font-size: 12px; margin-top: 8px; min-height: 18px; }
+.settings-status-ok   { color: #7bffb5; }
+.settings-status-warn { color: #ffd166; }
+.settings-status-err  { color: #ff9d9d; }
+.settings-status-info { color: var(--text-dim); }
+.settings-warn {
+  background: rgba(255,180,80,0.08); border: 1px solid rgba(255,180,80,0.3);
+  border-radius: var(--radius-md); padding: 12px; margin-top: 14px;
+  font-size: 11.5px; color: #ffe0b0; line-height: 1.6;
+}
+.settings-toggle { display: flex; align-items: center; gap: 8px; color: var(--text-primary); font-size: 13px; margin: 6px 0; cursor: pointer; }
+.settings-toggle input { width: 18px; height: 18px; }
+.settings-export { width: 100%; height: 90px; margin-top: 8px; font-size: 10px;
+  background: rgba(0,0,0,0.35); color: var(--text-dim); border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px; padding: 8px; font-family: var(--font-mono, monospace); }
+
 /* === TTS — speaker buttons === */
 .tts-btn {
   background: rgba(123,179,255,0.15); border: 1px solid rgba(123,179,255,0.35);
@@ -3343,6 +3577,12 @@ body {
           <div class="world-card-desc">Your 3D avatar. Dress her up — earn outfits with stars and streaks.</div>
         </div>
 
+        <div class="world-card settings-tile" onclick="showScreen('settings')">
+          <span class="world-card-icon">&#9881;&#65039;</span>
+          <div class="world-card-title">Settings</div>
+          <div class="world-card-desc">For grown-ups. Sound, AI question writer, backup.</div>
+        </div>
+
         <div class="world-card sim-hub" onclick="showScreen('sim-hub')">
           <span class="world-card-icon">&#128300;</span>
           <div class="world-card-title">STEM Lab</div>
@@ -3471,6 +3711,16 @@ body {
     <!-- INDIVIDUAL SIM SCREEN -->
     <div class="screen" id="screen-sim">
       <div id="sim-content"></div>
+    </div>
+
+    <!-- DRILL SETUP SCREEN -->
+    <div class="screen" id="screen-drill-setup">
+      <div id="drill-setup-content"></div>
+    </div>
+
+    <!-- SETTINGS SCREEN -->
+    <div class="screen" id="screen-settings">
+      <div id="settings-content"></div>
     </div>
 
 
@@ -4299,6 +4549,22 @@ function computeMultiFactorMastery(skillId) {
   var mastery = Math.min(100, Math.round(
     lessonScore * 20 + exploreScore * 30 + quizScore * 50
   ));
+
+  // Passive activity must not, by itself, look like competence.
+  //
+  // Opening the Learn tab and the Cards tab scored 20 + 30 = 50 with
+  // zero questions answered. That sailed past the 40% threshold that
+  // unlocks dependent skills, so a child could unlock the entire tree
+  // without answering a single question. Reading is not knowing.
+  //
+  // Until she has actually attempted some questions, cap what passive
+  // exploration can claim, below the unlock threshold.
+  if (skill.totalAttempts < 3) {
+    var passiveCap = 25;
+    // Give a little credit per attempt so early progress still shows.
+    passiveCap += skill.totalAttempts * 5;
+    mastery = Math.min(mastery, passiveCap);
+  }
 
   return mastery;
 }
@@ -7625,26 +7891,41 @@ function getStemFlashcards(skillId) {
 //  MATH GENERATORS — Question generators for all 28 skills
 // ============================================================
 
-function generateMathQuestion(skillId) {
+function generateMathQuestion(skillId, config) {
   const diff = getSkillDifficulty(skillId);
+
+  // A drill config can override the adaptive number range, so that
+  // "practise adding up to 100" means exactly that regardless of level.
+  if (config && config.numberRange) {
+    diff.numberRange = config.numberRange.slice();
+  }
+  diff.config = config || null;
+
+  // Word-problem mode short-circuits: if the learner asked for story
+  // problems, serve those regardless of which skill she came in through.
+  if (config && config.mode === 'word') {
+    const wp = generateWordProblemFor(skillId, config, diff);
+    if (wp) return wp;
+  }
+
   switch (skillId) {
     // P1
-    case 'count': return genCount(diff);
-    case 'nbond': return genNBond(diff);
-    case 'add':   return genAdd(diff);
-    case 'sub':   return genSub(diff);
+    case 'count': return genCount(diff, config);
+    case 'nbond': return genNBond(diff, config);
+    case 'add':   return genAdd(diff, config);
+    case 'sub':   return genSub(diff, config);
     case 'cmp':   return genCmp(diff);
     case 'pat':   return genPat(diff);
-    case 'wp1':   return genWP1(diff);
+    case 'wp1':   return genWP1(diff, config);
     case 'shp':   return genShp(diff);
     // P2
-    case 'add100':  return genAdd100(diff);
-    case 'sub100':  return genSub100(diff);
-    case 'mul':     return genMul(diff);
-    case 'div':     return genDiv(diff);
+    case 'add100':  return genAdd100(diff, config);
+    case 'sub100':  return genSub100(diff, config);
+    case 'mul':     return genMul(diff, config);
+    case 'div':     return genDiv(diff, config);
     case 'frac1':   return genFrac1(diff);
-    case 'money':   return genMoney(diff);
-    case 'time1':   return genTime1(diff);
+    case 'money':   return genMoney(diff, config);
+    case 'time1':   return genTime1(diff, config);
     case 'pgraph':  return genPGraph(diff);
     case 'lenmass': return genLenMass(diff);
     // P3
@@ -7671,52 +7952,125 @@ function generateMathQuestion(skillId) {
 
 // ===================== P1 GENERATORS =====================
 
-function genCount(diff) {
-  const [min, max] = diff.numberRange;
-  const n = rand(min, Math.min(max, 20));
-  return { type: 'ten-frame-count', number: n, answer: n, hint: 'Count each dot carefully! Try counting in groups.' };
+function genCount(diff, config) {
+  // MOE P1 goes to 100, not 20. Ten-frames stop being readable past 20,
+  // so beyond that we switch to base-ten blocks (tens rods and ones),
+  // which is the representation Singapore actually teaches.
+  const max = (config && config.numberRange) ? config.numberRange[1]
+                                             : Math.min(diff.numberRange[1], 20);
+  const flag = config && config.flag;
+
+  // Ordinal position ("who is 3rd in the queue?") — a P1 topic that was
+  // missing from the app entirely.
+  if (flag === 'ordinal' || (!flag && max <= 20 && Math.random() < 0.2)) {
+    const queue = rand(5, 9);
+    const pos = rand(1, queue);
+    return {
+      type: 'ordinal-position', queueLength: queue, position: pos,
+      answer: ordinalWord(pos), subKey: 'ordinal',
+      hint: 'Count from the front of the queue: first, second, third...'
+    };
+  }
+
+  // Number in words ("which is forty-two?") — also a P1 requirement.
+  if (flag === 'words' || (!flag && max > 20 && Math.random() < 0.25)) {
+    const nw = rand(1, max);
+    return {
+      type: 'number-word', number: nw, answer: numberToWords(nw), subKey: 'words',
+      hint: 'Say the tens first, then the ones.'
+    };
+  }
+
+  const n = rand(1, max);
+  if (n > 20) {
+    return {
+      type: 'place-value-count', number: n, answer: n,
+      tens: Math.floor(n / 10), ones: n % 10,
+      subKey: (config && config.rangeKey) || ('1-' + max),
+      hint: 'Count the tens rods in tens, then add the loose ones.'
+    };
+  }
+  return {
+    type: 'ten-frame-count', number: n, answer: n,
+    subKey: (config && config.rangeKey) || ('1-' + max),
+    hint: 'Count each dot carefully! Try counting in groups.'
+  };
 }
 
-function genNBond(diff) {
-  const maxNum = diff.level >= 2 ? 20 : 10;
-  const whole = rand(3, maxNum);
+var ORDINAL_WORDS = ['first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth'];
+function ordinalWord(n) { return ORDINAL_WORDS[n - 1] || (n + 'th'); }
+
+var _ONES_WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine','ten',
+  'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+var _TENS_WORDS = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+function numberToWords(n) {
+  if (n < 20) return _ONES_WORDS[n];
+  if (n === 100) return 'one hundred';
+  var t = Math.floor(n / 10), o = n % 10;
+  return _TENS_WORDS[t] + (o ? '-' + _ONES_WORDS[o] : '');
+}
+
+function genNBond(diff, config) {
+  // A drill config pins the whole ("bonds to 10"); otherwise it follows level.
+  const maxNum = (config && config.numberRange) ? config.numberRange[1]
+                                                : (diff.level >= 2 ? 20 : 10);
+  // Bonds to a FIXED whole are the ones worth automating, so when the
+  // learner picks "bonds to 10" we hold the whole at 10 most of the time.
+  const whole = (config && config.numberRange && Math.random() < 0.75)
+    ? maxNum
+    : rand(3, maxNum);
   const partA = rand(1, whole - 1);
   const partB = whole - partA;
   const missingPart = Math.random() < 0.5 ? 'left' : 'right';
   return {
     type: 'number-bond', whole, partA, partB, missingPart,
     answer: missingPart === 'left' ? partA : partB,
+    subKey: (config && config.rangeKey) || ('to-' + maxNum),
     hint: 'If the whole is ' + whole + ' and one part is ' + (missingPart === 'left' ? partB : partA) + ', what\'s the other part?',
     isConcrete: diff.isConcrete
   };
 }
 
-function genAdd(diff) {
-  const [min, max] = diff.numberRange;
-  const a = rand(min, Math.floor(max / 2));
-  const b = rand(min, Math.floor(max / 2));
+function genAdd(diff, config) {
+  // Singapore framing: a range of [1,10] means "addition WITHIN 10",
+  // i.e. the SUM must not exceed 10. The old code halved the range and
+  // so "up to 10" quietly meant "addends up to 5".
+  const max = diff.numberRange[1];
+  const a = rand(1, Math.max(1, max - 1));
+  const b = rand(1, Math.max(1, max - a));
   const sum = a + b;
   const emoji = pick(OBJECT_EMOJIS);
+  const subKey = (config && config.rangeKey) || ('1-' + max);
+  const base = { a: a, b: b, answer: sum, subKey: subKey };
+
   if (diff.isConcrete) {
-    return { type: 'addition-concrete', a, b, answer: sum, emoji, hint: 'Count all the objects together! ' + a + ' and ' + b + ' more makes...' };
+    return Object.assign(base, { type: 'addition-concrete', emoji: emoji,
+      hint: 'Count all the objects together! ' + a + ' and ' + b + ' more makes...' });
   } else if (diff.isPictorial) {
-    return { type: 'addition-pictorial', a, b, answer: sum, emoji, hint: 'Look at the bar model. How many in total?' };
-  } else {
-    return { type: 'addition-abstract', a, b, answer: sum, hint: 'Try counting on from the bigger number.' };
+    return Object.assign(base, { type: 'addition-pictorial', emoji: emoji,
+      hint: 'Look at the bar model. How many in total?' });
   }
+  return Object.assign(base, { type: 'addition-abstract',
+    hint: a >= b ? ('Try counting on from ' + a + '.') : ('Try counting on from ' + b + '.') });
 }
 
-function genSub(diff) {
-  const [min, max] = diff.numberRange;
-  const b = rand(min, Math.floor(max / 2));
-  const a = rand(b + 1, Math.min(b + Math.floor(max / 2), max));
+function genSub(diff, config) {
+  // "Subtraction within 20" means the STARTING number can be up to 20.
+  const max = diff.numberRange[1];
+  const a = rand(2, max);
+  const b = rand(1, a - 1);          // never negative, never trivially zero
   const result = a - b;
   const emoji = pick(OBJECT_EMOJIS);
+  const subKey = (config && config.rangeKey) || ('1-' + max);
+  const base = { a: a, b: b, answer: result, subKey: subKey };
+
   if (diff.isConcrete) {
-    return { type: 'subtraction-concrete', a, b, answer: result, emoji, hint: 'Start with ' + a + ', then take away ' + b + '. How many are left?' };
-  } else {
-    return { type: 'subtraction-abstract', a, b, answer: result, hint: 'Start at ' + a + ' and count back ' + b + '.' };
+    return Object.assign(base, { type: 'subtraction-concrete', emoji: emoji,
+      hint: 'Start with ' + a + ', then take away ' + b + '. How many are left?' });
   }
+  return Object.assign(base, { type: 'subtraction-abstract',
+    hint: b > result ? ('Try counting up from ' + b + ' to ' + a + '.')
+                     : ('Start at ' + a + ' and count back ' + b + '.') });
 }
 
 function genCmp(diff) {
@@ -7769,7 +8123,11 @@ function genShp(diff) {
   if (Math.random() < 0.5) {
     var shape = pick(SHAPE_DATA);
     var wrong = shuffle(SHAPE_DATA.filter(function(s) { return s.name !== shape.name; })).slice(0, 3);
-    return { type: 'shape-identify', shape, options: shuffle([shape, ...wrong]), hint: 'Count the sides and corners!' };
+    // answer is carried explicitly as well as inside `shape`, so any
+    // generic consumer (review screen, spaced repetition, stats) can
+    // read q.answer without special-casing this question type.
+    return { type: 'shape-identify', shape, answer: shape.name,
+      options: shuffle([shape, ...wrong]), hint: 'Count the sides and corners!' };
   } else {
     var sh = pick(SHAPE_DATA);
     return { type: 'shape-properties', shape: sh, answer: sh.sides, hint: 'Trace around the shape and count each side.' };
@@ -7778,42 +8136,142 @@ function genShp(diff) {
 
 // ===================== P2 GENERATORS =====================
 
-function genAdd100(diff) {
+function genAdd100(diff, config) {
+  // Regrouping ("carrying") is the actual hurdle in 2-digit addition,
+  // so the drill screen lets her practise with it or without it.
+  var flag = config && config.flag;
   var a, b;
-  if (diff.isConcrete) {
-    a = rand(10, 50); b = rand(10, 50);
+
+  if (flag === 'noRegroup') {
+    // Guarantee ones digits sum to under 10 so no carry is needed.
+    var aOnes = rand(0, 8), bOnes = rand(0, 9 - aOnes);
+    var aTens = rand(1, 8), bTens = rand(1, 9 - aTens);
+    a = aTens * 10 + aOnes;
+    b = bTens * 10 + bOnes;
+  } else if (flag === 'regroup') {
+    // Force the ones digits to cross ten.
+    var aO = rand(2, 9), bO = rand(10 - aO, 9);
+    var aT = rand(1, 7), bT = rand(1, 8 - aT);
+    a = aT * 10 + aO;
+    b = bT * 10 + bO;
+  } else if (diff.isConcrete) {
+    a = rand(10, 50); b = rand(10, 49);
   } else if (diff.isPictorial) {
-    a = rand(20, 60); b = rand(20, 40);
+    a = rand(20, 60); b = rand(20, 39);
   } else {
-    a = rand(10, 89); b = rand(10, 99 - a);
+    a = rand(10, 89); b = rand(10, Math.max(10, 99 - a));
   }
-  return { type: 'addition-100', a, b, answer: a + b, isConcrete: diff.isConcrete, isPictorial: diff.isPictorial,
-    hint: 'Try adding the tens first, then the ones.' };
+  return { type: 'addition-100', a: a, b: b, answer: a + b,
+    subKey: (config && config.rangeKey) || 'mixed',
+    isConcrete: diff.isConcrete, isPictorial: diff.isPictorial,
+    hint: ((a % 10) + (b % 10) >= 10)
+      ? 'The ones add up past ten, so you will need to carry one ten over.'
+      : 'Try adding the tens first, then the ones.' };
 }
 
-function genSub100(diff) {
-  var a = rand(30, 99);
-  var b = rand(10, a - 1);
-  return { type: 'subtraction-100', a, b, answer: a - b, isConcrete: diff.isConcrete,
-    hint: 'Try subtracting the tens first, then the ones.' };
+function genSub100(diff, config) {
+  var flag = config && config.flag;
+  var a, b;
+
+  if (flag === 'noRegroup') {
+    // Every digit of b is <= the matching digit of a, so no borrowing.
+    var aT = rand(2, 9), aO = rand(1, 9);
+    a = aT * 10 + aO;
+    b = rand(1, aT - 1) * 10 + rand(0, aO);
+  } else if (flag === 'regroup') {
+    // Ones digit of b exceeds ones digit of a, forcing a borrow.
+    var at = rand(2, 9), ao = rand(0, 7);
+    a = at * 10 + ao;
+    b = rand(1, at - 1) * 10 + rand(ao + 1, 9);
+  } else {
+    a = rand(30, 99);
+    b = rand(10, a - 1);
+  }
+  return { type: 'subtraction-100', a: a, b: b, answer: a - b,
+    subKey: (config && config.rangeKey) || 'mixed',
+    isConcrete: diff.isConcrete,
+    hint: ((a % 10) < (b % 10))
+      ? 'The ones will not go, so break one ten open and borrow it.'
+      : 'Try subtracting the tens first, then the ones.' };
 }
 
-function genMul(diff) {
-  var tables = [2, 3, 4, 5, 10];
-  var table = pick(tables);
-  var n = rand(1, 10);
+function genMul(diff, config) {
+  // Honour an explicit table selection from the Drill screen. Without
+  // one, fall back to the tables a P2 child is expected to know.
+  var tables = (config && config.tables && config.tables.length)
+    ? config.tables
+    : [2, 3, 4, 5, 10];
+
+  // Bias selection toward the tables she is weakest at, so a mixed
+  // drill still spends its time where it is needed.
+  var table = _weightedPickSubSkill('mul', tables);
+  var n = rand(1, 12);
+
+  // Missing-factor variants build true fluency rather than recall of a
+  // chant. Only once she is past the concrete stage.
+  var variant = 'product';
+  if (!diff.isConcrete && Math.random() < 0.25) variant = 'missing-factor';
+
   var answer = table * n;
-  return { type: 'multiplication', table, n, answer, isConcrete: diff.isConcrete, isPictorial: diff.isPictorial,
-    hint: table + ' times ' + n + ' means ' + n + ' groups of ' + table + '.' };
+  if (variant === 'missing-factor') {
+    return {
+      type: 'multiplication', variant: 'missing-factor',
+      table: table, n: n, product: answer, answer: n,
+      subKey: String(table),
+      isConcrete: false, isPictorial: false,
+      hint: 'How many ' + table + 's make ' + answer + '? Count up in ' + table + 's.'
+    };
+  }
+
+  return {
+    type: 'multiplication', variant: 'product',
+    table: table, n: n, answer: answer,
+    subKey: String(table),
+    isConcrete: diff.isConcrete, isPictorial: diff.isPictorial,
+    hint: table + ' times ' + n + ' means ' + n + ' groups of ' + table + '.'
+  };
 }
 
-function genDiv(diff) {
-  var divisors = [2, 3, 4, 5];
-  var divisor = pick(divisors);
-  var quotient = rand(1, 10);
+/**
+ * Pick a sub-skill (times table, number band) with a bias toward the
+ * ones the learner is weakest at. Untried items get a middling weight
+ * so brand-new material still appears without dominating.
+ */
+function _weightedPickSubSkill(skillId, candidates) {
+  if (!candidates || candidates.length === 0) return null;
+  if (candidates.length === 1) return candidates[0];
+  if (typeof subSkillMastery !== 'function') return pick(candidates);
+
+  var weights = candidates.map(function(c) {
+    var m = subSkillMastery(skillId, c);
+    if (m === null) return 3;           // untried: moderate priority
+    if (m >= 85) return 1;              // mastered: keep it warm, no more
+    if (m >= 60) return 3;
+    if (m >= 35) return 5;
+    return 7;                            // weak: hammer it
+  });
+  var total = weights.reduce(function(a, b) { return a + b; }, 0);
+  var r = Math.random() * total;
+  for (var i = 0; i < candidates.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return candidates[i];
+  }
+  return candidates[candidates.length - 1];
+}
+
+function genDiv(diff, config) {
+  var divisors = (config && config.tables && config.tables.length)
+    ? config.tables
+    : [2, 3, 4, 5, 10];
+  var divisor = _weightedPickSubSkill('div', divisors);
+  var quotient = rand(1, 12);
   var dividend = divisor * quotient;
-  return { type: 'division', dividend, divisor, answer: quotient, isConcrete: diff.isConcrete,
-    hint: 'Share ' + dividend + ' equally into ' + divisor + ' groups. How many in each group?' };
+  return {
+    type: 'division', dividend: dividend, divisor: divisor, answer: quotient,
+    subKey: String(divisor),
+    isConcrete: diff.isConcrete,
+    hint: 'Share ' + dividend + ' equally into ' + divisor + ' groups. How many in each group?'
+  };
 }
 
 function genFrac1(diff) {
@@ -7829,7 +8287,8 @@ function genFrac1(diff) {
   }
 }
 
-function genMoney(diff) {
+function genMoney(diff, config) {
+  var flag = config && config.flag;
   var items = [
     { name: 'pencil', price: rand(1, 5) * 10 },
     { name: 'eraser', price: rand(1, 3) * 10 },
@@ -7838,36 +8297,73 @@ function genMoney(diff) {
     { name: 'sticker', price: rand(1, 4) * 10 + rand(0, 1) * 5 }
   ];
   var item = pick(items);
-  if (Math.random() < 0.5) {
+  var wantAdd = flag === 'add' ? true : (flag === 'change' ? false : Math.random() < 0.5);
+  if (wantAdd) {
     var item2 = pick(items.filter(function(i) { return i.name !== item.name; }));
     var total = item.price + item2.price;
     return { type: 'money-add', item1: item, item2: item2, answer: total,
+      subKey: (config && config.rangeKey) || 'mixed',
       hint: 'Add the two prices together. ' + item.price + ' + ' + item2.price + ' cents.' };
   } else {
     var paid = Math.ceil(item.price / 100) * 100;
     if (paid <= item.price) paid = item.price + rand(1, 5) * 10;
     var change = paid - item.price;
     return { type: 'money-change', item, paid, answer: change,
+      subKey: (config && config.rangeKey) || 'mixed',
       hint: 'How much change from ' + paid + ' cents after buying something for ' + item.price + ' cents?' };
   }
 }
 
-function genTime1(diff) {
+function genTime1(diff, config) {
   var hour = rand(1, 12);
   var minutes;
-  if (diff.level <= 1) {
-    minutes = pick([0, 30]);
-  } else {
-    minutes = pick([0, 15, 30, 45]);
-  }
+  var flag = config && config.flag;
+  if (flag === 'oclock')        minutes = 0;
+  else if (flag === 'half')     minutes = pick([0, 30]);
+  else if (flag === 'quarter')  minutes = pick([0, 15, 30, 45]);
+  else if (flag === 'fivemin')  minutes = pick([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]);
+  else if (diff.level <= 1)     minutes = pick([0, 30]);
+  else                          minutes = pick([0, 15, 30, 45]);
   var timeStr = hour + ':' + (minutes < 10 ? '0' : '') + minutes;
+  var subKey = (config && config.rangeKey) || 'mixed';
+
   if (Math.random() < 0.5) {
-    return { type: 'time-read', hour, minutes, answer: timeStr,
+    return { type: 'time-read', hour, minutes, answer: timeStr, subKey: subKey,
       hint: 'The short hand shows the hour, the long hand shows the minutes.' };
-  } else {
-    return { type: 'time-set', hour, minutes, answer: timeStr,
-      hint: 'Set the clock to show ' + timeStr + '.' };
   }
+
+  // "Which clock shows...?" — the mirror of reading a clock: she is
+  // given the time in words and picks the matching face.
+  //
+  // This replaces the old 'time-set' type, which was broken twice over:
+  // it rendered through renderTimeRead (asking "what time does the clock
+  // show?" while displaying the answer) and its hint printed the answer
+  // verbatim ("Set the clock to show 6:00").
+  var words = timeInWords(hour, minutes);
+  var faces = [{ hour: hour, minutes: minutes }];
+  var guard = 0;
+  while (faces.length < 4 && guard++ < 60) {
+    var fh = rand(1, 12);
+    var fm = pick(minutes === 0 ? [0, 30] : [0, 15, 30, 45]);
+    if (!faces.some(function(f) { return f.hour === fh && f.minutes === fm; })) {
+      faces.push({ hour: fh, minutes: fm });
+    }
+  }
+  return {
+    type: 'time-match', hour: hour, minutes: minutes,
+    words: words, answer: timeStr, faces: shuffle(faces), subKey: subKey,
+    hint: 'The short hand points to the hour. The long hand tells you how far past it.'
+  };
+}
+
+/** "half past 3", "3 o'clock", "quarter past 3", "quarter to 4". */
+function timeInWords(hour, minutes) {
+  if (minutes === 0)  return hour + " o'clock";
+  if (minutes === 30) return 'half past ' + hour;
+  if (minutes === 15) return 'quarter past ' + hour;
+  if (minutes === 45) return 'quarter to ' + (hour === 12 ? 1 : hour + 1);
+  if (minutes < 30)   return minutes + ' minutes past ' + hour;
+  return (60 - minutes) + ' minutes to ' + (hour === 12 ? 1 : hour + 1);
 }
 
 function genPGraph(diff) {
@@ -8043,9 +8539,14 @@ function genFactor(diff) {
     return { type: 'find-factors', number: n, answer: factors.join(','), factors,
       hint: 'Which numbers divide evenly into ' + n + '?' };
   } else {
+    // Avoid pairs where one divides the other: there the LCM is simply
+    // the larger number, which the hint would then hand over for free.
     var a = pick([2, 3, 4, 5, 6]);
     var b = pick([3, 4, 5, 6, 7, 8]);
-    while (a === b) b = pick([3, 4, 5, 6, 7, 8]);
+    var guardL = 0;
+    while ((a === b || b % a === 0 || a % b === 0) && guardL++ < 40) {
+      b = pick([3, 4, 5, 6, 7, 8]);
+    }
     return { type: 'find-lcm', a, b, answer: lcm(a, b),
       hint: 'List multiples of ' + a + ' and ' + b + '. Find the smallest number in both lists.' };
   }
@@ -8143,6 +8644,925 @@ function genMultiWP(diff) {
   return { type: 'multi-step-wp', text: gen.text, answer: gen.answer, hint: gen.hint };
 }
 
+// --- src/math/word-problems.js ---
+// ============================================================
+//  WORD PROBLEMS — Singapore-style story problem engine.
+//
+//  Before this file the whole app had SEVEN word problem templates
+//  (four in genWP1, three in genMultiWP). That is not enough to
+//  practise with; a child sees the same sentence within minutes.
+//
+//  This bank is organised by the problem STRUCTURES that Singapore
+//  Math teaches explicitly, because naming the structure is what
+//  lets a child recognise it again in an exam:
+//
+//    part-whole   two parts combine into a whole
+//    change       a quantity grows or shrinks over time
+//    comparison   how many more / fewer than
+//    groups       equal groups, arrays, sharing
+//    rate         cost per item, items per box
+//    before-after a state changes and we work backwards
+//
+//  Every template also emits BAR MODEL data so the child can be
+//  shown the model drawing that Singapore Math is built on.
+// ============================================================
+
+// ---- Personal context ---------------------------------------------------
+
+var WP_NAMES = ['Anastasia', 'Nas', 'Mei Ling', 'Arjun', 'Siti', 'Wei Jie', 'Priya', 'Daniel', 'Nadia', 'Ravi'];
+var WP_FAMILY = ['Mummy', 'Daddy', 'her grandmother', 'her cousin', 'her uncle', 'Nenek'];
+
+var WP_CONTEXTS = {
+  animals:  { items: [['kitten','🐱'],['puppy','🐶'],['rabbit','🐰'],['duckling','🦆'],['fish','🐟'],['butterfly','🦋'],['bird','🐦']], place: 'the pet shop' },
+  flowers:  { items: [['flower','🌸'],['sunflower','🌻'],['rose','🌹'],['tulip','🌷'],['seed','🌱'],['leaf','🍃']], place: 'the garden' },
+  food:     { items: [['cookie','🍪'],['apple','🍎'],['orange','🍊'],['banana','🍌'],['sweet','🍬'],['curry puff','🥟'],['kaya toast','🍞']], place: 'the hawker centre' },
+  school:   { items: [['pencil','✏️'],['crayon','🖍️'],['sticker','⭐'],['book','📚'],['eraser','🧽'],['ruler','📏']], place: 'the classroom' },
+  space:    { items: [['star','⭐'],['planet','🪐'],['rocket','🚀'],['moon rock','🌑'],['comet','☄️']], place: 'space camp' },
+  toys:     { items: [['marble','🔵'],['balloon','🎈'],['toy car','🚗'],['building block','🧱'],['doll','🪆']], place: 'the toy box' },
+  football: { items: [['goal','⚽'],['football card','🃏'],['medal','🏅'],['cone','🔺']], place: 'the field' }
+};
+
+function _wpCtx(theme) {
+  var keys = Object.keys(WP_CONTEXTS);
+  var key = (theme && theme !== 'mixed' && WP_CONTEXTS[theme]) ? theme : pick(keys);
+  var ctx = WP_CONTEXTS[key];
+  var item = pick(ctx.items);
+  return { key: key, noun: item[0], nounPlural: _wpPlural(item[0]), emoji: item[1], place: ctx.place };
+}
+function _wpPlural(n) {
+  if (/(s|x|ch|sh)$/.test(n)) return n + 'es';
+  if (/[^aeiou]y$/.test(n)) return n.slice(0, -1) + 'ies';
+  return n + 's';
+}
+function _wpName() { return pick(WP_NAMES); }
+
+// ---- Bar model data -----------------------------------------------------
+//
+//  { style: 'part-whole' | 'comparison', parts: [{label, value, unknown}],
+//    total: {label, value, unknown} }
+//  The renderer draws proportional bars from this.
+
+function _barPartWhole(parts, total) {
+  return { style: 'part-whole', parts: parts, total: total };
+}
+function _barComparison(bigger, smaller, difference) {
+  return { style: 'comparison', bigger: bigger, smaller: smaller, difference: difference };
+}
+
+// ---- Template bank ------------------------------------------------------
+//
+//  Each template is a function(max, ctx) returning a question object.
+//  `max` caps the largest number involved so a template can serve both
+//  a P1 "within 10" drill and a P3 "within 1000" drill.
+
+var WP_TEMPLATES = {
+
+  // ============ PART-WHOLE ============
+  'part-whole': [
+    function(max, ctx) {
+      var a = rand(2, Math.max(2, Math.floor(max * 0.6)));
+      var b = rand(1, Math.max(1, max - a));
+      var name = _wpName();
+      return {
+        text: name + ' has ' + a + ' red ' + ctx.nounPlural + ' and ' + b + ' blue ' + ctx.nounPlural +
+              '. How many ' + ctx.nounPlural + ' does ' + name + ' have altogether?',
+        answer: a + b,
+        working: a + ' + ' + b + ' = ' + (a + b),
+        hint: 'Two parts joining together. Add them.',
+        bar: _barPartWhole(
+          [{ label: 'red', value: a }, { label: 'blue', value: b }],
+          { label: 'total', value: a + b, unknown: true }
+        )
+      };
+    },
+    function(max, ctx) {
+      var total = rand(5, Math.max(5, max));
+      var a = rand(1, total - 1);
+      var name = _wpName();
+      return {
+        text: 'There are ' + total + ' ' + ctx.nounPlural + ' in ' + ctx.place + '. ' + a +
+              ' of them belong to ' + name + '. How many belong to somebody else?',
+        answer: total - a,
+        working: total + ' - ' + a + ' = ' + (total - a),
+        hint: 'You know the whole and one part. Take the part away from the whole.',
+        bar: _barPartWhole(
+          [{ label: name, value: a }, { label: 'others', value: total - a, unknown: true }],
+          { label: 'total', value: total }
+        )
+      };
+    },
+    function(max, ctx) {
+      var a = rand(2, Math.max(2, Math.floor(max * 0.4)));
+      var b = rand(1, Math.max(1, Math.floor(max * 0.3)));
+      var c = rand(1, Math.max(1, max - a - b));
+      var name = _wpName();
+      return {
+        text: name + ' picked ' + a + ' ' + ctx.nounPlural + ' on Monday, ' + b + ' on Tuesday and ' +
+              c + ' on Wednesday. How many did she pick in all?',
+        answer: a + b + c,
+        working: a + ' + ' + b + ' + ' + c + ' = ' + (a + b + c),
+        hint: 'Three parts making one whole. Add them all.',
+        bar: _barPartWhole(
+          [{ label: 'Mon', value: a }, { label: 'Tue', value: b }, { label: 'Wed', value: c }],
+          { label: 'total', value: a + b + c, unknown: true }
+        )
+      };
+    }
+  ],
+
+  // ============ CHANGE ============
+  'change': [
+    function(max, ctx) {
+      var a = rand(2, Math.max(2, Math.floor(max * 0.7)));
+      var b = rand(1, Math.max(1, max - a));
+      var name = _wpName();
+      return {
+        text: name + ' had ' + a + ' ' + ctx.nounPlural + '. ' + pick(WP_FAMILY) + ' gave her ' + b +
+              ' more. How many ' + ctx.nounPlural + ' does she have now?',
+        answer: a + b,
+        working: a + ' + ' + b + ' = ' + (a + b),
+        hint: 'She started with some and got more. That means add.',
+        bar: _barPartWhole(
+          [{ label: 'at first', value: a }, { label: 'more', value: b }],
+          { label: 'now', value: a + b, unknown: true }
+        )
+      };
+    },
+    function(max, ctx) {
+      var a = rand(3, Math.max(3, max));
+      var b = rand(1, a - 1);
+      var name = _wpName();
+      return {
+        text: name + ' had ' + a + ' ' + ctx.nounPlural + '. She gave ' + b +
+              ' to her friend. How many does she have left?',
+        answer: a - b,
+        working: a + ' - ' + b + ' = ' + (a - b),
+        hint: 'She started with some and gave some away. That means take away.',
+        bar: _barPartWhole(
+          [{ label: 'gave away', value: b }, { label: 'left', value: a - b, unknown: true }],
+          { label: 'at first', value: a }
+        )
+      };
+    },
+    function(max, ctx) {
+      var start = rand(3, Math.max(3, Math.floor(max * 0.8)));
+      var lost = rand(1, Math.min(start - 1, 4));
+      var found = rand(1, Math.max(1, max - start + lost));
+      var name = _wpName();
+      return {
+        text: name + ' had ' + start + ' ' + ctx.nounPlural + '. She lost ' + lost +
+              ' and then found ' + found + ' more. How many does she have now?',
+        answer: start - lost + found,
+        working: start + ' - ' + lost + ' + ' + found + ' = ' + (start - lost + found),
+        hint: 'Two changes. Do them one at a time, in order.',
+        steps: 2
+      };
+    }
+  ],
+
+  // ============ COMPARISON ============
+  'comparison': [
+    function(max, ctx) {
+      var big = rand(4, Math.max(4, max));
+      var small = rand(1, big - 1);
+      var n1 = _wpName(), n2 = _wpName();
+      if (n2 === n1) n2 = 'her friend';
+      return {
+        text: n1 + ' has ' + big + ' ' + ctx.nounPlural + '. ' + n2 + ' has ' + small +
+              '. How many more ' + ctx.nounPlural + ' does ' + n1 + ' have than ' + n2 + '?',
+        answer: big - small,
+        working: big + ' - ' + small + ' = ' + (big - small),
+        hint: '"How many more" means find the difference. Subtract.',
+        bar: _barComparison(
+          { label: n1, value: big },
+          { label: n2, value: small },
+          { label: 'difference', value: big - small, unknown: true }
+        )
+      };
+    },
+    function(max, ctx) {
+      var small = rand(2, Math.max(2, Math.floor(max * 0.6)));
+      var diff = rand(1, Math.max(1, max - small));
+      var n1 = _wpName(), n2 = _wpName();
+      if (n2 === n1) n2 = 'her cousin';
+      return {
+        text: n1 + ' has ' + small + ' ' + ctx.nounPlural + '. ' + n2 + ' has ' + diff +
+              ' more than ' + n1 + '. How many does ' + n2 + ' have?',
+        answer: small + diff,
+        working: small + ' + ' + diff + ' = ' + (small + diff),
+        hint: '"More than" here means you add to find the bigger amount.',
+        bar: _barComparison(
+          { label: n2, value: small + diff, unknown: true },
+          { label: n1, value: small },
+          { label: 'more', value: diff }
+        )
+      };
+    },
+    function(max, ctx) {
+      var big = rand(4, Math.max(4, max));
+      var diff = rand(1, big - 1);
+      var n1 = _wpName(), n2 = _wpName();
+      if (n2 === n1) n2 = 'her brother';
+      return {
+        text: n1 + ' has ' + big + ' ' + ctx.nounPlural + '. ' + n2 + ' has ' + diff +
+              ' fewer than ' + n1 + '. How many does ' + n2 + ' have?',
+        answer: big - diff,
+        working: big + ' - ' + diff + ' = ' + (big - diff),
+        hint: '"Fewer than" means the other person has less. Subtract.',
+        bar: _barComparison(
+          { label: n1, value: big },
+          { label: n2, value: big - diff, unknown: true },
+          { label: 'fewer', value: diff }
+        )
+      };
+    }
+  ],
+
+  // ============ GROUPS (multiplication / division) ============
+  'groups': [
+    function(max, ctx, cfg) {
+      var table = _wpTable(cfg);
+      var n = rand(2, 10);
+      return {
+        text: 'There are ' + n + ' ' + (n === 1 ? 'box' : 'boxes') + '. Each box has ' + table + ' ' +
+              ctx.nounPlural + ' inside. How many ' + ctx.nounPlural + ' are there altogether?',
+        answer: table * n,
+        working: n + ' × ' + table + ' = ' + (table * n),
+        hint: n + ' groups of ' + table + '. That is multiplication.',
+        subKey: String(table),
+        bar: _barPartWhole(
+          Array.from({ length: Math.min(n, 6) }, function() { return { label: String(table), value: table }; }),
+          { label: 'total', value: table * n, unknown: true }
+        )
+      };
+    },
+    function(max, ctx, cfg) {
+      var divisor = _wpTable(cfg);
+      var quotient = rand(2, 10);
+      var total = divisor * quotient;
+      var name = _wpName();
+      return {
+        text: name + ' shares ' + total + ' ' + ctx.nounPlural + ' equally among ' + divisor +
+              ' friends. How many does each friend get?',
+        answer: quotient,
+        working: total + ' ÷ ' + divisor + ' = ' + quotient,
+        hint: 'Sharing equally means divide.',
+        subKey: String(divisor)
+      };
+    },
+    function(max, ctx, cfg) {
+      var perRow = _wpTable(cfg);
+      var rows = rand(2, 9);
+      return {
+        text: ctx.nounPlural.charAt(0).toUpperCase() + ctx.nounPlural.slice(1) + ' are planted in ' + rows +
+              ' rows. Each row has ' + perRow + '. How many ' + ctx.nounPlural + ' are there in total?',
+        answer: perRow * rows,
+        working: rows + ' × ' + perRow + ' = ' + (perRow * rows),
+        hint: 'An array. Rows times how many in each row.',
+        subKey: String(perRow)
+      };
+    }
+  ],
+
+  // ============ RATE ============
+  'rate': [
+    function(max, ctx, cfg) {
+      var price = _wpTable(cfg);
+      var qty = rand(2, 9);
+      return {
+        text: 'One ' + ctx.noun + ' costs $' + price + '. How much do ' + qty + ' ' + ctx.nounPlural + ' cost?',
+        answer: price * qty,
+        working: qty + ' × $' + price + ' = $' + (price * qty),
+        hint: 'Cost of one, times how many. Multiply.',
+        subKey: String(price)
+      };
+    },
+    function(max, ctx, cfg) {
+      var perPack = _wpTable(cfg);
+      var packs = rand(2, 8);
+      return {
+        text: 'Each packet holds ' + perPack + ' ' + ctx.nounPlural + '. ' + _wpName() + ' buys ' + packs +
+              ' packets. How many ' + ctx.nounPlural + ' does she have?',
+        answer: perPack * packs,
+        working: packs + ' × ' + perPack + ' = ' + (perPack * packs),
+        hint: 'How many in one packet, times the number of packets.',
+        subKey: String(perPack)
+      };
+    }
+  ],
+
+  // ============ BEFORE-AFTER (two-step) ============
+  'before-after': [
+    function(max, ctx) {
+      var price = rand(2, 12);
+      var qty = rand(2, 5);
+      var cost = price * qty;
+      var paid = cost + rand(1, 20);
+      return {
+        text: _wpName() + ' buys ' + qty + ' ' + ctx.nounPlural + ' at $' + price +
+              ' each. She pays with $' + paid + '. How much change does she get?',
+        answer: paid - cost,
+        working: qty + ' × $' + price + ' = $' + cost + ', then $' + paid + ' - $' + cost + ' = $' + (paid - cost),
+        hint: 'First find the total cost. Then take that from what she paid.',
+        steps: 2
+      };
+    },
+    function(max, ctx) {
+      var start = rand(20, 60);
+      var sold = rand(5, start - 5);
+      var got = rand(5, 30);
+      return {
+        text: ctx.place.charAt(0).toUpperCase() + ctx.place.slice(1) + ' had ' + start + ' ' + ctx.nounPlural +
+              '. ' + sold + ' were sold in the morning and ' + got + ' more arrived in the afternoon. How many are there now?',
+        answer: start - sold + got,
+        working: start + ' - ' + sold + ' = ' + (start - sold) + ', then + ' + got + ' = ' + (start - sold + got),
+        hint: 'Work through the day in order. Take away, then add.',
+        steps: 2
+      };
+    },
+    function(max, ctx) {
+      var each = rand(3, 12);
+      var people = rand(2, 6);
+      var extra = rand(1, 5) * people;
+      return {
+        text: people + ' children each have ' + each + ' ' + ctx.nounPlural + '. They are given ' + extra +
+              ' more to share equally. How many does each child have now?',
+        answer: each + extra / people,
+        working: extra + ' ÷ ' + people + ' = ' + (extra / people) + ', then ' + each + ' + ' + (extra / people) + ' = ' + (each + extra / people),
+        hint: 'First share the extra out. Then add it to what each child already had.',
+        steps: 2
+      };
+    }
+  ]
+};
+
+function _wpTable(cfg) {
+  if (cfg && cfg.tables && cfg.tables.length) {
+    if (typeof _weightedPickSubSkill === 'function') {
+      return _weightedPickSubSkill('mul', cfg.tables);
+    }
+    return pick(cfg.tables);
+  }
+  return pick([2, 3, 4, 5, 10]);
+}
+
+// ---- Which structures suit which skill ---------------------------------
+
+var WP_SKILL_STRUCTURES = {
+  add:     ['part-whole', 'change'],
+  sub:     ['change', 'comparison', 'part-whole'],
+  add100:  ['part-whole', 'change'],
+  sub100:  ['change', 'comparison'],
+  wp1:     ['part-whole', 'change', 'comparison'],
+  mul:     ['groups', 'rate'],
+  div:     ['groups'],
+  money:   ['rate', 'before-after'],
+  multiwp: ['before-after'],
+  multiop: ['before-after', 'rate']
+};
+
+/** Ceiling for the numbers used, derived from the drill config. */
+function _wpMax(skillId, config, diff) {
+  if (config && config.numberRange) return config.numberRange[1];
+  if (diff && diff.numberRange) return diff.numberRange[1];
+  return 20;
+}
+
+/**
+ * Main entry. Returns a word-problem question object, or null if this
+ * skill has no word-problem structures defined.
+ *
+ * If AI is switched on and a pre-fetched question is waiting, that is
+ * used instead — but only if it is already in the queue. We never make
+ * a child wait for the network.
+ */
+function generateWordProblemFor(skillId, config, diff) {
+  // 1. Try a warm AI question first (instant, already downloaded).
+  if (config && config.useAI && typeof aiTakeQuestion === 'function') {
+    var aiQ = aiTakeQuestion(skillId, config);
+    if (aiQ) return aiQ;
+  }
+
+  // 2. Fall back to the local bank — always available, always instant.
+  var structures = WP_SKILL_STRUCTURES[skillId];
+  if (!structures || structures.length === 0) return null;
+
+  var wanted = (config && config.structure && config.structure !== 'mixed')
+    ? config.structure
+    : pick(structures);
+  if (!WP_TEMPLATES[wanted]) wanted = pick(structures);
+
+  var templates = WP_TEMPLATES[wanted];
+  if (!templates || templates.length === 0) return null;
+
+  var max = _wpMax(skillId, config, diff);
+  var ctx = _wpCtx(config && config.theme);
+  var built = pick(templates)(max, ctx, config);
+
+  return {
+    type: 'word-problem',
+    text: built.text,
+    answer: built.answer,
+    hint: built.hint,
+    working: built.working,
+    structure: wanted,
+    emoji: ctx.emoji,
+    bar: built.bar || null,
+    steps: built.steps || 1,
+    subKey: built.subKey || (config && config.rangeKey) || null
+  };
+}
+
+window.generateWordProblemFor = generateWordProblemFor;
+window.WP_TEMPLATES = WP_TEMPLATES;
+window.WP_SKILL_STRUCTURES = WP_SKILL_STRUCTURES;
+
+// --- src/math/math-drill.js ---
+// ============================================================
+//  MATH DRILL — Targeted practice configuration.
+//
+//  The gap this closes: before this, tapping a skill gave you 8
+//  random questions and no say in the matter. You could not drill
+//  "just the 7 times table", could not choose how many questions,
+//  could not ask for word problems only.
+//
+//  Now every math skill can open a Drill Setup screen first.
+//  What you can choose is declared per-skill in DRILL_OPTIONS.
+// ============================================================
+
+// ---- Sub-skill mastery --------------------------------------------------
+//  Tracks performance at a finer grain than the skill. For 'mul' the
+//  sub-key is the times table ("7"); for 'add' it is the number band
+//  ("1-10"). This is what makes "your weakest table is 8" possible.
+
+function getSubSkills(skillId) {
+  var s = getSkillState(skillId);
+  if (!s.sub) s.sub = {};
+  return s.sub;
+}
+
+function getSubSkill(skillId, subKey) {
+  var sub = getSubSkills(skillId);
+  var k = String(subKey);
+  if (!sub[k]) {
+    sub[k] = { attempts: 0, correct: 0, streak: 0, bestStreak: 0, lastSeen: 0, totalMs: 0 };
+  }
+  return sub[k];
+}
+
+function recordSubSkill(skillId, subKey, correct, elapsedMs) {
+  if (subKey === undefined || subKey === null || subKey === '') return;
+  var ss = getSubSkill(skillId, subKey);
+  ss.attempts++;
+  if (correct) {
+    ss.correct++;
+    ss.streak++;
+    if (ss.streak > ss.bestStreak) ss.bestStreak = ss.streak;
+  } else {
+    ss.streak = 0;
+  }
+  ss.lastSeen = Date.now();
+  if (elapsedMs && elapsedMs > 0 && elapsedMs < 60000) ss.totalMs += elapsedMs;
+  saveState();
+}
+
+/** 0-100. Unattempted returns null so the UI can show "not tried yet". */
+function subSkillMastery(skillId, subKey) {
+  var ss = getSubSkills(skillId)[String(subKey)];
+  if (!ss || ss.attempts === 0) return null;
+  var acc = ss.correct / ss.attempts;
+  // Confidence grows with attempts so 1/1 isn't "mastered".
+  var confidence = Math.min(1, ss.attempts / 8);
+  var speedBonus = 0;
+  if (ss.correct > 0 && ss.totalMs > 0) {
+    var avgMs = ss.totalMs / ss.correct;
+    if (avgMs < 4000) speedBonus = 10;
+    else if (avgMs < 7000) speedBonus = 5;
+  }
+  return Math.min(100, Math.round(acc * 85 * confidence + (ss.bestStreak >= 5 ? 10 : 0) + speedBonus));
+}
+
+/** Ordered weakest-first. Untried tables count as weak (they need attention). */
+function weakestSubSkills(skillId, candidates, n) {
+  var scored = candidates.map(function(c) {
+    var m = subSkillMastery(skillId, c);
+    return { key: c, mastery: m === null ? -1 : m };
+  });
+  scored.sort(function(a, b) {
+    // Untried (-1) sits just above genuinely weak, so we revisit known
+    // weaknesses before exploring brand new ground.
+    var am = a.mastery === -1 ? 35 : a.mastery;
+    var bm = b.mastery === -1 ? 35 : b.mastery;
+    return am - bm;
+  });
+  return scored.slice(0, n || 3).map(function(s) { return s.key; });
+}
+
+// ---- What each skill lets you configure --------------------------------
+
+var DRILL_OPTIONS = {
+  count: {
+    title: 'Counting & Numbers',
+    icon: '🔟',
+    ranges: [
+      { key: 'to-10',   label: 'Up to 10',   range: [1, 10] },
+      { key: 'to-20',   label: 'Up to 20',   range: [1, 20] },
+      { key: 'to-50',   label: 'Up to 50',   range: [1, 50] },
+      { key: 'to-100',  label: 'Up to 100',  range: [1, 100] },
+      { key: 'words',   label: 'Numbers in words', range: [1, 100], flag: 'words' },
+      { key: 'ordinal', label: 'First, second, third…', range: [1, 10], flag: 'ordinal' }
+    ],
+    modes: ['practice', 'speed'],
+    counts: [5, 10, 20],
+    blurb: 'Count to ten, then twenty, then all the way to a hundred.'
+  },
+  mul: {
+    title: 'Times Tables',
+    icon: '✖️',
+    tables: { label: 'Which times tables?', values: [1,2,3,4,5,6,7,8,9,10,11,12], subLabel: function(t){ return t + '×'; } },
+    modes: ['practice', 'speed', 'word'],
+    counts: [5, 10, 20],
+    blurb: 'Pick the tables you want to practise. Tap a few, or let me choose your trickiest.'
+  },
+  div: {
+    title: 'Division',
+    icon: '➗',
+    tables: { label: 'Divide by which number?', values: [2,3,4,5,6,7,8,9,10], subLabel: function(t){ return '÷' + t; } },
+    modes: ['practice', 'speed', 'word'],
+    counts: [5, 10, 20],
+    blurb: 'Choose which numbers to divide by.'
+  },
+  add: {
+    title: 'Addition',
+    icon: '➕',
+    ranges: [
+      { key: '1-5',   label: 'Up to 5',   range: [1, 5] },
+      { key: '1-10',  label: 'Up to 10',  range: [1, 10] },
+      { key: '1-20',  label: 'Up to 20',  range: [1, 20] },
+      { key: '1-100', label: 'Up to 100', range: [1, 100] }
+    ],
+    modes: ['practice', 'speed', 'word'],
+    counts: [5, 10, 20],
+    blurb: 'How big should the numbers be?'
+  },
+  sub: {
+    title: 'Subtraction',
+    icon: '➖',
+    ranges: [
+      { key: '1-5',   label: 'Up to 5',   range: [1, 5] },
+      { key: '1-10',  label: 'Up to 10',  range: [1, 10] },
+      { key: '1-20',  label: 'Up to 20',  range: [1, 20] },
+      { key: '1-100', label: 'Up to 100', range: [1, 100] }
+    ],
+    modes: ['practice', 'speed', 'word'],
+    counts: [5, 10, 20],
+    blurb: 'How big should the numbers be?'
+  },
+  add100: {
+    title: 'Addition to 100', icon: '➕',
+    ranges: [
+      { key: 'no-regroup', label: 'Easy (no carrying)', range: [1, 99], flag: 'noRegroup' },
+      { key: 'regroup',    label: 'With carrying',      range: [1, 99], flag: 'regroup' },
+      { key: 'mixed',      label: 'Mixed',              range: [1, 99] }
+    ],
+    modes: ['practice', 'speed', 'word'], counts: [5, 10, 20],
+    blurb: 'Carrying is the tricky bit. Practise it on its own.'
+  },
+  sub100: {
+    title: 'Subtraction to 100', icon: '➖',
+    ranges: [
+      { key: 'no-regroup', label: 'Easy (no borrowing)', range: [1, 99], flag: 'noRegroup' },
+      { key: 'regroup',    label: 'With borrowing',      range: [1, 99], flag: 'regroup' },
+      { key: 'mixed',      label: 'Mixed',               range: [1, 99] }
+    ],
+    modes: ['practice', 'speed', 'word'], counts: [5, 10, 20],
+    blurb: 'Borrowing is the tricky bit. Practise it on its own.'
+  },
+  nbond: {
+    title: 'Number Bonds', icon: '🔗',
+    ranges: [
+      { key: 'to-5',  label: 'Bonds to 5',  range: [1, 5] },
+      { key: 'to-10', label: 'Bonds to 10', range: [1, 10] },
+      { key: 'to-20', label: 'Bonds to 20', range: [1, 20] }
+    ],
+    modes: ['practice', 'speed'], counts: [5, 10, 20],
+    blurb: 'Bonds to 10 are the foundation of everything. Get these automatic.'
+  },
+  time1: {
+    title: 'Telling Time', icon: '🕐',
+    ranges: [
+      { key: 'oclock',   label: "O'clock only",     range: [0, 0],  flag: 'oclock' },
+      { key: 'half',     label: "O'clock + half past", range: [0, 30], flag: 'half' },
+      { key: 'quarter',  label: 'Add quarter past/to', range: [0, 45], flag: 'quarter' },
+      { key: 'fivemin',  label: 'Five minute steps',   range: [0, 55], flag: 'fivemin' }
+    ],
+    modes: ['practice'], counts: [5, 10],
+    blurb: 'Start with o\'clock. Add half past when that feels easy.'
+  },
+  money: {
+    title: 'Money', icon: '💰',
+    ranges: [
+      { key: 'coins',  label: 'Counting coins',  range: [1, 100], flag: 'coins' },
+      { key: 'add',    label: 'Adding money',    range: [1, 20],  flag: 'add' },
+      { key: 'change', label: 'Giving change',   range: [1, 20],  flag: 'change' }
+    ],
+    modes: ['practice', 'word'], counts: [5, 10],
+    blurb: 'Singapore dollars and cents.'
+  },
+  wp1: {
+    title: 'Story Problems', icon: '📝',
+    structures: [
+      { key: 'part-whole', label: 'Part & Whole', hint: 'Two parts make a whole' },
+      { key: 'change',     label: 'Change',       hint: 'Something is added or taken away' },
+      { key: 'comparison', label: 'Compare',      hint: 'How many more or fewer' },
+      { key: 'mixed',      label: 'Mixed',        hint: 'A bit of everything' }
+    ],
+    modes: ['word'], counts: [5, 10],
+    blurb: 'Word problems in the Singapore style. Draw a bar model if it helps!'
+  },
+  multiwp: {
+    title: 'Two-Step Problems', icon: '🧩',
+    structures: [
+      { key: 'mixed', label: 'Mixed', hint: 'Two steps, any operation' }
+    ],
+    modes: ['word'], counts: [5, 10],
+    blurb: 'Two steps. Find the hidden middle number first.'
+  }
+};
+
+var DRILL_MODE_META = {
+  practice: { label: 'Practice',   icon: '🎯', desc: 'Take your time. Hints available.' },
+  speed:    { label: 'Speed Drill',icon: '⚡', desc: 'Beat the clock. Builds fluency.' },
+  word:     { label: 'Story Problems', icon: '📖', desc: 'Real-life word problems.' }
+};
+
+function skillHasDrill(skillId) {
+  return !!DRILL_OPTIONS[skillId];
+}
+
+// ---- Saved config -------------------------------------------------------
+
+function getDrillConfig(skillId) {
+  if (!state.drillConfigs) state.drillConfigs = {};
+  if (!state.drillConfigs[skillId]) {
+    var opt = DRILL_OPTIONS[skillId] || {};
+    state.drillConfigs[skillId] = {
+      tables: opt.tables ? opt.tables.values.slice() : null,
+      rangeKey: opt.ranges ? opt.ranges[Math.min(1, opt.ranges.length - 1)].key : null,
+      structure: opt.structures ? 'mixed' : null,
+      mode: (opt.modes && opt.modes[0]) || 'practice',
+      count: 10,
+      theme: 'mixed',
+      useAI: false
+    };
+  }
+  return state.drillConfigs[skillId];
+}
+
+function setDrillConfig(skillId, patch) {
+  var cfg = getDrillConfig(skillId);
+  Object.keys(patch).forEach(function(k) { cfg[k] = patch[k]; });
+  saveState();
+  return cfg;
+}
+
+/** Turn the saved UI config into the shape the generators consume. */
+function resolveDrillConfig(skillId) {
+  var opt = DRILL_OPTIONS[skillId] || {};
+  var cfg = getDrillConfig(skillId);
+  var resolved = {
+    mode: cfg.mode,
+    count: cfg.count,
+    theme: cfg.theme,
+    useAI: cfg.useAI && typeof aiEnabled === 'function' && aiEnabled()
+  };
+  if (opt.tables) {
+    resolved.tables = (cfg.tables && cfg.tables.length) ? cfg.tables.slice() : opt.tables.values.slice();
+  }
+  if (opt.ranges) {
+    var r = opt.ranges.find(function(x) { return x.key === cfg.rangeKey; }) || opt.ranges[0];
+    resolved.numberRange = r.range.slice();
+    resolved.rangeKey = r.key;
+    if (r.flag) resolved.flag = r.flag;
+  }
+  if (opt.structures) {
+    resolved.structure = cfg.structure || 'mixed';
+  }
+  return resolved;
+}
+
+// ---- Drill setup screen -------------------------------------------------
+
+function openDrillSetup(skillId, worldType) {
+  window._drillSkillId = skillId;
+  window._drillWorldType = worldType || 'math';
+  showScreen('drill-setup');
+  renderDrillSetup();
+}
+
+function renderDrillSetup() {
+  var skillId = window._drillSkillId;
+  var container = document.getElementById('drill-setup-content');
+  if (!container || !skillId) return;
+  var opt = DRILL_OPTIONS[skillId];
+  if (!opt) { startGame(skillId, window._drillWorldType); return; }
+  var cfg = getDrillConfig(skillId);
+
+  var html = '';
+  html += '<button class="back-btn" onclick="showScreen(\'math-world\')">← Back</button>';
+  html += '<div class="drill-head">';
+  html += '<div class="drill-head-icon">' + opt.icon + '</div>';
+  html += '<h2 class="drill-title">' + opt.title + '</h2>';
+  html += '<p class="drill-blurb">' + opt.blurb + '</p>';
+  html += '</div>';
+
+  // --- Times tables / divisor picker ---
+  if (opt.tables) {
+    var selected = cfg.tables || [];
+    html += '<div class="drill-section">';
+    html += '<div class="drill-section-title">' + opt.tables.label + '</div>';
+    html += '<div class="drill-quickrow">';
+    html += '<button class="drill-quick" onclick="drillSelectAll()">All</button>';
+    html += '<button class="drill-quick drill-quick-weak" onclick="drillSelectWeakest()">⚠️ My trickiest 3</button>';
+    html += '<button class="drill-quick" onclick="drillSelectNone()">Clear</button>';
+    html += '</div>';
+    html += '<div class="drill-tables">';
+    opt.tables.values.forEach(function(t) {
+      var m = subSkillMastery(skillId, t);
+      var isOn = selected.indexOf(t) !== -1;
+      var cls = 'drill-table' + (isOn ? ' on' : '');
+      if (m !== null) {
+        if (m >= 80) cls += ' mastered';
+        else if (m >= 50) cls += ' learning';
+        else cls += ' weak';
+      }
+      html += '<button class="' + cls + '" onclick="drillToggleTable(' + t + ')">';
+      html += '<span class="drill-table-num">' + opt.tables.subLabel(t) + '</span>';
+      html += '<span class="drill-table-bar"><span class="drill-table-fill" style="width:' + (m === null ? 0 : m) + '%"></span></span>';
+      html += '<span class="drill-table-pct">' + (m === null ? 'new' : m + '%') + '</span>';
+      html += '</button>';
+    });
+    html += '</div>';
+    html += '<div class="drill-legend"><span class="dl weak"></span>Needs work <span class="dl learning"></span>Getting there <span class="dl mastered"></span>Mastered</div>';
+    html += '</div>';
+  }
+
+  // --- Number range / variant picker ---
+  if (opt.ranges) {
+    html += '<div class="drill-section">';
+    html += '<div class="drill-section-title">How hard?</div>';
+    html += '<div class="drill-chiprow">';
+    opt.ranges.forEach(function(r) {
+      var on = cfg.rangeKey === r.key;
+      var m = subSkillMastery(skillId, r.key);
+      html += '<button class="drill-chip' + (on ? ' on' : '') + '" onclick="drillSetRange(\'' + r.key + '\')">' +
+        r.label + (m !== null ? ' <span class="drill-chip-pct">' + m + '%</span>' : '') + '</button>';
+    });
+    html += '</div></div>';
+  }
+
+  // --- Word problem structure picker ---
+  if (opt.structures) {
+    html += '<div class="drill-section">';
+    html += '<div class="drill-section-title">What kind of story?</div>';
+    html += '<div class="drill-chiprow">';
+    opt.structures.forEach(function(s) {
+      var on = cfg.structure === s.key;
+      html += '<button class="drill-chip' + (on ? ' on' : '') + '" onclick="drillSetStructure(\'' + s.key + '\')" title="' + s.hint + '">' + s.label + '</button>';
+    });
+    html += '</div></div>';
+  }
+
+  // --- Mode picker ---
+  if (opt.modes && opt.modes.length > 1) {
+    html += '<div class="drill-section">';
+    html += '<div class="drill-section-title">How do you want to practise?</div>';
+    html += '<div class="drill-modes">';
+    opt.modes.forEach(function(m) {
+      var meta = DRILL_MODE_META[m];
+      var on = cfg.mode === m;
+      html += '<button class="drill-mode' + (on ? ' on' : '') + '" onclick="drillSetMode(\'' + m + '\')">';
+      html += '<div class="drill-mode-icon">' + meta.icon + '</div>';
+      html += '<div class="drill-mode-label">' + meta.label + '</div>';
+      html += '<div class="drill-mode-desc">' + meta.desc + '</div>';
+      html += '</button>';
+    });
+    html += '</div></div>';
+  }
+
+  // --- Question count ---
+  html += '<div class="drill-section">';
+  html += '<div class="drill-section-title">How many questions?</div>';
+  html += '<div class="drill-chiprow">';
+  (opt.counts || [5, 10, 20]).forEach(function(c) {
+    html += '<button class="drill-chip' + (cfg.count === c ? ' on' : '') + '" onclick="drillSetCount(' + c + ')">' + c + '</button>';
+  });
+  html += '</div></div>';
+
+  // --- AI toggle (only if a key is set) ---
+  if (typeof aiEnabled === 'function' && aiEnabled()) {
+    html += '<div class="drill-section drill-ai">';
+    html += '<label class="drill-ai-row">';
+    html += '<input type="checkbox" ' + (cfg.useAI ? 'checked' : '') + ' onchange="drillToggleAI(this.checked)">';
+    html += '<span><strong>✨ Fresh AI story problems</strong><br><span class="drill-ai-sub">Brand new problems written just for you. Needs internet.</span></span>';
+    html += '</label>';
+    if (cfg.useAI) {
+      html += '<div class="drill-themes">';
+      ['mixed', 'animals', 'space', 'football', 'baking', 'flowers', 'Singapore hawker centre'].forEach(function(t) {
+        html += '<button class="drill-chip small' + (cfg.theme === t ? ' on' : '') + '" onclick="drillSetTheme(\'' + t + '\')">' + t + '</button>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+
+  // --- Start ---
+  html += '<button class="drill-start" onclick="drillStart()">Start ' + (DRILL_MODE_META[cfg.mode] || {}).label + ' →</button>';
+
+  container.innerHTML = html;
+}
+
+// ---- Setup screen handlers ---------------------------------------------
+
+function drillToggleTable(t) {
+  var skillId = window._drillSkillId;
+  var cfg = getDrillConfig(skillId);
+  if (!cfg.tables) cfg.tables = [];
+  var i = cfg.tables.indexOf(t);
+  if (i === -1) cfg.tables.push(t); else cfg.tables.splice(i, 1);
+  cfg.tables.sort(function(a, b) { return a - b; });
+  saveState();
+  renderDrillSetup();
+  if (typeof playSound === 'function') playSound('click');
+}
+function drillSelectAll() {
+  var skillId = window._drillSkillId;
+  setDrillConfig(skillId, { tables: DRILL_OPTIONS[skillId].tables.values.slice() });
+  renderDrillSetup();
+}
+function drillSelectNone() {
+  setDrillConfig(window._drillSkillId, { tables: [] });
+  renderDrillSetup();
+}
+function drillSelectWeakest() {
+  var skillId = window._drillSkillId;
+  var vals = DRILL_OPTIONS[skillId].tables.values;
+  var weak = weakestSubSkills(skillId, vals, 3);
+  setDrillConfig(skillId, { tables: weak });
+  renderDrillSetup();
+  if (typeof lumiSay === 'function') {
+    lumiSay('Picked your trickiest: ' + weak.join(', ') + '. Let\'s make them easy!');
+  }
+}
+function drillSetRange(k)     { setDrillConfig(window._drillSkillId, { rangeKey: k });  renderDrillSetup(); }
+function drillSetStructure(k) { setDrillConfig(window._drillSkillId, { structure: k }); renderDrillSetup(); }
+function drillSetMode(m)      { setDrillConfig(window._drillSkillId, { mode: m });      renderDrillSetup(); }
+function drillSetCount(c)     { setDrillConfig(window._drillSkillId, { count: c });     renderDrillSetup(); }
+function drillSetTheme(t)     { setDrillConfig(window._drillSkillId, { theme: t });     renderDrillSetup(); }
+function drillToggleAI(on) {
+  var skillId = window._drillSkillId;
+  setDrillConfig(skillId, { useAI: !!on });
+  renderDrillSetup();
+  if (on && typeof aiPrefetch === 'function') {
+    // Warm the queue while she is still choosing, so question 1 is instant.
+    aiPrefetch(skillId, resolveDrillConfig(skillId));
+  }
+}
+
+function drillStart() {
+  var skillId = window._drillSkillId;
+  var opt = DRILL_OPTIONS[skillId];
+  var cfg = getDrillConfig(skillId);
+  if (opt.tables && (!cfg.tables || cfg.tables.length === 0)) {
+    if (typeof lumiSay === 'function') lumiSay('Pick at least one to practise!');
+    return;
+  }
+  var resolved = resolveDrillConfig(skillId);
+  startGame(skillId, window._drillWorldType || 'math', resolved);
+}
+
+window.getSubSkill = getSubSkill;
+window.recordSubSkill = recordSubSkill;
+window.subSkillMastery = subSkillMastery;
+window.weakestSubSkills = weakestSubSkills;
+window.skillHasDrill = skillHasDrill;
+window.getDrillConfig = getDrillConfig;
+window.resolveDrillConfig = resolveDrillConfig;
+window.openDrillSetup = openDrillSetup;
+window.renderDrillSetup = renderDrillSetup;
+window.drillToggleTable = drillToggleTable;
+window.drillSelectAll = drillSelectAll;
+window.drillSelectNone = drillSelectNone;
+window.drillSelectWeakest = drillSelectWeakest;
+window.drillSetRange = drillSetRange;
+window.drillSetStructure = drillSetStructure;
+window.drillSetMode = drillSetMode;
+window.drillSetCount = drillSetCount;
+window.drillSetTheme = drillSetTheme;
+window.drillToggleAI = drillToggleAI;
+window.drillStart = drillStart;
+window.DRILL_OPTIONS = DRILL_OPTIONS;
+
 // --- src/math/math-render.js ---
 // ============================================================
 //  MATH RENDER — Interactive renderers for all math question types
@@ -8152,6 +9572,9 @@ function genMultiWP(diff) {
 function renderMathQuestion(card, q) {
   switch (q.type) {
     case 'ten-frame-count':     renderTenFrameCount(card, q); return true;
+    case 'place-value-count':   renderPlaceValueCount(card, q); return true;
+    case 'number-word':         renderNumberWord(card, q); return true;
+    case 'ordinal-position':    renderOrdinalPosition(card, q); return true;
     case 'number-bond':         renderNumberBond(card, q); return true;
     case 'addition-concrete':   renderAdditionConcrete(card, q); return true;
     case 'addition-pictorial':  renderAdditionPictorial(card, q); return true;
@@ -8173,6 +9596,7 @@ function renderMathQuestion(card, q) {
     case 'money-add':           renderMoneyAdd(card, q); return true;
     case 'money-change':        renderMoneyChange(card, q); return true;
     case 'time-read':           renderTimeRead(card, q); return true;
+    case 'time-match':          renderTimeMatch(card, q); return true;
     case 'time-set':            renderTimeRead(card, q); return true;
     case 'picture-graph':       renderPictureGraph(card, q); return true;
     case 'length-compare':      renderLengthCompare(card, q); return true;
@@ -8204,6 +9628,78 @@ function renderMathQuestion(card, q) {
 }
 
 // ===================== P1 RENDERERS =====================
+
+// Base-ten blocks: tens as rods, ones as unit cubes. This is how
+// Singapore introduces numbers past 20 — a ten-frame stops being
+// countable at that size.
+function renderPlaceValueCount(card, q) {
+  var html = '<div class="question-text">How many altogether?</div>';
+  html += '<div class="pv-blocks">';
+  html += '<div class="pv-group">';
+  for (var t = 0; t < q.tens; t++) {
+    html += '<div class="pv-rod">';
+    for (var c = 0; c < 10; c++) html += '<span class="pv-unit"></span>';
+    html += '</div>';
+  }
+  html += '</div>';
+  if (q.ones > 0) {
+    html += '<div class="pv-group pv-ones">';
+    for (var o = 0; o < q.ones; o++) html += '<span class="pv-unit loose"></span>';
+    html += '</div>';
+  }
+  html += '</div>';
+  html += '<div class="pv-caption">' + q.tens + ' ten' + (q.tens === 1 ? '' : 's') +
+          (q.ones ? ' and ' + q.ones + ' one' + (q.ones === 1 ? '' : 's') : '') + '</div>';
+
+  // Distractors target the real misconception: reading the digits the
+  // wrong way round, or losing the tens.
+  var wrong = [q.ones * 10 + q.tens, q.tens * 10, q.number + 10, q.number - 10, q.tens + q.ones];
+  var opts = [q.number];
+  wrong.forEach(function(w) {
+    if (w > 0 && w !== q.number && opts.indexOf(w) === -1 && opts.length < 4) opts.push(w);
+  });
+  while (opts.length < 4) {
+    var f = q.number + rand(-5, 5);
+    if (f > 0 && opts.indexOf(f) === -1) opts.push(f);
+  }
+  html += '<div class="answer-options">' + shuffle(opts).map(function(o) {
+    return '<button class="answer-btn" onclick="checkAnswer(' + o + ', ' + q.number + ', this)">' + o + '</button>';
+  }).join('') + '</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderNumberWord(card, q) {
+  var html = '<div class="question-text">How do you write this number in words?</div>';
+  html += '<div class="nw-number">' + q.number + '</div>';
+  var opts = [q.answer];
+  var guard = 0;
+  while (opts.length < 4 && guard++ < 50) {
+    var cand = numberToWords(Math.max(1, q.number + rand(-12, 12)));
+    if (opts.indexOf(cand) === -1) opts.push(cand);
+  }
+  html += '<div class="answer-options">' + shuffle(opts).map(function(o) {
+    return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:17px">' + o + '</button>';
+  }).join('') + '</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderOrdinalPosition(card, q) {
+  var kids = ['🧒','👧','👦','🧑','👶','🧕','👩','🙋','🧍'];
+  var html = '<div class="question-text">Who is <strong style="color:var(--gold)">' +
+             ordinalWord(q.position) + '</strong> in the queue?</div>';
+  html += '<div class="ord-queue">';
+  html += '<div class="ord-front">front →</div>';
+  for (var i = 0; i < q.queueLength; i++) {
+    html += '<button class="ord-person" onclick="checkAnswer(\'' + ordinalWord(i + 1) + '\', \'' + q.answer + '\', this)">' +
+      '<span class="ord-emoji">' + kids[i % kids.length] + '</span></button>';
+  }
+  html += '</div>';
+  html += '<div class="ord-caption">Tap the child who is ' + ordinalWord(q.position) + '.</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
 
 function renderTenFrameCount(card, q) {
   var n = q.number;
@@ -8363,31 +9859,156 @@ function renderPatternShape(card, q) {
   card.innerHTML = html;
 }
 
-function renderWordProblem(card, q) {
-  var html = '<div class="story-prompt" style="font-size:19px">' + q.text + '</div>';
-  if (q.isConcrete) {
-    html += '<div class="bar-model"><div class="bar-row">';
-    if (q.op === '+') {
-      html += '<div class="bar-segment part-a" style="flex:' + q.a + '">' + q.a + '</div>';
-      html += '<div class="bar-segment part-b" style="flex:' + q.b + '">' + q.b + '</div>';
-    } else {
-      html += '<div class="bar-segment whole" style="flex:' + q.a + '">' + q.a + '</div>';
-    }
+// ---- Bar model (the Singapore model-drawing method) --------------------
+//
+// Reads q.bar produced by word-problems.js:
+//   { style:'part-whole', parts:[{label,value,unknown}], total:{...} }
+//   { style:'comparison', bigger:{...}, smaller:{...}, difference:{...} }
+
+function renderBarModel(bar) {
+  if (!bar) return '';
+  var html = '<div class="bar-model-v2">';
+
+  if (bar.style === 'part-whole') {
+    var totalValue = bar.total.value || bar.parts.reduce(function(s, p) { return s + p.value; }, 0);
+    // Row of parts
+    html += '<div class="bm-row">';
+    bar.parts.forEach(function(p) {
+      var w = Math.max(8, (p.value / totalValue) * 100);
+      html += '<div class="bm-seg ' + (p.unknown ? 'bm-unknown' : 'bm-part') + '" style="width:' + w + '%">' +
+        '<span class="bm-val">' + (p.unknown ? '?' : p.value) + '</span>' +
+        '<span class="bm-label">' + p.label + '</span></div>';
+    });
     html += '</div>';
-    if (q.op === '-') {
-      html += '<div class="bar-row"><div class="bar-segment part-a" style="flex:' + q.b + '">' + q.b + '</div>';
-      html += '<div class="bar-segment unknown" style="flex:' + q.answer + '">?</div></div>';
-    } else {
-      html += '<div class="bar-row"><div class="bar-segment unknown" style="flex:1">?</div></div>';
+    // Whole underneath, braced
+    html += '<div class="bm-brace"></div>';
+    html += '<div class="bm-row bm-total-row">';
+    html += '<div class="bm-seg ' + (bar.total.unknown ? 'bm-unknown' : 'bm-total') + '" style="width:100%">' +
+      '<span class="bm-val">' + (bar.total.unknown ? '?' : bar.total.value) + '</span>' +
+      '<span class="bm-label">' + bar.total.label + '</span></div>';
+    html += '</div>';
+
+  } else if (bar.style === 'comparison') {
+    var maxV = Math.max(bar.bigger.value || 0, bar.smaller.value || 0) || 1;
+    html += '<div class="bm-row">';
+    html += '<div class="bm-seg ' + (bar.bigger.unknown ? 'bm-unknown' : 'bm-part') + '" style="width:' + ((bar.bigger.value / maxV) * 100) + '%">' +
+      '<span class="bm-val">' + (bar.bigger.unknown ? '?' : bar.bigger.value) + '</span>' +
+      '<span class="bm-label">' + bar.bigger.label + '</span></div>';
+    html += '</div>';
+    html += '<div class="bm-row">';
+    html += '<div class="bm-seg ' + (bar.smaller.unknown ? 'bm-unknown' : 'bm-part2') + '" style="width:' + ((bar.smaller.value / maxV) * 100) + '%">' +
+      '<span class="bm-val">' + (bar.smaller.unknown ? '?' : bar.smaller.value) + '</span>' +
+      '<span class="bm-label">' + bar.smaller.label + '</span></div>';
+    if (bar.difference) {
+      var dw = (Math.abs((bar.bigger.value || 0) - (bar.smaller.value || 0)) / maxV) * 100;
+      html += '<div class="bm-seg bm-diff" style="width:' + Math.max(10, dw) + '%">' +
+        '<span class="bm-val">' + (bar.difference.unknown ? '?' : bar.difference.value) + '</span>' +
+        '<span class="bm-label">' + bar.difference.label + '</span></div>';
     }
     html += '</div>';
   }
-  var options = generateMCQOptions(q.answer, Math.max(0, q.answer - 3), q.answer + 5, 4);
+
+  html += '</div>';
+  return html;
+}
+
+var WP_STRUCTURE_LABEL = {
+  'part-whole':   'Part and Whole',
+  'change':       'Change',
+  'comparison':   'Comparing',
+  'groups':       'Equal Groups',
+  'rate':         'Rate',
+  'before-after': 'Two Steps'
+};
+
+function renderWordProblem(card, q) {
+  var html = '';
+
+  // Name the structure. Recognising the shape of a problem is the
+  // skill that transfers to the exam.
+  if (q.structure && WP_STRUCTURE_LABEL[q.structure]) {
+    html += '<div class="wp-structure-tag">' + WP_STRUCTURE_LABEL[q.structure] +
+      (q.steps > 1 ? ' · ' + q.steps + ' steps' : '') +
+      (q._ai ? ' · ✨ fresh' : '') + '</div>';
+  }
+
+  html += '<div class="story-prompt wp-text">' + (q.emoji ? '<span class="wp-emoji">' + q.emoji + '</span>' : '') + q.text + '</div>';
+
+  // Bar model, hidden behind a button so she tries without it first.
+  if (q.bar) {
+    html += '<button class="wp-bar-toggle" onclick="wpToggleBar(this)">📊 Show me the bar model</button>';
+    html += '<div class="wp-bar-wrap hidden">' + renderBarModel(q.bar) + '</div>';
+  }
+
+  var options = mathSmartOptions(q.answer, q);
   html += '<div class="answer-options mt-2">' + options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(' + o + ', ' + q.answer + ', this)">' + o + '</button>';
   }).join('') + '</div>';
   html += renderHintBtn(q.hint);
   card.innerHTML = html;
+}
+
+function wpToggleBar(btn) {
+  var wrap = btn.parentElement.querySelector('.wp-bar-wrap');
+  if (!wrap) return;
+  var showing = !wrap.classList.contains('hidden');
+  wrap.classList.toggle('hidden');
+  btn.textContent = showing ? '📊 Show me the bar model' : '📊 Hide the bar model';
+}
+
+/**
+ * Distractors that mean something.
+ *
+ * Random wrong numbers teach nothing and are often trivially
+ * eliminable. These mirror the mistakes children actually make, so a
+ * wrong tap is diagnostic rather than noise.
+ */
+function mathSmartOptions(answer, q) {
+  answer = Number(answer);
+  var wrong = {};
+  function add(v) {
+    v = Math.round(v);
+    if (v !== answer && v >= 0 && v <= answer * 4 + 20) wrong[v] = true;
+  }
+
+  // Off-by-one: the classic counting slip.
+  add(answer + 1); add(answer - 1);
+
+  if (q) {
+    // Used the wrong operation.
+    if (q.a != null && q.b != null) {
+      add(q.a + q.b); add(Math.abs(q.a - q.b));
+    }
+    // Multiplication: neighbouring facts in the same table, and the
+    // very common "added instead of multiplied".
+    if (q.table != null && q.n != null) {
+      add(q.table * q.n + q.table);
+      add(q.table * q.n - q.table);
+      add(q.table + q.n);
+    }
+    // Division: multiplied instead.
+    if (q.dividend != null && q.divisor != null) {
+      add(q.dividend * q.divisor / 10);
+      add(q.divisor + 1 !== 0 ? q.dividend / (q.divisor + 1) : 0);
+    }
+  }
+
+  // Nearby values so the list is never short.
+  add(answer + 2); add(answer - 2); add(answer + 10); add(answer - 10);
+
+  var pool = Object.keys(wrong).map(Number).filter(function(v) { return isFinite(v) && v >= 0; });
+  // Shuffle then take three.
+  for (var i = pool.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+  }
+  var opts = pool.slice(0, 3);
+  opts.push(answer);
+  for (var k = opts.length - 1; k > 0; k--) {
+    var m = Math.floor(Math.random() * (k + 1));
+    var tmp = opts[k]; opts[k] = opts[m]; opts[m] = tmp;
+  }
+  return opts;
 }
 
 function renderShapeIdentify(card, q) {
@@ -8447,8 +10068,27 @@ function renderPlaceValueBlocks(n) {
 }
 
 function renderMultiplication(card, q) {
+  // Missing-factor form: 7 \u00D7 ? = 42. Builds real fluency instead of
+  // reciting the table in order.
+  if (q.variant === 'missing-factor') {
+    var mfHtml = '<div class="question-text mf-question">' +
+      q.table + ' \u00D7 <span class="mf-blank">?</span> = ' + q.product + '</div>';
+    mfHtml += '<div class="mf-sub">How many ' + q.table + 's make ' + q.product + '?</div>';
+    var mfOptions = mathSmartOptions(q.answer, q);
+    mfHtml += '<div class="answer-options mt-2">' + mfOptions.map(function(o) {
+      return '<button class="answer-btn" onclick="checkAnswer(' + o + ', ' + q.answer + ', this)">' + o + '</button>';
+    }).join('') + '</div>';
+    mfHtml += renderHintBtn(q.hint);
+    card.innerHTML = mfHtml;
+    return;
+  }
+
   var html = '<div class="question-text">' + q.table + ' \u00D7 ' + q.n + ' = ?</div>';
-  if (q.isConcrete) {
+  // Counting 144 individual emoji is not concrete understanding, it is
+  // an eye test. Above ~36 items the grouped-emoji picture stops helping,
+  // so fall back to the array/grid representation which scales.
+  var totalItems = q.table * q.n;
+  if (q.isConcrete && totalItems <= 36) {
     html += '<div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0">';
     var emoji = pick(OBJECT_EMOJIS);
     for (var g = 0; g < q.n; g++) {
@@ -8457,7 +10097,7 @@ function renderMultiplication(card, q) {
       html += '</div>';
     }
     html += '</div>';
-  } else if (q.isPictorial) {
+  } else if (q.isPictorial || (q.isConcrete && totalItems <= 144)) {
     html += '<div class="area-grid" style="grid-template-columns:repeat(' + q.table + ', 36px);margin:12px auto;width:fit-content">';
     for (var r = 0; r < q.n; r++) for (var c = 0; c < q.table; c++) {
       html += '<div class="area-cell selected"></div>';
@@ -8465,7 +10105,7 @@ function renderMultiplication(card, q) {
     html += '</div>';
     html += '<div style="font-size:14px;color:var(--text-secondary)">' + q.n + ' rows of ' + q.table + '</div>';
   }
-  var options = generateMCQOptions(q.answer, Math.max(1, q.answer - 10), q.answer + 10, 4);
+  var options = mathSmartOptions(q.answer, q);
   html += '<div class="answer-options mt-2">' + options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(' + o + ', ' + q.answer + ', this)">' + o + '</button>';
   }).join('') + '</div>';
@@ -8541,6 +10181,22 @@ function renderMoneyChange(card, q) {
   html += '<div class="answer-options mt-2">' + options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(' + o + ', ' + q.answer + ', this)">' + o + '\u00A2</button>';
   }).join('') + '</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+// "Which clock shows half past 3?" — she reads the words and picks the
+// matching face. The inverse skill to reading a clock, and it cannot
+// give itself away the way the old time-set question did.
+function renderTimeMatch(card, q) {
+  var html = '<div class="question-text">Which clock shows <strong style="color:var(--gold)">' + q.words + '</strong>?</div>';
+  html += '<div class="time-match-grid">';
+  q.faces.forEach(function(f) {
+    var val = f.hour + ':' + (f.minutes < 10 ? '0' : '') + f.minutes;
+    html += '<button class="time-match-face" onclick="checkAnswer(\'' + val + '\', \'' + q.answer + '\', this)">' +
+      renderClockSVG(f.hour, f.minutes, 110) + '</button>';
+  });
+  html += '</div>';
   html += renderHintBtn(q.hint);
   card.innerHTML = html;
 }
@@ -13318,6 +14974,527 @@ window.metaReflectAfter = metaReflectAfter;
   }
 })();
 
+// --- src/core/ai.js ---
+// ============================================================
+//  AI CORE — Gemini wrapper for Nasworld.
+//
+//  Design rules (non-negotiable):
+//  1. The app MUST work perfectly with no key and no internet.
+//     AI is a topping, never the cake. Every AI path has a local
+//     fallback that fires instantly.
+//  2. A child never waits on a network call. Questions are
+//     pre-fetched in the background and queued; if the queue is
+//     empty we serve a local generator question immediately.
+//  3. Output is forced into the EXACT question shapes the existing
+//     renderers already understand (see math-render.js dispatch).
+//  4. Content is age-locked by the system prompt and re-validated
+//     locally before it is ever shown.
+// ============================================================
+
+var AI_KEY_STORAGE = 'nas.geminiKey';
+var AI_MODEL_STORAGE = 'nas.geminiModel';
+var AI_DEFAULT_MODEL = 'gemini-2.5-flash';
+
+function aiGetKey() {
+  try { return localStorage.getItem(AI_KEY_STORAGE) || ''; } catch (e) { return ''; }
+}
+function aiSetKey(key) {
+  try {
+    if (key) localStorage.setItem(AI_KEY_STORAGE, key.trim());
+    else localStorage.removeItem(AI_KEY_STORAGE);
+  } catch (e) {}
+}
+function aiGetModel() {
+  try { return localStorage.getItem(AI_MODEL_STORAGE) || AI_DEFAULT_MODEL; } catch (e) { return AI_DEFAULT_MODEL; }
+}
+function aiSetModel(m) {
+  try { localStorage.setItem(AI_MODEL_STORAGE, m || AI_DEFAULT_MODEL); } catch (e) {}
+}
+function aiEnabled() {
+  return !!aiGetKey() && navigator.onLine !== false && !aiInCooldown();
+}
+
+// ---- Core fetch wrapper -------------------------------------------------
+
+/**
+ * Ask Gemini for JSON. Returns a parsed object, or throws.
+ * responseSchema forces structured output so we never parse prose.
+ */
+function askGeminiJSON(opts) {
+  var key = aiGetKey();
+  if (!key) return Promise.reject(new Error('no-key'));
+
+  var model = opts.model || aiGetModel();
+  var url = 'https://generativelanguage.googleapis.com/v1beta/models/' +
+    model + ':generateContent?key=' + encodeURIComponent(key);
+
+  var body = {
+    systemInstruction: opts.system ? { parts: [{ text: opts.system }] } : undefined,
+    contents: [{ role: 'user', parts: [{ text: opts.prompt }] }],
+    generationConfig: {
+      temperature: opts.temperature != null ? opts.temperature : 0.9,
+      maxOutputTokens: opts.maxTokens || 2048,
+      responseMimeType: 'application/json',
+      responseSchema: opts.schema
+    },
+    safetySettings: [
+      { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+      { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_LOW_AND_ABOVE' },
+      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }
+    ]
+  };
+
+  var controller = new AbortController();
+  var timeout = setTimeout(function() { controller.abort(); }, opts.timeoutMs || 20000);
+
+  return fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal: controller.signal
+  }).then(function(res) {
+    clearTimeout(timeout);
+    if (!res.ok) {
+      return res.text().then(function(t) {
+        throw new Error('gemini-' + res.status + ': ' + t.slice(0, 200));
+      });
+    }
+    return res.json();
+  }).then(function(data) {
+    var text = data &&
+      data.candidates &&
+      data.candidates[0] &&
+      data.candidates[0].content &&
+      data.candidates[0].content.parts &&
+      data.candidates[0].content.parts[0] &&
+      data.candidates[0].content.parts[0].text;
+    if (!text) throw new Error('empty-response');
+    return JSON.parse(text);
+  });
+}
+
+// ---- Kid-safety system prompt ------------------------------------------
+
+function aiSystemPrompt() {
+  var name = (typeof state !== 'undefined' && state.name) ? state.name : 'Anastasia';
+  return [
+    'You write primary-school MATHEMATICS questions for the Singapore MOE syllabus.',
+    'The learner is a 6 to 7 year old girl named ' + name + '. She is in Primary 1 in Singapore.',
+    'Her family is Singaporean and Russian. She likes animals, flowers, space, and her family.',
+    '',
+    'ABSOLUTE RULES:',
+    '1. Every question must be solvable by a Primary 1-4 child using ONLY the arithmetic stated in the request.',
+    '2. Numbers must stay inside the stated range. Never produce a negative answer for addition/subtraction questions.',
+    '3. Use Singapore contexts naturally: hawker centre, MRT, void deck, kopi, nasi lemak, Singapore dollars and cents.',
+    '4. Language must be simple. Short sentences. A 6 year old must be able to read it.',
+    '5. Absolutely no violence, death, injury, money worries, family conflict, dieting, or anything frightening.',
+    '6. Never mention that you are an AI. Never address the child directly with instructions beyond the question.',
+    '7. The answer field must be the exact final numeric answer with no units and no words, unless the schema says otherwise.',
+    '8. Double-check your own arithmetic before answering. A wrong answer key is the worst possible failure.',
+    '',
+    'Return ONLY valid JSON matching the provided schema.'
+  ].join('\n');
+}
+
+// ---- Local validation (never trust the model) --------------------------
+
+/**
+ * Check the model's own working and confirm it produces the answer it
+ * claims. A wrong answer key is the worst failure mode in the whole
+ * app: the child solves it correctly and is told she is wrong. Any
+ * question whose working does not evaluate to its answer is discarded.
+ *
+ * Returns true if verified OR if the working is not machine-checkable
+ * (we do not throw away a good question just because we cannot parse
+ * its prose) — but a working that IS parseable and disagrees is fatal.
+ */
+function aiVerifyArithmetic(raw) {
+  if (!raw || !raw.working) return true;          // nothing to check
+  var expr = String(raw.working);
+
+  // Take the last "= <number>" as the claimed result of the chain.
+  var parts = expr.split('=');
+  if (parts.length < 2) return true;
+  var claimed = Number(String(parts[parts.length - 1]).replace(/[^0-9.\-]/g, ''));
+  if (!isFinite(claimed)) return true;
+
+  // The answer must match what the working says it is.
+  if (Math.abs(claimed - Number(raw.answer)) > 1e-9) return false;
+
+  // Evaluate each "a OP b = c" step ourselves. No eval: a strict
+  // tokenizer, so nothing from the model is ever executed.
+  var ok = true;
+  parts.forEach(function(seg, i) {
+    if (i >= parts.length - 1) return;
+    var m = String(seg).match(/(-?\d+(?:\.\d+)?)\s*([+\-x*×\/÷])\s*(-?\d+(?:\.\d+)?)\s*$/);
+    if (!m) return;                                // unparseable step: skip
+    var a = Number(m[1]), op = m[2], b = Number(m[3]);
+    var next = Number(String(parts[i + 1]).replace(/[^0-9.\-]/g, ''));
+    if (!isFinite(next)) return;
+    var val;
+    if (op === '+') val = a + b;
+    else if (op === '-') val = a - b;
+    else if (op === 'x' || op === '*' || op === '×') val = a * b;
+    else if (op === '/' || op === '÷') { if (b === 0) { ok = false; return; } val = a / b; }
+    else return;
+    if (Math.abs(val - next) > 1e-9) ok = false;
+  });
+  return ok;
+}
+
+/**
+ * Reject anything that would confuse or upset a child, or that is
+ * arithmetically wrong. Returns true if the question is safe to show.
+ */
+function aiValidateQuestion(q, constraints) {
+  if (!q || typeof q !== 'object') return false;
+  if (!q.text || typeof q.text !== 'string') return false;
+  if (q.text.length > 300) return false;
+  if (q.answer === undefined || q.answer === null || q.answer === '') return false;
+
+  // Answer must be numeric for the question types we request.
+  var ans = Number(q.answer);
+  if (!isFinite(ans)) return false;
+  if (ans < 0) return false;
+
+  // Range guard
+  if (constraints && constraints.maxAnswer != null && ans > constraints.maxAnswer) return false;
+
+  // Blocklist — a cheap second line of defence behind the safety settings.
+  var banned = /\b(kill|die|died|death|dead|blood|gun|knife|war|hate|stupid|fat|ugly|drunk|beer|wine|sexy|hell|damn)\b/i;
+  if (banned.test(q.text)) return false;
+
+  // The text must actually contain a question.
+  if (q.text.indexOf('?') === -1) return false;
+
+  // Never show a question whose own working contradicts its answer.
+  if (!aiVerifyArithmetic(q)) return false;
+
+  return true;
+}
+
+// ---- Question queue (pre-fetch so nobody waits) ------------------------
+
+var _aiQueue = {};      // { cacheKey: [question, question, ...] }
+var _aiInFlight = {};   // { cacheKey: true }
+
+function _aiCacheKey(skillId, config) {
+  return skillId + '|' + JSON.stringify(config || {});
+}
+
+/**
+ * Pull one AI question if we have a warm one, else null (caller falls
+ * back to the local generator instantly). Always triggers a background
+ * refill.
+ */
+function aiTakeQuestion(skillId, config) {
+  if (!aiEnabled()) return null;
+  var key = _aiCacheKey(skillId, config);
+  var q = null;
+  if (_aiQueue[key] && _aiQueue[key].length > 0) {
+    q = _aiQueue[key].shift();
+  }
+  // Refill when running low
+  if (!_aiQueue[key] || _aiQueue[key].length < 3) {
+    aiPrefetch(skillId, config);
+  }
+  return q;
+}
+
+// Circuit breaker. Without this, a bad key or a model that keeps
+// returning rejects would retry on EVERY question, billing the parent's
+// card in a loop for nothing. Failures back off exponentially and the
+// whole AI path goes quiet until the cooldown expires.
+var _aiFails = 0;
+var _aiCooldownUntil = 0;
+
+function aiInCooldown() { return Date.now() < _aiCooldownUntil; }
+
+/**
+ * Fill the queue in the background. Never throws, never blocks.
+ */
+function aiPrefetch(skillId, config) {
+  if (!aiEnabled()) return Promise.resolve();
+  if (aiInCooldown()) return Promise.resolve();
+  var key = _aiCacheKey(skillId, config);
+  if (_aiInFlight[key]) return Promise.resolve();
+  if (_aiQueue[key] && _aiQueue[key].length >= 6) return Promise.resolve();
+  _aiInFlight[key] = true;
+
+  return aiGenerateWordProblems(skillId, config, 6).then(function(list) {
+    if (!_aiQueue[key]) _aiQueue[key] = [];
+    list.forEach(function(q) { _aiQueue[key].push(q); });
+    _aiInFlight[key] = false;
+    _aiFails = 0;                       // recovered
+    _aiCooldownUntil = 0;
+    if (typeof aiUpdateStatusPill === 'function') aiUpdateStatusPill();
+  }).catch(function(err) {
+    _aiInFlight[key] = false;
+    _aiFails++;
+    // 2s, 4s, 8s, 16s, 32s, capped at 60s.
+    _aiCooldownUntil = Date.now() + Math.min(60000, 2000 * Math.pow(2, _aiFails - 1));
+    _aiNoteError(err);
+  });
+}
+
+var _aiLastError = null;
+function _aiNoteError(err) {
+  _aiLastError = (err && err.message) || String(err);
+  // A missing/blocked key is worth surfacing once in Settings, but we
+  // never interrupt a child mid-quiz over it.
+  if (typeof console !== 'undefined') console.warn('[AI]', _aiLastError);
+}
+function aiLastError() { return _aiLastError; }
+
+// ---- The actual question generator -------------------------------------
+
+var AI_WORD_PROBLEM_SCHEMA = {
+  type: 'object',
+  properties: {
+    questions: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          text:      { type: 'string', description: 'The word problem. One or two short sentences ending in a question.' },
+          answer:    { type: 'string', description: 'The final numeric answer only. No units, no words.' },
+          hint:      { type: 'string', description: 'One short sentence nudging the child toward the method. Never gives the answer.' },
+          working:   { type: 'string', description: 'The arithmetic ONLY, using digits and + - x / and = . For example "7 x 4 = 28" or "20 - 8 = 12". No words.' },
+          structure: { type: 'string', description: 'One of: part-whole, comparison, change, groups, rate, before-after' },
+          emoji:     { type: 'string', description: 'A single emoji matching the story context.' },
+          barA:      { type: 'number', description: 'First quantity in the story, for the bar model.' },
+          barB:      { type: 'number', description: 'Second quantity in the story, for the bar model.' },
+          barALabel: { type: 'string', description: 'Two or three word label for the first quantity.' },
+          barBLabel: { type: 'string', description: 'Two or three word label for the second quantity.' },
+          unknownIs: { type: 'string', description: 'Which part the question asks for: "total", "part", or "difference".' }
+        },
+        required: ['text', 'answer', 'hint', 'working', 'structure', 'emoji',
+                   'barA', 'barB', 'barALabel', 'barBLabel', 'unknownIs']
+      }
+    }
+  },
+  required: ['questions']
+};
+
+/**
+ * Ask Gemini for a batch of word problems tuned to a skill + drill config.
+ * Returns an array of question objects in the shape renderWordProblem
+ * already understands. Rejects silently on failure (caller falls back).
+ */
+function aiGenerateWordProblems(skillId, config, count) {
+  config = config || {};
+  count = count || 5;
+
+  var spec = _aiSkillSpec(skillId, config);
+  var themeLine = config.theme && config.theme !== 'mixed'
+    ? 'Every problem must be set in this theme: ' + config.theme + '.'
+    : 'Vary the setting across the batch: home, school, hawker centre, garden, playground, space, animals.';
+
+  var prompt = [
+    'Write ' + count + ' DIFFERENT ' + spec.label + ' word problems.',
+    '',
+    'Mathematical constraint: ' + spec.constraint,
+    'Maximum allowed answer: ' + spec.maxAnswer,
+    themeLine,
+    '',
+    'Vary the STRUCTURE across the batch. Use a mix of these Singapore Math structures:',
+    '- part-whole (two parts combine into a whole)',
+    '- comparison (how many more / fewer)',
+    '- change (something is added or taken away over time)',
+    '- groups (equal groups, arrays, sharing)',
+    '',
+    'Each problem must be a different story. Do not reuse the same objects twice in this batch.',
+    'Check your arithmetic twice.'
+  ].join('\n');
+
+  return askGeminiJSON({
+    system: aiSystemPrompt(),
+    prompt: prompt,
+    schema: AI_WORD_PROBLEM_SCHEMA,
+    temperature: 1.0,
+    maxTokens: 2048
+  }).then(function(data) {
+    var out = [];
+    (data.questions || []).forEach(function(raw) {
+      if (!aiValidateQuestion(raw, { maxAnswer: spec.maxAnswer })) return;
+      out.push({
+        type: 'word-problem',
+        text: raw.text,
+        answer: Number(raw.answer),
+        hint: raw.hint,
+        working: raw.working,
+        structure: raw.structure,
+        emoji: raw.emoji,
+        bar: _aiBuildBar(raw),
+        _ai: true
+      });
+    });
+    if (out.length === 0) throw new Error('all-rejected');
+    return out;
+  });
+}
+
+/**
+ * Build renderBarModel-compatible data from the model's quantities.
+ *
+ * Note for anyone editing: `value` must carry the TRUE number even when
+ * `unknown: true`, because the renderer sizes the bars from it. The
+ * renderer prints "?" for unknown segments, so the number is never
+ * shown to the child.
+ */
+function _aiBuildBar(raw) {
+  var a = Number(raw.barA), b = Number(raw.barB);
+  if (!isFinite(a) || !isFinite(b) || a < 0 || b < 0) return null;
+  var ans = Number(raw.answer);
+  var labelA = String(raw.barALabel || 'part').slice(0, 18);
+  var labelB = String(raw.barBLabel || 'part').slice(0, 18);
+
+  if (raw.structure === 'comparison' || raw.unknownIs === 'difference') {
+    var bigger  = a >= b ? { label: labelA, value: a } : { label: labelB, value: b };
+    var smaller = a >= b ? { label: labelB, value: b } : { label: labelA, value: a };
+    return {
+      style: 'comparison',
+      bigger: bigger,
+      smaller: smaller,
+      difference: { label: 'difference', value: Math.abs(a - b), unknown: raw.unknownIs === 'difference' }
+    };
+  }
+  if (raw.unknownIs === 'part') {
+    // Whole is known; one part is being asked for.
+    return {
+      style: 'part-whole',
+      parts: [{ label: labelB, value: b }, { label: 'this part', value: ans, unknown: true }],
+      total: { label: labelA, value: a }
+    };
+  }
+  return {
+    style: 'part-whole',
+    parts: [{ label: labelA, value: a }, { label: labelB, value: b }],
+    total: { label: 'altogether', value: a + b, unknown: true }
+  };
+}
+
+/**
+ * Translate a skill + drill config into a plain-English mathematical
+ * constraint the model can respect, plus a ceiling for validation.
+ */
+function _aiSkillSpec(skillId, config) {
+  var r = (config && config.numberRange) || null;
+  switch (skillId) {
+    case 'add':
+      return { label: 'addition', constraint: 'Single-step addition of two numbers, each between 1 and ' + (r ? r[1] : 10) + '.', maxAnswer: (r ? r[1] : 10) * 2 };
+    case 'sub':
+      return { label: 'subtraction', constraint: 'Single-step subtraction. The answer must never be negative. Numbers up to ' + (r ? r[1] : 10) + '.', maxAnswer: (r ? r[1] : 10) };
+    case 'add100':
+      return { label: 'addition within 100', constraint: 'Addition of two numbers, sum must not exceed 100.', maxAnswer: 100 };
+    case 'sub100':
+      return { label: 'subtraction within 100', constraint: 'Subtraction within 100. Never negative.', maxAnswer: 100 };
+    case 'mul': {
+      var tables = (config && config.tables && config.tables.length) ? config.tables : [2, 3, 4, 5, 10];
+      return {
+        label: 'multiplication',
+        constraint: 'Multiplication using ONLY these times tables: ' + tables.join(', ') + '. The other factor must be between 1 and 12.',
+        maxAnswer: Math.max.apply(null, tables) * 12
+      };
+    }
+    case 'div': {
+      var dv = (config && config.tables && config.tables.length) ? config.tables : [2, 3, 4, 5, 10];
+      return {
+        label: 'division (equal sharing or grouping)',
+        constraint: 'Division that divides EXACTLY with no remainder, using only these divisors: ' + dv.join(', ') + '.',
+        maxAnswer: 144
+      };
+    }
+    case 'money':
+      return { label: 'money (Singapore dollars and cents)', constraint: 'Money problems using Singapore dollars and cents. Totals under $20. Answers in dollars, as a number only.', maxAnswer: 100 };
+    case 'time1':
+      return { label: 'telling the time', constraint: 'Reading clocks at o\'clock and half past only. Answer as the number of the hour.', maxAnswer: 12 };
+    case 'frac1':
+      return { label: 'simple fractions', constraint: 'Halves, thirds and quarters of small whole numbers only.', maxAnswer: 50 };
+    case 'wp1':
+      return { label: 'one-step addition or subtraction', constraint: 'One-step addition or subtraction within ' + (r ? r[1] : 20) + '. Never negative.', maxAnswer: (r ? r[1] : 20) * 2 };
+    case 'multiwp':
+      return { label: 'two-step', constraint: 'Exactly two steps. Each step is addition, subtraction, multiplication or division within 100.', maxAnswer: 500 };
+    default:
+      return { label: 'primary mathematics', constraint: 'Simple arithmetic within 20.', maxAnswer: 40 };
+  }
+}
+
+// ---- Explanations for wrong answers ------------------------------------
+
+var AI_EXPLAIN_SCHEMA = {
+  type: 'object',
+  properties: {
+    explanation: { type: 'string', description: 'Two or three very short sentences explaining the method to a 6 year old. Warm, never scolding.' },
+    step:        { type: 'string', description: 'The arithmetic written out, e.g. "3 + 4 = 7"' }
+  },
+  required: ['explanation', 'step']
+};
+
+/**
+ * When a child gets something wrong, offer a kind explanation.
+ * Returns a Promise<string> or null if AI is unavailable.
+ */
+function aiExplainWrongAnswer(question, givenAnswer) {
+  if (!aiEnabled()) return null;
+  var qText = question.text || (question.a + ' ' + (question.op || '+') + ' ' + question.b);
+  var prompt = [
+    'A 6 year old answered this question wrongly.',
+    '',
+    'Question: ' + qText,
+    'Correct answer: ' + question.answer,
+    'She answered: ' + givenAnswer,
+    '',
+    'Explain the method in two or three VERY short sentences a 6 year old can follow.',
+    'Be warm and encouraging. Never say she is wrong or bad. Focus on the method, not the mistake.',
+    'If her answer suggests a specific misconception, gently address that misconception.'
+  ].join('\n');
+
+  return askGeminiJSON({
+    system: aiSystemPrompt(),
+    prompt: prompt,
+    schema: AI_EXPLAIN_SCHEMA,
+    temperature: 0.5,
+    maxTokens: 300
+  }).then(function(d) {
+    return d.explanation + (d.step ? ('\n' + d.step) : '');
+  }).catch(function(e) {
+    _aiNoteError(e);
+    return null;
+  });
+}
+
+// ---- Connection test (used by the Settings screen) ---------------------
+
+function aiTestConnection() {
+  return askGeminiJSON({
+    system: 'You reply in JSON only.',
+    prompt: 'Reply with {"ok": true, "greeting": "a four word hello for a child"}',
+    schema: {
+      type: 'object',
+      properties: { ok: { type: 'boolean' }, greeting: { type: 'string' } },
+      required: ['ok', 'greeting']
+    },
+    temperature: 0.3,
+    maxTokens: 100,
+    timeoutMs: 15000
+  });
+}
+
+window.aiGetKey = aiGetKey;
+window.aiSetKey = aiSetKey;
+window.aiGetModel = aiGetModel;
+window.aiSetModel = aiSetModel;
+window.aiEnabled = aiEnabled;
+window.aiTakeQuestion = aiTakeQuestion;
+window.aiPrefetch = aiPrefetch;
+window.aiGenerateWordProblems = aiGenerateWordProblems;
+window.aiExplainWrongAnswer = aiExplainWrongAnswer;
+window.aiTestConnection = aiTestConnection;
+window.aiLastError = aiLastError;
+window.askGeminiJSON = askGeminiJSON;
+
 // --- src/avatar/wardrobe-data.js ---
 // ============================================================
 //  WARDROBE DATA — Items Anastasia can earn and equip on Stasha.
@@ -15339,13 +17516,23 @@ function grantSimReward(skillId, message) {
   var tokens = times === 1 ? 20 : 5;
   state.tokens = (state.tokens || 0) + tokens;
 
-  // Mastery bump
-  if (skillId && typeof state.skills === 'object') {
-    if (!state.skills[skillId]) state.skills[skillId] = { mastery: 0, totalAttempts: 0, correctAttempts: 0 };
+  // Mastery bump.
+  //
+  // This used to write state.skills[skillId] = {mastery, totalAttempts,
+  // correctAttempts} directly, bypassing getSkillState. That produced a
+  // skill record with no recentResults array, so the next quiz answer on
+  // that skill crashed in updateSkillState ("Cannot read properties of
+  // undefined (reading 'push')"). Always go through getSkillState.
+  if (skillId && typeof getSkillState === 'function') {
+    var sk = getSkillState(skillId);
     var bump = times === 1 ? 8 : 3;
-    state.skills[skillId].mastery = Math.min(100, (state.skills[skillId].mastery || 0) + bump);
-    state.skills[skillId].totalAttempts = (state.skills[skillId].totalAttempts || 0) + 1;
-    state.skills[skillId].correctAttempts = (state.skills[skillId].correctAttempts || 0) + 1;
+    sk.mastery = Math.min(100, (sk.mastery || 0) + bump);
+    // A sim is exploration, not assessment, so it is recorded on the
+    // activity record rather than faked as a correct quiz answer.
+    if (!sk.activity) sk.activity = {};
+    sk.activity.explore = true;
+    sk.activity.lastAny = Date.now();
+    sk.simPlays = (sk.simPlays || 0) + 1;
   }
 
   // Lumi reaction + token particles
@@ -17259,6 +19446,13 @@ function handleCorrect(isStory) {
 
   updateSkillState(currentGame.skillId, true, currentGame.currentConfidence);
 
+  // Sub-skill tracking — this is what makes "your 8 times table is
+  // shaky" possible, rather than just "multiplication is shaky".
+  const _q = currentGame.questions && currentGame.questions[currentGame.currentIndex];
+  if (_q && _q.subKey && typeof recordSubSkill === 'function') {
+    recordSubSkill(currentGame.skillId, _q.subKey, true, Date.now() - (currentGame._questionStart || Date.now()));
+  }
+
   // Daily quest (legacy counter)
   const today = new Date().toDateString();
   if (state.dailyQuest.date === today) {
@@ -17316,6 +19510,22 @@ function handleWrong(correct) {
 
   updateSkillState(currentGame.skillId, false, currentGame.currentConfidence);
 
+  const _wq = currentGame.questions && currentGame.questions[currentGame.currentIndex];
+  if (_wq && _wq.subKey && typeof recordSubSkill === 'function') {
+    recordSubSkill(currentGame.skillId, _wq.subKey, false, Date.now() - (currentGame._questionStart || Date.now()));
+  }
+
+  // Keep a log so the end-of-session screen can show exactly what
+  // tripped her up, instead of a bare score.
+  if (_wq && currentGame.wrongLog) {
+    currentGame.wrongLog.push({
+      index: currentGame.currentIndex,
+      question: _wq,
+      given: undefined,
+      correct: correct
+    });
+  }
+
   setTimeout(() => {
     showFeedback(false, 0, false, false, correct);
   }, 600);
@@ -17365,16 +19575,31 @@ function closeFeedback(e) {
 
 // === HINT SYSTEM ===
 function renderHintBtn(hintText) {
-  const escaped = hintText.replace(/'/g, "\\'");
-  return '<div class="mt-2"><button class="hint-btn" onclick="showHint(this, \'' + escaped + '\')">\uD83D\uDCA1 Need a hint?</button></div>';
+  // The hint used to be interpolated into an onclick="" attribute with
+  // only single quotes escaped. Any hint containing a double quote broke
+  // the button and could inject markup \u2014 a real risk now that hints can
+  // come from an AI model. Carry it in a data attribute instead, HTML
+  // escaped, and read it back with dataset.
+  if (!hintText) return '';
+  const esc = String(hintText)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+  return '<div class="mt-2"><button class="hint-btn" data-hint="' + esc +
+         '" onclick="showHint(this)">\uD83D\uDCA1 Need a hint?</button></div>';
 }
 
 function showHint(btn, text) {
   if (currentGame.hintShown) return;
   currentGame.hintShown = true;
+  // Text now travels on the button's data attribute; the second
+  // argument is kept so any older call sites still work.
+  const hint = (btn && btn.dataset && btn.dataset.hint) || text || '';
   const hintDiv = document.createElement('div');
   hintDiv.className = 'hint-text';
-  hintDiv.textContent = '\uD83D\uDCA1 ' + text;
+  hintDiv.textContent = '\uD83D\uDCA1 ' + hint;   // textContent, so never parsed as HTML
   btn.parentElement.replaceWith(hintDiv);
   playSound('click');
 }
@@ -19101,6 +21326,167 @@ window.renderParentDigest = renderParentDigest;
 window.parentDigestOptIn = parentDigestOptIn;
 window.parentDigestCopy = parentDigestCopy;
 
+// --- src/ui/settings.js ---
+// ============================================================
+//  SETTINGS — Grown-up controls. AI key, sound, data.
+//
+//  Deliberately plain and slightly boring so it does not invite a
+//  six year old to fiddle. The AI section is honest about what a
+//  browser-stored key does and does not protect.
+// ============================================================
+
+function renderSettings() {
+  var c = document.getElementById('settings-content');
+  if (!c) return;
+
+  var hasKey = typeof aiGetKey === 'function' && !!aiGetKey();
+  var model = typeof aiGetModel === 'function' ? aiGetModel() : 'gemini-2.5-flash';
+
+  var html = '<button class="back-btn" onclick="showScreen(\'home\')">← Back to Home</button>';
+  html += '<div class="settings-shell">';
+  html += '<h2 class="settings-title">Settings</h2>';
+  html += '<p class="settings-sub">For grown-ups.</p>';
+
+  // ---- AI section ----
+  html += '<div class="settings-card">';
+  html += '<div class="settings-card-title">✨ AI Question Writer <span class="settings-badge ' + (hasKey ? 'on' : 'off') + '">' + (hasKey ? 'Connected' : 'Not set up') + '</span></div>';
+  html += '<p class="settings-help">Nasworld works fully without this. Adding a Google Gemini key lets it write <strong>fresh word problems</strong> on demand, themed to whatever Anastasia is into that week, and explain wrong answers in kid-friendly language.</p>';
+
+  html += '<label class="settings-label">Gemini API key</label>';
+  html += '<div class="settings-keyrow">';
+  html += '<input id="settings-key-input" class="settings-input" type="password" placeholder="AIza..." value="' + (hasKey ? '••••••••••••••••' : '') + '" autocomplete="off" spellcheck="false">';
+  html += '<button class="settings-btn" onclick="settingsToggleKeyVisible()" id="settings-eye">👁</button>';
+  html += '</div>';
+  html += '<div class="settings-row">';
+  html += '<button class="settings-btn primary" onclick="settingsSaveKey()">Save key</button>';
+  html += '<button class="settings-btn" onclick="settingsTestKey()">Test connection</button>';
+  if (hasKey) html += '<button class="settings-btn danger" onclick="settingsClearKey()">Remove</button>';
+  html += '</div>';
+  html += '<div id="settings-key-status" class="settings-status"></div>';
+
+  html += '<label class="settings-label">Model</label>';
+  html += '<div class="settings-row">';
+  [['gemini-2.5-flash', 'Flash — fast & cheap (recommended)'],
+   ['gemini-2.5-pro',   'Pro — slower, higher quality']].forEach(function(m) {
+    html += '<button class="settings-chip' + (model === m[0] ? ' on' : '') + '" onclick="settingsSetModel(\'' + m[0] + '\')">' + m[1] + '</button>';
+  });
+  html += '</div>';
+
+  // The honest bit.
+  html += '<div class="settings-warn">';
+  html += '<strong>Please read before adding a key.</strong><br>';
+  html += 'The key is stored in this browser only (localStorage) and is sent straight to Google from this device. It is never sent to me or to GitHub.<br><br>';
+  html += 'But this is a <em>client-side</em> app, so anyone with access to this device and its browser tools can read the key out of storage. Use a key with billing limits set, and treat it as disposable. Do not reuse a key you rely on elsewhere. You can revoke it any time in Google AI Studio.';
+  html += '</div>';
+  html += '</div>';
+
+  // ---- Sound ----
+  html += '<div class="settings-card">';
+  html += '<div class="settings-card-title">🔊 Sound & Voice</div>';
+  var soundOff = state.preferences && state.preferences.soundOff;
+  var stashaMuted = state.preferences && state.preferences.stashaMuted;
+  html += '<label class="settings-toggle"><input type="checkbox" ' + (soundOff ? '' : 'checked') + ' onchange="settingsToggleSound(this.checked)"> Sound effects</label>';
+  html += '<label class="settings-toggle"><input type="checkbox" ' + (stashaMuted ? '' : 'checked') + ' onchange="settingsToggleStasha(this.checked)"> Stasha can talk</label>';
+  html += '</div>';
+
+  // ---- Data ----
+  html += '<div class="settings-card">';
+  html += '<div class="settings-card-title">💾 Progress</div>';
+  var totalAttempts = 0, skillCount = 0;
+  Object.keys(state.skills || {}).forEach(function(k) {
+    totalAttempts += state.skills[k].totalAttempts || 0;
+    if ((state.skills[k].totalAttempts || 0) > 0) skillCount++;
+  });
+  html += '<p class="settings-help">' + totalAttempts + ' questions answered across ' + skillCount + ' skills. ' +
+          (state.tokens || 0) + ' stars earned.</p>';
+  html += '<div class="settings-row">';
+  html += '<button class="settings-btn" onclick="settingsExport()">Export a backup</button>';
+  html += '</div>';
+  html += '<div id="settings-export-out"></div>';
+  html += '</div>';
+
+  html += '</div>';
+  c.innerHTML = html;
+}
+
+function settingsToggleKeyVisible() {
+  var input = document.getElementById('settings-key-input');
+  if (!input) return;
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function _settingsStatus(msg, kind) {
+  var el = document.getElementById('settings-key-status');
+  if (el) el.innerHTML = '<span class="settings-status-' + (kind || 'info') + '">' + msg + '</span>';
+}
+
+function settingsSaveKey() {
+  var input = document.getElementById('settings-key-input');
+  if (!input) return;
+  var v = input.value.trim();
+  if (!v || v.indexOf('•') === 0) { _settingsStatus('Paste a key first.', 'warn'); return; }
+  if (v.length < 20) { _settingsStatus('That does not look like a Gemini key.', 'warn'); return; }
+  aiSetKey(v);
+  _settingsStatus('Saved. Tap "Test connection" to check it works.', 'ok');
+  renderSettings();
+}
+
+function settingsClearKey() {
+  aiSetKey('');
+  _settingsStatus('Key removed. Nasworld still works exactly as before.', 'ok');
+  renderSettings();
+}
+
+function settingsSetModel(m) {
+  aiSetModel(m);
+  renderSettings();
+}
+
+function settingsTestKey() {
+  if (typeof aiTestConnection !== 'function') return;
+  _settingsStatus('Testing…', 'info');
+  aiTestConnection().then(function(r) {
+    _settingsStatus('✅ Working. Gemini said: "' + (r.greeting || 'hello') + '"', 'ok');
+  }).catch(function(e) {
+    var msg = String(e.message || e);
+    if (msg.indexOf('no-key') !== -1)       _settingsStatus('No key saved yet.', 'warn');
+    else if (msg.indexOf('400') !== -1)     _settingsStatus('❌ Key rejected. Check you copied all of it.', 'err');
+    else if (msg.indexOf('403') !== -1)     _settingsStatus('❌ Key not authorised. Enable the Generative Language API in Google AI Studio.', 'err');
+    else if (msg.indexOf('429') !== -1)     _settingsStatus('⏳ Rate limited. Wait a minute and try again.', 'warn');
+    else                                     _settingsStatus('❌ ' + msg.slice(0, 160), 'err');
+  });
+}
+
+function settingsToggleSound(on) {
+  if (!state.preferences) state.preferences = {};
+  state.preferences.soundOff = !on;
+  saveState();
+}
+function settingsToggleStasha(on) {
+  if (!state.preferences) state.preferences = {};
+  state.preferences.stashaMuted = !on;
+  saveState();
+}
+
+function settingsExport() {
+  var out = document.getElementById('settings-export-out');
+  if (!out) return;
+  var data = JSON.stringify(state);
+  out.innerHTML = '<textarea class="settings-export" readonly onclick="this.select()">' +
+    data.replace(/</g, '&lt;') + '</textarea>' +
+    '<p class="settings-help">Tap the box to select all, then copy. Paste it somewhere safe.</p>';
+}
+
+window.renderSettings = renderSettings;
+window.settingsSaveKey = settingsSaveKey;
+window.settingsClearKey = settingsClearKey;
+window.settingsTestKey = settingsTestKey;
+window.settingsSetModel = settingsSetModel;
+window.settingsToggleKeyVisible = settingsToggleKeyVisible;
+window.settingsToggleSound = settingsToggleSound;
+window.settingsToggleStasha = settingsToggleStasha;
+window.settingsExport = settingsExport;
+
 // --- src/ui/navigation.js ---
 // ============================================================
 //  NAVIGATION — Screen management, game engine, init
@@ -19164,6 +21550,12 @@ function showScreen(screenId) {
   }
   if (screenId === 'sim-hub' && typeof renderSimHub === 'function') {
     renderSimHub();
+  }
+  if (screenId === 'drill-setup' && typeof renderDrillSetup === 'function') {
+    renderDrillSetup();
+  }
+  if (screenId === 'settings' && typeof renderSettings === 'function') {
+    renderSettings();
   }
   if (screenId === 'garden') {
     if (typeof renderGardenIsland === 'function') renderGardenIsland();
@@ -19304,22 +21696,52 @@ function openSkillView(skillId, worldType) {
         recordSkillActivity(skillId, 'explore');
       }
     } else if (tabName === 'quiz') {
-      // Show quiz in the tab content area
-      content.innerHTML = '<div class="skill-quiz-start">' +
-        '<div class="skill-quiz-icon">⚡</div>' +
-        '<div class="skill-quiz-title">Ready for the quiz?</div>' +
-        '<div class="skill-quiz-desc">8 questions to test your understanding</div>' +
-        '<button class="lesson-btn lesson-btn-done" id="start-quiz-btn">Start Quiz →</button>' +
-        '</div>';
+      // Skills with drill options get a "choose your practice" route
+      // as well as the plain quick quiz.
+      var canDrill = (worldType === 'math') &&
+                     typeof skillHasDrill === 'function' && skillHasDrill(skillId);
+
+      var quizHtml = '<div class="skill-quiz-start">';
+      quizHtml += '<div class="skill-quiz-icon">⚡</div>';
+      quizHtml += '<div class="skill-quiz-title">Ready to practise?</div>';
+
+      if (canDrill) {
+        var _cfg = getDrillConfig(skillId);
+        var _opt = DRILL_OPTIONS[skillId];
+        var _sum = [];
+        if (_opt.tables && _cfg.tables && _cfg.tables.length) {
+          _sum.push(_cfg.tables.length === _opt.tables.values.length
+            ? 'all tables'
+            : _cfg.tables.join(', ') + '×');
+        }
+        if (_opt.ranges && _cfg.rangeKey) {
+          var _r = _opt.ranges.find(function(x) { return x.key === _cfg.rangeKey; });
+          if (_r) _sum.push(_r.label.toLowerCase());
+        }
+        _sum.push(_cfg.count + ' questions');
+        quizHtml += '<div class="skill-quiz-desc">Last time: ' + _sum.join(' · ') + '</div>';
+        quizHtml += '<button class="lesson-btn lesson-btn-done" id="start-quiz-btn">Start ⚡</button>';
+        quizHtml += '<button class="lesson-btn" id="drill-setup-btn">🎯 Choose what to practise</button>';
+      } else {
+        quizHtml += '<div class="skill-quiz-desc">8 questions to test your understanding</div>';
+        quizHtml += '<button class="lesson-btn lesson-btn-done" id="start-quiz-btn">Start Quiz →</button>';
+      }
+      quizHtml += '</div>';
+      content.innerHTML = quizHtml;
+
       document.getElementById('start-quiz-btn').onclick = function() {
+        var cfg = canDrill && typeof resolveDrillConfig === 'function'
+          ? resolveDrillConfig(skillId) : null;
         if (typeof metaConfidenceBefore === 'function') {
           metaConfidenceBefore(skillId, function() {
-            startGame(skillId, worldType);
+            startGame(skillId, worldType, cfg);
           });
         } else {
-          startGame(skillId, worldType);
+          startGame(skillId, worldType, cfg);
         }
       };
+      var dsBtn = document.getElementById('drill-setup-btn');
+      if (dsBtn) dsBtn.onclick = function() { openDrillSetup(skillId, worldType); };
     }
   }
 
@@ -19329,24 +21751,29 @@ function openSkillView(skillId, worldType) {
 }
 
 // === GAME ENGINE ===
-function startGame(skillId, worldType) {
+function startGame(skillId, worldType, config) {
   playSound('click');
+  const count = (config && config.count) || 8;
   currentGame = {
     skillId,
     worldType: worldType || 'math',
+    config: config || null,
     questions: [],
     currentIndex: 0,
-    totalQuestions: 8,
+    totalQuestions: count,
     results: [],
+    wrongLog: [],
     currentConfidence: -1,
     hintShown: false,
     attempts: 0,
-    _startTime: Date.now()
+    _startTime: Date.now(),
+    _questionStart: Date.now(),
+    isSpeed: !!(config && config.mode === 'speed')
   };
 
   // Generate questions
   for (let i = 0; i < currentGame.totalQuestions; i++) {
-    currentGame.questions.push(generateQuestion(skillId, worldType));
+    currentGame.questions.push(generateQuestion(skillId, worldType, config));
   }
 
   // Set title
@@ -19362,6 +21789,34 @@ function startGame(skillId, worldType) {
   showScreen('game');
   renderGameDots();
   renderCurrentQuestion();
+  if (currentGame.isSpeed) startSpeedTimer();
+}
+
+// === SPEED DRILL ===
+// A gentle clock. It never cuts her off mid-question and it never
+// punishes; it just records the time so fluency can be measured.
+var _speedTimerId = null;
+function startSpeedTimer() {
+  stopSpeedTimer();
+  var host = document.getElementById('game-title');
+  if (host && host.parentElement && !document.getElementById('speed-timer')) {
+    var pill = document.createElement('div');
+    pill.id = 'speed-timer';
+    pill.className = 'speed-timer';
+    pill.textContent = '0.0s';
+    host.parentElement.appendChild(pill);
+  }
+  _speedTimerId = setInterval(function() {
+    var pill = document.getElementById('speed-timer');
+    if (!pill || !currentGame) return;
+    var secs = (Date.now() - currentGame._startTime) / 1000;
+    pill.textContent = secs.toFixed(1) + 's';
+  }, 100);
+}
+function stopSpeedTimer() {
+  if (_speedTimerId) { clearInterval(_speedTimerId); _speedTimerId = null; }
+  var pill = document.getElementById('speed-timer');
+  if (pill) pill.remove();
 }
 
 function exitGame() {
@@ -19433,6 +21888,7 @@ function renderGenericMCQ(card, q) {
 function nextQuestion() {
   document.getElementById('feedback-overlay').classList.add('hidden');
   currentGame.currentIndex++;
+  currentGame._questionStart = Date.now();
   renderGameDots();
   renderCurrentQuestion();
 }
@@ -19491,8 +21947,66 @@ function endGame() {
     html += '<div class="feedback-tokens">\uD83C\uDF1F Perfect bonus: +' + bonus + ' \u2B50</div>';
   }
 
-  html += '<div style="display:flex;gap:12px;justify-content:center;margin-top:16px">';
-  html += '<button class="feedback-btn" onclick="startGame(\'' + currentGame.skillId + '\',\'' + currentGame.worldType + '\')" style="background:linear-gradient(135deg,var(--mint),var(--sky))">Play Again</button>';
+  // Speed drill result
+  if (currentGame.isSpeed) {
+    stopSpeedTimer();
+    var totalSecs = (Date.now() - currentGame._startTime) / 1000;
+    var perQ = totalSecs / Math.max(1, total);
+    html += '<div class="end-speed">⚡ ' + totalSecs.toFixed(1) + 's total · ' + perQ.toFixed(1) + 's per question</div>';
+    var best = state.speedBests && state.speedBests[currentGame.skillId];
+    if (correct === total && (!best || totalSecs < best)) {
+      if (!state.speedBests) state.speedBests = {};
+      state.speedBests[currentGame.skillId] = totalSecs;
+      html += '<div class="end-speed-best">🏆 New personal best!</div>';
+    } else if (best) {
+      html += '<div class="end-speed-best">Your best: ' + best.toFixed(1) + 's</div>';
+    }
+  }
+
+  // What tripped her up — far more useful than a bare score.
+  if (currentGame.wrongLog && currentGame.wrongLog.length > 0) {
+    html += '<div class="end-review">';
+    html += '<div class="end-review-title">Worth another look</div>';
+    currentGame.wrongLog.slice(0, 5).forEach(function(w) {
+      var q = w.question;
+      var label = q.text ? q.text
+        : (q.table != null && q.n != null) ? (q.table + ' × ' + q.n)
+        : (q.dividend != null) ? (q.dividend + ' ÷ ' + q.divisor)
+        : (q.a != null && q.b != null) ? (q.a + ' ? ' + q.b)
+        : 'Question ' + (w.index + 1);
+      html += '<div class="end-review-row">';
+      html += '<div class="end-review-q">' + label + '</div>';
+      html += '<div class="end-review-a">= ' + w.correct + '</div>';
+      if (q.working) html += '<div class="end-review-w">' + q.working + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Per-sub-skill breakdown, e.g. which times tables were shaky.
+  if (currentGame.config && currentGame.config.tables && typeof subSkillMastery === 'function') {
+    var rows = currentGame.config.tables.map(function(t) {
+      return { t: t, m: subSkillMastery(currentGame.skillId, t) };
+    }).filter(function(r) { return r.m !== null; });
+    if (rows.length > 0) {
+      rows.sort(function(a, b) { return a.m - b.m; });
+      html += '<div class="end-sub">';
+      html += '<div class="end-review-title">Where you stand</div>';
+      rows.slice(0, 6).forEach(function(r) {
+        html += '<div class="end-sub-row"><span class="end-sub-key">' + r.t + '×</span>' +
+          '<span class="end-sub-bar"><span class="end-sub-fill" style="width:' + r.m + '%"></span></span>' +
+          '<span class="end-sub-pct">' + r.m + '%</span></div>';
+      });
+      html += '</div>';
+    }
+  }
+
+  var _cfgArg = currentGame.config ? ', ' + JSON.stringify(currentGame.config) : '';
+  html += '<div style="display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap">';
+  html += '<button class="feedback-btn" onclick=\'startGame("' + currentGame.skillId + '","' + currentGame.worldType + '"' + _cfgArg + ')\' style="background:linear-gradient(135deg,var(--mint),var(--sky))">Play Again</button>';
+  if (currentGame.worldType === 'math' && typeof skillHasDrill === 'function' && skillHasDrill(currentGame.skillId)) {
+    html += '<button class="feedback-btn" onclick="openDrillSetup(\'' + currentGame.skillId + '\',\'math\')">Change Settings</button>';
+  }
   html += '<button class="feedback-btn" onclick="exitFromEnd()">Back to World</button>';
   html += '</div>';
 
@@ -19512,9 +22026,9 @@ function exitEscapeRoom() {
 }
 
 // === QUESTION GENERATOR DISPATCHER ===
-function generateQuestion(skillId, worldType) {
+function generateQuestion(skillId, worldType, config) {
   if (worldType === 'math' && typeof generateMathQuestion === 'function') {
-    return generateMathQuestion(skillId);
+    return generateMathQuestion(skillId, config);
   }
   if (worldType === 'word' && typeof generateWordQuestion === 'function') {
     return generateWordQuestion(skillId);

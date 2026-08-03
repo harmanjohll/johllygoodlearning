@@ -79,6 +79,13 @@ function handleCorrect(isStory) {
 
   updateSkillState(currentGame.skillId, true, currentGame.currentConfidence);
 
+  // Sub-skill tracking — this is what makes "your 8 times table is
+  // shaky" possible, rather than just "multiplication is shaky".
+  const _q = currentGame.questions && currentGame.questions[currentGame.currentIndex];
+  if (_q && _q.subKey && typeof recordSubSkill === 'function') {
+    recordSubSkill(currentGame.skillId, _q.subKey, true, Date.now() - (currentGame._questionStart || Date.now()));
+  }
+
   // Daily quest (legacy counter)
   const today = new Date().toDateString();
   if (state.dailyQuest.date === today) {
@@ -136,6 +143,22 @@ function handleWrong(correct) {
 
   updateSkillState(currentGame.skillId, false, currentGame.currentConfidence);
 
+  const _wq = currentGame.questions && currentGame.questions[currentGame.currentIndex];
+  if (_wq && _wq.subKey && typeof recordSubSkill === 'function') {
+    recordSubSkill(currentGame.skillId, _wq.subKey, false, Date.now() - (currentGame._questionStart || Date.now()));
+  }
+
+  // Keep a log so the end-of-session screen can show exactly what
+  // tripped her up, instead of a bare score.
+  if (_wq && currentGame.wrongLog) {
+    currentGame.wrongLog.push({
+      index: currentGame.currentIndex,
+      question: _wq,
+      given: undefined,
+      correct: correct
+    });
+  }
+
   setTimeout(() => {
     showFeedback(false, 0, false, false, correct);
   }, 600);
@@ -185,16 +208,31 @@ function closeFeedback(e) {
 
 // === HINT SYSTEM ===
 function renderHintBtn(hintText) {
-  const escaped = hintText.replace(/'/g, "\\'");
-  return '<div class="mt-2"><button class="hint-btn" onclick="showHint(this, \'' + escaped + '\')">\uD83D\uDCA1 Need a hint?</button></div>';
+  // The hint used to be interpolated into an onclick="" attribute with
+  // only single quotes escaped. Any hint containing a double quote broke
+  // the button and could inject markup \u2014 a real risk now that hints can
+  // come from an AI model. Carry it in a data attribute instead, HTML
+  // escaped, and read it back with dataset.
+  if (!hintText) return '';
+  const esc = String(hintText)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+  return '<div class="mt-2"><button class="hint-btn" data-hint="' + esc +
+         '" onclick="showHint(this)">\uD83D\uDCA1 Need a hint?</button></div>';
 }
 
 function showHint(btn, text) {
   if (currentGame.hintShown) return;
   currentGame.hintShown = true;
+  // Text now travels on the button's data attribute; the second
+  // argument is kept so any older call sites still work.
+  const hint = (btn && btn.dataset && btn.dataset.hint) || text || '';
   const hintDiv = document.createElement('div');
   hintDiv.className = 'hint-text';
-  hintDiv.textContent = '\uD83D\uDCA1 ' + text;
+  hintDiv.textContent = '\uD83D\uDCA1 ' + hint;   // textContent, so never parsed as HTML
   btn.parentElement.replaceWith(hintDiv);
   playSound('click');
 }

@@ -44,6 +44,8 @@ SCRIPTS=(
   "src/stem/stem-tree.js"
   "src/stem/stem-lessons.js"
   "src/math/math-gen.js"
+  "src/math/word-problems.js"
+  "src/math/math-drill.js"
   "src/math/math-render.js"
   "src/word/word-gen.js"
   "src/word/word-render.js"
@@ -63,6 +65,7 @@ SCRIPTS=(
   "src/data/strategies.js"
   "src/core/metacognition.js"
   "src/core/tts.js"
+  "src/core/ai.js"
   "src/avatar/wardrobe-data.js"
   "src/avatar/wardrobe.js"
   "src/avatar/stasha.js"
@@ -90,6 +93,7 @@ SCRIPTS=(
   "src/ui/mirror.js"
   "src/ui/pomodoro.js"
   "src/ui/parent-digest.js"
+  "src/ui/settings.js"
   "src/ui/navigation.js"
 )
 
@@ -136,6 +140,29 @@ AFTER_SCRIPTS=$(sed -n '/^<script src=.*<\/script>$/{ n; }; /^<script src=/!{ /^
   awk 'BEGIN{found=0} /<script src=/{found=1; next} found && !/<script src=/{print}' "$INPUT"
 
 } > "$OUTFILE"
+
+# --- Drift guard -------------------------------------------------------
+# index.html is what GitHub Pages actually serves; this script only makes
+# the offline bundle. They have their own copies of the file list, and
+# they silently diverged once already: fifteen modules (the whole STEM
+# Lab, TTS, and the drill layer) were in the bundle but absent from
+# index.html, so those features were dead on the live site while the
+# bundle tested clean. Never again.
+MISSING=""
+for script in "${SCRIPTS[@]}"; do
+  if ! grep -q "<script src=\"$script\"></script>" "$INPUT"; then
+    MISSING="$MISSING\n  MISSING FROM index.html: $script"
+  fi
+done
+if [ -n "$MISSING" ]; then
+  echo ""
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo "!!  index.html is MISSING script tags that build.sh bundles."
+  echo "!!  The live site will not load these files."
+  echo -e "$MISSING"
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo ""
+fi
 
 # Count lines
 LINES=$(wc -l < "$OUTFILE")
