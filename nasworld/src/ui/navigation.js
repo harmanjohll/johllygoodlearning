@@ -61,6 +61,9 @@ function showScreen(screenId) {
   if (screenId === 'sim-hub' && typeof renderSimHub === 'function') {
     renderSimHub();
   }
+  if (screenId === 'practice' && typeof renderPracticeHub === 'function') {
+    renderPracticeHub();
+  }
   if (screenId === 'drill-setup' && typeof renderDrillSetup === 'function') {
     renderDrillSetup();
   }

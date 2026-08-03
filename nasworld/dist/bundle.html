@@ -1039,16 +1039,47 @@ body {
 @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes sink-drop { 0% { transform: translateY(-130px); opacity: 0.3; } 100% { transform: translateY(0); opacity: 1; } }
 
-.activity-card-drill {
-  display: block; width: 100%; margin-top: 8px;
-  background: rgba(255,215,0,0.16); border: 1px solid rgba(255,215,0,0.45);
-  color: var(--gold); border-radius: 999px; padding: 5px 8px;
-  font-family: var(--font-body); font-size: 11px; cursor: pointer;
+/* === PRACTICE HUB === */
+.world-card.practice-tile .world-card-icon { animation: float 4s ease-in-out infinite; }
+.practice-head { text-align: center; padding: 6px 16px 2px; }
+.practice-head-icon { font-size: 44px; }
+.practice-title { font-family: var(--font-display); color: var(--gold); margin: 2px 0; }
+.practice-sub { color: var(--text-secondary); font-size: 13px; margin: 0 0 14px; }
+.practice-group { max-width: 620px; margin: 0 auto 18px; padding: 0 12px; }
+.practice-group-title {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .8px;
+  color: var(--text-dim); margin-bottom: 8px; padding-left: 4px;
+}
+.practice-cards { display: flex; flex-direction: column; gap: 8px; }
+.practice-card {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  background: rgba(37,27,94,0.55); border: 2px solid rgba(181,123,255,0.22);
+  border-radius: var(--radius-lg); padding: 14px;
+  cursor: pointer; text-align: left; font-family: var(--font-body);
   transition: all .18s;
 }
-.activity-card-drill:hover { background: rgba(255,215,0,0.3); transform: scale(1.04); }
+.practice-card:hover { transform: translateY(-2px); border-color: var(--gold); }
+.practice-card.strong { border-color: rgba(123,255,181,0.35); }
+.practice-card.ok     { border-color: rgba(255,209,102,0.35); }
+.practice-card-icon { font-size: 34px; flex-shrink: 0; }
+.practice-card-body { flex: 1; min-width: 0; }
+.practice-card-name { font-weight: 700; color: var(--text-primary); font-size: 16px; }
+.practice-card-detail { font-size: 12px; color: var(--text-secondary); margin: 2px 0 6px; }
+.practice-card-bar { display: block; height: 6px; background: rgba(255,255,255,0.1); border-radius: 999px; overflow: hidden; }
+.practice-card-bar span { display: block; height: 100%; background: linear-gradient(90deg,#ff9d7b,#ffd166,#7bffb5); border-radius: 999px; }
+.practice-card-pct { font-size: 13px; color: var(--text-dim); flex-shrink: 0; min-width: 38px; text-align: right; }
 
 /* === DRILL SETUP === */
+.drill-scroll { padding-bottom: 96px; }   /* clear the sticky bar */
+.drill-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(20,12,50,0.75), rgba(20,12,50,0.97));
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255,215,0,0.25);
+}
+.drill-bar-summary { flex: 1; font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
 .drill-head { text-align: center; padding: 8px 16px 4px; }
 .drill-head-icon { font-size: 46px; }
 .drill-title { font-family: var(--font-display); color: var(--gold); margin: 4px 0; }
@@ -1117,13 +1148,21 @@ body {
 .drill-themes { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; }
 
 .drill-start {
-  display: block; margin: 18px auto 30px; max-width: 560px; width: calc(100% - 24px);
+  flex-shrink: 0;
   background: linear-gradient(135deg, var(--gold), #ffb84d);
-  color: #2a1f00; border: none; border-radius: var(--radius-lg);
-  padding: 16px; font-family: var(--font-display); font-size: 19px;
-  cursor: pointer; box-shadow: 0 6px 20px rgba(255,215,0,0.28);
+  color: #2a1f00; border: none; border-radius: 999px;
+  padding: 14px 30px; font-family: var(--font-display); font-size: 19px;
+  cursor: pointer; box-shadow: 0 4px 16px rgba(255,215,0,0.32);
+  transition: all .18s;
 }
 .drill-start:hover { transform: translateY(-2px); }
+.drill-start.disabled { opacity: .45; box-shadow: none; }
+
+/* Bigger, easier targets — these are tapped by a six year old. */
+.drill-table { min-height: 62px; }
+.drill-table-num { font-size: 20px; }
+.drill-chip { padding: 10px 18px; font-size: 14px; }
+.drill-mode { padding: 14px 8px; }
 
 /* === BAR MODEL v2 === */
 .bar-model-v2 { margin: 12px auto; max-width: 420px; }
@@ -3548,6 +3587,12 @@ body {
           <div class="world-card-progress"><div class="world-card-progress-fill" id="stem-progress" style="width:0%"></div></div>
         </div>
 
+        <div class="world-card practice-tile" onclick="showScreen('practice')">
+          <span class="world-card-icon">&#127919;</span>
+          <div class="world-card-title">Practice</div>
+          <div class="world-card-desc">Pick exactly what to work on — times tables, adding, story problems.</div>
+        </div>
+
         <div class="world-card malay" onclick="showScreen('malay-world')">
           <span class="world-card-icon">&#127802;</span>
           <div class="world-card-title">Dunia Melayu</div>
@@ -3720,6 +3765,11 @@ body {
     <!-- INDIVIDUAL SIM SCREEN -->
     <div class="screen" id="screen-sim">
       <div id="sim-content"></div>
+    </div>
+
+    <!-- PRACTICE HUB SCREEN -->
+    <div class="screen" id="screen-practice">
+      <div id="practice-content"></div>
     </div>
 
     <!-- DRILL SETUP SCREEN -->
@@ -6068,17 +6118,6 @@ function renderActivityCards(tree, containerId, worldType) {
         learnBadge = '<span class="learn-done-dot" title="Lesson completed">📖</span>';
       }
 
-      // Skills with drill options get a direct route to the setup
-      // screen. Without this the only way in was Quiz tab -> "Choose
-      // what to practise", four taps deep and invisible until you got
-      // there \u2014 so nobody found it.
-      let drillBtn = '';
-      if (unlocked && typeof skillHasDrill === 'function' && skillHasDrill(skill.id)) {
-        drillBtn = `<button class="activity-card-drill"
-          onclick="event.stopPropagation(); openDrillSetup('${skill.id}','${worldType}')"
-          title="Choose exactly what to practise">\uD83C\uDFAF Choose</button>`;
-      }
-
       html += `<div class="activity-card ${unlocked ? '' : 'locked'}"
         onclick="${unlocked ? `openSkillView('${skill.id}','${worldType}')` : ''}"
         ${unlocked ? '' : 'title="Locked"'}>
@@ -6088,7 +6127,6 @@ function renderActivityCards(tree, containerId, worldType) {
         <div class="activity-card-level">${unlocked ? `Level ${s.level + 1} \u00B7 ${CPA_LEVELS[s.level] || 'Concrete'}` : '\uD83D\uDD12 Locked'}</div>
         ${lockText}
         <div class="mastery-stars">${stars}</div>
-        ${drillBtn}
       </div>`;
     }
 
@@ -9372,6 +9410,86 @@ function resolveDrillConfig(skillId) {
   return resolved;
 }
 
+// ---- Practice hub -------------------------------------------------------
+//
+//  The skill tree is the guided journey: it gates, it unlocks, it tells
+//  a child where to go next. That is the right model for exploring.
+//
+//  It is the wrong model for "I want to drill the 7 times table tonight".
+//  This screen is the other door — you already know what you want, so
+//  everything drillable is here, ungated, one tap from Home. Locked
+//  skills still show as "new" so the tree's pacing is visible, but a
+//  parent is never blocked from practising something deliberately.
+
+var PRACTICE_GROUPS = [
+  { title: 'Times Tables & Sharing', skills: ['mul', 'div'] },
+  { title: 'Adding & Taking Away',   skills: ['add', 'sub', 'add100', 'sub100', 'nbond'] },
+  { title: 'Numbers',                skills: ['count'] },
+  { title: 'Time & Money',           skills: ['time1', 'money'] },
+  { title: 'Story Problems',         skills: ['wp1', 'multiwp'] }
+];
+
+function renderPracticeHub() {
+  var c = document.getElementById('practice-content');
+  if (!c) return;
+
+  var html = '<button class="back-btn" onclick="showScreen(\'home\')">← Back to Home</button>';
+  html += '<div class="practice-head">';
+  html += '<div class="practice-head-icon">🎯</div>';
+  html += '<h2 class="practice-title">Practice</h2>';
+  html += '<p class="practice-sub">Pick exactly what you want to work on.</p>';
+  html += '</div>';
+
+  PRACTICE_GROUPS.forEach(function(group) {
+    var available = group.skills.filter(function(id) {
+      return DRILL_OPTIONS[id] && (typeof MATH_TREE === 'undefined' || MATH_TREE[id]);
+    });
+    if (available.length === 0) return;
+
+    html += '<div class="practice-group">';
+    html += '<div class="practice-group-title">' + group.title + '</div>';
+    html += '<div class="practice-cards">';
+
+    available.forEach(function(id) {
+      var opt = DRILL_OPTIONS[id];
+      var st = (typeof getSkillState === 'function') ? getSkillState(id) : { mastery: 0 };
+      var m = st.mastery || 0;
+      var tone = m >= 80 ? 'strong' : (m >= 40 ? 'ok' : 'new');
+
+      // A one-line summary of the weakest bit, so the card tells her
+      // something she does not already know.
+      var detail = '';
+      if (opt.tables && typeof weakestSubSkills === 'function') {
+        var tried = opt.tables.values.filter(function(t) { return subSkillMastery(id, t) !== null; });
+        if (tried.length > 0) {
+          var weak = weakestSubSkills(id, tried, 1)[0];
+          detail = 'Trickiest right now: ' + weak + (id === 'div' ? '÷' : '×');
+        } else {
+          detail = opt.tables.values.length + ' tables to choose from';
+        }
+      } else if (opt.ranges) {
+        detail = opt.ranges.length + ' levels to choose from';
+      } else if (opt.structures) {
+        detail = 'Singapore bar model problems';
+      }
+
+      html += '<button class="practice-card ' + tone + '" onclick="openDrillSetup(\'' + id + '\',\'math\')">';
+      html += '<div class="practice-card-icon">' + opt.icon + '</div>';
+      html += '<div class="practice-card-body">';
+      html += '<div class="practice-card-name">' + opt.title + '</div>';
+      html += '<div class="practice-card-detail">' + detail + '</div>';
+      html += '<div class="practice-card-bar"><span style="width:' + m + '%"></span></div>';
+      html += '</div>';
+      html += '<div class="practice-card-pct">' + m + '%</div>';
+      html += '</button>';
+    });
+
+    html += '</div></div>';
+  });
+
+  c.innerHTML = html;
+}
+
 // ---- Drill setup screen -------------------------------------------------
 
 function openDrillSetup(skillId, worldType) {
@@ -9390,12 +9508,15 @@ function renderDrillSetup() {
   var cfg = getDrillConfig(skillId);
 
   var html = '';
-  html += '<button class="back-btn" onclick="showScreen(\'math-world\')">← Back</button>';
+  html += '<button class="back-btn" onclick="showScreen(\'practice\')">← Back to Practice</button>';
   html += '<div class="drill-head">';
   html += '<div class="drill-head-icon">' + opt.icon + '</div>';
   html += '<h2 class="drill-title">' + opt.title + '</h2>';
   html += '<p class="drill-blurb">' + opt.blurb + '</p>';
   html += '</div>';
+  // Everything sits above a sticky start bar, so the scroll area needs
+  // room to clear it.
+  html += '<div class="drill-scroll">';
 
   // --- Times tables / divisor picker ---
   if (opt.tables) {
@@ -9497,8 +9618,32 @@ function renderDrillSetup() {
     html += '</div>';
   }
 
-  // --- Start ---
-  html += '<button class="drill-start" onclick="drillStart()">Start ' + (DRILL_MODE_META[cfg.mode] || {}).label + ' →</button>';
+  html += '</div>'; // .drill-scroll
+
+  // --- Sticky start bar ---
+  // The start button used to sit at the very bottom of a long scrolling
+  // form, so on a phone you had to scroll past every option to begin.
+  // It now stays on screen and states exactly what is about to happen.
+  var summary = [];
+  if (opt.tables) {
+    var sel = cfg.tables || [];
+    if (sel.length === 0) summary.push('nothing picked yet');
+    else if (sel.length === opt.tables.values.length) summary.push('all tables');
+    else summary.push(sel.map(function(t) { return opt.tables.subLabel(t); }).join(' '));
+  }
+  if (opt.ranges && cfg.rangeKey) {
+    var rr = opt.ranges.find(function(x) { return x.key === cfg.rangeKey; });
+    if (rr) summary.push(rr.label.toLowerCase());
+  }
+  if (opt.structures && cfg.structure) summary.push(cfg.structure.replace('-', ' '));
+  summary.push(cfg.count + ' questions');
+
+  var ready = !(opt.tables && (!cfg.tables || cfg.tables.length === 0));
+  html += '<div class="drill-bar">';
+  html += '<div class="drill-bar-summary">' + summary.join(' · ') + '</div>';
+  html += '<button class="drill-start' + (ready ? '' : ' disabled') + '" onclick="drillStart()">' +
+          (DRILL_MODE_META[cfg.mode] || {}).icon + ' Start</button>';
+  html += '</div>';
 
   container.innerHTML = html;
 }
@@ -9571,6 +9716,7 @@ window.getDrillConfig = getDrillConfig;
 window.resolveDrillConfig = resolveDrillConfig;
 window.openDrillSetup = openDrillSetup;
 window.renderDrillSetup = renderDrillSetup;
+window.renderPracticeHub = renderPracticeHub;
 window.drillToggleTable = drillToggleTable;
 window.drillSelectAll = drillSelectAll;
 window.drillSelectNone = drillSelectNone;
@@ -21571,6 +21717,9 @@ function showScreen(screenId) {
   }
   if (screenId === 'sim-hub' && typeof renderSimHub === 'function') {
     renderSimHub();
+  }
+  if (screenId === 'practice' && typeof renderPracticeHub === 'function') {
+    renderPracticeHub();
   }
   if (screenId === 'drill-setup' && typeof renderDrillSetup === 'function') {
     renderDrillSetup();

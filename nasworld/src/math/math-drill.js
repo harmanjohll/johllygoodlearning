@@ -271,6 +271,86 @@ function resolveDrillConfig(skillId) {
   return resolved;
 }
 
+// ---- Practice hub -------------------------------------------------------
+//
+//  The skill tree is the guided journey: it gates, it unlocks, it tells
+//  a child where to go next. That is the right model for exploring.
+//
+//  It is the wrong model for "I want to drill the 7 times table tonight".
+//  This screen is the other door — you already know what you want, so
+//  everything drillable is here, ungated, one tap from Home. Locked
+//  skills still show as "new" so the tree's pacing is visible, but a
+//  parent is never blocked from practising something deliberately.
+
+var PRACTICE_GROUPS = [
+  { title: 'Times Tables & Sharing', skills: ['mul', 'div'] },
+  { title: 'Adding & Taking Away',   skills: ['add', 'sub', 'add100', 'sub100', 'nbond'] },
+  { title: 'Numbers',                skills: ['count'] },
+  { title: 'Time & Money',           skills: ['time1', 'money'] },
+  { title: 'Story Problems',         skills: ['wp1', 'multiwp'] }
+];
+
+function renderPracticeHub() {
+  var c = document.getElementById('practice-content');
+  if (!c) return;
+
+  var html = '<button class="back-btn" onclick="showScreen(\'home\')">← Back to Home</button>';
+  html += '<div class="practice-head">';
+  html += '<div class="practice-head-icon">🎯</div>';
+  html += '<h2 class="practice-title">Practice</h2>';
+  html += '<p class="practice-sub">Pick exactly what you want to work on.</p>';
+  html += '</div>';
+
+  PRACTICE_GROUPS.forEach(function(group) {
+    var available = group.skills.filter(function(id) {
+      return DRILL_OPTIONS[id] && (typeof MATH_TREE === 'undefined' || MATH_TREE[id]);
+    });
+    if (available.length === 0) return;
+
+    html += '<div class="practice-group">';
+    html += '<div class="practice-group-title">' + group.title + '</div>';
+    html += '<div class="practice-cards">';
+
+    available.forEach(function(id) {
+      var opt = DRILL_OPTIONS[id];
+      var st = (typeof getSkillState === 'function') ? getSkillState(id) : { mastery: 0 };
+      var m = st.mastery || 0;
+      var tone = m >= 80 ? 'strong' : (m >= 40 ? 'ok' : 'new');
+
+      // A one-line summary of the weakest bit, so the card tells her
+      // something she does not already know.
+      var detail = '';
+      if (opt.tables && typeof weakestSubSkills === 'function') {
+        var tried = opt.tables.values.filter(function(t) { return subSkillMastery(id, t) !== null; });
+        if (tried.length > 0) {
+          var weak = weakestSubSkills(id, tried, 1)[0];
+          detail = 'Trickiest right now: ' + weak + (id === 'div' ? '÷' : '×');
+        } else {
+          detail = opt.tables.values.length + ' tables to choose from';
+        }
+      } else if (opt.ranges) {
+        detail = opt.ranges.length + ' levels to choose from';
+      } else if (opt.structures) {
+        detail = 'Singapore bar model problems';
+      }
+
+      html += '<button class="practice-card ' + tone + '" onclick="openDrillSetup(\'' + id + '\',\'math\')">';
+      html += '<div class="practice-card-icon">' + opt.icon + '</div>';
+      html += '<div class="practice-card-body">';
+      html += '<div class="practice-card-name">' + opt.title + '</div>';
+      html += '<div class="practice-card-detail">' + detail + '</div>';
+      html += '<div class="practice-card-bar"><span style="width:' + m + '%"></span></div>';
+      html += '</div>';
+      html += '<div class="practice-card-pct">' + m + '%</div>';
+      html += '</button>';
+    });
+
+    html += '</div></div>';
+  });
+
+  c.innerHTML = html;
+}
+
 // ---- Drill setup screen -------------------------------------------------
 
 function openDrillSetup(skillId, worldType) {
@@ -289,12 +369,15 @@ function renderDrillSetup() {
   var cfg = getDrillConfig(skillId);
 
   var html = '';
-  html += '<button class="back-btn" onclick="showScreen(\'math-world\')">← Back</button>';
+  html += '<button class="back-btn" onclick="showScreen(\'practice\')">← Back to Practice</button>';
   html += '<div class="drill-head">';
   html += '<div class="drill-head-icon">' + opt.icon + '</div>';
   html += '<h2 class="drill-title">' + opt.title + '</h2>';
   html += '<p class="drill-blurb">' + opt.blurb + '</p>';
   html += '</div>';
+  // Everything sits above a sticky start bar, so the scroll area needs
+  // room to clear it.
+  html += '<div class="drill-scroll">';
 
   // --- Times tables / divisor picker ---
   if (opt.tables) {
@@ -396,8 +479,32 @@ function renderDrillSetup() {
     html += '</div>';
   }
 
-  // --- Start ---
-  html += '<button class="drill-start" onclick="drillStart()">Start ' + (DRILL_MODE_META[cfg.mode] || {}).label + ' →</button>';
+  html += '</div>'; // .drill-scroll
+
+  // --- Sticky start bar ---
+  // The start button used to sit at the very bottom of a long scrolling
+  // form, so on a phone you had to scroll past every option to begin.
+  // It now stays on screen and states exactly what is about to happen.
+  var summary = [];
+  if (opt.tables) {
+    var sel = cfg.tables || [];
+    if (sel.length === 0) summary.push('nothing picked yet');
+    else if (sel.length === opt.tables.values.length) summary.push('all tables');
+    else summary.push(sel.map(function(t) { return opt.tables.subLabel(t); }).join(' '));
+  }
+  if (opt.ranges && cfg.rangeKey) {
+    var rr = opt.ranges.find(function(x) { return x.key === cfg.rangeKey; });
+    if (rr) summary.push(rr.label.toLowerCase());
+  }
+  if (opt.structures && cfg.structure) summary.push(cfg.structure.replace('-', ' '));
+  summary.push(cfg.count + ' questions');
+
+  var ready = !(opt.tables && (!cfg.tables || cfg.tables.length === 0));
+  html += '<div class="drill-bar">';
+  html += '<div class="drill-bar-summary">' + summary.join(' · ') + '</div>';
+  html += '<button class="drill-start' + (ready ? '' : ' disabled') + '" onclick="drillStart()">' +
+          (DRILL_MODE_META[cfg.mode] || {}).icon + ' Start</button>';
+  html += '</div>';
 
   container.innerHTML = html;
 }
@@ -470,6 +577,7 @@ window.getDrillConfig = getDrillConfig;
 window.resolveDrillConfig = resolveDrillConfig;
 window.openDrillSetup = openDrillSetup;
 window.renderDrillSetup = renderDrillSetup;
+window.renderPracticeHub = renderPracticeHub;
 window.drillToggleTable = drillToggleTable;
 window.drillSelectAll = drillSelectAll;
 window.drillSelectNone = drillSelectNone;
