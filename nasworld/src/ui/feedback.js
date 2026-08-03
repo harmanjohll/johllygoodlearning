@@ -79,6 +79,13 @@ function handleCorrect(isStory) {
 
   updateSkillState(currentGame.skillId, true, currentGame.currentConfidence);
 
+  // Sub-skill tracking — this is what makes "your 8 times table is
+  // shaky" possible, rather than just "multiplication is shaky".
+  const _q = currentGame.questions && currentGame.questions[currentGame.currentIndex];
+  if (_q && _q.subKey && typeof recordSubSkill === 'function') {
+    recordSubSkill(currentGame.skillId, _q.subKey, true, Date.now() - (currentGame._questionStart || Date.now()));
+  }
+
   // Daily quest (legacy counter)
   const today = new Date().toDateString();
   if (state.dailyQuest.date === today) {
@@ -135,6 +142,22 @@ function handleWrong(correct) {
   currentGame.attempts++;
 
   updateSkillState(currentGame.skillId, false, currentGame.currentConfidence);
+
+  const _wq = currentGame.questions && currentGame.questions[currentGame.currentIndex];
+  if (_wq && _wq.subKey && typeof recordSubSkill === 'function') {
+    recordSubSkill(currentGame.skillId, _wq.subKey, false, Date.now() - (currentGame._questionStart || Date.now()));
+  }
+
+  // Keep a log so the end-of-session screen can show exactly what
+  // tripped her up, instead of a bare score.
+  if (_wq && currentGame.wrongLog) {
+    currentGame.wrongLog.push({
+      index: currentGame.currentIndex,
+      question: _wq,
+      given: undefined,
+      correct: correct
+    });
+  }
 
   setTimeout(() => {
     showFeedback(false, 0, false, false, correct);

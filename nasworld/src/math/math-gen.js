@@ -2,26 +2,41 @@
 //  MATH GENERATORS — Question generators for all 28 skills
 // ============================================================
 
-function generateMathQuestion(skillId) {
+function generateMathQuestion(skillId, config) {
   const diff = getSkillDifficulty(skillId);
+
+  // A drill config can override the adaptive number range, so that
+  // "practise adding up to 100" means exactly that regardless of level.
+  if (config && config.numberRange) {
+    diff.numberRange = config.numberRange.slice();
+  }
+  diff.config = config || null;
+
+  // Word-problem mode short-circuits: if the learner asked for story
+  // problems, serve those regardless of which skill she came in through.
+  if (config && config.mode === 'word') {
+    const wp = generateWordProblemFor(skillId, config, diff);
+    if (wp) return wp;
+  }
+
   switch (skillId) {
     // P1
     case 'count': return genCount(diff);
-    case 'nbond': return genNBond(diff);
-    case 'add':   return genAdd(diff);
-    case 'sub':   return genSub(diff);
+    case 'nbond': return genNBond(diff, config);
+    case 'add':   return genAdd(diff, config);
+    case 'sub':   return genSub(diff, config);
     case 'cmp':   return genCmp(diff);
     case 'pat':   return genPat(diff);
-    case 'wp1':   return genWP1(diff);
+    case 'wp1':   return genWP1(diff, config);
     case 'shp':   return genShp(diff);
     // P2
-    case 'add100':  return genAdd100(diff);
-    case 'sub100':  return genSub100(diff);
-    case 'mul':     return genMul(diff);
-    case 'div':     return genDiv(diff);
+    case 'add100':  return genAdd100(diff, config);
+    case 'sub100':  return genSub100(diff, config);
+    case 'mul':     return genMul(diff, config);
+    case 'div':     return genDiv(diff, config);
     case 'frac1':   return genFrac1(diff);
-    case 'money':   return genMoney(diff);
-    case 'time1':   return genTime1(diff);
+    case 'money':   return genMoney(diff, config);
+    case 'time1':   return genTime1(diff, config);
     case 'pgraph':  return genPGraph(diff);
     case 'lenmass': return genLenMass(diff);
     // P3
@@ -54,46 +69,67 @@ function genCount(diff) {
   return { type: 'ten-frame-count', number: n, answer: n, hint: 'Count each dot carefully! Try counting in groups.' };
 }
 
-function genNBond(diff) {
-  const maxNum = diff.level >= 2 ? 20 : 10;
-  const whole = rand(3, maxNum);
+function genNBond(diff, config) {
+  // A drill config pins the whole ("bonds to 10"); otherwise it follows level.
+  const maxNum = (config && config.numberRange) ? config.numberRange[1]
+                                                : (diff.level >= 2 ? 20 : 10);
+  // Bonds to a FIXED whole are the ones worth automating, so when the
+  // learner picks "bonds to 10" we hold the whole at 10 most of the time.
+  const whole = (config && config.numberRange && Math.random() < 0.75)
+    ? maxNum
+    : rand(3, maxNum);
   const partA = rand(1, whole - 1);
   const partB = whole - partA;
   const missingPart = Math.random() < 0.5 ? 'left' : 'right';
   return {
     type: 'number-bond', whole, partA, partB, missingPart,
     answer: missingPart === 'left' ? partA : partB,
+    subKey: (config && config.rangeKey) || ('to-' + maxNum),
     hint: 'If the whole is ' + whole + ' and one part is ' + (missingPart === 'left' ? partB : partA) + ', what\'s the other part?',
     isConcrete: diff.isConcrete
   };
 }
 
-function genAdd(diff) {
-  const [min, max] = diff.numberRange;
-  const a = rand(min, Math.floor(max / 2));
-  const b = rand(min, Math.floor(max / 2));
+function genAdd(diff, config) {
+  // Singapore framing: a range of [1,10] means "addition WITHIN 10",
+  // i.e. the SUM must not exceed 10. The old code halved the range and
+  // so "up to 10" quietly meant "addends up to 5".
+  const max = diff.numberRange[1];
+  const a = rand(1, Math.max(1, max - 1));
+  const b = rand(1, Math.max(1, max - a));
   const sum = a + b;
   const emoji = pick(OBJECT_EMOJIS);
+  const subKey = (config && config.rangeKey) || ('1-' + max);
+  const base = { a: a, b: b, answer: sum, subKey: subKey };
+
   if (diff.isConcrete) {
-    return { type: 'addition-concrete', a, b, answer: sum, emoji, hint: 'Count all the objects together! ' + a + ' and ' + b + ' more makes...' };
+    return Object.assign(base, { type: 'addition-concrete', emoji: emoji,
+      hint: 'Count all the objects together! ' + a + ' and ' + b + ' more makes...' });
   } else if (diff.isPictorial) {
-    return { type: 'addition-pictorial', a, b, answer: sum, emoji, hint: 'Look at the bar model. How many in total?' };
-  } else {
-    return { type: 'addition-abstract', a, b, answer: sum, hint: 'Try counting on from the bigger number.' };
+    return Object.assign(base, { type: 'addition-pictorial', emoji: emoji,
+      hint: 'Look at the bar model. How many in total?' });
   }
+  return Object.assign(base, { type: 'addition-abstract',
+    hint: a >= b ? ('Try counting on from ' + a + '.') : ('Try counting on from ' + b + '.') });
 }
 
-function genSub(diff) {
-  const [min, max] = diff.numberRange;
-  const b = rand(min, Math.floor(max / 2));
-  const a = rand(b + 1, Math.min(b + Math.floor(max / 2), max));
+function genSub(diff, config) {
+  // "Subtraction within 20" means the STARTING number can be up to 20.
+  const max = diff.numberRange[1];
+  const a = rand(2, max);
+  const b = rand(1, a - 1);          // never negative, never trivially zero
   const result = a - b;
   const emoji = pick(OBJECT_EMOJIS);
+  const subKey = (config && config.rangeKey) || ('1-' + max);
+  const base = { a: a, b: b, answer: result, subKey: subKey };
+
   if (diff.isConcrete) {
-    return { type: 'subtraction-concrete', a, b, answer: result, emoji, hint: 'Start with ' + a + ', then take away ' + b + '. How many are left?' };
-  } else {
-    return { type: 'subtraction-abstract', a, b, answer: result, hint: 'Start at ' + a + ' and count back ' + b + '.' };
+    return Object.assign(base, { type: 'subtraction-concrete', emoji: emoji,
+      hint: 'Start with ' + a + ', then take away ' + b + '. How many are left?' });
   }
+  return Object.assign(base, { type: 'subtraction-abstract',
+    hint: b > result ? ('Try counting up from ' + b + ' to ' + a + '.')
+                     : ('Start at ' + a + ' and count back ' + b + '.') });
 }
 
 function genCmp(diff) {
@@ -146,7 +182,11 @@ function genShp(diff) {
   if (Math.random() < 0.5) {
     var shape = pick(SHAPE_DATA);
     var wrong = shuffle(SHAPE_DATA.filter(function(s) { return s.name !== shape.name; })).slice(0, 3);
-    return { type: 'shape-identify', shape, options: shuffle([shape, ...wrong]), hint: 'Count the sides and corners!' };
+    // answer is carried explicitly as well as inside `shape`, so any
+    // generic consumer (review screen, spaced repetition, stats) can
+    // read q.answer without special-casing this question type.
+    return { type: 'shape-identify', shape, answer: shape.name,
+      options: shuffle([shape, ...wrong]), hint: 'Count the sides and corners!' };
   } else {
     var sh = pick(SHAPE_DATA);
     return { type: 'shape-properties', shape: sh, answer: sh.sides, hint: 'Trace around the shape and count each side.' };
@@ -155,42 +195,142 @@ function genShp(diff) {
 
 // ===================== P2 GENERATORS =====================
 
-function genAdd100(diff) {
+function genAdd100(diff, config) {
+  // Regrouping ("carrying") is the actual hurdle in 2-digit addition,
+  // so the drill screen lets her practise with it or without it.
+  var flag = config && config.flag;
   var a, b;
-  if (diff.isConcrete) {
-    a = rand(10, 50); b = rand(10, 50);
+
+  if (flag === 'noRegroup') {
+    // Guarantee ones digits sum to under 10 so no carry is needed.
+    var aOnes = rand(0, 8), bOnes = rand(0, 9 - aOnes);
+    var aTens = rand(1, 8), bTens = rand(1, 9 - aTens);
+    a = aTens * 10 + aOnes;
+    b = bTens * 10 + bOnes;
+  } else if (flag === 'regroup') {
+    // Force the ones digits to cross ten.
+    var aO = rand(2, 9), bO = rand(10 - aO, 9);
+    var aT = rand(1, 7), bT = rand(1, 8 - aT);
+    a = aT * 10 + aO;
+    b = bT * 10 + bO;
+  } else if (diff.isConcrete) {
+    a = rand(10, 50); b = rand(10, 49);
   } else if (diff.isPictorial) {
-    a = rand(20, 60); b = rand(20, 40);
+    a = rand(20, 60); b = rand(20, 39);
   } else {
-    a = rand(10, 89); b = rand(10, 99 - a);
+    a = rand(10, 89); b = rand(10, Math.max(10, 99 - a));
   }
-  return { type: 'addition-100', a, b, answer: a + b, isConcrete: diff.isConcrete, isPictorial: diff.isPictorial,
-    hint: 'Try adding the tens first, then the ones.' };
+  return { type: 'addition-100', a: a, b: b, answer: a + b,
+    subKey: (config && config.rangeKey) || 'mixed',
+    isConcrete: diff.isConcrete, isPictorial: diff.isPictorial,
+    hint: ((a % 10) + (b % 10) >= 10)
+      ? 'The ones add up past ten, so you will need to carry one ten over.'
+      : 'Try adding the tens first, then the ones.' };
 }
 
-function genSub100(diff) {
-  var a = rand(30, 99);
-  var b = rand(10, a - 1);
-  return { type: 'subtraction-100', a, b, answer: a - b, isConcrete: diff.isConcrete,
-    hint: 'Try subtracting the tens first, then the ones.' };
+function genSub100(diff, config) {
+  var flag = config && config.flag;
+  var a, b;
+
+  if (flag === 'noRegroup') {
+    // Every digit of b is <= the matching digit of a, so no borrowing.
+    var aT = rand(2, 9), aO = rand(1, 9);
+    a = aT * 10 + aO;
+    b = rand(1, aT - 1) * 10 + rand(0, aO);
+  } else if (flag === 'regroup') {
+    // Ones digit of b exceeds ones digit of a, forcing a borrow.
+    var at = rand(2, 9), ao = rand(0, 7);
+    a = at * 10 + ao;
+    b = rand(1, at - 1) * 10 + rand(ao + 1, 9);
+  } else {
+    a = rand(30, 99);
+    b = rand(10, a - 1);
+  }
+  return { type: 'subtraction-100', a: a, b: b, answer: a - b,
+    subKey: (config && config.rangeKey) || 'mixed',
+    isConcrete: diff.isConcrete,
+    hint: ((a % 10) < (b % 10))
+      ? 'The ones will not go, so break one ten open and borrow it.'
+      : 'Try subtracting the tens first, then the ones.' };
 }
 
-function genMul(diff) {
-  var tables = [2, 3, 4, 5, 10];
-  var table = pick(tables);
-  var n = rand(1, 10);
+function genMul(diff, config) {
+  // Honour an explicit table selection from the Drill screen. Without
+  // one, fall back to the tables a P2 child is expected to know.
+  var tables = (config && config.tables && config.tables.length)
+    ? config.tables
+    : [2, 3, 4, 5, 10];
+
+  // Bias selection toward the tables she is weakest at, so a mixed
+  // drill still spends its time where it is needed.
+  var table = _weightedPickSubSkill('mul', tables);
+  var n = rand(1, 12);
+
+  // Missing-factor variants build true fluency rather than recall of a
+  // chant. Only once she is past the concrete stage.
+  var variant = 'product';
+  if (!diff.isConcrete && Math.random() < 0.25) variant = 'missing-factor';
+
   var answer = table * n;
-  return { type: 'multiplication', table, n, answer, isConcrete: diff.isConcrete, isPictorial: diff.isPictorial,
-    hint: table + ' times ' + n + ' means ' + n + ' groups of ' + table + '.' };
+  if (variant === 'missing-factor') {
+    return {
+      type: 'multiplication', variant: 'missing-factor',
+      table: table, n: n, product: answer, answer: n,
+      subKey: String(table),
+      isConcrete: false, isPictorial: false,
+      hint: 'How many ' + table + 's make ' + answer + '? Count up in ' + table + 's.'
+    };
+  }
+
+  return {
+    type: 'multiplication', variant: 'product',
+    table: table, n: n, answer: answer,
+    subKey: String(table),
+    isConcrete: diff.isConcrete, isPictorial: diff.isPictorial,
+    hint: table + ' times ' + n + ' means ' + n + ' groups of ' + table + '.'
+  };
 }
 
-function genDiv(diff) {
-  var divisors = [2, 3, 4, 5];
-  var divisor = pick(divisors);
-  var quotient = rand(1, 10);
+/**
+ * Pick a sub-skill (times table, number band) with a bias toward the
+ * ones the learner is weakest at. Untried items get a middling weight
+ * so brand-new material still appears without dominating.
+ */
+function _weightedPickSubSkill(skillId, candidates) {
+  if (!candidates || candidates.length === 0) return null;
+  if (candidates.length === 1) return candidates[0];
+  if (typeof subSkillMastery !== 'function') return pick(candidates);
+
+  var weights = candidates.map(function(c) {
+    var m = subSkillMastery(skillId, c);
+    if (m === null) return 3;           // untried: moderate priority
+    if (m >= 85) return 1;              // mastered: keep it warm, no more
+    if (m >= 60) return 3;
+    if (m >= 35) return 5;
+    return 7;                            // weak: hammer it
+  });
+  var total = weights.reduce(function(a, b) { return a + b; }, 0);
+  var r = Math.random() * total;
+  for (var i = 0; i < candidates.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return candidates[i];
+  }
+  return candidates[candidates.length - 1];
+}
+
+function genDiv(diff, config) {
+  var divisors = (config && config.tables && config.tables.length)
+    ? config.tables
+    : [2, 3, 4, 5, 10];
+  var divisor = _weightedPickSubSkill('div', divisors);
+  var quotient = rand(1, 12);
   var dividend = divisor * quotient;
-  return { type: 'division', dividend, divisor, answer: quotient, isConcrete: diff.isConcrete,
-    hint: 'Share ' + dividend + ' equally into ' + divisor + ' groups. How many in each group?' };
+  return {
+    type: 'division', dividend: dividend, divisor: divisor, answer: quotient,
+    subKey: String(divisor),
+    isConcrete: diff.isConcrete,
+    hint: 'Share ' + dividend + ' equally into ' + divisor + ' groups. How many in each group?'
+  };
 }
 
 function genFrac1(diff) {
@@ -206,7 +346,8 @@ function genFrac1(diff) {
   }
 }
 
-function genMoney(diff) {
+function genMoney(diff, config) {
+  var flag = config && config.flag;
   var items = [
     { name: 'pencil', price: rand(1, 5) * 10 },
     { name: 'eraser', price: rand(1, 3) * 10 },
@@ -215,36 +356,73 @@ function genMoney(diff) {
     { name: 'sticker', price: rand(1, 4) * 10 + rand(0, 1) * 5 }
   ];
   var item = pick(items);
-  if (Math.random() < 0.5) {
+  var wantAdd = flag === 'add' ? true : (flag === 'change' ? false : Math.random() < 0.5);
+  if (wantAdd) {
     var item2 = pick(items.filter(function(i) { return i.name !== item.name; }));
     var total = item.price + item2.price;
     return { type: 'money-add', item1: item, item2: item2, answer: total,
+      subKey: (config && config.rangeKey) || 'mixed',
       hint: 'Add the two prices together. ' + item.price + ' + ' + item2.price + ' cents.' };
   } else {
     var paid = Math.ceil(item.price / 100) * 100;
     if (paid <= item.price) paid = item.price + rand(1, 5) * 10;
     var change = paid - item.price;
     return { type: 'money-change', item, paid, answer: change,
+      subKey: (config && config.rangeKey) || 'mixed',
       hint: 'How much change from ' + paid + ' cents after buying something for ' + item.price + ' cents?' };
   }
 }
 
-function genTime1(diff) {
+function genTime1(diff, config) {
   var hour = rand(1, 12);
   var minutes;
-  if (diff.level <= 1) {
-    minutes = pick([0, 30]);
-  } else {
-    minutes = pick([0, 15, 30, 45]);
-  }
+  var flag = config && config.flag;
+  if (flag === 'oclock')        minutes = 0;
+  else if (flag === 'half')     minutes = pick([0, 30]);
+  else if (flag === 'quarter')  minutes = pick([0, 15, 30, 45]);
+  else if (flag === 'fivemin')  minutes = pick([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]);
+  else if (diff.level <= 1)     minutes = pick([0, 30]);
+  else                          minutes = pick([0, 15, 30, 45]);
   var timeStr = hour + ':' + (minutes < 10 ? '0' : '') + minutes;
+  var subKey = (config && config.rangeKey) || 'mixed';
+
   if (Math.random() < 0.5) {
-    return { type: 'time-read', hour, minutes, answer: timeStr,
+    return { type: 'time-read', hour, minutes, answer: timeStr, subKey: subKey,
       hint: 'The short hand shows the hour, the long hand shows the minutes.' };
-  } else {
-    return { type: 'time-set', hour, minutes, answer: timeStr,
-      hint: 'Set the clock to show ' + timeStr + '.' };
   }
+
+  // "Which clock shows...?" — the mirror of reading a clock: she is
+  // given the time in words and picks the matching face.
+  //
+  // This replaces the old 'time-set' type, which was broken twice over:
+  // it rendered through renderTimeRead (asking "what time does the clock
+  // show?" while displaying the answer) and its hint printed the answer
+  // verbatim ("Set the clock to show 6:00").
+  var words = timeInWords(hour, minutes);
+  var faces = [{ hour: hour, minutes: minutes }];
+  var guard = 0;
+  while (faces.length < 4 && guard++ < 60) {
+    var fh = rand(1, 12);
+    var fm = pick(minutes === 0 ? [0, 30] : [0, 15, 30, 45]);
+    if (!faces.some(function(f) { return f.hour === fh && f.minutes === fm; })) {
+      faces.push({ hour: fh, minutes: fm });
+    }
+  }
+  return {
+    type: 'time-match', hour: hour, minutes: minutes,
+    words: words, answer: timeStr, faces: shuffle(faces), subKey: subKey,
+    hint: 'The short hand points to the hour. The long hand tells you how far past it.'
+  };
+}
+
+/** "half past 3", "3 o'clock", "quarter past 3", "quarter to 4". */
+function timeInWords(hour, minutes) {
+  if (minutes === 0)  return hour + " o'clock";
+  if (minutes === 30) return 'half past ' + hour;
+  if (minutes === 15) return 'quarter past ' + hour;
+  if (minutes === 45) return 'quarter to ' + (hour === 12 ? 1 : hour + 1);
+  if (minutes < 30)   return minutes + ' minutes past ' + hour;
+  return (60 - minutes) + ' minutes to ' + (hour === 12 ? 1 : hour + 1);
 }
 
 function genPGraph(diff) {
@@ -420,9 +598,14 @@ function genFactor(diff) {
     return { type: 'find-factors', number: n, answer: factors.join(','), factors,
       hint: 'Which numbers divide evenly into ' + n + '?' };
   } else {
+    // Avoid pairs where one divides the other: there the LCM is simply
+    // the larger number, which the hint would then hand over for free.
     var a = pick([2, 3, 4, 5, 6]);
     var b = pick([3, 4, 5, 6, 7, 8]);
-    while (a === b) b = pick([3, 4, 5, 6, 7, 8]);
+    var guardL = 0;
+    while ((a === b || b % a === 0 || a % b === 0) && guardL++ < 40) {
+      b = pick([3, 4, 5, 6, 7, 8]);
+    }
     return { type: 'find-lcm', a, b, answer: lcm(a, b),
       hint: 'List multiples of ' + a + ' and ' + b + '. Find the smallest number in both lists.' };
   }

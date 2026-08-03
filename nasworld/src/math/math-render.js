@@ -27,6 +27,7 @@ function renderMathQuestion(card, q) {
     case 'money-add':           renderMoneyAdd(card, q); return true;
     case 'money-change':        renderMoneyChange(card, q); return true;
     case 'time-read':           renderTimeRead(card, q); return true;
+    case 'time-match':          renderTimeMatch(card, q); return true;
     case 'time-set':            renderTimeRead(card, q); return true;
     case 'picture-graph':       renderPictureGraph(card, q); return true;
     case 'length-compare':      renderLengthCompare(card, q); return true;
@@ -217,31 +218,156 @@ function renderPatternShape(card, q) {
   card.innerHTML = html;
 }
 
-function renderWordProblem(card, q) {
-  var html = '<div class="story-prompt" style="font-size:19px">' + q.text + '</div>';
-  if (q.isConcrete) {
-    html += '<div class="bar-model"><div class="bar-row">';
-    if (q.op === '+') {
-      html += '<div class="bar-segment part-a" style="flex:' + q.a + '">' + q.a + '</div>';
-      html += '<div class="bar-segment part-b" style="flex:' + q.b + '">' + q.b + '</div>';
-    } else {
-      html += '<div class="bar-segment whole" style="flex:' + q.a + '">' + q.a + '</div>';
-    }
+// ---- Bar model (the Singapore model-drawing method) --------------------
+//
+// Reads q.bar produced by word-problems.js:
+//   { style:'part-whole', parts:[{label,value,unknown}], total:{...} }
+//   { style:'comparison', bigger:{...}, smaller:{...}, difference:{...} }
+
+function renderBarModel(bar) {
+  if (!bar) return '';
+  var html = '<div class="bar-model-v2">';
+
+  if (bar.style === 'part-whole') {
+    var totalValue = bar.total.value || bar.parts.reduce(function(s, p) { return s + p.value; }, 0);
+    // Row of parts
+    html += '<div class="bm-row">';
+    bar.parts.forEach(function(p) {
+      var w = Math.max(8, (p.value / totalValue) * 100);
+      html += '<div class="bm-seg ' + (p.unknown ? 'bm-unknown' : 'bm-part') + '" style="width:' + w + '%">' +
+        '<span class="bm-val">' + (p.unknown ? '?' : p.value) + '</span>' +
+        '<span class="bm-label">' + p.label + '</span></div>';
+    });
     html += '</div>';
-    if (q.op === '-') {
-      html += '<div class="bar-row"><div class="bar-segment part-a" style="flex:' + q.b + '">' + q.b + '</div>';
-      html += '<div class="bar-segment unknown" style="flex:' + q.answer + '">?</div></div>';
-    } else {
-      html += '<div class="bar-row"><div class="bar-segment unknown" style="flex:1">?</div></div>';
+    // Whole underneath, braced
+    html += '<div class="bm-brace"></div>';
+    html += '<div class="bm-row bm-total-row">';
+    html += '<div class="bm-seg ' + (bar.total.unknown ? 'bm-unknown' : 'bm-total') + '" style="width:100%">' +
+      '<span class="bm-val">' + (bar.total.unknown ? '?' : bar.total.value) + '</span>' +
+      '<span class="bm-label">' + bar.total.label + '</span></div>';
+    html += '</div>';
+
+  } else if (bar.style === 'comparison') {
+    var maxV = Math.max(bar.bigger.value || 0, bar.smaller.value || 0) || 1;
+    html += '<div class="bm-row">';
+    html += '<div class="bm-seg ' + (bar.bigger.unknown ? 'bm-unknown' : 'bm-part') + '" style="width:' + ((bar.bigger.value / maxV) * 100) + '%">' +
+      '<span class="bm-val">' + (bar.bigger.unknown ? '?' : bar.bigger.value) + '</span>' +
+      '<span class="bm-label">' + bar.bigger.label + '</span></div>';
+    html += '</div>';
+    html += '<div class="bm-row">';
+    html += '<div class="bm-seg ' + (bar.smaller.unknown ? 'bm-unknown' : 'bm-part2') + '" style="width:' + ((bar.smaller.value / maxV) * 100) + '%">' +
+      '<span class="bm-val">' + (bar.smaller.unknown ? '?' : bar.smaller.value) + '</span>' +
+      '<span class="bm-label">' + bar.smaller.label + '</span></div>';
+    if (bar.difference) {
+      var dw = (Math.abs((bar.bigger.value || 0) - (bar.smaller.value || 0)) / maxV) * 100;
+      html += '<div class="bm-seg bm-diff" style="width:' + Math.max(10, dw) + '%">' +
+        '<span class="bm-val">' + (bar.difference.unknown ? '?' : bar.difference.value) + '</span>' +
+        '<span class="bm-label">' + bar.difference.label + '</span></div>';
     }
     html += '</div>';
   }
-  var options = generateMCQOptions(q.answer, Math.max(0, q.answer - 3), q.answer + 5, 4);
+
+  html += '</div>';
+  return html;
+}
+
+var WP_STRUCTURE_LABEL = {
+  'part-whole':   'Part and Whole',
+  'change':       'Change',
+  'comparison':   'Comparing',
+  'groups':       'Equal Groups',
+  'rate':         'Rate',
+  'before-after': 'Two Steps'
+};
+
+function renderWordProblem(card, q) {
+  var html = '';
+
+  // Name the structure. Recognising the shape of a problem is the
+  // skill that transfers to the exam.
+  if (q.structure && WP_STRUCTURE_LABEL[q.structure]) {
+    html += '<div class="wp-structure-tag">' + WP_STRUCTURE_LABEL[q.structure] +
+      (q.steps > 1 ? ' · ' + q.steps + ' steps' : '') +
+      (q._ai ? ' · ✨ fresh' : '') + '</div>';
+  }
+
+  html += '<div class="story-prompt wp-text">' + (q.emoji ? '<span class="wp-emoji">' + q.emoji + '</span>' : '') + q.text + '</div>';
+
+  // Bar model, hidden behind a button so she tries without it first.
+  if (q.bar) {
+    html += '<button class="wp-bar-toggle" onclick="wpToggleBar(this)">📊 Show me the bar model</button>';
+    html += '<div class="wp-bar-wrap hidden">' + renderBarModel(q.bar) + '</div>';
+  }
+
+  var options = mathSmartOptions(q.answer, q);
   html += '<div class="answer-options mt-2">' + options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(' + o + ', ' + q.answer + ', this)">' + o + '</button>';
   }).join('') + '</div>';
   html += renderHintBtn(q.hint);
   card.innerHTML = html;
+}
+
+function wpToggleBar(btn) {
+  var wrap = btn.parentElement.querySelector('.wp-bar-wrap');
+  if (!wrap) return;
+  var showing = !wrap.classList.contains('hidden');
+  wrap.classList.toggle('hidden');
+  btn.textContent = showing ? '📊 Show me the bar model' : '📊 Hide the bar model';
+}
+
+/**
+ * Distractors that mean something.
+ *
+ * Random wrong numbers teach nothing and are often trivially
+ * eliminable. These mirror the mistakes children actually make, so a
+ * wrong tap is diagnostic rather than noise.
+ */
+function mathSmartOptions(answer, q) {
+  answer = Number(answer);
+  var wrong = {};
+  function add(v) {
+    v = Math.round(v);
+    if (v !== answer && v >= 0 && v <= answer * 4 + 20) wrong[v] = true;
+  }
+
+  // Off-by-one: the classic counting slip.
+  add(answer + 1); add(answer - 1);
+
+  if (q) {
+    // Used the wrong operation.
+    if (q.a != null && q.b != null) {
+      add(q.a + q.b); add(Math.abs(q.a - q.b));
+    }
+    // Multiplication: neighbouring facts in the same table, and the
+    // very common "added instead of multiplied".
+    if (q.table != null && q.n != null) {
+      add(q.table * q.n + q.table);
+      add(q.table * q.n - q.table);
+      add(q.table + q.n);
+    }
+    // Division: multiplied instead.
+    if (q.dividend != null && q.divisor != null) {
+      add(q.dividend * q.divisor / 10);
+      add(q.divisor + 1 !== 0 ? q.dividend / (q.divisor + 1) : 0);
+    }
+  }
+
+  // Nearby values so the list is never short.
+  add(answer + 2); add(answer - 2); add(answer + 10); add(answer - 10);
+
+  var pool = Object.keys(wrong).map(Number).filter(function(v) { return isFinite(v) && v >= 0; });
+  // Shuffle then take three.
+  for (var i = pool.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+  }
+  var opts = pool.slice(0, 3);
+  opts.push(answer);
+  for (var k = opts.length - 1; k > 0; k--) {
+    var m = Math.floor(Math.random() * (k + 1));
+    var tmp = opts[k]; opts[k] = opts[m]; opts[m] = tmp;
+  }
+  return opts;
 }
 
 function renderShapeIdentify(card, q) {
@@ -301,6 +427,21 @@ function renderPlaceValueBlocks(n) {
 }
 
 function renderMultiplication(card, q) {
+  // Missing-factor form: 7 \u00D7 ? = 42. Builds real fluency instead of
+  // reciting the table in order.
+  if (q.variant === 'missing-factor') {
+    var mfHtml = '<div class="question-text mf-question">' +
+      q.table + ' \u00D7 <span class="mf-blank">?</span> = ' + q.product + '</div>';
+    mfHtml += '<div class="mf-sub">How many ' + q.table + 's make ' + q.product + '?</div>';
+    var mfOptions = mathSmartOptions(q.answer, q);
+    mfHtml += '<div class="answer-options mt-2">' + mfOptions.map(function(o) {
+      return '<button class="answer-btn" onclick="checkAnswer(' + o + ', ' + q.answer + ', this)">' + o + '</button>';
+    }).join('') + '</div>';
+    mfHtml += renderHintBtn(q.hint);
+    card.innerHTML = mfHtml;
+    return;
+  }
+
   var html = '<div class="question-text">' + q.table + ' \u00D7 ' + q.n + ' = ?</div>';
   if (q.isConcrete) {
     html += '<div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0">';
@@ -319,7 +460,7 @@ function renderMultiplication(card, q) {
     html += '</div>';
     html += '<div style="font-size:14px;color:var(--text-secondary)">' + q.n + ' rows of ' + q.table + '</div>';
   }
-  var options = generateMCQOptions(q.answer, Math.max(1, q.answer - 10), q.answer + 10, 4);
+  var options = mathSmartOptions(q.answer, q);
   html += '<div class="answer-options mt-2">' + options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(' + o + ', ' + q.answer + ', this)">' + o + '</button>';
   }).join('') + '</div>';
@@ -395,6 +536,22 @@ function renderMoneyChange(card, q) {
   html += '<div class="answer-options mt-2">' + options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(' + o + ', ' + q.answer + ', this)">' + o + '\u00A2</button>';
   }).join('') + '</div>';
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+// "Which clock shows half past 3?" — she reads the words and picks the
+// matching face. The inverse skill to reading a clock, and it cannot
+// give itself away the way the old time-set question did.
+function renderTimeMatch(card, q) {
+  var html = '<div class="question-text">Which clock shows <strong style="color:var(--gold)">' + q.words + '</strong>?</div>';
+  html += '<div class="time-match-grid">';
+  q.faces.forEach(function(f) {
+    var val = f.hour + ':' + (f.minutes < 10 ? '0' : '') + f.minutes;
+    html += '<button class="time-match-face" onclick="checkAnswer(\'' + val + '\', \'' + q.answer + '\', this)">' +
+      renderClockSVG(f.hour, f.minutes, 110) + '</button>';
+  });
+  html += '</div>';
   html += renderHintBtn(q.hint);
   card.innerHTML = html;
 }

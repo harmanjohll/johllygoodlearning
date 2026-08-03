@@ -61,6 +61,12 @@ function showScreen(screenId) {
   if (screenId === 'sim-hub' && typeof renderSimHub === 'function') {
     renderSimHub();
   }
+  if (screenId === 'drill-setup' && typeof renderDrillSetup === 'function') {
+    renderDrillSetup();
+  }
+  if (screenId === 'settings' && typeof renderSettings === 'function') {
+    renderSettings();
+  }
   if (screenId === 'garden') {
     if (typeof renderGardenIsland === 'function') renderGardenIsland();
     renderGarden();
@@ -200,22 +206,52 @@ function openSkillView(skillId, worldType) {
         recordSkillActivity(skillId, 'explore');
       }
     } else if (tabName === 'quiz') {
-      // Show quiz in the tab content area
-      content.innerHTML = '<div class="skill-quiz-start">' +
-        '<div class="skill-quiz-icon">⚡</div>' +
-        '<div class="skill-quiz-title">Ready for the quiz?</div>' +
-        '<div class="skill-quiz-desc">8 questions to test your understanding</div>' +
-        '<button class="lesson-btn lesson-btn-done" id="start-quiz-btn">Start Quiz →</button>' +
-        '</div>';
+      // Skills with drill options get a "choose your practice" route
+      // as well as the plain quick quiz.
+      var canDrill = (worldType === 'math') &&
+                     typeof skillHasDrill === 'function' && skillHasDrill(skillId);
+
+      var quizHtml = '<div class="skill-quiz-start">';
+      quizHtml += '<div class="skill-quiz-icon">⚡</div>';
+      quizHtml += '<div class="skill-quiz-title">Ready to practise?</div>';
+
+      if (canDrill) {
+        var _cfg = getDrillConfig(skillId);
+        var _opt = DRILL_OPTIONS[skillId];
+        var _sum = [];
+        if (_opt.tables && _cfg.tables && _cfg.tables.length) {
+          _sum.push(_cfg.tables.length === _opt.tables.values.length
+            ? 'all tables'
+            : _cfg.tables.join(', ') + '×');
+        }
+        if (_opt.ranges && _cfg.rangeKey) {
+          var _r = _opt.ranges.find(function(x) { return x.key === _cfg.rangeKey; });
+          if (_r) _sum.push(_r.label.toLowerCase());
+        }
+        _sum.push(_cfg.count + ' questions');
+        quizHtml += '<div class="skill-quiz-desc">Last time: ' + _sum.join(' · ') + '</div>';
+        quizHtml += '<button class="lesson-btn lesson-btn-done" id="start-quiz-btn">Start ⚡</button>';
+        quizHtml += '<button class="lesson-btn" id="drill-setup-btn">🎯 Choose what to practise</button>';
+      } else {
+        quizHtml += '<div class="skill-quiz-desc">8 questions to test your understanding</div>';
+        quizHtml += '<button class="lesson-btn lesson-btn-done" id="start-quiz-btn">Start Quiz →</button>';
+      }
+      quizHtml += '</div>';
+      content.innerHTML = quizHtml;
+
       document.getElementById('start-quiz-btn').onclick = function() {
+        var cfg = canDrill && typeof resolveDrillConfig === 'function'
+          ? resolveDrillConfig(skillId) : null;
         if (typeof metaConfidenceBefore === 'function') {
           metaConfidenceBefore(skillId, function() {
-            startGame(skillId, worldType);
+            startGame(skillId, worldType, cfg);
           });
         } else {
-          startGame(skillId, worldType);
+          startGame(skillId, worldType, cfg);
         }
       };
+      var dsBtn = document.getElementById('drill-setup-btn');
+      if (dsBtn) dsBtn.onclick = function() { openDrillSetup(skillId, worldType); };
     }
   }
 
@@ -225,24 +261,29 @@ function openSkillView(skillId, worldType) {
 }
 
 // === GAME ENGINE ===
-function startGame(skillId, worldType) {
+function startGame(skillId, worldType, config) {
   playSound('click');
+  const count = (config && config.count) || 8;
   currentGame = {
     skillId,
     worldType: worldType || 'math',
+    config: config || null,
     questions: [],
     currentIndex: 0,
-    totalQuestions: 8,
+    totalQuestions: count,
     results: [],
+    wrongLog: [],
     currentConfidence: -1,
     hintShown: false,
     attempts: 0,
-    _startTime: Date.now()
+    _startTime: Date.now(),
+    _questionStart: Date.now(),
+    isSpeed: !!(config && config.mode === 'speed')
   };
 
   // Generate questions
   for (let i = 0; i < currentGame.totalQuestions; i++) {
-    currentGame.questions.push(generateQuestion(skillId, worldType));
+    currentGame.questions.push(generateQuestion(skillId, worldType, config));
   }
 
   // Set title
@@ -258,6 +299,34 @@ function startGame(skillId, worldType) {
   showScreen('game');
   renderGameDots();
   renderCurrentQuestion();
+  if (currentGame.isSpeed) startSpeedTimer();
+}
+
+// === SPEED DRILL ===
+// A gentle clock. It never cuts her off mid-question and it never
+// punishes; it just records the time so fluency can be measured.
+var _speedTimerId = null;
+function startSpeedTimer() {
+  stopSpeedTimer();
+  var host = document.getElementById('game-title');
+  if (host && host.parentElement && !document.getElementById('speed-timer')) {
+    var pill = document.createElement('div');
+    pill.id = 'speed-timer';
+    pill.className = 'speed-timer';
+    pill.textContent = '0.0s';
+    host.parentElement.appendChild(pill);
+  }
+  _speedTimerId = setInterval(function() {
+    var pill = document.getElementById('speed-timer');
+    if (!pill || !currentGame) return;
+    var secs = (Date.now() - currentGame._startTime) / 1000;
+    pill.textContent = secs.toFixed(1) + 's';
+  }, 100);
+}
+function stopSpeedTimer() {
+  if (_speedTimerId) { clearInterval(_speedTimerId); _speedTimerId = null; }
+  var pill = document.getElementById('speed-timer');
+  if (pill) pill.remove();
 }
 
 function exitGame() {
@@ -329,6 +398,7 @@ function renderGenericMCQ(card, q) {
 function nextQuestion() {
   document.getElementById('feedback-overlay').classList.add('hidden');
   currentGame.currentIndex++;
+  currentGame._questionStart = Date.now();
   renderGameDots();
   renderCurrentQuestion();
 }
@@ -387,8 +457,66 @@ function endGame() {
     html += '<div class="feedback-tokens">\uD83C\uDF1F Perfect bonus: +' + bonus + ' \u2B50</div>';
   }
 
-  html += '<div style="display:flex;gap:12px;justify-content:center;margin-top:16px">';
-  html += '<button class="feedback-btn" onclick="startGame(\'' + currentGame.skillId + '\',\'' + currentGame.worldType + '\')" style="background:linear-gradient(135deg,var(--mint),var(--sky))">Play Again</button>';
+  // Speed drill result
+  if (currentGame.isSpeed) {
+    stopSpeedTimer();
+    var totalSecs = (Date.now() - currentGame._startTime) / 1000;
+    var perQ = totalSecs / Math.max(1, total);
+    html += '<div class="end-speed">⚡ ' + totalSecs.toFixed(1) + 's total · ' + perQ.toFixed(1) + 's per question</div>';
+    var best = state.speedBests && state.speedBests[currentGame.skillId];
+    if (correct === total && (!best || totalSecs < best)) {
+      if (!state.speedBests) state.speedBests = {};
+      state.speedBests[currentGame.skillId] = totalSecs;
+      html += '<div class="end-speed-best">🏆 New personal best!</div>';
+    } else if (best) {
+      html += '<div class="end-speed-best">Your best: ' + best.toFixed(1) + 's</div>';
+    }
+  }
+
+  // What tripped her up — far more useful than a bare score.
+  if (currentGame.wrongLog && currentGame.wrongLog.length > 0) {
+    html += '<div class="end-review">';
+    html += '<div class="end-review-title">Worth another look</div>';
+    currentGame.wrongLog.slice(0, 5).forEach(function(w) {
+      var q = w.question;
+      var label = q.text ? q.text
+        : (q.table != null && q.n != null) ? (q.table + ' × ' + q.n)
+        : (q.dividend != null) ? (q.dividend + ' ÷ ' + q.divisor)
+        : (q.a != null && q.b != null) ? (q.a + ' ? ' + q.b)
+        : 'Question ' + (w.index + 1);
+      html += '<div class="end-review-row">';
+      html += '<div class="end-review-q">' + label + '</div>';
+      html += '<div class="end-review-a">= ' + w.correct + '</div>';
+      if (q.working) html += '<div class="end-review-w">' + q.working + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Per-sub-skill breakdown, e.g. which times tables were shaky.
+  if (currentGame.config && currentGame.config.tables && typeof subSkillMastery === 'function') {
+    var rows = currentGame.config.tables.map(function(t) {
+      return { t: t, m: subSkillMastery(currentGame.skillId, t) };
+    }).filter(function(r) { return r.m !== null; });
+    if (rows.length > 0) {
+      rows.sort(function(a, b) { return a.m - b.m; });
+      html += '<div class="end-sub">';
+      html += '<div class="end-review-title">Where you stand</div>';
+      rows.slice(0, 6).forEach(function(r) {
+        html += '<div class="end-sub-row"><span class="end-sub-key">' + r.t + '×</span>' +
+          '<span class="end-sub-bar"><span class="end-sub-fill" style="width:' + r.m + '%"></span></span>' +
+          '<span class="end-sub-pct">' + r.m + '%</span></div>';
+      });
+      html += '</div>';
+    }
+  }
+
+  var _cfgArg = currentGame.config ? ', ' + JSON.stringify(currentGame.config) : '';
+  html += '<div style="display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap">';
+  html += '<button class="feedback-btn" onclick=\'startGame("' + currentGame.skillId + '","' + currentGame.worldType + '"' + _cfgArg + ')\' style="background:linear-gradient(135deg,var(--mint),var(--sky))">Play Again</button>';
+  if (currentGame.worldType === 'math' && typeof skillHasDrill === 'function' && skillHasDrill(currentGame.skillId)) {
+    html += '<button class="feedback-btn" onclick="openDrillSetup(\'' + currentGame.skillId + '\',\'math\')">Change Settings</button>';
+  }
   html += '<button class="feedback-btn" onclick="exitFromEnd()">Back to World</button>';
   html += '</div>';
 
@@ -408,9 +536,9 @@ function exitEscapeRoom() {
 }
 
 // === QUESTION GENERATOR DISPATCHER ===
-function generateQuestion(skillId, worldType) {
+function generateQuestion(skillId, worldType, config) {
   if (worldType === 'math' && typeof generateMathQuestion === 'function') {
-    return generateMathQuestion(skillId);
+    return generateMathQuestion(skillId, config);
   }
   if (worldType === 'word' && typeof generateWordQuestion === 'function') {
     return generateWordQuestion(skillId);
