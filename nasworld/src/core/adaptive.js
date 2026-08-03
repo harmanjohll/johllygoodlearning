@@ -155,6 +155,17 @@ function renderActivityCards(tree, containerId, worldType) {
         learnBadge = '<span class="learn-done-dot" title="Lesson completed">📖</span>';
       }
 
+      // Skills with drill options get a direct route to the setup
+      // screen. Without this the only way in was Quiz tab -> "Choose
+      // what to practise", four taps deep and invisible until you got
+      // there \u2014 so nobody found it.
+      let drillBtn = '';
+      if (unlocked && typeof skillHasDrill === 'function' && skillHasDrill(skill.id)) {
+        drillBtn = `<button class="activity-card-drill"
+          onclick="event.stopPropagation(); openDrillSetup('${skill.id}','${worldType}')"
+          title="Choose exactly what to practise">\uD83C\uDFAF Choose</button>`;
+      }
+
       html += `<div class="activity-card ${unlocked ? '' : 'locked'}"
         onclick="${unlocked ? `openSkillView('${skill.id}','${worldType}')` : ''}"
         ${unlocked ? '' : 'title="Locked"'}>
@@ -164,6 +175,7 @@ function renderActivityCards(tree, containerId, worldType) {
         <div class="activity-card-level">${unlocked ? `Level ${s.level + 1} \u00B7 ${CPA_LEVELS[s.level] || 'Concrete'}` : '\uD83D\uDD12 Locked'}</div>
         ${lockText}
         <div class="mastery-stars">${stars}</div>
+        ${drillBtn}
       </div>`;
     }
 

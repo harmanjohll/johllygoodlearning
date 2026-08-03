@@ -1039,6 +1039,15 @@ body {
 @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes sink-drop { 0% { transform: translateY(-130px); opacity: 0.3; } 100% { transform: translateY(0); opacity: 1; } }
 
+.activity-card-drill {
+  display: block; width: 100%; margin-top: 8px;
+  background: rgba(255,215,0,0.16); border: 1px solid rgba(255,215,0,0.45);
+  color: var(--gold); border-radius: 999px; padding: 5px 8px;
+  font-family: var(--font-body); font-size: 11px; cursor: pointer;
+  transition: all .18s;
+}
+.activity-card-drill:hover { background: rgba(255,215,0,0.3); transform: scale(1.04); }
+
 /* === DRILL SETUP === */
 .drill-head { text-align: center; padding: 8px 16px 4px; }
 .drill-head-icon { font-size: 46px; }
@@ -6059,6 +6068,17 @@ function renderActivityCards(tree, containerId, worldType) {
         learnBadge = '<span class="learn-done-dot" title="Lesson completed">📖</span>';
       }
 
+      // Skills with drill options get a direct route to the setup
+      // screen. Without this the only way in was Quiz tab -> "Choose
+      // what to practise", four taps deep and invisible until you got
+      // there \u2014 so nobody found it.
+      let drillBtn = '';
+      if (unlocked && typeof skillHasDrill === 'function' && skillHasDrill(skill.id)) {
+        drillBtn = `<button class="activity-card-drill"
+          onclick="event.stopPropagation(); openDrillSetup('${skill.id}','${worldType}')"
+          title="Choose exactly what to practise">\uD83C\uDFAF Choose</button>`;
+      }
+
       html += `<div class="activity-card ${unlocked ? '' : 'locked'}"
         onclick="${unlocked ? `openSkillView('${skill.id}','${worldType}')` : ''}"
         ${unlocked ? '' : 'title="Locked"'}>
@@ -6068,6 +6088,7 @@ function renderActivityCards(tree, containerId, worldType) {
         <div class="activity-card-level">${unlocked ? `Level ${s.level + 1} \u00B7 ${CPA_LEVELS[s.level] || 'Concrete'}` : '\uD83D\uDD12 Locked'}</div>
         ${lockText}
         <div class="mastery-stars">${stars}</div>
+        ${drillBtn}
       </div>`;
     }
 
