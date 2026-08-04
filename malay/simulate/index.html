@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kertas 2 Penuh (90 markah) | Studio Bahasa Melayu PSLE</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem;
+                   display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; position: sticky; top: 0; z-index: 40; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border);
+                 border-radius: 7px; padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600;
+                 text-decoration: none; display: inline-block; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    .hdr-title { flex: 1; min-width: 160px; font-weight: 800; font-size: .95rem; }
+    .hdr-title span { display: block; font-size: .72rem; color: var(--muted); font-weight: 400; }
+
+    .timer { font-family: var(--font-mono, monospace); font-size: 1.05rem; font-weight: 700;
+             padding: .3rem .7rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); }
+    .timer.warn   { border-color: #f59e0b; color: #fde68a; }
+    .timer.danger { border-color: #ef4444; color: #fca5a5; }
+
+    main { max-width: 860px; margin: 0 auto; padding: 1.25rem 1.25rem 4rem; }
+
+    .hero h1 { font-size: 1.5rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .9rem; line-height: 1.7; margin-bottom: 1rem; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.15rem; margin-bottom: 1rem; }
+    .card h2 { font-size: 1rem; margin: 0 0 .5rem; }
+    .card p  { font-size: .87rem; color: var(--muted); line-height: 1.65; margin: 0 0 .6rem; }
+
+    table.plan { width: 100%; border-collapse: collapse; font-size: .85rem; margin: .5rem 0 .9rem; }
+    table.plan th, table.plan td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--border); }
+    table.plan th { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    table.plan tr:last-child td { border-bottom: none; font-weight: 700; }
+
+    .progressbar { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 1rem; }
+    .progressbar > div { height: 100%; background: linear-gradient(90deg,#38bdf8,#818cf8); width: 0; transition: width .3s; }
+
+    .qbox { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; margin-bottom: .9rem; }
+    .qhead { display: flex; justify-content: space-between; gap: .6rem; align-items: baseline; margin-bottom: .6rem; flex-wrap: wrap; }
+    .qno { font-weight: 800; font-size: .9rem; }
+    .qmeta { font-size: .72rem; color: var(--muted); }
+    .qtext { font-size: .93rem; line-height: 1.6; margin-bottom: .7rem; }
+
+    .opts { display: flex; flex-direction: column; gap: .4rem; }
+    .opt { text-align: left; padding: .55rem .75rem; border-radius: 8px; border: 1px solid var(--border);
+           background: var(--surface); color: var(--text); font-family: inherit; font-size: .87rem;
+           cursor: pointer; line-height: 1.5; }
+    .opt:hover:not(:disabled) { border-color: var(--accent); }
+    .opt.sel   { border-color: var(--accent); background: var(--card); }
+    .opt.right { border-color: #22c55e; background: rgba(34,197,94,.13); color: #bbf7d0; }
+    .opt.wrong { border-color: #ef4444; background: rgba(239,68,68,.13); color: #fca5a5; }
+    .opt:disabled { cursor: default; }
+
+    .petikan { background: var(--summary-bg, #162032); border: 1px solid var(--border); border-radius: 10px;
+               padding: 1rem 1.1rem; margin-bottom: 1rem; font-size: .9rem; line-height: 1.85; white-space: pre-wrap; }
+    .petikan h3 { font-size: 1rem; margin: 0 0 .6rem; }
+
+    .dlg-line { display: flex; gap: .6rem; margin-bottom: .5rem; font-size: .89rem; line-height: 1.6; }
+    .dlg-who { flex: none; width: 96px; font-weight: 700; color: var(--accent); }
+    .dlg-say { flex: 1; }
+    .dlg-blank { display: inline-block; min-width: 60px; padding: 0 .3rem; border-bottom: 2px dashed var(--accent); color: var(--accent); font-weight: 700; }
+
+    textarea.ans { width: 100%; min-height: 66px; padding: .6rem .7rem; border-radius: 8px;
+                   border: 1px solid var(--border); background: var(--surface); color: var(--text);
+                   font-family: inherit; font-size: .88rem; line-height: 1.6; resize: vertical; }
+    textarea.ans:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    .marking { margin-top: .7rem; border-radius: 8px; padding: .75rem .85rem; background: var(--summary-bg); border: 1px solid var(--border); }
+    .marking h5 { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 .35rem; }
+    .marking p  { font-size: .86rem; line-height: 1.65; margin: 0 0 .5rem; }
+    .kw { display: flex; gap: .3rem; flex-wrap: wrap; margin-bottom: .5rem; }
+    .kwpill { font-size: .74rem; padding: .2rem .5rem; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+    .kwpill.hit { border-color: #22c55e; background: rgba(34,197,94,.13); color: #86efac; }
+    .selfmark { display: flex; gap: .35rem; flex-wrap: wrap; align-items: center; font-size: .8rem; }
+    .selfmark span { color: var(--muted); margin-right: .2rem; }
+    .smbtn { padding: .3rem .6rem; border-radius: 7px; border: 1px solid var(--border);
+             background: var(--surface); color: var(--text); font-family: inherit; font-size: .8rem; cursor: pointer; }
+    .smbtn.on { border-color: var(--accent); background: var(--card); font-weight: 700; }
+
+    .actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1rem; }
+    .nota { font-size: .8rem; color: var(--muted); line-height: 1.6; margin-top: .7rem; padding-left: .7rem; border-left: 2px solid var(--border); }
+
+    /* Results */
+    .score-hero { text-align: center; padding: 1.4rem 1rem; }
+    .score-big { font-size: 2.6rem; font-weight: 800; line-height: 1; margin-bottom: .2rem; }
+    .score-sub { color: var(--muted); font-size: .88rem; }
+    table.brk { width: 100%; border-collapse: collapse; font-size: .87rem; }
+    table.brk th, table.brk td { text-align: left; padding: .55rem .65rem; border-bottom: 1px solid var(--border); }
+    table.brk th { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    table.brk td.num { text-align: right; font-family: var(--font-mono, monospace); white-space: nowrap; }
+    table.brk tr.total td { font-weight: 800; border-bottom: none; }
+    .weak { background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.35); border-radius: 8px;
+            padding: .75rem .85rem; margin-top: .9rem; font-size: .86rem; line-height: 1.65; color: #fde68a; }
+
+    @media (max-width: 560px) {
+      .dlg-line { flex-direction: column; gap: .1rem; }
+      .dlg-who { width: auto; }
+      main { padding: 1rem .9rem 3rem; }
+      .card, .qbox { padding: .95rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../index.html" class="back-link">← Studio</a>
+  <div class="hdr-title">Kertas 2 Penuh<span id="hdr-sub">90 markah · 1 jam 50 minit</span></div>
+  <div class="timer" id="timer" style="display:none">1:50:00</div>
+  <button class="back-link" id="btn-quit" style="display:none" onclick="quitPaper()">Tamatkan</button>
+</header>
+
+<main>
+
+  <!-- Intro -->
+  <section id="intro">
+    <div class="hero">
+      <h1>Kertas 2 Penuh</h1>
+      <p>Kertas 2 bernilai 90 markah daripada 200, iaitu 45% daripada gred PSLE Bahasa Melayu kamu.
+         Ini kertas percubaan penuh dengan masa sebenar.</p>
+    </div>
+
+    <div class="card">
+      <h2>Susunan kertas</h2>
+      <table class="plan">
+        <thead><tr><th>Bahagian</th><th>Kandungan</th><th>Markah</th><th>Masa dicadangkan</th></tr></thead>
+        <tbody>
+          <tr><td>Bahagian A</td><td>50 soalan objektif: tatabahasa, kosa kata, peribahasa</td><td>50</td><td>50 minit</td></tr>
+          <tr><td>Bahagian B1</td><td>Lengkapkan Dialog, 4 tempat kosong</td><td>8</td><td>15 minit</td></tr>
+          <tr><td>Bahagian B2</td><td>Kefahaman, 12 soalan</td><td>32</td><td>45 minit</td></tr>
+          <tr><td>Jumlah</td><td></td><td>90</td><td>1 jam 50 minit</td></tr>
+        </tbody>
+      </table>
+      <p class="nota">Pemasa berjalan sekali sahaja untuk seluruh kertas, sama seperti peperiksaan sebenar.
+        Kamu boleh berpindah antara bahagian pada bila-bila masa. Tiada kamus dibenarkan dalam Kertas 2.</p>
+    </div>
+
+    <div class="card">
+      <h2>Cara markah diberikan</h2>
+      <p>Bahagian A ditanda secara automatik. Bahagian B ialah jawapan bertulis, jadi kamu akan menanda
+         sendiri dengan bantuan: jawapan model, kata kunci yang dicari pemeriksa, dan nota tentang
+         markah yang selalu hilang pada soalan itu. Jika kunci AI ditetapkan, kamu boleh meminta
+         semakan tambahan.</p>
+      <p class="nota">Menanda sendiri dengan jujur lebih berguna daripada markah yang cantik. Jika kamu
+        ragu-ragu antara dua markah, ambil yang lebih rendah dan baca semula nota pemeriksa.</p>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="btn-start">Mula Kertas 2 →</button>
+      <button class="btn btn-ghost" onclick="showAISetup()">Kunci AI</button>
+    </div>
+    <p id="load-msg" class="nota"></p>
+  </section>
+
+  <!-- Paper -->
+  <section id="paper" style="display:none">
+    <div class="progressbar"><div id="pbar"></div></div>
+    <div id="paper-body"></div>
+    <div class="actions" id="paper-actions"></div>
+  </section>
+
+  <!-- Results -->
+  <section id="results" style="display:none"></section>
+
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/lab.js"></script>
+<script src="../shared/gemini.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   Kertas 2 Penuh — 90 markah, 1 jam 50 minit.
+   Bahagian A dijana daripada bank tatabahasa, kosa kata dan
+   peribahasa. Bahagian B daripada shared/content/kertas2.json.
+   ══════════════════════════════════════════════════════════════ */
+
+const DURATION_S = 110 * 60;          // 1 jam 50 minit
+const MCQ_TARGET = 50;
+
+let K2 = null;                        // kandungan Bahagian B
+let paper = null;                     // kertas yang dijana
+let answers = { a: {}, dlg: {}, kef: {} };
+let selfMarks = { dlg: {}, kef: {} };
+let tick = null, remaining = DURATION_S, finished = false;
+
+/* ── Memuatkan bank ──────────────────────────────────────── */
+const BANKS = [
+  { file: 'tatabahasa.json', komponen: 'Tatabahasa' },
+  { file: 'kosakata.json',   komponen: 'Kosa kata' },
+  { file: 'peribahasa.json', komponen: 'Peribahasa' },
+];
+
+async function loadMcqBank() {
+  const out = [];
+  for (const b of BANKS) {
+    try {
+      const d = await (await fetch('../shared/content/' + b.file, { cache: 'no-cache' })).json();
+      const topics = d.topics && typeof d.topics === 'object' ? d.topics : {};
+      Object.entries(topics).forEach(([tid, t]) => {
+        (t.questions || []).forEach(q => {
+          if (!q.options || q.correct == null) return;
+          out.push({ ...q, topicId: tid, topicName: t.title || tid, komponen: b.komponen });
+        });
+      });
+    } catch (_) { /* satu bank gagal tidak menghentikan kertas */ }
+  }
+  return out;
+}
+
+(async function init() {
+  const msg = document.getElementById('load-msg');
+  try {
+    K2 = await (await fetch('../shared/content/kertas2.json', { cache: 'no-cache' })).json();
+  } catch (_) {
+    msg.textContent = 'Tidak dapat memuatkan kandungan Bahagian B. Cuba muat semula halaman.';
+    return;
+  }
+  const mcq = await loadMcqBank();
+  if (mcq.length < 20) {
+    msg.textContent = 'Bank soalan objektif terlalu kecil untuk menjana kertas penuh.';
+    return;
+  }
+  msg.textContent = `Bank sedia: ${mcq.length} soalan objektif, ${K2.dialog.length} dialog, ${K2.petikan.length} petikan.`;
+  document.getElementById('btn-start').addEventListener('click', () => startPaper(mcq));
+})();
+
+/* ── Menjana kertas ──────────────────────────────────────── */
+function buildPaper(mcq) {
+  // Buang soalan berulang dahulu. Bank yang berlainan kadangkala mengandungi
+  // soalan yang sama, dan soalan berulang dalam satu kertas kelihatan seperti
+  // pepijat kepada murid.
+  const seenQ = new Set();
+  const pool = mcq.filter(q => {
+    const key = q.question.trim().toLowerCase();
+    if (seenQ.has(key)) return false;
+    seenQ.add(key);
+    return true;
+  });
+
+  // Bahagian A: utamakan tatabahasa, seperti kertas sebenar.
+  const byKomp = k => shuffle(pool.filter(q => q.komponen === k));
+  const tata = byKomp('Tatabahasa'), kosa = byKomp('Kosa kata'), peri = byKomp('Peribahasa');
+  const want = { Tatabahasa: 32, 'Kosa kata': 10, Peribahasa: 8 };
+  let a = [...tata.slice(0, want.Tatabahasa), ...kosa.slice(0, want['Kosa kata']), ...peri.slice(0, want.Peribahasa)];
+  // Isi kekurangan daripada mana-mana bank jika satu komponen terlalu kecil.
+  if (a.length < MCQ_TARGET) {
+    const used = new Set(a.map(q => q.question.trim().toLowerCase()));
+    a = a.concat(shuffle(pool.filter(q => !used.has(q.question.trim().toLowerCase())))
+                   .slice(0, MCQ_TARGET - a.length));
+  }
+  a = shuffle(a).slice(0, MCQ_TARGET);
+
+  return {
+    a,
+    dlg: K2.dialog[Math.floor(Math.random() * K2.dialog.length)],
+    kef: K2.petikan[Math.floor(Math.random() * K2.petikan.length)],
+  };
+}
+
+function startPaper(mcq) {
+  paper = buildPaper(mcq);
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('paper').style.display = 'block';
+  document.getElementById('timer').style.display = 'block';
+  document.getElementById('btn-quit').style.display = 'inline-block';
+  renderPaper();
+  startTimer();
+  window.scrollTo({ top: 0 });
+}
+
+/* ── Pemasa ──────────────────────────────────────────────── */
+function startTimer() {
+  const el = document.getElementById('timer');
+  const paint = () => {
+    const h = Math.floor(remaining / 3600), m = Math.floor((remaining % 3600) / 60), s = remaining % 60;
+    el.textContent = `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    el.classList.toggle('warn', remaining <= 20 * 60 && remaining > 5 * 60);
+    el.classList.toggle('danger', remaining <= 5 * 60);
+  };
+  paint();
+  tick = setInterval(() => {
+    remaining--;
+    paint();
+    if (remaining <= 0) { clearInterval(tick); finishPaper(true); }
+  }, 1000);
+}
+
+function quitPaper() {
+  if (!confirm('Tamatkan kertas dan lihat markah sekarang?')) return;
+  finishPaper(false);
+}
+
+/* ── Paparan kertas ──────────────────────────────────────── */
+function renderPaper() {
+  const p = paper;
+  const mcqHtml = p.a.map((q, i) => `
+    <div class="qbox" id="a-${i}">
+      <div class="qhead"><span class="qno">${i + 1}</span><span class="qmeta">${esc(q.komponen)} · 1 markah</span></div>
+      <p class="qtext">${esc(q.question)}</p>
+      <div class="opts">
+        ${q.options.map((o, n) =>
+          `<button class="opt" data-i="${i}" data-n="${n}" onclick="pickA(${i},${n})">${esc(o)}</button>`).join('')}
+      </div>
+    </div>`).join('');
+
+  const d = p.dlg;
+  const dlgHtml = `
+    <div class="card">
+      <h2>Bahagian B1 · Lengkapkan Dialog <span style="font-weight:400;color:var(--muted);font-size:.8rem">8 markah</span></h2>
+      <p>${esc(d.konteks)}</p>
+      <div style="margin:.8rem 0">
+        ${d.baris.map(b => `
+          <div class="dlg-line">
+            <div class="dlg-who">${esc(b.watak)}:</div>
+            <div class="dlg-say">${b.blank ? `<span class="dlg-blank">(${b.blank})</span>` : esc(b.teks)}</div>
+          </div>`).join('')}
+      </div>
+      ${d.jawapan.map(j => `
+        <div style="margin-bottom:.8rem">
+          <label style="display:block;font-size:.83rem;font-weight:700;margin-bottom:.3rem" for="dlg-${j.blank}">
+            Tempat kosong (${j.blank}) — 2 markah</label>
+          <textarea class="ans" id="dlg-${j.blank}" maxlength="300"
+            oninput="answers.dlg[${j.blank}]=this.value;updateBar()"
+            aria-label="Jawapan tempat kosong ${j.blank}"></textarea>
+        </div>`).join('')}
+      <p class="nota">${esc(d.petua)}</p>
+    </div>`;
+
+  const k = p.kef;
+  const kefHtml = `
+    <div class="card">
+      <h2>Bahagian B2 · Kefahaman <span style="font-weight:400;color:var(--muted);font-size:.8rem">32 markah</span></h2>
+      <div class="petikan"><h3>${esc(k.tajuk)}</h3>${esc(k.teks)}</div>
+      ${k.soalan.map(s => `
+        <div style="margin-bottom:1rem">
+          <div class="qhead">
+            <span class="qno">${s.no}</span>
+            <span class="qmeta">${esc(s.jenis)} · ${s.markah} markah</span>
+          </div>
+          <p class="qtext">${esc(s.soalan)}</p>
+          <textarea class="ans" id="kef-${s.no}" maxlength="700"
+            oninput="answers.kef[${s.no}]=this.value;updateBar()"
+            aria-label="Jawapan soalan ${s.no}"></textarea>
+        </div>`).join('')}
+    </div>`;
+
+  document.getElementById('paper-body').innerHTML = `
+    <div class="card">
+      <h2>Bahagian A <span style="font-weight:400;color:var(--muted);font-size:.8rem">50 markah · objektif</span></h2>
+      <p>Pilih satu jawapan yang paling sesuai bagi setiap soalan.</p>
+    </div>
+    ${mcqHtml}
+    ${dlgHtml}
+    ${kefHtml}`;
+
+  document.getElementById('paper-actions').innerHTML =
+    `<button class="btn btn-primary" onclick="quitPaper()">Hantar kertas dan tanda →</button>`;
+  updateBar();
+}
+
+function pickA(i, n) {
+  if (finished) return;
+  answers.a[i] = n;
+  document.querySelectorAll(`#a-${i} .opt`).forEach(b =>
+    b.classList.toggle('sel', +b.dataset.n === n));
+  updateBar();
+}
+
+function updateBar() {
+  const total = paper.a.length + paper.dlg.jawapan.length + paper.kef.soalan.length;
+  const done = Object.keys(answers.a).length
+    + Object.values(answers.dlg).filter(v => (v || '').trim()).length
+    + Object.values(answers.kef).filter(v => (v || '').trim()).length;
+  document.getElementById('pbar').style.width = Math.round(100 * done / total) + '%';
+}
+
+/* ── Menanda ─────────────────────────────────────────────── */
+function finishPaper(byTimer) {
+  if (finished) return;
+  finished = true;
+  if (tick) clearInterval(tick);
+  document.getElementById('timer').classList.add('danger');
+  document.getElementById('btn-quit').style.display = 'none';
+
+  // Bahagian A automatik
+  let aScore = 0;
+  const perKomp = {};
+  paper.a.forEach((q, i) => {
+    const komp = q.komponen;
+    perKomp[komp] = perKomp[komp] || { got: 0, of: 0 };
+    perKomp[komp].of++;
+    const chosen = answers.a[i];
+    if (chosen === q.correct) { aScore++; perKomp[komp].got++; }
+  });
+
+  renderResults(aScore, perKomp, byTimer);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderResults(aScore, perKomp, byTimer) {
+  document.getElementById('paper').style.display = 'none';
+  const r = document.getElementById('results');
+  r.style.display = 'block';
+
+  const dlgTotal = paper.dlg.jawapan.reduce((s, j) => s + j.markah, 0);
+  const kefTotal = paper.kef.soalan.reduce((s, q) => s + q.markah, 0);
+
+  r.innerHTML = `
+    <div class="card score-hero">
+      <div class="score-big" id="grand">${aScore} / 90</div>
+      <div class="score-sub">Bahagian A ditanda automatik. Tanda Bahagian B di bawah untuk markah penuh.</div>
+      ${byTimer ? '<div class="score-sub" style="color:#fca5a5;margin-top:.4rem">Masa tamat.</div>' : ''}
+    </div>
+
+    <div class="card">
+      <h2>Bahagian A — pecahan mengikut komponen</h2>
+      <table class="brk">
+        <thead><tr><th>Komponen</th><th class="num">Markah</th><th class="num">%</th></tr></thead>
+        <tbody>
+          ${Object.entries(perKomp).map(([k, v]) =>
+            `<tr><td>${esc(k)}</td><td class="num">${v.got} / ${v.of}</td>
+             <td class="num">${Math.round(100 * v.got / v.of)}%</td></tr>`).join('')}
+          <tr class="total"><td>Jumlah Bahagian A</td>
+            <td class="num">${aScore} / ${paper.a.length}</td>
+            <td class="num">${Math.round(100 * aScore / paper.a.length)}%</td></tr>
+        </tbody>
+      </table>
+      ${weakestNote(perKomp)}
+    </div>
+
+    <div class="card">
+      <h2>Bahagian B1 — Lengkapkan Dialog (${dlgTotal} markah)</h2>
+      <p>Bandingkan jawapan kamu dengan jawapan model, kemudian beri markah kepada diri sendiri.</p>
+      ${paper.dlg.jawapan.map(j => markBlock('dlg', j.blank, answers.dlg[j.blank] || '', j.model, j.terima, j.markah, j.nota)).join('')}
+    </div>
+
+    <div class="card">
+      <h2>Bahagian B2 — Kefahaman (${kefTotal} markah)</h2>
+      ${paper.kef.soalan.map(s => `
+        <div style="margin-bottom:1.2rem">
+          <div class="qhead"><span class="qno">${s.no}</span><span class="qmeta">${esc(s.jenis)} · ${s.markah} markah</span></div>
+          <p class="qtext">${esc(s.soalan)}</p>
+          ${markBlock('kef', s.no, answers.kef[s.no] || '', s.model, s.kataKunci, s.markah, s.nota)}
+        </div>`).join('')}
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="location.reload()">Kertas baharu →</button>
+      <a class="btn btn-ghost" href="../index.html">Kembali ke Studio</a>
+    </div>`;
+
+  recomputeGrand(aScore);
+}
+
+function markBlock(kind, id, given, model, keys, markah, nota) {
+  const low = (given || '').toLowerCase();
+  const hits = (keys || []).map(k => ({ k, hit: low.includes(String(k).toLowerCase()) }));
+  return `
+    <div class="marking">
+      <h5>Jawapan kamu</h5>
+      <p style="color:${given.trim() ? 'var(--text)' : 'var(--muted)'}">${given.trim() ? esc(given) : 'Tiada jawapan diberikan.'}</p>
+      <h5>Jawapan model</h5>
+      <p>${esc(model)}</p>
+      ${hits.length ? `<h5>Kata kunci</h5><div class="kw">${hits.map(h =>
+        `<span class="kwpill ${h.hit ? 'hit' : ''}">${esc(h.k)}</span>`).join('')}</div>` : ''}
+      <h5>Nota pemeriksa</h5>
+      <p>${esc(nota)}</p>
+      <div class="selfmark">
+        <span>Markah kamu:</span>
+        ${Array.from({ length: markah + 1 }, (_, n) =>
+          `<button class="smbtn" onclick="setSelf('${kind}',${id},${n},${markah},this)">${n}</button>`).join('')}
+        <span style="margin-left:.3rem">daripada ${markah}</span>
+      </div>
+    </div>`;
+}
+
+function setSelf(kind, id, n, max, btn) {
+  selfMarks[kind][id] = n;
+  btn.parentElement.querySelectorAll('.smbtn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  recomputeGrand();
+}
+
+let lastA = 0;
+function recomputeGrand(aScore) {
+  if (aScore != null) lastA = aScore;
+  const b = Object.values(selfMarks.dlg).reduce((s, v) => s + v, 0)
+          + Object.values(selfMarks.kef).reduce((s, v) => s + v, 0);
+  const el = document.getElementById('grand');
+  if (el) el.textContent = `${lastA + b} / 90`;
+}
+
+function weakestNote(perKomp) {
+  const rows = Object.entries(perKomp).map(([k, v]) => ({ k, pct: v.got / v.of }));
+  if (rows.length < 2) return '';
+  rows.sort((x, y) => x.pct - y.pct);
+  const w = rows[0];
+  if (w.pct >= 0.8) return '<div class="weak">Semua komponen Bahagian A di atas 80%. Tumpukan masa kepada Bahagian B.</div>';
+  const link = { 'Tatabahasa': '../topics/imbuhan/index.html', 'Kosa kata': '../vocab/index.html', 'Peribahasa': '../peribahasa-srs/index.html' }[w.k];
+  return `<div class="weak">Komponen paling lemah: <strong>${esc(w.k)}</strong> pada ${Math.round(100 * w.pct)}%.
+    ${link ? `Latih semula di <a href="${link}" style="color:#fde68a">bahagian itu</a>.` : ''}</div>`;
+}
+
+/* ── Utiliti ─────────────────────────────────────────────── */
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function shuffle(a) {
+  const x = [...a];
+  for (let i = x.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [x[i], x[j]] = [x[j], x[i]];
+  }
+  return x;
+}
+</script>
+</body>
+</html>
