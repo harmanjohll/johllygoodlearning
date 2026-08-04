@@ -111,6 +111,7 @@
       (o.includeRemoved || examinable(q)) &&
       (!o.topicId     || q.topicId     === o.topicId) &&
       (!o.commandWord || q.commandWord === o.commandWord) &&
+      (!o.archetype   || q.archetype   === o.archetype) &&
       (!o.theme       || q.theme       === o.theme) &&
       (!o.marks       || q.marks       === o.marks) &&
       (!o.minMarks    || q.marks       >= o.minMarks)

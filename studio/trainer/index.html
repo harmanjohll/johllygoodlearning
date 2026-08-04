@@ -228,6 +228,10 @@
         <select id="f-topic"><option value="">All topics</option></select>
       </div>
       <div class="filter-field">
+        <label for="f-arch">Question shape</label>
+        <select id="f-arch"><option value="">Any shape</option></select>
+      </div>
+      <div class="filter-field">
         <label for="f-command">Command word</label>
         <select id="f-command">
           <option value="">Any command word</option>
@@ -284,11 +288,20 @@ let q = null;               // current question
 let stageIdx = 0;
 let seen = [];              // ids served this session
 let decoded = false;        // unlocks the marks/command chips
+let ARCH = {};              // archetype id -> definition
 const state = { decode: {}, words: {}, chain: {} };
 
 /* ── Boot ─────────────────────────────────────────────── */
 (async function init() {
   bank = await JglOpenEnded.loadAll();
+
+  // Question shapes. Without them the trainer still runs; the decode stage
+  // simply drops its shape question.
+  try {
+    const a = await (await fetch('../shared/content/archetypes.json', { cache: 'no-cache' })).json();
+    (a.archetypes || []).forEach(x => { ARCH[x.id] = x; });
+  } catch (_) { ARCH = {}; }
+
   const topics = await JglOpenEnded.topics();
   const sel = document.getElementById('f-topic');
   topics.forEach(t => {
@@ -297,13 +310,38 @@ const state = { decode: {}, words: {}, chain: {} };
     o.textContent = t.name + ' (' + t.count + ')';
     sel.appendChild(o);
   });
+
+  // Shape filter, populated from what the bank actually holds.
+  const aSel = document.getElementById('f-arch');
+  const counts = {};
+  bank.filter(JglOpenEnded.examinable).forEach(x => {
+    counts[x.archetype] = (counts[x.archetype] || 0) + 1;
+  });
+  Object.keys(counts).sort((x, y) =>
+    ((ARCH[x] || {}).name || x).localeCompare((ARCH[y] || {}).name || y)
+  ).forEach(id => {
+    const o = document.createElement('option');
+    o.value = id;
+    o.textContent = ((ARCH[id] || {}).name || id) + ' (' + counts[id] + ')';
+    aSel.appendChild(o);
+  });
+
   document.getElementById('btn-start').addEventListener('click', nextQuestion);
+
+  // Deep link from the Signposts page: /trainer/?archetype=mechanism.
+  // Registered after the listener above, or the click would do nothing.
+  const wanted = new URLSearchParams(location.search).get('archetype');
+  if (wanted && counts[wanted]) {
+    aSel.value = wanted;
+    nextQuestion();
+  }
 })();
 
 async function nextQuestion() {
   const topicId     = document.getElementById('f-topic').value || undefined;
   const commandWord = document.getElementById('f-command').value || undefined;
-  q = await JglOpenEnded.pick({ topicId, commandWord, exclude: seen });
+  const archetype   = document.getElementById('f-arch').value || undefined;
+  q = await JglOpenEnded.pick({ topicId, commandWord, archetype, exclude: seen });
   if (!q) {
     document.getElementById('trainer').style.display = 'none';
     document.getElementById('empty').style.display = 'block';
@@ -339,6 +377,7 @@ function renderQuestion() {
       <span class="chip">${esc(q.topicName)}</span>
       <span class="chip${hidden}">${COMMAND_LABEL[q.commandWord]}</span>
       <span class="chip${hidden}">${q.marks} mark${q.marks > 1 ? 's' : ''}</span>
+      ${ARCH[q.archetype] ? `<span class="chip${hidden}">${esc(ARCH[q.archetype].name)}</span>` : ''}
     </div>
     ${stim}
     <p class="stem">${esc(q.stem)}</p>`;
@@ -391,13 +430,72 @@ function stageDecode() {
       <div class="verdict" id="v-stim"></div>
     </div>
 
+    <div class="task" id="t-shape" style="display:none"></div>
+
     <div id="decode-done" style="display:none">
       <div class="reveal-box">
         <h4>So this question demands</h4>
         <p>${esc(q.commandDemand)}</p>
       </div>
+      <div id="shape-demand"></div>
       <div class="actions"><button class="btn btn-primary" onclick="advance()">Next: choose the words →</button></div>
     </div>`;
+}
+
+/* Which shape is this? The command word narrows it; the shape decides the
+   structure. Skipped silently if the archetype data did not load. */
+function renderShapeTask() {
+  const mine = ARCH[q.archetype];
+  if (!mine) { finishDecode(); return; }
+  const others = shuffle(Object.values(ARCH).filter(a => a.id !== q.archetype)).slice(0, 3);
+  state.decode.shapeOpts = shuffle([mine, ...others]);
+  const box = document.getElementById('t-shape');
+  box.style.display = 'block';
+  box.innerHTML = `
+    <p class="task-q">4. Which shape of question is this?</p>
+    <div class="opts" style="flex-direction:column">
+      ${state.decode.shapeOpts.map((a, n) =>
+        `<button class="opt" data-n="${n}" onclick="answerShape(${n})">
+           <strong>${esc(a.name)}</strong><br>
+           <span style="color:var(--muted);font-size:.78rem">${esc(a.oneLine)}</span>
+         </button>`).join('')}
+    </div>
+    <div class="verdict" id="v-shape"></div>`;
+}
+
+function answerShape(n) {
+  if (state.decode.shape != null) return;
+  state.decode.shape = n;
+  const mine = ARCH[q.archetype];
+  const chosen = state.decode.shapeOpts[n];
+  const right = chosen.id === q.archetype;
+  document.querySelectorAll('#t-shape .opt').forEach(b => {
+    b.disabled = true;
+    const a = state.decode.shapeOpts[+b.dataset.n];
+    if (a.id === q.archetype) b.classList.add('right');
+    else if (+b.dataset.n === n) b.classList.add('wrong');
+  });
+  const v = document.getElementById('v-shape');
+  v.className = 'verdict show ' + (right ? 'ok' : 'no');
+  v.textContent = right
+    ? `Yes. Look for ${mine.recognise.slice(0, 2).join(' or ')} in the stem; that is what gives it away.`
+    : `It is the ${mine.name.toLowerCase()}. The giveaway is ${mine.recognise.slice(0, 2).join(' or ')}.`;
+  finishDecode();
+}
+
+function finishDecode() {
+  const mine = ARCH[q.archetype];
+  if (mine) {
+    document.getElementById('shape-demand').innerHTML = `
+      <div class="reveal-box">
+        <h4>Which means the answer has to</h4>
+        <p>${esc(mine.alwaysWants)}</p>
+        <ol style="margin:.6rem 0 0;padding-left:1.1rem">
+          ${mine.skeleton.map(s => `<li style="font-size:.85rem;line-height:1.6;margin-bottom:.25rem">${esc(s)}</li>`).join('')}
+        </ol>
+      </div>`;
+  }
+  document.getElementById('decode-done').style.display = 'block';
 }
 
 function answerCmd(w) {
@@ -456,7 +554,7 @@ function answerStim(n) {
       + (q.stimulusType === 'data' ? ' When a table is given, quote from it.' : '');
   decoded = true;
   renderRail(); renderQuestion();
-  document.getElementById('decode-done').style.display = 'block';
+  renderShapeTask();
 }
 
 /* ── Stage 2: CHOOSE THE WORDS ────────────────────────── */
@@ -705,6 +803,14 @@ async function submitAnswer() {
       <h4>Where this question usually loses marks</h4>
       <p>${esc(q.whyMarksLost)}</p>
     </div>
+
+    ${ARCH[q.archetype] ? `
+    <div class="reveal-box">
+      <h4>And the trap in every ${esc(ARCH[q.archetype].name.toLowerCase())}</h4>
+      <p>${esc(ARCH[q.archetype].trap)}</p>
+      <p style="margin-top:.6rem;color:var(--muted);font-size:.82rem">
+        This one applies whatever the topic. <a href="../signposts/index.html" style="color:var(--accent)">See all the shapes</a>.</p>
+    </div>` : ''}
 
     <div class="actions">
       <button class="btn btn-primary" onclick="coachCheck()" id="btn-coach">Ask the coach about my answer</button>

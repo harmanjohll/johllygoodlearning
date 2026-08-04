@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Question Types &amp; Signposts | Science Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 1.25rem; }
+    .page-header-inner { max-width: 940px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link {
+      display: inline-flex; align-items: center; gap: .35rem; font-size: .82rem;
+      color: var(--muted); text-decoration: none; font-weight: 600;
+      padding: .35rem .7rem; border-radius: 7px; border: 1px solid var(--border); transition: all .15s;
+    }
+    .back-link:hover { color: var(--text); border-color: var(--accent); background: var(--card); }
+    .page-header-title { flex: 1; min-width: 200px; }
+    .page-header-title h1 {
+      font-size: 1.25rem; font-weight: 800; margin-bottom: .1rem;
+      background: linear-gradient(135deg,#38bdf8 0%,#818cf8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .page-header-title p { font-size: .78rem; color: var(--muted); margin: 0; }
+
+    main { padding: 1.5rem 1.25rem 4rem; max-width: 940px; margin: 0 auto; }
+
+    .intro { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
+    .intro h2 { font-size: 1rem; margin-bottom: .4rem; }
+    .intro p { font-size: .87rem; color: var(--muted); line-height: 1.65; margin: 0 0 .6rem; }
+    .intro p:last-child { margin-bottom: 0; }
+    .intro strong { color: var(--text); }
+
+    .tabs { display: flex; gap: .4rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .tab {
+      flex: 1 1 180px; padding: .6rem .7rem; border-radius: 9px;
+      border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+      font-family: inherit; font-size: .84rem; font-weight: 600; cursor: pointer; transition: all .15s;
+    }
+    .tab:hover { border-color: var(--accent); color: var(--text); }
+    .tab.on { border-color: var(--accent); background: var(--card); color: var(--text); }
+
+    section.panel { display: none; }
+    section.panel.on { display: block; }
+
+    h3.section-h { font-size: 1rem; margin: 0 0 .3rem; }
+    p.section-sub { font-size: .82rem; color: var(--muted); margin: 0 0 1.1rem; line-height: 1.6; }
+
+    /* Heuristics */
+    .rule { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+            border-radius: 0 10px 10px 0; padding: .95rem 1.05rem; margin-bottom: .8rem; }
+    .rule h4 { font-size: .92rem; margin: 0 0 .4rem; }
+    .rule p { font-size: .85rem; line-height: 1.65; color: var(--muted); margin: 0 0 .5rem; }
+    .rule .check {
+      font-size: .8rem; line-height: 1.55; color: #bbf7d0;
+      background: rgba(34,197,94,.09); border: 1px solid rgba(34,197,94,.3);
+      border-radius: 7px; padding: .5rem .65rem;
+    }
+    .rule .check b { color: #86efac; }
+
+    /* Signpost table */
+    .tablewrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+    table.sign { width: 100%; border-collapse: collapse; font-size: .85rem; min-width: 560px; }
+    table.sign th, table.sign td { text-align: left; padding: .6rem .75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    table.sign th { background: var(--surface); font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    table.sign tr:last-child td { border-bottom: none; }
+    table.sign td.phrase { font-weight: 700; color: var(--accent); white-space: nowrap; }
+    table.sign td.means { color: var(--muted); line-height: 1.55; }
+    table.sign td.type { white-space: nowrap; }
+    .typepill {
+      font-size: .68rem; font-weight: 700; padding: .18rem .5rem; border-radius: 999px;
+      background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+      cursor: pointer; font-family: inherit;
+    }
+    .typepill:hover { border-color: var(--accent); color: var(--text); }
+
+    /* Archetype cards */
+    .arch { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: .8rem; overflow: hidden; }
+    .arch-head {
+      width: 100%; text-align: left; background: none; border: none; color: var(--text);
+      font-family: inherit; padding: 1rem 1.1rem; cursor: pointer; display: flex;
+      align-items: flex-start; gap: .8rem;
+    }
+    .arch-head:hover { background: var(--surface); }
+    .arch-n {
+      flex: none; width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center;
+      background: var(--surface); border: 1px solid var(--border); font-size: .74rem; font-weight: 800; color: var(--accent);
+    }
+    .arch-t { flex: 1; min-width: 0; }
+    .arch-t h4 { font-size: .95rem; margin: 0 0 .2rem; }
+    .arch-t p { font-size: .8rem; color: var(--muted); margin: 0; line-height: 1.5; }
+    .arch-count { flex: none; font-size: .7rem; color: var(--muted); padding-top: .2rem; white-space: nowrap; }
+    .arch-body { display: none; padding: 0 1.1rem 1.1rem; border-top: 1px solid var(--border); }
+    .arch.open .arch-body { display: block; }
+    .arch.open .arch-head { background: var(--surface); }
+
+    .block { margin-top: 1rem; }
+    .block h5 {
+      font-size: .7rem; text-transform: uppercase; letter-spacing: .05em;
+      color: var(--muted); font-weight: 700; margin: 0 0 .45rem;
+    }
+    .block p, .block li { font-size: .86rem; line-height: 1.65; }
+    .block ol, .block ul { margin: 0; padding-left: 1.2rem; }
+    .block li { margin-bottom: .3rem; }
+    .cues { display: flex; gap: .35rem; flex-wrap: wrap; }
+    .cue {
+      font-size: .76rem; font-family: var(--font-mono); padding: .25rem .55rem;
+      border-radius: 6px; background: var(--summary-bg); border: 1px solid var(--border); color: var(--accent);
+    }
+    .wants { background: rgba(56,189,248,.08); border: 1px solid rgba(56,189,248,.3); border-radius: 8px; padding: .7rem .85rem; }
+    .wants p { margin: 0; }
+    .trap { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.3); border-radius: 8px; padding: .7rem .85rem; }
+    .trap p { margin: 0; color: #fca5a5; }
+
+    .compare2 { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+    .ex { border-radius: 8px; padding: .7rem .8rem; font-size: .84rem; line-height: 1.6; }
+    .ex h6 { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; margin: 0 0 .35rem; font-weight: 700; }
+    .ex.weak   { background: rgba(239,68,68,.08);  border: 1px solid rgba(239,68,68,.3); }
+    .ex.weak h6 { color: #fca5a5; }
+    .ex.strong { background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.3); }
+    .ex.strong h6 { color: #86efac; }
+    .changed { margin-top: .6rem; font-size: .83rem; line-height: 1.6; color: var(--muted); padding-left: .7rem; border-left: 2px solid var(--border); }
+    .stemline { font-size: .84rem; font-style: italic; color: var(--muted); margin-bottom: .6rem; line-height: 1.55; }
+
+    .practise { margin-top: 1rem; }
+    .note { font-size: .8rem; color: var(--muted); line-height: 1.6; margin-top: 1rem; padding-left: .7rem; border-left: 2px solid var(--border); }
+
+    @media (max-width: 620px) {
+      .compare2 { grid-template-columns: 1fr; }
+      .tab { flex: 1 1 100%; }
+      main { padding: 1.25rem .9rem 3rem; }
+      .intro { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="page-header-inner">
+    <a href="../index.html" class="back-link" aria-label="Back to Science Studio">← Studio</a>
+    <div class="page-header-title">
+      <h1>Question Types &amp; Signposts</h1>
+      <p>Name the shape of the question and you already know what the marks are for.</p>
+    </div>
+    <a href="../trainer/index.html" class="btn btn-primary" style="font-size:.8rem">Practise →</a>
+  </div>
+</header>
+
+<main>
+
+  <section class="intro">
+    <h2>The idea</h2>
+    <p>Booklet B questions come in a small number of <strong>shapes</strong>. The topic changes
+      every time; the shape does not. A question about evaporation, a question about magnets and a
+      question about food chains can all be the same shape, and that shape decides what the mark
+      scheme is looking for.</p>
+    <p>So the first move on any open-ended question is not to think about the science. It is to ask
+      <strong>which shape is this?</strong> The words in the stem tell you, if you know what to look
+      for. Those words are the signposts.</p>
+    <p>Three tabs below: the <strong>rules that hold for every question</strong>, the
+      <strong>signpost phrases</strong> and what each one demands, and the
+      <strong>fifteen shapes</strong> with what each one always wants, the classic trap, and a weak
+      answer rewritten into a strong one.</p>
+  </section>
+
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-p="rules"  onclick="showPanel('rules')">Rules for every question</button>
+    <button class="tab"    data-p="signs"  onclick="showPanel('signs')">Signpost phrases</button>
+    <button class="tab"    data-p="types"  onclick="showPanel('types')">The question shapes</button>
+  </div>
+
+  <section class="panel on" id="p-rules">
+    <h3 class="section-h">Ten rules that hold whatever the topic</h3>
+    <p class="section-sub">These are not tips. Each one corresponds to a way marks are actually lost,
+      and each comes with a check you can run on your own answer before moving on.</p>
+    <div id="rules"></div>
+  </section>
+
+  <section class="panel" id="p-signs">
+    <h3 class="section-h">What the words in the stem are telling you</h3>
+    <p class="section-sub">Examiners choose these phrases deliberately. Each one is an instruction
+      about the structure of your answer. Click a shape to jump to it.</p>
+    <div class="tablewrap">
+      <table class="sign">
+        <thead><tr><th>If the stem says</th><th>It is telling you</th><th>Shape</th></tr></thead>
+        <tbody id="signs"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel" id="p-types">
+    <h3 class="section-h">The shapes of Booklet B</h3>
+    <p class="section-sub">Tap any shape to open it. The count shows how many questions of that shape
+      are in the Answer Trainer, so you can go and drill it.</p>
+    <div id="arch"></div>
+    <p class="note" id="cover-note"></p>
+  </section>
+
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/openended.js"></script>
+<script>
+let DATA = null, COUNTS = {};
+
+(async function init() {
+  try {
+    DATA = await (await fetch('../shared/content/archetypes.json', { cache: 'no-cache' })).json();
+  } catch (_) {
+    document.getElementById('rules').innerHTML =
+      '<p style="color:var(--muted);font-size:.9rem">Could not load the question type data.</p>';
+    return;
+  }
+  // Count examinable bank questions per archetype, so the counts are honest.
+  try {
+    const bank = (await JglOpenEnded.loadAll()).filter(JglOpenEnded.examinable);
+    bank.forEach(q => { COUNTS[q.archetype] = (COUNTS[q.archetype] || 0) + 1; });
+  } catch (_) { /* counts are a nicety, not required */ }
+  renderRules(); renderSigns(); renderArch();
+})();
+
+function renderRules() {
+  document.getElementById('rules').innerHTML = DATA.universalHeuristics.map((r, i) => `
+    <div class="rule">
+      <h4>${i + 1}. ${esc(r.rule)}</h4>
+      <p>${esc(r.detail)}</p>
+      <div class="check"><b>Check:</b> ${esc(r.test)}</div>
+    </div>`).join('');
+}
+
+function renderSigns() {
+  const name = id => (DATA.archetypes.find(a => a.id === id) || {}).name || id;
+  document.getElementById('signs').innerHTML = DATA.signposts.map(s => `
+    <tr>
+      <td class="phrase">${esc(s.phrase)}</td>
+      <td class="means">${esc(s.means)}</td>
+      <td class="type"><button class="typepill" onclick="jumpTo('${s.archetype}')">${esc(name(s.archetype))}</button></td>
+    </tr>`).join('');
+}
+
+function renderArch() {
+  document.getElementById('arch').innerHTML = DATA.archetypes.map((a, i) => {
+    const n = COUNTS[a.id] || 0;
+    return `
+    <div class="arch" id="arch-${a.id}">
+      <button class="arch-head" onclick="toggleArch('${a.id}')" aria-expanded="false">
+        <span class="arch-n">${i + 1}</span>
+        <span class="arch-t"><h4>${esc(a.name)}</h4><p>${esc(a.oneLine)}</p></span>
+        <span class="arch-count">${n ? n + ' to practise' : 'see Process Skills'}</span>
+      </button>
+      <div class="arch-body">
+        <div class="block">
+          <h5>Recognise it by</h5>
+          <div class="cues">${a.recognise.map(c => `<span class="cue">${esc(c)}</span>`).join('')}</div>
+        </div>
+        <div class="block">
+          <h5>What the mark scheme always wants</h5>
+          <div class="wants"><p>${esc(a.alwaysWants)}</p></div>
+        </div>
+        <div class="block">
+          <h5>The shape of the answer</h5>
+          <ol>${a.skeleton.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
+        </div>
+        <div class="block">
+          <h5>The classic trap</h5>
+          <div class="trap"><p>${esc(a.trap)}</p></div>
+        </div>
+        <div class="block">
+          <h5>Worked example</h5>
+          <p class="stemline">${esc(a.worked.stem)}</p>
+          <div class="compare2">
+            <div class="ex weak"><h6>Loses marks</h6>${esc(a.worked.weak)}</div>
+            <div class="ex strong"><h6>Scores</h6>${esc(a.worked.strong)}</div>
+          </div>
+          <p class="changed">${esc(a.worked.whatChanged)}</p>
+        </div>
+        ${n ? `<div class="practise">
+          <a class="btn btn-primary" style="font-size:.8rem"
+             href="../trainer/index.html?archetype=${encodeURIComponent(a.id)}">Practise this shape →</a>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  const missing = DATA.archetypes.filter(a => !COUNTS[a.id]).map(a => a.name);
+  document.getElementById('cover-note').textContent = missing.length
+    ? 'Shapes with no count are drilled elsewhere: ' + missing.join(', ')
+      + '. Fair tests, variables and aims are practised in Process Skills rather than the Answer Trainer.'
+    : '';
+}
+
+function toggleArch(id) {
+  const el = document.getElementById('arch-' + id);
+  const open = el.classList.toggle('open');
+  el.querySelector('.arch-head').setAttribute('aria-expanded', String(open));
+}
+
+function jumpTo(id) {
+  showPanel('types');
+  const el = document.getElementById('arch-' + id);
+  if (!el) return;
+  if (!el.classList.contains('open')) toggleArch(id);
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showPanel(p) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+  document.querySelectorAll('.panel').forEach(s => s.classList.toggle('on', s.id === 'p-' + p));
+}
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+</script>
+</body>
+</html>
