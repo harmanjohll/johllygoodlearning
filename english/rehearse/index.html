@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oral Rehearsal — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem;
+                   display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px;
+                 padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    .hdr-t { flex: 1; min-width: 170px; font-weight: 800; font-size: .95rem; }
+    .hdr-t span { display: block; font-size: .72rem; color: var(--muted); font-weight: 400; }
+
+    main { max-width: 880px; margin: 0 auto; padding: 1.25rem 1.25rem 4rem; }
+    .hero h1 { font-size: 1.5rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .9rem; line-height: 1.7; margin-bottom: 1rem; }
+
+    .tabs { display: flex; gap: .4rem; border-bottom: 1px solid var(--border); margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .tab { background: transparent; border: 0; padding: .6rem .9rem; color: var(--muted); font-size: .9rem;
+           font-weight: 700; cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit; }
+    .tab:hover { color: var(--text); }
+    .tab.on { color: var(--text); border-bottom-color: var(--accent); }
+    section.panel { display: none; }
+    section.panel.on { display: block; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.15rem; margin-bottom: 1rem; }
+    .card h2 { font-size: 1rem; margin: 0 0 .45rem; }
+    .card p  { font-size: .87rem; color: var(--muted); line-height: 1.65; margin: 0 0 .6rem; }
+    .card p:last-child { margin-bottom: 0; }
+
+    /* Part / move cards */
+    .part { border-left: 3px solid var(--accent); }
+    .partno { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); font-weight: 800; }
+    .chips { display: flex; gap: .35rem; flex-wrap: wrap; margin: .5rem 0 .2rem; }
+    .chip { font-size: .72rem; padding: .22rem .55rem; border-radius: 999px;
+            border: 1px solid var(--border); background: var(--surface); color: var(--muted); }
+    .chip.n { color: var(--accent); border-color: var(--accent); font-weight: 700; }
+
+    .move { border: 1px solid var(--border); border-radius: 10px; margin-bottom: .6rem; overflow: hidden; }
+    .move-h { width: 100%; text-align: left; background: none; border: 0; color: var(--text); font-family: inherit;
+              padding: .7rem .85rem; cursor: pointer; display: flex; gap: .6rem; align-items: baseline; }
+    .move-h:hover { background: var(--surface); }
+    .move-h .ord { font-weight: 800; color: var(--accent); font-size: .8rem; flex: none; }
+    .move-h .nm  { font-weight: 700; font-size: .9rem; flex: 1; }
+    .move-h .jb  { font-size: .76rem; color: var(--muted); flex: 2; min-width: 0; }
+    .move-b { display: none; padding: 0 .85rem .85rem; }
+    .move.open .move-b { display: block; }
+    .move.open .move-h { background: var(--surface); }
+    .lbl { font-size: .66rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; margin: .7rem 0 .3rem; }
+    .ph { display: flex; gap: .3rem; flex-wrap: wrap; }
+    .ph span { font-size: .78rem; font-family: var(--font-mono, monospace); padding: .22rem .5rem;
+               border-radius: 6px; background: var(--summary-bg, #162032); border: 1px solid var(--border); color: var(--accent); }
+    .wk, .st { border-radius: 8px; padding: .55rem .7rem; font-size: .84rem; line-height: 1.6; margin-bottom: .4rem; }
+    .wk { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.3); color: #fca5a5; }
+    .st { background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.3); color: #bbf7d0; }
+    .why { font-size: .83rem; line-height: 1.65; color: var(--muted); padding-left: .7rem; border-left: 2px solid var(--border); }
+
+    /* Drills */
+    .drillbar { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .dbtn { flex: 1 1 150px; padding: .55rem .6rem; border-radius: 9px; border: 1px solid var(--border);
+            background: var(--surface); color: var(--muted); font-family: inherit; font-size: .8rem; font-weight: 600; cursor: pointer; }
+    .dbtn:hover { border-color: var(--accent); color: var(--text); }
+    .dbtn.on { border-color: var(--accent); background: var(--card); color: var(--text); }
+    .dbtn small { display: block; font-weight: 400; font-size: .68rem; color: var(--muted); margin-top: .1rem; }
+
+    .q { font-size: .95rem; font-weight: 600; line-height: 1.55; margin-bottom: .8rem; }
+    .opts { display: flex; flex-direction: column; gap: .4rem; }
+    .opt { text-align: left; padding: .55rem .8rem; border-radius: 8px; border: 1px solid var(--border);
+           background: var(--surface); color: var(--text); font-family: inherit; font-size: .87rem; cursor: pointer; line-height: 1.5; }
+    .opt:hover:not(:disabled) { border-color: var(--accent); }
+    .opt.right { border-color: #22c55e; background: rgba(34,197,94,.13); color: #bbf7d0; }
+    .opt.wrong { border-color: #ef4444; background: rgba(239,68,68,.13); color: #fca5a5; }
+    .opt:disabled { cursor: default; }
+
+    .slot, .pool { display: flex; flex-direction: column; gap: .4rem; }
+    .slot { min-height: 40px; margin-bottom: .7rem; }
+    .item { text-align: left; padding: .5rem .75rem; border-radius: 8px; border: 1px solid var(--border);
+            background: var(--surface); color: var(--text); font-family: inherit; font-size: .86rem; cursor: pointer; }
+    .item:hover { border-color: var(--accent); }
+    .item .ix { font-weight: 800; color: var(--accent); margin-right: .45rem; font-size: .78rem; }
+    .item.right { border-color: #22c55e; background: rgba(34,197,94,.1); }
+    .item.wrong { border-color: #ef4444; background: rgba(239,68,68,.1); }
+    .slotlbl { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; margin-bottom: .35rem; }
+
+    input.gap, textarea.free {
+      width: 100%; padding: .5rem .7rem; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text); font-family: inherit; font-size: .88rem; line-height: 1.6;
+    }
+    textarea.free { min-height: 90px; resize: vertical; }
+    input.gap:focus, textarea.free:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .gapline { font-size: .9rem; line-height: 2.1; }
+    .gapline input.gap { display: inline-block; width: auto; min-width: 130px; padding: .18rem .45rem; font-size: .85rem; }
+
+    .verdict { margin-top: .8rem; padding: .7rem .85rem; border-radius: 8px; font-size: .85rem; line-height: 1.65; display: none; }
+    .verdict.show { display: block; }
+    .verdict.ok { background: rgba(34,197,94,.1);  border: 1px solid rgba(34,197,94,.35); color: #bbf7d0; }
+    .verdict.no { background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.35); color: #fde68a; }
+
+    .selfrate { display: flex; gap: .35rem; flex-wrap: wrap; align-items: center; font-size: .82rem; margin-top: .7rem; }
+    .selfrate span { color: var(--muted); }
+    .srb { padding: .3rem .65rem; border-radius: 7px; border: 1px solid var(--border);
+           background: var(--surface); color: var(--text); font-family: inherit; font-size: .8rem; cursor: pointer; }
+    .srb:hover { border-color: var(--accent); }
+    .srb.on { border-color: var(--accent); background: var(--card); font-weight: 700; }
+
+    .actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1rem; }
+    .nota { font-size: .8rem; color: var(--muted); line-height: 1.6; margin-top: .7rem; padding-left: .7rem; border-left: 2px solid var(--border); }
+    .score { font-size: .8rem; color: var(--muted); text-align: center; margin-top: .8rem; }
+
+    /* Build */
+    .scene { background: var(--summary-bg, #162032); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0;
+             padding: .8rem .9rem; font-size: .88rem; line-height: 1.7; margin-bottom: .8rem; }
+    .movebox { border: 1px solid var(--border); border-radius: 9px; padding: .7rem .8rem; margin-bottom: .6rem; }
+    .movebox h4 { font-size: .85rem; margin: 0 0 .15rem; }
+    .movebox .jb { font-size: .77rem; color: var(--muted); margin-bottom: .45rem; line-height: 1.5; }
+    .used { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .4rem; }
+    .used span { font-size: .72rem; padding: .18rem .45rem; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+    .used span.hit { border-color: #22c55e; background: rgba(34,197,94,.12); color: #86efac; }
+
+    /* Weak moves */
+    table.weak { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    table.weak th, table.weak td { text-align: left; padding: .45rem .55rem; border-bottom: 1px solid var(--border); }
+    table.weak th { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    table.weak td.n { text-align: right; font-family: var(--font-mono, monospace); }
+
+    @media (max-width: 560px) {
+      .move-h { flex-direction: column; gap: .2rem; }
+      .move-h .jb { flex: none; }
+      main { padding: 1rem .9rem 3rem; }
+      .card { padding: .95rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../index.html" class="back-link">← Studio</a>
+  <div class="hdr-t">Oral Rehearsal<span>Paper 4 · the machinery behind a strong answer</span></div>
+  <a href="../sbc/index.html" class="back-link">Speak it in SBC →</a>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Oral Rehearsal</h1>
+    <p>Model answers are worth reading, but reading them only builds recognition. In the exam you need
+      retrieval, and those are different skills. This module names the moves a strong answer is built
+      from, then makes you recall them until they come without thinking.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-p="learn"  onclick="show('learn')">The moves</button>
+    <button class="tab"    data-p="recall" onclick="show('recall')">Recall drills</button>
+    <button class="tab"    data-p="build"  onclick="show('build')">Build an answer</button>
+    <button class="tab"    data-p="weak"   onclick="show('weak')">What is shaky</button>
+  </div>
+
+  <!-- LEARN -->
+  <section class="panel on" id="p-learn">
+    <div class="card">
+      <h2>Every SBC set is the same three questions</h2>
+      <p>The topic changes; the three jobs do not. Question one asks what you think of the picture.
+        Question two asks for something that happened to you. Question three asks for an opinion you
+        can defend. Each has a different shape, and knowing which one you are in tells you what to say first.</p>
+    </div>
+    <div id="parts"></div>
+    <div class="card">
+      <h2>Vocabulary upgrades</h2>
+      <p>The same idea, said better. These are the swaps that lift an answer without sounding rehearsed.</p>
+      <div id="upgrades"></div>
+    </div>
+  </section>
+
+  <!-- RECALL -->
+  <section class="panel" id="p-recall">
+    <div class="card">
+      <h2>Four ways of remembering, hardest last</h2>
+      <p>Recognising a phrase is easy. Producing it from nothing is what the exam asks for. Work down
+        the list as each one gets comfortable.</p>
+    </div>
+    <div class="drillbar" id="drillbar"></div>
+    <div class="card" id="drill"></div>
+    <p class="score" id="score"></p>
+  </section>
+
+  <!-- BUILD -->
+  <section class="panel" id="p-build">
+    <div class="card">
+      <h2>Assemble one answer, move by move</h2>
+      <p>Pick a scene and a question. You will write one box per move, with the job of that move in front
+        of you. The phrase tracker shows whether you actually used a signal phrase for each.</p>
+      <div class="actions">
+        <select id="b-scene" style="padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:inherit;font-size:.85rem"></select>
+        <select id="b-q" style="padding:.5rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:inherit;font-size:.85rem"></select>
+        <button class="btn btn-primary" onclick="startBuild()">Start</button>
+      </div>
+    </div>
+    <div id="build"></div>
+  </section>
+
+  <!-- WEAK -->
+  <section class="panel" id="p-weak">
+    <div class="card">
+      <h2>Which moves are still shaky</h2>
+      <p>Every drill answer is recorded against the move it tested. The moves you get wrong most often
+        come up first in the drills, so you spend your time where it is worth spending.</p>
+      <div id="weaktable"></div>
+      <div class="actions"><button class="btn btn-ghost" onclick="resetStats()">Clear this record</button></div>
+    </div>
+  </section>
+</main>
+
+<script src="../shared.js"></script>
+<script src="../shared/storage.js"></script>
+<script src="../shared/lab.js"></script>
+<script src="../shared/gemini.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   Oral Rehearsal — assimilate the answer machinery, then retrieve it.
+   Drill ladder: recognise -> order -> gap-fill -> free recall.
+   Per-move accuracy is stored so weak moves resurface first.
+   ══════════════════════════════════════════════════════════════ */
+
+const STATS_KEY = 'jgl.oralMoveStats';
+let M = null;                 // machinery data
+let MOVE = {};                // id -> move
+let drill = 'recognise';
+let cur = null;               // current drill item
+const tally = { right: 0, total: 0 };
+
+(async function init() {
+  try {
+    M = await (await fetch('../shared/content/oral-machinery.json', { cache: 'no-cache' })).json();
+  } catch (_) {
+    document.getElementById('parts').innerHTML =
+      '<div class="card"><p>Could not load the oral machinery data.</p></div>';
+    return;
+  }
+  M.moves.forEach(m => { MOVE[m.id] = m; });
+  renderParts(); renderUpgrades(); renderDrillbar(); nextDrill(); renderSceneSelect(); renderWeak();
+})();
+
+/* ── Learn ───────────────────────────────────────────────── */
+function renderParts() {
+  document.getElementById('parts').innerHTML = M.parts.map(p => `
+    <div class="card part">
+      <div class="partno">Question ${p.n} · about ${p.targetSec} seconds</div>
+      <h2>${esc(p.name)}</h2>
+      <p><strong style="color:var(--text)">Its job:</strong> ${esc(p.job)}</p>
+      <p><strong style="color:var(--text)">What the examiner wants:</strong> ${esc(p.examinerWants)}</p>
+      <p><strong style="color:#fca5a5">Where it goes wrong:</strong> ${esc(p.commonFail)}</p>
+      <div class="chips">${p.moves.map((id, i) =>
+        `<span class="chip n">${i + 1}. ${esc(MOVE[id].name)}</span>`).join('')}</div>
+      <div style="margin-top:.8rem">
+        ${p.moves.map(id => moveCard(MOVE[id])).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function moveCard(m) {
+  return `
+    <div class="move" id="mv-${m.id}">
+      <button class="move-h" onclick="toggleMove('${m.id}')" aria-expanded="false">
+        <span class="ord">${m.order}</span>
+        <span class="nm">${esc(m.name)}</span>
+        <span class="jb">${esc(m.job)}</span>
+      </button>
+      <div class="move-b">
+        <div class="lbl">Signal phrases</div>
+        <div class="ph">${m.phrases.map(p => `<span>${esc(p)}</span>`).join('')}</div>
+        ${m.judgementWords && m.judgementWords.length ? `
+          <div class="lbl">Judgement words worth having ready</div>
+          <div class="ph">${m.judgementWords.map(w => `<span>${esc(w)}</span>`).join('')}</div>` : ''}
+        <div class="lbl">Weak, then strong</div>
+        <div class="wk">${esc(m.weak)}</div>
+        <div class="st">${esc(m.strong)}</div>
+        <div class="lbl">Why it matters</div>
+        <p class="why">${esc(m.whyItMatters)}</p>
+      </div>
+    </div>`;
+}
+function toggleMove(id) {
+  const el = document.getElementById('mv-' + id);
+  const open = el.classList.toggle('open');
+  el.querySelector('.move-h').setAttribute('aria-expanded', String(open));
+}
+
+function renderUpgrades() {
+  document.getElementById('upgrades').innerHTML = `
+    <table class="weak"><thead><tr><th>Instead of</th><th>Say</th></tr></thead><tbody>
+    ${M.upgrades.map(u => `<tr><td style="color:#fca5a5">${esc(u.weak)}</td>
+      <td style="color:#bbf7d0">${u.strong.map(esc).join(' · ')}</td></tr>`).join('')}
+    </tbody></table>`;
+}
+
+/* ── Per-move stats, so weak moves come up first ─────────── */
+function stats() {
+  try { return JSON.parse(localStorage.getItem(STATS_KEY) || '{}'); } catch (_) { return {}; }
+}
+function record(moveId, ok) {
+  const s = stats();
+  const r = s[moveId] || { seen: 0, right: 0 };
+  r.seen++; if (ok) r.right++;
+  s[moveId] = r;
+  try { localStorage.setItem(STATS_KEY, JSON.stringify(s)); } catch (_) {}
+  renderWeak();
+}
+function resetStats() {
+  try { localStorage.removeItem(STATS_KEY); } catch (_) {}
+  renderWeak();
+}
+/* Weighted pick: unseen first, then lowest accuracy. */
+function pickMove(pool) {
+  const s = stats();
+  const scored = pool.map(m => {
+    const r = s[m.id];
+    const acc = r && r.seen ? r.right / r.seen : -1;   // -1 sorts unseen to the front
+    return { m, acc, seen: r ? r.seen : 0 };
+  });
+  scored.sort((a, b) => a.acc - b.acc || a.seen - b.seen);
+  // take from the shakiest third, at random, so it does not become predictable
+  const take = scored.slice(0, Math.max(3, Math.ceil(scored.length / 3)));
+  return take[Math.floor(Math.random() * take.length)].m;
+}
+
+function renderWeak() {
+  const s = stats();
+  const rows = M.moves.map(m => {
+    const r = s[m.id] || { seen: 0, right: 0 };
+    return { m, seen: r.seen, right: r.right, acc: r.seen ? r.right / r.seen : null };
+  }).filter(r => r.seen > 0).sort((a, b) => a.acc - b.acc);
+  const host = document.getElementById('weaktable');
+  if (!rows.length) {
+    host.innerHTML = '<p style="font-size:.87rem;color:var(--muted)">Nothing recorded yet. Do a few recall drills and this fills in.</p>';
+    return;
+  }
+  host.innerHTML = `
+    <table class="weak">
+      <thead><tr><th>Move</th><th>Part</th><th class="n">Right</th><th class="n">Seen</th><th class="n">%</th></tr></thead>
+      <tbody>${rows.map(r => `
+        <tr><td>${esc(r.m.name)}</td><td style="color:var(--muted)">${esc(r.m.part)}</td>
+        <td class="n">${r.right}</td><td class="n">${r.seen}</td>
+        <td class="n" style="color:${r.acc < .6 ? '#fca5a5' : r.acc < .85 ? '#fde68a' : '#86efac'}">${Math.round(r.acc * 100)}%</td></tr>`).join('')}
+      </tbody></table>`;
+}
+
+/* ── Drills ──────────────────────────────────────────────── */
+const DRILLS = [
+  { id: 'recognise', name: 'Name the move',   sub: 'phrase → which move' },
+  { id: 'order',     name: 'Put them in order', sub: 'scrambled → sequence' },
+  { id: 'gap',       name: 'Fill the signal',  sub: 'answer with gaps' },
+  { id: 'free',      name: 'From memory',      sub: 'no options at all' },
+];
+
+function renderDrillbar() {
+  document.getElementById('drillbar').innerHTML = DRILLS.map(d =>
+    `<button class="dbtn ${d.id === drill ? 'on' : ''}" onclick="setDrill('${d.id}')">
+       ${esc(d.name)}<small>${esc(d.sub)}</small></button>`).join('');
+}
+function setDrill(id) { drill = id; tally.right = 0; tally.total = 0; renderDrillbar(); nextDrill(); }
+function nextDrill() { ({ recognise: dRecognise, order: dOrder, gap: dGap, free: dFree })[drill](); updateScore(); }
+function updateScore() {
+  document.getElementById('score').textContent = tally.total
+    ? `${tally.right} of ${tally.total} this run.` : '';
+}
+
+/* 1. Recognition: given a phrase, which move? */
+function dRecognise() {
+  const m = pickMove(M.moves);
+  const phrase = m.phrases[Math.floor(Math.random() * m.phrases.length)];
+  const others = shuffle(M.moves.filter(x => x.id !== m.id)).slice(0, 3);
+  const opts = shuffle([m, ...others]);
+  cur = { m, opts };
+  document.getElementById('drill').innerHTML = `
+    <p class="q">You hear yourself starting a sentence with <em style="color:var(--accent)">"${esc(phrase)}"</em>.<br>
+      Which move are you making?</p>
+    <div class="opts">
+      ${opts.map((o, i) => `<button class="opt" data-i="${i}" onclick="ansRecognise(${i})">
+        <strong>${esc(o.name)}</strong> <span style="color:var(--muted);font-size:.8rem">— ${esc(o.job)}</span></button>`).join('')}
+    </div>
+    <div class="verdict" id="v"></div>`;
+}
+function ansRecognise(i) {
+  const ok = cur.opts[i].id === cur.m.id;
+  document.querySelectorAll('#drill .opt').forEach(b => {
+    b.disabled = true;
+    const o = cur.opts[+b.dataset.i];
+    if (o.id === cur.m.id) b.classList.add('right');
+    else if (+b.dataset.i === i) b.classList.add('wrong');
+  });
+  finish(ok, cur.m, ok
+    ? `Yes. ${cur.m.name} — ${cur.m.job}`
+    : `It is the ${cur.m.name.toLowerCase()}: ${cur.m.job}`);
+}
+
+/* 2. Ordering: scramble one part's moves. */
+function dOrder() {
+  const p = M.parts[Math.floor(Math.random() * M.parts.length)];
+  cur = { p, placed: [], pool: shuffle(p.moves.map((id, i) => ({ id, i }))) };
+  document.getElementById('drill').innerHTML = `
+    <p class="q">Put the moves of a <strong>${esc(p.name.toLowerCase())}</strong> answer into the order you would say them.</p>
+    <div class="slotlbl">Your order</div><div class="slot" id="slot"></div>
+    <div class="slotlbl">Moves</div><div class="pool" id="pool"></div>
+    <div class="verdict" id="v"></div>`;
+  drawOrder();
+}
+function drawOrder() {
+  const s = document.getElementById('slot'), p = document.getElementById('pool');
+  s.innerHTML = cur.placed.length
+    ? cur.placed.map((c, n) => `<button class="item" onclick="unplace(${n})"><span class="ix">${n + 1}</span>${esc(MOVE[c.id].name)}</button>`).join('')
+    : '<p style="font-size:.8rem;color:var(--muted);margin:0">Click the moves below in order.</p>';
+  p.innerHTML = cur.pool.map((c, n) => `<button class="item" onclick="place(${n})">${esc(MOVE[c.id].name)} <span style="color:var(--muted);font-size:.78rem">— ${esc(MOVE[c.id].job)}</span></button>`).join('');
+  if (!cur.pool.length) checkOrder();
+}
+function place(n) { cur.placed.push(cur.pool.splice(n, 1)[0]); drawOrder(); }
+function unplace(n) { if (!cur.done) { cur.pool.push(cur.placed.splice(n, 1)[0]); drawOrder(); } }
+function checkOrder() {
+  cur.done = true;
+  const ok = cur.placed.every((c, n) => c.i === n);
+  document.querySelectorAll('#slot .item').forEach((b, n) =>
+    b.classList.add(cur.placed[n].i === n ? 'right' : 'wrong'));
+  // credit every move in the part, so ordering feeds the same stats
+  cur.p.moves.forEach((id, n) => record(id, cur.placed[n] && cur.placed[n].i === n));
+  tally.total++; if (ok) tally.right++;
+  const v = document.getElementById('v');
+  v.className = 'verdict show ' + (ok ? 'ok' : 'no');
+  v.innerHTML = ok
+    ? 'That is the order. Say it in that order and the answer builds itself.'
+    : 'The order is:<br>' + cur.p.moves.map((id, n) => `${n + 1}. <strong>${esc(MOVE[id].name)}</strong> — ${esc(MOVE[id].job)}`).join('<br>');
+  v.insertAdjacentHTML('beforeend', nextBtn());
+  updateScore();
+}
+
+/* 3. Gap fill: strong example with its signal phrase removed. */
+function dGap() {
+  const pool = M.moves.filter(m => m.phrases.some(p => m.strong.toLowerCase().startsWith(p.toLowerCase().slice(0, 6))));
+  const m = pickMove(pool.length ? pool : M.moves);
+  // blank the leading signal phrase where the strong example opens with one
+  const hit = m.phrases.find(p => m.strong.toLowerCase().startsWith(p.toLowerCase().slice(0, 6)));
+  const rest = hit ? m.strong.slice(m.strong.indexOf(',') + 1).trim() : m.strong;
+  cur = { m, hit };
+  document.getElementById('drill').innerHTML = `
+    <p class="q">This is a <strong>${esc(m.name.toLowerCase())}</strong>. Put a signal phrase in front of it.</p>
+    <p class="gapline"><input class="gap" id="gapin" placeholder="signal phrase" aria-label="signal phrase">
+      , ${esc(rest)}</p>
+    <div class="actions"><button class="btn btn-primary" onclick="ansGap()">Check</button></div>
+    <div class="verdict" id="v"></div>`;
+  setTimeout(() => document.getElementById('gapin').focus(), 50);
+}
+function ansGap() {
+  const given = (document.getElementById('gapin').value || '').trim().toLowerCase().replace(/[,.]$/, '');
+  if (!given) return;
+  const ok = cur.m.phrases.some(p => {
+    const t = p.toLowerCase().replace(/\.\.\.$/, '').replace(/[,.]$/, '').trim();
+    return t.startsWith(given) || given.startsWith(t) || t === given;
+  });
+  finish(ok, cur.m, ok
+    ? `Yes. Anything from this family works: ${cur.m.phrases.join(' · ')}`
+    : `Not one of the usual signals for a ${cur.m.name.toLowerCase()}. Any of these would do: ${cur.m.phrases.join(' · ')}`);
+}
+
+/* 4. Free recall: no options, self-rated. */
+function dFree() {
+  const mode = Math.random() < 0.5 ? 'part' : 'move';
+  if (mode === 'part') {
+    const p = M.parts[Math.floor(Math.random() * M.parts.length)];
+    cur = { p, kind: 'part' };
+    document.getElementById('drill').innerHTML = `
+      <p class="q">From memory: name the moves of a <strong>${esc(p.name.toLowerCase())}</strong> answer, in order,
+        and give one signal phrase for each.</p>
+      <textarea class="free" id="freein" placeholder="Write them out, then check yourself." aria-label="Your answer"></textarea>
+      <div class="actions"><button class="btn btn-primary" onclick="ansFree()">Show me</button></div>
+      <div class="verdict" id="v"></div>`;
+  } else {
+    const m = pickMove(M.moves);
+    cur = { m, kind: 'move' };
+    document.getElementById('drill').innerHTML = `
+      <p class="q">From memory: what is the job of the <strong>${esc(m.name.toLowerCase())}</strong>,
+        and what would you say to signal it?</p>
+      <textarea class="free" id="freein" placeholder="Write it out, then check yourself." aria-label="Your answer"></textarea>
+      <div class="actions"><button class="btn btn-primary" onclick="ansFree()">Show me</button></div>
+      <div class="verdict" id="v"></div>`;
+  }
+  setTimeout(() => document.getElementById('freein').focus(), 50);
+}
+function ansFree() {
+  const v = document.getElementById('v');
+  v.className = 'verdict show no';
+  if (cur.kind === 'part') {
+    v.innerHTML = '<strong>The answer:</strong><br>' + cur.p.moves.map((id, n) =>
+      `${n + 1}. <strong>${esc(MOVE[id].name)}</strong> — ${esc(MOVE[id].job)}<br>
+       <span style="color:var(--accent);font-size:.82rem">${esc(MOVE[id].phrases.slice(0, 2).join(' · '))}</span>`).join('<br>');
+  } else {
+    v.innerHTML = `<strong>${esc(cur.m.name)}</strong> — ${esc(cur.m.job)}<br>
+      <span style="color:var(--accent);font-size:.82rem">${esc(cur.m.phrases.join(' · '))}</span>`;
+  }
+  v.insertAdjacentHTML('beforeend', `
+    <div class="selfrate"><span>How did you do?</span>
+      ${[['Got it', 1], ['Nearly', 1], ['No', 0]].map(([lbl, ok], i) =>
+        `<button class="srb" onclick="rateFree(${ok},this)">${lbl}</button>`).join('')}
+    </div>` + nextBtn());
+}
+function rateFree(ok, btn) {
+  btn.parentElement.querySelectorAll('.srb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  const ids = cur.kind === 'part' ? cur.p.moves : [cur.m.id];
+  ids.forEach(id => record(id, !!ok));
+  tally.total++; if (ok) tally.right++;
+  updateScore();
+}
+
+function finish(ok, move, msg) {
+  record(move.id, ok);
+  tally.total++; if (ok) tally.right++;
+  const v = document.getElementById('v');
+  v.className = 'verdict show ' + (ok ? 'ok' : 'no');
+  v.innerHTML = esc(msg) + nextBtn();
+  updateScore();
+}
+function nextBtn() {
+  return '<div class="actions"><button class="btn btn-primary" onclick="nextDrill()">Next →</button></div>';
+}
+
+/* ── Build ───────────────────────────────────────────────── */
+function renderSceneSelect() {
+  const s = document.getElementById('b-scene');
+  s.innerHTML = M.scenes.map((sc, i) => `<option value="${i}">${esc(sc.title)}</option>`).join('');
+  s.addEventListener('change', fillQ);
+  fillQ();
+}
+function fillQ() {
+  const sc = M.scenes[+document.getElementById('b-scene').value];
+  document.getElementById('b-q').innerHTML = sc.questions.map((q, i) =>
+    `<option value="${i}">Q${i + 1} · ${esc(M.parts.find(p => p.id === q.part).name)}</option>`).join('');
+}
+function startBuild() {
+  const sc = M.scenes[+document.getElementById('b-scene').value];
+  const q  = sc.questions[+document.getElementById('b-q').value];
+  const part = M.parts.find(p => p.id === q.part);
+  document.getElementById('build').innerHTML = `
+    <div class="card">
+      <div class="scene">${esc(sc.scene)}</div>
+      <p class="q">${esc(q.stem)}</p>
+      <p class="nota">Aim for about ${part.targetSec} seconds. ${esc(part.examinerWants)}</p>
+    </div>
+    <div class="card">
+      ${part.moves.map(id => {
+        const m = MOVE[id];
+        return `<div class="movebox">
+          <h4>${m.order}. ${esc(m.name)}</h4>
+          <div class="jb">${esc(m.job)}</div>
+          <textarea class="free" id="bx-${id}" style="min-height:60px"
+            oninput="trackPhrases('${id}')" aria-label="${esc(m.name)}"></textarea>
+          <div class="used" id="ph-${id}">${m.phrases.map(p =>
+            `<span data-p="${esc(p)}">${esc(p)}</span>`).join('')}</div>
+        </div>`;
+      }).join('')}
+      <div class="actions">
+        <button class="btn btn-primary" onclick="readBack('${part.id}')">Read it back as one answer</button>
+        <a class="btn btn-ghost" href="../sbc/index.html">Now say it aloud in SBC →</a>
+      </div>
+      <div id="readback"></div>
+    </div>`;
+}
+function trackPhrases(id) {
+  const t = (document.getElementById('bx-' + id).value || '').toLowerCase();
+  document.querySelectorAll(`#ph-${id} span`).forEach(s => {
+    const p = s.dataset.p.toLowerCase().replace(/\.\.\.$/, '').replace(/[,.]$/, '').trim();
+    s.classList.toggle('hit', t.includes(p.slice(0, Math.min(p.length, 12))));
+  });
+}
+function readBack(partId) {
+  const part = M.parts.find(p => p.id === partId);
+  const text = part.moves.map(id => (document.getElementById('bx-' + id).value || '').trim())
+    .filter(Boolean).join(' ');
+  const missing = part.moves.filter(id => !(document.getElementById('bx-' + id).value || '').trim())
+    .map(id => MOVE[id].name);
+  const words = text ? text.split(/\s+/).length : 0;
+  document.getElementById('readback').innerHTML = `
+    <div class="verdict show ${missing.length ? 'no' : 'ok'}" style="margin-top:1rem">
+      ${missing.length ? `Still empty: <strong>${missing.map(esc).join(', ')}</strong>. An answer missing a move sounds unfinished.`
+                       : 'All five moves are there. Read it aloud and time yourself.'}
+      <div style="margin-top:.7rem;padding:.7rem .85rem;background:var(--summary-bg,#162032);border:1px solid var(--border);border-radius:8px;color:var(--text);line-height:1.75">
+        ${text ? esc(text) : '<span style="color:var(--muted)">Nothing written yet.</span>'}
+      </div>
+      <p style="margin:.6rem 0 0;font-size:.8rem;color:var(--muted)">${words} words · aim for roughly ${Math.round(part.targetSec * 2.2)} at speaking pace.</p>
+    </div>`;
+}
+
+/* ── Utils ───────────────────────────────────────────────── */
+function show(p) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+  document.querySelectorAll('.panel').forEach(s => s.classList.toggle('on', s.id === 'p-' + p));
+}
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function shuffle(a) {
+  const x = [...a];
+  for (let i = x.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [x[i], x[j]] = [x[j], x[i]]; }
+  return x;
+}
+</script>
+</body>
+</html>
