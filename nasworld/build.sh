@@ -54,6 +54,7 @@ SCRIPTS=(
   "src/play/play-numpyramid.js"
   "src/play/play-brain.js"
   "src/play/play-words.js"
+  "src/play/play-more.js"
   "src/math/math-render.js"
   "src/word/word-gen.js"
   "src/word/word-render.js"
