@@ -231,6 +231,74 @@ ok('hub: renders all three categories', hub.hasPuzzles && hub.hasBrain && hub.ha
 ok('hub: shows every game as a card', hub.cards >= 8, 'cards=' + hub.cards);
 ok('hub: keeps the honest note about brain-training evidence', hub.hasHonestyNote);
 
+// ---- 9. Mini Sudoku grids must be genuinely valid ----
+// A grid with a repeat in any row, column or box is unsolvable, and a
+// child would sit there getting it "wrong" forever. This exercises the
+// real generator, not a re-implementation of it.
+const sud = vm.runInContext(`
+  (function(){
+    if (typeof playSudoku === 'undefined' || typeof playSudoku._solved4 !== 'function') {
+      return { unavailable: true };
+    }
+    var bad = [], checked = 0;
+    for (var t = 0; t < 400; t++) {
+      var g = playSudoku._solved4();
+      checked++;
+      if (!g || g.length !== 4) { bad.push('not a 4x4 grid'); break; }
+      for (var r = 0; r < 4; r++) {
+        var row = {}, col = {};
+        for (var c = 0; c < 4; c++) {
+          if (row[g[r][c]]) bad.push('row ' + r + ' repeats ' + g[r][c]);
+          row[g[r][c]] = 1;
+          if (col[g[c][r]]) bad.push('col ' + r + ' repeats ' + g[c][r]);
+          col[g[c][r]] = 1;
+        }
+        if (Object.keys(row).length !== 4) bad.push('row ' + r + ' missing a symbol');
+      }
+      for (var br = 0; br < 4; br += 2) for (var bc = 0; bc < 4; bc += 2) {
+        var seen = {};
+        for (var i = 0; i < 2; i++) for (var j = 0; j < 2; j++) {
+          var v = g[br+i][bc+j];
+          if (seen[v]) bad.push('box repeat ' + v);
+          seen[v] = 1;
+        }
+      }
+    }
+    return { bad: bad.slice(0,3), checked: checked };
+  })()
+`, sandbox);
+ok('sudoku: 400 generated grids are all valid (no row/col/box repeats)',
+   !sud.unavailable && sud.bad.length === 0,
+   sud.unavailable ? 'GENERATOR NOT EXPOSED - test could not run' : (sud.bad.join(' | ') || 'checked ' + sud.checked));
+
+// ---- 10. Memory Pairs decks must be pairable ----
+// An odd deck, or a face appearing three times, makes the game
+// literally unwinnable.
+const prs = vm.runInContext(`
+  (function(){
+    if (typeof playPairs === 'undefined' || typeof playPairs._makeDeck !== 'function') {
+      return { unavailable: true };
+    }
+    var bad = [], checked = 0;
+    [6, 8, 10].forEach(function(pairCount){
+      for (var t = 0; t < 200; t++) {
+        var deck = playPairs._makeDeck(pairCount);
+        checked++;
+        if (deck.length !== pairCount * 2) bad.push('deck size ' + deck.length + ' for ' + pairCount + ' pairs');
+        var counts = {};
+        deck.forEach(function(f){ counts[f] = (counts[f]||0) + 1; });
+        var faces = Object.keys(counts);
+        if (faces.length !== pairCount) bad.push('expected ' + pairCount + ' faces, got ' + faces.length);
+        faces.forEach(function(f){ if (counts[f] !== 2) bad.push('face ' + f + ' appears ' + counts[f] + ' times'); });
+      }
+    });
+    return { bad: bad.slice(0,3), checked: checked };
+  })()
+`, sandbox);
+ok('pairs: 600 decks are all even with each face appearing exactly twice',
+   !prs.unavailable && prs.bad.length === 0,
+   prs.unavailable ? 'GENERATOR NOT EXPOSED - test could not run' : (prs.bad.join(' | ') || 'checked ' + prs.checked));
+
 console.log('\n================ PLAY MODULE ================\n');
 let p = 0, f = 0;
 R.forEach(r => { console.log((r.p ? '  PASS  ' : '> FAIL <') + ' ' + r.n + (r.e ? '   [' + r.e + ']' : '')); r.p ? p++ : f++; });
