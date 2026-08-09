@@ -261,43 +261,51 @@ MH.OPENINGS = [
    demolish it, which mirrors what HDB will refuse to approve. */
 MH.WALL_TYPES = {
   rc: {
-    id:'rc', name:'Reinforced concrete (structural)', thickness:200, hackable:false,
+    id:'rc', name:'Concrete wall', short:'Concrete', thickness:200, hackable:false,
     fill:'#2E2A26', stroke:'#141210',
-    note:'Load-bearing RC wall. Shown solid black on your drawing. HDB does not permit hacking, coring or chasing these beyond a shallow 25 mm for conduit, and even that needs approval.'
+    why:'This is one of the walls shaded black on your HDB plan. It holds the building up.',
+    note:'Structural reinforced concrete. The HDB sheet says it plainly: walls shaded in black, and all beams and slabs, shall not be hacked, removed or tampered with. Not even a deep chase for conduit without approval.'
   },
   rcInternal: {
-    id:'rcInternal', name:'Internal RC / shear wall', thickness:150, hackable:false,
+    id:'rcInternal', name:'Concrete wall (internal)', short:'Concrete', thickness:150, hackable:false,
     fill:'#3A342E', stroke:'#141210',
-    note:'Internal reinforced concrete. Also structural. Any opening in it changes the load path for every floor above you.'
+    why:'Shaded black on your plan. It carries load down through every storey.',
+    note:'Internal structural concrete. An opening here changes the load path for every flat above yours, which is why HDB will not approve one.'
   },
   shelter: {
-    id:'shelter', name:'Household shelter (HS)', thickness:300, hackable:false,
+    id:'shelter', name:'Household shelter', short:'Shelter', thickness:300, hackable:false,
     fill:'#1F2A33', stroke:'#0C1319',
-    note:'Household shelter. Under the Civil Defence Shelter Act you may not hack, drill, nail, tile over the door, or alter the ventilation openings. Not even a picture hook. This is the one wall with criminal penalties attached.'
+    why:'The bomb shelter. Protected by law, not just by HDB policy.',
+    note:'Under the Civil Defence Shelter Act you may not hack, drill, nail, tile over the door, or block the ventilation openings. Storage inside is fine. Fixings are not. This is the one wall with criminal penalties attached.'
   },
   brick: {
-    id:'brick', name:'Brick / block partition', thickness:100, hackable:true,
+    id:'brick', name:'Brick wall', short:'Brick', thickness:100, hackable:true,
     fill:'#B9AEA0', stroke:'#7C7266',
-    note:'Non load-bearing partition. Hackable with an HDB permit and a registered renovation contractor. Expect debris disposal and making good to the floor and ceiling line.'
+    why:'A partition. It holds nothing up but itself.',
+    note:'Non load-bearing brick or block. Removable with an HDB permit and a registered renovation contractor. Budget for hacking, debris disposal, and making good the floor and ceiling where it stood.'
   },
   drywall: {
-    id:'drywall', name:'Drywall / stud partition', thickness:90, hackable:true,
+    id:'drywall', name:'Stud partition', short:'Stud', thickness:90, hackable:true,
     fill:'#D2C9BC', stroke:'#948B7E',
-    note:'Lightweight stud partition. Easiest to remove and easiest to add. Poor acoustic performance unless you specify insulation and a double board.'
+    why:'A lightweight partition. The easiest thing in the flat to remove.',
+    note:'Timber or metal stud with board both sides. Quick to remove and quick to add. Poor at stopping sound unless you specify insulation and a double layer of board.'
   },
   glass: {
-    id:'glass', name:'Glass partition', thickness:60, hackable:true,
+    id:'glass', name:'Glass partition', short:'Glass', thickness:60, hackable:true,
     fill:'#BBD7E0', stroke:'#6E97A3',
-    note:'Divides without blocking light. Tempered safety glass is mandatory for full-height panels in Singapore.'
+    why:'Divides the space without blocking the daylight.',
+    note:'The best way to close off a room in a deep plan without making it dark. Tempered safety glass is mandatory for full-height panels in Singapore.'
   },
   proposed: {
-    id:'proposed', name:'New wall (proposed)', thickness:100, hackable:true,
+    id:'proposed', name:'New wall', short:'New', thickness:100, hackable:true,
     fill:'#C9A05A', stroke:'#8A6A2E',
-    note:'A wall you are adding. New walls add dead load and need HDB approval; lightweight partitions are approved far more readily than blockwork.'
+    why:'A wall you are adding.',
+    note:'New partitions add dead load, so HDB approves lightweight stud or aerated block far more readily than solid brickwork. A stud wall is also what you want acoustically.'
   },
   parapet: {
-    id:'parapet', name:'Parapet / low wall', thickness:150, hackable:false,
+    id:'parapet', name:'Parapet', short:'Parapet', thickness:150, hackable:false,
     fill:'#4A4A48', stroke:'#22221F',
-    note:'External parapet. Part of the building envelope and facade — not yours to alter.'
+    why:'Part of the building facade, not part of your flat.',
+    note:'External parapet or ledge upstand. Belongs to the building envelope and is not yours to alter.'
   }
 };

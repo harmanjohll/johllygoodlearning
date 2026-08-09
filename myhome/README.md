@@ -1,9 +1,9 @@
 # MyHome — interactive space planner
 
-A design tool for one specific flat: **Blk 522 Bishan**, drawn from the Destino Deco
-"Proposed Space Planning" sheet. Move walls that can be moved, refuse to move the ones
-that cannot, place real furniture at real sizes, test a style direction across the whole
-plan, and get both offline and AI-assisted design advice.
+A design tool for one specific flat: **Blk 522, 4-Room Type-I**, built from the official
+HDB floor plan. Move the walls you are allowed to move, get refused on the ones you are
+not, place furniture at real sizes, test a style across the whole flat, and get both
+offline and AI-assisted design advice.
 
 Live: `https://harmanjohll.github.io/johllygoodlearning/myhome/`
 
@@ -12,24 +12,66 @@ straight to GitHub Pages like everything else in this repository.
 
 ---
 
-## Read this first: the seed plan is a reconstruction
+## The flat
 
-The room list, the numbering, the adjacencies, the position of the entrance, the wet
-core and the bedroom wing all follow the original drawing. **The millimetres do not.**
-A photograph of a printed plan cannot be measured to the millimetre, so the geometry is
-a careful reconstruction that sits at a realistic 111.25 m² for a five-room HDB flat.
+Straight off the HDB sheet:
 
-To make it true:
+| | |
+|---|---|
+| Type | 4-Room, Type-I |
+| Floor area | **93 m²** including the air-con ledge |
+| Internal floor area | **90 m²**, measured from the centre-line of the walls |
+| Overall | 9235 across, 9705 deep |
+| Rooms | Main Bedroom · Bedroom 2 · Bedroom 3 · Bath/WC 1 · Bath/WC 2 · Kitchen · Service Yard · Household Shelter · Living/Dining · Entrance · Passageway · Air-con Ledge |
 
-1. **Settings → Trace your own drawing** and load a scan or photo of the plan.
-2. **Set scale from two points** — click two points whose real distance you know, type
-   the distance, and the underlay is scaled to match.
-3. Switch to the Select tool and drag wall ends onto the traced lines.
+The dimension chains on the sheet check out against the printed areas, which is how you
+know the geometry is right: `1090 + 1470 + 3595 + 3550 = 9705`, and `9235 × 9705 = 89.6 m²`
+against a printed 90; add the 2695 × 1090 ledge and you get 92.6 against a printed 93.
+Room sizes come off the same sheet: baths 1590 wide by 2500 and 2565 deep, bedrooms
+3100 / 2950 / 3050, living band 3550, kitchen 3595, yard 1470, shelter 1700, kitchen
+opening 1890, passage 1400.
 
-Until you do that, the header note in the Inspector says "Not calibrated yet" and every
-dimension the app reports should be treated as provisional.
+`node myhome/test/validate.js` asserts both printed areas on every run. If a future edit
+moves a wall far enough to break them, the tests fail.
+
+### What the sheet says you may not touch
+
+> Structural column(s)/wall(s) which are shaded in black and all beams/slabs
+> shall not be hacked, removed or tampered with.
+
+Those walls are drawn black here and the app refuses to remove them, which is the same
+answer HDB gives. The household shelter is stricter still: under the Civil Defence
+Shelter Act you may not hack, drill, nail or block its vents. **The main entrance is
+marked with a red arrow** so you can always see how the flat is entered.
+
+Press **What can I change?** in the toolbar and everything fixed fades back, leaving only
+the six partitions that can actually come down.
+
+### If you want it exact to the millimetre
+
+Settings → **Trace your plan**: load the scan, click two points whose real distance you
+know, type it, then drag wall ends onto the traced lines. The overall dimensions and room
+sizes here come from the sheet, but a photograph of a printed plan cannot be read to the
+millimetre, so calibrate before ordering anything.
 
 ---
+
+## How you use it
+
+Everything happens on the plan, not in a panel.
+
+- **Click anything** — a small toolbar appears next to it with what you can do. A wall
+  tells you its length and offers to take it down, or shows a padlock and the reason it
+  has to stay. A room offers to furnish itself. A piece of furniture offers to turn,
+  copy, recolour or go.
+- **Click something in the catalogue, then click on the plan.** A ghost of the real
+  footprint follows the cursor so you see the size before you commit. Hold Shift to keep
+  placing more.
+- **Drag and things line up.** Edges and centres snap to other furniture and to wall
+  faces, with a guide line showing what they caught on. Hold Alt to drag freely.
+- **Double-click a room** to fill the screen with it.
+- **A status bar at the bottom** always says what the current tool does.
+- **A five-step tour** runs the first time, and again from the help button.
 
 ## Scale
 
@@ -56,12 +98,12 @@ mirroring what HDB will and will not approve.
 
 | Shown as | Construction | Can you remove it? |
 |---|---|---|
-| Solid dark | Reinforced concrete, structural, 200 mm | No |
-| Solid dark, thinner | Internal RC / shear wall, 150 mm | No |
+| Solid black | Concrete wall, 200 mm | No — it holds the building up |
+| Solid black, thinner | Concrete wall (internal), 150 mm | No |
 | Blue-grey, heavy | Household shelter, 300 mm | No — Civil Defence Shelter Act |
-| Hatched grey | Brick or block partition, 100 mm | Yes, with a permit |
-| Hatched pale | Drywall / stud partition, 90 mm | Yes |
-| Amber | A new wall you are proposing | Yes |
+| Hatched grey | Brick wall, 100 mm | Yes, with a permit |
+| Hatched pale | Stud partition, 90 mm | Yes |
+| Amber | A wall you have added | Yes |
 
 Demolishing leaves a dashed ghost so you can still see what was there and price the
 hacking. The Schedule tab totals the run in metres and gives an indicative cost.
@@ -70,6 +112,8 @@ hacking. The Schedule tab totals the run in metres and gives an indicative cost.
 
 133 catalogue items at Singapore retail dimensions, all editable once placed:
 
+- **A quick-add row** of the twelve things people reach for first, plus a memory of what
+  you used recently.
 - **Beds** in local sizes, including super single (1070 × 1900), which does not exist
   in most other markets.
 - **TVs** from 43 to 85 inch, where the diagonal converts to a true 16:9 width and
@@ -166,8 +210,9 @@ produces a readable message rather than a stack trace.
 ## Keyboard
 
 `V` select · `W` wall · `X` demolish · `D` door · `N` window · `R` room · `M` measure
-`Tab` plan / dollhouse · `F` fit · `Ctrl+Z` undo · `Ctrl+Shift+Z` redo · `Ctrl+D` duplicate ·
-`Ctrl+A` select all · `Del` delete · `[` `]` rotate 15° · arrows nudge (with `Shift` for 500 mm)
+`Tab` plan / dollhouse · `L` what can I change · `F` fit · `?` help
+`Ctrl+Z` undo · `Ctrl+Shift+Z` redo · `Ctrl+D` duplicate · `Ctrl+A` select all · `Del` delete
+`[` `]` rotate 15° · arrows nudge (with `Shift` for 500 mm) · `Esc` cancels anything
 
 Hold `Shift` while drawing to free the angle. `Alt`-drag or right-drag pans. Scroll zooms.
 Pinch and drag work on touch.

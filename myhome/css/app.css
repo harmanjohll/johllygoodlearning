@@ -26,6 +26,7 @@
   --r:          10px;
   --r-sm:       7px;
   --topbar:     54px;
+  --statusbar:  32px;
   --sans: "Inter Tight", "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --display: "Fraunces", Georgia, serif;
   --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -65,19 +66,19 @@ button { cursor: pointer; background: none; border: none; }
 ::-webkit-scrollbar-track { background: transparent; }
 
 /* ------------------------------------------------------------------ SHELL */
-.app { display: grid; grid-template-rows: var(--topbar) 1fr; height: 100dvh; }
-.body { display: grid; grid-template-columns: 268px 1fr 336px; min-height: 0; }
+.app { display: grid; grid-template-rows: var(--topbar) 1fr; height: calc(100dvh - var(--statusbar)); overflow: hidden; }
+.body { display: grid; grid-template-columns: 268px 1fr 336px; min-height: 0; min-width: 0; overflow: hidden; }
 .body.left-off { grid-template-columns: 0 1fr 336px; }
 .body.right-off { grid-template-columns: 268px 1fr 0; }
 .body.left-off.right-off { grid-template-columns: 0 1fr 0; }
 
 /* ----------------------------------------------------------------- TOPBAR */
 .topbar {
-  display: flex; align-items: center; gap: 10px; padding: 0 12px;
+  display: flex; align-items: center; gap: 10px; padding: 0 12px; overflow: hidden; min-width: 0;
   background: var(--panel); border-bottom: 1px solid var(--line);
   position: relative; z-index: 40;
 }
-.brand { display: flex; align-items: baseline; gap: 8px; padding-right: 6px; }
+.brand { display: flex; align-items: baseline; gap: 8px; padding-right: 6px; flex: none; white-space: nowrap; }
 .brand b { font-family: var(--display); font-weight: 600; font-size: 17px; letter-spacing: -.2px; }
 .brand span { font-size: 10px; color: var(--ink-3); letter-spacing: .1em; text-transform: uppercase; }
 .sep { width: 1px; height: 24px; background: var(--line); flex: none; }
@@ -97,7 +98,7 @@ button { cursor: pointer; background: none; border: none; }
 .tool.primary:hover { background: var(--brass-ink); color: #fff; }
 
 .scalebox {
-  display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px;
+  display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px; flex: none; white-space: nowrap;
   border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--panel-2);
   font-family: var(--mono); font-size: 11px; color: var(--ink-2);
 }
@@ -196,14 +197,7 @@ button { cursor: pointer; background: none; border: none; }
 .stage.view3 #c2 { display: none; }
 .stage.view3 #c3 { display: block; }
 
-.stage-hud { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; z-index: 5; pointer-events: none; }
-.stage-hud > * { pointer-events: auto; }
-.hud-pill {
-  background: color-mix(in srgb, var(--panel) 92%, transparent); border: 1px solid var(--line);
-  border-radius: var(--r-sm); padding: 5px 9px; font-size: 11px; font-family: var(--mono);
-  color: var(--ink-2); box-shadow: var(--shadow); backdrop-filter: blur(6px);
-}
-#toolbar { display: flex; align-items: center; gap: 2px; }
+#toolbar { display: flex; align-items: center; gap: 2px; min-width: 0; flex: 0 1 auto; }
 .stage-tools {
   position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 6;
   display: flex; gap: 2px; background: color-mix(in srgb, var(--panel) 94%, transparent);
@@ -217,14 +211,18 @@ button { cursor: pointer; background: none; border: none; }
   background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow);
 }
 .legend {
-  position: absolute; left: 12px; bottom: 64px; z-index: 5;
-  background: color-mix(in srgb, var(--panel) 93%, transparent); border: 1px solid var(--line);
-  border-radius: var(--r-sm); padding: 8px 10px; box-shadow: var(--shadow); backdrop-filter: blur(6px);
-  font-size: 10.5px; max-width: 200px;
+  position: absolute; left: 12px; bottom: 60px; z-index: 5; width: 252px;
+  background: color-mix(in srgb, var(--panel) 94%, transparent); border: 1px solid var(--line);
+  border-radius: var(--r-sm); box-shadow: var(--shadow); backdrop-filter: blur(6px);
+  font-size: 10.5px;
 }
-.legend b { display: block; font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); margin-bottom: 5px; }
-.legend div { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: var(--ink-2); }
-.legend i { width: 16px; height: 8px; border-radius: 2px; flex: none; border: 1px solid rgba(0,0,0,.25); }
+
+.legend-body div { display: block; margin-bottom: 5px; color: var(--ink-2); line-height: 1.35; }
+.legend-body div b { font-weight: 650; color: var(--ink); }
+.legend i {
+  display: inline-block; width: 16px; height: 8px; border-radius: 2px;
+  border: 1px solid rgba(0,0,0,.25); margin-right: 6px; vertical-align: 1px;
+}
 
 .view3-ctl { position: absolute; left: 12px; bottom: 12px; z-index: 6; display: flex; gap: 6px; align-items: center;
   background: color-mix(in srgb, var(--panel) 93%, transparent); border: 1px solid var(--line);
@@ -369,6 +367,15 @@ kbd { font-family: var(--mono); font-size: 10px; background: var(--panel-2); bor
 
 /* --------------------------------------------------------------- RESPONSIVE */
 .mobile-only { display: none; }
+/* Below this the seven tool labels stop fitting alongside everything else,
+   so the tools go back to icons and keep their tooltips. */
+@media (max-width: 1620px) {
+  #toolbar .tool span { display: none; }
+  #toolbar .tool { padding: 0 9px; }
+}
+@media (max-width: 1340px) {
+  #btnXray span { display: none; }
+}
 @media (max-width: 1180px) {
   .body { grid-template-columns: 240px 1fr 300px; }
 }
@@ -417,4 +424,153 @@ kbd { font-family: var(--mono); font-size: 10px; background: var(--panel-2); bor
   .topbar, .panel, .stage-tools, .stage-zoom, .stage-hud, .legend, .view3-ctl { display: none !important; }
   .body { grid-template-columns: 1fr; }
   body { overflow: visible; }
+}
+
+
+/* =============================================================== STATUS BAR */
+.statusbar {
+  position: fixed; left: 0; right: 0; bottom: 0; height: var(--statusbar); z-index: 45;
+  display: flex; align-items: center; gap: 10px; padding: 0 12px;
+  background: var(--panel); border-top: 1px solid var(--line);
+  font-size: 11.5px; color: var(--ink-2); overflow: hidden; white-space: nowrap;
+}
+.st-tool {
+  font-weight: 700; font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--brass-ink); background: var(--brass-soft); padding: 3px 8px; border-radius: 5px; flex: none;
+}
+.st-hint { overflow: hidden; text-overflow: ellipsis; }
+.st-hint b { color: var(--ink); font-weight: 600; }
+.st-spacer { flex: 1; }
+.st-sel { font-weight: 600; color: var(--ink); flex: none; }
+.st-coord { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); flex: none; }
+
+/* ============================================== ON-CANVAS ACTION BUBBLE */
+/* `display:flex` below would otherwise beat the UA rule for [hidden], leaving
+   an invisible bubble still eating clicks meant for the plan. */
+.bubble[hidden], .tour[hidden] { display: none !important; }
+.bubble {
+  position: absolute; z-index: 12; transform: translate(-50%, -100%);
+  background: var(--panel); border: 1px solid var(--line-2); border-radius: 10px;
+  box-shadow: var(--shadow-lg); padding: 6px; display: flex; flex-direction: column; gap: 6px;
+  max-width: 280px; animation: pop .12s ease-out;
+}
+@keyframes pop { from { opacity: 0; transform: translate(-50%, calc(-100% + 6px)); } }
+.bubble::after {
+  content: ''; position: absolute; left: 50%; bottom: -7px; width: 12px; height: 12px;
+  background: var(--panel); border-right: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2);
+  transform: translateX(-50%) rotate(45deg);
+}
+.bubble-title {
+  display: flex; align-items: baseline; gap: 7px; padding: 2px 6px 0; white-space: nowrap;
+}
+.bubble-title b { font-size: 12.5px; font-weight: 650; }
+.bubble-title span { font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
+.bubble-row { display: flex; gap: 3px; align-items: center; }
+.bubble-row .bb {
+  display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 9px;
+  border-radius: 7px; font-size: 12px; font-weight: 500; color: var(--ink-2);
+  border: 1px solid transparent; white-space: nowrap;
+}
+.bubble-row .bb:hover { background: var(--panel-2); color: var(--ink); }
+.bubble-row .bb svg { width: 15px; height: 15px; }
+.bubble-row .bb.go { background: var(--ink); color: var(--paper); }
+.bubble-row .bb.go:hover { background: var(--brass-ink); color: #fff; }
+.bubble-row .bb.kill { color: var(--red); }
+.bubble-row .bb.kill:hover { background: color-mix(in srgb, var(--red) 12%, transparent); }
+.bubble-locked {
+  display: flex; gap: 8px; padding: 8px 10px; border-radius: 8px;
+  background: color-mix(in srgb, var(--red) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--red) 26%, transparent);
+  font-size: 11.5px; line-height: 1.45; color: var(--ink); white-space: normal;
+}
+.bubble-locked svg { width: 16px; height: 16px; flex: none; color: var(--red); margin-top: 1px; }
+.bubble-locked b { display: block; color: var(--red); margin-bottom: 2px; }
+.bubble-sw { display: flex; gap: 3px; padding: 0 3px; }
+.bubble-sw i { width: 20px; height: 20px; border-radius: 5px; border: 1px solid rgba(0,0,0,.15); cursor: pointer; }
+.bubble-sw i:hover { transform: scale(1.12); }
+
+/* ================================================================ CATALOGUE */
+.quick { margin-bottom: 14px; }
+.quick > h4 {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-3);
+  font-weight: 700; margin-bottom: 8px;
+}
+.quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.quick-grid button {
+  display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 2px;
+  border: 1px solid var(--line); border-radius: 9px; background: var(--panel-2); transition: .12s;
+}
+.quick-grid button:hover { border-color: var(--brass); background: var(--brass-soft); }
+.quick-grid canvas { width: 40px; height: 28px; }
+.quick-grid span { font-size: 9.5px; color: var(--ink-2); line-height: 1.2; text-align: center; }
+
+.cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.cat-card {
+  border: 1px solid var(--line); border-radius: 10px; background: var(--panel-2);
+  padding: 8px; text-align: left; transition: .12s; overflow: hidden;
+}
+.cat-card:hover { border-color: var(--brass); background: var(--brass-soft); transform: translateY(-1px); }
+.cat-card canvas { width: 100%; height: 46px; display: block; margin-bottom: 5px; }
+.cat-card b { display: block; font-size: 11.5px; font-weight: 550; line-height: 1.25; }
+.cat-card small { font-family: var(--mono); font-size: 9.5px; color: var(--ink-3); }
+
+/* =============================================================== WALL LIST */
+.wall-list { display: flex; flex-direction: column; gap: 2px; max-height: 260px; overflow-y: auto; }
+.wall-sum { display: flex; gap: 6px; margin-bottom: 8px; }
+.wall-sum div {
+  flex: 1; border: 1px solid var(--line); border-radius: 8px; padding: 7px 8px; background: var(--panel-2);
+}
+.wall-sum b { display: block; font-family: var(--display); font-size: 17px; font-weight: 600; line-height: 1; }
+.wall-sum span { font-size: 9.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-3); }
+
+/* ==================================================================== LEGEND */
+.legend { padding: 0; overflow: hidden; }
+.legend-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  width: 100%; padding: 8px 10px; text-align: left;
+}
+.legend-head b { font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); margin: 0; }
+.legend-head span { color: var(--ink-3); font-size: 10px; transition: transform .15s; }
+.legend.closed .legend-head span { transform: rotate(-90deg); }
+.legend-body { padding: 0 10px 8px; }
+.legend.closed .legend-body { display: none; }
+
+/* ===================================================================== TOUR */
+.tour { position: fixed; inset: 0; z-index: 150; }
+.tour-spot {
+  position: absolute; border-radius: 12px; pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(28,24,20,.62), 0 0 0 3px var(--brass);
+  transition: all .28s cubic-bezier(.4,0,.2,1);
+}
+.tour-card {
+  position: absolute; width: min(330px, calc(100vw - 32px));
+  background: var(--panel); border-radius: 14px; box-shadow: var(--shadow-lg);
+  padding: 16px 18px; transition: all .28s cubic-bezier(.4,0,.2,1);
+}
+.tour-step { font-family: var(--mono); font-size: 10px; color: var(--brass-ink); letter-spacing: .06em; }
+.tour-card h3 { font-family: var(--display); font-size: 17px; font-weight: 600; margin: 4px 0 6px; letter-spacing: -.2px; }
+.tour-card p { font-size: 12.5px; line-height: 1.55; color: var(--ink-2); }
+.tour-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+
+/* =============================================================== ADVICE */
+.advice { border: 1px solid var(--line); border-radius: 10px; padding: 10px 11px; margin-bottom: 8px; background: var(--panel-2); }
+.advice.error { border-left: 3px solid var(--red); }
+.advice.warn  { border-left: 3px solid var(--amber); }
+.advice.tip   { border-left: 3px solid var(--blue); }
+.advice.good  { border-left: 3px solid var(--green); }
+.advice b { display: block; font-size: 12.5px; font-weight: 650; margin-bottom: 3px; }
+.advice p { font-size: 11.5px; color: var(--ink-2); line-height: 1.5; }
+.advice .show { margin-top: 7px; font-size: 11px; font-weight: 600; color: var(--brass-ink); }
+.advice .show:hover { text-decoration: underline; }
+.advice-head { display: flex; gap: 5px; margin-bottom: 10px; }
+.advice-head span {
+  flex: 1; text-align: center; padding: 5px 2px; border-radius: 7px; font-size: 10.5px;
+  background: var(--panel-2); border: 1px solid var(--line);
+}
+.advice-head b { display: block; font-size: 15px; font-family: var(--display); font-weight: 600; }
+
+@media (max-width: 940px) {
+  .statusbar { padding: 0 8px; font-size: 11px; }
+  .st-coord, .st-sel { display: none; }
+  .quick-grid { grid-template-columns: repeat(5, 1fr); }
 }

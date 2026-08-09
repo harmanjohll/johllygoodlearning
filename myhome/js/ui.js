@@ -35,6 +35,7 @@ MH.App = (function () {
         else MH.R2.draw(c2, S, ui);
       } catch (e) { console.error('render', e); }
       $('#scaleRatio').textContent = MH.U.ratio(S.view.z);
+      if (!drag) renderBubble(); else hideBubble();
     });
   }
   function toWorld(ev) {
@@ -101,6 +102,13 @@ MH.App = (function () {
     }
     const w = toWorld(ev);
 
+    if (ui.placing && ev.button === 0) {
+      const cat = MH.Store.catalogById(ui.placing.catId);
+      addFromCatalog(ui.placing.catId, snapV(w.x), snapV(w.y));
+      if (!ev.shiftKey) cancelPlacing();      // Shift keeps placing more
+      return;
+    }
+
     if (ev.button === 1 || ev.button === 2 || ev.altKey) {
       drag = { mode: 'pan', sx: ev.clientX, sy: ev.clientY, ox: S.view.ox, oy: S.view.oy };
       return;
@@ -158,13 +166,25 @@ MH.App = (function () {
       return;
     }
     const w = toWorld(ev);
-    $('#hudCoord').textContent = MH.U.dim(w.x) + ', ' + MH.U.dim(w.y);
+    $('#stCoord').textContent = MH.U.dim(w.x) + ', ' + MH.U.dim(w.y);
+
+    if (ui.placing) {
+      ui.placing.x = snapV(w.x); ui.placing.y = snapV(w.y);
+      requestDraw();
+      return;
+    }
 
     if (!drag) {
-      const hit = MH.R2.pick(S, w.x, w.y);
+      const hit = (tool === 'demolish' || tool === 'door' || tool === 'window')
+        ? MH.R2.pickWall(S, w.x, w.y, 500)
+        : MH.R2.pick(S, w.x, w.y);
       const changed = (hit && hit.id) !== (ui.hover && ui.hover.id);
       ui.hover = hit ? { kind: hit.kind, id: hit.id } : null;
-      c2.style.cursor = tool === 'select' ? (hitHandle(w) ? 'grab' : (hit ? 'move' : 'default')) : 'crosshair';
+      /* A locked wall says so before you click, not after. */
+      const lockedHover = hit && hit.kind === 'wall' && !MH.Store.wallType(hit.obj).hackable;
+      c2.style.cursor = tool === 'select'
+        ? (hitHandle(w) ? 'grab' : (hit ? 'move' : 'default'))
+        : (lockedHover && tool !== 'select' ? 'not-allowed' : 'crosshair');
       if (changed) requestDraw();
       return;
     }
@@ -187,12 +207,14 @@ MH.App = (function () {
       requestDraw(); return;
     }
     if (drag.mode === 'move') {
+      ui.guides = null;
       const dx = w.x - drag.start.x, dy = w.y - drag.start.y;
       if (Math.abs(dx) + Math.abs(dy) > 20) drag.moved = true;
       drag.objs.forEach(({ kind, obj, snap }) => {
         if (kind === 'item') {
           if (obj.locked) return;
           obj.x = snapV(snap.x + dx); obj.y = snapV(snap.y + dy);
+          if (drag.objs.length === 1 && !ev.altKey) applyGuides(obj);
         } else if (kind === 'room') {
           obj.x1 = snapV(snap.x1 + dx); obj.y1 = snapV(snap.y1 + dy);
           obj.x2 = snapV(snap.x2 + dx); obj.y2 = snapV(snap.y2 + dy);
@@ -244,6 +266,7 @@ MH.App = (function () {
   function onUp(ev) {
     if (!drag) return;
     const mode = drag.mode, moved = drag.moved; drag = null;
+    ui.guides = null;
     if (mode === 'wall' && ui.draft) {
       const d = ui.draft; ui.draft = null;
       const len = Math.hypot(d.x2 - d.x1, d.y2 - d.y1);
@@ -356,7 +379,27 @@ MH.App = (function () {
     const L = MH.G.wallLen(wall);
     if (spec.w + 200 > L) { toast('That wall is too short for a ' + MH.U.dim(spec.w) + ' opening', true); return; }
     const pr = MH.G.projectOnWall(wall, w.x, w.y);
-    const pos = Math.max(spec.w / 2 + 60, Math.min(L - spec.w / 2 - 60, snapV(pr.t)));
+    let pos = Math.max(spec.w / 2 + 60, Math.min(L - spec.w / 2 - 60, snapV(pr.t)));
+
+    /* An opening cannot sit on top of another one. Try to slide it clear
+       before giving up, because "it did not fit" is a useless answer. */
+    const others = S.openings.filter(o => o.wallId === wall.id);
+    const clashes = at => others.some(o => Math.abs(o.pos - at) < (o.w + spec.w) / 2 + 50);
+    if (clashes(pos)) {
+      let found = null;
+      for (let step = 50; step < L && found === null; step += 50) {
+        for (const cand of [pos - step, pos + step]) {
+          if (cand < spec.w / 2 + 60 || cand > L - spec.w / 2 - 60) continue;
+          if (!clashes(cand)) { found = cand; break; }
+        }
+      }
+      if (found === null) {
+        toast('There is no clear run of wall left for a ' + MH.U.dim(spec.w) + ' opening here', true);
+        return;
+      }
+      pos = found;
+    }
+
     MH.Store.commit('Place ' + spec.name, s => {
       const id = MH.Store.uid('o');
       s.openings.push({
@@ -376,8 +419,8 @@ MH.App = (function () {
       y = snapV((r.height / 2 - S.view.oy) / S.view.z);
     }
     MH.Store.addItem(catId, x, y);
-    setPane('right', 'pInspect');
-    toast(c.name + ' added');
+    pushRecent(catId);
+    toast(c.name + ' added — drag it where you want it');
   }
 
   /* ================================================================ PANES */
@@ -391,6 +434,14 @@ MH.App = (function () {
 
   /* --------------------------------------------------------- CATALOGUE */
   let catFilter = 'all', catQuery = '';
+  const QUICK = ['sofa3', 'dine4', 'bed-queen', 'wardrobe3', 'tv55', 'coffee-r',
+                 'piano-upright', 'bookshelf-200x120', 'desk-m', 'plant-l',
+                 'island', 'fcu'];
+  function recents() { try { return JSON.parse(localStorage.getItem('myhome.recent') || '[]'); } catch (e) { return []; } }
+  function pushRecent(id) {
+    const r = recents().filter(x => x !== id); r.unshift(id);
+    try { localStorage.setItem('myhome.recent', JSON.stringify(r.slice(0, 6))); } catch (e) {}
+  }
   const thumbObserver = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (!e.isIntersecting) return;
@@ -402,16 +453,23 @@ MH.App = (function () {
   function drawThumb(cv) {
     const c = MH.Store.catalogById(cv.dataset.cat); if (!c) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    cv.width = 60 * dpr; cv.height = 48 * dpr;
+    const W = cv.clientWidth || 110, H = cv.clientHeight || 46;
+    cv.width = W * dpr; cv.height = H * dpr;
     const g = cv.getContext('2d');
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     const p = MH.R2.palette(S);
-    const pad = 5, sc = Math.min((60 - pad * 2) / Math.max(c.w, 400), (48 - pad * 2) / Math.max(c.d, 400));
-    g.save(); g.translate(30, 24); g.scale(sc, sc);
+    const pad = 6;
+    const sc = Math.min((W - pad * 2) / Math.max(c.w, 420), (H - pad * 2) / Math.max(c.d, 420));
+    g.save(); g.translate(W / 2, H / 2); g.scale(sc, sc);
     const it = MH.Store.hydrateItem({ catId: c.id, x: 0, y: 0 });
     const fn = MH.R2.GLYPHS[c.glyph] || MH.R2.GLYPHS.box;
     try { fn(g, it, p, sc); } catch (e) { }
     g.restore();
+  }
+  function card(c) {
+    return `<button class="cat-card" data-add="${c.id}" draggable="true" title="${esc(c.note || c.name)}">
+      <canvas data-cat="${c.id}"></canvas>
+      <b>${esc(c.name)}</b><small>${Math.round(c.w / 10)} × ${Math.round(c.d / 10)} cm</small></button>`;
   }
 
   function renderCatalog() {
@@ -427,18 +485,32 @@ MH.App = (function () {
         renderCatalog();
       });
     }
+    if (!$('#quickAdd').dataset.built) {
+      $('#quickAdd').innerHTML = QUICK.map(id => {
+        const c = MH.Store.catalogById(id); if (!c) return '';
+        return `<button data-add="${id}" title="${esc(c.name)}"><canvas data-cat="${id}"></canvas><span>${esc(c.name.split(',')[0].split('(')[0].trim())}</span></button>`;
+      }).join('');
+      $('#quickAdd').dataset.built = '1';
+      $$('#quickAdd canvas').forEach(cv => thumbObserver.observe(cv));
+    }
+
+    const rec = recents().map(id => MH.Store.catalogById(id)).filter(Boolean);
+    $('#recentWrap').style.display = rec.length ? '' : 'none';
+    if (rec.length) {
+      $('#recentList').innerHTML = rec.map(card).join('');
+      $$('#recentList canvas').forEach(cv => thumbObserver.observe(cv));
+    }
+
     const q = catQuery.trim().toLowerCase();
     const list = MH.CATALOG.filter(c => {
       if (catFilter !== 'all' && c.cat !== catFilter) return false;
       if (!q) return true;
       return (c.name + ' ' + c.id + ' ' + c.cat).toLowerCase().includes(q) ||
-        String(c.w).includes(q) || String(c.d).includes(q);
+        String(c.w).includes(q) || String(c.d).includes(q) ||
+        String(Math.round(c.w / 10)).includes(q);
     });
-    $('#catList').innerHTML = list.map(c => `
-      <button class="cat-item" data-add="${c.id}" draggable="true">
-        <span class="thumb"><canvas data-cat="${c.id}" width="60" height="48"></canvas></span>
-        <span class="nm"><b>${esc(c.name)}</b><small>${c.w} × ${c.d}${c.h ? ' × ' + c.h : ''}</small></span>
-      </button>`).join('') || '<p class="hint">Nothing matches that.</p>';
+    $('#catList').innerHTML = list.map(card).join('') ||
+      `<p class="hint" style="grid-column:span 2">Nothing matches “${esc(catQuery)}”. Try a room name, or a size like 1800.</p>`;
     $$('#catList canvas').forEach(cv => thumbObserver.observe(cv));
   }
 
@@ -460,16 +532,6 @@ MH.App = (function () {
     const os = MH.OPENINGS.find(o => o.id === $('#openingType').value);
     $('#openingNote').textContent = os && os.note ? os.note : '';
 
-    $('#wallList').innerHTML = S.walls.map(w => {
-      const T = MH.Store.wallType(w);
-      const on = S.selection.includes(w.id);
-      return `<button class="wall-row ${on ? 'on' : ''}" data-wall="${w.id}">
-        <i style="background:${T.fill}"></i>
-        <span class="t"><b>${esc(T.name)}${w.demolished ? ' · removed' : ''}</b>
-        <small>${Math.round(MH.G.wallLen(w))} mm · ${T.thickness} mm thick</small></span>
-        <span class="lockbadge ${T.hackable ? 'yes' : 'no'}">${T.hackable ? 'hackable' : 'locked'}</span>
-      </button>`;
-    }).join('');
   }
 
   /* -------------------------------------------------------------- ROOMS */
@@ -478,10 +540,54 @@ MH.App = (function () {
       const on = S.selection.includes(r.id);
       return `<button class="wall-row ${on ? 'on' : ''}" data-room="${r.id}">
         <i style="background:${(MH.MATERIALS.find(m => m.name === r.floor) || { hex: '#ccc' }).hex}"></i>
-        <span class="t"><b>${r.num ? r.num + '. ' : ''}${esc(r.name)}</b>
-        <small>${Math.round(r.w)} × ${Math.round(r.d)} · ${r.area.sqm} m² · ${r.area.sqft} sq ft</small></span>
+        <span class="t"><b>${esc(r.name)}</b>
+        <small>${Math.round(r.w)} × ${Math.round(r.d)} mm · ${r.area.sqm} m² · ${r.area.sqft} sq ft</small></span>
       </button>`;
-    }).join('') + `<div class="note" style="margin-top:10px">Gross internal area <b>${a.stats.gross.label}</b> across ${a.stats.rooms.length} zones.</div>`;
+    }).join('') +
+      `<div class="note" style="margin-top:10px">
+         <b>${a.stats.gross.label}</b> across ${a.stats.rooms.length} rooms.
+         The HDB sheet states ${S.meta.statedInternal || 90} m² internal and ${S.meta.statedArea || 93} m² including the air-con ledge.
+       </div>`;
+
+    /* --- walls ------------------------------------------------------- */
+    const std = S.walls.filter(w => !w.demolished);
+    const canGo = std.filter(w => MH.Store.wallType(w).hackable);
+    const locked = std.filter(w => !MH.Store.wallType(w).hackable);
+    const gone = S.walls.filter(w => w.demolished);
+    const m = arr => (arr.reduce((t, w) => t + MH.G.wallLen(w), 0) / 1000).toFixed(1);
+    $('#wallSummary').innerHTML = `<div class="wall-sum">
+      <div><b>${canGo.length}</b><span>you can remove</span></div>
+      <div><b>${locked.length}</b><span>fixed forever</span></div>
+      <div><b>${gone.length}</b><span>coming down</span></div>
+    </div>`;
+
+    const xray = !!S.settings.xray;
+    $('#setXray').checked = xray;
+    const show = xray ? S.walls.filter(w => MH.Store.wallType(w).hackable) : S.walls;
+    $('#wallList').innerHTML = show.map(w => {
+      const T = MH.Store.wallType(w);
+      const on = S.selection.includes(w.id);
+      const where = wallWhere(w);
+      return `<button class="wall-row ${on ? 'on' : ''}" data-wall="${w.id}">
+        <i style="background:${T.fill}"></i>
+        <span class="t"><b>${esc(where)}${w.demolished ? ' — coming down' : ''}</b>
+        <small>${T.short} · ${Math.round(MH.G.wallLen(w))} mm</small></span>
+        <span class="lockbadge ${T.hackable ? 'yes' : 'no'}">${T.hackable ? 'can go' : 'fixed'}</span>
+      </button>`;
+    }).join('') || '<p class="hint">No removable walls in this flat.</p>';
+  }
+
+  /* Name a wall by the rooms it stands between, which is how a person
+     thinks about it. "w-kitS" means nothing; "Kitchen / Entrance" does. */
+  function wallWhere(w) {
+    const v = MH.G.wallVec(w);
+    const mid = MH.G.pointAlong(w, MH.G.wallLen(w) / 2);
+    const t = MH.Store.thickness(w) / 2 + 250;
+    const a = MH.G.roomAt(S.rooms, mid.x + v.nx * t, mid.y + v.ny * t);
+    const b = MH.G.roomAt(S.rooms, mid.x - v.nx * t, mid.y - v.ny * t);
+    if (a && b) return a.name + ' / ' + b.name;
+    if (a || b) return 'Outside / ' + (a || b).name;
+    return 'Wall';
   }
 
   /* -------------------------------------------------------------- STYLE */
@@ -540,8 +646,9 @@ MH.App = (function () {
           <div class="score"><b>${a.scores.daylight}</b><span>Daylight</span><div class="bar"><i style="width:${a.scores.daylight}%"></i></div></div>
           <div class="score"><b>${a.scores.compliance}</b><span>Compliance</span><div class="bar"><i style="width:${a.scores.compliance}%"></i></div></div>
         </div>
-        ${S.meta.calibrated ? '' : `<div class="note warn"><b>Not calibrated yet.</b> The seed geometry is reconstructed from a photograph of the Destino Deco drawing, so the room shapes and adjacencies are right but the millimetres are provisional. Open Settings, load your scan as an underlay, set the scale from a dimension you know, then drag the wall ends onto it.</div>`}
-        <div class="note">Select anything on the plan to edit it. Nothing here is fixed except the reinforced concrete and the household shelter.</div>`;
+        <div class="note"><b>Click anything on the plan.</b> A little toolbar pops up next to it with everything you can do. Double-click a room to fill the screen with it.</div>
+        <div class="note"><b>Black walls stay put.</b> Your HDB sheet shades structural columns and walls in black, and the household shelter is protected by law. Press <b>What can I change?</b> in the toolbar to see only the walls that can actually come down.</div>
+        ${S.meta.calibrated ? '' : `<div class="note warn"><b>Working from the official sheet.</b> The overall dimensions, room sizes and the ${S.meta.statedInternal || 90} m² / ${S.meta.statedArea || 93} m² areas all come from your HDB plan. If you want it exact to the millimetre, open Settings, drop your scan in as an underlay and drag the walls onto it.</div>`}`;
       return;
     }
 
@@ -604,7 +711,10 @@ MH.App = (function () {
     if (kind === 'wall') {
       const T = MH.Store.wallType(obj);
       pane.innerHTML = `
-        <div class="sel-head"><div><span class="kind">Wall</span><h3>${esc(T.name)}</h3></div></div>
+        <div class="sel-head"><div><span class="kind">Wall between</span><h3>${esc(wallWhere(obj))}</h3></div></div>
+        <div class="note ${T.hackable ? '' : 'warn'}" style="margin-bottom:12px">
+          <b>${esc(T.name)}${T.hackable ? ' — you may remove this.' : ' — this one has to stay.'}</b><br>${esc(T.why)}
+        </div>
         <div class="row c2">
           ${numRow('Length', 'wlen', MH.G.wallLen(obj), T.hackable ? '' : 'disabled')}
           ${numRow('Thickness', 'wthk', MH.Store.thickness(obj), T.hackable ? '' : 'disabled')}
@@ -696,14 +806,19 @@ MH.App = (function () {
         <div class="score"><b>${a.scores.daylight}</b><span>Daylight</span><div class="bar"><i style="width:${a.scores.daylight}%"></i></div></div>
         <div class="score"><b>${a.scores.compliance}</b><span>Compliance</span><div class="bar"><i style="width:${a.scores.compliance}%"></i></div></div>
       </div>
-      <div class="group"><h4>${counts.error} to fix · ${counts.warn} to watch · ${counts.tip} ideas</h4>
-        ${a.issues.map((i, n) => `
-          <div class="issue ${i.level}" data-issue="${n}">
-            <b>${esc(i.title)}</b><p>${esc(i.detail)}</p>
-            <span class="tag">${esc(i.tag)}</span>
-          </div>`).join('') || '<p class="hint">Nothing flagged.</p>'}
+      <div class="advice-head">
+        <span><b>${counts.error}</b>to fix</span>
+        <span><b>${counts.warn}</b>to watch</span>
+        <span><b>${counts.tip}</b>ideas</span>
+        <span><b>${counts.good}</b>looking good</span>
       </div>
-      <div class="note">These checks are deterministic: measurements against published clearances, HDB rules and the Civil Defence Shelter Act. They run offline and cost nothing. The AI tab adds the judgement a checklist cannot make.</div>`;
+      ${a.issues.map((i, n) => `
+        <div class="advice ${i.level}">
+          <b>${esc(i.title)}</b><p>${esc(i.detail)}</p>
+          ${i.ids.length ? `<button class="show" data-issue="${n}">Show me on the plan →</button>` : ''}
+        </div>`).join('') ||
+        '<p class="hint">Nothing to flag. Move something and this will fill up.</p>'}
+      <div class="note">Every one of these is measured, not guessed: real clearances from your drawing, checked against published ergonomic standards, HDB renovation rules and the Civil Defence Shelter Act. It runs offline and costs nothing. <b>Ask AI</b> adds the judgement a checklist cannot make.</div>`;
     $('#pInsight')._issues = a.issues;
   }
 
@@ -819,6 +934,280 @@ MH.App = (function () {
     }
   }
 
+
+  /* ==================================================== ON-CANVAS BUBBLE ===
+     The single biggest usability change: what you can do to a thing appears
+     next to the thing, not in a panel on the far side of the screen. */
+  const ICON = n => `<svg><use href="#i-${n}"/></svg>`;
+
+  function hideBubble() { const b = $('#bubble'); if (b) b.hidden = true; }
+
+  function renderBubble() {
+    const b = $('#bubble');
+    if (!b) return;
+    /* While a drawing tool is active the bubble would sit between you and the
+       plan you are trying to draw on, so it stands down. */
+    if (ui.view3 || drag || ui.placing || tool !== 'select') { b.hidden = true; return; }
+    const sel = MH.Store.selected();
+    if (sel.length !== 1) { b.hidden = true; return; }
+    const { kind, obj } = sel[0];
+
+    let anchor, html = '';
+    if (kind === 'item') {
+      const bb = MH.G.aabb(MH.G.corners(obj.x, obj.y, obj.w, obj.d, obj.rot));
+      anchor = { x: (bb.x1 + bb.x2) / 2, y: bb.y1 };
+      const st = MH.R2.palette(S).style;
+      html = `<div class="bubble-title"><b>${esc(obj.name)}</b>
+                <span>${Math.round(obj.w)} × ${Math.round(obj.d)} mm</span></div>
+        <div class="bubble-row">
+          <button class="bb" data-bb="rot">${ICON('rotate')}Turn</button>
+          <button class="bb" data-bb="dup">${ICON('copy')}Copy</button>
+          <button class="bb" data-bb="more">${ICON('gear')}Size &amp; more</button>
+          <button class="bb kill" data-bb="del">${ICON('trash')}</button>
+        </div>
+        <div class="bubble-sw">
+          <i data-bbcol="" style="background:linear-gradient(135deg,#fff 45%,#bbb 45%,#bbb 55%,#fff 55%)" title="Default"></i>
+          ${st.palette.slice(0, 6).map(c => `<i data-bbcol="${c.hex}" style="background:${c.hex}" title="${esc(c.name)}"></i>`).join('')}
+        </div>`;
+    } else if (kind === 'wall') {
+      const T = MH.Store.wallType(obj);
+      const mid = MH.G.pointAlong(obj, MH.G.wallLen(obj) / 2);
+      anchor = { x: mid.x, y: mid.y - MH.Store.thickness(obj) / 2 };
+      const len = Math.round(MH.G.wallLen(obj));
+      if (!T.hackable) {
+        html = `<div class="bubble-title"><b>${esc(wallWhere(obj))}</b><span>${len} mm</span></div>
+          <div class="bubble-locked">${ICON('lock')}
+            <span><b>${esc(T.name)} — this one has to stay.</b>${esc(T.why)}</span></div>
+          <div class="bubble-row"><button class="bb" data-bb="more">Read the rule</button></div>`;
+      } else if (obj.demolished) {
+        html = `<div class="bubble-title"><b>${esc(wallWhere(obj))}</b><span>coming down · ${len} mm</span></div>
+          <div class="bubble-row">
+            <button class="bb go" data-bb="undemo">${ICON('undo')}Put it back</button>
+            <button class="bb" data-bb="more">Details</button>
+          </div>`;
+      } else {
+        html = `<div class="bubble-title"><b>${esc(wallWhere(obj))}</b><span>${esc(T.short)} · ${len} mm</span></div>
+          <div class="bubble-row">
+            <button class="bb go" data-bb="demo">${ICON('hammer')}Take this wall down</button>
+            <button class="bb" data-bb="more">${ICON('gear')}</button>
+          </div>`;
+      }
+    } else if (kind === 'room') {
+      anchor = { x: (obj.x1 + obj.x2) / 2, y: Math.min(obj.y1, obj.y2) };
+      const area = MH.U.area(MH.G.rectArea(obj));
+      html = `<div class="bubble-title"><b>${esc(obj.name)}</b><span>${area.sqm} m² · ${area.sqft} sq ft</span></div>
+        <div class="bubble-row">
+          <button class="bb" data-bb="furnish">${ICON('magic')}Furnish it</button>
+          <button class="bb" data-bb="floor">${ICON('paint')}Floor</button>
+          <button class="bb" data-bb="zoom">${ICON('fit')}Zoom in</button>
+          <button class="bb" data-bb="more">${ICON('gear')}</button>
+        </div>`;
+    } else if (kind === 'opening') {
+      const w = MH.Store.wall(obj.wallId); if (!w) { b.hidden = true; return; }
+      const c = MH.G.pointAlong(w, obj.pos);
+      anchor = { x: c.x, y: c.y - MH.Store.thickness(w) / 2 };
+      const isDoor = obj.type !== 'window';
+      html = `<div class="bubble-title"><b>${esc(obj.label || (isDoor ? 'Door' : 'Window'))}</b>
+                <span>${Math.round(obj.w)} mm wide</span></div>
+        <div class="bubble-row">
+          ${obj.locked ? '' : `<button class="bb" data-bb="owide">${ICON('plus')}Wider</button>
+          <button class="bb" data-bb="onarrow">${ICON('minus')}Narrower</button>`}
+          ${isDoor ? `<button class="bb" data-bb="oflip">${ICON('rotate')}Flip</button>` : ''}
+          ${obj.locked ? `<button class="bb" data-bb="more">Details</button>`
+                       : `<button class="bb kill" data-bb="del">${ICON('trash')}</button>`}
+        </div>`;
+    } else { b.hidden = true; return; }
+
+    b.innerHTML = html;
+    b.hidden = false;
+    const r = stage.getBoundingClientRect();
+    const sx = anchor.x * S.view.z + S.view.ox;
+    const sy = anchor.y * S.view.z + S.view.oy;
+    const bw = b.offsetWidth, bh = b.offsetHeight;
+    let px = Math.max(bw / 2 + 8, Math.min(r.width - bw / 2 - 8, sx));
+    let py = sy - 14;
+    if (py - bh < 6) py = sy + bh + 34;          // flip below when it would clip
+    b.style.left = px + 'px';
+    b.style.top = py + 'px';
+  }
+
+  function bubbleAction(act) {
+    const sel = MH.Store.selected(); if (!sel.length) return;
+    const { kind, obj } = sel[0];
+    switch (act) {
+      case 'rot': MH.Store.commit('Turn', () => { const o = MH.Store.item(obj.id); if (o) o.rot = ((o.rot || 0) + 90) % 360; }); break;
+      case 'dup': MH.Store.duplicateSelected(); break;
+      case 'del': MH.Store.deleteSelected(); toast('Deleted. Ctrl+Z brings it back.'); break;
+      case 'more': setPane('right', 'pInspect'); if (window.innerWidth <= 940) $('#panelR').classList.add('open'); break;
+      case 'demo': case 'undemo': demolishWall(obj); break;
+      case 'zoom': zoomToRoom(obj); break;
+      case 'floor': setPane('right', 'pInspect'); toast('Pick a floor finish on the right'); break;
+      case 'furnish': autoFurnish(obj); break;
+      case 'oflip': MH.Store.commit('Flip', () => { const o = MH.Store.opening(obj.id); if (o) o.flip = !o.flip; }); break;
+      case 'owide': resizeOpening(obj, 100); break;
+      case 'onarrow': resizeOpening(obj, -100); break;
+    }
+  }
+  function resizeOpening(o, d) {
+    const w = MH.Store.wall(o.wallId); if (!w) return;
+    const max = MH.G.wallLen(w) - 200;
+    MH.Store.commit(d > 0 ? 'Widen' : 'Narrow', () => {
+      const x = MH.Store.opening(o.id); if (!x) return;
+      x.w = Math.max(600, Math.min(max, x.w + d));
+      x.pos = Math.max(x.w / 2, Math.min(MH.G.wallLen(w) - x.w / 2, x.pos));
+    });
+  }
+  function zoomToRoom(r) {
+    const rect = stage.getBoundingClientRect();
+    const w = Math.abs(r.x2 - r.x1), h = Math.abs(r.y2 - r.y1);
+    S.view.z = Math.max(0.006, Math.min(1.2, Math.min((rect.width - 120) / w, (rect.height - 120) / h)));
+    S.view.ox = rect.width / 2 - (r.x1 + r.x2) / 2 * S.view.z;
+    S.view.oy = rect.height / 2 - (r.y1 + r.y2) / 2 * S.view.z;
+    requestDraw(); renderBubble();
+  }
+  function autoFurnish(r) {
+    const add = MH.Advisor.suggestLayout(S, r.id);
+    if (!add.length) { toast('No standard layout for a room called “' + r.name + '”. Try Ask AI.', true); return; }
+    MH.Store.commit('Furnish ' + r.name, st => {
+      st.items = st.items.filter(it => { const rr = MH.G.roomAt(st.rooms, it.x, it.y); return !rr || rr.id !== r.id; });
+      add.forEach(a => st.items.push(MH.Store.hydrateItem(Object.assign({ id: MH.Store.uid('i') }, a))));
+    });
+    toast(r.name + ' furnished. Ctrl+Z if you hate it.');
+  }
+  function demolishWall(w) {
+    const T = MH.Store.wallType(w);
+    if (!T.hackable) {
+      MH.Store.select(w.id); setPane('right', 'pInspect');
+      toast(T.name + ' cannot be removed', true);
+      return;
+    }
+    MH.Store.commit(w.demolished ? 'Put the wall back' : 'Take the wall down', st => {
+      const ww = st.walls.find(x => x.id === w.id);
+      ww.demolished = !ww.demolished;
+      if (ww.demolished) st.openings = st.openings.filter(o => o.wallId !== ww.id || o.locked);
+      st.selection = [ww.id];
+    });
+    toast(w.demolished ? 'Wall restored' : 'Wall marked to come down — ' + MH.U.dim(MH.G.wallLen(w)) + ' of hacking');
+  }
+
+  /* ================================================== ALIGNMENT GUIDES ===
+     While you drag, edges and centres snap to the things already there. This
+     is the difference between "roughly there" and "actually against the wall". */
+  function snapTargets(exceptId) {
+    const xs = [], ys = [];
+    S.items.forEach(it => {
+      if (it.id === exceptId || it.hidden) return;
+      const b = MH.G.aabb(MH.G.corners(it.x, it.y, it.w, it.d, it.rot));
+      xs.push(b.x1, b.x2, (b.x1 + b.x2) / 2);
+      ys.push(b.y1, b.y2, (b.y1 + b.y2) / 2);
+    });
+    S.walls.forEach(w => {
+      if (w.demolished) return;
+      const t = MH.Store.thickness(w) / 2;
+      if (Math.abs(w.x1 - w.x2) < 1) { xs.push(w.x1 - t, w.x1 + t); }
+      if (Math.abs(w.y1 - w.y2) < 1) { ys.push(w.y1 - t, w.y1 + t); }
+    });
+    S.rooms.forEach(r => { xs.push(r.x1, r.x2, (r.x1 + r.x2) / 2); ys.push(r.y1, r.y2, (r.y1 + r.y2) / 2); });
+    return { xs, ys };
+  }
+  function applyGuides(it) {
+    const tol = 9 / S.view.z;
+    const t = snapTargets(it.id);
+    const b = MH.G.aabb(MH.G.corners(it.x, it.y, it.w, it.d, it.rot));
+    const guides = [];
+    const best = (vals, edges) => {
+      let bd = tol, adj = 0, line = null;
+      edges.forEach(e => vals.forEach(v => {
+        const d = Math.abs(v - e);
+        if (d < bd) { bd = d; adj = v - e; line = v; }
+      }));
+      return line === null ? null : { adj, line };
+    };
+    const gx = best(t.xs, [b.x1, b.x2, (b.x1 + b.x2) / 2]);
+    const gy = best(t.ys, [b.y1, b.y2, (b.y1 + b.y2) / 2]);
+    if (gx) { it.x += gx.adj; guides.push({ axis: 'x', v: gx.line }); }
+    if (gy) { it.y += gy.adj; guides.push({ axis: 'y', v: gy.line }); }
+    ui.guides = guides;
+  }
+
+  /* ==================================================== GHOST PLACEMENT ===
+     Click a catalogue item, then click where it goes. A preview follows the
+     cursor so you can see the real footprint before you commit. */
+  function startPlacing(catId) {
+    const c = MH.Store.catalogById(catId); if (!c) return;
+    ui.placing = { catId, name: c.name, w: c.w, d: c.d, rot: 0, x: null, y: null };
+    MH.Store.select([]);
+    setTool('select');
+    setStatus();
+    c2.style.cursor = 'copy';
+    toast('Click where the ' + c.name.toLowerCase() + ' should go — Esc to cancel');
+  }
+  function cancelPlacing() {
+    if (!ui.placing) return;
+    ui.placing = null; c2.style.cursor = 'default'; setStatus(); requestDraw();
+  }
+
+  /* ============================================================== STATUS === */
+  const TOOL_HINT = {
+    select:   ['Select', 'Click anything to change it. Drag to move. Scroll to zoom.'],
+    wall:     ['Draw a wall', 'Drag from one point to another. Hold <b>Shift</b> for a free angle.'],
+    demolish: ['Take down', 'Click a wall to mark it for demolition. Concrete and the shelter will say no.'],
+    door:     ['Add a door', 'Click on any wall you are allowed to cut into.'],
+    window:   ['Add a window', 'Click on an outside wall.'],
+    room:     ['Draw a room', 'Drag out a rectangle, then give it a name.'],
+    measure:  ['Measure', 'Drag from one point to another. Hold <b>Shift</b> to keep it straight.'],
+    calibrate:['Set the scale', 'Click two points on your scan whose real distance you know.']
+  };
+  function setStatus() {
+    const t = ui.placing
+      ? ['Placing', 'Click where the <b>' + esc(ui.placing.name) + '</b> should go. <b>Esc</b> cancels.']
+      : (TOOL_HINT[tool] || ['Select', '']);
+    $('#stTool').textContent = t[0];
+    $('#stHint').innerHTML = t[1];
+    const sel = MH.Store.selected();
+    $('#stSel').textContent = sel.length === 1
+      ? (sel[0].kind === 'wall' ? wallWhere(sel[0].obj) : (sel[0].obj.name || sel[0].obj.label || ''))
+      : (sel.length ? sel.length + ' selected' : '');
+  }
+
+  /* ================================================================ TOUR === */
+  const TOUR = [
+    { sel: '#stage', title: 'This is your flat',
+      body: 'Blk 522, 4-Room Type-I, straight off the HDB sheet: 90 m² inside plus the air-con ledge. Click any room, wall or piece of furniture and it will tell you what you can do with it.' },
+    { sel: '#legend', title: 'Black means it stays',
+      body: 'Your HDB plan shades structural columns and walls in black. Those hold the building up, and the household shelter is protected by law. This app will refuse to remove them, exactly as HDB would. Everything drawn in hatched grey is a partition you may take out with a permit.' },
+    { sel: '#btnXray', title: 'Not sure what you can touch?',
+      body: 'Press this and the plan fades everything you are not allowed to change, leaving only the walls that can actually come down.' },
+    { sel: '#pAdd', title: 'Add anything, at real sizes',
+      body: 'Click something to pick it up, then click on the plan to drop it. Every item is a real product size in millimetres, and you can type your own dimensions afterwards.' },
+    { sel: '.panel.right .tabs', title: 'It checks your work as you go',
+      body: '<b>Advice</b> measures door swings, walking room, the kitchen work triangle and TV distance every time you move something. <b>Ask AI</b> adds a design consultant if you give it a key.' }
+  ];
+  let tourAt = -1;
+  function startTour() { tourAt = -1; $('#tour').hidden = false; nextTour(); }
+  function nextTour() {
+    tourAt++;
+    if (tourAt >= TOUR.length) { $('#tour').hidden = true; try { localStorage.setItem('myhome.tour', '1'); } catch (e) {} return; }
+    const st = TOUR[tourAt];
+    const el = document.querySelector(st.sel);
+    const r = el ? el.getBoundingClientRect() : { left: innerWidth / 2 - 100, top: innerHeight / 2 - 60, width: 200, height: 120 };
+    const pad = 6;
+    const spot = $('#tourSpot');
+    spot.style.left = (r.left - pad) + 'px'; spot.style.top = (r.top - pad) + 'px';
+    spot.style.width = (r.width + pad * 2) + 'px'; spot.style.height = (r.height + pad * 2) + 'px';
+    $('#tourStep').textContent = 'Step ' + (tourAt + 1) + ' of ' + TOUR.length;
+    $('#tourTitle').textContent = st.title;
+    $('#tourBody').innerHTML = st.body;
+    $('#tourNext').textContent = tourAt === TOUR.length - 1 ? 'Start designing' : 'Next';
+    const card = $('#tourCard');
+    const cw = 330, ch = card.offsetHeight || 190;
+    let left = r.left + r.width / 2 - cw / 2;
+    let top = r.bottom + 14;
+    if (top + ch > innerHeight - 10) top = Math.max(10, r.top - ch - 14);
+    card.style.left = Math.max(12, Math.min(innerWidth - cw - 12, left)) + 'px';
+    card.style.top = top + 'px';
+  }
+
   /* ------------------------------------------------------------- MODALS */
   function openModal(id) { $('#' + id).classList.add('on'); if (id === 'mSettings') fillSettings(); if (id === 'mHelp') fillHelp(); }
   function closeModal(el) { el.classList.remove('on'); }
@@ -913,11 +1302,14 @@ MH.App = (function () {
   /* -------------------------------------------------------------- TOOLS */
   function setTool(t) {
     tool = t;
+    if (t !== 'select') cancelPlacing();
     $$('#toolbar .tool').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
-    const names = { select: 'Select', wall: 'Draw wall', demolish: 'Demolish', door: 'Place door', window: 'Place window', room: 'Draw room', measure: 'Measure', calibrate: 'Click two points you know the distance between' };
-    $('#hudTool').textContent = names[t] || t;
     c2.style.cursor = t === 'select' ? 'default' : 'crosshair';
     if (t !== 'measure') ui.draft = null;
+    /* Synchronously, not on the next frame: a stale bubble left floating over
+       the plan would swallow the very first click of the new tool. */
+    renderBubble();
+    setStatus();
     requestDraw();
   }
 
@@ -942,7 +1334,10 @@ MH.App = (function () {
     renderInspect(a); renderInsights(a); renderSchedule(a); renderAI();
     $('#btnUndo').disabled = !MH.Store.canUndo();
     $('#btnRedo').disabled = !MH.Store.canRedo();
+    $('#btnXray').classList.toggle('on', !!S.settings.xray);
     document.documentElement.dataset.theme = S.settings.theme === 'dark' ? 'dark' : '';
+    renderBubble();
+    setStatus();
   }
 
   function commitField(target) {
@@ -1019,14 +1414,49 @@ MH.App = (function () {
 
     /* catalogue */
     $('#catSearch').addEventListener('input', e => { catQuery = e.target.value; renderCatalog(); });
-    $('#catList').addEventListener('click', e => {
-      const b = e.target.closest('[data-add]'); if (b) addFromCatalog(b.dataset.add);
+    $('#pAdd').addEventListener('click', e => {
+      const b = e.target.closest('[data-add]'); if (b) startPlacing(b.dataset.add);
     });
-    $('#catList').addEventListener('dragstart', e => {
+    $('#pAdd').addEventListener('dragstart', e => {
       const b = e.target.closest('[data-add]'); if (!b) return;
       e.dataTransfer.setData('text/mh-item', b.dataset.add);
       e.dataTransfer.effectAllowed = 'copy';
     });
+
+    /* the bubble */
+    $('#bubble').addEventListener('click', e => {
+      const b = e.target.closest('[data-bb]');
+      if (b) return bubbleAction(b.dataset.bb);
+      const c = e.target.closest('[data-bbcol]');
+      if (c) {
+        const sel = MH.Store.selected(); if (!sel.length) return;
+        MH.Store.commit('Colour', () => { const o = MH.Store.item(sel[0].obj.id); if (o) o.colour = c.dataset.bbcol || null; });
+      }
+    });
+
+    /* show-me-what-I-can-change */
+    const toggleXray = () => MH.Store.commit('X-ray', st => { st.settings.xray = !st.settings.xray; });
+    $('#btnXray').addEventListener('click', toggleXray);
+    $('#setXray').addEventListener('change', toggleXray);
+
+    /* double-click a room to fill the screen with it */
+    c2.addEventListener('dblclick', e => {
+      const w = toWorld(e);
+      const hit = MH.R2.pick(S, w.x, w.y);
+      if (hit && hit.kind === 'room') zoomToRoom(hit.obj);
+      else if (hit && hit.kind === 'item') { MH.Store.select(hit.id); setPane('right', 'pInspect'); }
+    });
+
+    /* the colour key folds away once you know it */
+    $('#legendToggle').addEventListener('click', () => {
+      const l = $('#legend'); l.classList.toggle('closed');
+      try { localStorage.setItem('myhome.legend', l.classList.contains('closed') ? '0' : '1'); } catch (e) {}
+    });
+    if (localStorage.getItem('myhome.legend') === '0') $('#legend').classList.add('closed');
+
+    /* tour */
+    $('#tourNext').addEventListener('click', nextTour);
+    $('#tourSkip').addEventListener('click', () => { $('#tour').hidden = true; try { localStorage.setItem('myhome.tour', '1'); } catch (er) {} });
 
     /* lists */
     $('#wallList').addEventListener('click', e => {
@@ -1118,7 +1548,8 @@ MH.App = (function () {
       if (iss && iss.ids.length) {
         MH.Store.select(iss.ids.filter(id => MH.Store.findAny(id)));
         const o = MH.Store.findAny(iss.ids[0]);
-        if (o) focusOn(o);
+        if (o) { S.view.z = Math.max(S.view.z, 0.06); focusOn(o); }
+        if (window.innerWidth <= 940) $('#panelR').classList.remove('open');
       }
     });
 
@@ -1327,7 +1758,9 @@ MH.App = (function () {
       if (meta && e.key.toLowerCase() === 'd') { e.preventDefault(); MH.Store.duplicateSelected(); return; }
       if (meta && e.key.toLowerCase() === 'a') { e.preventDefault(); MH.Store.select(S.items.map(i => i.id)); return; }
       if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); MH.Store.deleteSelected(); return; }
-      if (e.key === 'Escape') { MH.Store.select([]); setTool('select'); ui.draft = null; requestDraw(); return; }
+      if (e.key === 'Escape') { cancelPlacing(); MH.Store.select([]); setTool('select'); ui.draft = null; requestDraw(); return; }
+      if (e.key.toLowerCase() === 'l') { MH.Store.commit('X-ray', st => { st.settings.xray = !st.settings.xray; }); return; }
+      if (e.key === '?') { openModal('mHelp'); return; }
       if (e.key === 'Tab') { e.preventDefault(); setView3(!ui.view3); return; }
       const keys = { v: 'select', w: 'wall', x: 'demolish', d: 'door', n: 'window', r: 'room', m: 'measure' };
       if (keys[e.key.toLowerCase()]) { setTool(keys[e.key.toLowerCase()]); return; }
@@ -1406,14 +1839,11 @@ MH.App = (function () {
     renderPanels();
     setTool('select');
     requestDraw();
-    if (!localStorage.getItem('myhome.seen')) {
-      localStorage.setItem('myhome.seen', '1');
-      setTimeout(() => openModal('mHelp'), 400);
-    }
+    if (!localStorage.getItem('myhome.tour')) setTimeout(startTour, 500);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 
-  return { requestDraw, toast, get state() { return S; }, setTool, openModal };
+  return { requestDraw, toast, get state() { return S; }, get ui() { return ui; }, setTool, openModal, startTour };
 })();

@@ -387,11 +387,21 @@ MH.Advisor = (function () {
   function checkFCU(state, out) {
     const fcus = state.items.filter(i => i.glyph === 'fcu');
     fcus.forEach(f => {
+      /* What matters is not how close the fan coil is, it is whether it is
+         pointing at you. A unit 1.5 m away blowing along the wall is fine;
+         one 2.5 m away aimed at the pillow is not. */
+      const a = (f.rot || 0) * Math.PI / 180;
+      const fx = -Math.sin(a), fy = Math.cos(a);          // the throw direction
       state.items.filter(i => i.glyph === 'bed' || i.glyph === 'desk').forEach(target => {
         if (wallBetween(state, f.x, f.y, target.x, target.y)) return;
-        const d = Math.hypot(f.x - target.x, f.y - target.y);
-        if (d < 1800) out.push(issue('warn', 'Aircon blowing straight onto ' + target.name.toLowerCase(),
-          `${mm(d)} away. Site the fan coil so the throw runs along the room, not across a pillow or a chair. This is the single most common cause of a sore throat in a new flat.`, [f.id, target.id], 'comfort'));
+        const dx = target.x - f.x, dy = target.y - f.y;
+        const d = Math.hypot(dx, dy) || 1;
+        const aim = (dx / d) * fx + (dy / d) * fy;         // 1 = straight at it
+        if (d < 2600 && aim > 0.72) {
+          out.push(issue('warn', 'Aircon blowing straight onto the ' + target.name.toLowerCase(),
+            `The fan coil is ${mm(d)} away and pointing at it. Turn the unit so the throw runs along the room rather than across a pillow or a desk chair. This is the commonest cause of a sore throat in a new flat.`,
+            [f.id, target.id], 'comfort'));
+        }
       });
     });
     const bedrooms = state.rooms.filter(r => /bedroom/i.test(r.name));
@@ -415,7 +425,7 @@ MH.Advisor = (function () {
     });
     state.rooms.forEach(r => {
       if (r.protected) return;
-      if (/passage|foyer|shelter|bath/i.test(r.name)) return;
+      if (/passage|foyer|entrance|lobby|shelter|bath|wc|store/i.test(r.name)) return;
       if (!winRooms.has(r.id)) {
         out.push(issue('warn', r.name + ' has no daylight',
           'A habitable room with no window relies entirely on artificial light and will feel smaller than it is. If a wall between it and a daylit space is hackable, a glass partition or a high-level opening buys you the light without losing the separation.', [r.id], 'daylight'));
