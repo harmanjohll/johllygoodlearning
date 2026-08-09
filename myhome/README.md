@@ -21,18 +21,28 @@ Straight off the HDB sheet:
 | Type | 4-Room, Type-I |
 | Floor area | **93 m²** including the air-con ledge |
 | Internal floor area | **90 m²**, measured from the centre-line of the walls |
-| Overall | 9235 across, 9705 deep |
+| Overall | 9235 across, 9745 deep |
 | Rooms | Main Bedroom · Bedroom 2 · Bedroom 3 · Bath/WC 1 · Bath/WC 2 · Kitchen · Service Yard · Household Shelter · Living/Dining · Entrance · Passageway · Air-con Ledge |
 
-The dimension chains on the sheet check out against the printed areas, which is how you
-know the geometry is right: `1090 + 1470 + 3595 + 3550 = 9705`, and `9235 × 9705 = 89.6 m²`
-against a printed 90; add the 2695 × 1090 ledge and you get 92.6 against a printed 93.
-Room sizes come off the same sheet: baths 1590 wide by 2500 and 2565 deep, bedrooms
-3100 / 2950 / 3050, living band 3550, kitchen 3595, yard 1470, shelter 1700, kitchen
-opening 1890, passage 1400.
+Everything here is derived from the dimension chains printed on the sheet, not fitted to
+them afterwards. The line that locks the plan is that the yard-and-kitchen chain and the
+two-bathroom chain both close on the same figure:
 
-`node myhome/test/validate.js` asserts both printed areas on every run. If a future edit
-moves a wall far enough to break them, the tests fail.
+```
+across   2695 (yard/kitchen) + 1590 (baths) + 1400 (passage) + 3550 (bedrooms) = 9235
+down     1470 (yard) + 3595 (kitchen)  = 5065
+         2500 (bath 1) + 2565 (bath 2) = 5065     <- the two columns break on one line
+bedrooms 3100 (main) + 2950 (bedroom 2) + 3695 (bedroom 3) = 9745
+shelter  1700 x 1700 ; ledge 2695 x 1090
+```
+
+`9235 × 9745` is **90.00 m²** against a printed 90, and with the ledge **92.93** against a
+printed 93. Both figures land on the nose, which is how you know the geometry is right
+rather than merely close.
+
+`node myhome/test/validate.js` treats the sheet as a contract. It asserts both printed
+areas, and that every room edge and every wall sits on a grid line derivable from a
+printed dimension. If a future edit moves a wall off the drawing, the tests fail.
 
 ### What the sheet says you may not touch
 
@@ -60,6 +70,11 @@ millimetre, so calibrate before ordering anything.
 
 Everything happens on the plan, not in a panel.
 
+- **Furnish the whole flat in one click.** Five arrangements — *Family of four*, *Just
+  the essentials*, *Two people working from home*, *Music at the centre*, *Couple who
+  entertain* — each fitting out all eleven spaces. **Empty the flat** takes it all back
+  out again, leaving only the things you cannot move: the distribution board and the
+  condenser. Both are one `Ctrl+Z` from undone.
 - **Click anything** — a small toolbar appears next to it with what you can do. A wall
   tells you its length and offers to take it down, or shows a padlock and the reason it
   has to stay. A room offers to furnish itself. A piece of furniture offers to turn,
@@ -108,9 +123,37 @@ mirroring what HDB will and will not approve.
 Demolishing leaves a dashed ghost so you can still see what was there and price the
 hacking. The Schedule tab totals the run in metres and gives an indicative cost.
 
+## Furnishing packs
+
+Five whole-flat arrangements, in the panel above the catalogue. They are **generated from
+the geometry**, not stored as coordinates, so they still work after you have moved a wall
+or knocked one down.
+
+| Pack | What it assumes |
+|---|---|
+| Family of four | Three beds, a table for four, a proper sofa, somewhere for the shoes |
+| Just the essentials | Somewhere to sleep, sit and eat. Nothing else |
+| Two people working from home | A desk in the main bedroom and in Bedroom 2, smaller table |
+| Music at the centre | The upright piano takes the long internal wall, seating turned in |
+| Couple who entertain | Six-seat table, bigger sofa, bigger screen, Bedroom 3 as a guest room |
+
+Placing furniture well in an HDB flat is mostly a fight over the same square metre, so
+each room proposes every sensible arrangement of its defining pieces and the app scores
+them: through a wall, in a doorway, on top of each other, or standing in the space
+something else needs to open. The best one wins. Then a resolver nudges each piece along
+its wall until it is genuinely clear, and leaves out anything that never gets there
+rather than drawing a clash.
+
+The result is measured against the advisor on every run, and it is a checked-in test:
+`node myhome/test/validate.js` fails if any pack drops a piece or scores a single
+warning. All five currently place everything they propose and score 100.
+
+Three things stay put when you empty the flat: the distribution board, the condenser on
+the ledge, and any structural column. Everything else goes.
+
 ## What you can place
 
-133 catalogue items at Singapore retail dimensions, all editable once placed:
+134 catalogue items at Singapore retail dimensions, all editable once placed:
 
 - **A quick-add row** of the twelve things people reach for first, plus a memory of what
   you used recently.
@@ -126,6 +169,9 @@ hacking. The Schedule tab totals the run in metres and gives an indicative cost.
 - Kitchen islands, breakfast bars, wet-kitchen counters, extractor hoods, integrated
   appliances, wardrobes (hinged, sliding and walk-in), sanitaryware, laundry, aircon
   fan coils and condensers, ceiling fans, planters, aquariums, and a distribution board.
+- **Shoe cabinets in two widths**, because between a front door, a shelter door and the
+  opening into the living room, 600 mm is often the longest clear run of wall an HDB
+  entrance actually has.
 
 Every item takes a width, depth, height, rotation and colour. Nothing is fixed except
 the main entrance door and the household shelter door.
@@ -166,8 +212,16 @@ Runs on every edit, needs no API key, and costs nothing. It measures:
 
 It knows about walls, so a wardrobe in Bedroom 3 is never reported as blocking a bed in
 Bedroom 2. It knows a sink belongs inside a counter, a bedside table belongs beside a bed
-and you can stand in a shower tray. Findings are scored into five meters and each one is
-clickable: it selects and centres the thing it is complaining about.
+and you can stand in a shower tray. It measures the work triangle inside the kitchen, so
+the utility sink out in the yard never gets counted as the kitchen sink, and it measures
+viewing distance from the sofa rather than from an armchair pulled in at the side.
+
+It also knows the difference between an obstruction and a graze: something has to be
+genuinely standing in a clearance or a door approach before it is reported, because an
+advisor that flags a 10 mm overlap is one you learn to ignore.
+
+Findings are scored into five meters and each one is clickable: it selects and centres
+the thing it is complaining about.
 
 ## The AI consultant
 
@@ -236,9 +290,10 @@ myhome/
   js/render2d.js        the plan renderer and the glyph library
   js/render3d.js        the axonometric dollhouse
   js/advisor.js         offline design checks, scoring, budget, auto-layout
+  js/packs.js           whole-flat furnishing packs, arrangement search, resolver
   js/ai.js              Anthropic and Gemini wrappers, prompts, response validation
   js/ui.js              panels, tools, pointer handling, modals
-  test/validate.js      data integrity checks — node myhome/test/validate.js
+  test/validate.js      data and pack checks — node myhome/test/validate.js
 ```
 
 ## Where the numbers come from

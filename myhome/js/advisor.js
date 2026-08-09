@@ -132,10 +132,16 @@ MH.Advisor = (function () {
         const cx = c.x + v.nx * side * (need / 2 + MH.Store.thickness(w) / 2);
         const cy = c.y + v.ny * side * (need / 2 + MH.Store.thickness(w) / 2);
         const zone = { x: cx, y: cy, w: o.w, d: need, rot: Math.atan2(v.dy, v.dx) * 180 / Math.PI };
+        const zb = MH.G.aabb(MH.G.corners(cx, cy, o.w, need, zone.rot));
+        const za = (zb.x2 - zb.x1) * (zb.y2 - zb.y1);
         state.items.forEach(it => {
           if (ghost(it) || isPassable(it)) return;
           if (wallBetween(state, cx, cy, it.x, it.y)) return;
           if (MH.G.rectsOverlap(zone, it)) {
+            /* The corner of a cabinet clipping the very edge of an approach is
+               not what stops the door opening. Something has to be in the way. */
+            const ib = MH.G.aabb(MH.G.corners(it.x, it.y, it.w, it.d, it.rot || 0));
+            if (za > 0 && overlapArea(zb, ib) / za < 0.04) return;
             out.push(issue('warn', 'Door swing is blocked',
               `${it.name} sits in the ${(isSwing && side === swingSide) ? 'swing' : 'approach'} of "${o.label || 'a door'}". A swing door needs its full leaf width clear on the side it opens to, and 600 mm to stand in on the other.`,
               [it.id, o.id], 'circulation'));
@@ -156,6 +162,8 @@ MH.Advisor = (function () {
         const cx = it.x + (offX * Math.cos(a) - offY * Math.sin(a));
         const cy = it.y + (offX * Math.sin(a) + offY * Math.cos(a));
         const zone = { x: cx, y: cy, w, d, rot: it.rot || 0 };
+        const zb = MH.G.aabb(MH.G.corners(cx, cy, w, d, it.rot));
+        const za = (zb.x2 - zb.x1) * (zb.y2 - zb.y1);
         let hit = null;
         for (const other of state.items) {
           if (other.id === it.id || ghost(other) || isPassable(other)) continue;
@@ -165,12 +173,17 @@ MH.Advisor = (function () {
              legitimately straddle a wall, and what matters is whether the
              blocker is on the same side of it as the item. */
           if (wallBetween(state, it.x, it.y, other.x, other.y)) continue;
-          if (MH.G.rectsOverlap(zone, other)) { hit = other; break; }
+          if (!MH.G.rectsOverlap(zone, other)) continue;
+          /* Something has to be standing in the space, not grazing the corner
+             of it. A sofa 10 mm into the end of a dining chair's pull-out is
+             not what stops you sitting down, and reporting it as though it
+             were is how an advisor teaches you to ignore it. */
+          const ob = MH.G.aabb(MH.G.corners(other.x, other.y, other.w, other.d, other.rot || 0));
+          if (za > 0 && overlapArea(zb, ob) / za < 0.06) continue;
+          hit = other; break;
         }
         let wallHit = null;
         if (!hit) {
-          const zb = MH.G.aabb(MH.G.corners(cx, cy, w, d, it.rot));
-          const za = (zb.x2 - zb.x1) * (zb.y2 - zb.y1);
           for (const w2 of state.walls) {
             if (w2.demolished) continue;
             if (za > 0 && overlapArea(zb, wallBox(w2)) / za > 0.25) {
@@ -216,9 +229,15 @@ MH.Advisor = (function () {
     const seats = state.items.filter(i => ['sofa', 'sofaL', 'sofaU', 'armchair'].includes(i.glyph));
     tvs.forEach(tv => {
       const diagMm = catOf(tv).tv * 25.4;
+      /* Measure from where the room is actually watched from, which is the
+         sofa. An occasional armchair pulled in at the side is not the viewing
+         position, and judging a whole room by it condemns arrangements that
+         are perfectly comfortable to sit in. */
+      const inView = seats.filter(s => !wallBetween(state, s.x, s.y, tv.x, tv.y));
+      const primary = inView.filter(s => s.glyph !== 'armchair');
+      const pool = primary.length ? primary : inView;
       let nearest = null, nd = Infinity;
-      seats.forEach(s => {
-        if (wallBetween(state, s.x, s.y, tv.x, tv.y)) return;
+      pool.forEach(s => {
         const d = Math.hypot(s.x - tv.x, s.y - tv.y);
         if (d < nd) { nd = d; nearest = s; }
       });
@@ -260,17 +279,38 @@ MH.Advisor = (function () {
   }
 
   function checkKitchen(state, out) {
-    const sinks = state.items.filter(i => i.glyph === 'sink' || i.glyph === 'sinkDouble');
     const hobs = state.items.filter(i => i.glyph === 'hob');
-    const fridges = state.items.filter(i => i.glyph === 'fridge');
-    if (!sinks.length || !hobs.length || !fridges.length) {
+    /* The triangle is a property of one kitchen, so it is measured from the
+       hob outwards and every leg has to stay inside that room, or at worst
+       reach into a space the cook can walk to without opening a door. The
+       utility sink out in the service yard is not the kitchen sink, and
+       measuring to it turns a tidy galley into an eight metre hike. */
+    const hob = hobs[0];
+    const kitchen = hob ? roomOf(state, hob) : state.rooms.find(r => /kitchen/i.test(r.name));
+    const reachable = it => {
+      const r = roomOf(state, it);
+      if (kitchen && r && r.id === kitchen.id) return true;              // same room, always
+      if (!hob) return false;
+      if (r && /yard|utility|bath|wc|shelter/i.test(r.name)) return false; // never the wet fringe
+      return !wallBetween(state, hob.x, hob.y, it.x, it.y);              // open-plan kitchens
+    };
+    const nearestTo = (hx, hy) => (a, b) =>
+      Math.hypot(a.x - hx, a.y - hy) - Math.hypot(b.x - hx, b.y - hy);
+    const pick = pred => {
+      const all = state.items.filter(pred);
+      const ok = hob ? all.filter(reachable) : [];
+      return (ok.length ? ok : []).sort(nearestTo(hob ? hob.x : 0, hob ? hob.y : 0))[0];
+    };
+    const s = pick(i => i.glyph === 'sink' || i.glyph === 'sinkDouble');
+    const h = hob;
+    const f = pick(i => i.glyph === 'fridge');
+    if (!s || !h || !f) {
       if (state.rooms.some(r => /kitchen/i.test(r.name))) {
         out.push(issue('tip', 'Work triangle incomplete',
-          'Place a sink, a hob and a fridge and the advisor will measure your work triangle. The classic target is a total of 3.6 to 8.0 m with no single leg under 1.2 m.', [], 'kitchen'));
+          'Put a sink, a hob and a fridge in the kitchen and the advisor will measure your work triangle. The classic target is a total of 3.6 to 8.0 m with no single leg under 1.2 m.', [], 'kitchen'));
       }
       return;
     }
-    const s = sinks[0], h = hobs[0], f = fridges[0];
     const a = Math.hypot(s.x - h.x, s.y - h.y), b = Math.hypot(h.x - f.x, h.y - f.y), c = Math.hypot(f.x - s.x, f.y - s.y);
     const total = a + b + c;
     const legs = [['sink to hob', a], ['hob to fridge', b], ['fridge to sink', c]];

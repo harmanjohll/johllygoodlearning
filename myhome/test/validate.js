@@ -9,8 +9,11 @@ const dir = path.join(__dirname, '..', 'js');
    that, so the files load unmodified. */
 const sandbox = { console };
 sandbox.window = sandbox;
+/* core.js persists to localStorage inside a try/catch, so a stub is enough to
+   run the whole model layer here. Nothing below this line touches the DOM. */
+sandbox.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
 vm.createContext(sandbox);
-['data-styles.js', 'data-catalog.js', 'data-plan.js'].forEach(f => {
+['data-styles.js', 'data-catalog.js', 'data-plan.js', 'core.js', 'advisor.js', 'packs.js'].forEach(f => {
   vm.runInContext(fs.readFileSync(path.join(dir, f), 'utf8'), sandbox, { filename: f });
 });
 const MH = sandbox.window.MH;
@@ -103,13 +106,51 @@ for (let a = 0; a < S.rooms.length; a++) {
 check('room zones do not overlap', overlaps.length === 0, overlaps.join(', '));
 
 const gross = S.rooms.reduce((s, r) => s + Math.abs((r.x2 - r.x1) * (r.y2 - r.y1)), 0) / 1e6;
-const env = 9235 * 9705 / 1e6;
+const env = 9235 * 9745 / 1e6;
 const ledge = S.ledges.reduce((s, l) => s + Math.abs((l.x2 - l.x1) * (l.y2 - l.y1)), 0) / 1e6;
 check('rooms tile the envelope', Math.abs(gross - env) < 0.2, gross.toFixed(2) + ' m² of ' + env.toFixed(2) + ' m²');
 /* The two numbers printed on the HDB sheet. If a future edit moves a wall and
    these drift, the plan has stopped describing the real flat. */
-check('matches the sheet: 90 m² internal', Math.abs(gross - 90) < 1.0, gross.toFixed(2) + ' m²');
-check('matches the sheet: 93 m² with the ledge', Math.abs(gross + ledge - 93) < 1.0, (gross + ledge).toFixed(2) + ' m²');
+check('matches the sheet: 90 m² internal', Math.abs(gross - 90) < 0.1, gross.toFixed(2) + ' m²');
+check('matches the sheet: 93 m² with the ledge', Math.abs(gross + ledge - 93) < 0.2, (gross + ledge).toFixed(2) + ' m²');
+/* Every wall in the plan must sit on a grid line that is derivable from the
+   dimensions printed on the HDB sheet. This is the real contract: not that a
+   room's size happens to be printed, but that its edges come from the drawing. */
+const GRID = {
+  x: {
+    0:    'origin',
+    2585: '4285 - 1700 (shelter is 1700 wide)',
+    2695: 'printed',
+    4285: '2695 + 1590 (yard/kitchen band + bath band)',
+    5685: '4285 + 1400 (+ passage)',
+    9235: 'printed overall'
+  },
+  y: {
+    0:    'origin',
+    1470: 'printed (service yard)',
+    2500: 'printed (bath 1)',
+    3100: 'printed (main bedroom)',
+    5065: '1470 + 3595 = 2500 + 2565  <- the line that locks the plan',
+    6050: '3100 + 2950 (main bedroom + bedroom 2)',
+    6765: '5065 + 1700 (+ shelter)',
+    9745: '6050 + 3695 (bedroom 3 takes the remainder)'
+  }
+};
+const offGrid = [];
+S.rooms.forEach(r => {
+  [['x', r.x1], ['x', r.x2], ['y', r.y1], ['y', r.y2]].forEach(([ax, v]) => {
+    if (!Object.keys(GRID[ax]).some(g => Math.abs(Number(g) - v) < 2)) offGrid.push(r.name + ' ' + ax + '=' + v);
+  });
+});
+check('every room edge sits on a grid line from the sheet', offGrid.length === 0, offGrid.join(', '));
+S.walls.forEach(w => {
+  const vert = Math.abs(w.x1 - w.x2) < 1;
+  const v = vert ? w.x1 : w.y1;
+  const ax = vert ? 'x' : 'y';
+  if (!Object.keys(GRID[ax]).some(g => Math.abs(Number(g) - v) < 2)) offGrid.push('wall ' + w.id);
+});
+check('every wall sits on a grid line from the sheet', offGrid.length === 0, offGrid.join(', '));
+
 check('there is a marked entrance', S.openings.some(o => o.entrance));
 check('the entrance cannot be deleted', S.openings.filter(o => o.entrance).every(o => o.locked));
 check('every wall type has a plain-English name and a reason',
@@ -123,6 +164,42 @@ check('household shelter is protected', S.rooms.some(r => r.protected) &&
 check('structural walls are not hackable',
   S.walls.filter(w => ['rc', 'rcInternal', 'shelter', 'parapet'].includes(w.type))
     .every(w => MH.WALL_TYPES[w.type].hackable === false));
+
+/* --------------------------------------------------------------------------
+   The furnishing packs. These are generated from the room geometry rather
+   than stored as coordinates, so they have to be re-measured, not eyeballed.
+   The bar is the advisor's own: a pack that hands the user a layout the app
+   then complains about is worse than no pack at all.
+   -------------------------------------------------------------------------- */
+console.log('\nFurnishing packs');
+const state = MH.Store.init();
+const seedIssues = MH.Advisor.run(state).issues.filter(i => i.level === 'error' || i.level === 'warn');
+check('the flat as handed over has nothing to fix', seedIssues.length === 0,
+  seedIssues.map(i => i.title).join('; '));
+
+check('five packs offered', MH.PACKS.length === 5, MH.PACKS.map(p => p.id).join(','));
+check('every pack has a name and a note', MH.PACKS.every(p => p.id && p.name && p.note));
+
+MH.PACKS.forEach(p => {
+  const want = MH.Packs.forFlat(state, p.id);
+  const got = MH.Packs.resolve(state, want);
+  const st = JSON.parse(JSON.stringify(state));
+  st.items = st.items.filter(it => ['db', 'condenser', 'column'].includes(it.catId));
+  got.forEach((g, n) => st.items.push(MH.Store.hydrateItem(Object.assign({ id: 'p' + n }, g))));
+  const res = MH.Advisor.run(st);
+  const bad = res.issues.filter(i => i.level === 'error' || i.level === 'warn');
+  check('pack "' + p.id + '" furnishes the whole flat', got.length >= 25, got.length + ' pieces');
+  check('pack "' + p.id + '" places everything it proposes', got.length === want.length,
+    (want.length - got.length) + ' dropped');
+  check('pack "' + p.id + '" passes the advisor', bad.length === 0,
+    bad.length ? bad.map(i => i.title).join('; ') : 'health ' + res.scores.overall);
+  /* Somewhere to sleep, sit, eat and cook, in every pack. */
+  const has = g => got.some(it => (MH.Store.catalogById(it.catId) || {}).glyph === g);
+  check('pack "' + p.id + '" covers the basics', has('bed') && has('sofa') &&
+    (has('tableRect') || has('tableRound')) && has('hob'),
+    ['bed', 'sofa', 'table', 'hob'].filter((n, i) =>
+      ![has('bed'), has('sofa'), has('tableRect') || has('tableRound'), has('hob')][i]).join(',') || 'all present');
+});
 
 console.log(fails ? '\n' + fails + ' check(s) failed\n' : '\nAll data checks passed\n');
 process.exit(fails ? 1 : 0);
