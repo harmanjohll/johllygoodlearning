@@ -43,7 +43,10 @@ function getPlayRegistry() {
     typeof playStroop     !== 'undefined' ? playStroop     : null,
     typeof playTrail      !== 'undefined' ? playTrail      : null,
     typeof playWordSearch !== 'undefined' ? playWordSearch : null,
-    typeof playCrossword  !== 'undefined' ? playCrossword  : null
+    typeof playCrossword  !== 'undefined' ? playCrossword  : null,
+    typeof playPairs      !== 'undefined' ? playPairs      : null,
+    typeof playPatterns   !== 'undefined' ? playPatterns   : null,
+    typeof playSudoku     !== 'undefined' ? playSudoku     : null
   ].forEach(function (g) { if (g && g.id) PLAY_REGISTRY[g.id] = g; });
   return PLAY_REGISTRY;
 }
