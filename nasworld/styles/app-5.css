@@ -3,6 +3,35 @@
    Loaded after app-1..4, so it may safely override earlier rules.
    ============================================================ */
 
+/* === INLINE PER-QUESTION FEEDBACK ===
+   Replaces the full-screen overlay that used to appear after every
+   single answer. Slim, non-blocking, and the quiz advances itself. */
+.inline-fb {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 14px auto 0; max-width: 460px;
+  padding: 10px 14px; border-radius: var(--radius-md);
+  font-size: 14px; animation: ifb-in .22s ease-out;
+}
+@keyframes ifb-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.inline-fb.good {
+  background: rgba(74,222,128,0.16); border: 1px solid rgba(74,222,128,0.4); color: #b6ffd4;
+}
+.inline-fb.oops {
+  background: rgba(255,209,102,0.14); border: 1px solid rgba(255,209,102,0.42); color: #ffe7ae;
+}
+.ifb-icon {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px;
+}
+.inline-fb.good .ifb-icon { background: rgba(74,222,128,0.35); color: #eafff3; }
+.inline-fb.oops .ifb-icon { background: rgba(255,209,102,0.3); color: #fff6e0; }
+.ifb-text { flex: 1; min-width: 0; }
+.ifb-text b { color: var(--gold); font-size: 17px; }
+.ifb-stars { font-weight: 700; color: var(--gold); white-space: nowrap; }
+.ifb-streak { font-size: 12px; color: var(--coral); white-space: nowrap; }
+.ifb-skip { font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+
 /* === PLAY HUB === */
 .world-card.play-tile .world-card-icon { animation: float 4s ease-in-out infinite; }
 .play-head { text-align: center; padding: 6px 16px 2px; }
@@ -223,3 +252,64 @@
   .pyr-brick { width: 46px; height: 40px; font-size: 16px; }
   .stroop-word { font-size: 46px; }
 }
+
+/* === MEMORY PAIRS === */
+.pairs-grid { display: grid; gap: 8px; width: min(340px, 90vw); margin: 0 auto; }
+.pair-card {
+  aspect-ratio: 3/4; border-radius: 10px; cursor: pointer;
+  background: linear-gradient(140deg, #4a3a9e, #2f2370);
+  border: 2px solid rgba(181,123,255,0.4); color: rgba(255,255,255,0.35);
+  font-size: clamp(20px, 7vw, 34px); transition: all .18s;
+  display: flex; align-items: center; justify-content: center;
+}
+.pair-card:hover { transform: translateY(-2px); }
+.pair-card.up { background: rgba(255,255,255,0.1); border-color: var(--gold); color: #fff; }
+.pair-card.matched { background: rgba(123,255,181,0.2); border-color: #7bffb5; cursor: default; opacity: .85; }
+
+/* === WHAT COMES NEXT === */
+.pat-seq {
+  display: flex; gap: 8px; justify-content: center; align-items: center;
+  flex-wrap: wrap; margin: 16px auto; max-width: 480px;
+}
+.pat-item {
+  min-width: 48px; padding: 10px 8px; border-radius: 10px; text-align: center;
+  background: rgba(255,255,255,0.07); border: 2px solid rgba(255,255,255,0.14);
+  font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary);
+}
+.pat-item.mystery { border-style: dashed; border-color: var(--gold); color: var(--gold); }
+.pat-opts { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; max-width: 340px; margin: 0 auto; }
+.pat-opt {
+  padding: 14px 8px; border-radius: var(--radius-md); cursor: pointer;
+  background: rgba(37,27,94,0.6); border: 2px solid rgba(181,123,255,0.3);
+  color: var(--text-primary); font-family: var(--font-display); font-size: 18px; font-weight: 700;
+  transition: all .15s;
+}
+.pat-opt:hover { transform: translateY(-2px); border-color: var(--gold); }
+.pat-opt.right { background: rgba(123,255,181,0.25); border-color: #7bffb5; }
+.pat-opt.wrong { background: rgba(255,107,107,0.2); border-color: #ff6b6b; }
+
+/* === MINI SUDOKU === */
+.sud-grid {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 2px;
+  width: min(260px, 76vw); margin: 0 auto; background: rgba(255,255,255,0.12);
+  padding: 2px; border-radius: 8px;
+}
+.sud-cell {
+  aspect-ratio: 1; border: none; cursor: pointer; border-radius: 3px;
+  background: rgba(20,14,48,0.9); color: var(--text-primary);
+  font-size: clamp(16px, 6vw, 26px); display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.sud-cell.fixed { background: rgba(123,179,255,0.22); cursor: default; }
+.sud-cell.sel { outline: 3px solid var(--gold); outline-offset: -3px; background: rgba(255,215,0,0.16); }
+.sud-cell.bad { background: rgba(255,107,107,0.25); }
+.sud-cell.bband { margin-bottom: 3px; }
+.sud-cell.bstack { margin-right: 3px; }
+.sud-pal { display: flex; gap: 8px; justify-content: center; margin: 14px auto; flex-wrap: wrap; }
+.sud-key {
+  width: 52px; height: 52px; border-radius: 10px; cursor: pointer;
+  background: rgba(37,27,94,0.7); border: 2px solid rgba(181,123,255,0.35);
+  font-size: 24px; color: var(--text-primary); transition: all .15s;
+}
+.sud-key:hover { transform: translateY(-2px); border-color: var(--gold); }
+.sud-key.clear { background: rgba(255,107,107,0.16); border-color: rgba(255,107,107,0.4); font-size: 18px; }
