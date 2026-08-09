@@ -49,6 +49,11 @@ SCRIPTS=(
   "src/math/tricks.js"
   "src/math/tricks-render.js"
   "src/math/math-drill.js"
+  "src/play/play-hub.js"
+  "src/play/play-jigsaw.js"
+  "src/play/play-numpyramid.js"
+  "src/play/play-brain.js"
+  "src/play/play-words.js"
   "src/math/math-render.js"
   "src/word/word-gen.js"
   "src/word/word-render.js"
@@ -131,7 +136,7 @@ AFTER_SCRIPTS=$(sed -n '/^<script src=.*<\/script>$/{ n; }; /^<script src=/!{ /^
   # the bundle stays a genuinely single self-contained file offline.
   awk '/<script src=/{exit} {print}' "$INPUT" | grep -v '<link rel="stylesheet" href="styles/'
   echo '<style>'
-  for css in styles/app-1.css styles/app-2.css styles/app-3.css styles/app-4.css; do
+  for css in styles/app-1.css styles/app-2.css styles/app-3.css styles/app-4.css styles/app-5.css; do
     cat "$SRCDIR/$css"
   done
   echo '</style>'
