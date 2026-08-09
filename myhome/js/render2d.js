@@ -474,12 +474,27 @@ MH.R2 = (function () {
     if (state.settings.showClearance) drawClearances(g, state, z);
     drawDimensions(g, state, p, z, labels, ui);
     drawSelection(g, state, p, z, ui);
+    if (ui && ui.guides) drawGuides(g, state, ui.guides, z);
+    if (ui && ui.placing) drawGhost(g, state, ui.placing, p, z, labels);
     if (ui && ui.draft) drawDraft(g, state, ui, p, z, labels);
 
     g.restore();
 
     drawLabels(g, labels, state, dark, cssW, cssH);
     drawScaleBar(g, state, cssW, cssH, dark);
+    if (state.settings.xray) {
+      g.save();
+      g.font = '600 11px "Inter Tight", system-ui, sans-serif';
+      const txt = 'Showing only what you are allowed to remove';
+      const w = g.measureText(txt).width + 26;
+      g.fillStyle = 'rgba(94,140,90,.95)';
+      g.beginPath();
+      (g.roundRect ? g.roundRect(cssW / 2 - w / 2, 12, w, 26, 13) : g.rect(cssW / 2 - w / 2, 12, w, 26));
+      g.fill();
+      g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(txt, cssW / 2, 25);
+      g.restore();
+    }
     drawNorth(g, state, cssW, dark);
     return { labels };
   }
@@ -615,25 +630,48 @@ MH.R2 = (function () {
       cuts.forEach(c => { if (c.a > cursor) runs.push([cursor, c.a]); cursor = Math.max(cursor, c.b); });
       if (cursor < L) runs.push([cursor, L]);
 
-      const fillCol = dark ? shade(T.fill, -18) : T.fill;
+      /* "What can I change?" fades the fixed structure right back and lights
+         up the partitions you are actually allowed to touch. */
+      const xray = !!state.settings.xray;
+      let fillCol = dark ? shade(T.fill, -18) : T.fill;
+      if (xray) fillCol = T.hackable ? '#5E8C5A' : (dark ? '#26282C' : '#DBD7D0');
       runs.forEach(([a, b], i) => {
         const A = (i === 0 && a === 0) ? -t / 2 : a;
         const B = (i === runs.length - 1 && b === L) ? L + t / 2 : b;
         const q = segQuad(w, t, A, B);
         poly(g, q); g.fillStyle = fillCol; g.fill();
-        if (T.hackable) { poly(g, q); hatchFill(g, q, dark ? 'rgba(255,255,255,.16)' : 'rgba(0,0,0,.18)', 130, z); }
-        poly(g, q); g.strokeStyle = T.stroke; g.lineWidth = 1.1 / z; g.stroke();
+        if (T.hackable && !xray) { poly(g, q); hatchFill(g, q, dark ? 'rgba(255,255,255,.16)' : 'rgba(0,0,0,.18)', 130, z); }
+        poly(g, q);
+        g.strokeStyle = xray ? (T.hackable ? '#3E6B3A' : (dark ? '#33363B' : '#CFCAC2')) : T.stroke;
+        g.lineWidth = 1.1 / z; g.stroke();
       });
 
       /* Openings on top. */
       ow.forEach(o => drawOpening(g, state, w, o, t, p, z, dark, sel.has(o.id)));
 
       if (sel.has(w.id) || hoverId === w.id) {
+        const can = T.hackable;
         poly(g, wallQuad(ext, t + 90));
-        g.strokeStyle = sel.has(w.id) ? '#C8963C' : 'rgba(200,150,60,.55)';
+        g.strokeStyle = can ? (sel.has(w.id) ? '#C8963C' : 'rgba(200,150,60,.55)') : '#B5462C';
         g.lineWidth = 2.4 / z; g.stroke();
+        if (!can) padlock(g, MH.G.pointAlong(w, L / 2), z);
       }
     });
+  }
+
+  /* A padlock drawn over a wall you are not allowed to remove, so the answer
+     arrives before the click rather than after it. */
+  function padlock(g, c, z) {
+    const s = 16 / z;
+    g.save(); g.translate(c.x, c.y);
+    g.beginPath(); g.ellipse(0, 0, s * 1.15, s * 1.15, 0, 0, Math.PI * 2);
+    g.fillStyle = '#B5462C'; g.fill();
+    g.strokeStyle = '#fff'; g.lineWidth = 1.7 / z;
+    g.beginPath();
+    (g.roundRect ? g.roundRect(-s * .42, -s * .1, s * .84, s * .62, s * .12) : g.rect(-s * .42, -s * .1, s * .84, s * .62));
+    g.stroke();
+    g.beginPath(); g.arc(0, -s * .1, s * .27, Math.PI, 0); g.stroke();
+    g.restore();
   }
 
   /* 45-degree hatch clipped to a quad, drawn in world space so the spacing
@@ -717,6 +755,27 @@ MH.R2 = (function () {
       g.strokeStyle = '#C8963C'; g.lineWidth = 2.2 / z; g.stroke();
     }
     g.restore();
+
+    /* Mark the ways in and out. The main door especially: everything about
+       how a flat works starts from where you come through the door. */
+    if (o.entrance || /entrance|main door/i.test(o.label || '')) {
+      const nx = v.nx, ny = v.ny;
+      const px = c.x + nx * (t / 2 + 380), py = c.y + ny * (t / 2 + 380);
+      g.save();
+      g.beginPath(); g.ellipse(px, py, 190, 190, 0, 0, Math.PI * 2);
+      g.fillStyle = '#C4553A'; g.fill();
+      g.strokeStyle = '#fff'; g.lineWidth = 2 / z; g.stroke();
+      g.beginPath();
+      const a2 = Math.atan2(-ny, -nx);
+      g.moveTo(px + Math.cos(a2) * 95, py + Math.sin(a2) * 95);
+      g.lineTo(px - Math.cos(a2) * 60, py - Math.sin(a2) * 60);
+      g.moveTo(px + Math.cos(a2) * 95, py + Math.sin(a2) * 95);
+      g.lineTo(px + Math.cos(a2 + 2.4) * 70, py + Math.sin(a2 + 2.4) * 70);
+      g.moveTo(px + Math.cos(a2) * 95, py + Math.sin(a2) * 95);
+      g.lineTo(px + Math.cos(a2 - 2.4) * 70, py + Math.sin(a2 - 2.4) * 70);
+      g.strokeStyle = '#fff'; g.lineWidth = 2.4 / z; g.stroke();
+      g.restore();
+    }
   }
   /* hingeX: where the hinge sits along the wall (local x).
      dir  : +1 when the closed leaf lies towards +x, -1 towards -x.
@@ -869,6 +928,42 @@ MH.R2 = (function () {
       g.fillStyle = 'rgba(200,150,60,.2)'; g.fill();
       g.strokeStyle = '#C8963C'; g.lineWidth = 1.6 / z; g.stroke();
     }
+  }
+
+  /* Dashed magenta rules showing what the thing you are dragging lined up
+     with. They vanish the moment you let go. */
+  function drawGuides(g, state, guides, z) {
+    const b = planBounds(state);
+    g.save();
+    g.setLineDash([180 / (z * 60), 120 / (z * 60)].map(v => Math.max(60, v)));
+    g.strokeStyle = '#C8963C'; g.lineWidth = 1.4 / z;
+    guides.forEach(gu => {
+      g.beginPath();
+      if (gu.axis === 'x') { g.moveTo(gu.v, b.y1 - 1200); g.lineTo(gu.v, b.y2 + 1200); }
+      else { g.moveTo(b.x1 - 1200, gu.v); g.lineTo(b.x2 + 1200, gu.v); }
+      g.stroke();
+    });
+    g.setLineDash([]); g.restore();
+  }
+
+  /* The footprint of the thing you are about to place, following the cursor. */
+  function drawGhost(g, state, pl, p, z, labels) {
+    if (pl.x === null || pl.x === undefined) return;
+    const it = MH.Store.hydrateItem({ catId: pl.catId, x: pl.x, y: pl.y, rot: pl.rot || 0 });
+    g.save();
+    g.globalAlpha = 0.62;
+    g.translate(it.x, it.y); g.rotate((it.rot || 0) * Math.PI / 180);
+    const fn = G[it.glyph] || G.box;
+    try { fn(g, it, p, z); } catch (e) { G.box(g, it, p, z); }
+    g.restore();
+    const c = MH.G.corners(it.x, it.y, it.w, it.d, it.rot);
+    poly(g, c);
+    g.setLineDash([140, 100]); g.strokeStyle = '#C8963C'; g.lineWidth = 2 / z; g.stroke(); g.setLineDash([]);
+    labels.push({
+      x: it.x, y: it.y - it.d / 2 - 220,
+      text: it.name + '  ·  ' + Math.round(it.w) + ' × ' + Math.round(it.d),
+      size: 10.5, weight: 600, colour: '#7C6132', chip: true
+    });
   }
 
   function drawLabels(g, labels, state, dark, cssW, cssH) {

@@ -57,7 +57,7 @@ check('at least four floor finishes', MH.MATERIALS.filter(m => m.cat === 'Floor'
 
 console.log('\nSeed plan');
 const S = MH.SEED;
-check('twelve numbered rooms', S.rooms.length === 12, S.rooms.length);
+check('eleven rooms from the HDB sheet', S.rooms.length === 11, S.rooms.length);
 check('no duplicate room ids', dupes(S.rooms.map(r => r.id)).length === 0);
 check('no duplicate wall ids', dupes(S.walls.map(w => w.id)).length === 0);
 check('no duplicate item ids', dupes(S.items.map(i => i.id)).length === 0);
@@ -103,9 +103,17 @@ for (let a = 0; a < S.rooms.length; a++) {
 check('room zones do not overlap', overlaps.length === 0, overlaps.join(', '));
 
 const gross = S.rooms.reduce((s, r) => s + Math.abs((r.x2 - r.x1) * (r.y2 - r.y1)), 0) / 1e6;
-const env = 8900 * 12500 / 1e6;
-check('rooms tile the envelope', Math.abs(gross - env) < 0.5, gross.toFixed(2) + ' m² of ' + env.toFixed(2) + ' m²');
-check('gross area realistic for a 5-room HDB', gross > 95 && gross < 125, gross.toFixed(2) + ' m²');
+const env = 9235 * 9705 / 1e6;
+const ledge = S.ledges.reduce((s, l) => s + Math.abs((l.x2 - l.x1) * (l.y2 - l.y1)), 0) / 1e6;
+check('rooms tile the envelope', Math.abs(gross - env) < 0.2, gross.toFixed(2) + ' m² of ' + env.toFixed(2) + ' m²');
+/* The two numbers printed on the HDB sheet. If a future edit moves a wall and
+   these drift, the plan has stopped describing the real flat. */
+check('matches the sheet: 90 m² internal', Math.abs(gross - 90) < 1.0, gross.toFixed(2) + ' m²');
+check('matches the sheet: 93 m² with the ledge', Math.abs(gross + ledge - 93) < 1.0, (gross + ledge).toFixed(2) + ' m²');
+check('there is a marked entrance', S.openings.some(o => o.entrance));
+check('the entrance cannot be deleted', S.openings.filter(o => o.entrance).every(o => o.locked));
+check('every wall type has a plain-English name and a reason',
+  Object.values(MH.WALL_TYPES).every(t => t.short && t.why && t.name));
 
 const floors = new Set(MH.MATERIALS.filter(m => m.cat === 'Floor').map(m => m.id));
 check('room floor finishes are real materials', S.rooms.every(r => floors.has(r.floor)),
