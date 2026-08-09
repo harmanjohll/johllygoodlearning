@@ -126,8 +126,15 @@ AFTER_SCRIPTS=$(sed -n '/^<script src=.*<\/script>$/{ n; }; /^<script src=/!{ /^
 
 # Simpler approach: use awk to split the file
 {
-  # Part 1: Everything before the first <script src= line
-  awk '/<script src=/{exit} {print}' "$INPUT"
+  # Part 1: Everything before the first <script src= line, but with the
+  # <link rel="stylesheet"> tags replaced by the stylesheets inlined, so
+  # the bundle stays a genuinely single self-contained file offline.
+  awk '/<script src=/{exit} {print}' "$INPUT" | grep -v '<link rel="stylesheet" href="styles/'
+  echo '<style>'
+  for css in styles/app-1.css styles/app-2.css styles/app-3.css styles/app-4.css; do
+    cat "$SRCDIR/$css"
+  done
+  echo '</style>'
 
   # Part 2: All JS concatenated into one script block
   echo '<script>'
