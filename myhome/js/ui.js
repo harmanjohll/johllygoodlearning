@@ -485,6 +485,11 @@ MH.App = (function () {
         renderCatalog();
       });
     }
+    if (!$('#packList').dataset.built) {
+      $('#packList').innerHTML = MH.PACKS.map(p =>
+        `<button class="pack" data-pack="${p.id}"><b>${esc(p.name)}</b><small>${esc(p.note)}</small></button>`).join('');
+      $('#packList').dataset.built = '1';
+    }
     if (!$('#quickAdd').dataset.built) {
       $('#quickAdd').innerHTML = QUICK.map(id => {
         const c = MH.Store.catalogById(id); if (!c) return '';
@@ -1066,13 +1071,42 @@ MH.App = (function () {
     requestDraw(); renderBubble();
   }
   function autoFurnish(r) {
-    const add = MH.Advisor.suggestLayout(S, r.id);
-    if (!add.length) { toast('No standard layout for a room called “' + r.name + '”. Try Ask AI.', true); return; }
+    const add = MH.Packs.resolve(S, MH.Packs.forRoom(S, r, S.pack || 'family'), r);
+    if (!add.length) {
+      toast('There is no standard arrangement for a room called “' + r.name + '”. Try Ask AI.', true);
+      return;
+    }
     MH.Store.commit('Furnish ' + r.name, st => {
       st.items = st.items.filter(it => { const rr = MH.G.roomAt(st.rooms, it.x, it.y); return !rr || rr.id !== r.id; });
       add.forEach(a => st.items.push(MH.Store.hydrateItem(Object.assign({ id: MH.Store.uid('i') }, a))));
+      st.selection = [];
     });
     toast(r.name + ' furnished. Ctrl+Z if you hate it.');
+  }
+
+  /* Whole-flat packs, and the way back to a bare plan. */
+  function applyPack(packId) {
+    const pack = MH.PACKS.find(p => p.id === packId); if (!pack) return;
+    const add = MH.Packs.resolve(S, MH.Packs.forFlat(S, packId));
+    MH.Store.commit('Furnish: ' + pack.name, st => {
+      st.pack = packId;
+      /* Keep the things that are part of the flat rather than the furniture. */
+      st.items = st.items.filter(it => ['db', 'condenser', 'column'].includes(it.catId));
+      add.forEach(a => st.items.push(MH.Store.hydrateItem(Object.assign({ id: MH.Store.uid('i') }, a))));
+      st.selection = [];
+    });
+    const n = MH.Store.get().items.length;
+    toast(pack.name + ' — ' + n + ' pieces placed. Ctrl+Z to undo.');
+    setPane('right', 'pInsight');
+  }
+  function emptyFlat() {
+    const n = S.items.filter(i => !['db', 'condenser'].includes(i.catId)).length;
+    if (!n) { toast('The flat is already empty'); return; }
+    MH.Store.commit('Empty the flat', st => {
+      st.items = st.items.filter(it => ['db', 'condenser'].includes(it.catId));
+      st.selection = [];
+    });
+    toast(n + ' pieces removed. Ctrl+Z brings them all back.');
   }
   function demolishWall(w) {
     const T = MH.Store.wallType(w);
@@ -1446,6 +1480,11 @@ MH.App = (function () {
       if (hit && hit.kind === 'room') zoomToRoom(hit.obj);
       else if (hit && hit.kind === 'item') { MH.Store.select(hit.id); setPane('right', 'pInspect'); }
     });
+
+    $('#packList').addEventListener('click', e => {
+      const b = e.target.closest('[data-pack]'); if (b) applyPack(b.dataset.pack);
+    });
+    $('#btnEmpty').addEventListener('click', emptyFlat);
 
     /* the colour key folds away once you know it */
     $('#legendToggle').addEventListener('click', () => {
