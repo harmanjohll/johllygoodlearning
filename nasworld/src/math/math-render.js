@@ -774,12 +774,17 @@ function renderFractionOp(card, q) {
     html += '<div class="fraction-part ' + (shaded ? 'shaded' : 'unshaded') + '" style="flex:1;' + (shaded === 'part-b' ? 'background:linear-gradient(135deg,var(--mint),var(--teal))' : '') + '"></div>';
   }
   html += '</div></div>';
-  var options = [];
+  // Trim the neighbours down to three FIRST, then add the answer. The
+  // old order built up to five options, appended the answer, shuffled,
+  // and sliced to four, which threw the correct answer away in about one
+  // question in twenty: an unanswerable question and a guaranteed wrong
+  // mark for a child who had done the maths right.
+  var neighbours = [];
   for (var n = Math.max(0, q.answerNum - 2); n <= Math.min(q.denom, q.answerNum + 2); n++) {
-    if (n >= 0) options.push(n + '/' + q.denom);
+    if (n !== q.answerNum) neighbours.push(n + '/' + q.denom);
   }
-  if (!options.includes(q.answer)) options.push(q.answer);
-  options = shuffle(options).slice(0, 4);
+  var options = shuffle(neighbours).slice(0, 3).concat([q.answer]);
+  options = shuffle(options);
   html += '<div class="answer-options mt-2">' + options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:20px">' + o + '</button>';
   }).join('') + '</div>';
@@ -904,10 +909,16 @@ function renderMixedFrac(card, q) {
 
 function renderDecimalId(card, q) {
   var html = '<div class="question-text">Convert ' + q.fraction + ' to a decimal</div>';
-  var options = [];
-  options.push(q.answer);
-  while (options.length < 4) {
-    var fake = (rand(1, 99) / 10).toFixed(1);
+  // Distractors have to carry the same number of decimal places as the
+  // answer. Hard-coding one place meant a two-place answer would be the
+  // only option shaped like "0.25" and could be picked without reading
+  // the question.
+  var places = (String(q.answer).split('.')[1] || '').length || 1;
+  var scale = Math.pow(10, places);
+  var options = [q.answer];
+  var safety = 0;
+  while (options.length < 4 && safety++ < 60) {
+    var fake = (rand(1, 99 * scale / 10) / scale).toFixed(places);
     if (!options.includes(fake)) options.push(fake);
   }
   options = shuffle(options);
@@ -927,9 +938,26 @@ function renderDecimalAdd(card, q) {
   setTimeout(function() { var el = document.getElementById('answer-input'); if (el) el.focus(); }, 100);
 }
 
+// A square was drawn here whatever shape the question named, so a child
+// asked about a hexagon was looking at a square while she counted. The
+// glyph now follows the shape; anything without a sensible emoji falls
+// back to a drawn polygon rather than a wrong one.
+var SYMMETRY_GLYPHS = {
+  'square': '\u2B1C',
+  'rectangle': '\u25AD',
+  'circle': '\u26AA',
+  'equilateral triangle': '\u25B3',
+  'isosceles triangle': '\u25B3',
+  'scalene triangle': '\u25B7',
+  'regular hexagon': '\u2B21',
+  'regular pentagon': '\u2B20',
+  'parallelogram': '\u25B1'
+};
+
 function renderSymmetry(card, q) {
   var html = '<div class="question-text">How many lines of symmetry does a ' + q.shape.name + ' have?</div>';
-  html += '<div style="font-size:64px;margin:12px 0">\u2B1C</div>';
+  html += '<div style="font-size:64px;margin:12px 0;line-height:1">' +
+          (SYMMETRY_GLYPHS[q.shape.name] || '\u2B1F') + '</div>';
   html += '<div class="answer-options mt-2">' + q.options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(' + (typeof q.answer === 'string' ? '\'' + o + '\', \'' + q.answer + '\'' : o + ', ' + q.answer) + ', this)">' + (o === 'infinite' ? '\u221E' : o) + '</button>';
   }).join('') + '</div>';

@@ -301,6 +301,20 @@ function renderPracticeHub() {
   html += '<p class="practice-sub">Pick exactly what you want to work on.</p>';
   html += '</div>';
 
+  // Tricks first: knowing a method beats grinding through questions
+  // without one.
+  var trickCount = (typeof MATH_TRICKS !== 'undefined') ? MATH_TRICKS.length : 0;
+  if (trickCount) {
+    var seenCount = 0;
+    MATH_TRICKS.forEach(function(t) { if (getTrickState(t.id).seen) seenCount++; });
+    html += '<button class="practice-tricks-banner" onclick="window._tricksFilterSkill=null;showScreen(\'tricks\')">';
+    html += '<span class="ptb-icon">🧠</span>';
+    html += '<span class="ptb-body"><b>Maths Tricks</b><br>' +
+            '<span class="ptb-sub">' + seenCount + ' of ' + trickCount + ' learned · includes the Trachtenberg system</span></span>';
+    html += '<span class="ptb-arrow">›</span>';
+    html += '</button>';
+  }
+
   PRACTICE_GROUPS.forEach(function(group) {
     var available = group.skills.filter(function(id) {
       return DRILL_OPTIONS[id] && (typeof MATH_TREE === 'undefined' || MATH_TREE[id]);

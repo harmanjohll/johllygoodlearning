@@ -89,7 +89,13 @@ function _scienceMCQFromBank(bank, hintLead) {
   var item = pick(bank);
   return {
     type: 'science-mcq',
-    prompt: item.q,
+    // renderScienceMCQ reads q.text. This said `prompt` until now, which
+    // is the field name the English, Malay and Coding renderers use, so
+    // it looked right in isolation. It was not: Senses, Plants, Animals,
+    // Seasons, Sound and Light every single question showed a thinking
+    // face, the word "undefined", and four answer buttons with nothing
+    // to answer.
+    text: item.q,
     options: shuffle([].concat(item.options)),
     answer: item.answer,
     hint: item.hint || (hintLead || 'Think it through carefully.')
