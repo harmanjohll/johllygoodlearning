@@ -60,7 +60,7 @@ check('at least four floor finishes', MH.MATERIALS.filter(m => m.cat === 'Floor'
 
 console.log('\nSeed plan');
 const S = MH.SEED;
-check('eleven rooms from the HDB sheet', S.rooms.length === 11, S.rooms.length);
+check('twelve rooms from the HDB sheet', S.rooms.length === 12, S.rooms.length);
 check('no duplicate room ids', dupes(S.rooms.map(r => r.id)).length === 0);
 check('no duplicate wall ids', dupes(S.walls.map(w => w.id)).length === 0);
 check('no duplicate item ids', dupes(S.items.map(i => i.id)).length === 0);
@@ -106,34 +106,57 @@ for (let a = 0; a < S.rooms.length; a++) {
 check('room zones do not overlap', overlaps.length === 0, overlaps.join(', '));
 
 const gross = S.rooms.reduce((s, r) => s + Math.abs((r.x2 - r.x1) * (r.y2 - r.y1)), 0) / 1e6;
-const env = 9235 * 9745 / 1e6;
 const ledge = S.ledges.reduce((s, l) => s + Math.abs((l.x2 - l.x1) * (l.y2 - l.y1)), 0) / 1e6;
-check('rooms tile the envelope', Math.abs(gross - env) < 0.2, gross.toFixed(2) + ' m² of ' + env.toFixed(2) + ' m²');
-/* The two numbers printed on the HDB sheet. If a future edit moves a wall and
-   these drift, the plan has stopped describing the real flat. */
-check('matches the sheet: 90 m² internal', Math.abs(gross - 90) < 0.1, gross.toFixed(2) + ' m²');
-check('matches the sheet: 93 m² with the ledge', Math.abs(gross + ledge - 93) < 0.2, (gross + ledge).toFixed(2) + ' m²');
+/* The outline the rooms tile, measured to the printed grid. Held to the mm so
+   that moving a wall has to be a deliberate act, not a slip. */
+check('rooms tile the outline traced from the sheet', Math.abs(gross - 94.329) < 0.02,
+  gross.toFixed(3) + ' m²');
+
+/* The sheet's own note: "Internal Floor Area is computed from the centre-line
+   of the walls of the flat". The printed grid is the outer face, so the
+   centre-line figure is the outline less half a wall all the way round. Get
+   this reconciliation wrong and the plan has stopped describing the real flat,
+   however tidy its own arithmetic looks. */
+const perim = (() => {
+  const v = [[0, 0], [9100, 0], [9100, 1400], [12650, 1400], [12650, 7850], [9100, 7850],
+             [9100, 9235], [4035, 9235], [4035, 6540], [1090, 6540], [1090, 4950], [0, 4950]];
+  return v.reduce((s, p, i) => {
+    const q = v[(i + 1) % v.length];
+    return s + Math.abs(q[0] - p[0]) + Math.abs(q[1] - p[1]);
+  }, 0);
+})();
+check('outline perimeter is 43770', perim === 43770, perim + ' mm');
+const centreLine = gross - perim * 100 / 1e6;
+check('matches the sheet: 90 m² internal, centre-line', Math.abs(centreLine - 90) < 0.15,
+  centreLine.toFixed(2) + ' m² (outline ' + gross.toFixed(2) + ' less ' + (perim * 100 / 1e6).toFixed(2) + ' of wall)');
+check('matches the sheet: 93 m² with the ledge', Math.abs(centreLine + ledge - 93) < 0.4,
+  (centreLine + ledge).toFixed(2) + ' m²');
+
 /* Every wall in the plan must sit on a grid line that is derivable from the
    dimensions printed on the HDB sheet. This is the real contract: not that a
    room's size happens to be printed, but that its edges come from the drawing. */
 const GRID = {
   x: {
-    0:    'origin',
-    2585: '4285 - 1700 (shelter is 1700 wide)',
-    2695: 'printed',
-    4285: '2695 + 1590 (yard/kitchen band + bath band)',
-    5685: '4285 + 1400 (+ passage)',
-    9235: 'printed overall'
+    0:     'origin',
+    1090:  'printed (west of bath 1)',
+    3100:  'printed (main bedroom)',
+    3590:  '1090 + 2500 (+ bath 1)',
+    4035:  '12650 - (1470 + 3595 + 3550), where the bottom chain starts',
+    5505:  '4035 + 1470 (+ service yard)',
+    6050:  '3100 + 2950 (main bedroom + bedroom 2)',
+    6155:  '3590 + 2565 (+ bath 2)',
+    9100:  '6050 + 3050 = 5505 + 3595  <- bedroom 3 and the kitchen end together',
+    10950: '12650 - 1700 (the shelter is 1700 wide)',
+    12650: 'printed overall'
   },
   y: {
     0:    'origin',
-    1470: 'printed (service yard)',
-    2500: 'printed (bath 1)',
-    3100: 'printed (main bedroom)',
-    5065: '1470 + 3595 = 2500 + 2565  <- the line that locks the plan',
-    6050: '3100 + 2950 (main bedroom + bedroom 2)',
-    6765: '5065 + 1700 (+ shelter)',
-    9745: '6050 + 3695 (bedroom 3 takes the remainder)'
+    1400: 'printed (right chain: the void above the living room)',
+    3550: 'printed (right chain: living room depth)',
+    4950: 'printed (left chain) = 1400 + 3550  <- the line that locks the plan',
+    6540: '4950 + 1590 (+ the bath band)',
+    7850: '4950 + 2900 (+ the shelter band)',
+    9235: 'printed overall = 6540 + 2695'
   }
 };
 const offGrid = [];
@@ -159,8 +182,21 @@ check('every wall type has a plain-English name and a reason',
 const floors = new Set(MH.MATERIALS.filter(m => m.cat === 'Floor').map(m => m.id));
 check('room floor finishes are real materials', S.rooms.every(r => floors.has(r.floor)),
   S.rooms.filter(r => !floors.has(r.floor)).map(r => r.floor).join(','));
-check('household shelter is protected', S.rooms.some(r => r.protected) &&
-  S.walls.filter(w => w.type === 'shelter').length >= 4);
+/* Two of the shelter's four walls are the flat's external envelope, so they are
+   already structural concrete. What matters is not how many carry the `shelter`
+   type but that nothing bounding it can be taken down. */
+const hs = S.rooms.find(r => r.protected);
+const bounds = S.walls.filter(w => {
+  const vert = Math.abs(w.x1 - w.x2) < 1;
+  const lo = Math.min(vert ? w.y1 : w.x1, vert ? w.y2 : w.x2);
+  const hi = Math.max(vert ? w.y1 : w.x1, vert ? w.y2 : w.x2);
+  const at = vert ? w.x1 : w.y1;
+  const [a1, a2, b1, b2] = vert ? [hs.x1, hs.x2, hs.y1, hs.y2] : [hs.y1, hs.y2, hs.x1, hs.x2];
+  return (Math.abs(at - a1) < 2 || Math.abs(at - a2) < 2) && lo < b2 - 1 && hi > b1 + 1;
+});
+check('household shelter is protected', !!hs && bounds.length >= 4 &&
+  bounds.every(w => MH.WALL_TYPES[w.type].hackable === false),
+  bounds.length + ' walls bound it: ' + bounds.map(w => w.type).join(', '));
 check('structural walls are not hackable',
   S.walls.filter(w => ['rc', 'rcInternal', 'shelter', 'parapet'].includes(w.type))
     .every(w => MH.WALL_TYPES[w.type].hackable === false));

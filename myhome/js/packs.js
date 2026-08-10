@@ -249,8 +249,12 @@ MH.Packs = (function () {
        the weather and carry damp. `internalEdge` is worked out from the walls,
        so this holds up even after you have moved one. */
     if (pack === 'music') {
+      /* The other edges are only a fallback. Costing them 6000 keeps the piano
+         off the facade unless the internal wall is genuinely impossible, since
+         a real clash costs 9000 and would still win. */
       const pick = bestOf(penalty, [[internal, 'n', 's', 'w', 'e'], [0.3, 0.5, 0.15, 0.7, 0.85]],
-        (e, a) => [against(b, e, 'piano-upright', a, 0)], out);
+        (e, a) => [against(b, e, 'piano-upright', a, 0)], out,
+        (items, picks) => picks[0] === internal ? 0 : 6000);
       if (pick && pick.p < 9000) out.push(pick.items[0]);
       /* A listening chair, turned in towards the room rather than the wall. */
       const chair = bestOf(penalty, [['n', 's', 'w', 'e'], [0.8, 0.2, 0.5]],
@@ -378,29 +382,62 @@ MH.Packs = (function () {
     return out.filter(Boolean);
   }
 
-  function kitchen(b, pack) {
+  function kitchen(state, room, b, pack) {
+    const penalty = scorer(state, room);
     const out = [];
-    const tall = D(b) >= W(b);
-    const runEdge = tall ? 'w' : 'n';
-    const oppEdge = tall ? 'e' : 's';
+    /* Which wall the run goes on is not a matter of taste: a galley run needs
+       an unbroken length of wall, and in this flat the obvious one is mostly
+       a 1890 opening into the dining bay. So try all four and measure. */
+    const pick = bestOf(penalty, [['n', 's', 'w', 'e'], [0.5, 0.35, 0.65]], (e, a) => {
+      const along = ['n', 's'].includes(e) ? W(b) : D(b);
+      const len = Math.min(along - 300, 3600);
+      if (len < 1800) return null;
+      return [against(b, e, 'base600', a, 0, { w: len })];
+    });
+    if (!pick) return [];
+    const runEdge = pick.picks[0];
+    const oppEdge = { n: 's', s: 'n', w: 'e', e: 'w' }[runEdge];
+    const tall = ['w', 'e'].includes(runEdge);
     const runLen = Math.min((tall ? D(b) : W(b)) - 300, 3600);
-    out.push(against(b, runEdge, 'base600', 0.5, 0, { w: runLen }));
+    out.push(pick.items[0]);
     const run = out[0];
     const half = runLen / 2;
     /* Sink and hob need at least 1.2 m between centres, which is where the
        draining board and the chopping board live. Kitchen fitters aim for
        about 1.4 m. Below that you are washing and frying in the same square
        foot, and the advisor is right to complain. */
-    const room = half - Math.max(cat('sink2').w, cat('hob60').w) / 2 - 60;
-    const sep = Math.min(Math.max(1200, runLen * 0.45), 1600, room * 2);
+    const slack = half - Math.max(cat('sink2').w, cat('hob60').w) / 2 - 60;
+    const sep = Math.min(Math.max(1200, runLen * 0.45), 1600, slack * 2);
     const off = d => tall ? { x: run.x, y: run.y + d } : { x: run.x + d, y: run.y };
     const s = off(-sep / 2), h = off(sep / 2);
     out.push(at('sink2', s.x, s.y, run.rot));
     out.push(at('hob60', h.x, h.y, run.rot));
     out.push(at('hood', h.x, h.y, run.rot));
-    out.push(against(b, oppEdge, 'fridge2', 0.28, 0));
-    if ((tall ? D(b) : W(b)) > 3000) out.push(against(b, oppEdge, 'tall1200', 0.72, 0));
+    const fridge = bestOf(penalty, [[oppEdge, runEdge], [0.28, 0.1, 0.5, 0.85]],
+      (e, a) => [against(b, e, 'fridge2', a, 0)], out);
+    if (fridge) out.push(fridge.items[0]);
+    if ((tall ? D(b) : W(b)) > 3000) {
+      const base = penalty(out);
+      const tallU = bestOf(penalty, [[oppEdge, runEdge, 'n', 's', 'w', 'e'], [0.72, 0.9, 0.5, 0.15, 0.3]],
+        (e, a) => [against(b, e, 'tall1200', a, 0)], out);
+      if (tallU && tallU.p <= base) out.push(tallU.items[0]);
+    }
     if (pack === 'guests' && Math.min(W(b), D(b)) > 3600) out.push(at('island', (b.x1 + b.x2) / 2, (b.y1 + b.y2) / 2, 0));
+    return out.filter(Boolean);
+  }
+
+  /* A dining bay that is its own room rather than one end of the living room:
+     a table, and a sideboard if the walls will take one. */
+  function dining(state, room, b, pack) {
+    const penalty = scorer(state, room);
+    const id = pack === 'minimal' || pack === 'wfh' ? 'dine4' : (pack === 'guests' ? 'dineR6' : 'dine6');
+    const pick = bestOf(penalty, [[id, 'dine4'], [0, 90], [0.5, 0.4, 0.6]],
+      (t, rot, a) => [at(t, b.x1 + W(b) * a, b.y1 + D(b) * 0.5, rot)]);
+    if (!pick) return [];
+    const out = [pick.items[0]];
+    const side = bestOf(penalty, [['n', 's', 'w', 'e'], [0.5, 0.2, 0.8]],
+      (e, a) => [against(b, e, 'sideboard', a, 0)], out);
+    if (side && side.p <= pick.p) out.push(side.items[0]);
     return out.filter(Boolean);
   }
 
@@ -426,8 +463,10 @@ MH.Packs = (function () {
     const sink = bestOf(penalty, [EDGES, [0.2, 0.5, 0.8, 0.1]],
       (e, a) => [against(b, e, 'basin-u', a, 0)], out);
     if (sink) out.push(sink.items[0]);
-    /* Ceiling rack: overhead, so it only has to miss the other overheads. */
-    out.push(at('laundry', (b.x1 + b.x2) / 2, (b.y1 + b.y2) / 2, 0));
+    /* Ceiling rack: overhead, so it only has to fit. It is 1800 long and a
+       Singapore service yard is often narrower than that, so it runs with the
+       room rather than across it. */
+    out.push(at('laundry', (b.x1 + b.x2) / 2, (b.y1 + b.y2) / 2, W(b) >= D(b) ? 0 : 90));
     return out.filter(Boolean);
   }
 
@@ -447,10 +486,14 @@ MH.Packs = (function () {
     const b = box(room);
     if (W(b) < 700 || D(b) < 700) return [];
     const n = (room.name || '').toLowerCase();
+    /* Dining before living: this flat has a dining bay that is its own room,
+       and running the living-room generator on it produces a second sofa and
+       a second television. */
+    if (/^dining/.test(n))           return dining(state, room, b, packId);
     if (/living|dining/.test(n))     return living(state, room, b, packId, internalEdge(state, room));
     if (/main bedroom/.test(n))      return bedroom(state, room, b, packId, true);
     if (/bedroom|study/.test(n))     return bedroom(state, room, b, packId, false);
-    if (/kitchen/.test(n))           return kitchen(b, packId);
+    if (/kitchen/.test(n))           return kitchen(state, room, b, packId);
     if (/bath|wc|toilet/.test(n))    return bathroom(b);
     if (/yard|utility/.test(n))      return yard(state, room, b);
     if (/entrance|foyer/.test(n))    return entrance(state, room, b);

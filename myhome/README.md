@@ -21,28 +21,63 @@ Straight off the HDB sheet:
 | Type | 4-Room, Type-I |
 | Floor area | **93 m²** including the air-con ledge |
 | Internal floor area | **90 m²**, measured from the centre-line of the walls |
-| Overall | 9235 across, 9745 deep |
-| Rooms | Main Bedroom · Bedroom 2 · Bedroom 3 · Bath/WC 1 · Bath/WC 2 · Kitchen · Service Yard · Household Shelter · Living/Dining · Entrance · Passageway · Air-con Ledge |
+| Overall | 12650 across, 9235 deep |
+| Rooms | Main Bedroom · Bedroom 2 · Bedroom 3 · Bath/WC 1 · Bath/WC 2 · Kitchen · Service Yard · Household Shelter · Living/Dining · Dining · Entrance · Passageway · Air-con Ledge |
 
-Everything here is derived from the dimension chains printed on the sheet, not fitted to
-them afterwards. The line that locks the plan is that the yard-and-kitchen chain and the
-two-bathroom chain both close on the same figure:
+Three bedrooms across the north, the two bathrooms in the middle band, the air-con ledge,
+service yard and kitchen along the south, and the living/dining an L down the east with
+the entrance and household shelter in its foot.
+
+Every number is read off the sheet's dimension chains:
 
 ```
-across   2695 (yard/kitchen) + 1590 (baths) + 1400 (passage) + 3550 (bedrooms) = 9235
-down     1470 (yard) + 3595 (kitchen)  = 5065
-         2500 (bath 1) + 2565 (bath 2) = 5065     <- the two columns break on one line
-bedrooms 3100 (main) + 2950 (bedroom 2) + 3695 (bedroom 3) = 9745
-shelter  1700 x 1700 ; ledge 2695 x 1090
+overall   12650 across, 9235 down
+top       3100 (main bedroom) + 2950 (bedroom 2) + 3050 (bedroom 3) + 3550 (living) = 12650
+left      4950 (bedrooms + passage) + 1590 (baths) + 2695 (yard/kitchen)            =  9235
+right     1400 (void) + 3550 (living) + 2900 (shelter) + 1385 (kitchen band)        =  9235
+baths     1090 + 2500 (bath 1) + 2565 (bath 2)
+bottom    1470 (service yard) + 3595 (kitchen) + 3550
+shelter   1700 wide
 ```
 
-`9235 × 9745` is **90.00 m²** against a printed 90, and with the ledge **92.93** against a
-printed 93. Both figures land on the nose, which is how you know the geometry is right
-rather than merely close.
+Two cross-checks fall out on their own, which is what says the reading is right rather
+than merely plausible:
 
-`node myhome/test/validate.js` treats the sheet as a contract. It asserts both printed
-areas, and that every room edge and every wall sits on a grid line derivable from a
-printed dimension. If a future edit moves a wall off the drawing, the tests fail.
+- `4950` on the left equals `1400 + 3550` on the right. The same line runs across the flat.
+- `12650 − (1470 + 3595 + 3550) = 4035`, and the kitchen's east wall then lands on `9100`,
+  the same line as Bedroom 3's east wall.
+
+### Why the app says 89.95 and not 94.33
+
+Tiled to the printed grid the outline is **94.33 m²**. The sheet's own note is that
+internal floor area is computed *from the centre-line of the walls*, and the outline's
+perimeter is 43770 mm, so half a wall all the way round is `43.77 × 0.1 = 4.38 m²`:
+
+```
+94.33 − 4.38 = 89.95     against a printed 90
++ the 2500 × 1090 ledge  against a printed 93
+```
+
+So the coordinates in the model are the printed grid — every room reads on screen exactly
+as it reads on the sheet — and the headline area is the centre-line figure, which is the
+one HDB prints. Showing the gross as though it were the flat's area would be flattering
+and wrong.
+
+`node myhome/test/validate.js` treats the sheet as a contract. It asserts the outline
+area, the perimeter, the centre-line reconciliation, and that every room edge and every
+wall sits on a grid line derivable from a printed dimension. If a future edit moves a wall
+off the drawing, the tests fail.
+
+### Read from the drawing rather than printed
+
+Three numbers were inferred, and are the first things to check if the plan is ever
+disputed. None of them changes the envelope or the arrangement:
+
+- the **3550 / 1400** split of the 4950 band into bedrooms and passage — the alternative
+  reading is 3850 + 1100
+- the **household shelter** filling the whole 2900 band rather than about 2000 of it
+- **1890**, printed between Bath 2 and the living room, taken here as the kitchen opening,
+  which is the only thing it fits
 
 ### What the sheet says you may not touch
 
@@ -52,10 +87,10 @@ printed dimension. If a future edit moves a wall off the drawing, the tests fail
 Those walls are drawn black here and the app refuses to remove them, which is the same
 answer HDB gives. The household shelter is stricter still: under the Civil Defence
 Shelter Act you may not hack, drill, nail or block its vents. **The main entrance is
-marked with a red arrow** so you can always see how the flat is entered.
+marked with a red arrow** — it is on the south wall of the entrance, beside the shelter.
 
 Press **What can I change?** in the toolbar and everything fixed fades back, leaving only
-the six partitions that can actually come down.
+the five partitions that can actually come down.
 
 ### If you want it exact to the millimetre
 
@@ -72,7 +107,7 @@ Everything happens on the plan, not in a panel.
 
 - **Furnish the whole flat in one click.** Five arrangements — *Family of four*, *Just
   the essentials*, *Two people working from home*, *Music at the centre*, *Couple who
-  entertain* — each fitting out all eleven spaces. **Empty the flat** takes it all back
+  entertain* — each fitting out all twelve spaces. **Empty the flat** takes it all back
   out again, leaving only the things you cannot move: the distribution board and the
   condenser. Both are one `Ctrl+Z` from undone.
 - **Click anything** — a small toolbar appears next to it with what you can do. A wall
@@ -153,7 +188,7 @@ the ledge, and any structural column. Everything else goes.
 
 ## What you can place
 
-134 catalogue items at Singapore retail dimensions, all editable once placed:
+135 catalogue items at Singapore retail dimensions, all editable once placed:
 
 - **A quick-add row** of the twelve things people reach for first, plus a memory of what
   you used recently.

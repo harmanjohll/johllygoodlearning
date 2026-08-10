@@ -463,6 +463,18 @@ MH.Advisor = (function () {
         if (r) winRooms.add(r.id);
       });
     });
+    /* A room that is open to a daylit one is daylit. The dining bay of an
+       open-plan living room has no window of its own and never will, and
+       reporting it as dark is reporting the floor plan, not a problem. Two
+       rooms count as open to each other when you can walk between them
+       without passing through a wall. */
+    const openTo = (a, b) => !wallBetween(state,
+      (a.x1 + a.x2) / 2, (a.y1 + a.y2) / 2, (b.x1 + b.x2) / 2, (b.y1 + b.y2) / 2);
+    state.rooms.forEach(r => {
+      if (winRooms.has(r.id)) return;
+      if (state.rooms.some(o => o.id !== r.id && winRooms.has(o.id) && openTo(r, o))) winRooms.add(r.id);
+    });
+
     state.rooms.forEach(r => {
       if (r.protected) return;
       if (/passage|foyer|entrance|lobby|shelter|bath|wc|store/i.test(r.name)) return;
@@ -592,8 +604,22 @@ MH.Advisor = (function () {
     };
   }
 
-  function stats(state) {
+  /* HDB prints internal floor area measured from the centre-line of the walls,
+     while the room rectangles here run to the printed structural grid. Half a
+     wall all the way round the outline is the difference, and it is the
+     difference between the 94.33 the rooms add up to and the 90 on the sheet.
+     Showing the bigger number as though it were the flat's area would be
+     flattering and wrong. */
+  function centreLineArea(state) {
     const gross = state.rooms.reduce((s, r) => s + MH.G.rectArea(r), 0);
+    const outer = state.walls.filter(w => !w.demolished && ['rc', 'parapet'].includes(w.type));
+    const perim = outer.reduce((s, w) => s + MH.G.wallLen(w), 0);
+    const t = outer.length ? outer.reduce((s, w) => s + MH.Store.thickness(w), 0) / outer.length : 200;
+    return Math.max(0, gross - perim * t / 2);
+  }
+
+  function stats(state) {
+    const gross = centreLineArea(state);
     const byRoom = state.rooms.map(r => ({
       id: r.id, name: r.name, num: r.num,
       w: Math.abs(r.x2 - r.x1), d: Math.abs(r.y2 - r.y1),
