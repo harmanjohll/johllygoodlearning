@@ -606,6 +606,8 @@ async function init() {
   await loadState();
   updateUI();
 
+  if (typeof renderVersionBanner === 'function') renderVersionBanner();
+
   // Visit streak tracking for achievements
   if (typeof checkVisitStreakAchievements === 'function') {
     checkVisitStreakAchievements();
