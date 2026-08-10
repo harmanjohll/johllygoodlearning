@@ -64,6 +64,15 @@ function showScreen(screenId) {
   if (screenId === 'practice' && typeof renderPracticeHub === 'function') {
     renderPracticeHub();
   }
+  if (screenId === 'play' && typeof renderPlayHub === 'function') {
+    renderPlayHub();
+  }
+  if (screenId === 'tricks' && typeof renderTricksHub === 'function') {
+    renderTricksHub();
+  }
+  if (screenId === 'trick-detail' && typeof renderTrickDetail === 'function') {
+    renderTrickDetail();
+  }
   if (screenId === 'drill-setup' && typeof renderDrillSetup === 'function') {
     renderDrillSetup();
   }
@@ -156,6 +165,16 @@ function openSkillView(skillId, worldType) {
   html += '<span class="skill-tab-icon">⚡</span>';
   html += '<span>Quiz</span>';
   html += '</button>';
+  // Tricks live next to the topic they help with, not in a separate
+  // corner of the app — that is the whole point of scaffolding.
+  var skillTricks = (typeof tricksForSkill === 'function') ? tricksForSkill(skillId) : [];
+  if (skillTricks.length > 0) {
+    html += '<button class="skill-tab" data-tab="tricks">';
+    html += '<span class="skill-tab-icon">🧠</span>';
+    html += '<span>Tricks</span>';
+    html += '<span class="skill-tab-count">' + skillTricks.length + '</span>';
+    html += '</button>';
+  }
   html += '</div>';
 
   // Tab content area
@@ -255,6 +274,25 @@ function openSkillView(skillId, worldType) {
       };
       var dsBtn = document.getElementById('drill-setup-btn');
       if (dsBtn) dsBtn.onclick = function() { openDrillSetup(skillId, worldType); };
+
+    } else if (tabName === 'tricks') {
+      var list = tricksForSkill(skillId);
+      var th = '<div class="skill-tricks-intro">Clever ways to do this faster. Tap one to see it work.</div>';
+      th += '<div class="tricks-grid">';
+      list.forEach(function(t) {
+        var st = getTrickState(t.id);
+        th += '<button class="trick-card' + (st.seen ? ' seen' : '') + '" onclick="openTrick(\'' + t.id + '\')">';
+        th += '<div class="trick-card-icon">' + t.icon + '</div>';
+        th += '<div class="trick-card-body">';
+        th += '<div class="trick-card-name">' + t.name +
+              (t.trachtenberg ? ' <span class="trick-tag">Trachtenberg</span>' : '') + '</div>';
+        th += '<div class="trick-card-line">' + t.oneLiner + '</div>';
+        th += '</div>';
+        th += '<div class="trick-card-tick">' + (st.seen ? '✓' : '›') + '</div>';
+        th += '</button>';
+      });
+      th += '</div>';
+      content.innerHTML = th;
     }
   }
 
@@ -431,15 +469,15 @@ function endGame() {
 
   let html = '';
   if (pct >= 80) {
-    html += '<div class="feedback-icon">\uD83C\uDFC6</div>';
+    html += '<div class="feedback-icon">🏆</div>';
     html += '<div class="feedback-title" style="color:var(--gold)">Amazing, Anastasia!</div>';
     playSound('levelup');
-    spawnParticles(window.innerWidth / 2, window.innerHeight / 3, 20, '\u2728');
+    spawnParticles(window.innerWidth / 2, window.innerHeight / 3, 20, '✨');
   } else if (pct >= 50) {
-    html += '<div class="feedback-icon">\uD83C\uDF1F</div>';
+    html += '<div class="feedback-icon">🌟</div>';
     html += '<div class="feedback-title" style="color:var(--mint)">Great effort!</div>';
   } else {
-    html += '<div class="feedback-icon">\uD83C\uDF31</div>';
+    html += '<div class="feedback-icon">🌱</div>';
     html += '<div class="feedback-title" style="color:var(--lavender)">Keep growing!</div>';
   }
 
@@ -457,7 +495,7 @@ function endGame() {
   if (pct === 100) {
     const bonus = 10;
     state.tokens += bonus;
-    html += '<div class="feedback-tokens">\uD83C\uDF1F Perfect bonus: +' + bonus + ' \u2B50</div>';
+    html += '<div class="feedback-tokens">🌟 Perfect bonus: +' + bonus + ' ⭐</div>';
   }
 
   // Speed drill result
@@ -567,6 +605,8 @@ function generateQuestion(skillId, worldType, config) {
 async function init() {
   await loadState();
   updateUI();
+
+  if (typeof renderVersionBanner === 'function') renderVersionBanner();
 
   // Visit streak tracking for achievements
   if (typeof checkVisitStreakAchievements === 'function') {

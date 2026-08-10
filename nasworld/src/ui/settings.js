@@ -60,6 +60,14 @@ function renderSettings() {
   html += '<label class="settings-toggle"><input type="checkbox" ' + (stashaMuted ? '' : 'checked') + ' onchange="settingsToggleStasha(this.checked)"> Stasha can talk</label>';
   html += '</div>';
 
+  // ---- Quiz pacing ----
+  html += '<div class="settings-card">';
+  html += '<div class="settings-card-title">⚡ Quiz pacing</div>';
+  var manual = state.preferences && state.preferences.manualAdvance;
+  html += '<p class="settings-help">By default the quiz moves on by itself after each answer, so Anastasia keeps her flow. Switch this on if she would rather tap Continue every time.</p>';
+  html += '<label class="settings-toggle"><input type="checkbox" ' + (manual ? 'checked' : '') + ' onchange="settingsToggleManualAdvance(this.checked)"> Wait for a tap after every question</label>';
+  html += '</div>';
+
   // ---- Data ----
   html += '<div class="settings-card">';
   html += '<div class="settings-card-title">💾 Progress</div>';
@@ -133,6 +141,12 @@ function settingsToggleSound(on) {
   state.preferences.soundOff = !on;
   saveState();
 }
+function settingsToggleManualAdvance(on) {
+  if (!state.preferences) state.preferences = {};
+  state.preferences.manualAdvance = !!on;
+  saveState();
+}
+
 function settingsToggleStasha(on) {
   if (!state.preferences) state.preferences = {};
   state.preferences.stashaMuted = !on;
@@ -156,4 +170,5 @@ window.settingsSetModel = settingsSetModel;
 window.settingsToggleKeyVisible = settingsToggleKeyVisible;
 window.settingsToggleSound = settingsToggleSound;
 window.settingsToggleStasha = settingsToggleStasha;
+window.settingsToggleManualAdvance = settingsToggleManualAdvance;
 window.settingsExport = settingsExport;

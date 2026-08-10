@@ -25,6 +25,7 @@ fi
 # Script files in dependency order (must match index.html)
 SCRIPTS=(
   "src/core/utils.js"
+  "src/core/version.js"
   "src/data/encouragements.js"
   "src/data/wotd.js"
   "src/core/state.js"
@@ -45,7 +46,16 @@ SCRIPTS=(
   "src/stem/stem-lessons.js"
   "src/math/math-gen.js"
   "src/math/word-problems.js"
+  "src/math/trachtenberg.js"
+  "src/math/tricks.js"
+  "src/math/tricks-render.js"
   "src/math/math-drill.js"
+  "src/play/play-hub.js"
+  "src/play/play-jigsaw.js"
+  "src/play/play-numpyramid.js"
+  "src/play/play-brain.js"
+  "src/play/play-words.js"
+  "src/play/play-more.js"
   "src/math/math-render.js"
   "src/word/word-gen.js"
   "src/word/word-render.js"
@@ -123,8 +133,15 @@ AFTER_SCRIPTS=$(sed -n '/^<script src=.*<\/script>$/{ n; }; /^<script src=/!{ /^
 
 # Simpler approach: use awk to split the file
 {
-  # Part 1: Everything before the first <script src= line
-  awk '/<script src=/{exit} {print}' "$INPUT"
+  # Part 1: Everything before the first <script src= line, but with the
+  # <link rel="stylesheet"> tags replaced by the stylesheets inlined, so
+  # the bundle stays a genuinely single self-contained file offline.
+  awk '/<script src=/{exit} {print}' "$INPUT" | grep -v '<link rel="stylesheet" href="styles/'
+  echo '<style>'
+  for css in styles/app-1.css styles/app-2.css styles/app-3.css styles/app-4.css styles/app-5.css; do
+    cat "$SRCDIR/$css"
+  done
+  echo '</style>'
 
   # Part 2: All JS concatenated into one script block
   echo '<script>'
@@ -162,6 +179,48 @@ if [ -n "$MISSING" ]; then
   echo -e "$MISSING"
   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   echo ""
+fi
+
+# --- Version staleness guard -------------------------------------------
+# The home-screen banner read "v2.1 - Garden Island + Sims + Surprises!"
+# for three and a half months and sixty-four commits, across which the
+# whole Play module, the maths drill and tricks layer, the Trachtenberg
+# rules, the adaptive difficulty ladders and the inline-feedback change
+# all shipped. Nothing pointed at that string, so nothing ever reminded
+# anyone it had gone stale. This points at it.
+VERSION_FILE="src/core/version.js"
+
+# First, that the banner is still wired up at all. A blank banner is a
+# worse regression than a stale one, and hard-coding the string back into
+# index.html would silently recreate the original problem.
+VERR=""
+grep -q 'id="version-banner"' "$INPUT" || VERR="$VERR\n    index.html has no element with id=\"version-banner\""
+grep -qE 'Nasworld v[0-9]' "$INPUT" && VERR="$VERR\n    index.html hard-codes a version string; it must come from $VERSION_FILE"
+grep -q 'renderVersionBanner' "$SRCDIR/src/ui/navigation.js" || VERR="$VERR\n    init() never calls renderVersionBanner(), so the banner will be blank"
+if [ -n "$VERR" ]; then
+  echo ""
+  echo "!!  VERSION BANNER IS BROKEN:"
+  echo -e "$VERR"
+  echo ""
+fi
+
+if command -v git >/dev/null 2>&1 && git -C "$SRCDIR" rev-parse --git-dir >/dev/null 2>&1; then
+  VER_COMMIT=$(git -C "$SRCDIR" log -1 --format=%H -- "$VERSION_FILE" 2>/dev/null)
+  if [ -n "$VER_COMMIT" ]; then
+    BEHIND=$(git -C "$SRCDIR" rev-list --count "$VER_COMMIT"..HEAD -- src index.html 2>/dev/null || echo 0)
+    CURVER=$(grep -oE "number: '[^']+'" "$SRCDIR/$VERSION_FILE" | head -1 | sed "s/number: '//;s/'//")
+    if [ -n "$BEHIND" ] && [ "$BEHIND" -gt 20 ]; then
+      echo ""
+      echo "------------------------------------------------------------"
+      echo "  Version may be stale. Still showing v$CURVER, but $BEHIND commits"
+      echo "  have touched src/ or index.html since it was last bumped."
+      echo ""
+      echo "  If this is a release worth naming, edit $VERSION_FILE"
+      echo "  and add the matching entry to CHANGELOG.md."
+      echo "------------------------------------------------------------"
+      echo ""
+    fi
+  fi
 fi
 
 # Count lines

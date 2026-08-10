@@ -7,7 +7,7 @@ function spawnParticles(x, y, count, emoji) {
   for (let i = 0; i < count; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
-    p.textContent = emoji || '\u2B50';
+    p.textContent = emoji || '⭐';
     p.style.left = (x + (Math.random() - 0.5) * 60) + 'px';
     p.style.top = (y + (Math.random() - 0.5) * 30) + 'px';
     p.style.fontSize = (16 + Math.random() * 16) + 'px';
@@ -100,7 +100,7 @@ function handleCorrect(isStory) {
     questRecordSkillPlayed(currentGame.skillId);
   }
 
-  spawnParticles(window.innerWidth / 2, window.innerHeight / 3, 8, '\u2B50');
+  spawnParticles(window.innerWidth / 2, window.innerHeight / 3, 8, '⭐');
 
   const showMeta = Math.random() < 0.3;
   showFeedback(true, tokens, isStory, showMeta);
@@ -133,7 +133,7 @@ function handleWrong(correct) {
   if (typeof applyStreakShield === 'function' && applyStreakShield()) {
     // Shield used — streak preserved!
     if (typeof lumiSay === 'function') lumiSay('Streak shield activated! Your streak is safe!');
-    if (typeof spawnParticles === 'function') spawnParticles(window.innerWidth / 2, window.innerHeight / 3, 5, '\uD83D\uDEE1\uFE0F');
+    if (typeof spawnParticles === 'function') spawnParticles(window.innerWidth / 2, window.innerHeight / 3, 5, '🛡️');
   } else {
     state.streak = 0;
   }
@@ -168,34 +168,117 @@ function handleWrong(correct) {
 }
 
 // === FEEDBACK OVERLAY ===
+// ============================================================
+//  PER-QUESTION FEEDBACK
+//
+//  This used to throw a full-screen overlay after EVERY answer, with
+//  a "Continue" button to dismiss. On a twenty-question drill that is
+//  twenty interruptions, and it destroys any sense of flow - the
+//  child spends as long dismissing dialogs as answering.
+//
+//  Now: a slim bar under the question, and the quiz moves on by
+//  itself. Correct answers barely pause. Wrong answers pause longer,
+//  because she genuinely needs a moment to read what the answer was,
+//  and can tap to move on sooner.
+//
+//  The big overlay is kept for the end of a session, which is a real
+//  stopping point rather than an interruption.
+// ============================================================
+
+var FEEDBACK_PACE = { correctMs: 700, wrongMs: 2600 };
+
 function showFeedback(correct, tokens, isStory, showMeta, correctAnswer) {
+  // Respect an explicit preference for the old tap-to-continue style.
+  var manual = state.preferences && state.preferences.manualAdvance;
+  if (!manual) {
+    showInlineFeedback(correct, tokens, correctAnswer, isStory);
+    return;
+  }
+  showOverlayFeedback(correct, tokens, isStory, showMeta, correctAnswer);
+}
+
+/** Slim inline bar + automatic advance. The default. */
+function showInlineFeedback(correct, tokens, correctAnswer, isStory) {
+  var card = document.getElementById('question-card');
+  if (!card) { nextQuestion(); return; }
+
+  // Guard against advancing twice (timer firing after a manual tap).
+  if (currentGame) currentGame._advancing = true;
+
+  var old = document.getElementById('inline-fb');
+  if (old) old.remove();
+
+  var bar = document.createElement('div');
+  bar.id = 'inline-fb';
+  bar.className = 'inline-fb ' + (correct ? 'good' : 'oops');
+
+  var html = '';
+  if (correct) {
+    html += '<span class="ifb-icon">✓</span>';
+    html += '<span class="ifb-text">' + pick(ENCOURAGEMENTS) + '</span>';
+    html += '<span class="ifb-stars">+' + tokens + ' ⭐</span>';
+    if (state.streak >= 3) html += '<span class="ifb-streak">🔥 ' + state.streak + '</span>';
+  } else {
+    html += '<span class="ifb-icon">→</span>';
+    html += '<span class="ifb-text">The answer was <b>' + correctAnswer + '</b></span>';
+    html += '<span class="ifb-skip">tap to carry on</span>';
+  }
+  bar.innerHTML = html;
+  card.appendChild(bar);
+
+  if (isStory && typeof lumiSay === 'function') {
+    lumiSay('Beautiful story, Anastasia. Your imagination is something else.');
+  }
+
+  var delay = correct ? FEEDBACK_PACE.correctMs : FEEDBACK_PACE.wrongMs;
+  var advanced = false;
+  function go() {
+    if (advanced) return;
+    advanced = true;
+    clearTimeout(t);
+    document.removeEventListener('pointerdown', onTap, true);
+    var b = document.getElementById('inline-fb');
+    if (b) b.remove();
+    if (currentGame) currentGame._advancing = false;
+    nextQuestion();
+  }
+  // A wrong answer waits for her; tapping anywhere moves on early.
+  function onTap() { if (!correct) go(); }
+  var t = setTimeout(go, delay);
+  if (!correct) {
+    setTimeout(function () { document.addEventListener('pointerdown', onTap, true); }, 350);
+  }
+}
+
+/** The original full-screen version, kept behind a preference. */
+function showOverlayFeedback(correct, tokens, isStory, showMeta, correctAnswer) {
   const overlay = document.getElementById('feedback-overlay');
   const card = document.getElementById('feedback-card');
 
   let html = '';
   if (correct) {
-    html += '<div class="feedback-icon">\uD83C\uDF89</div>';
+    html += '<div class="feedback-icon">🎉</div>';
     html += '<div class="feedback-title" style="color:var(--success)">' + pick(ENCOURAGEMENTS) + '</div>';
     if (isStory) {
       html += '<div class="feedback-message">Beautiful story, Anastasia! Your imagination is incredible!</div>';
     }
-    html += '<div class="feedback-tokens">+' + tokens + ' \u2B50</div>';
+    html += '<div class="feedback-tokens">+' + tokens + ' ⭐</div>';
     if (state.streak >= 3) {
-      html += '<div class="feedback-message" style="color:var(--coral)">\uD83D\uDD25 ' + state.streak + ' in a row!</div>';
+      html += '<div class="feedback-message" style="color:var(--coral)">🔥 ' + state.streak + ' in a row!</div>';
     }
     if (showMeta) {
-      html += '<div class="feedback-reflect">\uD83E\uDD14 ' + pick(METACOGNITIVE_PROMPTS) + '</div>';
+      html += '<div class="feedback-reflect">🤔 ' + pick(METACOGNITIVE_PROMPTS) + '</div>';
     }
   } else {
-    html += '<div class="feedback-icon">\uD83E\uDD14</div>';
+    html += '<div class="feedback-icon">🤔</div>';
     html += '<div class="feedback-title" style="color:var(--warning)">' + pick(TRY_AGAINS) + '</div>';
     if (correctAnswer !== undefined) {
       html += '<div class="feedback-message">The answer was: <strong style="color:var(--gold);font-size:20px">' + correctAnswer + '</strong></div>';
     }
-    html += '<div class="feedback-message" style="font-size:14px">Mistakes are how your brain grows stronger! \uD83D\uDCAA</div>';
+    html += '<div class="feedback-message" style="font-size:14px">Mistakes are how your brain grows stronger! 💪</div>';
   }
 
-  html += '<button class="feedback-btn" onclick="nextQuestion()">Continue \u2192</button>';
+  html += '<button class="feedback-btn" onclick="nextQuestion()">Continue →</button>';
   card.innerHTML = html;
   overlay.classList.remove('hidden');
 }
@@ -210,7 +293,7 @@ function closeFeedback(e) {
 function renderHintBtn(hintText) {
   // The hint used to be interpolated into an onclick="" attribute with
   // only single quotes escaped. Any hint containing a double quote broke
-  // the button and could inject markup \u2014 a real risk now that hints can
+  // the button and could inject markup — a real risk now that hints can
   // come from an AI model. Carry it in a data attribute instead, HTML
   // escaped, and read it back with dataset.
   if (!hintText) return '';
@@ -221,7 +304,7 @@ function renderHintBtn(hintText) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
   return '<div class="mt-2"><button class="hint-btn" data-hint="' + esc +
-         '" onclick="showHint(this)">\uD83D\uDCA1 Need a hint?</button></div>';
+         '" onclick="showHint(this)">💡 Need a hint?</button></div>';
 }
 
 function showHint(btn, text) {
@@ -232,7 +315,7 @@ function showHint(btn, text) {
   const hint = (btn && btn.dataset && btn.dataset.hint) || text || '';
   const hintDiv = document.createElement('div');
   hintDiv.className = 'hint-text';
-  hintDiv.textContent = '\uD83D\uDCA1 ' + hint;   // textContent, so never parsed as HTML
+  hintDiv.textContent = '💡 ' + hint;   // textContent, so never parsed as HTML
   btn.parentElement.replaceWith(hintDiv);
   playSound('click');
 }

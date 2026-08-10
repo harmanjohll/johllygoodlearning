@@ -28,37 +28,98 @@ function generateMathQuestion(skillId, config) {
     case 'cmp':   return genCmp(diff);
     case 'pat':   return genPat(diff);
     case 'wp1':   return genWP1(diff, config);
-    case 'shp':   return genShp(diff);
+    case 'shp':   return genShp(diff, config);
     // P2
     case 'add100':  return genAdd100(diff, config);
     case 'sub100':  return genSub100(diff, config);
     case 'mul':     return genMul(diff, config);
     case 'div':     return genDiv(diff, config);
-    case 'frac1':   return genFrac1(diff);
+    case 'frac1':   return genFrac1(diff, config);
     case 'money':   return genMoney(diff, config);
     case 'time1':   return genTime1(diff, config);
-    case 'pgraph':  return genPGraph(diff);
-    case 'lenmass': return genLenMass(diff);
+    case 'pgraph':  return genPGraph(diff, config);
+    case 'lenmass': return genLenMass(diff, config);
     // P3
-    case 'add10k':  return genAdd10k(diff);
-    case 'sub10k':  return genSub10k(diff);
-    case 'advmul':  return genAdvMul(diff);
-    case 'divrem':  return genDivRem(diff);
-    case 'fracadd': return genFracAdd(diff);
-    case 'area':    return genArea(diff);
-    case 'angle':   return genAngle(diff);
-    case 'bargraph':return genBarGraph(diff);
+    case 'add10k':  return genAdd10k(diff, config);
+    case 'sub10k':  return genSub10k(diff, config);
+    case 'advmul':  return genAdvMul(diff, config);
+    case 'divrem':  return genDivRem(diff, config);
+    case 'fracadd': return genFracAdd(diff, config);
+    case 'area':    return genArea(diff, config);
+    case 'angle':   return genAngle(diff, config);
+    case 'bargraph':return genBarGraph(diff, config);
     // P4
-    case 'bignum':  return genBigNum(diff);
-    case 'multiop': return genMultiOp(diff);
-    case 'factor':  return genFactor(diff);
-    case 'mixfrac': return genMixFrac(diff);
-    case 'decimal': return genDecimal(diff);
-    case 'symm':    return genSymm(diff);
-    case 'dataan':  return genDataAn(diff);
-    case 'multiwp': return genMultiWP(diff);
-    default: return genCount(diff);
+    case 'bignum':  return genBigNum(diff, config);
+    case 'multiop': return genMultiOp(diff, config);
+    case 'factor':  return genFactor(diff, config);
+    case 'mixfrac': return genMixFrac(diff, config);
+    case 'decimal': return genDecimal(diff, config);
+    case 'symm':    return genSymm(diff, config);
+    case 'dataan':  return genDataAn(diff, config);
+    case 'multiwp': return genMultiWP(diff, config);
+    default: return genCount(diff, config);
   }
+}
+
+// ===================== DIFFICULTY LADDERS =====================
+//
+// getSkillDifficulty() hands every skill the same generic numberRange:
+// [1,10] at level 0 rising to [1,100] at level 4. That is tuned for P1
+// addition and says nothing useful about five-digit place value, decimal
+// tenths, or lines of symmetry. So twenty of the generators below used
+// to ignore `diff` altogether, which meant the adaptive engine was a
+// silent no-op for them: a child struggling at level 0 got exactly the
+// same spread of questions as one flying at level 4.
+//
+// The fix is a per-generator ladder. Each generator declares its own
+// five rungs in its own units, and picks one with tier().
+
+/**
+ * Pick this learner's rung from a per-generator difficulty ladder.
+ * Ladders shorter than five rungs stretch evenly, so a three-rung ladder
+ * maps levels 0..4 onto rungs 0, 0, 1, 1, 2.
+ */
+function tier(diff, ladder) {
+  var lvl = (diff && typeof diff.level === 'number') ? diff.level : 0;
+  if (!(lvl >= 0)) lvl = 0;          // also catches NaN
+  if (lvl > 4) lvl = 4;
+  return ladder[Math.floor(lvl * ladder.length / 5)];
+}
+
+/**
+ * True if column addition of a and b needs at least one carry.
+ * Only direct column sums are tested, which is sound in both directions:
+ * if no column reaches ten on its own then no carry can propagate in.
+ */
+function _hasCarry(a, b) {
+  while (a > 0 && b > 0) {
+    if ((a % 10) + (b % 10) >= 10) return true;
+    a = Math.floor(a / 10);
+    b = Math.floor(b / 10);
+  }
+  return false;
+}
+
+/** True if column subtraction a - b needs at least one borrow. */
+function _hasBorrow(a, b) {
+  while (b > 0) {
+    if ((a % 10) < (b % 10)) return true;
+    a = Math.floor(a / 10);
+    b = Math.floor(b / 10);
+  }
+  return false;
+}
+
+/**
+ * n different values drawn from lo..hi.
+ * Graph questions need this: "which has the most?" has no single right
+ * answer if two bars tie, and a tied top bar used to mark a perfectly
+ * good answer wrong in a third of picture-graph draws.
+ */
+function _distinctValues(n, lo, hi) {
+  var pool = [];
+  for (var v = lo; v <= hi; v++) pool.push(v);
+  return shuffle(pool).slice(0, n);
 }
 
 // ===================== P1 GENERATORS =====================
@@ -230,19 +291,34 @@ function genWP1(diff) {
     hint: 'Is it asking you to put together or take away?', isConcrete: diff.isConcrete };
 }
 
-function genShp(diff) {
-  if (Math.random() < 0.5) {
-    var shape = pick(SHAPE_DATA);
+function genShp(diff, config) {
+  // Circle, square and triangle first. Pentagon and hexagon are the two
+  // P1 children reliably confuse, so they only join once the easy three
+  // are secure. Naming a shape is recognition; counting its sides from
+  // memory is recall, so the side-count question weights in later.
+  var pool = tier(diff, [
+    ['circle', 'square', 'triangle'],
+    ['circle', 'square', 'triangle', 'rectangle'],
+    ['circle', 'square', 'triangle', 'rectangle', 'pentagon'],
+    null,
+    null
+  ]);
+  var data = pool
+    ? SHAPE_DATA.filter(function(s) { return pool.indexOf(s.name) >= 0; })
+    : SHAPE_DATA;
+  var sidesChance = tier(diff, [0, 0.25, 0.4, 0.5, 0.65]);
+
+  if (Math.random() >= sidesChance) {
+    var shape = pick(data);
     var wrong = shuffle(SHAPE_DATA.filter(function(s) { return s.name !== shape.name; })).slice(0, 3);
     // answer is carried explicitly as well as inside `shape`, so any
     // generic consumer (review screen, spaced repetition, stats) can
     // read q.answer without special-casing this question type.
-    return { type: 'shape-identify', shape, answer: shape.name,
-      options: shuffle([shape, ...wrong]), hint: 'Count the sides and corners!' };
-  } else {
-    var sh = pick(SHAPE_DATA);
-    return { type: 'shape-properties', shape: sh, answer: sh.sides, hint: 'Trace around the shape and count each side.' };
+    return { type: 'shape-identify', shape: shape, answer: shape.name,
+      options: shuffle([shape].concat(wrong)), hint: 'Count the sides and corners!' };
   }
+  var sh = pick(data);
+  return { type: 'shape-properties', shape: sh, answer: sh.sides, hint: 'Trace around the shape and count each side.' };
 }
 
 // ===================== P2 GENERATORS =====================
@@ -385,30 +461,60 @@ function genDiv(diff, config) {
   };
 }
 
-function genFrac1(diff) {
-  var denoms = [2, 3, 4, 6, 8];
+function genFrac1(diff, config) {
+  // Halves and quarters are the P2 entry point. Thirds and sixths need a
+  // child to accept that a bigger denominator means a smaller piece,
+  // which is the classic misconception, so they arrive later.
+  var denoms = tier(diff, [
+    [2, 4],
+    [2, 3, 4],
+    [2, 3, 4, 6],
+    [2, 3, 4, 6, 8],
+    [2, 3, 4, 5, 6, 8]
+  ]);
   var denom = pick(denoms);
   var numer = rand(1, denom - 1);
-  if (Math.random() < 0.5) {
+  // Reading a shaded diagram is easier than producing one, so shading
+  // only starts once she is past the concrete stage.
+  var shadeChance = tier(diff, [0, 0.35, 0.5, 0.5, 0.6]);
+  if (Math.random() >= shadeChance) {
     return { type: 'fraction-identify', numerator: numer, denominator: denom, answer: numer + '/' + denom,
       hint: 'Count how many parts are shaded out of the total.' };
-  } else {
-    return { type: 'fraction-shade', numerator: numer, denominator: denom, answer: numer,
-      hint: 'Shade ' + numer + ' out of ' + denom + ' parts.' };
   }
+  return { type: 'fraction-shade', numerator: numer, denominator: denom, answer: numer,
+    hint: 'Shade ' + numer + ' out of ' + denom + ' parts.' };
 }
 
 function genMoney(diff, config) {
   var flag = config && config.flag;
+  // Round ten-cent prices first, because they can be counted in tens.
+  // Five-cent prices come next, and only at the top does she meet prices
+  // like 87 cents, where the change has to be worked out digit by digit.
+  // Giving change is the harder of the two operations, so a beginner
+  // only adds unless she has explicitly chosen to drill change.
+  // Prices stay under a dollar throughout: this renderer prints cents,
+  // and "390 cents" is not how a P2 child writes three dollars ninety.
+  // The top rung gets its difficulty from prices no longer being round,
+  // not from being large.
+  var t = tier(diff, [
+    { step: 10, lo: 1,  hi: 4,  changeOK: false },
+    { step: 10, lo: 1,  hi: 8,  changeOK: true  },
+    { step: 5,  lo: 2,  hi: 16, changeOK: true  },
+    { step: 5,  lo: 4,  hi: 19, changeOK: true  },
+    { step: 1,  lo: 25, hi: 99, changeOK: true  }
+  ]);
+  var price = function () { return rand(t.lo, t.hi) * t.step; };
   var items = [
-    { name: 'pencil', price: rand(1, 5) * 10 },
-    { name: 'eraser', price: rand(1, 3) * 10 },
-    { name: 'notebook', price: rand(1, 8) * 10 + rand(0, 1) * 5 },
-    { name: 'ruler', price: rand(2, 6) * 10 },
-    { name: 'sticker', price: rand(1, 4) * 10 + rand(0, 1) * 5 }
+    { name: 'pencil',   price: price() },
+    { name: 'eraser',   price: price() },
+    { name: 'notebook', price: price() },
+    { name: 'ruler',    price: price() },
+    { name: 'sticker',  price: price() }
   ];
   var item = pick(items);
-  var wantAdd = flag === 'add' ? true : (flag === 'change' ? false : Math.random() < 0.5);
+  var wantAdd = flag === 'add' ? true
+    : (flag === 'change' ? false
+      : (!t.changeOK ? true : Math.random() < 0.5));
   if (wantAdd) {
     var item2 = pick(items.filter(function(i) { return i.name !== item.name; }));
     var total = item.price + item2.price;
@@ -477,51 +583,103 @@ function timeInWords(hour, minutes) {
   return (60 - minutes) + ' minutes to ' + (hour === 12 ? 1 : hour + 1);
 }
 
-function genPGraph(diff) {
-  var categories = shuffle(['Apples', 'Bananas', 'Oranges', 'Grapes', 'Strawberries']).slice(0, 4);
-  var values = categories.map(function() { return rand(1, 10); });
-  var qType = pick(['most', 'least', 'total', 'howmany']);
+function genPGraph(diff, config) {
+  // Reading one bar is easier than comparing bars, which is easier than
+  // summing them all, so the question types ladder up alongside the size
+  // of the numbers. Note the renderer only understands most, least,
+  // total and howmany_N; anything else prints "How many undefined?".
+  var t = tier(diff, [
+    { cats: 3, max: 6,  types: ['howmany', 'most'] },
+    { cats: 3, max: 8,  types: ['howmany', 'most', 'least'] },
+    { cats: 4, max: 10, types: ['howmany', 'most', 'least', 'total'] },
+    { cats: 4, max: 12, types: ['most', 'least', 'total'] },
+    { cats: 5, max: 15, types: ['least', 'total', 'howmany'] }
+  ]);
+  var categories = shuffle(['Apples', 'Bananas', 'Oranges', 'Grapes', 'Strawberries']).slice(0, t.cats);
+  // Distinct values throughout, so "which has the most?" always has
+  // exactly one right answer.
+  var values = _distinctValues(t.cats, 1, t.max);
+  var qType = pick(t.types);
   var answer;
-  if (qType === 'most') answer = categories[values.indexOf(Math.max(...values))];
-  else if (qType === 'least') answer = categories[values.indexOf(Math.min(...values))];
-  else if (qType === 'total') answer = values.reduce(function(a,b) { return a + b; }, 0);
+  if (qType === 'most') answer = categories[values.indexOf(Math.max.apply(null, values))];
+  else if (qType === 'least') answer = categories[values.indexOf(Math.min.apply(null, values))];
+  else if (qType === 'total') answer = values.reduce(function(a, b) { return a + b; }, 0);
   else { var idx = rand(0, categories.length - 1); answer = values[idx]; qType = 'howmany_' + idx; }
-  return { type: 'picture-graph', categories, values, qType, answer,
+  return { type: 'picture-graph', categories: categories, values: values, qType: qType, answer: answer,
     hint: 'Look at the graph carefully. Count the pictures.' };
 }
 
-function genLenMass(diff) {
-  var items = [
-    { name: 'pencil', length: rand(10, 20) },
-    { name: 'book', length: rand(20, 35) },
-    { name: 'ruler', length: 30 },
-    { name: 'eraser', length: rand(3, 8) }
-  ];
-  var a = pick(items);
-  var b = pick(items.filter(function(i) { return i.name !== a.name; }));
-  if (Math.random() < 0.5) {
+function genLenMass(diff, config) {
+  // Comparing two lengths is a judgement; finding the difference is a
+  // subtraction, so it weights in later. The gap between the two items
+  // also narrows as she improves, because 30cm against 4cm is obvious
+  // and 30cm against 27cm is not.
+  var t = tier(diff, [
+    { scale: 1,   diffChance: 0,    minGap: 8 },
+    { scale: 1,   diffChance: 0.3,  minGap: 6 },
+    { scale: 1,   diffChance: 0.5,  minGap: 4 },
+    { scale: 2,   diffChance: 0.6,  minGap: 3 },
+    { scale: 3,   diffChance: 0.7,  minGap: 2 }
+  ]);
+  var items, a, b, guard = 0;
+  do {
+    items = [
+      { name: 'pencil', length: rand(10, 20) * t.scale },
+      { name: 'book',   length: rand(20, 35) * t.scale },
+      { name: 'ruler',  length: 30 * t.scale },
+      { name: 'eraser', length: rand(3, 8) * t.scale }
+    ];
+    a = pick(items);
+    b = pick(items.filter(function(i) { return i.name !== a.name; }));
+  } while (Math.abs(a.length - b.length) < t.minGap && guard++ < 60);
+  // A tie would make "which is longer?" unanswerable, so never ship one
+  // even if the loop above ran out of attempts.
+  if (a.length === b.length) b = { name: b.name, length: b.length + t.minGap };
+
+  if (Math.random() >= t.diffChance) {
     return { type: 'length-compare', itemA: a, itemB: b, answer: a.length > b.length ? a.name : b.name,
       hint: 'Which item is longer?' };
-  } else {
-    var diff2 = Math.abs(a.length - b.length);
-    return { type: 'length-difference', itemA: a, itemB: b, answer: diff2,
-      hint: 'What is the difference in length?' };
   }
+  return { type: 'length-difference', itemA: a, itemB: b, answer: Math.abs(a.length - b.length),
+    hint: 'What is the difference in length?' };
 }
 
 // ===================== P3 GENERATORS =====================
 
-function genAdd10k(diff) {
-  var a = rand(100, 5000);
-  var b = rand(100, 5000);
-  return { type: 'column-add', a, b, answer: a + b,
+function genAdd10k(diff, config) {
+  // MOE P3 works to 10 000. The step that actually trips children is
+  // regrouping, so the ladder walks digit count first and only then
+  // starts insisting on carries.
+  var t = tier(diff, [
+    { lo: 10,   hi: 99,   carry: false },
+    { lo: 100,  hi: 999,  carry: false },
+    { lo: 100,  hi: 999,  carry: true  },
+    { lo: 1000, hi: 4999, carry: true  },
+    { lo: 1000, hi: 9999, carry: true  }
+  ]);
+  var a, b, guard = 0;
+  do {
+    a = rand(t.lo, t.hi);
+    b = rand(t.lo, t.hi);
+  } while (_hasCarry(a, b) !== t.carry && guard++ < 80);
+  return { type: 'column-add', a: a, b: b, answer: a + b,
     hint: 'Line up the digits. Add ones first, then tens, then hundreds.' };
 }
 
-function genSub10k(diff) {
-  var a = rand(500, 9999);
-  var b = rand(100, a - 1);
-  return { type: 'column-sub', a, b, answer: a - b,
+function genSub10k(diff, config) {
+  var t = tier(diff, [
+    { lo: 20,   hi: 99,   borrow: false },
+    { lo: 100,  hi: 999,  borrow: false },
+    { lo: 100,  hi: 999,  borrow: true  },
+    { lo: 1000, hi: 4999, borrow: true  },
+    { lo: 1000, hi: 9999, borrow: true  }
+  ]);
+  var a, b, guard = 0;
+  do {
+    a = rand(t.lo + 1, t.hi);
+    b = rand(t.lo, a - 1);
+  } while (_hasBorrow(a, b) !== t.borrow && guard++ < 80);
+  return { type: 'column-sub', a: a, b: b, answer: a - b,
     hint: 'Line up the digits. Subtract ones first. Remember to regroup if needed.' };
 }
 
@@ -538,112 +696,187 @@ function genAdvMul(diff) {
     hint: table + ' x ' + n + ' = ?' };
 }
 
-function genDivRem(diff) {
-  var divisor = pick([2, 3, 4, 5, 6, 7]);
-  var quotient = rand(2, 12);
+function genDivRem(diff, config) {
+  var t = tier(diff, [
+    { divisors: [2, 3],                qLo: 2, qHi: 5  },
+    { divisors: [2, 3, 4, 5],          qLo: 2, qHi: 8  },
+    { divisors: [2, 3, 4, 5, 6],       qLo: 3, qHi: 12 },
+    { divisors: [3, 4, 5, 6, 7, 8],    qLo: 4, qHi: 15 },
+    { divisors: [4, 5, 6, 7, 8, 9],    qLo: 6, qHi: 20 }
+  ]);
+  var divisor = pick(t.divisors);
+  var quotient = rand(t.qLo, t.qHi);
   var remainder = rand(1, divisor - 1);
   var dividend = divisor * quotient + remainder;
-  return { type: 'division-remainder', dividend, divisor, quotient, remainder, answer: quotient + ' R ' + remainder,
+  return { type: 'division-remainder', dividend: dividend, divisor: divisor,
+    quotient: quotient, remainder: remainder, answer: quotient + ' R ' + remainder,
     hint: 'Divide ' + dividend + ' by ' + divisor + '. What\'s left over?' };
 }
 
-function genFracAdd(diff) {
-  var denom = pick([2, 3, 4, 5, 6, 8]);
-  var a = rand(1, denom - 1);
-  var b = rand(1, denom - a);
-  var isAdd = Math.random() < 0.6;
-  if (!isAdd) {
-    // Ensure a > b so answer is at least 1/denom (never zero)
-    if (a <= b) { var tmp = a; a = b; b = tmp; }
-    if (a === b) { isAdd = true; } // fallback to addition if equal
+function genFracAdd(diff, config) {
+  // Same-denominator work only, which is the P3 boundary. Halves are
+  // excluded because 1/2 + 1/2 is the one sum this renderer would have
+  // to write as 2/2, and no child says it that way.
+  var t = tier(diff, [
+    { denoms: [3, 4],              subChance: 0    },
+    { denoms: [3, 4, 5],           subChance: 0.3  },
+    { denoms: [3, 4, 5, 6],        subChance: 0.4  },
+    { denoms: [4, 5, 6, 8],        subChance: 0.5  },
+    { denoms: [5, 6, 8, 10, 12],   subChance: 0.5  }
+  ]);
+  var denom = pick(t.denoms);
+  var isAdd = Math.random() >= t.subChance;
+  var a, b;
+  if (isAdd) {
+    // Keep the sum a proper fraction, so the answer is never a whole.
+    a = rand(1, denom - 2);
+    b = rand(1, denom - 1 - a);
+  } else {
+    // a > b guarantees a positive answer of at least 1/denom.
+    a = rand(2, denom - 1);
+    b = rand(1, a - 1);
   }
   var answer = isAdd ? a + b : a - b;
-  return { type: 'fraction-operation', a, b, denom, op: isAdd ? '+' : '-', answer: answer + '/' + denom,
-    answerNum: answer, hint: 'The denominators are the same, so just ' + (isAdd ? 'add' : 'subtract') + ' the numerators.' };
+  return { type: 'fraction-operation', a: a, b: b, denom: denom, op: isAdd ? '+' : '-',
+    answer: answer + '/' + denom, answerNum: answer,
+    hint: 'The denominators are the same, so just ' + (isAdd ? 'add' : 'subtract') + ' the numerators.' };
 }
 
-function genArea(diff) {
-  var w = rand(2, 6);
-  var h = rand(2, 5);
-  if (Math.random() < 0.5) {
+function genArea(diff, config) {
+  // Both question types draw a grid, so the rectangle has to stay small
+  // enough to count. Perimeter is the harder of the two (children reach
+  // for length x width out of habit), so it weights in later.
+  var t = tier(diff, [
+    { wLo: 2, wHi: 4,  hLo: 2, hHi: 3, perimChance: 0.2 },
+    { wLo: 2, wHi: 6,  hLo: 2, hHi: 5, perimChance: 0.35 },
+    { wLo: 3, wHi: 8,  hLo: 2, hHi: 6, perimChance: 0.5 },
+    { wLo: 4, wHi: 10, hLo: 3, hHi: 7, perimChance: 0.55 },
+    { wLo: 5, wHi: 12, hLo: 4, hHi: 8, perimChance: 0.6 }
+  ]);
+  var w = rand(t.wLo, t.wHi);
+  var h = rand(t.hLo, t.hHi);
+  if (Math.random() >= t.perimChance) {
     return { type: 'area-count', width: w, height: h, answer: w * h,
       hint: 'Count all the squares inside the shape. Or use length x width.' };
-  } else {
-    return { type: 'perimeter-count', width: w, height: h, answer: 2 * (w + h),
-      hint: 'Add up all the sides. Or use 2 x (length + width).' };
   }
+  return { type: 'perimeter-count', width: w, height: h, answer: 2 * (w + h),
+    hint: 'Add up all the sides. Or use 2 x (length + width).' };
 }
 
-function genAngle(diff) {
+function genAngle(diff, config) {
+  // Near-90 angles are the whole difficulty of this skill: 85 and 95
+  // look identical at a glance. Early on, keep them well clear of the
+  // corner so the judgement is honest rather than a coin flip.
+  var t = tier(diff, [
+    { acute: [20, 60], obtuse: [120, 170] },
+    { acute: [20, 70], obtuse: [110, 170] },
+    { acute: [25, 80], obtuse: [100, 165] },
+    { acute: [40, 85], obtuse: [95, 150] },
+    { acute: [60, 88], obtuse: [92, 130] }
+  ]);
   var angles = [
-    { type: 'right', degrees: 90, desc: 'exactly 90 degrees' },
-    { type: 'acute', degrees: rand(20, 80), desc: 'less than 90 degrees' },
-    { type: 'obtuse', degrees: rand(100, 170), desc: 'more than 90 degrees' }
+    { type: 'right',  degrees: 90, desc: 'exactly 90 degrees' },
+    { type: 'acute',  degrees: rand(t.acute[0], t.acute[1]),   desc: 'less than 90 degrees' },
+    { type: 'obtuse', degrees: rand(t.obtuse[0], t.obtuse[1]), desc: 'more than 90 degrees' }
   ];
   var angle = pick(angles);
-  return { type: 'angle-identify', angle, answer: angle.type,
+  return { type: 'angle-identify', angle: angle, answer: angle.type,
     options: shuffle(['right', 'acute', 'obtuse']),
     hint: 'A right angle is exactly 90 degrees. Acute is smaller, obtuse is larger.' };
 }
 
-function genBarGraph(diff) {
-  var categories = shuffle(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']).slice(0, 4);
-  var values = categories.map(function() { return rand(2, 15); });
-  var maxVal = Math.max(...values);
-  var minVal = Math.min(...values);
-  var maxDay = categories[values.indexOf(maxVal)];
-  var total = values.reduce(function(a,b) { return a + b; }, 0);
-  var qType = pick(['most', 'total', 'howmany']);
+function genBarGraph(diff, config) {
+  var t = tier(diff, [
+    { cats: 3, lo: 2, hi: 8,  types: ['howmany', 'most'] },
+    { cats: 4, lo: 2, hi: 10, types: ['howmany', 'most', 'least'] },
+    { cats: 4, lo: 2, hi: 15, types: ['most', 'least', 'total'] },
+    { cats: 5, lo: 5, hi: 20, types: ['most', 'total', 'howmany'] },
+    { cats: 5, lo: 5, hi: 30, types: ['least', 'total'] }
+  ]);
+  var categories = shuffle(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']).slice(0, t.cats);
+  // Distinct heights, so the "busiest day" question has one right answer.
+  var values = _distinctValues(t.cats, t.lo, t.hi);
+  var qType = pick(t.types);
   var answer;
-  if (qType === 'most') answer = maxDay;
-  else if (qType === 'total') answer = total;
+  if (qType === 'most') answer = categories[values.indexOf(Math.max.apply(null, values))];
+  else if (qType === 'least') answer = categories[values.indexOf(Math.min.apply(null, values))];
+  else if (qType === 'total') answer = values.reduce(function(a, b) { return a + b; }, 0);
   else { var idx = rand(0, categories.length - 1); answer = values[idx]; qType = 'howmany_' + idx; }
-  return { type: 'bar-graph', categories, values, qType, answer,
+  return { type: 'bar-graph', categories: categories, values: values, qType: qType, answer: answer,
     hint: 'Read the graph carefully. Compare the heights of the bars.' };
 }
 
 // ===================== P4 GENERATORS =====================
 
-function genBigNum(diff) {
-  var n = rand(10000, 99999);
-  var qTypes = ['place-value', 'rounding', 'comparison'];
-  var qType = pick(qTypes);
+function genBigNum(diff, config) {
+  // MOE P4 goes to 100 000, so the ladder climbs digit count within that
+  // ceiling and then makes the work harder rather than the numbers
+  // bigger: coarser rounding, and comparisons that differ only deep in
+  // the number so left-to-right reading has to go all the way.
+  var t = tier(diff, [
+    { lo: 1000,  hi: 9999,  digits: 4, roundTo: [10, 100],         gap: 3000 },
+    { lo: 1000,  hi: 9999,  digits: 4, roundTo: [10, 100, 1000],   gap: 1000 },
+    { lo: 10000, hi: 99999, digits: 5, roundTo: [10, 100, 1000],   gap: 5000 },
+    { lo: 10000, hi: 99999, digits: 5, roundTo: [100, 1000],       gap: 900  },
+    { lo: 10000, hi: 99999, digits: 5, roundTo: [1000, 10000],     gap: 90   }
+  ]);
+  var n = rand(t.lo, t.hi);
+  var qType = pick(['place-value', 'rounding', 'comparison']);
   if (qType === 'place-value') {
     var places = ['ones', 'tens', 'hundreds', 'thousands', 'ten thousands'];
-    var placeIdx = rand(0, 4);
+    // Only ask about places the number actually has.
+    var placeIdx = rand(0, t.digits - 1);
     var digit = Math.floor(n / Math.pow(10, placeIdx)) % 10;
     return { type: 'big-number-pv', number: n, place: places[placeIdx], answer: digit,
       hint: 'Look at the digit in the ' + places[placeIdx] + ' place.' };
   } else if (qType === 'rounding') {
-    var roundTo = pick([10, 100, 1000]);
+    var roundTo = pick(t.roundTo);
     var rounded = Math.round(n / roundTo) * roundTo;
-    return { type: 'big-number-round', number: n, roundTo, answer: rounded,
+    return { type: 'big-number-round', number: n, roundTo: roundTo, answer: rounded,
       hint: 'Look at the digit to the right of where you are rounding.' };
-  } else {
-    var n2 = n + rand(-5000, 5000);
-    while (n2 === n) n2 = n + rand(1, 1000);
-    return { type: 'comparing', a: n, b: n2, answer: n > n2 ? '>' : '<',
-      hint: 'Compare the digits from left to right.', isConcrete: false };
   }
+  var delta = rand(1, t.gap) * (Math.random() < 0.5 ? -1 : 1);
+  var n2 = n + delta;
+  if (n2 < 1 || n2 === n) n2 = n + t.gap;
+  return { type: 'comparing', a: n, b: n2, answer: n > n2 ? '>' : '<',
+    hint: 'Compare the digits from left to right.', isConcrete: false };
 }
 
-function genMultiOp(diff) {
+function genMultiOp(diff, config) {
+  // Two-digit by two-digit is the P4 target. Getting there means going
+  // through two-by-one first, which is where the partial-products idea
+  // is actually learned.
+  var t = tier(diff, [
+    { aLo: 11, aHi: 30, bLo: 2,  bHi: 5,  dvLo: 2, dvHi: 4, qLo: 10, qHi: 30 },
+    { aLo: 11, aHi: 50, bLo: 2,  bHi: 9,  dvLo: 2, dvHi: 6, qLo: 10, qHi: 40 },
+    { aLo: 11, aHi: 99, bLo: 3,  bHi: 9,  dvLo: 2, dvHi: 9, qLo: 10, qHi: 60 },
+    { aLo: 12, aHi: 99, bLo: 11, bHi: 30, dvLo: 3, dvHi: 9, qLo: 15, qHi: 80 },
+    { aLo: 15, aHi: 99, bLo: 11, bHi: 99, dvLo: 4, dvHi: 9, qLo: 20, qHi: 99 }
+  ]);
   if (Math.random() < 0.5) {
-    var a = rand(10, 99);
-    var b = rand(10, 99);
-    return { type: 'long-multiplication', a, b, answer: a * b,
+    var a = rand(t.aLo, t.aHi);
+    var b = rand(t.bLo, t.bHi);
+    return { type: 'long-multiplication', a: a, b: b, answer: a * b,
       hint: 'Multiply by ones digit, then by tens digit, then add.' };
-  } else {
-    var divisor = rand(2, 9);
-    var quotient = rand(10, 99);
-    var dividend = divisor * quotient;
-    return { type: 'long-division', dividend, divisor, answer: quotient,
-      hint: 'How many times does ' + divisor + ' go into ' + dividend + '?' };
   }
+  var divisor = rand(t.dvLo, t.dvHi);
+  var quotient = rand(t.qLo, t.qHi);
+  var dividend = divisor * quotient;
+  return { type: 'long-division', dividend: dividend, divisor: divisor, answer: quotient,
+    hint: 'How many times does ' + divisor + ' go into ' + dividend + '?' };
 }
 
-function genFactor(diff) {
-  var n = pick([12, 18, 24, 30, 36, 40, 48, 60]);
+function genFactor(diff, config) {
+  // Numbers with plenty of factors first; the awkward ones (28, 42, 54)
+  // where a child has to test past the obvious 2 and 3 come later.
+  var t = tier(diff, [
+    { nums: [6, 8, 10, 12],           lcmA: [2, 3],       lcmB: [3, 4, 5] },
+    { nums: [12, 15, 16, 18, 20],     lcmA: [2, 3, 4],    lcmB: [3, 4, 5, 6] },
+    { nums: [18, 24, 28, 30, 36],     lcmA: [2, 3, 4, 5], lcmB: [3, 4, 5, 6, 8] },
+    { nums: [36, 40, 42, 48, 54],     lcmA: [3, 4, 5, 6], lcmB: [4, 5, 6, 7, 8] },
+    { nums: [48, 56, 60, 64, 72],     lcmA: [4, 5, 6, 7], lcmB: [6, 7, 8, 9, 10] }
+  ]);
+  var n = pick(t.nums);
   if (Math.random() < 0.5) {
     var factors = [];
     for (var i = 1; i <= n; i++) { if (n % i === 0) factors.push(i); }
@@ -652,105 +885,200 @@ function genFactor(diff) {
   } else {
     // Avoid pairs where one divides the other: there the LCM is simply
     // the larger number, which the hint would then hand over for free.
-    var a = pick([2, 3, 4, 5, 6]);
-    var b = pick([3, 4, 5, 6, 7, 8]);
+    var a = pick(t.lcmA);
+    var b = pick(t.lcmB);
     var guardL = 0;
     while ((a === b || b % a === 0 || a % b === 0) && guardL++ < 40) {
-      b = pick([3, 4, 5, 6, 7, 8]);
+      b = pick(t.lcmB);
     }
-    return { type: 'find-lcm', a, b, answer: lcm(a, b),
+    return { type: 'find-lcm', a: a, b: b, answer: lcm(a, b),
       hint: 'List multiples of ' + a + ' and ' + b + '. Find the smallest number in both lists.' };
   }
 }
 
-function genMixFrac(diff) {
-  var whole = rand(1, 5);
-  var denom = pick([2, 3, 4, 5]);
+function genMixFrac(diff, config) {
+  var t = tier(diff, [
+    { wLo: 1, wHi: 3, denoms: [2, 3, 4] },
+    { wLo: 1, wHi: 4, denoms: [2, 3, 4, 5] },
+    { wLo: 1, wHi: 5, denoms: [2, 3, 4, 5, 6] },
+    { wLo: 2, wHi: 7, denoms: [3, 4, 5, 6, 8] },
+    { wLo: 2, wHi: 9, denoms: [4, 5, 6, 8, 10] }
+  ]);
+  var whole = rand(t.wLo, t.wHi);
+  var denom = pick(t.denoms);
   var numer = rand(1, denom - 1);
   var improper = whole * denom + numer;
   if (Math.random() < 0.5) {
-    return { type: 'mixed-to-improper', whole, numer, denom, answer: improper + '/' + denom,
+    return { type: 'mixed-to-improper', whole: whole, numer: numer, denom: denom,
+      answer: improper + '/' + denom,
       hint: 'Multiply the whole number by the denominator, then add the numerator.' };
-  } else {
-    return { type: 'improper-to-mixed', improper, denom, answer: whole + ' ' + numer + '/' + denom,
-      wholeAnswer: whole, numerAnswer: numer,
-      hint: 'Divide ' + improper + ' by ' + denom + '. The quotient is the whole number, remainder is the numerator.' };
   }
+  return { type: 'improper-to-mixed', improper: improper, denom: denom,
+    answer: whole + ' ' + numer + '/' + denom,
+    wholeAnswer: whole, numerAnswer: numer,
+    hint: 'Divide ' + improper + ' by ' + denom + '. The quotient is the whole number, remainder is the numerator.' };
 }
 
-function genDecimal(diff) {
+function genDecimal(diff, config) {
+  // Tenths only for conversion, because the renderer builds its wrong
+  // answers as one-decimal-place numbers; a two-place answer would stand
+  // out from three one-place distractors and give itself away. The
+  // ladder therefore grows the addition instead, and brings in sums that
+  // cross a whole number, which is where the real difficulty lives.
+  // `cross` is the real ladder here. Adding 1.2 and 3.4 is two digits set
+  // side by side and teaches nothing; adding 1.7 and 3.6 forces a whole
+  // to be carried out of the tenths, which is the actual skill. So early
+  // levels deliberately avoid the carry and later ones insist on it.
+  var t = tier(diff, [
+    { fracHi: 9,  addHi: 20, cross: 'no'  },
+    { fracHi: 29, addHi: 40, cross: 'no'  },
+    { fracHi: 59, addHi: 60, cross: 'yes' },
+    { fracHi: 99, addHi: 90, cross: 'yes' },
+    { fracHi: 99, addHi: 99, cross: 'yes' }
+  ]);
   if (Math.random() < 0.5) {
-    var n = rand(1, 99);
-    var decimal = (n / 10).toFixed(1);
-    return { type: 'decimal-identify', fraction: n + '/10', answer: decimal,
+    var n = rand(1, t.fracHi);
+    return { type: 'decimal-identify', fraction: n + '/10', answer: (n / 10).toFixed(1),
       hint: 'Divide by 10: move the decimal point one place left.' };
-  } else {
-    var a = (rand(1, 50) / 10).toFixed(1);
-    var b = (rand(1, 50) / 10).toFixed(1);
-    var sum = (parseFloat(a) + parseFloat(b)).toFixed(1);
-    return { type: 'decimal-add', a, b, answer: sum,
-      hint: 'Line up the decimal points, then add normally.' };
   }
+  var an, bn, guard = 0;
+  do {
+    an = rand(1, t.addHi);
+    bn = rand(1, t.addHi);
+  } while ((((an % 10) + (bn % 10) >= 10) !== (t.cross === 'yes')) && guard++ < 80);
+  return { type: 'decimal-add', a: (an / 10).toFixed(1), b: (bn / 10).toFixed(1),
+    answer: ((an + bn) / 10).toFixed(1),
+    hint: 'Line up the decimal points, then add normally.' };
 }
 
-function genSymm(diff) {
-  var shapes = [
+function genSymm(diff, config) {
+  // Shapes with an obvious axis first. The two that catch children out
+  // are the parallelogram (none at all, despite looking regular) and the
+  // scalene triangle, so they arrive last.
+  var all = [
     { name: 'square', lines: 4 },
     { name: 'rectangle', lines: 2 },
     { name: 'circle', lines: 'infinite' },
     { name: 'equilateral triangle', lines: 3 },
     { name: 'isosceles triangle', lines: 1 },
-    { name: 'regular hexagon', lines: 6 }
+    { name: 'regular hexagon', lines: 6 },
+    { name: 'regular pentagon', lines: 5 },
+    { name: 'parallelogram', lines: 0 },
+    { name: 'scalene triangle', lines: 0 }
   ];
+  var names = tier(diff, [
+    ['square', 'rectangle', 'circle'],
+    ['square', 'rectangle', 'circle', 'equilateral triangle'],
+    ['square', 'rectangle', 'circle', 'equilateral triangle', 'isosceles triangle', 'regular hexagon'],
+    ['rectangle', 'equilateral triangle', 'isosceles triangle', 'regular hexagon', 'regular pentagon', 'parallelogram'],
+    null
+  ]);
+  var shapes = names ? all.filter(function(s) { return names.indexOf(s.name) >= 0; }) : all;
   var shape = pick(shapes);
-  var opts = shape.lines === 'infinite'
-    ? shuffle([0, 1, 2, 4, 6, 'infinite'])
-    : shuffle([0, 1, 2, 3, 4, 6]);
-  return { type: 'symmetry', shape, answer: shape.lines,
-    options: opts,
+  // Build the choices around the answer rather than from a fixed list:
+  // a fixed list of [0,1,2,3,4,6] cannot express a pentagon's five.
+  //
+  // The options must all be the same type. The renderer decides whether
+  // to quote them by looking at typeof q.answer, so slipping the string
+  // 'infinite' in beside a numeric answer would emit a bare identifier
+  // into the onclick and throw a ReferenceError the moment she taps it.
+  var opts;
+  if (shape.lines === 'infinite') {
+    opts = shuffle([0, 1, 2, 3, 4, 5, 6]).slice(0, 3).concat(['infinite']);
+  } else {
+    opts = [0, 1, 2, 3, 4, 5, 6].filter(function(o) { return o !== shape.lines; });
+    opts = shuffle(opts).slice(0, 3).concat([shape.lines]);
+  }
+  return { type: 'symmetry', shape: shape, answer: shape.lines,
+    options: shuffle(opts),
     hint: 'A line of symmetry divides a shape into two matching halves.' };
 }
 
-function genDataAn(diff) {
-  var data = Array.from({length: 5}, function() { return rand(5, 30); });
-  var total = data.reduce(function(a,b) { return a + b; }, 0);
-  var avg = Math.round(total / data.length);
-  var qType = pick(['average', 'total', 'range']);
+function genDataAn(diff, config) {
+  var t = tier(diff, [
+    { n: 4, lo: 2,  hi: 10, types: ['total'] },
+    { n: 4, lo: 2,  hi: 12, types: ['total', 'range'] },
+    { n: 5, lo: 5,  hi: 20, types: ['total', 'range', 'average'] },
+    { n: 5, lo: 5,  hi: 30, types: ['total', 'range', 'average'] },
+    { n: 6, lo: 10, hi: 40, types: ['range', 'average'] }
+  ]);
+  var qType = pick(t.types);
+  var data = [];
+  var i;
+  if (qType === 'average') {
+    // The mean has to come out whole. The old version drew free data and
+    // then rounded the mean, so four times in five the answer key was
+    // not the answer: a child who correctly worked out 7.2 was marked
+    // wrong, and one who answered 7 was marked right for bad arithmetic.
+    // Build the set around a chosen mean instead, as pairs that cancel,
+    // which keeps every value inside the band and the total exact.
+    var mean = rand(t.lo + 2, t.hi - 2);
+    var span = Math.min(mean - t.lo, t.hi - mean);
+    if (t.n % 2 === 1) data.push(mean);
+    var first = true;
+    while (data.length < t.n) {
+      var d = first ? rand(1, span) : rand(0, span);
+      first = false;
+      data.push(mean - d);
+      data.push(mean + d);
+    }
+    data = shuffle(data);
+  } else {
+    for (i = 0; i < t.n; i++) data.push(rand(t.lo, t.hi));
+  }
+  var total = data.reduce(function(a, b) { return a + b; }, 0);
   var answer;
-  if (qType === 'average') answer = avg;
+  if (qType === 'average') answer = total / data.length;
   else if (qType === 'total') answer = total;
-  else answer = Math.max(...data) - Math.min(...data);
-  return { type: 'data-analysis', data, qType, answer,
+  else answer = Math.max.apply(null, data) - Math.min.apply(null, data);
+  return { type: 'data-analysis', data: data, qType: qType, answer: answer,
     hint: qType === 'average' ? 'Add all numbers, then divide by how many there are.' :
           qType === 'total' ? 'Add all the numbers together.' :
           'Subtract the smallest from the largest.' };
 }
 
-function genMultiWP(diff) {
+function genMultiWP(diff, config) {
+  // Two-step problems are hard because of the hidden middle number, not
+  // because of the arithmetic, so the ladder grows the numbers modestly
+  // and holds back the sharing problem, which needs a division as its
+  // second step.
+  var t = tier(diff, [
+    { scale: 0.5, share: false },
+    { scale: 0.7, share: false },
+    { scale: 1,   share: true  },
+    { scale: 1.4, share: true  },
+    { scale: 2,   share: true  }
+  ]);
+  // Round up so the smallest tier never collapses a range to nothing.
+  var s = function(n) { return Math.max(1, Math.round(n * t.scale)); };
+
   var templates = [
     function() {
-      var price = rand(3, 15);
-      var qty = rand(2, 5);
-      var money = rand(qty * price + 1, qty * price + 20);
+      var price = rand(s(3), s(15));
+      var qty = rand(2, Math.max(3, s(5)));
+      var money = rand(qty * price + 1, qty * price + s(20));
       return { text: 'Anastasia buys ' + qty + ' pens at $' + price + ' each. She pays with $' + money + '. How much change does she get?',
         answer: money - (qty * price), hint: 'First find the total cost, then subtract from the amount paid.' };
     },
     function() {
-      var a = rand(10, 50);
-      var b = rand(5, 20);
-      var c = rand(5, 15);
+      var a = rand(s(20), s(50));
+      var b = rand(s(5), s(20));
+      var c = rand(s(5), s(15));
+      if (b > a) { var swap = a; a = b; b = swap; }   // never sell more than the shop has
       return { text: 'A shop has ' + a + ' apples. They sell ' + b + ' in the morning and receive ' + c + ' more in the afternoon. How many apples are there now?',
         answer: a - b + c, hint: 'Start with ' + a + ', take away ' + b + ', then add ' + c + '.' };
-    },
-    function() {
-      var people = rand(3, 8);
-      var each = rand(4, 12);
-      var extraPerPerson = rand(1, 4);
+    }
+  ];
+  if (t.share) {
+    templates.push(function() {
+      var people = rand(3, Math.max(4, s(8)));
+      var each = rand(s(4), s(12));
+      var extraPerPerson = rand(1, Math.max(2, s(4)));
       var extra = extraPerPerson * people;
       return { text: people + ' children each have ' + each + ' stickers. They are given ' + extra + ' more to share equally. How many stickers does each child have now?',
         answer: each + extraPerPerson, hint: 'First find the total, then add the shared extra.' };
-    }
-  ];
+    });
+  }
   var gen = pick(templates)();
   return { type: 'multi-step-wp', text: gen.text, answer: gen.answer, hint: gen.hint };
 }
