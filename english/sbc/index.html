@@ -118,6 +118,8 @@
     details.reveal[open] summary { color: var(--accent); }
     details.reveal .body { font-size: .87rem; color: var(--text); margin-top: .45rem; padding: .6rem .75rem; background: var(--card); border-radius: 7px; line-height: 1.7; }
 
+    .mark-band { font-size: .78rem; font-weight: 800; padding: .2rem .55rem; border-radius: 999px;
+                 border: 1px solid var(--accent); color: var(--accent); white-space: nowrap; }
     .band-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .6rem; margin: .7rem 0; }
     .band { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: .65rem .75rem; }
     .band .band-name { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 800; }
@@ -872,10 +874,20 @@ function finishRecording(block, q, idx) {
 
 /* ── Gemini calls ──────────────────────────────────────── */
 const HOUSE_RUBRIC =
-  'SEAB does not publish band descriptors for Paper 4, so you mark against this house rubric, which is modelled on the ' +
-  'published assessment objective for Part 2: to express personal opinions, ideas and experiences clearly and appropriately. ' +
-  'Part 2 carries 25 marks across three questions. Mark THIS SINGLE answer on a proportionate 15-mark sub-scale: ' +
-  'Ideas and personal response out of 5; Language and vocabulary out of 5; Engagement and delivery out of 5.';
+  'Stimulus-based Conversation (Paper 4 Part 2) is marked out of 25 as a single holistic judgement. ' +
+  'Use these band descriptors exactly:\n' +
+  '21-25: provides well-developed personal responses; uses a wide range of appropriate vocabulary and accurate structures, ' +
+  'with clear pronunciation; interacts very well, at times even extending the conversation beyond the prompts.\n' +
+  '16-20: provides personal responses with some development; uses a range of appropriate vocabulary and accurate structures, ' +
+  'with mostly clear pronunciation; interacts well, responding appropriately to the prompts.\n' +
+  '11-15: developing. Personal responses are present but thinly developed; vocabulary and structures are adequate but narrow, ' +
+  'with occasional errors and some unclear pronunciation; interacts adequately but rarely goes beyond what was asked.\n' +
+  '6-10: beginning. Responses are short or largely descriptive with little personal content; vocabulary is limited and ' +
+  'structures are often inaccurate; pronunciation frequently impedes understanding; interaction needs prompting.\n' +
+  '1-5: below expectations. Very little relevant or personal content; vocabulary and structures break down; ' +
+  'the response is hard to follow.\n' +
+  'Award the single band the answer as a whole sits in, then a mark inside that band. ' +
+  'The three sub-scores you also give are diagnostic only and must be consistent with the band you awarded.';
 
 const VOICE_RULES =
   'Write for a 12-year-old Singaporean student. Calm, specific, never patronising. Do not cheer. Do not open with praise words ' +
@@ -1019,7 +1031,9 @@ async function runExaminer(fb, context, payload, q, stim, idx) {
     '    "language":   {"score": 0-5, "evidence": "<short direct quote>", "fix": "<one concrete action>"},\n' +
     '    "engagement": {"score": 0-5, "evidence": "<short direct quote or an observation about delivery>", "fix": "<one concrete action>"}\n' +
     '  },\n' +
-    '  "total": <sum of the three scores, 0-15>,\n' +
+    '  "band": "<one of 21-25, 16-20, 11-15, 6-10, 1-5>",\n' +
+    '  "total": <the mark out of 25, inside the band you named>,\n' +
+    '  "bandReason": "<one sentence saying why this band and not the one above>",\n' +
     '  "frameworkCheck": {"framework": "' + q.framework + '", "present": [<parts clearly present>], "missing": [<parts absent or too weak to count>]},\n' +
     '  "fillerCount": <number of um, er, ah, like, you know in the transcript>,\n' +
     '  "upgrades": [{"theySaid": "<exact phrase from the transcript>", "upgradeTo": "<stronger spoken phrasing>", "why": "<one short reason>"}],\n' +
@@ -1044,12 +1058,16 @@ async function runExaminer(fb, context, payload, q, stim, idx) {
     language: clamp5(bands.language && bands.language.score),
     engagement: clamp5(bands.engagement && bands.engagement.score),
   };
-  let total = typeof out.total === 'number' ? Math.round(out.total) : (nums.ideas + nums.language + nums.engagement);
-  total = Math.max(0, Math.min(15, total));
+  // Marked out of 25 against the published band descriptors. The three
+  // sub-scores stay as diagnostics; if the model omits the /25 we scale them.
+  let total = typeof out.total === 'number'
+    ? Math.round(out.total)
+    : Math.round((nums.ideas + nums.language + nums.engagement) * (25 / 15));
+  total = Math.max(0, Math.min(25, total));
 
   if (typeof Progress !== 'undefined') {
     if (Progress.recordDrillUsed) Progress.recordDrillUsed(TOPIC);
-    if (Progress.recordQuiz) Progress.recordQuiz(TOPIC, total, 15);
+    if (Progress.recordQuiz) Progress.recordQuiz(TOPIC, total, 25);
   }
   if (typeof Streak !== 'undefined' && Streak.record) { try { Streak.record(); } catch (_) {} }
 
@@ -1128,9 +1146,11 @@ function renderExaminer(fb, out, q, fw) {
   fb.innerHTML =
     '<h4>Examiner</h4>' +
     '<div class="mark-head">' +
-      '<span class="mark-total">' + total + '<span>/15</span></span>' +
-      '<span class="mark-caveat">AI marks against a house rubric, not SEAB marks. Part 2 is 25 marks across three questions; this is one answer scaled to 15.</span>' +
+      '<span class="mark-total">' + total + '<span>/25</span></span>' +
+      (out.band ? '<span class="mark-band">Band ' + escapeHTML(String(out.band)) + '</span>' : '') +
+      '<span class="mark-caveat">AI marks against the Paper 4 Part 2 band descriptors, out of 25. These are not SEAB marks.</span>' +
     '</div>' +
+    (out.bandReason ? '<div class="filler-note">' + escapeHTML(out.bandReason) + '</div>' : '') +
     (out.transcript ? '<details class="reveal"><summary>What the examiner heard (transcript)</summary><div class="body">' + escapeHTML(out.transcript) + '</div></details>' : '') +
     (out.durationNote ? '<div class="filler-note">' + escapeHTML(out.durationNote) + '</div>' : '') +
     '<div class="band-grid">' +
