@@ -84,15 +84,19 @@
       contents = [{ parts: [{ text: String(prompt || '') }] }];
     }
 
-    const body = {
+    function buildBody(withThinking) {
+      const b = {
       contents,
       generationConfig: {
         temperature,
         maxOutputTokens: maxTokens,
         ...(responseMimeType ? { responseMimeType } : {}),
-        ...(typeof thinkingBudget === 'number' ? { thinkingConfig: { thinkingBudget } } : {}),
+        ...(withThinking && typeof thinkingBudget === 'number' ? { thinkingConfig: { thinkingBudget } } : {}),
       },
     };
+      return b;
+    }
+    const body = buildBody(true);
     if (system) body.systemInstruction = { parts: [{ text: system }] };
 
     const url = `${BASE_URL}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
@@ -104,6 +108,15 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
+      // 400 "invalid argument" is usually thinkingConfig on a model that does
+      // not know it. Retry once without it.
+      if (resp.status === 400 && typeof thinkingBudget === 'number') {
+        resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(buildBody(false)),
+        });
+      }
     } catch (networkErr) {
       const err = new Error('Could not reach Gemini. Check your internet connection.');
       err.code = 'NETWORK';

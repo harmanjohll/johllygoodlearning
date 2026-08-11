@@ -182,16 +182,25 @@
     }
 
 
-    const body = {
-      contents,
-      generationConfig: {
-        temperature,
-        maxOutputTokens: maxTokens,
-        ...(responseMimeType ? { responseMimeType } : {}),
-        ...(typeof thinkingBudget === 'number' ? { thinkingConfig: { thinkingBudget } } : {}),
-      },
-    };
-    if (system) body.systemInstruction = { parts: [{ text: system }] };
+    // thinkingConfig is only understood by the newer models. Older fallbacks
+    // such as gemini-2.0-flash reject the whole request with
+    // 400 INVALID_ARGUMENT ("request contains an invalid argument"), so it is
+    // built separately and dropped on a 400 retry rather than baked in.
+    function buildBody(withThinking) {
+      const b = {
+        contents,
+        generationConfig: {
+          temperature,
+          maxOutputTokens: maxTokens,
+          ...(responseMimeType ? { responseMimeType } : {}),
+          ...(withThinking && typeof thinkingBudget === 'number'
+            ? { thinkingConfig: { thinkingBudget } } : {}),
+        },
+      };
+      if (system) b.systemInstruction = { parts: [{ text: system }] };
+      return b;
+    }
+    const body = buildBody(true);
 
     // Walk the candidate models. A retirement 404 is not a failure — it
     // means that id is gone, so try the next one. Anything else (bad key,
@@ -211,6 +220,16 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
+        // "Request contains an invalid argument" is almost always a config key
+        // this model does not know, and thinkingConfig is the usual culprit.
+        // Retry the same model once without it before giving up on it.
+        if (resp.status === 400 && typeof thinkingBudget === 'number') {
+          resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(buildBody(false)),
+          });
+        }
       } catch (networkErr) {
         const err = new Error('Could not reach Gemini. Check your internet connection.');
         err.code = 'NETWORK';
@@ -230,6 +249,15 @@
 
       if (isRetiredModelError(resp.status, msg) && i < candidates.length - 1) {
         // This id is gone. Forget it if we had cached it, and try the next.
+        if (lsGet(MODEL_OK_KEY) === candidate) lsSet(MODEL_OK_KEY, '');
+        lastErr = msg;
+        continue;
+      }
+
+      // A 400 that survived the no-thinking retry means this model cannot
+      // serve this request at all. Move to the next candidate rather than
+      // showing the student a raw API string.
+      if (resp.status === 400 && i < candidates.length - 1) {
         if (lsGet(MODEL_OK_KEY) === candidate) lsSet(MODEL_OK_KEY, '');
         lastErr = msg;
         continue;

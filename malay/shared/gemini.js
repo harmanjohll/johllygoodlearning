@@ -183,15 +183,19 @@
     }
 
 
-    const body = {
+    function buildBody(withThinking) {
+      const b = {
       contents,
       generationConfig: {
         temperature,
         maxOutputTokens: maxTokens,
         ...(responseMimeType ? { responseMimeType } : {}),
-        ...(typeof thinkingBudget === 'number' ? { thinkingConfig: { thinkingBudget } } : {}),
+        ...(withThinking && typeof thinkingBudget === 'number' ? { thinkingConfig: { thinkingBudget } } : {}),
       },
     };
+      return b;
+    }
+    const body = buildBody(true);
     if (system) body.systemInstruction = { parts: [{ text: system }] };
 
     // Walk the candidate models. A retirement 404 means that id is gone,
@@ -211,6 +215,15 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
+        // 400 "invalid argument" is usually thinkingConfig on a model that
+        // does not know it. Retry once without it before moving on.
+        if (resp.status === 400 && typeof thinkingBudget === 'number') {
+          resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(buildBody(false)),
+          });
+        }
       } catch (networkErr) {
         const err = new Error('Could not reach Gemini. Check your internet connection.');
         err.code = 'NETWORK';
@@ -229,6 +242,12 @@
       const msg = (payload.error && payload.error.message) || `API error ${resp.status}`;
 
       if (isRetiredModelError(resp.status, msg) && i < candidates.length - 1) {
+        if (lsGet(MODEL_OK_KEY) === candidate) lsSet(MODEL_OK_KEY, '');
+        lastErr = msg;
+        continue;
+      }
+
+      if (resp.status === 400 && i < candidates.length - 1) {
         if (lsGet(MODEL_OK_KEY) === candidate) lsSet(MODEL_OK_KEY, '');
         lastErr = msg;
         continue;
