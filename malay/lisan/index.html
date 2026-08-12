@@ -112,6 +112,7 @@
   <div class="tabs">
     <button class="tab active" data-pane="baca">📖 Membaca Kuat · 20 m</button>
     <button class="tab" data-pane="bual">💬 Perbualan Berasaskan Rangsangan · 30 m</button>
+    <button class="tab" data-pane="pegang">🧰 Pemegang · rangka &amp; peribahasa</button>
   </div>
 
   <!-- ── MEMBACA KUAT ───────────────────────────────────── -->
@@ -199,12 +200,31 @@
 
     <div class="card" id="bual-sejarah-card" style="display:none;">
       <h2>Perkembangan anda</h2>
-      <div class="meta">Sepuluh jawapan terakhir, daripada 10 markah setiap satu.</div>
+      <div class="meta">Sepuluh jawapan terakhir, daripada 30 markah.</div>
       <div class="sejarah" id="bual-sejarah"></div>
       <div id="bual-trend" style="font-size:.84rem;color:var(--text);line-height:1.65;"></div>
     </div>
   </div>
 </main>
+
+
+<div class="pane" id="pane-pegang">
+  <div class="kad">
+    <h3 style="margin:0 0 .4rem">Pemegang</h3>
+    <p style="font-size:.86rem;color:var(--muted);line-height:1.65;margin:0 0 .5rem">
+      Rangka, sudut dan peribahasa yang muat hampir mana-mana topik. Ini bukan jawapan untuk dihafal,
+      tetapi pemegang yang boleh dicapai apabila topiknya tidak diketahui.</p>
+    <div id="pegang-prinsip"></div>
+  </div>
+
+  <div class="kad"><h3 style="margin:0 0 .5rem">Rangka mengikut soalan</h3><div id="pegang-rangka"></div></div>
+  <div class="kad"><h3 style="margin:0 0 .5rem">Enjin pengembangan</h3><div id="pegang-kembang"></div></div>
+  <div class="kad"><h3 style="margin:0 0 .5rem">Sembilan sudut</h3><div id="pegang-sudut"></div></div>
+  <div class="kad"><h3 style="margin:0 0 .5rem">Peribahasa serba boleh</h3><div id="pegang-peri"></div></div>
+  <div class="kad"><h3 style="margin:0 0 .5rem">Kata dalam soalan</h3><div id="pegang-kata"></div></div>
+  <div class="kad"><h3 style="margin:0 0 .5rem">Apabila soalan tidak difahami</h3><div id="pegang-pulih"></div></div>
+  <div class="kad"><h3 style="margin:0 0 .5rem">Binaan ayat yang kerap rosak</h3><div id="pegang-silap"></div></div>
+</div>
 
 <script src="../shared.js"></script>
 <script src="../shared/storage.js"></script>
@@ -778,14 +798,23 @@
     $('baca-nilai-status').textContent = 'Pemeriksa sedang mendengar…';
 
     var sistem =
-      'Anda pemeriksa lisan PSLE Bahasa Melayu (Singapura), bahagian Membaca Kuat, 20 markah. ' +
-      'PENTING: MOE tidak menerbitkan deskriptor band rasmi. Rubrik ini ialah rubrik dalaman studio ini. ' +
-      'Jangan sekali-kali mendakwa ia rubrik rasmi MOE atau SEAB. ' +
-      'Nilai TIGA perkara, 0 hingga 5 setiap satu, kemudian jumlah diskalakan kepada 20. ' +
-      'SEBUTAN: ketepatan bunyi Melayu — e pepet lawan e taling, hentian glotis pada -k akhir, ' +
-      'sengau ng/ny, h yang mesti kedengaran di tengah dan hujung kata, r bergetar, vokal penuh. ' +
-      'KELANCARAN: kadar bacaan, jeda pada kumpulan makna, pemulihan selepas tersasar. ' +
-      'INTONASI DAN NADA: naik turun suara, penekanan pada kata penting, kesesuaian dengan nada sasaran. ' +
+      'Anda pemeriksa lisan PSLE Bahasa Melayu (Singapura), Bacaan Lantang, 20 markah. ' +
+      'Gunakan rubrik sekolah ini dengan TEPAT. Dua lajur, 10 markah setiap satu.\n' +
+      'LAJUR A — SEBUTAN DAN KEJELASAN (10m):\n' +
+      'Band 1 (9-10m): Sebutan sentiasa jelas.\n' +
+      'Band 2 (7-8m): Sebutan jelas tetapi terdapat sedikit kesilapan.\n' +
+      'Band 3 (5-6m): Pada umumnya, sebutan jelas tetapi terdapat banyak kesilapan.\n' +
+      'Band 4 (3-4m): Sebutan agak sukar difahami dan terdapat banyak kesilapan yang ketara.\n' +
+      'Band 5 (1-2m): Sebutan tidak jelas dan kebanyakan perkataan disalah sebut.\n' +
+      'LAJUR B — KELANCARAN DAN GAYA (10m):\n' +
+      'Band 1 (9-10m): Bacaan amat lancar; jeda dan rentak sesuai dan tidak teragak-agak; variasi nada sesuai.\n' +
+      'Band 2 (7-8m): Bacaan lancar; pada umumnya jeda dan rentak sesuai dan hampir tidak teragak-agak; pada umumnya variasi nada sesuai.\n' +
+      'Band 3 (5-6m): Pada umumnya bacaan lancar; pada umumnya jeda dan rentak sesuai tetapi teragak-agak sedikit; variasi nada memuaskan.\n' +
+      'Band 4 (3-4m): Pada umumnya bacaan teragak-agak; jeda dan rentak tidak sesuai; terdapat sedikit variasi nada.\n' +
+      'Band 5 (1-2m): Bacaan teragak-agak dan banyak perkataan tidak dibaca; jeda dan rentak tidak sesuai; tiada variasi nada.\n' +
+      'Untuk setiap lajur: tentukan band dahulu, kemudian markah di dalam band itu. Jumlah = A + B, daripada 20. ' +
+      'Bunyi Melayu yang selalu menjatuhkan markah sebutan: e pepet lawan e taling, hentian glotis pada -k akhir, ' +
+      'sengau ng dan ny, h yang mesti kedengaran di tengah dan hujung kata, r bergetar, vokal penuh tanpa dipendekkan. ' +
       'Balas dalam Bahasa Melayu yang mudah difahami murid darjah enam. Tiada emoji. Jujur dan khusus.';
 
     var arahan =
@@ -795,14 +824,15 @@
       petikanKini.perangkap.map(function (w) { return w.kata; }).join(', ') + '\n\n' +
       'Dengar rakaman itu, kemudian balas JSON sahaja dengan bentuk ini:\n' +
       '{"transkrip":"<apa yang murid sebut, verbatim>",' +
-      '"bands":{"sebutan":{"skor":0,"bukti":"<petik perkataan sebenar daripada transkrip>","betulkan":"<satu tindakan>"},' +
-      '"kelancaran":{"skor":0,"bukti":"...","betulkan":"..."},' +
-      '"intonasi":{"skor":0,"bukti":"...","betulkan":"..."}},' +
+      '"bands":{"sebutan":{"skor":0,"band":"<contoh 7-8m>","bukti":"<petik perkataan sebenar daripada transkrip>","betulkan":"<satu tindakan>"},' +
+      '"kelancaran":{"skor":0,"band":"<contoh 7-8m>","bukti":"...","betulkan":"..."}},' +
       '"jumlah":0,"label":"<gambaran ringkas tahap>",' +
+      '"naikBand":"<satu ayat: apa yang perlu berubah untuk naik satu band>",' +
       '"sebutanSalah":[{"kata":"...","masalah":"...","caraSebut":"..."}],' +
       '"satuPerkara":"<satu perubahan paling berkesan untuk cubaan seterusnya, satu ayat>"}\n' +
       'Letak "transkrip" DAHULU supaya penilaian berdasarkan apa yang benar-benar didengar. ' +
-      '"jumlah" mestilah daripada 20.';
+      '"skor" sebutan daripada 10, "skor" kelancaran daripada 10, "jumlah" = kedua-duanya, daripada 20. ' +
+      '"band" mesti salah satu daripada 9-10m, 7-8m, 5-6m, 3-4m, 1-2m.';
 
     window.askGemini({
       system: sistem, prompt: arahan,
@@ -838,7 +868,7 @@
       '<div class="skor-besar">' + jumlah + ' / 20</div>' +
       '<div style="color:var(--muted);font-size:.85rem;margin-bottom:.9rem;">' + esc(r.label || '') + '</div>' +
       (r.satuPerkara ? '<div class="satu-perkara"><div class="lbl">Satu perkara untuk cubaan seterusnya</div><div class="txt">' + esc(r.satuPerkara) + '</div></div>' : '') +
-      bandRow('Sebutan', b.sebutan) + bandRow('Kelancaran', b.kelancaran) + bandRow('Intonasi &amp; nada', b.intonasi) +
+      bandRow('Sebutan &amp; kejelasan (10)', b.sebutan) + bandRow('Kelancaran &amp; gaya (10)', b.kelancaran) +
       (salah.length ? '<div style="margin-top:.8rem;font-size:.8rem;color:var(--muted);"><strong style="color:var(--text)">Kata untuk dilatih semula:</strong></div>' +
         salah.map(function (w) {
           return '<div class="sebutan-item"><span class="kata">' + esc(w.kata) + '</span><span>' + esc(w.masalah || '') +
@@ -846,7 +876,7 @@
         }).join('') : '') +
       '<details class="transkrip"><summary>Lihat transkrip — apa yang pemeriksa dengar</summary><div class="body">' +
         esc(r.transkrip || '(tiada transkrip)') + '</div></details>' +
-      '<div class="nota-rubrik">Markah ini daripada rubrik dalaman studio, bukan rubrik rasmi MOE. Gunakannya untuk melihat arah perkembangan, bukan sebagai ramalan gred.</div>';
+      '<div class="nota-rubrik">Ditanda mengikut rubrik Bacaan Lantang sekolah: Sebutan dan Kejelasan 10 markah, Kelancaran dan Gaya 10 markah.</div>';
   }
 
   function simpanBaca(r) {
@@ -965,13 +995,24 @@
       q('.bual-nilai-status').textContent = 'Pemeriksa sedang mendengar…';
 
       var sistem =
-        'Anda pemeriksa lisan PSLE Bahasa Melayu (Singapura), bahagian Perbualan Berasaskan Rangsangan. ' +
-        'PENTING: MOE tidak menerbitkan deskriptor band rasmi. Rubrik ini rubrik dalaman studio; ' +
-        'jangan dakwa ia rubrik rasmi. Nilai TIGA perkara, 0 hingga 5 setiap satu, ' +
-        'kemudian berikan jumlah daripada ' + soalan.markah + ' markah. ' +
-        'ISI DAN IDEA: ketepatan kepada soalan, kedalaman sebab, contoh yang khusus bukan umum. ' +
-        'BAHASA: kosa kata, tatabahasa, keupayaan menggunakan ayat majmuk, ketiadaan campuran bahasa Inggeris. ' +
-        'PENYAMPAIAN: kelancaran, keyakinan, sedikit kata sisipan seperti "erm" atau "macam". ' +
+        'Anda pemeriksa lisan PSLE Bahasa Melayu (Singapura), Perbualan Berdasarkan Video, 30 markah. ' +
+        'Gunakan rubrik sekolah ini dengan TEPAT. Dua lajur, 15 markah setiap satu.\n' +
+        'LAJUR A — RESPONS PERIBADI DAN PENGEMBANGAN IDEA (15m):\n' +
+        'Band 1 (13-15m): Memerlukan bantuan yang minimal; mampu memberikan respons yang komprehensif beserta pengembangan idea yang cukup; melibatkan diri dalam perbualan dan bertukar-tukar idea secara konsisten.\n' +
+        'Band 2 (10-12m): Sekali-sekala memerlukan bantuan; mampu memberikan respons yang komprehensif beserta sedikit pengembangan idea; kebanyakan masa melibatkan diri dalam perbualan dan bertukar-tukar idea.\n' +
+        'Band 3 (7-9m): Sering memerlukan bantuan; mampu memberikan respons yang cukup beserta sedikit pengembangan idea; sekali-sekala melibatkan diri dalam perbualan dan bertukar-tukar idea.\n' +
+        'Band 4 (4-6m): Sentiasa memerlukan bantuan; mampu memberikan sedikit respons tanpa pengembangan idea; hampir tidak mampu melibatkan diri dalam perbualan.\n' +
+        'Band 5 (1-3m): Sentiasa memerlukan bantuan; hampir tidak mampu memberikan respons; tidak mampu melibatkan diri dalam perbualan.\n' +
+        'LAJUR B — PENGGUNAAN BAHASA DAN KELANCARAN (15m):\n' +
+        'Band 1 (13-15m): Menggunakan pelbagai kosa kata yang sesuai; mampu bertutur dengan lancar dan jelas.\n' +
+        'Band 2 (10-12m): Kebanyakan masa menggunakan kosa kata yang sesuai; pada umumnya mampu bertutur dengan lancar dan jelas.\n' +
+        'Band 3 (7-9m): Menggunakan kosa kata asas yang kadangkala tidak sesuai; pada umumnya mampu bertutur dengan lancar dan jelas tetapi menggunakan pernyataan yang mudah-mudah.\n' +
+        'Band 4 (4-6m): Kebanyakan masa menggunakan kosa kata asas yang tidak sesuai; tidak mampu bertutur dengan jelas; teragak-agak sedikit ketika bertutur.\n' +
+        'Band 5 (1-3m): Menggunakan kosa kata yang amat terbatas hampir pada setiap masa; tidak mampu bertutur dengan jelas; berjeda agak lama pada tempat yang tidak sesuai.\n' +
+        'Untuk setiap lajur: tentukan band dahulu, kemudian markah di dalam band itu. Jumlah = A + B, daripada 30. ' +
+        'Perhatikan khusus: pernyataan yang mudah-mudah menahan murid di Band 3. Untuk naik ke Band 2, ' +
+        'respons mesti komprehensif DAN ada pengembangan idea, iaitu sebab, contoh dan kesan, bukan hanya jawapan pendek. ' +
+        'Campuran bahasa Inggeris menjatuhkan Lajur B. ' +
         'Balas dalam Bahasa Melayu mudah untuk murid darjah enam. Tiada emoji. Puji strategi, bukan sifat.';
 
       var arahan =
@@ -982,15 +1023,17 @@
         'Panduan struktur yang sepatutnya diikut: ' + soalan.panduan + '\n\n' +
         'Dengar jawapan murid, kemudian balas JSON sahaja:\n' +
         '{"transkrip":"<verbatim>",' +
-        '"bands":{"isi":{"skor":0,"bukti":"<petik daripada transkrip murid>","betulkan":"..."},' +
-        '"bahasa":{"skor":0,"bukti":"...","betulkan":"..."},' +
-        '"penyampaian":{"skor":0,"bukti":"...","betulkan":"..."}},' +
+        '"bands":{"respons":{"skor":0,"band":"<contoh 7-9m>","bukti":"<petik daripada transkrip murid>","betulkan":"..."},' +
+        '"bahasa":{"skor":0,"band":"<contoh 7-9m>","bukti":"...","betulkan":"..."}},' +
         '"jumlah":0,' +
+        '"naikBand":"<satu ayat: apa yang perlu berubah untuk naik satu band>",' +
+        '"frasaHilang":["<frasa pengembangan yang sepatutnya digunakan tetapi tidak, contohnya Hal ini kerana / Sebagai contoh / Kesannya>"],' +
         '"kataSisipan":0,' +
         '"campurInggeris":["<perkataan Inggeris yang digunakan, jika ada>"],' +
         '"naikTaraf":[{"disebut":"<frasa murid>","tukarKepada":"<frasa Melayu yang lebih baik>","sebab":"..."}],' +
         '"satuPerkara":"<satu tindakan paling berkesan, satu ayat>"}\n' +
-        'Letak "transkrip" DAHULU. "jumlah" daripada ' + soalan.markah + '.';
+        'Letak "transkrip" DAHULU. "skor" respons daripada 15, "skor" bahasa daripada 15, "jumlah" daripada 30. ' +
+        '"band" mesti salah satu daripada 13-15m, 10-12m, 7-9m, 4-6m, 1-3m.';
 
       window.askGemini({
         system: sistem, prompt: arahan,
@@ -1007,7 +1050,7 @@
         h.innerHTML =
           '<div class="skor-besar" style="font-size:1.9rem;">' + jumlah + ' / ' + soalan.markah + '</div>' +
           (r.satuPerkara ? '<div class="satu-perkara"><div class="lbl">Satu perkara</div><div class="txt">' + esc(r.satuPerkara) + '</div></div>' : '') +
-          bandRow('Isi &amp; idea', b.isi) + bandRow('Bahasa', b.bahasa) + bandRow('Penyampaian', b.penyampaian) +
+          bandRow('Respons &amp; pengembangan idea (15)', b.respons) + bandRow('Bahasa &amp; kelancaran (15)', b.bahasa) +
           (Number(r.kataSisipan) > 4 ? '<div style="font-size:.8rem;color:#fbbf24;margin-top:.4rem;">Kata sisipan dikesan: ' + Number(r.kataSisipan) + '. Gantikan dengan hentian sebentar — diam lebih baik daripada "erm".</div>' : '') +
           (eng.length ? '<div style="font-size:.8rem;color:#fbbf24;margin-top:.4rem;">Perkataan Inggeris yang tercampur: ' + eng.map(esc).join(', ') + '. Cari padanan Melayu sebelum cubaan seterusnya.</div>' : '') +
           (naik.length ? '<div style="margin-top:.7rem;font-size:.8rem;color:var(--muted);"><strong style="color:var(--text)">Naik taraf ayat anda:</strong></div>' +
@@ -1017,7 +1060,7 @@
             }).join('') : '') +
           '<details class="transkrip"><summary>Lihat transkrip — apa yang pemeriksa dengar</summary><div class="body">' +
             esc(r.transkrip || '(tiada transkrip)') + '</div></details>' +
-          '<div class="nota-rubrik">Rubrik dalaman studio, bukan rubrik rasmi MOE.</div>';
+          '<div class="nota-rubrik">Ditanda mengikut rubrik Perbualan sekolah: Respons Peribadi dan Pengembangan Idea 15 markah, Penggunaan Bahasa dan Kelancaran 15 markah.</div>';
 
         var arr = bacaLS('jgl.malay.lisan.bual', []);
         arr.push({ iso: new Date().toISOString(), rang: rangKini.id, soalan: i, jumlah: jumlah, maks: soalan.markah });
@@ -1143,5 +1186,79 @@
 
 })();
 </script>
+
+<script>
+/* ── Pemegang: rangka, sudut, peribahasa yang muat mana-mana topik ── */
+(function () {
+  var H = null;
+  function E(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function box(inner){ return '<div style="border:1px solid var(--border);border-radius:9px;padding:.7rem .8rem;margin-bottom:.55rem">'+inner+'</div>'; }
+  function lbl(t){ return '<div style="font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:800;margin-bottom:.3rem">'+E(t)+'</div>'; }
+  function frasa(a){ return '<div style="display:flex;gap:.3rem;flex-wrap:wrap">'+a.map(function(x){
+    return '<span style="font-size:.78rem;padding:.2rem .5rem;border-radius:6px;background:var(--summary-bg,#162032);border:1px solid var(--border);color:var(--accent)">'+E(x)+'</span>';}).join('')+'</div>'; }
+
+  fetch('../shared/content/lisan-handles.json', { cache:'no-cache' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){ H = d; draw(); })
+    .catch(function(){ var el=document.getElementById('pegang-rangka'); if(el) el.textContent='Tidak dapat memuatkan pemegang.'; });
+
+  function draw() {
+    document.getElementById('pegang-prinsip').innerHTML = H.prinsip.map(function(p){
+      return box('<div style="font-weight:700;font-size:.88rem;margin-bottom:.25rem">'+E(p.tajuk)+'</div>'+
+        '<div style="font-size:.85rem;color:var(--muted);line-height:1.65">'+E(p.isi)+'</div>'); }).join('');
+
+    document.getElementById('pegang-rangka').innerHTML = H.rangka.map(function(r){
+      return box('<div style="font-weight:700;font-size:.9rem">'+E(r.soalan)+
+        ' <span style="font-weight:400;color:var(--muted);font-size:.78rem">· lebih kurang '+r.saat+' saat</span></div>'+
+        '<ol style="margin:.5rem 0 .4rem;padding-left:1.1rem">'+r.rangka.map(function(x){
+          return '<li style="font-size:.86rem;line-height:1.7;margin-bottom:.2rem"><b>'+E(x.langkah)+':</b> '+
+                 '<span style="color:var(--accent)">'+E(x.ayat)+'</span></li>'; }).join('')+'</ol>'+
+        '<div style="font-size:.82rem;color:#fde68a;line-height:1.6;padding-left:.6rem;border-left:2px solid var(--border)">'+E(r.peringatan)+'</div>'); }).join('');
+
+    document.getElementById('pegang-kembang').innerHTML =
+      '<p style="font-size:.85rem;color:var(--muted);line-height:1.65;margin:0 0 .6rem">'+E(H.pengembangan.isi)+'</p>'+
+      H.pengembangan.langkah.map(function(x){
+        return box('<div style="font-weight:800;color:var(--accent);font-size:.82rem">'+E(x.nama)+'</div>'+
+          '<div style="font-size:.85rem;margin:.15rem 0 .35rem">'+E(x.soalan)+'</div>'+frasa(x.frasa)); }).join('');
+
+    document.getElementById('pegang-sudut').innerHTML =
+      '<p style="font-size:.85rem;color:var(--muted);line-height:1.65;margin:0 0 .6rem">'+E(H.sudut.isi)+'</p>'+
+      '<table style="width:100%;border-collapse:collapse;font-size:.85rem">'+H.sudut.senarai.map(function(x){
+        return '<tr><td style="padding:.4rem .5rem;border-bottom:1px solid var(--border);font-weight:700;white-space:nowrap">'+E(x.sudut)+
+               '</td><td style="padding:.4rem .5rem;border-bottom:1px solid var(--border);color:var(--muted)">'+E(x.soalan)+'</td></tr>'; }).join('')+'</table>';
+
+    document.getElementById('pegang-peri').innerHTML = H.peribahasa.map(function(x){
+      return box('<div style="font-weight:700;font-size:.88rem;color:var(--accent)">'+E(x.peribahasa)+'</div>'+
+        '<div style="font-size:.84rem;margin:.25rem 0">'+E(x.maksud)+'</div>'+
+        lbl('Sesuai untuk')+'<div style="font-size:.82rem;color:var(--muted);margin-bottom:.4rem">'+E(x.bilaGuna)+'</div>'+
+        lbl('Contoh ayat')+'<div style="font-size:.85rem;line-height:1.7">'+E(x.ayat)+'</div>'); }).join('');
+
+    document.getElementById('pegang-kata').innerHTML =
+      '<p style="font-size:.85rem;color:var(--muted);line-height:1.65;margin:0 0 .6rem">'+E(H.kataSoalan.isi)+'</p>'+
+      '<table style="width:100%;border-collapse:collapse;font-size:.84rem"><thead><tr>'+
+      ['Kata','Maksud','Apa yang diminta'].map(function(h){
+        return '<th style="text-align:left;padding:.4rem .5rem;border-bottom:1px solid var(--border);font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">'+h+'</th>'; }).join('')+
+      '</tr></thead><tbody>'+H.kataSoalan.senarai.map(function(x){
+        return '<tr><td style="padding:.4rem .5rem;border-bottom:1px solid var(--border);font-weight:700;color:var(--accent);white-space:nowrap">'+E(x.kata)+
+               '</td><td style="padding:.4rem .5rem;border-bottom:1px solid var(--border)">'+E(x.maksud)+
+               '</td><td style="padding:.4rem .5rem;border-bottom:1px solid var(--border);color:var(--muted)">'+E(x.cara)+'</td></tr>'; }).join('')+'</tbody></table>';
+
+    document.getElementById('pegang-pulih').innerHTML =
+      '<p style="font-size:.85rem;color:var(--muted);line-height:1.65;margin:0 0 .6rem">'+E(H.pemulihan.isi)+'</p>'+
+      H.pemulihan.ayat.map(function(x){
+        return box(lbl(x.bila)+'<div style="font-size:.88rem;line-height:1.7;color:var(--accent)">'+E(x.ayat)+'</div>'); }).join('')+
+      '<div style="font-size:.83rem;color:#fde68a;line-height:1.65;padding-left:.6rem;border-left:2px solid var(--border)">'+E(H.pemulihan.peringatan)+'</div>';
+
+    document.getElementById('pegang-silap').innerHTML =
+      '<p style="font-size:.85rem;color:var(--muted);line-height:1.65;margin:0 0 .6rem">'+E(H.silapBinaan.isi)+'</p>'+
+      H.silapBinaan.senarai.map(function(x){
+        return box('<div style="font-weight:700;font-size:.86rem;margin-bottom:.35rem">'+E(x.corak)+'</div>'+
+          '<div style="font-size:.85rem;line-height:1.6;padding:.4rem .55rem;border-radius:7px;margin-bottom:.3rem;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:#fca5a5">'+E(x.salah)+'</div>'+
+          '<div style="font-size:.85rem;line-height:1.6;padding:.4rem .55rem;border-radius:7px;margin-bottom:.35rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);color:#bbf7d0">'+E(x.betul)+'</div>'+
+          '<div style="font-size:.83rem;color:var(--muted);line-height:1.6">'+E(x.kaedah)+'</div>'); }).join('');
+  }
+})();
+</script>
+
 </body>
 </html>
