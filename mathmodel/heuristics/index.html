@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heuristics — Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.4rem;
+                   display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem;
+                 font-size: .8rem; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    .hdr { flex: 1; min-width: 180px; font-weight: 800; font-size: .95rem; }
+    .hdr span { display: block; font-size: .72rem; color: var(--muted); font-weight: 400; }
+    main { max-width: 900px; margin: 0 auto; padding: 1.3rem 1.25rem 4rem; }
+    .hero h1 { font-size: 1.5rem; margin-bottom: .3rem; }
+    .hero p { color: var(--muted); font-size: .9rem; line-height: 1.7; margin-bottom: 1rem; }
+
+    .tabs { display: flex; gap: .4rem; border-bottom: 1px solid var(--border); margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .tab { background: none; border: 0; padding: .6rem .85rem; color: var(--muted); font-size: .88rem;
+           font-weight: 700; cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit; }
+    .tab:hover { color: var(--text); }
+    .tab.on { color: var(--text); border-bottom-color: var(--accent); }
+    .pane { display: none; } .pane.on { display: block; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; margin-bottom: .9rem; }
+    .card h2 { font-size: 1rem; margin: 0 0 .4rem; }
+    .card > p.intro { font-size: .87rem; color: var(--muted); line-height: 1.7; margin: 0 0 .8rem; }
+
+    .step { border: 1px solid var(--border); border-radius: 10px; padding: .75rem .85rem; margin-bottom: .55rem; display: flex; gap: .75rem; }
+    .step .n { flex: none; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center;
+               background: var(--surface); border: 1px solid var(--border); color: var(--accent); font-weight: 800; font-size: .78rem; }
+    .step .b { flex: 1; min-width: 0; }
+    .step h4 { font-size: .9rem; margin: 0 0 .25rem; }
+    .step p { font-size: .85rem; line-height: 1.65; margin: 0 0 .3rem; }
+    .step .why { font-size: .82rem; color: var(--muted); line-height: 1.6; padding-left: .6rem; border-left: 2px solid var(--border); }
+
+    table.t { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    table.t th, table.t td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    table.t th { font-size: .67rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    table.t tr:last-child td { border-bottom: none; }
+    .wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+    .kw { display: flex; gap: .28rem; flex-wrap: wrap; }
+    .kw span { font-size: .74rem; padding: .16rem .45rem; border-radius: 5px;
+               background: var(--surface); border: 1px solid var(--border); color: var(--accent); white-space: nowrap; }
+    .mdl { font-weight: 700; color: var(--accent); white-space: nowrap; }
+
+    .trap { border: 1px solid rgba(239,68,68,.3); background: rgba(239,68,68,.06); border-radius: 10px; padding: .75rem .85rem; margin-bottom: .55rem; }
+    .trap h4 { font-size: .88rem; margin: 0 0 .3rem; color: #fca5a5; }
+    .trap p { font-size: .84rem; line-height: 1.65; margin: 0 0 .3rem; }
+    .trap .fix { color: #bbf7d0; }
+    .trap .cost { color: var(--muted); font-size: .8rem; }
+
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+    .lst { border: 1px solid var(--border); border-radius: 10px; padding: .75rem .85rem; }
+    .lst h4 { font-size: .8rem; margin: 0 0 .45rem; text-transform: uppercase; letter-spacing: .05em; }
+    .lst ul { margin: 0; padding-left: 1.05rem; }
+    .lst li { font-size: .84rem; line-height: 1.6; margin-bottom: .35rem; }
+    .ok h4 { color: #86efac; } .no h4 { color: #fca5a5; }
+
+    .prompt { font-size: .83rem; color: var(--accent); font-style: italic; margin-top: .3rem; }
+    @media (max-width: 620px) { .two { grid-template-columns: 1fr; } main { padding: 1rem .9rem 3rem; } }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../index.html" class="back-link">← Math Model</a>
+  <div class="hdr">Heuristics<span>How to choose the model, and how to break the problem down</span></div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Heuristics</h1>
+    <p>The hardest part of a word problem is not the arithmetic. It is deciding what to draw. This page is
+      about that decision, and about what to do in the sixty seconds before the pencil touches the paper.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-p="think"   onclick="go('think')">Thinking moves</button>
+    <button class="tab"    data-p="steps"   onclick="go('steps')">The six steps</button>
+    <button class="tab"    data-p="inv"     onclick="go('inv')">What stays the same</button>
+    <button class="tab"    data-p="choose"  onclick="go('choose')">Identifiers</button>
+    <button class="tab"    data-p="traps"   onclick="go('traps')">Traps</button>
+    <button class="tab"    data-p="stuck"   onclick="go('stuck')">When stuck</button>
+  </div>
+
+  <section class="pane on" id="p-think"><div id="think"></div></section>
+  <section class="pane" id="p-steps"><div id="steps"></div></section>
+  <section class="pane" id="p-inv"><div id="inv"></div></section>
+  <section class="pane" id="p-choose"><div id="choose"></div></section>
+  <section class="pane" id="p-traps"><div id="traps"></div></section>
+  <section class="pane" id="p-stuck"><div id="stuck"></div></section>
+</main>
+
+<script src="../shared.js"></script>
+<script>
+var D = null;
+function E(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function kw(a){ return '<div class="kw">'+(a||[]).map(function(x){return '<span>'+E(x)+'</span>';}).join('')+'</div>'; }
+
+fetch('../content/heuristics.json',{cache:'no-cache'}).then(function(r){return r.json();})
+  .then(function(d){ D=d; draw(); })
+  .catch(function(){ document.getElementById('think').innerHTML='<div class="card"><p>Could not load the heuristics data.</p></div>'; });
+
+function draw(){
+  // Thinking moves
+  document.getElementById('think').innerHTML =
+    '<div class="card"><h2>'+E(D.thinking.title)+'</h2><p class="intro">'+E(D.thinking.intro)+'</p>'+
+    D.thinking.moves.map(function(m,i){
+      return '<div class="step"><div class="n">'+(i+1)+'</div><div class="b">'+
+        '<h4>'+E(m.name)+'</h4><p>'+E(m.plain)+'</p>'+
+        '<div class="why">'+E(m.inMaths)+'</div>'+
+        '<div class="prompt">Ask yourself: '+E(m.prompt)+'</div></div></div>'; }).join('')+
+    '<div class="step" style="border-color:var(--accent)"><div class="n">5</div><div class="b">'+
+      '<h4>'+E(D.thinking.fifth.name)+'</h4><p>'+E(D.thinking.fifth.plain)+'</p>'+
+      '<div class="why">'+E(D.thinking.fifth.inMaths)+'</div>'+
+      '<div class="prompt">Ask yourself: '+E(D.thinking.fifth.prompt)+'</div></div></div></div>';
+
+  // Six steps
+  document.getElementById('steps').innerHTML =
+    '<div class="card"><h2>'+E(D.deconstruct.title)+'</h2><p class="intro">'+E(D.deconstruct.intro)+'</p>'+
+    D.deconstruct.steps.map(function(s){
+      return '<div class="step"><div class="n">'+s.n+'</div><div class="b"><h4>'+E(s.name)+'</h4>'+
+        '<p>'+E(s.do)+'</p><div class="why">'+E(s.why)+'</div></div></div>'; }).join('')+'</div>';
+
+  // Invariant table
+  document.getElementById('inv').innerHTML =
+    '<div class="card"><h2>'+E(D.invariant.title)+'</h2><p class="intro">'+E(D.invariant.intro)+'</p></div>'+
+    D.invariant.rows.map(function(r){
+      return '<div class="card"><h2 style="color:var(--accent);font-size:.95rem">'+E(r.stays)+'</h2>'+
+        '<p class="intro" style="margin-bottom:.5rem">'+E(r.clue)+'</p>'+
+        kw(r.words)+
+        '<table class="t" style="margin-top:.6rem"><tr><th style="width:90px">Model</th><td class="mdl">'+E(r.model)+'</td></tr>'+
+        '<tr><th>How to draw</th><td>'+E(r.draw)+'</td></tr></table></div>'; }).join('');
+
+  // Identifiers
+  document.getElementById('choose').innerHTML =
+    '<div class="card"><h2>'+E(D.chooser.title)+'</h2><p class="intro">'+E(D.chooser.intro)+'</p></div>'+
+    D.chooser.groups.map(function(g){
+      return '<div class="card"><h2>'+E(g.family)+'</h2>'+
+        '<p class="intro" style="margin-bottom:.5rem">'+E(g.when)+'</p>'+kw(g.words)+
+        '<table class="t" style="margin-top:.6rem"><tr><th style="width:90px">Draw</th><td>'+E(g.draw)+'</td></tr>'+
+        '<tr><th>Watch</th><td style="color:#fde68a">'+E(g.watch)+'</td></tr></table></div>'; }).join('');
+
+  // Traps
+  document.getElementById('traps').innerHTML =
+    '<div class="card"><h2>Traps</h2><p class="intro">Each of these loses marks on problems the student could otherwise do. They are habits, not gaps in knowledge.</p></div>'+
+    D.traps.map(function(t){
+      return '<div class="trap"><h4>'+E(t.name)+'</h4>'+
+        '<p><b>Looks like:</b> '+E(t.looks)+'</p>'+
+        '<p class="fix"><b>Avoid it:</b> '+E(t.avoid)+'</p>'+
+        '<p class="cost">Cost: '+E(t.cost)+'</p></div>'; }).join('')+
+    '<div class="card"><h2>'+E(D.assumptions.title)+'</h2><div class="two">'+
+      '<div class="lst ok"><h4>You may assume</h4><ul>'+D.assumptions.allowed.map(function(x){return '<li>'+E(x)+'</li>';}).join('')+'</ul></div>'+
+      '<div class="lst no"><h4>You may not assume</h4><ul>'+D.assumptions.notAllowed.map(function(x){return '<li>'+E(x)+'</li>';}).join('')+'</ul></div>'+
+    '</div></div>';
+
+  // Reframe
+  document.getElementById('stuck').innerHTML =
+    '<div class="card"><h2>'+E(D.reframe.title)+'</h2><p class="intro">'+E(D.reframe.intro)+'</p>'+
+    D.reframe.moves.map(function(m,i){
+      return '<div class="step"><div class="n">'+(i+1)+'</div><div class="b"><h4>'+E(m.name)+'</h4>'+
+        '<p>'+E(m.do)+'</p><div class="why">Use when: '+E(m.useWhen)+'</div></div></div>'; }).join('')+'</div>';
+}
+
+function go(p){
+  var t=document.querySelectorAll('.tab'), s=document.querySelectorAll('.pane'), i;
+  for(i=0;i<t.length;i++) t[i].classList.toggle('on', t[i].dataset.p===p);
+  for(i=0;i<s.length;i++) s[i].classList.toggle('on', s[i].id==='p-'+p);
+}
+</script>
+</body>
+</html>
