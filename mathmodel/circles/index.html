@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Circles — Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.4rem;
+                   display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem;
+                 font-size: .8rem; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    .hdr { flex: 1; min-width: 180px; font-weight: 800; font-size: .95rem; }
+    .hdr span { display: block; font-size: .72rem; color: var(--muted); font-weight: 400; }
+    main { max-width: 940px; margin: 0 auto; padding: 1.3rem 1.25rem 4rem; }
+    .hero h1 { font-size: 1.5rem; margin-bottom: .3rem; }
+    .hero p { color: var(--muted); font-size: .9rem; line-height: 1.7; margin-bottom: 1rem; }
+
+    .tabs { display: flex; gap: .4rem; border-bottom: 1px solid var(--border); margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .tab { background: none; border: 0; padding: .6rem .85rem; color: var(--muted); font-size: .88rem;
+           font-weight: 700; cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit; }
+    .tab:hover { color: var(--text); }
+    .tab.on { color: var(--text); border-bottom-color: var(--accent); }
+    .pane { display: none; } .pane.on { display: block; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; margin-bottom: .9rem; }
+    .card h2 { font-size: 1rem; margin: 0 0 .4rem; }
+    .card p.intro { font-size: .87rem; color: var(--muted); line-height: 1.7; margin: 0 0 .7rem; }
+
+    table.t { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    table.t th, table.t td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    table.t th { font-size: .67rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    table.t tr:last-child td { border-bottom: none; }
+    .wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+    .fx { font-family: var(--font-mono, monospace); color: var(--accent); white-space: nowrap; }
+
+    .golden { background: rgba(56,189,248,.09); border: 1px solid rgba(56,189,248,.35); border-radius: 10px;
+              padding: .8rem .9rem; font-size: .9rem; line-height: 1.7; margin-top: .8rem; }
+
+    .pi { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+    .pibox { border: 1px solid var(--border); border-radius: 10px; padding: .8rem .9rem; }
+    .pibox .v { font-size: 1.4rem; font-weight: 800; color: var(--accent); font-family: var(--font-mono, monospace); }
+    .pibox p { font-size: .85rem; line-height: 1.6; margin: .35rem 0 0; }
+    .pibox .why { color: var(--muted); font-size: .82rem; margin-top: .3rem; }
+
+    .strat { display: grid; grid-template-columns: 200px 1fr; gap: 1rem; align-items: start; }
+    .dia { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .4rem; color: var(--text); }
+    .dia svg { width: 100%; height: auto; display: block; }
+    .lbl { font-size: .66rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 800; margin: .6rem 0 .25rem; }
+    .kw { display: flex; gap: .28rem; flex-wrap: wrap; }
+    .kw span { font-size: .74rem; padding: .16rem .45rem; border-radius: 5px;
+               background: var(--surface); border: 1px solid var(--border); color: var(--accent); }
+    ol.how { margin: 0; padding-left: 1.1rem; }
+    ol.how li { font-size: .86rem; line-height: 1.65; margin-bottom: .25rem; }
+    .worked { font-size: .85rem; line-height: 1.7; background: var(--surface); border: 1px solid var(--border);
+              border-radius: 8px; padding: .55rem .7rem; }
+    .warn { font-size: .84rem; line-height: 1.6; color: #fca5a5;
+            background: rgba(239,68,68,.07); border: 1px solid rgba(239,68,68,.28); border-radius: 8px; padding: .5rem .7rem; margin-top: .5rem; }
+
+    .step { border: 1px solid var(--border); border-radius: 10px; padding: .7rem .8rem; margin-bottom: .5rem; display: flex; gap: .7rem; }
+    .step .n { flex: none; width: 25px; height: 25px; border-radius: 8px; display: grid; place-items: center;
+               background: var(--surface); border: 1px solid var(--border); color: var(--accent); font-weight: 800; font-size: .76rem; }
+    .step p { font-size: .86rem; line-height: 1.6; margin: 0 0 .25rem; }
+    .step .why { font-size: .81rem; color: var(--muted); line-height: 1.55; padding-left: .55rem; border-left: 2px solid var(--border); }
+    ul.chk li { font-size: .87rem; line-height: 1.7; margin-bottom: .4rem; }
+
+    @media (max-width: 680px) { .strat, .pi { grid-template-columns: 1fr; } main { padding: 1rem .9rem 3rem; } }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../index.html" class="back-link">← Math Model</a>
+  <div class="hdr">Circles<span>Odd shapes, cut-outs and shaded regions</span></div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Circles</h1>
+    <p>Circle questions are rarely hard because of the formula. They are hard because the shape is odd,
+      and because perimeter and area need different thinking. Four strategies cover almost all of them.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-p="basics" onclick="go('basics')">Formulas &amp; parts</button>
+    <button class="tab"    data-p="strat"  onclick="go('strat')">Four strategies</button>
+    <button class="tab"    data-p="routine" onclick="go('routine')">How to attack</button>
+    <button class="tab"    data-p="traps"  onclick="go('traps')">Traps &amp; checks</button>
+  </div>
+
+  <section class="pane on" id="p-basics"><div id="basics"></div></section>
+  <section class="pane" id="p-strat"><div id="strat"></div></section>
+  <section class="pane" id="p-routine"><div id="routine"></div></section>
+  <section class="pane" id="p-traps"><div id="traps"></div></section>
+</main>
+
+<script src="../shared.js"></script>
+<script>
+var D=null;
+function E(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function kw(a){ return '<div class="kw">'+(a||[]).map(function(x){return '<span>'+E(x)+'</span>';}).join('')+'</div>'; }
+
+/* Small diagrams, one per strategy. Drawn here rather than in the data,
+   because they illustrate the method rather than any single question. */
+var SVG = {
+  subtract: "<rect x='30' y='20' width='120' height='120' fill='rgba(56,189,248,.18)' stroke='currentColor' stroke-width='2'/>"+
+            "<circle cx='90' cy='80' r='60' fill='var(--card,#243347)' stroke='currentColor' stroke-width='2'/>"+
+            "<text x='30' y='158' fill='currentColor' font-size='11'>shaded = square - circle</text>",
+  rearrange:"<rect x='45' y='45' width='100' height='60' fill='rgba(34,197,94,.18)' stroke='currentColor' stroke-width='2'/>"+
+            "<path d='M 145 45 A 30 30 0 0 1 145 105' fill='rgba(34,197,94,.18)' stroke='currentColor' stroke-width='2'/>"+
+            "<path d='M 45 45 A 30 30 0 0 0 45 105' fill='var(--card,#243347)' stroke='currentColor' stroke-width='2' stroke-dasharray='4 3'/>"+
+            "<text x='20' y='132' fill='currentColor' font-size='11'>bump added = bite removed</text>",
+  split:    "<rect x='55' y='40' width='80' height='80' fill='rgba(56,189,248,.14)' stroke='currentColor' stroke-width='2'/>"+
+            "<path d='M 55 40 A 40 40 0 0 0 55 120 Z' fill='rgba(245,158,11,.22)' stroke='currentColor' stroke-width='2'/>"+
+            "<path d='M 135 40 A 40 40 0 0 1 135 120 Z' fill='rgba(245,158,11,.22)' stroke='currentColor' stroke-width='2'/>"+
+            "<text x='24' y='150' fill='currentColor' font-size='11'>rectangle + two half circles</text>",
+  overlap:  "<circle cx='72' cy='80' r='46' fill='rgba(56,189,248,.20)' stroke='currentColor' stroke-width='2'/>"+
+            "<circle cx='118' cy='80' r='46' fill='rgba(244,114,182,.20)' stroke='currentColor' stroke-width='2'/>"+
+            "<text x='18' y='150' fill='currentColor' font-size='11'>middle counted twice, subtract once</text>"
+};
+
+fetch('../content/circles.json',{cache:'no-cache'}).then(function(r){return r.json();})
+  .then(function(d){ D=d; draw(); })
+  .catch(function(){ document.getElementById('basics').innerHTML='<div class="card"><p>Could not load the circles data.</p></div>'; });
+
+function draw(){
+  document.getElementById('basics').innerHTML =
+    '<div class="card"><h2>'+E(D.formulas.title)+'</h2><div class="wrap"><table class="t">'+
+      '<thead><tr><th style="width:34%">What</th><th style="width:26%">Formula</th><th>Note</th></tr></thead><tbody>'+
+      D.formulas.rows.map(function(r){
+        return '<tr><td style="font-weight:700">'+E(r.what)+'</td><td class="fx">'+E(r.formula)+'</td>'+
+               '<td style="color:var(--muted)">'+E(r.note)+'</td></tr>'; }).join('')+
+      '</tbody></table></div></div>'+
+
+    '<div class="card"><h2>'+E(D.pi.title)+'</h2><p class="intro">'+E(D.pi.rule)+'</p><div class="pi">'+
+      D.pi.decide.map(function(x){
+        return '<div class="pibox"><div class="v">'+E(x.use)+'</div><p><b>Use when:</b> '+E(x.when)+'</p>'+
+               '<p class="why">'+E(x.why)+'</p></div>'; }).join('')+
+      '</div><div class="warn" style="margin-top:.7rem">'+E(D.pi.warn)+'</div></div>'+
+
+    '<div class="card"><h2>'+E(D.parts.title)+'</h2><p class="intro">'+E(D.parts.intro)+'</p><div class="wrap"><table class="t">'+
+      '<thead><tr><th>Part</th><th>Area</th><th>Perimeter</th><th>Watch</th></tr></thead><tbody>'+
+      D.parts.rows.map(function(r){
+        return '<tr><td style="font-weight:700">'+E(r.part)+'</td><td class="fx">'+E(r.area)+'</td>'+
+               '<td class="fx">'+E(r.perimeter)+'</td><td style="color:#fde68a">'+E(r.watch)+'</td></tr>'; }).join('')+
+      '</tbody></table></div><div class="golden">'+E(D.parts.goldenRule)+'</div></div>';
+
+  document.getElementById('strat').innerHTML =
+    '<div class="card"><h2>'+E(D.strategies.title)+'</h2><p class="intro">'+E(D.strategies.intro)+'</p></div>'+
+    D.strategies.list.map(function(s,i){
+      return '<div class="card"><div class="strat">'+
+        '<div class="dia"><svg viewBox="0 0 180 165" role="img" aria-label="'+E(s.name)+' diagram">'+(SVG[s.id]||'')+'</svg></div>'+
+        '<div><h2>'+(i+1)+'. '+E(s.name)+'</h2>'+
+          '<p class="intro" style="margin-bottom:.4rem"><b>Use when:</b> '+E(s.when)+'</p>'+
+          '<div class="lbl">Clues</div>'+kw(s.clue)+
+          '<div class="lbl">How</div><ol class="how">'+s.how.map(function(h){return '<li>'+E(h)+'</li>';}).join('')+'</ol>'+
+          '<div class="lbl">Worked example</div><div class="worked">'+E(s.worked)+'</div>'+
+          '<div class="warn"><b>Trap:</b> '+E(s.trap)+'</div>'+
+        '</div></div></div>'; }).join('');
+
+  document.getElementById('routine').innerHTML =
+    '<div class="card"><h2>'+E(D.routine.title)+'</h2>'+
+    D.routine.steps.map(function(s){
+      return '<div class="step"><div class="n">'+s.n+'</div><div><p>'+E(s.do)+'</p>'+
+        '<div class="why">'+E(s.why)+'</div></div></div>'; }).join('')+'</div>';
+
+  document.getElementById('traps').innerHTML =
+    '<div class="card"><h2>Traps</h2><div class="wrap"><table class="t">'+
+      '<thead><tr><th style="width:32%">Trap</th><th style="width:38%">Fix</th><th>Cost</th></tr></thead><tbody>'+
+      D.traps.map(function(t){
+        return '<tr><td style="color:#fca5a5">'+E(t.trap)+'</td><td style="color:#bbf7d0">'+E(t.fix)+'</td>'+
+               '<td style="color:var(--muted)">'+E(t.cost)+'</td></tr>'; }).join('')+
+      '</tbody></table></div></div>'+
+    '<div class="card"><h2>Quick sanity checks</h2><ul class="chk">'+
+      D.quickChecks.map(function(c){return '<li>'+E(c)+'</li>';}).join('')+'</ul></div>';
+}
+
+function go(p){
+  var t=document.querySelectorAll('.tab'), s=document.querySelectorAll('.pane'), i;
+  for(i=0;i<t.length;i++) t[i].classList.toggle('on', t[i].dataset.p===p);
+  for(i=0;i<s.length;i++) s[i].classList.toggle('on', s[i].id==='p-'+p);
+}
+</script>
+</body>
+</html>
