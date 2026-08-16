@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paper 2 Traps — PSLE English Studio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.5rem;
+                   display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 7px;
+                 padding: .35rem .75rem; font-size: .8rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    .hdr-t { flex: 1; min-width: 170px; font-weight: 800; font-size: .95rem; }
+    .hdr-t span { display: block; font-size: .72rem; color: var(--muted); font-weight: 400; }
+
+    main { max-width: 920px; margin: 0 auto; padding: 1.2rem 1.25rem 5rem; }
+    .hero h1 { font-size: 1.5rem; margin-bottom: .25rem; }
+    .hero p  { color: var(--muted); font-size: .9rem; line-height: 1.7; margin-bottom: .9rem; }
+
+    .tabs { display: flex; gap: .4rem; border-bottom: 1px solid var(--border); margin-bottom: 1.1rem; flex-wrap: wrap; }
+    .tab { background: transparent; border: 0; padding: .6rem .9rem; color: var(--muted); font-size: .9rem;
+           font-weight: 700; cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit; }
+    .tab:hover { color: var(--text); }
+    .tab.on { color: var(--text); border-bottom-color: var(--comprehension); }
+    section.panel { display: none; } section.panel.on { display: block; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .85rem; }
+    .card h2 { font-size: 1rem; margin: 0 0 .45rem; }
+    .card h3 { font-size: .9rem; margin: .9rem 0 .35rem; color: var(--comprehension); }
+    .card p.lede { font-size: .86rem; color: var(--muted); line-height: 1.7; margin: 0 0 .5rem; }
+    .card p.lede:last-child { margin-bottom: 0; }
+    ul.tight { margin: 0; padding-left: 1.05rem; }
+    ul.tight li { font-size: .85rem; line-height: 1.65; color: var(--muted); margin-bottom: .32rem; }
+
+    /* toolbar */
+    .searchbar { position: relative; margin-bottom: .65rem; }
+    .searchbar input { width: 100%; background: var(--surface); border: 1.5px solid var(--border); color: var(--text);
+                       border-radius: 10px; padding: .62rem .9rem .62rem 2.2rem; font-size: .9rem; outline: none; font-family: inherit; }
+    .searchbar input:focus { border-color: var(--comprehension); }
+    .searchbar .ic { position: absolute; left: .75rem; top: 50%; transform: translateY(-50%); opacity: .55; font-size: .85rem; pointer-events: none; }
+    .frow { display: flex; gap: .3rem; flex-wrap: wrap; align-items: center; margin-bottom: .6rem; }
+    .chip { padding: .26rem .65rem; border-radius: 99px; border: 1px solid var(--border); background: transparent;
+            color: var(--muted); font-size: .75rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .12s; }
+    .chip:hover { color: var(--text); border-color: var(--comprehension); }
+    .chip.on { background: var(--comprehension); border-color: var(--comprehension); color: #06141a; }
+    .chip .n { opacity: .65; font-weight: 600; margin-left: .22rem; }
+    .chip.warn { border-color: #fbbf24; color: #fbbf24; }
+    .chip.warn.on { background: #fbbf24; color: #2a1c00; }
+    .countline { font-size: .8rem; color: var(--muted); margin-left: auto; }
+    .countline b { color: var(--text); }
+
+    /* section header */
+    .sechead { display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; margin: 1.2rem 0 .5rem; padding-bottom: .35rem;
+               border-bottom: 1px solid var(--border); }
+    .sechead h2 { font-size: 1rem; margin: 0; }
+    .sechead .meta { font-size: .72rem; color: var(--muted); }
+    .sechead .bk { font-size: .62rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+                   color: var(--comprehension); border: 1px solid var(--comprehension); border-radius: 4px; padding: .05rem .3rem; }
+    .oneline { font-size: .84rem; color: var(--muted); line-height: 1.6; margin: 0 0 .55rem; }
+    .routine { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .6rem .8rem; margin-bottom: .7rem; }
+    .routine .rl { font-size: .62rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 800; color: var(--muted); margin-bottom: .3rem; }
+    .routine ol { margin: 0; padding-left: 1.1rem; }
+    .routine li { font-size: .82rem; line-height: 1.6; color: var(--text); margin-bottom: .22rem; }
+
+    /* trap card */
+    .trap { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--border);
+            border-radius: 10px; padding: .7rem .9rem; margin-bottom: .55rem; }
+    .trap.every-time { border-left-color: #f87171; }
+    .trap.sometimes  { border-left-color: #fbbf24; }
+    .trap.rare       { border-left-color: var(--border); }
+    .trap .th { display: flex; gap: .5rem; align-items: baseline; flex-wrap: wrap; }
+    .trap .tt { font-size: .92rem; font-weight: 700; color: var(--text); line-height: 1.4; flex: 1; min-width: 60%; }
+    .cost { font-size: .6rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 800; white-space: nowrap; }
+    .cost.every-time { color: #f87171; }
+    .cost.sometimes  { color: #fbbf24; }
+    .cost.rare       { color: var(--muted); }
+    .wr { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin: .5rem 0 .35rem; }
+    .wr div { border-radius: 8px; padding: .45rem .6rem; font-size: .81rem; line-height: 1.55; }
+    .wr .x { background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.28); color: #fecaca; }
+    .wr .v { background: rgba(52,211,153,.08); border: 1px solid rgba(52,211,153,.28); color: #bbf7d0; }
+    .wr .lb { display: block; font-size: .6rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 800; opacity: .75; margin-bottom: .15rem; }
+    .why { font-size: .79rem; color: var(--muted); line-height: 1.55; margin-bottom: .3rem; }
+    .fixline { font-size: .82rem; line-height: 1.6; color: var(--text); background: var(--surface);
+               border-radius: 8px; padding: .4rem .6rem; }
+    .fixline b { color: var(--comprehension); }
+
+    /* ladder / steps */
+    .step { border: 1px solid var(--border); border-radius: 10px; padding: .65rem .8rem; margin-bottom: .5rem; display: flex; gap: .7rem; background: var(--card); }
+    .step .n { flex: none; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center;
+               background: var(--surface); border: 1px solid var(--comprehension); color: var(--comprehension); font-weight: 800; font-size: .78rem; }
+    .step .sd { font-size: .89rem; font-weight: 700; margin-bottom: .2rem; }
+    .step .sh { font-size: .82rem; color: var(--muted); line-height: 1.6; margin-bottom: .25rem; }
+    .step .sk { font-size: .76rem; color: #86efac; line-height: 1.5; }
+
+    /* tables */
+    .tw { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; margin-bottom: .8rem; }
+    table.t { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    table.t th, table.t td { text-align: left; padding: .42rem .65rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    table.t th { font-size: .63rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); white-space: nowrap; }
+    table.t tr:last-child td { border-bottom: none; }
+    table.t td.k { font-weight: 700; color: var(--comprehension); white-space: nowrap; }
+    table.t td.m { color: var(--text); }
+    table.t td.e { color: var(--muted); font-style: italic; }
+    table.t td.x { color: #fca5a5; }
+    table.t td.v { color: #bbf7d0; }
+
+    .pill { display: inline-block; font-size: .74rem; padding: .16rem .48rem; border-radius: 5px; background: var(--surface);
+            border: 1px solid var(--border); color: var(--text); margin: 0 .22rem .22rem 0; }
+    .grp { margin-bottom: .7rem; }
+    .grp .gl { font-size: .64rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 800; color: var(--muted); margin-bottom: .3rem; }
+
+    /* patterns */
+    .pat { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: .75rem .9rem; margin-bottom: .55rem; }
+    .pat h3 { font-size: .92rem; margin: 0 0 .1rem; color: var(--text); }
+    .pat .cue { font-size: .73rem; color: var(--comprehension); font-weight: 700; margin-bottom: .35rem; }
+    .pat .rule { font-size: .83rem; line-height: 1.6; color: var(--muted); margin-bottom: .4rem; }
+
+    /* domains */
+    .dom { background: var(--card); border: 1px solid var(--border); border-radius: 11px; padding: .8rem .95rem; margin-bottom: .65rem; }
+    .dom h3 { font-size: .95rem; margin: 0 0 .5rem; color: var(--comprehension); }
+    .word { border-bottom: 1px solid var(--border); padding: .42rem 0; }
+    .word:last-child { border-bottom: none; }
+    .word b { font-size: .87rem; color: var(--text); }
+    .word .mn { font-size: .82rem; color: var(--muted); }
+    .word .sn { display: block; font-size: .78rem; color: #cbd5e1; font-style: italic; margin-top: .12rem; }
+
+    /* spelling drill */
+    .drill { background: var(--card); border: 1px solid var(--comprehension); border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .9rem; }
+    .drill .prompt { font-size: 1.2rem; font-weight: 800; color: #fca5a5; text-align: center; margin: .5rem 0 .1rem; letter-spacing: .01em; }
+    .drill .sub { font-size: .78rem; color: var(--muted); text-align: center; margin-bottom: .7rem; }
+    .drill input { width: 100%; background: var(--surface); border: 1.5px solid var(--border); color: var(--text);
+                   border-radius: 9px; padding: .6rem .8rem; font-size: 1rem; outline: none; font-family: inherit; text-align: center; }
+    .drill input:focus { border-color: var(--comprehension); }
+    .drill .btns { display: flex; gap: .5rem; margin-top: .6rem; flex-wrap: wrap; }
+    .btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 9px;
+           padding: .5rem .9rem; font-size: .84rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn:hover { border-color: var(--comprehension); }
+    .btn.primary { background: var(--comprehension); border-color: var(--comprehension); color: #06141a; }
+    .verdict { margin-top: .6rem; font-size: .88rem; line-height: 1.6; padding: .5rem .7rem; border-radius: 8px; display: none; }
+    .verdict.ok  { display: block; background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.3); color: #bbf7d0; }
+    .verdict.no  { display: block; background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.3); color: #fecaca; }
+    .score { font-size: .78rem; color: var(--muted); text-align: center; margin-top: .5rem; }
+
+    .empty { color: var(--muted); font-size: .87rem; text-align: center; padding: 2rem 1rem; line-height: 1.7; }
+
+    @media (max-width: 640px) {
+      main { padding: 1rem .9rem 4rem; }
+      .wr { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../index.html" class="back-link">← English Studio</a>
+  <div class="hdr-t">Paper 2 Traps<span>Where the 90 marks actually go, and what to do when you are stuck</span></div>
+  <a href="../wordbank/" class="back-link">📚 Word Bank</a>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Paper 2 Traps</h1>
+    <p id="heroNote">Loading…</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-p="traps"    onclick="go('traps')">The traps</button>
+    <button class="tab"    data-p="rescue"   onclick="go('rescue')">Unknown word rescue</button>
+    <button class="tab"    data-p="words"    onclick="go('words')">Word lists</button>
+    <button class="tab"    data-p="synth"    onclick="go('synth')">Synthesis patterns</button>
+    <button class="tab"    data-p="spelling" onclick="go('spelling')">Spelling</button>
+  </div>
+
+  <section class="panel on" id="p-traps">
+    <div class="searchbar">
+      <span class="ic">🔍</span>
+      <input id="q" type="search" placeholder="Search a trap, a rule, a wrong sentence…" autocomplete="off" aria-label="Search the traps">
+    </div>
+    <div class="frow" id="secChips"></div>
+    <div class="frow">
+      <button class="chip warn" id="costBtn" type="button" onclick="toggleCost()">Only the ones that cost marks every time</button>
+      <button class="chip" type="button" onclick="clearAll()">Clear</button>
+      <span class="countline" id="count"></span>
+    </div>
+    <div id="trapList"></div>
+  </section>
+
+  <section class="panel" id="p-rescue">
+    <div class="card" id="rescueIntro"></div>
+    <div id="ladder"></div>
+    <div id="clues"></div>
+    <div id="morph"></div>
+    <div id="stuck"></div>
+  </section>
+
+  <section class="panel" id="p-words">
+    <div class="searchbar">
+      <span class="ic">🔍</span>
+      <input id="wq" type="search" placeholder="Search a word or a meaning…" autocomplete="off" aria-label="Search the word lists">
+    </div>
+    <div id="wordsIntro"></div>
+    <div id="domains"></div>
+    <div id="confuse"></div>
+    <div id="colloc"></div>
+  </section>
+
+  <section class="panel" id="p-synth">
+    <div class="card" id="synthIntro"></div>
+    <div id="patterns"></div>
+  </section>
+
+  <section class="panel" id="p-spelling">
+    <div class="card" id="spellIntro"></div>
+    <div class="drill" id="drill">
+      <div style="font-size:.64rem;text-transform:uppercase;letter-spacing:.07em;font-weight:800;color:var(--muted);text-align:center;">Spot the misspelling</div>
+      <div class="prompt" id="dPrompt">—</div>
+      <div class="sub">Type the correct spelling</div>
+      <input id="dInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Type the correct spelling">
+      <div class="btns">
+        <button class="btn primary" type="button" onclick="checkSpell()">Check</button>
+        <button class="btn" type="button" onclick="nextSpell()">Skip →</button>
+      </div>
+      <div class="verdict" id="dVerdict"></div>
+      <div class="score" id="dScore"></div>
+    </div>
+    <div id="spellRules"></div>
+    <div id="spellList"></div>
+  </section>
+</main>
+
+<script src="../shared.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var D = null, selSec = {}, onlyEvery = false, q = '', wq = '';
+  var demons = [], dIdx = 0, dRight = 0, dDone = 0, dAnswered = false;
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function costLabel(c) {
+    return c === 'every-time' ? 'Costs marks every time'
+         : c === 'sometimes'  ? 'Costs marks sometimes' : 'Rare';
+  }
+  function anySec() { for (var k in selSec) if (selSec[k]) return true; return false; }
+
+  /* ── Traps ── */
+  function trapMatches(s, t) {
+    if (anySec() && !selSec[s.id]) return false;
+    if (onlyEvery && t.cost !== 'every-time') return false;
+    if (q) {
+      var hay = (t.trap + ' ' + t.wrong + ' ' + t.right + ' ' + t.why + ' ' + t.fix + ' ' + s.label).toLowerCase();
+      if (hay.indexOf(q) === -1) return false;
+    }
+    return true;
+  }
+  function trapHTML(t) {
+    return '<div class="trap ' + t.cost + '">' +
+      '<div class="th"><div class="tt">' + esc(t.trap) + '</div>' +
+      '<span class="cost ' + t.cost + '">' + esc(costLabel(t.cost)) + '</span></div>' +
+      '<div class="wr">' +
+        '<div class="x"><span class="lb">Wrong</span>' + esc(t.wrong) + '</div>' +
+        '<div class="v"><span class="lb">Right</span>' + esc(t.right) + '</div>' +
+      '</div>' +
+      '<div class="why">' + esc(t.why) + '</div>' +
+      '<div class="fixline"><b>Do this:</b> ' + esc(t.fix) + '</div>' +
+    '</div>';
+  }
+  function renderTraps() {
+    var html = '', shown = 0, total = 0;
+    D.sections.forEach(function (s) {
+      total += s.traps.length;
+      var hits = s.traps.filter(function (t) { return trapMatches(s, t); });
+      if (!hits.length) return;
+      shown += hits.length;
+      html += '<div class="sechead"><span class="bk">Booklet ' + esc(s.booklet) + '</span>' +
+        '<h2>' + esc(s.label) + '</h2>' +
+        '<span class="meta">' + s.marks + ' marks · about ' + s.minutes + ' min</span></div>' +
+        '<p class="oneline">' + esc(s.oneLine) + '</p>' +
+        (q || onlyEvery ? '' :
+          '<div class="routine"><div class="rl">The routine</div><ol>' +
+          s.routine.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ol></div>') +
+        hits.map(trapHTML).join('');
+    });
+    $('trapList').innerHTML = html || '<div class="empty">No trap matches that. Try clearing a filter.</div>';
+    $('count').innerHTML = '<b>' + shown + '</b> of ' + total + ' traps';
+    renderSecChips();
+  }
+  function renderSecChips() {
+    $('secChips').innerHTML = D.sections.map(function (s) {
+      var n = s.traps.filter(function (t) {
+        return (!onlyEvery || t.cost === 'every-time') &&
+               (!q || (t.trap + ' ' + t.wrong + ' ' + t.right + ' ' + t.why + ' ' + t.fix + ' ' + s.label).toLowerCase().indexOf(q) !== -1);
+      }).length;
+      return '<button class="chip' + (selSec[s.id] ? ' on' : '') + '" type="button" data-sec="' + esc(s.id) + '">' +
+        esc(s.label) + '<span class="n">' + n + '</span></button>';
+    }).join('');
+    $('costBtn').classList.toggle('on', onlyEvery);
+  }
+
+  /* ── Rescue ── */
+  function renderRescue() {
+    var v = D.vocabRescue;
+    $('rescueIntro').innerHTML = '<h2>When you do not know the word</h2><p class="lede">' + esc(v.note) + '</p>';
+
+    $('ladder').innerHTML = '<div class="card"><h2>' + esc(v.ladder.title) + '</h2>' +
+      '<p class="lede">' + esc(v.ladder.intro) + '</p></div>' +
+      v.ladder.steps.map(function (s) {
+        return '<div class="step"><div class="n">' + s.n + '</div><div>' +
+          '<div class="sd">' + esc(s.do) + '</div>' +
+          '<div class="sh">' + esc(s.how) + '</div>' +
+          '<div class="sk">Kills: ' + esc(s.kills) + '</div></div></div>';
+      }).join('');
+
+    $('clues').innerHTML = '<div class="card"><h2>' + esc(v.clueTypes.title) + '</h2>' +
+      '<p class="lede">' + esc(v.clueTypes.intro) + '</p>' +
+      v.clueTypes.list.map(function (c) {
+        return '<h3>' + esc(c.type) + '</h3>' +
+          '<div class="grp"><div class="gl">Signals</div>' +
+          c.signals.split(', ').map(function (s) { return '<span class="pill">' + esc(s) + '</span>'; }).join('') + '</div>' +
+          '<div class="why" style="font-style:italic;color:#cbd5e1">' + esc(c.example) + '</div>' +
+          '<div class="fixline">' + esc(c.howToUse) + '</div>';
+      }).join('') + '</div>';
+
+    function partTable(rows, head) {
+      return '<div class="tw"><table class="t"><thead><tr><th style="width:150px">' + head +
+        '</th><th style="width:150px">Means</th><th>You have seen it in</th></tr></thead><tbody>' +
+        rows.map(function (r) {
+          return '<tr><td class="k">' + esc(r.part) + '</td><td class="m">' + esc(r.means) +
+            '</td><td class="e">' + esc(r.example) + '</td></tr>';
+        }).join('') + '</tbody></table></div>';
+    }
+    var m = v.morphology;
+    $('morph').innerHTML = '<div class="card"><h2>' + esc(m.title) + '</h2>' +
+      '<p class="lede">' + esc(m.intro) + '</p>' +
+      '<h3>Front of the word: it sets the direction</h3>' + partTable(m.prefixes, 'Prefix') +
+      '<h3>Middle of the word: it carries the meaning</h3>' + partTable(m.roots, 'Root') +
+      '<h3>End of the word: it sets the word class</h3>' + partTable(m.suffixes, 'Suffix') +
+      '</div>';
+
+    $('stuck').innerHTML = '<div class="card"><h2>' + esc(v.whenStuck.title) + '</h2>' +
+      '<p class="lede">' + esc(v.whenStuck.intro) + '</p>' +
+      '<div class="tw"><table class="t"><thead><tr><th style="width:140px">Where</th><th>Rule</th></tr></thead><tbody>' +
+      v.whenStuck.rules.map(function (r) {
+        return '<tr><td class="k">' + esc(r.where) + '</td><td class="m">' + esc(r.rule) + '</td></tr>';
+      }).join('') + '</tbody></table></div></div>';
+  }
+
+  /* ── Words ── */
+  function renderWords() {
+    var v = D.vocabRescue, hit = 0;
+    function ok(txt) { return !wq || txt.toLowerCase().indexOf(wq) !== -1; }
+
+    $('wordsIntro').innerHTML = '<div class="card"><h2>' + esc(v.domains.title) + '</h2>' +
+      '<p class="lede">' + esc(v.domains.intro) + '</p></div>';
+
+    $('domains').innerHTML = v.domains.list.map(function (d) {
+      var ws = d.words.filter(function (w) { return ok(w.word + ' ' + w.means + ' ' + w.seenIn + ' ' + d.domain); });
+      hit += ws.length;
+      if (!ws.length) return '';
+      return '<div class="dom"><h3>' + esc(d.domain) + '</h3>' +
+        ws.map(function (w) {
+          return '<div class="word"><b>' + esc(w.word) + '</b> <span class="mn">— ' + esc(w.means) + '</span>' +
+            '<span class="sn">' + esc(w.seenIn) + '</span></div>';
+        }).join('') + '</div>';
+    }).join('');
+
+    var cf = v.confusables.list.filter(function (c) { return ok(c.a + ' ' + c.b + ' ' + c.test); });
+    $('confuse').innerHTML = '<div class="card"><h2>' + esc(v.confusables.title) +
+      ' <span style="font-weight:400;color:var(--muted);font-size:.8rem">' + cf.length + '</span></h2>' +
+      '<p class="lede">' + esc(v.confusables.intro) + '</p>' +
+      (cf.length ? '<div class="tw"><table class="t"><thead><tr><th style="width:32%">This one</th><th style="width:32%">Not this one</th><th>How to tell</th></tr></thead><tbody>' +
+        cf.map(function (c) {
+          return '<tr><td class="v">' + esc(c.a) + '</td><td class="x">' + esc(c.b) + '</td><td class="e">' + esc(c.test) + '</td></tr>';
+        }).join('') + '</tbody></table></div>' : '<p class="lede">Nothing matches that search.</p>') + '</div>';
+
+    $('colloc').innerHTML = '<div class="card"><h2>' + esc(v.collocations.title) + '</h2>' +
+      '<p class="lede">' + esc(v.collocations.intro) + '</p>' +
+      v.collocations.groups.map(function (g) {
+        var items = g.items.filter(ok);
+        if (!items.length) return '';
+        return '<div class="grp"><div class="gl">' + esc(g.label) + '</div>' +
+          items.map(function (i) { return '<span class="pill">' + esc(i) + '</span>'; }).join('') + '</div>';
+      }).join('') + '</div>';
+  }
+
+  /* ── Synthesis ── */
+  function renderSynth() {
+    var s = D.synthesisPatterns;
+    $('synthIntro').innerHTML = '<h2>The patterns, and what goes wrong in each</h2>' +
+      '<p class="lede">' + esc(s.note) + '</p>' +
+      '<p class="lede">Each item is worth two marks: one for the grammar and one for the meaning. ' +
+      'You can lose either on its own, so check them as two separate steps.</p>';
+    $('patterns').innerHTML = s.list.map(function (p) {
+      return '<div class="pat"><h3>' + esc(p.name) + '</h3>' +
+        '<div class="cue">Given to you: ' + esc(p.cue) + '</div>' +
+        '<div class="rule">' + esc(p.rule) + '</div>' +
+        '<div class="wr"><div class="x"><span class="lb">Wrong</span>' + esc(p.wrong) + '</div>' +
+        '<div class="v"><span class="lb">Right</span>' + esc(p.right) + '</div></div>' +
+        '<div class="fixline"><b>Trap:</b> ' + esc(p.trap) + '</div></div>';
+    }).join('');
+  }
+
+  /* ── Spelling ── */
+  function renderSpelling() {
+    var s = D.spelling;
+    $('spellIntro').innerHTML = '<h2>Spelling</h2><p class="lede">' + esc(s.note) + '</p>';
+    $('spellRules').innerHTML = '<div class="card"><h2>The rules that cover most of it</h2>' +
+      '<div class="tw"><table class="t"><thead><tr><th style="width:32%">Rule</th><th style="width:34%">Examples</th><th>Watch out</th></tr></thead><tbody>' +
+      s.rules.map(function (r) {
+        return '<tr><td class="m">' + esc(r.rule) + '</td><td class="v">' + esc(r.examples) +
+          '</td><td class="e">' + esc(r.exceptions) + '</td></tr>';
+      }).join('') + '</tbody></table></div></div>';
+    $('spellList').innerHTML = '<div class="card"><h2>The words that keep appearing <span style="font-weight:400;color:var(--muted);font-size:.8rem">' +
+      s.demons.length + '</span></h2>' +
+      '<div class="tw"><table class="t"><thead><tr><th style="width:50%">Often written</th><th>Correct</th></tr></thead><tbody>' +
+      s.demons.map(function (d) {
+        return '<tr><td class="x">' + esc(d.wrong) + '</td><td class="v">' + esc(d.right) + '</td></tr>';
+      }).join('') + '</tbody></table></div></div>';
+  }
+
+  function shuffle(a) {
+    var i, j, t;
+    for (i = a.length - 1; i > 0; i--) { j = Math.floor(Math.random() * (i + 1)); t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function showSpell() {
+    var d = demons[dIdx];
+    $('dPrompt').textContent = d.wrong;
+    $('dInput').value = '';
+    $('dVerdict').className = 'verdict';
+    $('dVerdict').textContent = '';
+    $('dScore').textContent = dDone ? dRight + ' right out of ' + dDone : '';
+    dAnswered = false;
+  }
+  window.nextSpell = function () {
+    dIdx = (dIdx + 1) % demons.length;
+    if (dIdx === 0) shuffle(demons);
+    showSpell();
+    $('dInput').focus();
+  };
+  window.checkSpell = function () {
+    if (dAnswered) { nextSpell(); return; }
+    var d = demons[dIdx], v = $('dVerdict');
+    var given = $('dInput').value.trim().toLowerCase();
+    if (!given) { $('dInput').focus(); return; }
+    dAnswered = true; dDone++;
+    if (given === d.right.toLowerCase()) {
+      dRight++;
+      v.className = 'verdict ok';
+      v.textContent = 'Correct. ' + d.right;
+    } else {
+      v.className = 'verdict no';
+      v.textContent = 'Not quite. It is ' + d.right + ', not ' + given + '.';
+    }
+    $('dScore').textContent = dRight + ' right out of ' + dDone;
+  };
+
+  /* ── Controls ── */
+  window.go = function (p) {
+    var t = document.querySelectorAll('.tab'), s = document.querySelectorAll('.panel'), i;
+    for (i = 0; i < t.length; i++) t[i].classList.toggle('on', t[i].dataset.p === p);
+    for (i = 0; i < s.length; i++) s[i].classList.toggle('on', s[i].id === 'p-' + p);
+  };
+  window.toggleCost = function () { onlyEvery = !onlyEvery; renderTraps(); };
+  window.clearAll = function () { selSec = {}; onlyEvery = false; q = ''; $('q').value = ''; renderTraps(); };
+
+  document.addEventListener('click', function (ev) {
+    var c = ev.target.closest ? ev.target.closest('[data-sec]') : null;
+    if (c) { var id = c.getAttribute('data-sec'); selSec[id] = !selSec[id]; renderTraps(); }
+  });
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter' && document.activeElement === $('dInput')) { ev.preventDefault(); checkSpell(); }
+  });
+
+  fetch('../shared/content/p2-traps.json', { cache: 'no-cache' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      D = d;
+      var ps = D.meta.paperShape;
+      $('heroNote').innerHTML = esc(D.meta.note) +
+        '<br><br><b style="color:var(--text)">' + ps.marks + ' marks, ' + esc(ps.time) + '.</b> ' +
+        esc(ps.bookletA) + ' ' + esc(ps.bookletB);
+      var u = new URLSearchParams(location.search);
+      (u.get('sec') || '').split(',').filter(Boolean).forEach(function (s) { selSec[s] = true; });
+      if (u.get('every') === '1') onlyEvery = true;
+      if (u.get('q')) { q = u.get('q').toLowerCase(); $('q').value = u.get('q'); }
+      renderTraps(); renderRescue(); renderWords(); renderSynth(); renderSpelling();
+      if (u.get('tab')) go(u.get('tab'));
+      demons = shuffle(D.spelling.demons.slice()); showSpell();
+      $('q').addEventListener('input', function () { q = this.value.trim().toLowerCase(); renderTraps(); });
+      $('wq').addEventListener('input', function () { wq = this.value.trim().toLowerCase(); renderWords(); });
+    })
+    .catch(function () {
+      $('heroNote').textContent = 'Could not load the Paper 2 data. Open this page through the site rather than as a bare file.';
+      $('trapList').innerHTML = '<div class="empty">No data loaded.</div>';
+    });
+})();
+</script>
+</body>
+</html>
