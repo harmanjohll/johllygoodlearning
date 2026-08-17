@@ -123,7 +123,8 @@
 
   <div class="tabs">
     <button class="tab on" data-p="learn"  onclick="go('learn')">How it works</button>
-    <button class="tab"    data-p="eleven" onclick="go('eleven')">The eleven nets</button>
+    <button class="tab"    data-p="eleven" onclick="go('eleven')">The eleven cube nets</button>
+    <button class="tab"    data-p="other"  onclick="go('other')">Other solids</button>
     <button class="tab"    data-p="fold"   onclick="go('fold')">Drill: fold or fake?</button>
     <button class="tab"    data-p="opp"    onclick="go('opp')">Drill: opposite face</button>
     <button class="tab"    data-p="traps"  onclick="go('traps')">Traps</button>
@@ -140,6 +141,8 @@
 
   <section class="pane" id="p-eleven"><div id="families"></div></section>
 
+  <section class="pane" id="p-other"><div id="other"></div></section>
+
   <section class="pane" id="p-fold">
     <div class="card">
       <h2>Fold or fake?</h2>
@@ -147,8 +150,12 @@
         twenty-four do not. Decide before you look at the answer, and read the reason each time: the reason is
         what you are actually learning.</p>
     </div>
+    <div class="btns" style="margin-bottom:.8rem">
+      <button class="btn primary" id="srcCube"  type="button" onclick="setSource('cube')">Cube shapes · 35</button>
+      <button class="btn"         id="srcOther" type="button" onclick="setSource('other')">Other solids · 23</button>
+    </div>
     <div class="drill">
-      <div class="q">Would this fold into a cube?</div>
+      <div class="q" id="fQ">Would this fold into a cube?</div>
       <div class="stage" id="fStage"></div>
       <div class="btns">
         <button class="btn primary" type="button" onclick="answerFold(true)">Yes, it folds</button>
@@ -213,6 +220,58 @@ function svgNet(h, opts) {
     }
   });
   return out + '</svg>';
+}
+
+/* ── draw a net made of arbitrary polygons, circles and sectors ── */
+var SFILL = {
+  sq:    ['rgba(56,189,248,.20)','#38bdf8'], rect:  ['rgba(56,189,248,.20)','#38bdf8'],
+  rect2: ['rgba(167,139,250,.20)','#a78bfa'], rect3: ['rgba(34,197,94,.18)','#22c55e'],
+  tri:   ['rgba(34,197,94,.18)','#22c55e'],  tri2:  ['rgba(167,139,250,.20)','#a78bfa'],
+  circ:  ['rgba(251,191,36,.18)','#fbbf24'], sect:  ['rgba(251,191,36,.18)','#fbbf24'],
+  bad:   ['rgba(239,68,68,.20)','#ef4444']
+};
+function arcPt(cx, cy, r, deg) {
+  var a = deg * Math.PI / 180;
+  return [cx + r * Math.cos(a), cy - r * Math.sin(a)];
+}
+function svgShapes(net, opts) {
+  opts = opts || {};
+  var K = opts.size || 34, P = 6;
+  var xs = [], ys = [];
+  net.shapes.forEach(function (sh) {
+    if (sh.t === 'poly') sh.pts.forEach(function (q) { xs.push(q[0]); ys.push(q[1]); });
+    else if (sh.t === 'circle') { xs.push(sh.c[0]-sh.r, sh.c[0]+sh.r); ys.push(sh.c[1]-sh.r, sh.c[1]+sh.r); }
+    else { // sector: centre plus the two ends plus a sweep sample
+      xs.push(sh.c[0]); ys.push(sh.c[1]);
+      for (var a = sh.a0; a <= sh.a1 + 0.001; a += 5) {
+        var q = arcPt(sh.c[0], sh.c[1], sh.r, a); xs.push(q[0]); ys.push(q[1]);
+      }
+    }
+  });
+  var minX = Math.min.apply(null, xs), minY = Math.min.apply(null, ys);
+  var W = (Math.max.apply(null, xs) - minX) * K + P * 2;
+  var H = (Math.max.apply(null, ys) - minY) * K + P * 2;
+  function X(v) { return P + (v - minX) * K; }
+  function Y(v) { return P + (v - minY) * K; }
+  var o = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H +
+          '" role="img" aria-label="net diagram">';
+  net.shapes.forEach(function (sh) {
+    var f = SFILL[sh.k] || SFILL.rect;
+    if (sh.t === 'poly') {
+      o += '<polygon points="' + sh.pts.map(function (q) { return X(q[0]) + ',' + Y(q[1]); }).join(' ') +
+           '" fill="' + f[0] + '" stroke="' + f[1] + '" stroke-width="1.6" stroke-linejoin="round"/>';
+    } else if (sh.t === 'circle') {
+      o += '<circle cx="' + X(sh.c[0]) + '" cy="' + Y(sh.c[1]) + '" r="' + (sh.r * K) +
+           '" fill="' + f[0] + '" stroke="' + f[1] + '" stroke-width="1.6"/>';
+    } else {
+      var p0 = arcPt(sh.c[0], sh.c[1], sh.r, sh.a0), p1 = arcPt(sh.c[0], sh.c[1], sh.r, sh.a1);
+      var big = (sh.a1 - sh.a0) > 180 ? 1 : 0;
+      o += '<path d="M' + X(sh.c[0]) + ' ' + Y(sh.c[1]) + ' L' + X(p0[0]) + ' ' + Y(p0[1]) +
+           ' A' + (sh.r * K) + ' ' + (sh.r * K) + ' 0 ' + big + ' 0 ' + X(p1[0]) + ' ' + Y(p1[1]) + ' Z" ' +
+           'fill="' + f[0] + '" stroke="' + f[1] + '" stroke-width="1.6" stroke-linejoin="round"/>';
+    }
+  });
+  return o + '</svg>';
 }
 
 /* ── the two verified rules, reimplemented so the drill can explain itself ── */
@@ -339,6 +398,41 @@ function draw() {
         set.map(function (h) { return '<div class="netbox bad">' + svgNet(h, { size: 20 }) + '</div>'; }).join('') + '</div>';
     }).join('') + '</div>';
 
+  var O = D.otherSolids;
+  $('other').innerHTML =
+    '<div class="card"><h2>' + E(O.title) + '</h2><p class="intro">' + E(O.intro) + '</p>' +
+    '<div class="wrap"><table class="t"><thead><tr><th>Solid</th><th>How many different nets it has</th></tr></thead><tbody>' +
+    O.counts.rows.map(function (r) {
+      return '<tr><td class="k">' + E(r.solid) + '</td><td class="n">' + r.nets + '</td></tr>';
+    }).join('') + '</tbody></table></div>' +
+    '<div class="fam"><div class="fnote">' + E(O.counts.note) + '</div></div>' +
+    '<h3>Four checks that work on every solid</h3><ul class="disc">' +
+    O.universal.map(function (u) { return '<li>' + E(u) + '</li>'; }).join('') + '</ul></div>' +
+    O.solids.map(function (sd) {
+      return '<div class="card"><h2>' + E(sd.title) +
+        (sd.count ? ' <span style="font-weight:400;color:var(--muted);font-size:.82rem">' + sd.count + ' nets</span>' : '') +
+        '</h2>' +
+        '<p class="intro">Its net is ' + E(sd.made) + '. ' + E(sd.why) + '</p>' +
+        '<h3>Check these</h3><ul class="disc">' +
+        sd.checks.map(function (c) { return '<li>' + E(c) + '</li>'; }).join('') + '</ul>' +
+        '<h3>Nets that work</h3><div class="netgrid">' +
+        sd.nets.map(function (n) {
+          return '<div class="netbox good">' + svgShapes(n, { size: 30 }) +
+                 '<div class="lbl">' + E(n.name) + '</div></div>';
+        }).join('') + '</div>' +
+        sd.nets.map(function (n) { return '<div class="fam"><div class="fnote">' + E(n.note) + '</div></div>'; }).join('') +
+        '<h3>And these do not</h3><div class="netgrid">' +
+        sd.fakes.map(function (n, i) {
+          return '<div class="netbox bad">' + svgShapes(n, { size: 26 }) +
+                 '<div class="lbl">fake ' + (i + 1) + '</div></div>';
+        }).join('') + '</div>' +
+        sd.fakes.map(function (n, i) {
+          return '<div class="test" style="margin-top:.5rem"><div class="tn">Fake ' + (i + 1) + '</div>' +
+                 '<div class="tw">' + E(n.why) + '</div></div>';
+        }).join('') +
+        '</div>';
+    }).join('');
+
   $('traps').innerHTML = '<div class="card"><h2>Traps set on purpose</h2>' +
     '<div class="wrap"><table class="t"><thead><tr><th style="width:33%">Trap</th><th style="width:40%">What to do instead</th><th>What it costs</th></tr></thead><tbody>' +
     D.traps.map(function (t) {
@@ -346,9 +440,8 @@ function draw() {
         '</td><td style="color:var(--muted)">' + E(t.cost) + '</td></tr>';
     }).join('') + '</tbody></table></div></div>';
 
-  fPool = D.hexominoes.slice();
-  shuffle(fPool);
-  nextFold(); nextOpp();
+  buildPools();
+  setSource('cube'); nextOpp();
 }
 
 function shuffle(a) {
@@ -357,32 +450,62 @@ function shuffle(a) {
   return a;
 }
 
-/* ── drill 1 ── */
+/* ── drill 1: cube shapes, or the other solids ── */
+var POOLS = { cube: [], other: [] }, fSource = 'cube';
+function buildPools() {
+  POOLS.cube = D.hexominoes.map(function (h) {
+    return { kind: 'cube', solid: 'cube', folds: h.folds, shape: h };
+  });
+  POOLS.other = [];
+  D.otherSolids.solids.forEach(function (sd) {
+    sd.nets.forEach(function (n) {
+      POOLS.other.push({ kind: 'other', solid: sd.title, folds: true, net: n, note: n.note });
+    });
+    sd.fakes.forEach(function (n) {
+      POOLS.other.push({ kind: 'other', solid: sd.title, folds: false, net: n, note: n.why });
+    });
+  });
+}
+function setSource(src) {
+  fSource = src;
+  $('srcCube').classList.toggle('primary', src === 'cube');
+  $('srcOther').classList.toggle('primary', src === 'other');
+  fPool = POOLS[src].slice(); shuffle(fPool);
+  fIdx = -1; fRight = 0; fDone = 0;
+  nextFold();
+}
 function nextFold() {
   fIdx = (fIdx + 1) % fPool.length;
   if (fIdx === 0) shuffle(fPool);
   fAnswered = false;
-  $('fStage').innerHTML = svgNet(fPool[fIdx], { size: 40 });
+  var it = fPool[fIdx];
+  $('fQ').textContent = it.kind === 'cube'
+    ? 'Would this fold into a cube?'
+    : 'Would this fold into a ' + it.solid.replace(' (tetrahedron)', '').toLowerCase() + '?';
+  $('fStage').innerHTML = it.kind === 'cube' ? svgNet(it.shape, { size: 40 }) : svgShapes(it.net, { size: 34 });
   $('fVerdict').className = 'verdict';
   $('fScore').textContent = fDone ? fRight + ' right out of ' + fDone : '';
 }
 function answerFold(said) {
   if (fAnswered) return;
-  var h = fPool[fIdx], v = $('fVerdict');
+  var it = fPool[fIdx], v = $('fVerdict');
   fAnswered = true; fDone++;
-  var correct = (said === h.folds);
+  var correct = (said === it.folds);
   if (correct) fRight++;
   var reason;
-  if (h.folds) {
+  if (it.kind === 'other') {
+    reason = (it.folds ? 'It folds. ' : 'It does not fold. ') + it.note;
+  } else if (it.folds) {
+    var h = it.shape;
     reason = 'It folds. It is the ' + h.family + ' family: ' +
       (h.family === '1-4-1' ? 'a straight run of four with a flap above and a flap below.' :
        h.family === '1-3-2' ? 'a run of three, one square on one side and a pair on the other.' :
        h.family === '2-2-2' ? 'the staircase, the one net where the straight-line rule finds nothing.' :
                               'two rows of three overlapping by exactly one column.');
   } else {
-    reason = h.why === 'block' ? 'It does not fold. There is a two-by-two block in it, and that always closes on itself.' :
-             h.why === 'line'  ? 'It does not fold. Five or more squares lie in one straight line, and a cube only has four faces going round.' :
-                                 'It does not fold, and neither quick test catches it. It passes both, but it still matches none of the four families, so two faces end up on top of each other. This is the kind used as a wrong answer in exams.';
+    reason = it.shape.why === 'block' ? 'It does not fold. There is a two-by-two block in it, and that always closes on itself.' :
+             it.shape.why === 'line'  ? 'It does not fold. Five or more squares lie in one straight line, and a cube only has four faces going round.' :
+                                        'It does not fold, and neither quick test catches it. It passes both, but it still matches none of the four families, so two faces end up on top of each other. This is the kind used as a wrong answer in exams.';
   }
   v.className = 'verdict ' + (correct ? 'ok' : 'no');
   v.innerHTML = (correct ? '<b>Correct.</b> ' : '<b>Not this one.</b> ') + E(reason);
