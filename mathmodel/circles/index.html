@@ -88,12 +88,16 @@
   <div class="tabs">
     <button class="tab on" data-p="basics" onclick="go('basics')">Formulas &amp; parts</button>
     <button class="tab"    data-p="strat"  onclick="go('strat')">Four strategies</button>
+    <button class="tab"    data-p="frac"   onclick="go('frac')">Any fraction</button>
+    <button class="tab"    data-p="worked" onclick="go('worked')">Worked examples</button>
     <button class="tab"    data-p="routine" onclick="go('routine')">How to attack</button>
     <button class="tab"    data-p="traps"  onclick="go('traps')">Traps &amp; checks</button>
   </div>
 
   <section class="pane on" id="p-basics"><div id="basics"></div></section>
   <section class="pane" id="p-strat"><div id="strat"></div></section>
+  <section class="pane" id="p-frac"><div id="frac"></div></section>
+  <section class="pane" id="p-worked"><div id="worked"></div></section>
   <section class="pane" id="p-routine"><div id="routine"></div></section>
   <section class="pane" id="p-traps"><div id="traps"></div></section>
 </main>
@@ -161,6 +165,28 @@ function draw(){
           '<div class="lbl">Worked example</div><div class="worked">'+E(s.worked)+'</div>'+
           '<div class="warn"><b>Trap:</b> '+E(s.trap)+'</div>'+
         '</div></div></div>'; }).join('');
+
+  document.getElementById('frac').innerHTML =
+    '<div class="card"><h2>'+E(D.fractions.title)+'</h2>'+
+    '<p class="intro">'+E(D.fractions.intro)+'</p>'+
+    '<div class="rule" style="font-size:.9rem;line-height:1.6;padding:.5rem .7rem;border-radius:8px;background:rgba(56,189,248,.09);border:1px solid rgba(56,189,248,.3);margin-bottom:.7rem">'+E(D.fractions.rule)+'</div>'+
+    '<div class="wrap"><table class="t"><thead><tr><th>Angle at the centre</th><th>Fraction of the circle</th><th>Called</th><th>Straight edges on the boundary</th></tr></thead><tbody>'+
+    D.fractions.rows.map(function(r){
+      return '<tr><td style="font-weight:700;color:var(--accent)">'+E(r.angle)+'</td><td>'+E(r.fraction)+
+        '</td><td>'+E(r.name)+'</td><td style="color:var(--muted)">'+E(r.straightEdges)+'</td></tr>'; }).join('')+
+    '</tbody></table></div>'+
+    '<div class="warn" style="margin-top:.7rem">'+E(D.fractions.warn)+'</div></div>';
+
+  document.getElementById('worked').innerHTML =
+    '<div class="card"><h2>'+E(D.worked.title)+'</h2><p class="intro">'+E(D.worked.intro)+'</p></div>'+
+    D.worked.list.map(function(x){
+      return '<div class="card">'+
+        '<div style="font-size:.88rem;line-height:1.65;padding:.5rem .7rem;border-left:3px solid var(--accent);background:var(--surface);border-radius:0 8px 8px 0;margin-bottom:.6rem">'+E(x.q)+'</div>'+
+        '<ol style="margin:0 0 .55rem;padding-left:1.15rem">'+
+        x.steps.map(function(t){return '<li style="font-size:.86rem;line-height:1.7;color:var(--muted);margin-bottom:.25rem">'+E(t)+'</li>';}).join('')+
+        '</ol>'+
+        '<span style="font-size:.9rem;font-weight:800;color:#86efac;background:rgba(34,197,94,.09);border:1px solid rgba(34,197,94,.3);border-radius:8px;padding:.4rem .7rem;display:inline-block">'+E(x.answer)+'</span>'+
+        '<div class="warn" style="color:#fcd34d;background:rgba(251,191,36,.07);border-color:rgba(251,191,36,.28);margin-top:.6rem">'+E(x.note)+'</div></div>'; }).join('');
 
   document.getElementById('routine').innerHTML =
     '<div class="card"><h2>'+E(D.routine.title)+'</h2>'+

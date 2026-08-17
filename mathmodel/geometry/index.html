@@ -80,12 +80,16 @@
   <div class="tabs">
     <button class="tab on" data-p="rules" onclick="go('rules')">The rules</button>
     <button class="tab"    data-p="shapes" onclick="go('shapes')">What shapes give you</button>
+    <button class="tab"    data-p="approach" onclick="go('approach')">Ways in</button>
+    <button class="tab"    data-p="worked" onclick="go('worked')">Worked chains</button>
     <button class="tab"    data-p="routine" onclick="go('routine')">How to attack</button>
     <button class="tab"    data-p="traps" onclick="go('traps')">Traps</button>
   </div>
 
   <section class="pane on" id="p-rules"><div id="rules"></div></section>
   <section class="pane" id="p-shapes"><div id="shapes"></div></section>
+  <section class="pane" id="p-approach"><div id="approach"></div></section>
+  <section class="pane" id="p-worked"><div id="worked"></div></section>
   <section class="pane" id="p-routine"><div id="routine"></div></section>
   <section class="pane" id="p-traps"><div id="traps"></div></section>
 </main>
@@ -122,6 +126,23 @@ function draw(){
     D.shapes.rows.map(function(r){
       return '<tr><td style="font-weight:700;color:var(--accent)">'+E(r.shape)+'</td><td>'+E(r.gives)+'</td></tr>'; }).join('')+
     '</tbody></table></div></div>';
+
+  document.getElementById('approach').innerHTML =
+    '<div class="card"><h2>'+E(D.strategies.title)+'</h2><p class="intro">'+E(D.strategies.intro)+'</p></div>'+
+    D.strategies.list.map(function(x){
+      return '<div class="card"><h3 style="font-size:1rem;margin:0 0 .3rem">'+E(x.name)+'</h3>'+
+        '<div class="lbl">Use it when</div><div class="spot">'+E(x.when)+'</div>'+
+        '<div class="lbl">How</div><div class="rule">'+E(x.how)+'</div>'+
+        '<div class="lbl">Why it works</div><div class="spot">'+E(x.why)+'</div></div>'; }).join('');
+
+  document.getElementById('worked').innerHTML =
+    '<div class="card"><h2>'+E(D.worked.title)+'</h2><p class="intro">'+E(D.worked.intro)+'</p></div>'+
+    D.worked.list.map(function(x){
+      return '<div class="card"><div class="rule" style="background:rgba(56,189,248,.06)">'+E(x.q)+'</div>'+
+        '<div class="lbl">The chain</div><ol style="margin:0 0 .5rem;padding-left:1.15rem">'+
+        x.steps.map(function(t){return '<li style="font-size:.86rem;line-height:1.7;margin-bottom:.25rem">'+E(t)+'</li>';}).join('')+
+        '</ol><span class="say">'+E(x.answer)+'</span>'+
+        '<div class="warn" style="color:#fcd34d;background:rgba(251,191,36,.07);border-color:rgba(251,191,36,.28)">'+E(x.shortcut)+'</div></div>'; }).join('');
 
   document.getElementById('routine').innerHTML =
     '<div class="card"><h2>'+E(D.routine.title)+'</h2>'+
