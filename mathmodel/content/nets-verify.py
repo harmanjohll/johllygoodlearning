@@ -1,3 +1,23 @@
+"""Provenance for nets.json.
+
+Enumerates all 35 free hexominoes, folds each one in software to see whether it
+closes into a cube, and checks every rule taught on /mathmodel/nets/ against the
+result. Run it with `python3 nets-verify.py` from this directory; it needs
+nothing but the standard library.
+
+What it confirms:
+  - 11 of the 35 fold into a cube (6 are 1-4-1, 3 are 1-3-2, 1 staircase, 1 double strip)
+  - a 2x2 block always means it will not fold (8 of the 24 fakes)
+  - 5 or more in a straight line always means it will not fold (4 of the 24)
+  - the other 12 fakes pass both tests, which is why the family check is needed
+  - "skip one in a straight line" never gives a wrong opposite pair
+  - opposite faces are never edge-adjacent in a net
+
+What it disproves: "a square surrounded on all four sides means it is not a net".
+Two hexominoes have such a square and one of them folds perfectly well, so that
+rule, which several revision sites publish, would reject a correct answer.
+"""
+
 from itertools import combinations
 # Cube orientation: dict dir->face label. Opposite pairs (0,1),(2,3),(4,5)
 OPP = {0:1,1:0,2:3,3:2,4:5,5:4}
