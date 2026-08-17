@@ -124,6 +124,7 @@
   <div class="tabs">
     <button class="tab on" data-p="learn"  onclick="go('learn')">How it works</button>
     <button class="tab"    data-p="eleven" onclick="go('eleven')">The eleven cube nets</button>
+    <button class="tab"    data-p="four"   onclick="go('four')">The four checks</button>
     <button class="tab"    data-p="other"  onclick="go('other')">Other solids</button>
     <button class="tab"    data-p="fold"   onclick="go('fold')">Drill: fold or fake?</button>
     <button class="tab"    data-p="opp"    onclick="go('opp')">Drill: opposite face</button>
@@ -140,6 +141,8 @@
   </section>
 
   <section class="pane" id="p-eleven"><div id="families"></div></section>
+
+  <section class="pane" id="p-four"><div id="four"></div></section>
 
   <section class="pane" id="p-other"><div id="other"></div></section>
 
@@ -397,6 +400,33 @@ function draw() {
       return '<h3>' + E(lbl) + ' · ' + set.length + '</h3><div class="netgrid">' +
         set.map(function (h) { return '<div class="netbox bad">' + svgNet(h, { size: 20 }) + '</div>'; }).join('') + '</div>';
     }).join('') + '</div>';
+
+  var U = D.universal;
+  $('four').innerHTML =
+    '<div class="card"><h2>' + E(U.title) + '</h2><p class="intro">' + E(U.intro) + '</p>' +
+    '<div class="verified" style="margin:0">' + E(U.verified) + '</div></div>' +
+    U.checks.map(function (c) {
+      return '<div class="rule"><div class="rn">' + c.n + '. ' + E(c.name) + '</div>' +
+        '<div class="rs">' + E(c.say) + '</div>' +
+        '<div class="lbl" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:800;margin:.5rem 0 .2rem">How</div>' +
+        '<div class="rw">' + E(c.how) + '</div>' +
+        '<div class="lbl" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:800;margin:.5rem 0 .2rem">Why it works</div>' +
+        '<div class="rw">' + E(c.why) + '</div>' +
+        '<div class="rc">' + E(c.cost) + '</div></div>';
+    }).join('') +
+    '<div class="card"><h2>Run them in order</h2><p class="intro">' + E(U.order) + '</p>' +
+    U.worked.map(function (w) {
+      return '<div class="worked"><div class="wc">' + E(w.case) + '</div><ol>' +
+        w.steps.map(function (t) { return '<li>' + E(t) + '</li>'; }).join('') + '</ol></div>';
+    }).join('') + '</div>' +
+    '<div class="card"><h2>Every check is pulling its weight</h2>' +
+    '<p class="intro">' + E(U.catches.note) + '</p>' +
+    '<div class="wrap"><table class="t"><thead><tr><th style="width:110px">Check</th><th>Fakes on this page that only it catches</th></tr></thead><tbody>' +
+    U.catches.rows.map(function (r) {
+      return '<tr><td class="k">' + E(r.check) + '</td><td>' + E(r.catches) + '</td></tr>';
+    }).join('') + '</tbody></table></div>' +
+    '<h3>Where the four checks stop</h3><ul class="disc">' +
+    U.limits.map(function (l) { return '<li>' + E(l) + '</li>'; }).join('') + '</ul></div>';
 
   var O = D.otherSolids;
   $('other').innerHTML =

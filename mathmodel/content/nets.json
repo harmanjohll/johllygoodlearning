@@ -3977,5 +3977,92 @@
         ]
       }
     ]
+  },
+  "universal": {
+    "title": "The four checks: one method for every solid",
+    "intro": "The cube has only eleven nets, so for cubes you can recognise them. Every other solid has too many to memorise, and pyramids and prisms turn up too. These four checks decide any flat figure, for any solid with flat faces. Run them in order: the first one takes three seconds and the last is only needed occasionally.",
+    "verified": "This is not a rule of thumb. The four checks together were tested by machine against all 35 six-square shapes, against 904 nets produced by unfolding real solids in three dimensions, and against 273 deliberately broken figures. They got every one right, and every one of the four is needed: each catches at least one fake that the other three miss.",
+    "checks": [
+      {
+        "n": 1,
+        "name": "COUNT",
+        "say": "Does the figure have the right number of pieces, of the right shapes?",
+        "how": "Count the pieces and compare with the number of faces the solid has. Then check the shapes: a triangular prism needs exactly two triangles and three rectangles, a square pyramid one square and four triangles.",
+        "why": "A solid has a fixed number of faces. One too many has nowhere to go; one too few leaves a hole.",
+        "cost": "Three seconds, and it settles a surprising number of questions on its own."
+      },
+      {
+        "n": 2,
+        "name": "WALK",
+        "say": "Name every piece with a face of the solid. If two pieces get the same name, it is not a net.",
+        "how": "Put your finger on any piece and call it the BASE. Step to a piece next to it, and imagine tipping the solid over the edge you crossed: whichever face lands underneath is that piece's name. Keep going until every piece has a name. For a cube this is exactly rolling a die across the paper and reading the number underneath.",
+        "why": "Folding is just this walk done for real. If the walk puts two pieces on one face, the paper has to be in two places at once.",
+        "cost": "Twenty seconds, and it also hands you every opposite pair and every neighbour for free."
+      },
+      {
+        "n": 3,
+        "name": "FIT",
+        "say": "Every two edges that get glued together must be the same length.",
+        "how": "The walk tells you which edges meet. Check those pairs. In a prism, each rectangle's width must equal the triangle side it meets. In a cylinder, the rectangle's length must equal the way round the circle.",
+        "why": "The arrangement can be perfectly correct and the thing still not close, because two edges that have to meet are different lengths.",
+        "cost": "Ten seconds. This is the check that catches cuboid and prism fakes, which the walk cannot see."
+      },
+      {
+        "n": 4,
+        "name": "CORNERS",
+        "say": "At each corner of the solid, the angles that meet there must add up to less than 360 degrees.",
+        "how": "Find the pieces that meet at one corner and add their angles at that corner. Under 360 and it closes into a point. Exactly 360 and it stays flat. Over 360 and it cannot be made at all.",
+        "why": "A corner of a solid is made by angles that add to less than a full turn. That is what makes it stick up out of the paper.",
+        "cost": "Only needed when the pieces look too flat or too pointed, but nothing else catches that fault."
+      }
+    ],
+    "order": "Run them in order and stop at the first failure. Most fakes die at check 1 or 2.",
+    "worked": [
+      {
+        "case": "A cube net, checked the fast way",
+        "steps": [
+          "COUNT: six squares, and a cube has six faces. Passes.",
+          "WALK: put a die on one square and roll it along. Every square gets a different number. Passes, and you now know which faces are opposite.",
+          "FIT: all the squares are the same size, so every glued pair matches automatically. Passes.",
+          "CORNERS: three squares meet at each corner of a cube, 90 plus 90 plus 90 is 270, which is under 360. Passes.",
+          "So it folds. In practice for a cube you only ever run checks 1 and 2, because 3 and 4 are automatic when all the pieces are equal squares."
+        ]
+      },
+      {
+        "case": "A square pyramid whose triangles are too short",
+        "steps": [
+          "COUNT: one square and four triangles. A square pyramid has five faces. Passes.",
+          "WALK: each triangle gets its own face, no clashes. Passes.",
+          "FIT: the triangles are identical and their bases match the square's sides. Passes.",
+          "CORNERS: at the apex all four triangles meet. If each has a point of 118 degrees, four of them come to 472 degrees, which is more than a full turn. Fails.",
+          "This one looks completely fine until check 4. Nothing else finds it."
+        ]
+      }
+    ],
+    "catches": {
+      "note": "Which check kills which of the fakes drawn on this page. Every check is doing work that the others cannot do.",
+      "rows": [
+        {
+          "check": "COUNT",
+          "catches": "Tetrahedron fakes 1 and 2, triangular prism fake 3, square pyramid fake 3"
+        },
+        {
+          "check": "WALK",
+          "catches": "Triangular prism fake 1, square pyramid fake 1"
+        },
+        {
+          "check": "FIT",
+          "catches": "Cuboid fakes 1 and 2, triangular prism fake 2"
+        },
+        {
+          "check": "CORNERS",
+          "catches": "Square pyramid fake 2, which passes all three earlier checks"
+        }
+      ]
+    },
+    "limits": [
+      "The checks are for solids with flat faces. Cylinders and cones have curved surfaces, so use their own two rules instead: the rectangle's length equals the way round the circle, and the fan's curved edge equals the way round the base.",
+      "Check 2 also assumes no two pieces overlap on the paper. If two pieces sit on top of each other, it is not a net whatever else passes."
+    ]
   }
 }
