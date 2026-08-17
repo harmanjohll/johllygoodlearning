@@ -1,0 +1,1807 @@
+{
+  "meta": {
+    "title": "Nets: folding and unfolding solids",
+    "note": "The questions where a solid is opened out flat and you are asked which flat shape would fold back up, or which face ends up opposite which. Everything on this page was checked by machine against all 35 possible six-square shapes, so the rules here are exact, not roughly right.",
+    "verified": "There are exactly 35 different six-square shapes. Exactly 11 of them fold into a cube. Every rule on this page was tested against all 35 and every pair of faces, and none of them gives a wrong answer."
+  },
+  "why": {
+    "title": "Why this topic feels harder than it is",
+    "points": [
+      "You are being asked to do something in your head that your hands would find easy. That is a working-memory problem, not a maths problem, and it is fixed by having a method rather than by trying to picture it better.",
+      "The wrong answers are designed to look almost right. A shape with six squares joined edge to edge looks like a net whether or not it is one.",
+      "Nobody has ever shown you the eleven shapes. Once you have seen them a few times you recognise them the way you recognise a face.",
+      "There is a reliable written method for opposite faces, so you never have to fold anything in your imagination. It is two rules and a piece of elimination, and it works on every net."
+    ]
+  },
+  "solids": {
+    "title": "Know the solid from its net",
+    "intro": "Before anything else, count the shapes in the net and count how many of each. That alone names the solid in almost every question.",
+    "rows": [
+      {
+        "solid": "Cube",
+        "faces": 6,
+        "edges": 12,
+        "vertices": 8,
+        "netIs": "6 squares, all the same size",
+        "spot": "Six identical squares. If the squares are not all the same size it is a cuboid, not a cube."
+      },
+      {
+        "solid": "Cuboid",
+        "faces": 6,
+        "edges": 12,
+        "vertices": 8,
+        "netIs": "6 rectangles, in 3 matching pairs",
+        "spot": "Six rectangles where they match up in pairs. Opposite faces of a cuboid are always identical, so an odd rectangle out means the net is wrong."
+      },
+      {
+        "solid": "Triangular prism",
+        "faces": 5,
+        "edges": 9,
+        "vertices": 6,
+        "netIs": "2 identical triangles and 3 rectangles",
+        "spot": "The two triangles are the ends. The three rectangles wrap round. The rectangles' widths must match the three sides of the triangle."
+      },
+      {
+        "solid": "Square pyramid",
+        "faces": 5,
+        "edges": 8,
+        "vertices": 5,
+        "netIs": "1 square and 4 identical triangles",
+        "spot": "One square in the middle with a triangle on each of its four sides. The four triangles must be the same, or the point will not meet."
+      },
+      {
+        "solid": "Triangular pyramid",
+        "faces": 4,
+        "edges": 6,
+        "vertices": 4,
+        "netIs": "4 identical triangles",
+        "spot": "Four triangles, usually one in the middle with three folded up around it. Also called a tetrahedron."
+      },
+      {
+        "solid": "Cylinder",
+        "faces": "2 flat, 1 curved",
+        "edges": 2,
+        "vertices": 0,
+        "netIs": "2 identical circles and 1 rectangle",
+        "spot": "The rectangle's length must equal the circumference of the circle, because it wraps exactly once round. That is the detail the question tests."
+      },
+      {
+        "solid": "Cone",
+        "faces": "1 flat, 1 curved",
+        "edges": 1,
+        "vertices": "1 apex",
+        "netIs": "1 circle and 1 sector, which is a slice of a larger circle",
+        "spot": "The curved part is a fan shape cut from a bigger circle, not a triangle. Its curved edge must be as long as the way round the small circle."
+      }
+    ],
+    "euler": "For any solid with flat faces: vertices minus edges plus faces equals 2. Cube: 8 minus 12 plus 6 is 2. Square pyramid: 5 minus 8 plus 5 is 2. Use it to check you have counted a solid correctly. It does not apply to cylinders and cones, because they have curved surfaces."
+  },
+  "families": {
+    "title": "The eleven cube nets, in four families",
+    "intro": "You do not have to memorise eleven pictures. You have to recognise four shapes. Learn the families and the eleven come free.",
+    "list": [
+      {
+        "code": "1-4-1",
+        "count": 6,
+        "name": "A row of four, with one above and one below",
+        "how": "Four squares in a straight line. One square attached somewhere along the top, one somewhere along the bottom. The two flaps can be anywhere and in any combination, which is why there are six of them.",
+        "note": "This is the family you will see most often. If a net has a straight run of exactly four, check this family first."
+      },
+      {
+        "code": "1-3-2",
+        "count": 3,
+        "name": "A row of three, with one on one side and two on the other",
+        "how": "Three in a line, one square attached above, and two squares attached below as a pair.",
+        "note": "The three in a line is the giveaway. Do not confuse it with 1-4-1, where the run is four."
+      },
+      {
+        "code": "2-2-2",
+        "count": 1,
+        "name": "The staircase",
+        "how": "Three pairs of squares, each pair stepped one along and one down from the last, like stairs.",
+        "note": "There is only one of these and it is the one people get wrong, because no two squares are ever in a straight line with a gap. It needs the zigzag rule further down this page."
+      },
+      {
+        "code": "3-3",
+        "count": 1,
+        "name": "Two rows of three, overlapping by one",
+        "how": "A row of three, then a second row of three beneath it, shifted along so the rows share only one column.",
+        "note": "Shift it by two columns instead of one and it stops being a net. That is a favourite distractor."
+      }
+    ]
+  },
+  "spotFake": {
+    "title": "Is it a net at all?",
+    "intro": "Two quick tests kill a third of the fakes in about three seconds each. They are always right when they fire, but they do not catch everything, so read the third point carefully.",
+    "tests": [
+      {
+        "test": "Any four squares forming a solid two-by-two block",
+        "verdict": "Never a cube net",
+        "why": "Four squares in a block fold into a ring that closes on itself, and two of them land on the same face of the cube.",
+        "covers": "8 of the 24 fakes. It has never once been wrong: no valid net contains a two-by-two block."
+      },
+      {
+        "test": "Five or more squares in one straight line",
+        "verdict": "Never a cube net",
+        "why": "A cube only has four faces going round it. A fifth square in the same line lands back on top of the first.",
+        "covers": "4 of the 24 fakes. The longest straight run any real net has is four."
+      },
+      {
+        "test": "Everything else",
+        "verdict": "You have to check properly",
+        "why": "The other 12 fakes pass both quick tests. They look completely reasonable, and they are the ones actually used as wrong answers in exams.",
+        "covers": "Use the family check: does it match 1-4-1, 1-3-2, the staircase, or 3-3? If it matches none of the four, it is not a net."
+      }
+    ],
+    "closing": "So the honest method is: run the two quick tests, then check it against the four families. Do not rely on the quick tests alone, and never reject a net just because it looks unusual. One perfectly good net is a plus shape with an extra square, and it gets rejected by pupils constantly for looking wrong."
+  },
+  "opposite": {
+    "title": "Which face ends up opposite which",
+    "intro": "This is the question that is really being asked most of the time, and you never need to fold anything. Two rules and one piece of elimination find all three pairs on every one of the eleven nets. Both rules were tested against every pair on every net and neither ever gives a wrong answer.",
+    "rules": [
+      {
+        "id": "straight",
+        "name": "Rule 1: skip one in a straight line",
+        "say": "Two squares in the same row or the same column, with exactly one square between them, are opposite.",
+        "why": "Walking along a straight line on a cube goes base, side, top. The first and third are the bottom and the top, which are opposite each other.",
+        "coverage": "Finds 20 of the 33 pairs, and is never wrong."
+      },
+      {
+        "id": "zigzag",
+        "name": "Rule 2: the zigzag of four",
+        "say": "Find four squares that step along in a zigzag, turning at every square and turning the other way each time. The two squares at the ends of that zigzag are opposite.",
+        "why": "A zigzag of four wraps right round the cube, so the first and the last are the two ends of that band.",
+        "coverage": "Finds 20 of the 33 pairs, and is never wrong. It is the rule that saves you on the staircase net, where Rule 1 finds nothing at all."
+      },
+      {
+        "id": "elimination",
+        "name": "Rule 3: elimination",
+        "say": "Once you have found two pairs, the two squares left over must be the third pair.",
+        "why": "Six faces make exactly three pairs. There is nothing else they could be.",
+        "coverage": "Together with Rules 1 and 2 this finds all three pairs on all eleven nets, every time."
+      }
+    ],
+    "worked": [
+      {
+        "case": "A 1-4-1 net: a row of four with a flap above the second square and a flap below the first",
+        "steps": [
+          "Rule 1 along the row of four: the first and third are opposite, and the second and fourth are opposite. That is two pairs already.",
+          "Two squares are left, the two flaps. By Rule 3 they must be the third pair.",
+          "Done in about five seconds, with no folding."
+        ]
+      },
+      {
+        "case": "The staircase net, where Rule 1 finds nothing",
+        "steps": [
+          "There is no straight line of three anywhere, so Rule 1 is silent. This is the moment most people give up and start folding in their head.",
+          "Trace a zigzag of four: step right, step down, step right. The square you started on and the square you finished on are opposite.",
+          "Do it again starting from a different square to get a second pair.",
+          "The two squares left over are the third pair."
+        ]
+      }
+    ]
+  },
+  "symbols": {
+    "title": "When the faces have letters or pictures on them",
+    "intro": "The hardest version: a net with symbols, and four pictures of a cube, and you must say which cube it could be. Do not try to fold it. Eliminate instead.",
+    "steps": [
+      {
+        "n": 1,
+        "do": "Find the three opposite pairs on the net first, using the rules above.",
+        "gain": "Any cube picture showing two opposite faces at once is impossible, because you can never see two opposite faces of a cube at the same time. This usually kills one or two options straight away."
+      },
+      {
+        "n": 2,
+        "do": "Check adjacency: are the three faces shown on the cube actually next to each other on the net?",
+        "gain": "Three faces meet at each corner of a cube, and they must be three faces that are pairwise touching in the net, once folding is taken into account. If two of them are an opposite pair, reject it."
+      },
+      {
+        "n": 3,
+        "do": "Check the turning order at the corner.",
+        "gain": "Take the three faces meeting at the visible corner and read them clockwise. On the real cube that order is fixed. If an option shows the same three faces but in the reverse order, it is a mirror image and it is wrong. This is the step that separates the last two options."
+      },
+      {
+        "n": 4,
+        "do": "Only then check which way up each symbol is.",
+        "gain": "An arrow or a letter that is upside down or on its side is a legitimate wrong answer, but check it last, because it is the fiddliest and the earlier steps usually leave only one option standing."
+      }
+    ],
+    "note": "Two faces of a cube are either opposite or adjacent, and there is no third option. So the whole method is: work out the three opposite pairs, then everything else is adjacent."
+  },
+  "routine": {
+    "title": "The routine, every time",
+    "steps": [
+      {
+        "n": 1,
+        "do": "Count the shapes in the net and name the solid.",
+        "why": "Six squares means cube. One square and four triangles means square pyramid. This is a free mark on its own in some questions."
+      },
+      {
+        "n": 2,
+        "do": "Run the two quick fakes tests: any two-by-two block, any run of five.",
+        "why": "Three seconds, and it eliminates a third of the wrong answers with certainty."
+      },
+      {
+        "n": 3,
+        "do": "Match it against the four families: 1-4-1, 1-3-2, staircase, 3-3.",
+        "why": "If it is none of the four, it is not a net. If it is one of them, it is."
+      },
+      {
+        "n": 4,
+        "do": "If you need opposite faces, apply Rule 1 everywhere first, then Rule 2, then eliminate.",
+        "why": "You get all three pairs without imagining any folding."
+      },
+      {
+        "n": 5,
+        "do": "If symbols are involved, reject any picture showing two opposite faces together.",
+        "why": "You cannot see two opposite faces of a cube at once, so those options are impossible whatever the symbols look like."
+      },
+      {
+        "n": 6,
+        "do": "Check the turning order of the three faces at the visible corner.",
+        "why": "This is the step that catches the mirror-image distractor, which is the one designed to survive everything else."
+      }
+    ]
+  },
+  "traps": [
+    {
+      "trap": "Rejecting a net because it looks strange",
+      "fix": "Check it against the four families instead of trusting how it looks. A plus shape with one extra square is a perfectly good net, and it gets rejected constantly.",
+      "cost": "You mark a correct net as wrong and pick a fake instead."
+    },
+    {
+      "trap": "Accepting any six squares joined edge to edge",
+      "fix": "Twenty-four of the thirty-five six-square shapes are not nets. Being joined up is not enough.",
+      "cost": "You accept the first thing that looks plausible."
+    },
+    {
+      "trap": "Trying to fold it in your head",
+      "fix": "Use the two written rules. Mental folding is unreliable under exam pressure and it is slow.",
+      "cost": "Time, and a wrong answer you were fairly confident about."
+    },
+    {
+      "trap": "Thinking two squares touching in the net will be opposite on the cube",
+      "fix": "Squares that share an edge in the net always end up next to each other on the cube, never opposite. Opposite faces are never touching in a net.",
+      "cost": "You pick the exact wrong answer the question was set to catch."
+    },
+    {
+      "trap": "Forgetting the four-square limit",
+      "fix": "A cube has only four faces going round in any direction. A straight line of five squares cannot work, ever.",
+      "cost": "You accept a fake that a three-second check would have killed."
+    },
+    {
+      "trap": "Giving up on the staircase net",
+      "fix": "Rule 1 finds nothing on it, and that is expected. Switch to the zigzag rule rather than concluding the net is invalid.",
+      "cost": "You call the one genuinely awkward net a fake."
+    },
+    {
+      "trap": "Choosing a cube picture that shows two opposite faces",
+      "fix": "Work out the opposite pairs before you look at the pictures. Then any picture showing a pair together is impossible.",
+      "cost": "The single most common error in symbol questions."
+    },
+    {
+      "trap": "Missing the mirror image",
+      "fix": "Two options can show the same three faces at a corner with only the clockwise order different. Read the order round the corner.",
+      "cost": "You get down to two options and then guess."
+    },
+    {
+      "trap": "Ignoring the sizes in a non-cube net",
+      "fix": "In a triangular prism, the rectangles' widths must match the triangle's sides. In a cylinder, the rectangle's length must match the circle's circumference.",
+      "cost": "You accept a net that has the right shapes in the wrong sizes."
+    },
+    {
+      "trap": "Counting a curved surface as a face and then using Euler",
+      "fix": "Vertices minus edges plus faces equals two only works for solids with flat faces. Cylinders and cones are outside it.",
+      "cost": "You talk yourself out of a correct count."
+    }
+  ],
+  "hexominoes": [
+    {
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": true,
+      "family": "1-4-1",
+      "opposites": [
+        [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            2
+          ]
+        ],
+        [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      ],
+      "id": "v1"
+    },
+    {
+      "cells": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": true,
+      "family": "1-4-1",
+      "opposites": [
+        [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      ],
+      "id": "v2"
+    },
+    {
+      "cells": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": true,
+      "family": "1-4-1",
+      "opposites": [
+        [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      ],
+      "id": "v3"
+    },
+    {
+      "cells": [
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": true,
+      "family": "1-4-1",
+      "opposites": [
+        [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        [
+          [
+            0,
+            2
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      ],
+      "id": "v4"
+    },
+    {
+      "cells": [
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": true,
+      "family": "1-4-1",
+      "opposites": [
+        [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            1
+          ]
+        ],
+        [
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      ],
+      "id": "v5"
+    },
+    {
+      "cells": [
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": true,
+      "family": "1-4-1",
+      "opposites": [
+        [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        [
+          [
+            0,
+            2
+          ],
+          [
+            3,
+            0
+          ]
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      ],
+      "id": "v6"
+    },
+    {
+      "cells": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": true,
+      "family": "1-3-2",
+      "opposites": [
+        [
+          [
+            0,
+            2
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      ],
+      "id": "v7"
+    },
+    {
+      "cells": [
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": true,
+      "family": "1-3-2",
+      "opposites": [
+        [
+          [
+            0,
+            2
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            1
+          ]
+        ],
+        [
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      ],
+      "id": "v8"
+    },
+    {
+      "cells": [
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": true,
+      "family": "1-3-2",
+      "opposites": [
+        [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        [
+          [
+            0,
+            2
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            0
+          ]
+        ]
+      ],
+      "id": "v9"
+    },
+    {
+      "cells": [
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": true,
+      "family": "2-2-2",
+      "opposites": [
+        [
+          [
+            0,
+            2
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            0
+          ]
+        ],
+        [
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            0
+          ]
+        ]
+      ],
+      "id": "v10"
+    },
+    {
+      "cells": [
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "w": 5,
+      "h": 2,
+      "folds": true,
+      "family": "3-3",
+      "opposites": [
+        [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            0
+          ]
+        ],
+        [
+          [
+            2,
+            0
+          ],
+          [
+            4,
+            0
+          ]
+        ]
+      ],
+      "id": "v11"
+    },
+    {
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "w": 3,
+      "h": 3,
+      "folds": false,
+      "why": "block",
+      "id": "x1"
+    },
+    {
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "w": 3,
+      "h": 3,
+      "folds": false,
+      "why": "block",
+      "id": "x2"
+    },
+    {
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "w": 3,
+      "h": 2,
+      "folds": false,
+      "why": "block",
+      "id": "x3"
+    },
+    {
+      "cells": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "w": 3,
+      "h": 3,
+      "folds": false,
+      "why": "block",
+      "id": "x4"
+    },
+    {
+      "cells": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "w": 3,
+      "h": 3,
+      "folds": false,
+      "why": "block",
+      "id": "x5"
+    },
+    {
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ]
+      ],
+      "w": 4,
+      "h": 2,
+      "folds": false,
+      "why": "block",
+      "id": "x6"
+    },
+    {
+      "cells": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ]
+      ],
+      "w": 4,
+      "h": 2,
+      "folds": false,
+      "why": "block",
+      "id": "x7"
+    },
+    {
+      "cells": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "w": 4,
+      "h": 2,
+      "folds": false,
+      "why": "block",
+      "id": "x8"
+    },
+    {
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "w": 5,
+      "h": 2,
+      "folds": false,
+      "why": "line",
+      "id": "x9"
+    },
+    {
+      "cells": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "w": 5,
+      "h": 2,
+      "folds": false,
+      "why": "line",
+      "id": "x10"
+    },
+    {
+      "cells": [
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          1
+        ]
+      ],
+      "w": 5,
+      "h": 2,
+      "folds": false,
+      "why": "line",
+      "id": "x11"
+    },
+    {
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      "w": 6,
+      "h": 1,
+      "folds": false,
+      "why": "line",
+      "id": "x12"
+    },
+    {
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "w": 3,
+      "h": 3,
+      "folds": false,
+      "why": "overlap",
+      "id": "x13"
+    },
+    {
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "w": 3,
+      "h": 3,
+      "folds": false,
+      "why": "overlap",
+      "id": "x14"
+    },
+    {
+      "cells": [
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "w": 3,
+      "h": 3,
+      "folds": false,
+      "why": "overlap",
+      "id": "x15"
+    },
+    {
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": false,
+      "why": "overlap",
+      "id": "x16"
+    },
+    {
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ]
+      ],
+      "w": 4,
+      "h": 2,
+      "folds": false,
+      "why": "overlap",
+      "id": "x17"
+    },
+    {
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "w": 4,
+      "h": 2,
+      "folds": false,
+      "why": "overlap",
+      "id": "x18"
+    },
+    {
+      "cells": [
+        [
+          0,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ]
+      ],
+      "w": 4,
+      "h": 2,
+      "folds": false,
+      "why": "overlap",
+      "id": "x19"
+    },
+    {
+      "cells": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": false,
+      "why": "overlap",
+      "id": "x20"
+    },
+    {
+      "cells": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": false,
+      "why": "overlap",
+      "id": "x21"
+    },
+    {
+      "cells": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": false,
+      "why": "overlap",
+      "id": "x22"
+    },
+    {
+      "cells": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "w": 4,
+      "h": 3,
+      "folds": false,
+      "why": "overlap",
+      "id": "x23"
+    },
+    {
+      "cells": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "w": 5,
+      "h": 2,
+      "folds": false,
+      "why": "overlap",
+      "id": "x24"
+    }
+  ]
+}

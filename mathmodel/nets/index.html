@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nets &amp; Solids — Math Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.4rem;
+                   display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem;
+                 font-size: .8rem; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    .hdr { flex: 1; min-width: 180px; font-weight: 800; font-size: .95rem; }
+    .hdr span { display: block; font-size: .72rem; color: var(--muted); font-weight: 400; }
+    main { max-width: 960px; margin: 0 auto; padding: 1.3rem 1.25rem 4rem; }
+    .hero h1 { font-size: 1.5rem; margin-bottom: .3rem; }
+    .hero p { color: var(--muted); font-size: .9rem; line-height: 1.7; margin-bottom: 1rem; }
+    .verified { font-size: .8rem; line-height: 1.6; color: #86efac; background: rgba(34,197,94,.08);
+                border: 1px solid rgba(34,197,94,.3); border-radius: 9px; padding: .55rem .75rem; margin-bottom: 1rem; }
+
+    .tabs { display: flex; gap: .4rem; border-bottom: 1px solid var(--border); margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .tab { background: none; border: 0; padding: .6rem .85rem; color: var(--muted); font-size: .88rem;
+           font-weight: 700; cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit; }
+    .tab:hover { color: var(--text); }
+    .tab.on { color: var(--text); border-bottom-color: var(--accent); }
+    .pane { display: none; } .pane.on { display: block; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; margin-bottom: .9rem; }
+    .card h2 { font-size: 1rem; margin: 0 0 .45rem; }
+    .card h3 { font-size: .9rem; margin: .9rem 0 .35rem; color: var(--accent); }
+    .card p.intro { font-size: .87rem; color: var(--muted); line-height: 1.7; margin: 0 0 .7rem; }
+    ul.disc { margin: 0; padding-left: 1.1rem; }
+    ul.disc li { font-size: .86rem; line-height: 1.7; color: var(--muted); margin-bottom: .4rem; }
+
+    table.t { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    table.t th, table.t td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    table.t th { font-size: .64rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); white-space: nowrap; }
+    table.t tr:last-child td { border-bottom: none; }
+    table.t td.k { font-weight: 700; color: var(--accent); white-space: nowrap; }
+    table.t td.n { text-align: center; font-family: var(--font-mono, monospace); }
+    .wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; margin-bottom: .8rem; }
+
+    /* net drawing */
+    .netgrid { display: flex; flex-wrap: wrap; gap: .55rem; }
+    .netbox { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: .45rem;
+              display: flex; flex-direction: column; align-items: center; gap: .25rem; }
+    .netbox svg { display: block; }
+    .netbox .lbl { font-size: .64rem; color: var(--muted); font-weight: 700; }
+    .netbox.bad { border-color: rgba(239,68,68,.4); }
+    .netbox.good { border-color: rgba(34,197,94,.35); }
+    .fam { margin-bottom: 1rem; }
+    .fam .fh { display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; margin-bottom: .35rem; }
+    .fam .fc { font-family: var(--font-mono, monospace); font-weight: 800; color: var(--accent); font-size: .95rem; }
+    .fam .fn { font-size: .9rem; font-weight: 700; }
+    .fam .fk { font-size: .72rem; color: var(--muted); }
+    .fam .fd { font-size: .84rem; color: var(--muted); line-height: 1.6; margin-bottom: .5rem; }
+    .fam .fnote { font-size: .8rem; line-height: 1.55; color: #fcd34d; background: rgba(251,191,36,.07);
+                  border: 1px solid rgba(251,191,36,.25); border-radius: 8px; padding: .4rem .6rem; margin-top: .5rem; }
+
+    .rule { border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px;
+            padding: .7rem .85rem; margin-bottom: .55rem; background: var(--card); }
+    .rule .rn { font-size: .9rem; font-weight: 800; margin-bottom: .25rem; }
+    .rule .rs { font-size: .87rem; line-height: 1.6; color: var(--text); margin-bottom: .3rem; }
+    .rule .rw { font-size: .81rem; line-height: 1.55; color: var(--muted); margin-bottom: .25rem; }
+    .rule .rc { font-size: .76rem; color: #86efac; }
+
+    .step { border: 1px solid var(--border); border-radius: 10px; padding: .65rem .8rem; margin-bottom: .5rem;
+            display: flex; gap: .7rem; background: var(--card); }
+    .step .n { flex: none; width: 25px; height: 25px; border-radius: 8px; display: grid; place-items: center;
+               background: var(--surface); border: 1px solid var(--accent); color: var(--accent); font-weight: 800; font-size: .76rem; }
+    .step p { font-size: .86rem; line-height: 1.6; margin: 0 0 .25rem; }
+    .step .why { font-size: .81rem; color: var(--muted); line-height: 1.55; padding-left: .55rem; border-left: 2px solid var(--border); }
+
+    .test { border: 1px solid var(--border); border-radius: 10px; padding: .65rem .8rem; margin-bottom: .5rem; background: var(--card); }
+    .test .tn { font-size: .88rem; font-weight: 700; margin-bottom: .2rem; }
+    .test .tv { font-size: .76rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .3rem; }
+    .test .tv.no { color: #fca5a5; } .test .tv.maybe { color: #fcd34d; }
+    .test .tw, .test .tc { font-size: .81rem; line-height: 1.55; color: var(--muted); }
+    .test .tc { color: #86efac; margin-top: .25rem; }
+
+    .worked { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: .6rem .75rem; margin-bottom: .5rem; }
+    .worked .wc { font-size: .84rem; font-weight: 700; margin-bottom: .3rem; }
+    .worked ol { margin: 0; padding-left: 1.1rem; }
+    .worked li { font-size: .83rem; line-height: 1.6; color: var(--muted); margin-bottom: .2rem; }
+
+    /* drill */
+    .drill { background: var(--card); border: 1px solid var(--accent); border-radius: 12px; padding: 1.1rem; margin-bottom: .9rem; text-align: center; }
+    .drill .q { font-size: .95rem; font-weight: 700; margin-bottom: .8rem; }
+    .drill .stage { display: flex; justify-content: center; margin-bottom: .9rem; }
+    .btns { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+    .btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 9px;
+           padding: .55rem 1.1rem; font-size: .88rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn:hover { border-color: var(--accent); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #06131a; }
+    .verdict { margin-top: .8rem; font-size: .87rem; line-height: 1.65; padding: .6rem .8rem; border-radius: 9px;
+               display: none; text-align: left; }
+    .verdict.ok { display: block; background: rgba(34,197,94,.09); border: 1px solid rgba(34,197,94,.32); color: #bbf7d0; }
+    .verdict.no { display: block; background: rgba(239,68,68,.09); border: 1px solid rgba(239,68,68,.32); color: #fecaca; }
+    .score { font-size: .8rem; color: var(--muted); margin-top: .6rem; }
+    .cellbtn { cursor: pointer; }
+    .cellbtn:hover { filter: brightness(1.35); }
+
+    @media (max-width: 680px) { main { padding: 1rem .9rem 3rem; } }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../index.html" class="back-link">← Math Model</a>
+  <div class="hdr">Nets &amp; Solids<span>Unfolding a solid, and folding it back up without guessing</span></div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Nets &amp; Solids</h1>
+    <p id="heroNote">Loading…</p>
+    <div class="verified" id="verifiedNote"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-p="learn"  onclick="go('learn')">How it works</button>
+    <button class="tab"    data-p="eleven" onclick="go('eleven')">The eleven nets</button>
+    <button class="tab"    data-p="fold"   onclick="go('fold')">Drill: fold or fake?</button>
+    <button class="tab"    data-p="opp"    onclick="go('opp')">Drill: opposite face</button>
+    <button class="tab"    data-p="traps"  onclick="go('traps')">Traps</button>
+  </div>
+
+  <section class="pane on" id="p-learn">
+    <div id="why"></div>
+    <div id="solids"></div>
+    <div id="fake"></div>
+    <div id="opprules"></div>
+    <div id="symbols"></div>
+    <div id="routine"></div>
+  </section>
+
+  <section class="pane" id="p-eleven"><div id="families"></div></section>
+
+  <section class="pane" id="p-fold">
+    <div class="card">
+      <h2>Fold or fake?</h2>
+      <p class="intro">Every shape here is one of the 35 possible six-square shapes. Eleven fold into a cube and
+        twenty-four do not. Decide before you look at the answer, and read the reason each time: the reason is
+        what you are actually learning.</p>
+    </div>
+    <div class="drill">
+      <div class="q">Would this fold into a cube?</div>
+      <div class="stage" id="fStage"></div>
+      <div class="btns">
+        <button class="btn primary" type="button" onclick="answerFold(true)">Yes, it folds</button>
+        <button class="btn" type="button" onclick="answerFold(false)">No, it is a fake</button>
+      </div>
+      <div class="verdict" id="fVerdict"></div>
+      <div class="score" id="fScore"></div>
+      <div class="btns" style="margin-top:.6rem"><button class="btn" type="button" onclick="nextFold()">Next shape →</button></div>
+    </div>
+  </section>
+
+  <section class="pane" id="p-opp">
+    <div class="card">
+      <h2>Which face is opposite?</h2>
+      <p class="intro">The shaded square is the one you are folding onto the bottom. Click the square that ends up
+        opposite it, on the other side of the cube. The answer tells you which of the two rules would have found it.</p>
+    </div>
+    <div class="drill">
+      <div class="q">Click the square opposite the shaded one</div>
+      <div class="stage" id="oStage"></div>
+      <div class="verdict" id="oVerdict"></div>
+      <div class="score" id="oScore"></div>
+      <div class="btns" style="margin-top:.6rem"><button class="btn" type="button" onclick="nextOpp()">Next net →</button></div>
+    </div>
+  </section>
+
+  <section class="pane" id="p-traps"><div id="traps"></div></section>
+</main>
+
+<script src="../shared.js"></script>
+<script>
+var D = null;
+var fIdx = 0, fRight = 0, fDone = 0, fPool = [], fAnswered = false;
+var oNet = null, oCell = null, oRight = 0, oDone = 0, oAnswered = false;
+
+function E(t) { return String(t == null ? '' : t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function $(id) { return document.getElementById(id); }
+
+/* ── draw a hexomino ── */
+function svgNet(h, opts) {
+  opts = opts || {};
+  var S = opts.size || 26, P = 3;
+  var w = h.w * S + P * 2, ht = h.h * S + P * 2;
+  var out = '<svg viewBox="0 0 ' + w + ' ' + ht + '" width="' + w + '" height="' + ht +
+            '" role="img" aria-label="six square shape">';
+  h.cells.forEach(function (c, i) {
+    var x = P + c[0] * S, y = P + c[1] * S;
+    var fill = 'var(--surface)', stroke = 'var(--muted)', extra = '', cls = '';
+    if (opts.shade && opts.shade[0] === c[0] && opts.shade[1] === c[1]) { fill = 'var(--accent)'; stroke = 'var(--accent)'; }
+    if (opts.mark) {
+      var m = opts.mark(c);
+      if (m === 'right') { fill = 'rgba(34,197,94,.55)'; stroke = '#22c55e'; }
+      else if (m === 'wrong') { fill = 'rgba(239,68,68,.5)'; stroke = '#ef4444'; }
+    }
+    if (opts.click) { cls = ' class="cellbtn"'; extra = ' data-cell="' + c[0] + ',' + c[1] + '"'; }
+    out += '<rect' + cls + extra + ' x="' + x + '" y="' + y + '" width="' + S + '" height="' + S +
+           '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.5" rx="2"/>';
+    if (opts.letters) {
+      out += '<text x="' + (x + S / 2) + '" y="' + (y + S / 2 + 4) + '" text-anchor="middle" font-size="' +
+             (S * 0.42) + '" fill="var(--text)" font-weight="700" style="pointer-events:none">' +
+             String.fromCharCode(65 + i) + '</text>';
+    }
+  });
+  return out + '</svg>';
+}
+
+/* ── the two verified rules, reimplemented so the drill can explain itself ── */
+function has(cells, x, y) { return cells.some(function (c) { return c[0] === x && c[1] === y; }); }
+function ruleStraight(cells, a, b) {
+  if (a[0] === b[0] && Math.abs(a[1] - b[1]) === 2) return has(cells, a[0], (a[1] + b[1]) / 2);
+  if (a[1] === b[1] && Math.abs(a[0] - b[0]) === 2) return has(cells, (a[0] + b[0]) / 2, a[1]);
+  return false;
+}
+function ruleZigzag(cells, a, b) {
+  var DIRS = [[1,0],[-1,0],[0,1],[0,-1]], found = false;
+  function cross(p, q) { return p[0]*q[1] - p[1]*q[0]; }
+  function walk(path, moves) {
+    if (path.length === 4) {
+      var last = path[3];
+      if (last[0] === b[0] && last[1] === b[1]) found = true;
+      return;
+    }
+    var cur = path[path.length - 1];
+    DIRS.forEach(function (d) {
+      var n = [cur[0] + d[0], cur[1] + d[1]];
+      if (!has(cells, n[0], n[1])) return;
+      if (path.some(function (p) { return p[0] === n[0] && p[1] === n[1]; })) return;
+      if (moves.length) {
+        var prev = moves[moves.length - 1];
+        if (prev[0] * d[0] + prev[1] * d[1] !== 0) return;             // must turn every step
+        if (moves.length > 1 && cross(moves[moves.length-2], prev) * cross(prev, d) >= 0) return;  // turns must alternate
+      }
+      walk(path.concat([n]), moves.concat([d]));
+    });
+  }
+  walk([a], []);
+  return found;
+}
+function whichRule(net, a, b) {
+  if (ruleStraight(net.cells, a, b)) return 'Rule 1 finds it: those two are in a straight line with exactly one square between them.';
+  if (ruleZigzag(net.cells, a, b)) return 'Rule 1 is silent here, but Rule 2 finds it: they are the two ends of a zigzag of four squares.';
+  return 'Neither rule reaches this pair directly, so it comes from elimination: the other two pairs are found first, and these two are what is left.';
+}
+
+/* ── render ── */
+fetch('../content/nets.json', { cache: 'no-cache' }).then(function (r) { return r.json(); })
+  .then(function (d) { D = d; draw(); })
+  .catch(function () { $('heroNote').textContent = 'Could not load the nets data.'; });
+
+function draw() {
+  $('heroNote').textContent = D.meta.note;
+  $('verifiedNote').textContent = D.meta.verified;
+
+  $('why').innerHTML = '<div class="card"><h2>' + E(D.why.title) + '</h2><ul class="disc">' +
+    D.why.points.map(function (p) { return '<li>' + E(p) + '</li>'; }).join('') + '</ul></div>';
+
+  $('solids').innerHTML = '<div class="card"><h2>' + E(D.solids.title) + '</h2>' +
+    '<p class="intro">' + E(D.solids.intro) + '</p>' +
+    '<div class="wrap"><table class="t"><thead><tr><th>Solid</th><th>F</th><th>E</th><th>V</th>' +
+    '<th>Its net is</th><th>How to spot it</th></tr></thead><tbody>' +
+    D.solids.rows.map(function (r) {
+      return '<tr><td class="k">' + E(r.solid) + '</td><td class="n">' + E(r.faces) + '</td><td class="n">' +
+        E(r.edges) + '</td><td class="n">' + E(r.vertices) + '</td><td>' + E(r.netIs) + '</td><td style="color:var(--muted)">' +
+        E(r.spot) + '</td></tr>';
+    }).join('') + '</tbody></table></div>' +
+    '<div class="fam"><div class="fnote">' + E(D.solids.euler) + '</div></div></div>';
+
+  $('fake').innerHTML = '<div class="card"><h2>' + E(D.spotFake.title) + '</h2>' +
+    '<p class="intro">' + E(D.spotFake.intro) + '</p>' +
+    D.spotFake.tests.map(function (t) {
+      return '<div class="test"><div class="tn">' + E(t.test) + '</div>' +
+        '<div class="tv ' + (t.verdict.indexOf('Never') === 0 ? 'no' : 'maybe') + '">' + E(t.verdict) + '</div>' +
+        '<div class="tw">' + E(t.why) + '</div><div class="tc">' + E(t.covers) + '</div></div>';
+    }).join('') +
+    '<div class="fnote" style="margin-top:.6rem">' + E(D.spotFake.closing) + '</div></div>';
+
+  $('opprules').innerHTML = '<div class="card"><h2>' + E(D.opposite.title) + '</h2>' +
+    '<p class="intro">' + E(D.opposite.intro) + '</p>' +
+    D.opposite.rules.map(function (r) {
+      return '<div class="rule"><div class="rn">' + E(r.name) + '</div>' +
+        '<div class="rs">' + E(r.say) + '</div>' +
+        '<div class="rw">' + E(r.why) + '</div>' +
+        '<div class="rc">' + E(r.coverage) + '</div></div>';
+    }).join('') +
+    '<h3>Worked through</h3>' +
+    D.opposite.worked.map(function (w) {
+      return '<div class="worked"><div class="wc">' + E(w.case) + '</div><ol>' +
+        w.steps.map(function (s) { return '<li>' + E(s) + '</li>'; }).join('') + '</ol></div>';
+    }).join('') + '</div>';
+
+  $('symbols').innerHTML = '<div class="card"><h2>' + E(D.symbols.title) + '</h2>' +
+    '<p class="intro">' + E(D.symbols.intro) + '</p>' +
+    D.symbols.steps.map(function (s) {
+      return '<div class="step"><div class="n">' + s.n + '</div><div><p>' + E(s.do) + '</p>' +
+        '<div class="why">' + E(s.gain) + '</div></div></div>';
+    }).join('') +
+    '<div class="fnote">' + E(D.symbols.note) + '</div></div>';
+
+  $('routine').innerHTML = '<div class="card"><h2>' + E(D.routine.title) + '</h2>' +
+    D.routine.steps.map(function (s) {
+      return '<div class="step"><div class="n">' + s.n + '</div><div><p>' + E(s.do) + '</p>' +
+        '<div class="why">' + E(s.why) + '</div></div></div>';
+    }).join('') + '</div>';
+
+  var good = D.hexominoes.filter(function (h) { return h.folds; });
+  $('families').innerHTML = '<div class="card"><h2>' + E(D.families.title) + '</h2>' +
+    '<p class="intro">' + E(D.families.intro) + '</p>' +
+    D.families.list.map(function (f) {
+      var nets = good.filter(function (h) { return h.family === f.code; });
+      return '<div class="fam"><div class="fh"><span class="fc">' + E(f.code) + '</span>' +
+        '<span class="fn">' + E(f.name) + '</span><span class="fk">' + f.count +
+        (f.count === 1 ? ' net' : ' nets') + '</span></div>' +
+        '<div class="fd">' + E(f.how) + '</div>' +
+        '<div class="netgrid">' + nets.map(function (h) {
+          return '<div class="netbox good">' + svgNet(h) + '</div>';
+        }).join('') + '</div>' +
+        '<div class="fnote">' + E(f.note) + '</div></div>';
+    }).join('') + '</div>' +
+    '<div class="card"><h2>And these are not nets</h2>' +
+    '<p class="intro">The twenty-four shapes that look reasonable and do not fold. Red border means it fails. ' +
+    'The twelve on the bottom row pass both quick tests and still do not work, which is why the family check matters.</p>' +
+    ['block', 'line', 'overlap'].map(function (w) {
+      var lbl = w === 'block' ? 'Contains a two-by-two block' :
+                w === 'line'  ? 'Five or more in a straight line' :
+                                'Passes both quick tests, but two faces still land on top of each other';
+      var set = D.hexominoes.filter(function (h) { return !h.folds && h.why === w; });
+      return '<h3>' + E(lbl) + ' · ' + set.length + '</h3><div class="netgrid">' +
+        set.map(function (h) { return '<div class="netbox bad">' + svgNet(h, { size: 20 }) + '</div>'; }).join('') + '</div>';
+    }).join('') + '</div>';
+
+  $('traps').innerHTML = '<div class="card"><h2>Traps set on purpose</h2>' +
+    '<div class="wrap"><table class="t"><thead><tr><th style="width:33%">Trap</th><th style="width:40%">What to do instead</th><th>What it costs</th></tr></thead><tbody>' +
+    D.traps.map(function (t) {
+      return '<tr><td style="color:#fca5a5">' + E(t.trap) + '</td><td style="color:#bbf7d0">' + E(t.fix) +
+        '</td><td style="color:var(--muted)">' + E(t.cost) + '</td></tr>';
+    }).join('') + '</tbody></table></div></div>';
+
+  fPool = D.hexominoes.slice();
+  shuffle(fPool);
+  nextFold(); nextOpp();
+}
+
+function shuffle(a) {
+  var i, j, t;
+  for (i = a.length - 1; i > 0; i--) { j = Math.floor(Math.random() * (i + 1)); t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+
+/* ── drill 1 ── */
+function nextFold() {
+  fIdx = (fIdx + 1) % fPool.length;
+  if (fIdx === 0) shuffle(fPool);
+  fAnswered = false;
+  $('fStage').innerHTML = svgNet(fPool[fIdx], { size: 40 });
+  $('fVerdict').className = 'verdict';
+  $('fScore').textContent = fDone ? fRight + ' right out of ' + fDone : '';
+}
+function answerFold(said) {
+  if (fAnswered) return;
+  var h = fPool[fIdx], v = $('fVerdict');
+  fAnswered = true; fDone++;
+  var correct = (said === h.folds);
+  if (correct) fRight++;
+  var reason;
+  if (h.folds) {
+    reason = 'It folds. It is the ' + h.family + ' family: ' +
+      (h.family === '1-4-1' ? 'a straight run of four with a flap above and a flap below.' :
+       h.family === '1-3-2' ? 'a run of three, one square on one side and a pair on the other.' :
+       h.family === '2-2-2' ? 'the staircase, the one net where the straight-line rule finds nothing.' :
+                              'two rows of three overlapping by exactly one column.');
+  } else {
+    reason = h.why === 'block' ? 'It does not fold. There is a two-by-two block in it, and that always closes on itself.' :
+             h.why === 'line'  ? 'It does not fold. Five or more squares lie in one straight line, and a cube only has four faces going round.' :
+                                 'It does not fold, and neither quick test catches it. It passes both, but it still matches none of the four families, so two faces end up on top of each other. This is the kind used as a wrong answer in exams.';
+  }
+  v.className = 'verdict ' + (correct ? 'ok' : 'no');
+  v.innerHTML = (correct ? '<b>Correct.</b> ' : '<b>Not this one.</b> ') + E(reason);
+  $('fScore').textContent = fRight + ' right out of ' + fDone;
+}
+
+/* ── drill 2 ── */
+function nextOpp() {
+  var good = D.hexominoes.filter(function (h) { return h.folds; });
+  oNet = good[Math.floor(Math.random() * good.length)];
+  oCell = oNet.cells[Math.floor(Math.random() * oNet.cells.length)];
+  oAnswered = false;
+  $('oStage').innerHTML = svgNet(oNet, { size: 46, shade: oCell, click: true });
+  $('oVerdict').className = 'verdict';
+  $('oScore').textContent = oDone ? oRight + ' right out of ' + oDone : '';
+}
+function partnerOf(net, cell) {
+  var p = null;
+  net.opposites.forEach(function (pair) {
+    if (pair[0][0] === cell[0] && pair[0][1] === cell[1]) p = pair[1];
+    if (pair[1][0] === cell[0] && pair[1][1] === cell[1]) p = pair[0];
+  });
+  return p;
+}
+document.addEventListener('click', function (ev) {
+  var t = ev.target.closest ? ev.target.closest('[data-cell]') : null;
+  if (!t || oAnswered || !oNet) return;
+  var parts = t.getAttribute('data-cell').split(','), pick = [+parts[0], +parts[1]];
+  if (pick[0] === oCell[0] && pick[1] === oCell[1]) return;
+  oAnswered = true; oDone++;
+  var ans = partnerOf(oNet, oCell);
+  var correct = (pick[0] === ans[0] && pick[1] === ans[1]);
+  if (correct) oRight++;
+  $('oStage').innerHTML = svgNet(oNet, {
+    size: 46, shade: oCell,
+    mark: function (c) {
+      if (c[0] === ans[0] && c[1] === ans[1]) return 'right';
+      if (!correct && c[0] === pick[0] && c[1] === pick[1]) return 'wrong';
+      return null;
+    }
+  });
+  var v = $('oVerdict');
+  v.className = 'verdict ' + (correct ? 'ok' : 'no');
+  v.innerHTML = (correct ? '<b>Correct.</b> ' : '<b>Not that one.</b> The green square is the opposite face. ') +
+    E(whichRule(oNet, oCell, ans)) +
+    (!correct ? ' <br><br>The one you picked shares an edge with the shaded square or is one step away, which makes it <b>next to</b> it on the cube, not opposite.' : '');
+  $('oScore').textContent = oRight + ' right out of ' + oDone;
+});
+
+function go(p) {
+  var t = document.querySelectorAll('.tab'), s = document.querySelectorAll('.pane'), i;
+  for (i = 0; i < t.length; i++) t[i].classList.toggle('on', t[i].dataset.p === p);
+  for (i = 0; i < s.length; i++) s[i].classList.toggle('on', s[i].id === 'p-' + p);
+}
+</script>
+</body>
+</html>
