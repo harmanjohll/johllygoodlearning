@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bank Karangan — Studio Bahasa Melayu</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: .85rem 1.4rem;
+                   display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { color: var(--muted); border: 1px solid var(--border); border-radius: 7px; padding: .35rem .75rem;
+                 font-size: .8rem; font-weight: 600; text-decoration: none; }
+    .back-link:hover { background: var(--border); color: var(--text); }
+    .hdr { flex: 1; min-width: 180px; font-weight: 800; font-size: .95rem; }
+    .hdr span { display: block; font-size: .72rem; color: var(--muted); font-weight: 400; }
+    main { max-width: 950px; margin: 0 auto; padding: 1.25rem 1.25rem 5rem; }
+    .hero h1 { font-size: 1.5rem; margin-bottom: .3rem; }
+    .hero p { color: var(--muted); font-size: .9rem; line-height: 1.75; margin-bottom: .8rem; }
+
+    .tabs { display: flex; gap: .4rem; border-bottom: 1px solid var(--border); margin-bottom: 1.1rem; flex-wrap: wrap; }
+    .tab { background: none; border: 0; padding: .6rem .85rem; color: var(--muted); font-size: .88rem;
+           font-weight: 700; cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit; }
+    .tab:hover { color: var(--text); }
+    .tab.on { color: var(--text); border-bottom-color: var(--accent); }
+    .pane { display: none; } .pane.on { display: block; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.05rem; margin-bottom: .85rem; }
+    .card h2 { font-size: 1rem; margin: 0 0 .45rem; }
+    .card h3 { font-size: .9rem; margin: .9rem 0 .35rem; color: var(--accent); }
+    .card p.intro { font-size: .87rem; color: var(--muted); line-height: 1.75; margin: 0 0 .6rem; }
+    .amaran { font-size: .84rem; line-height: 1.7; color: #fcd34d; background: rgba(251,191,36,.08);
+              border: 1px solid rgba(251,191,36,.3); border-radius: 9px; padding: .55rem .75rem; margin-bottom: .7rem; }
+    .petua { font-size: .84rem; line-height: 1.7; color: #86efac; background: rgba(34,197,94,.08);
+             border: 1px solid rgba(34,197,94,.3); border-radius: 9px; padding: .55rem .75rem; }
+
+    .searchbar { position: relative; margin-bottom: .65rem; }
+    .searchbar input { width: 100%; background: var(--surface); border: 1.5px solid var(--border); color: var(--text);
+                       border-radius: 10px; padding: .62rem .9rem .62rem 2.2rem; font-size: .9rem; outline: none; font-family: inherit; }
+    .searchbar input:focus { border-color: var(--accent); }
+    .searchbar .ic { position: absolute; left: .75rem; top: 50%; transform: translateY(-50%); opacity: .55; font-size: .85rem; pointer-events: none; }
+    .fbox { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: .7rem .8rem; margin-bottom: .8rem; }
+    .frow { display: flex; gap: .3rem; flex-wrap: wrap; align-items: baseline; padding: .3rem 0; }
+    .frow + .frow { border-top: 1px dashed var(--border); }
+    .flabel { font-size: .63rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 800; color: var(--muted);
+              width: 104px; flex: none; padding-top: .22rem; }
+    .chip { padding: .22rem .6rem; border-radius: 99px; border: 1px solid var(--border); background: transparent;
+            color: var(--muted); font-size: .74rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .chip:hover { color: var(--text); border-color: var(--accent); }
+    .chip.on { background: var(--accent); border-color: var(--accent); color: #06131a; }
+    .chip .n { opacity: .6; font-weight: 600; margin-left: .2rem; }
+    .chip[disabled] { opacity: .3; cursor: default; }
+    .bar { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin-bottom: .7rem; }
+    .star { padding: .4rem .85rem; border-radius: 99px; border: 1.5px solid var(--accent); background: transparent;
+            color: var(--accent); font-size: .8rem; font-weight: 800; cursor: pointer; font-family: inherit; }
+    .star.on { background: var(--accent); color: #06131a; }
+    .cnt { font-size: .8rem; color: var(--muted); flex: 1; min-width: 120px; }
+    .cnt b { color: var(--text); }
+    .clr { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 8px;
+           padding: .34rem .7rem; font-size: .76rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+    .item { background: var(--card); border: 1px solid var(--border); border-radius: 11px; padding: .72rem .9rem; margin-bottom: .55rem; }
+    .kind { font-size: .6rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 800; color: var(--accent); }
+    .kind.bad { color: #fbbf24; }
+    .i-t { font-size: .95rem; font-weight: 700; color: var(--text); line-height: 1.45; margin: .1rem 0 .18rem; }
+    .i-s { font-size: .83rem; color: var(--muted); line-height: 1.7; }
+    .i-e { font-size: .82rem; color: #cbd5e1; font-style: italic; line-height: 1.7; border-left: 2px solid var(--border);
+           padding-left: .6rem; margin-top: .4rem; }
+    .i-n { font-size: .78rem; color: var(--muted); line-height: 1.6; margin-top: .4rem; }
+    .wrow { margin-top: .4rem; }
+    .wrow .wl { font-size: .61rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 800; color: var(--muted); margin-bottom: .18rem; }
+    .ws { display: flex; gap: .25rem; flex-wrap: wrap; }
+    .ws span { font-size: .77rem; padding: .13rem .45rem; border-radius: 5px; background: var(--surface);
+               border: 1px solid var(--border); color: var(--text); }
+    .tagrow { display: flex; gap: .22rem; flex-wrap: wrap; margin-top: .5rem; }
+    .tag { font-size: .66rem; padding: .1rem .42rem; border-radius: 4px; border: 1px solid var(--border); color: var(--muted); }
+    .tag.any { color: var(--accent); border-color: var(--accent); }
+    .more { display: block; width: 100%; margin-top: .6rem; padding: .6rem; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: .84rem;
+            font-weight: 700; cursor: pointer; font-family: inherit; }
+    .empty { color: var(--muted); font-size: .87rem; text-align: center; padding: 2rem 1rem; line-height: 1.8; }
+
+    .wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; margin-bottom: .8rem; }
+    table.t { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    table.t th, table.t td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    table.t th { font-size: .63rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); white-space: nowrap; }
+    table.t tr:last-child td { border-bottom: none; }
+    td.x { color: #fca5a5; } td.v { color: #bbf7d0; } td.m { color: var(--muted); }
+
+    .tangga { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+              border-radius: 11px; padding: .8rem .95rem; margin-bottom: .65rem; }
+    .tangga h3 { font-size: 1rem; margin: 0 0 .35rem; text-transform: capitalize; color: var(--text); }
+
+    .prov { font-size: .78rem; line-height: 1.7; color: var(--muted); background: var(--surface);
+            border: 1px solid var(--border); border-radius: 9px; padding: .6rem .8rem; margin-top: .7rem; }
+    .prov b { color: var(--text); }
+
+    @media (max-width: 640px) { main { padding: 1rem .9rem 4rem; } .flabel { width: 100%; padding-top: .3rem; } }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <a href="../index.html" class="back-link">← Studio Bahasa Melayu</a>
+  <div class="hdr">Bank Karangan<span>Frasa, kata dan peribahasa untuk Kertas 1</span></div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Bank Karangan</h1>
+    <p id="nota">Memuatkan…</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-p="cari"    onclick="go('cari')">Cari semua</button>
+    <button class="tab"    data-p="penanda" onclick="go('penanda')">Penanda wacana</button>
+    <button class="tab"    data-p="emosi"   onclick="go('emosi')">Tangga perasaan</button>
+    <button class="tab"    data-p="mula"    onclick="go('mula')">Mula &amp; tamat</button>
+    <button class="tab"    data-p="elak"    onclick="go('elak')">Jangan tulis</button>
+    <button class="tab"    data-p="pb"      onclick="go('pb')">Peribahasa serbaguna</button>
+  </div>
+
+  <section class="pane on" id="p-cari">
+    <div class="searchbar"><span class="ic">🔍</span>
+      <input id="q" type="search" placeholder="Cari perkataan, frasa atau peribahasa…" autocomplete="off" aria-label="Cari">
+    </div>
+    <div class="fbox" id="filters"></div>
+    <div class="bar">
+      <button class="star" id="anyBtn" type="button" onclick="toggleAny()">★ Sesuai di mana-mana</button>
+      <span class="cnt" id="cnt"></span>
+      <button class="clr" type="button" onclick="clearAll()">Kosongkan</button>
+    </div>
+    <div id="list"></div>
+  </section>
+
+  <section class="pane" id="p-penanda"><div id="penanda"></div></section>
+  <section class="pane" id="p-emosi"><div id="emosi"></div></section>
+  <section class="pane" id="p-mula"><div id="mula"></div></section>
+  <section class="pane" id="p-elak"><div id="elak"></div></section>
+  <section class="pane" id="p-pb"><div id="pb"></div></section>
+</main>
+
+<script src="../shared.js"></script>
+<script>
+(function () {
+  'use strict';
+  var D = null, PB = null, ITEMS = [], q = '', shown = 60;
+  var FACETS = ['jenis', 'tema', 'perasaan', 'karangan'];
+  var sel = { jenis: {}, tema: {}, perasaan: {}, karangan: {} };
+
+  function $(id) { return document.getElementById(id); }
+  function E(s) {
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function add(o) {
+    o.tema = o.tema || []; o.perasaan = o.perasaan || []; o.karangan = o.karangan || ['kedua-dua'];
+    o.rows = o.rows || [];
+    o.cari = [o.title, o.sub, o.contoh, o.nota].concat(o.rows.map(function (r) { return r.words.join(' '); }))
+      .join(' ').toLowerCase();
+    ITEMS.push(o);
+  }
+
+  function build() {
+    D.penandaWacana.kumpulan.forEach(function (g) {
+      add({ jenis: 'penanda', kindLabel: 'Penanda · ' + g.fungsi, title: g.fungsi, sub: g.guna,
+            rows: [{ label: 'Frasa', words: g.frasa }], contoh: g.contoh,
+            tema: ['mana-mana'], karangan: [g.jenis] });
+    });
+    D.emosi.senarai.forEach(function (e) {
+      add({ jenis: 'emosi', kindLabel: 'Kata perasaan', title: e.perasaan, sub: e.nota,
+            rows: [{ label: 'Lemah', words: e.lemah }, { label: 'Sederhana', words: e.sederhana },
+                   { label: 'Kuat', words: e.kuat }, { label: 'Apa yang badan buat', words: e.badan }],
+            perasaan: [e.perasaan], tema: ['mana-mana'], karangan: ['naratif'] });
+    });
+    D.kataKerja.kumpulan.forEach(function (k) {
+      add({ jenis: 'kerja', kindLabel: 'Kata kerja kuat', title: 'Ganti "' + k.lemah + '"', sub: k.nota,
+            rows: [{ label: 'Gunakan', words: k.kuat }], tema: ['mana-mana'], karangan: ['naratif'] });
+    });
+    D.latar.kumpulan.forEach(function (g) {
+      add({ jenis: 'latar', kindLabel: 'Latar · ' + g.masa, title: g.masa,
+            rows: [{ label: 'Frasa', words: g.frasa }], tema: ['latar-masa', 'mana-mana'], karangan: ['naratif'] });
+    });
+    D.tunjukBukanBeritahu.pasangan.forEach(function (p) {
+      add({ jenis: 'tunjuk', kindLabel: 'Tunjuk bukan beritahu', title: p.tunjuk,
+            sub: 'Ganti: ' + p.beritahu, tema: ['mana-mana'], karangan: ['naratif'] });
+    });
+    D.pembuka.jenis.forEach(function (j) {
+      add({ jenis: 'pembuka', kindLabel: 'Pembuka · ' + j.nama, title: j.corak, sub: j.kenapa,
+            contoh: j.contoh, tema: ['mana-mana'], karangan: ['naratif'] });
+    });
+    D.penutup.jenis.forEach(function (j) {
+      add({ jenis: 'penutup', kindLabel: 'Penutup · ' + j.nama, title: j.corak, sub: j.kenapa,
+            contoh: j.contoh, tema: ['mana-mana'], karangan: ['naratif'] });
+    });
+    D.elakkan.klise.forEach(function (k) {
+      add({ jenis: 'elakkan', kindLabel: 'Jangan tulis', title: k.ayat, sub: k.kenapa,
+            nota: 'Sebagai ganti: ' + k.ganti, tema: ['mana-mana'], karangan: ['naratif'], bad: true });
+    });
+    D.elakkan.tatabahasa.forEach(function (t) {
+      add({ jenis: 'elakkan', kindLabel: 'Kesalahan tatabahasa', title: t.salah, sub: 'Betul: ' + t.betul,
+            nota: t.sebab, tema: ['mana-mana'], karangan: ['kedua-dua'], bad: true });
+    });
+    if (PB) {
+      var tm = D.tagPeribahasa;
+      (PB.topics.peribahasa.glossary || []).forEach(function (g) {
+        var t = tm.peribahasa[g.term] || { t: [], f: [] };
+        add({ jenis: 'peribahasa', kindLabel: 'Peribahasa', title: g.term, sub: g.definition,
+              contoh: g.template, tema: t.t, perasaan: t.f, karangan: ['kedua-dua'] });
+      });
+      (PB.topics['simpulan-bahasa'].glossary || []).forEach(function (g) {
+        var t = tm.simpulan[g.term] || [];
+        add({ jenis: 'simpulan', kindLabel: 'Simpulan bahasa', title: g.term, sub: g.definition,
+              contoh: g.template, tema: t, karangan: ['kedua-dua'] });
+      });
+    }
+  }
+
+  function anyOn(f) { for (var k in sel[f]) if (sel[f][k]) return true; return false; }
+  function match(it, skip) {
+    for (var i = 0; i < FACETS.length; i++) {
+      var f = FACETS[i];
+      if (f === skip || !anyOn(f)) continue;
+      var vals = (f === 'jenis') ? [it.jenis] : it[f], hit = false;
+      for (var k = 0; k < vals.length; k++) if (sel[f][vals[k]]) { hit = true; break; }
+      if (!hit) return false;
+    }
+    if (q && it.cari.indexOf(q) === -1) return false;
+    return true;
+  }
+  function label(f, id) {
+    var v = D.facets[f].nilai;
+    for (var i = 0; i < v.length; i++) if (v[i].id === id) return v[i].label;
+    return id;
+  }
+  function rowsHTML(rows) {
+    return rows.filter(function (r) { return r.words && r.words.length; }).map(function (r) {
+      return '<div class="wrow"><div class="wl">' + E(r.label) + '</div><div class="ws">' +
+        r.words.map(function (w) { return '<span>' + E(w) + '</span>'; }).join('') + '</div></div>';
+    }).join('');
+  }
+  function itemHTML(it) {
+    var tags = it.tema.map(function (t) {
+      return '<span class="tag' + (t === 'mana-mana' ? ' any' : '') + '">' + E(label('tema', t)) + '</span>';
+    }).concat(it.perasaan.map(function (p) { return '<span class="tag">' + E(label('perasaan', p)) + '</span>'; }));
+    return '<div class="item"><div class="kind' + (it.bad ? ' bad' : '') + '">' + E(it.kindLabel) + '</div>' +
+      '<div class="i-t">' + E(it.title) + '</div>' +
+      (it.sub ? '<div class="i-s">' + E(it.sub) + '</div>' : '') +
+      rowsHTML(it.rows) +
+      (it.contoh ? '<div class="i-e">' + E(it.contoh) + '</div>' : '') +
+      (it.nota ? '<div class="i-n">' + E(it.nota) + '</div>' : '') +
+      (tags.length ? '<div class="tagrow">' + tags.join('') + '</div>' : '') + '</div>';
+  }
+  function renderList() {
+    var res = ITEMS.filter(function (it) { return match(it, null); });
+    $('cnt').innerHTML = '<b>' + res.length + '</b> daripada ' + ITEMS.length;
+    if (!res.length) {
+      $('list').innerHTML = '<div class="empty">Tiada yang sepadan dengan semua tapisan itu.<br>Cuba kosongkan satu baris.</div>';
+    } else {
+      $('list').innerHTML = res.slice(0, shown).map(itemHTML).join('') +
+        (res.length > shown ? '<button class="more" id="moreBtn" type="button">Tunjuk ' +
+          Math.min(60, res.length - shown) + ' lagi (' + (res.length - shown) + ' berbaki)</button>' : '');
+      if ($('moreBtn')) $('moreBtn').onclick = function () { shown += 60; renderList(); };
+    }
+    renderFilters();
+  }
+  function renderFilters() {
+    $('filters').innerHTML = FACETS.map(function (f) {
+      var fa = D.facets[f];
+      return '<div class="frow"><div class="flabel">' + E(fa.label) + '</div>' +
+        fa.nilai.map(function (v) {
+          var n = ITEMS.filter(function (it) {
+            if (!match(it, f)) return false;
+            return (f === 'jenis') ? it.jenis === v.id : it[f].indexOf(v.id) !== -1;
+          }).length;
+          var on = !!sel[f][v.id];
+          return '<button class="chip' + (on ? ' on' : '') + '" type="button" data-f="' + f + '" data-v="' + E(v.id) + '"' +
+            (n === 0 && !on ? ' disabled' : '') + '>' + E(v.label) + '<span class="n">' + n + '</span></button>';
+        }).join('') + '</div>';
+    }).join('');
+    $('anyBtn').classList.toggle('on', !!sel.tema['mana-mana']);
+  }
+
+  function renderRest() {
+    var p = D.penandaWacana;
+    $('penanda').innerHTML = '<div class="card"><h2>' + E(p.title) + '</h2>' +
+      '<p class="intro">' + E(p.intro) + '</p><div class="amaran">' + E(p.amaran) + '</div></div>' +
+      p.kumpulan.map(function (g) {
+        return '<div class="card"><h2>' + E(g.fungsi) + ' <span style="font-weight:400;color:var(--muted);font-size:.78rem">· ' +
+          E(g.jenis === 'kedua-dua' ? 'naratif dan fakta' : g.jenis) + '</span></h2>' +
+          '<p class="intro">' + E(g.guna) + '</p>' +
+          '<div class="ws">' + g.frasa.map(function (f) { return '<span>' + E(f) + '</span>'; }).join('') + '</div>' +
+          '<div class="i-e">' + E(g.contoh) + '</div></div>';
+      }).join('');
+
+    var em = D.emosi;
+    $('emosi').innerHTML = '<div class="card"><h2>' + E(em.title) + '</h2><p class="intro">' + E(em.intro) +
+      '</p><div class="petua">' + E(em.petua) + '</div></div>' +
+      em.senarai.map(function (e) {
+        return '<div class="tangga"><h3>' + E(e.perasaan) + '</h3>' +
+          rowsHTML([{ label: 'Lemah', words: e.lemah }, { label: 'Sederhana', words: e.sederhana },
+                    { label: 'Kuat', words: e.kuat }, { label: 'Apa yang badan buat', words: e.badan }]) +
+          '<div class="i-n">' + E(e.nota) + '</div></div>';
+      }).join('');
+
+    function seksyen(s) {
+      return '<div class="card"><h2>' + E(s.title) + '</h2><p class="intro">' + E(s.intro) + '</p>' +
+        s.jenis.map(function (j) {
+          return '<h3>' + E(j.nama) + '</h3><div class="i-s">' + E(j.corak) + '</div>' +
+            '<div class="i-e">' + E(j.contoh) + '</div><div class="i-n">' + E(j.kenapa) + '</div>';
+        }).join('') + '</div>';
+    }
+    $('mula').innerHTML = seksyen(D.pembuka) + seksyen(D.penutup) +
+      '<div class="card"><h2>' + E(D.latar.title) + '</h2><p class="intro">' + E(D.latar.intro) + '</p>' +
+      D.latar.kumpulan.map(function (g) {
+        return '<h3>' + E(g.masa) + '</h3><div class="ws">' +
+          g.frasa.map(function (f) { return '<span>' + E(f) + '</span>'; }).join('') + '</div>';
+      }).join('') + '<div class="petua" style="margin-top:.7rem">' + E(D.latar.petua) + '</div></div>';
+
+    var el = D.elakkan;
+    $('elak').innerHTML = '<div class="card"><h2>' + E(el.title) + '</h2><p class="intro">' + E(el.intro) + '</p></div>' +
+      '<div class="card"><h2>Klise</h2>' + el.klise.map(function (k) {
+        return '<div class="item" style="margin-bottom:.5rem"><div class="kind bad">Jangan tulis</div>' +
+          '<div class="i-t">' + E(k.ayat) + '</div><div class="i-s">' + E(k.kenapa) + '</div>' +
+          '<div class="i-n"><b style="color:#bbf7d0">Sebagai ganti:</b> ' + E(k.ganti) + '</div></div>';
+      }).join('') + '</div>' +
+      '<div class="card"><h2>Kesalahan tatabahasa yang menolak markah</h2>' +
+      '<div class="wrap"><table class="t"><thead><tr><th style="width:30%">Salah</th><th style="width:32%">Betul</th><th>Sebabnya</th></tr></thead><tbody>' +
+      el.tatabahasa.map(function (t) {
+        return '<tr><td class="x">' + E(t.salah) + '</td><td class="v">' + E(t.betul) + '</td><td class="m">' + E(t.sebab) + '</td></tr>';
+      }).join('') + '</tbody></table></div></div>';
+
+    var s = D.serbaguna;
+    $('pb').innerHTML = '<div class="card"><h2>' + E(s.title) + '</h2><p class="intro">' + E(s.intro) + '</p>' +
+      '<div class="amaran">' + E(s.hadKegunaan) + '</div></div>' +
+      s.senarai.map(function (x) {
+        var g = null;
+        if (PB) (PB.topics.peribahasa.glossary || []).forEach(function (e) { if (e.term === x.pb) g = e; });
+        return '<div class="item"><div class="kind">Peribahasa</div><div class="i-t">' + E(x.pb) + '</div>' +
+          (g ? '<div class="i-s">' + E(g.definition) + '</div>' : '') +
+          '<div class="i-n"><b style="color:var(--accent)">Bila hendak guna:</b> ' + E(x.bila) + '</div>' +
+          (g && g.template ? '<div class="i-e">' + E(g.template) + '</div>' : '') + '</div>';
+      }).join('') +
+      '<div class="prov"><b>Nota ketepatan.</b> ' + E(D.meta.provenance.en) + ' ' + E(D.meta.provenance.risk) + '</div>';
+  }
+
+  window.go = function (p) {
+    var t = document.querySelectorAll('.tab'), s = document.querySelectorAll('.pane'), i;
+    for (i = 0; i < t.length; i++) t[i].classList.toggle('on', t[i].dataset.p === p);
+    for (i = 0; i < s.length; i++) s[i].classList.toggle('on', s[i].id === 'p-' + p);
+  };
+  window.toggleAny = function () { sel.tema['mana-mana'] = !sel.tema['mana-mana']; shown = 60; renderList(); };
+  window.clearAll = function () {
+    FACETS.forEach(function (f) { sel[f] = {}; });
+    q = ''; $('q').value = ''; shown = 60; renderList();
+  };
+  document.addEventListener('click', function (ev) {
+    var c = ev.target.closest ? ev.target.closest('.chip') : null;
+    if (c && !c.disabled) {
+      var f = c.getAttribute('data-f'), v = c.getAttribute('data-v');
+      sel[f][v] = !sel[f][v]; shown = 60; renderList();
+    }
+  });
+
+  Promise.all([
+    fetch('../shared/content/karangan-handles.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }),
+    fetch('../shared/content/peribahasa.json', { cache: 'no-cache' })
+      .then(function (r) { return r.json(); }).catch(function () { return null; })
+  ]).then(function (res) {
+    D = res[0]; PB = res[1];
+    $('nota').textContent = D.meta.note + ' ' + D.meta.bahasa;
+    build(); renderList(); renderRest();
+    $('q').addEventListener('input', function () { q = this.value.trim().toLowerCase(); shown = 60; renderList(); });
+  }).catch(function () {
+    $('nota').textContent = 'Tidak dapat memuatkan data. Buka halaman ini melalui laman web, bukan sebagai fail biasa.';
+  });
+})();
+</script>
+</body>
+</html>
