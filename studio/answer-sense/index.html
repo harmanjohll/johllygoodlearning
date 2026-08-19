@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Answer Sense | Science Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { padding: 0; }
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 1.25rem; }
+    .page-header-inner { max-width: 960px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .back-link { color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: .4rem .8rem;
+                 font-size: .82rem; font-weight: 600; text-decoration: none; }
+    .back-link:hover { color: var(--text); border-color: var(--accent); background: var(--card); }
+    .page-header-title { flex: 1; min-width: 200px; }
+    .page-header-title h1 { font-size: 1.15rem; margin: 0; }
+    .page-header-title p { font-size: .78rem; color: var(--muted); margin: .15rem 0 0; }
+
+    main { max-width: 960px; margin: 0 auto; padding: 1.2rem 1.25rem 5rem; }
+    .intro { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+             border-radius: 12px; padding: .9rem 1.1rem; margin-bottom: 1rem; }
+    .intro p { font-size: .87rem; line-height: 1.7; color: var(--muted); margin: 0; }
+    .intro b { color: var(--text); }
+
+    /* search + filters */
+    .searchbar { position: relative; margin-bottom: .65rem; }
+    .searchbar input { width: 100%; background: var(--surface); border: 1.5px solid var(--border); color: var(--text);
+                       border-radius: 10px; padding: .62rem .9rem .62rem 2.2rem; font-size: .9rem; outline: none; font-family: inherit; }
+    .searchbar input:focus { border-color: var(--accent); }
+    .searchbar .ic { position: absolute; left: .78rem; top: 50%; transform: translateY(-50%); opacity: .55; font-size: .85rem; }
+    .fbox { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: .7rem .8rem; margin-bottom: .8rem; }
+    .frow { display: flex; gap: .3rem; flex-wrap: wrap; align-items: baseline; padding: .32rem 0; }
+    .frow + .frow { border-top: 1px dashed var(--border); }
+    .flabel { font-size: .62rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 800; color: var(--muted);
+              width: 104px; flex: none; padding-top: .24rem; }
+    .chip { padding: .22rem .62rem; border-radius: 99px; border: 1px solid var(--border); background: transparent;
+            color: var(--muted); font-size: .74rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .12s; }
+    .chip:hover { color: var(--text); border-color: var(--accent); }
+    .chip.on { background: var(--accent); border-color: var(--accent); color: #06131a; }
+    .chip .n { opacity: .6; font-weight: 600; margin-left: .22rem; }
+    .chip[disabled] { opacity: .3; cursor: default; }
+    .chip[data-f="theme"].on[data-v="cycles"]       { background: var(--cycles); border-color: var(--cycles); }
+    .chip[data-f="theme"].on[data-v="diversity"]    { background: var(--diversity); border-color: var(--diversity); }
+    .chip[data-f="theme"].on[data-v="energy"]       { background: var(--energy); border-color: var(--energy); }
+    .chip[data-f="theme"].on[data-v="interactions"] { background: var(--interactions); border-color: var(--interactions); }
+    .chip[data-f="theme"].on[data-v="systems"]      { background: var(--systems); border-color: var(--systems); }
+    .bar { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin-bottom: .9rem; }
+    .cnt { font-size: .8rem; color: var(--muted); flex: 1; min-width: 120px; }
+    .cnt b { color: var(--text); }
+    .clr { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 8px;
+           padding: .34rem .7rem; font-size: .76rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .clr:hover { color: var(--text); border-color: var(--accent); }
+    .revealAllBtn { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px;
+                    padding: .34rem .7rem; font-size: .76rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+    /* item card */
+    .item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: .95rem 1.05rem; margin-bottom: .8rem; }
+    .metarow { display: flex; gap: .4rem; flex-wrap: wrap; align-items: center; margin-bottom: .5rem; }
+    .pill { font-size: .64rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; padding: .14rem .48rem;
+            border-radius: 5px; border: 1px solid var(--border); color: var(--muted); }
+    .pill.topic { color: var(--text); }
+    .pill.cmd { color: #06131a; }
+    .pill.marks { color: var(--accent); border-color: var(--accent); }
+    .pill.ftype { color: #fca5a5; border-color: rgba(248,113,113,.4); }
+    .stim { font-size: .84rem; color: var(--muted); line-height: 1.6; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 8px; padding: .5rem .7rem; margin-bottom: .5rem; font-style: italic; }
+    .stem { font-size: .95rem; font-weight: 700; color: var(--text); line-height: 1.55; margin-bottom: .55rem; }
+
+    .attemptline { font-size: .8rem; color: var(--muted); line-height: 1.6; margin-bottom: .6rem; }
+    .revealBtn { display: inline-flex; align-items: center; gap: .4rem; background: var(--accent); border: none; color: #06131a;
+                 border-radius: 8px; padding: .5rem .85rem; font-size: .82rem; font-weight: 800; cursor: pointer; font-family: inherit; }
+    .revealBtn:hover { filter: brightness(1.08); }
+
+    .reveal { display: none; margin-top: .5rem; }
+    .reveal.on { display: block; }
+    .block { border-radius: 9px; padding: .6rem .75rem; margin-bottom: .55rem; }
+    .lbl { font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .28rem; }
+    .b-decode { background: rgba(56,189,248,.06); border: 1px solid rgba(56,189,248,.25); }
+    .b-decode .lbl { color: var(--accent); }
+    .b-decode .looks { font-size: .84rem; color: var(--muted); line-height: 1.6; }
+    .b-decode .asks { font-size: .87rem; color: var(--text); line-height: 1.6; margin-top: .3rem; }
+    .b-decode .asks b { color: var(--accent); }
+    .b-weak { background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.28); }
+    .b-weak .lbl { color: #fca5a5; }
+    .b-weak .txt { font-size: .88rem; color: #fecaca; line-height: 1.6; font-style: italic; }
+    .b-gap { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.3); }
+    .b-gap .lbl { color: #fcd34d; }
+    .b-gap .txt { font-size: .87rem; color: var(--text); line-height: 1.7; }
+    .b-strong { background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.3); }
+    .b-strong .lbl { color: #86efac; }
+    .b-strong .txt { font-size: .88rem; color: #bbf7d0; line-height: 1.65; }
+    .b-strong .why { font-size: .8rem; color: var(--muted); line-height: 1.6; margin-top: .4rem; padding-top: .4rem; border-top: 1px solid rgba(34,197,94,.2); }
+    .cue { display: flex; gap: .5rem; align-items: flex-start; background: var(--surface); border: 1px solid var(--accent);
+           border-radius: 9px; padding: .55rem .75rem; }
+    .cue .k { font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); flex: none; padding-top: .1rem; }
+    .cue .t { font-size: .86rem; color: var(--text); line-height: 1.6; font-weight: 600; }
+
+    .empty { color: var(--muted); font-size: .88rem; text-align: center; padding: 2.5rem 1rem; line-height: 1.8; }
+    @media (max-width: 640px) { main { padding: 1rem .9rem 4rem; } .flabel { width: 100%; padding-top: .3rem; } }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="page-header-inner">
+    <a href="../index.html" class="back-link" aria-label="Back to Science Studio">← Studio</a>
+    <div class="page-header-title">
+      <h1>Answer Sense</h1>
+      <p>Right science, wrong answer. Learn to spot the gap between true and responsive.</p>
+    </div>
+    <a href="../trainer/index.html" class="btn btn-primary" style="font-size:.8rem">Answer Trainer →</a>
+  </div>
+</header>
+
+<main>
+  <div class="intro" id="intro"><p>Loading…</p></div>
+
+  <div class="searchbar"><span class="ic">🔍</span>
+    <input id="q" type="search" placeholder="Search a topic, a question, a keyword…" autocomplete="off" aria-label="Search">
+  </div>
+  <div class="fbox" id="filters"></div>
+  <div class="bar">
+    <span class="cnt" id="cnt"></span>
+    <button class="revealAllBtn" id="revealAll" type="button" onclick="toggleAll()">Reveal all</button>
+    <button class="clr" type="button" onclick="clearAll()">Clear filters</button>
+  </div>
+  <div id="list"></div>
+</main>
+
+<script src="../shared.js"></script>
+<script>
+(function () {
+  'use strict';
+  var D = null, ITEMS = [], q = '', allOpen = false, shown = 40;
+  var FACETS = ['theme', 'topic', 'command', 'failure'];
+  var sel = { theme: {}, topic: {}, command: {}, failure: {} };
+  var THEME_LABEL = { cycles: 'Cycles', diversity: 'Diversity', energy: 'Energy', interactions: 'Interactions', systems: 'Systems' };
+  var CMD_COLOR = { explain: '#38bdf8', describe: '#60a5fa', infer: '#a78bfa', predict: '#14b8a6', suggest: '#f59e0b', compare: '#f87171' };
+  var FTYPE = {};
+
+  function $(id) { return document.getElementById(id); }
+  function E(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
+  function anyOn(f) { for (var k in sel[f]) if (sel[f][k]) return true; return false; }
+  function match(it, skip) {
+    for (var i = 0; i < FACETS.length; i++) {
+      var f = FACETS[i];
+      if (f === skip || !anyOn(f)) continue;
+      var v = f === 'theme' ? it.theme : f === 'topic' ? it.topicId : f === 'command' ? it.commandWord : it.failureType;
+      if (!sel[f][v]) return false;
+    }
+    if (q && it._s.indexOf(q) === -1) return false;
+    return true;
+  }
+
+  function itemHTML(it, idx) {
+    var ft = FTYPE[it.failureType] || { label: it.failureType };
+    var cc = CMD_COLOR[it.commandWord] || 'var(--accent)';
+    return '<div class="item" data-idx="' + idx + '">' +
+      '<div class="metarow">' +
+        '<span class="pill topic">' + E(it.topicName) + '</span>' +
+        '<span class="pill cmd" style="background:' + cc + ';border-color:' + cc + '">' + E(cap(it.commandWord)) + '</span>' +
+        '<span class="pill marks">' + it.marks + ' mark' + (it.marks === 1 ? '' : 's') + '</span>' +
+        '<span class="pill ftype">' + E(ft.label) + '</span>' +
+      '</div>' +
+      (it.stimulus ? '<div class="stim">' + E(it.stimulus) + '</div>' : '') +
+      '<div class="stem">' + E(it.stem) + '</div>' +
+      '<div class="attemptline">Try it in your head first. What must the answer actually contain?</div>' +
+      '<button class="revealBtn" type="button" onclick="toggleOne(' + idx + ')">Show a common answer &amp; the thinking</button>' +
+      '<div class="reveal" id="rev-' + idx + '">' +
+        '<div class="block b-decode"><div class="lbl">What it is really asking</div>' +
+          '<div class="looks">Looks like: ' + E(it.whatItLooksLike) + '</div>' +
+          '<div class="asks"><b>Actually asks:</b> ' + E(it.whatItsAsking) + '</div></div>' +
+        '<div class="block b-weak"><div class="lbl">A common answer — true, but it does not score</div>' +
+          '<div class="txt">' + E(it.weakAnswer) + '</div></div>' +
+        '<div class="block b-gap"><div class="lbl">The thinking gap</div>' +
+          '<div class="txt">' + E(it.thinkingGap) + '</div></div>' +
+        '<div class="block b-strong"><div class="lbl">The answer that responds</div>' +
+          '<div class="txt">' + E(it.strongAnswer) + '</div>' +
+          '<div class="why">' + E(it.whyItWorks) + '</div></div>' +
+        '<div class="cue"><span class="k">Carry this</span><span class="t">' + E(it.attentionCue) + '</span></div>' +
+      '</div></div>';
+  }
+
+  function render() {
+    var res = ITEMS.filter(function (it) { return match(it, null); });
+    $('cnt').innerHTML = '<b>' + res.length + '</b> of ' + ITEMS.length + ' questions';
+    if (!res.length) {
+      $('list').innerHTML = '<div class="empty">Nothing matches all of those filters at once.<br>Try clearing one row.</div>';
+    } else {
+      $('list').innerHTML = res.slice(0, shown).map(itemHTML).join('') +
+        (res.length > shown ? '<button class="revealAllBtn" style="width:100%;padding:.7rem" id="moreBtn" type="button">Show ' +
+          Math.min(40, res.length - shown) + ' more (' + (res.length - shown) + ' left)</button>' : '');
+      if ($('moreBtn')) $('moreBtn').onclick = function () { shown += 40; render(); };
+      if (allOpen) res.slice(0, shown).forEach(function (_, i) { var r = $('rev-' + i); if (r) r.classList.add('on'); });
+    }
+    renderFilters();
+  }
+
+  function renderFilters() {
+    var themes = ['cycles', 'diversity', 'energy', 'interactions', 'systems'].filter(function (t) {
+      return ITEMS.some(function (it) { return it.theme === t; });
+    });
+    // topics limited to selected themes (or all)
+    var activeThemes = anyOn('theme') ? Object.keys(sel.theme).filter(function (k) { return sel.theme[k]; }) : themes;
+    var topicSeen = {}, topics = [];
+    ITEMS.forEach(function (it) {
+      if (activeThemes.indexOf(it.theme) === -1) return;
+      if (!topicSeen[it.topicId]) { topicSeen[it.topicId] = 1; topics.push({ id: it.topicId, label: it.topicName }); }
+    });
+    topics.sort(function (a, b) { return a.label.localeCompare(b.label); });
+    var cmds = ['explain', 'describe', 'infer', 'predict', 'suggest', 'compare'].filter(function (c) {
+      return ITEMS.some(function (it) { return it.commandWord === c; });
+    });
+    var ftypes = Object.keys(FTYPE).filter(function (f) { return ITEMS.some(function (it) { return it.failureType === f; }); });
+
+    function chipRow(label, facet, vals) {
+      return '<div class="frow"><div class="flabel">' + E(label) + '</div>' + vals.map(function (v) {
+        var n = ITEMS.filter(function (it) {
+          if (!match(it, facet)) return false;
+          var iv = facet === 'theme' ? it.theme : facet === 'topic' ? it.topicId : facet === 'command' ? it.commandWord : it.failureType;
+          return iv === v.id;
+        }).length;
+        var on = !!sel[facet][v.id];
+        return '<button class="chip' + (on ? ' on' : '') + '" type="button" data-f="' + facet + '" data-v="' + E(v.id) + '"' +
+          (n === 0 && !on ? ' disabled' : '') + '>' + E(v.label) + '<span class="n">' + n + '</span></button>';
+      }).join('') + '</div>';
+    }
+    $('filters').innerHTML =
+      chipRow('Theme', 'theme', themes.map(function (t) { return { id: t, label: THEME_LABEL[t] }; })) +
+      chipRow('Topic', 'topic', topics) +
+      chipRow('Command word', 'command', cmds.map(function (c) { return { id: c, label: cap(c) }; })) +
+      chipRow('What went wrong', 'failure', ftypes.map(function (f) { return { id: f, label: FTYPE[f].label }; }));
+  }
+
+  window.toggleOne = function (i) {
+    var r = $('rev-' + i); if (r) r.classList.toggle('on');
+  };
+  window.toggleAll = function () {
+    allOpen = !allOpen;
+    $('revealAll').textContent = allOpen ? 'Hide all' : 'Reveal all';
+    document.querySelectorAll('.reveal').forEach(function (r) { r.classList.toggle('on', allOpen); });
+  };
+  window.clearAll = function () {
+    FACETS.forEach(function (f) { sel[f] = {}; });
+    q = ''; $('q').value = ''; shown = 40; render();
+  };
+  document.addEventListener('click', function (ev) {
+    var c = ev.target.closest ? ev.target.closest('.chip') : null;
+    if (c && !c.disabled) {
+      var f = c.getAttribute('data-f'), v = c.getAttribute('data-v');
+      sel[f][v] = !sel[f][v];
+      if (f === 'theme') { // dropping a theme may orphan a topic selection; prune
+        Object.keys(sel.topic).forEach(function (tid) {
+          if (!ITEMS.some(function (it) { return it.topicId === tid && sel.theme[it.theme]; }) && anyOn('theme')) delete sel.topic[tid];
+        });
+      }
+      shown = 40; render();
+    }
+  });
+
+  fetch('../shared/content/answer-sense.json', { cache: 'no-cache' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      D = d; ITEMS = d.items || [];
+      (d.failureTypes || []).forEach(function (f) { FTYPE[f.id] = f; });
+      ITEMS.forEach(function (it) {
+        it._s = [it.topicName, it.stem, it.stimulus, it.weakAnswer, it.strongAnswer, it.thinkingGap, it.attentionCue, it.commandWord].join(' ').toLowerCase();
+      });
+      $('intro').innerHTML = '<p>' + E(d.meta.intro) + '</p>';
+      render();
+      $('q').addEventListener('input', function () { q = this.value.trim().toLowerCase(); shown = 40; render(); });
+    })
+    .catch(function () {
+      $('intro').innerHTML = '<p>Could not load the data. Open this page through the site, not as a bare file.</p>';
+    });
+})();
+</script>
+</body>
+</html>
