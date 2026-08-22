@@ -269,7 +269,10 @@ function shakyPanel() {
 function dailyPick() {
   const seed = hashSeed(todayIso());
   const game = GAMES[seed % GAMES.length];
-  const region = REGIONS[(seed >> 8) % REGIONS.length].id;
+  // `>>>` (unsigned) not `>>`: hashSeed returns a full 32-bit value, so on the
+  // ~43% of dates whose hash has the top bit set, a signed shift would go
+  // negative and index REGIONS out of bounds, crashing the whole home screen.
+  const region = REGIONS[(seed >>> 8) % REGIONS.length].id;
   return { game, region };
 }
 
