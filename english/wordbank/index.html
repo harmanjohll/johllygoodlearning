@@ -344,7 +344,7 @@
         var f = tm.showNotTellEmotion[x.emotion];
         add({ id: mkid('show', x.emotion + '-' + x.telling), type: 'show', typeLabel: 'Show, not tell (' + x.dimension.toLowerCase() + ')',
               title: x.showing, sub: 'Instead of: ' + x.telling,
-              feeling: f ? [f] : [], situation: [], paper: ['composition'], register: ['neutral'] });
+              feeling: f ? [f] : [], situation: (tm.showNotTell && tm.showNotTell[x.telling]) ? tm.showNotTell[x.telling].s : ['anywhere'], paper: ['composition'], register: ['neutral'] });
       });
       Object.keys(HD.sensoryVerbs || {}).forEach(function (k) {
         add({ id: mkid('sensory', k), type: 'sensory', typeLabel: 'Sensory words', title: k.charAt(0).toUpperCase() + k.slice(1) + ' words',
@@ -450,7 +450,7 @@
       out.push('<span class="tag' + (s === 'anywhere' ? ' any' : '') + '">' + esc(label('situation', s)) + '</span>');
     });
     it.feeling.forEach(function (s) { out.push('<span class="tag">' + esc(label('feeling', s)) + '</span>'); });
-    it.register.forEach(function (s) { out.push('<span class="tag">' + esc(label('register', s)) + '</span>'); });
+    it.register.forEach(function (s) { if (s !== 'neutral') out.push('<span class="tag">' + esc(label('register', s)) + '</span>'); });
     return out.length ? '<div class="tagrow">' + out.join('') + '</div>' : '';
   }
   function label(facet, id) {
