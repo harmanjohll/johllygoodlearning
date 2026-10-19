@@ -11,6 +11,46 @@ progress needs migrating, so the two move independently.
 
 ---
 
+## v3.1 — Exam Prep (2026-10-19)
+
+### Added
+- **Exam Prep**, a new home tile and a near-standalone module
+  (`src/exam/`, `styles/app-6.css`). Full practice papers, or one
+  section at a time, for three subjects at P1 end-of-year level:
+  - **English**: Grammar, Vocabulary, Punctuation, Comprehension.
+    29 questions a paper, from 203 items and 6 passages.
+  - **Maths**: numbers to 100, adding and subtracting within 100,
+    multiplication, division, time, length, shapes, picture graphs.
+    Generated from 49 question types in three sections (multiple
+    choice, short answer, word problems), 25 questions a paper.
+  - **Bahasa Melayu**: Kosa Kata, Imbuhan, Prosedur Kloz, Susun
+    Perkataan, Kefahaman Objektif. 29 questions a paper, from 129 items
+    and 12 passages.
+- A paper is answered whole, with answers changeable and questions
+  flaggable, and marked only on hand-in. Every question then shows the
+  right answer and why; maths shows the working, built from the
+  question's own numbers; Malay shows the English meaning.
+- Redo just the mistakes; practise the weakest section; past papers.
+- For grown-ups, behind a sum: printable answer keys, worked maths
+  examples, and a **Malay review sheet** with a tick/flag column for a
+  reviewer and the full list of Malay words for one spelling pass.
+
+### Fixed
+- In Dunia Melayu, the family-sentence question gave a correct answer
+  starting with a small letter ("ibu saya baik."). Weather glossed
+  *angin* (wind) as windy; it is now *berangin*. The sentence flashcards
+  printed raw placeholders ("Saya ada {number} {food}.").
+
+### Notes on scope
+- Follows the MOE 2021 Primary Mathematics syllabus for P1. Division is
+  asked only in words and pictures, because the ÷ sign is a P2 item.
+  Picture graphs use one picture for one thing (scales are P2).
+- Money is in the P1 syllabus but was not on the list asked for, so it
+  is not included.
+- Time is written 7.25 am, with a dot. Change `EXAM_TIME_SEP` in
+  `src/exam/exam-core.js` if her school writes 7:25; typed answers
+  accept either.
+
 ## v3.0 — Play, Puzzles & Sharper Maths (2026-08-10)
 
 The first bump since April. Everything below had already shipped under a

@@ -27,11 +27,11 @@
 //  move independently and conflating them would break old save files.
 
 var APP_VERSION = {
-  number: '3.0',
+  number: '3.1',
   // Short enough to sit on one line on a phone. This is what she reads.
-  name: 'Play, Puzzles & Sharper Maths',
+  name: 'Exam Prep',
   // ISO date of the release, used by the staleness guard.
-  date: '2026-08-10'
+  date: '2026-10-19'
 };
 
 /** "Nasworld v3.0 — Play, Puzzles & Sharper Maths" */

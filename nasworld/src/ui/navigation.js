@@ -67,6 +67,9 @@ function showScreen(screenId) {
   if (screenId === 'play' && typeof renderPlayHub === 'function') {
     renderPlayHub();
   }
+  if (screenId === 'exam' && typeof renderExamHub === 'function') {
+    renderExamHub();
+  }
   if (screenId === 'tricks' && typeof renderTricksHub === 'function') {
     renderTricksHub();
   }
