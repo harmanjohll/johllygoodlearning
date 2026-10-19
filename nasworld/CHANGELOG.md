@@ -11,6 +11,68 @@ progress needs migrating, so the two move independently.
 
 ---
 
+## v3.2 — Practice Papers (2026-10-19)
+
+### Added
+- **Eight practice papers per subject** in Exam Prep. Each one is fixed:
+  the same questions every time it is sat, so a score means something
+  and can be beaten. On a retake the answer choices and word tiles are
+  reshuffled, so remembering "it was B" does not help. No question is in
+  two papers, so working through all eight covers the banks: 232 of 261
+  English items, 232 of 239 Malay items, and 200 different maths
+  questions.
+- The hub shows every paper with its best score, marks the next one, and
+  has a button straight to it. Best scores are kept apart from the
+  history, which keeps only the last 24 papers, so they are not lost.
+- The mixed paper (new every time, favouring questions seen least) and
+  one-section practice are still there.
+- New questions, to fill eight papers:
+  - **English:** 18 punctuation items and 2 comprehension passages,
+    "Grandpa's Garden" and "Our Reading Corner".
+  - **Malay:** 13 Kosa Kata items, 17 Susun Perkataan sentences, 2 Kloz
+    passages ("Buku Baharu", "Hari Sukan") and 2 Kefahaman passages
+    ("Pasar Malam", "Arnab Adik"). All 69 new Malay words are on the
+    hand-reviewed list, and every new item is on the review sheet.
+- The answer keys say which practice paper each question is in. The
+  maths sheet now ends with the answer key to each practice paper.
+
+### Changed
+- **No question on a paper gives away another.** A word she has to spell
+  (foxes, menyapu) is never printed elsewhere on the same paper, and a
+  gap is never paired with a sentence that fills it: "Kakak ___ pokok
+  bunga. (siram)" never meets the jumbled sentence "Kakak menyiram pokok
+  bunga". Practice papers are dealt this way, and mixed papers and
+  section practice skip any question that would clash.
+- "Full paper" is now "Mixed paper".
+- Sitting a practice paper again earns half the base stars (4, not 8),
+  since the questions are ones she has met. The bonuses for 80% and for
+  a new best are unchanged.
+
+### Fixed
+- Four Susun Perkataan items had a second correct order that was marked
+  wrong. "Cikgu mengajar kami membaca" can also be "Cikgu kami mengajar
+  membaca" (our teacher teaches reading), so that order is now accepted.
+  "Ali membantu ibu di dapur" (also "di dapur ibu", in Mother's kitchen),
+  "Ibu membeli sayur di pasar" ("di pasar sayur") and "Adik menangis
+  kerana lapar" ("Adik lapar kerana menangis") are replaced.
+- The Kloz passage "Ke Pasar" gave away its own first blank, "pergi ___
+  pasar", in its title. It is now "Menolong Ibu".
+- "When did Mei go to the zoo?" offered "yesterday" as a wrong answer to
+  "last Saturday"; on a Sunday, yesterday is last Saturday.
+- All four English true-or-false questions were false, which made
+  "False" a safe guess. Now three of the six are true.
+- On a paper's first page, the Start button sat beside the list of rules
+  instead of below it.
+
+### Infrastructure
+- `test/run.sh` could not see a suite that crashed partway through. The
+  suites ignore "Cannot read property" errors from the DOM stub, and the
+  same handler swallowed real errors, so the run stopped early and still
+  exited 0. A suite now passes only if it prints its "0 failed" summary.
+- The exam suite has 48 tests, up from 30. The new ones were checked
+  against 13 deliberately broken versions of the engine, and caught all
+  13.
+
 ## v3.1 — Exam Prep (2026-10-19)
 
 ### Added

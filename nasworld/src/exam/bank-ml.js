@@ -94,6 +94,12 @@ mlAdd('kosa', [
     gloss: 'At night, we can see the moon in the sky.', explain: 'At night (**waktu malam**) we see the **bulan** (moon). The matahari (sun) shines in the day.' },
   { id: 'ko-ctx-18', skill: 'perkataan', prompt: 'Saya tidur di atas ___.', options: ['katil', 'pinggan', 'cawan', 'pensel'], answer: 'katil',
     gloss: 'I sleep on the bed.', explain: 'We sleep on a **katil** (bed).' },
+  { id: 'ko-ctx-19', skill: 'perkataan', prompt: 'Saya memotong kertas dengan ___.', options: ['gunting', 'sudu', 'bantal', 'cawan'], answer: 'gunting',
+    gloss: 'I cut paper with scissors.', explain: 'We cut paper with **gunting** (scissors). Sudu is a spoon, bantal is a pillow and cawan is a cup.' },
+  { id: 'ko-ctx-20', skill: 'perkataan', prompt: 'Ikan berenang di dalam ___.', options: ['air', 'pasir', 'pokok', 'awan'], answer: 'air',
+    gloss: 'Fish swim in water.', explain: 'Fish swim in **air** (water). Pasir is sand, pokok is a tree and awan is a cloud.' },
+  { id: 'ko-ctx-21', skill: 'perkataan', prompt: 'Gula rasanya ___.', options: ['manis', 'masin', 'pahit', 'masam'], answer: 'manis',
+    gloss: 'Sugar tastes sweet.', explain: '**Gula** (sugar) tastes **manis** (sweet). Masin is salty, pahit is bitter and masam is sour.' },
 
   // Pictures
   { id: 'ko-pic-1', skill: 'gambar', prompt: 'Pilih perkataan yang sesuai dengan gambar.', visual: { kind: 'emoji', text: '🐱' },
@@ -126,6 +132,14 @@ mlAdd('kosa', [
     options: ['nasi', 'mi', 'roti', 'kuih'], answer: 'nasi', gloss: 'rice', explain: 'This is **nasi** (cooked rice).' },
   { id: 'ko-pic-15', skill: 'gambar', prompt: 'Pilih perkataan yang sesuai dengan gambar.', visual: { kind: 'emoji', text: '🚌' },
     options: ['bas', 'teksi', 'kereta api', 'kapal terbang'], answer: 'bas', gloss: 'bus', explain: 'This is a **bas** (bus).' },
+  { id: 'ko-pic-16', skill: 'gambar', prompt: 'Pilih perkataan yang sesuai dengan gambar.', visual: { kind: 'emoji', text: '🐶' },
+    options: ['anjing', 'kucing', 'kambing', 'lembu'], answer: 'anjing', gloss: 'dog', explain: 'This is an **anjing** (dog).' },
+  { id: 'ko-pic-17', skill: 'gambar', prompt: 'Pilih perkataan yang sesuai dengan gambar.', visual: { kind: 'emoji', text: '🍎' },
+    options: ['epal', 'oren', 'pisang', 'anggur'], answer: 'epal', gloss: 'apple', explain: 'This is an **epal** (apple).' },
+  { id: 'ko-pic-18', skill: 'gambar', prompt: 'Pilih perkataan yang sesuai dengan gambar.', visual: { kind: 'emoji', text: '🚗' },
+    options: ['kereta', 'bas', 'basikal', 'kapal'], answer: 'kereta', gloss: 'car', explain: 'This is a **kereta** (car).' },
+  { id: 'ko-pic-19', skill: 'gambar', prompt: 'Pilih perkataan yang sesuai dengan gambar.', visual: { kind: 'emoji', text: '👀' },
+    options: ['mata', 'hidung', 'telinga', 'mulut'], answer: 'mata', gloss: 'eyes', explain: 'These are **mata** (eyes).' },
 
   // Penjodoh bilangan: only nouns with one accepted classifier
   { id: 'ko-pb-1', skill: 'penjodoh-bilangan', prompt: 'Ayah membeli ___ kereta baharu.', options: ['sebuah', 'seekor', 'seorang', 'sehelai'], answer: 'sebuah',
@@ -152,6 +166,14 @@ mlAdd('kosa', [
     gloss: 'There are two rabbits at my house.', explain: 'Animals take **ekor**: dua **ekor** arnab.' },
   { id: 'ko-pb-12', skill: 'penjodoh-bilangan', prompt: 'Ravi menulis di atas ___ kertas.', options: ['sehelai', 'sebiji', 'seekor', 'sebatang'], answer: 'sehelai',
     gloss: 'Ravi writes on a sheet of paper.', explain: 'Paper is thin and flat, so it takes **helai**: **sehelai** kertas.' },
+  { id: 'ko-pb-13', skill: 'penjodoh-bilangan', prompt: 'Saya memberi ibu ___ kad hari jadi.', options: ['sekeping', 'seekor', 'seorang', 'sebatang'], answer: 'sekeping',
+    gloss: 'I gave Mother a birthday card.', explain: 'A card is flat and stiff, so it takes **keping**: **sekeping** kad.' },
+  { id: 'ko-pb-14', skill: 'penjodoh-bilangan', prompt: 'Di dalam kelas saya ada tiga puluh ___ murid.', options: ['orang', 'ekor', 'buah', 'biji'], answer: 'orang',
+    gloss: 'There are thirty pupils in my class.', explain: 'People take **orang**: tiga puluh **orang** murid.' },
+  { id: 'ko-pb-15', skill: 'penjodoh-bilangan', prompt: 'Ali tinggal di ___ rumah yang besar.', options: ['sebuah', 'seekor', 'sehelai', 'sebatang'], answer: 'sebuah',
+    gloss: 'Ali lives in a big house.', explain: 'Big things like a house, a car or a bus take **buah**: **sebuah** rumah.' },
+  { id: 'ko-pb-16', skill: 'penjodoh-bilangan', prompt: 'Ada ___ daun di atas meja.', options: ['sehelai', 'seekor', 'seorang', 'sebuah'], answer: 'sehelai',
+    gloss: 'There is a leaf on the table.', explain: 'Thin, flat things like a leaf, paper or clothes take **helai**: **sehelai** daun.' },
 
   // Kata tanya, with the answer that settles which question word fits
   { id: 'ko-kt-1', skill: 'kata-tanya', prompt: 'Soalan: ___ kamu pergi ke sekolah?\nJawapan: Saya pergi ke sekolah dengan bas.',
@@ -174,13 +196,21 @@ mlAdd('kosa', [
     gloss: 'When do you wake up? I wake up at six in the morning.', explain: 'The answer is a time, so we ask **Bila** (when).' },
   { id: 'ko-kt-7', skill: 'kata-tanya', prompt: 'Soalan: ___ yang kamu makan?\nJawapan: Saya makan nasi lemak.',
     options: ['Apa', 'Siapa', 'Bila', 'Di mana'], answer: 'Apa',
-    gloss: 'What are you eating? I am eating nasi lemak.', explain: 'The answer is a thing, so we ask **Apa** (what).' }
+    gloss: 'What are you eating? I am eating nasi lemak.', explain: 'The answer is a thing, so we ask **Apa** (what).' },
+  { id: 'ko-kt-8', skill: 'kata-tanya', prompt: 'Soalan: ___ kamu meletakkan beg kamu?\nJawapan: Saya meletakkan beg saya di atas kerusi.',
+    options: ['Di mana', 'Siapa', 'Bila', 'Berapa'], answer: 'Di mana',
+    gloss: 'Where did you put your bag? I put my bag on the chair.', explain: 'The answer is a place (**di atas kerusi**, on the chair), so we ask **Di mana** (where).' },
+  // Not "Apa" as a wrong option: "Apa rasa kuih itu?" is heard too.
+  { id: 'ko-kt-9', skill: 'kata-tanya', prompt: 'Soalan: ___ rasa kuih itu?\nJawapan: Kuih itu sedap.',
+    options: ['Bagaimana', 'Siapa', 'Di mana', 'Bila'], answer: 'Bagaimana',
+    gloss: 'How does the kuih taste? The kuih is delicious.', explain: 'The answer tells us what the taste is like (**sedap**, delicious), so we ask **Bagaimana** (how).' }
 ]);
 
 // ---- IMBUHAN --------------------------------------------------------------------------
 
 function mlType(id, prefix, root, answer, rule, gloss, level) {
-  return { id: id, skill: 'imbuhan-' + prefix, type: 'word', level: level || 1,
+  // spell: the form must not be printed anywhere else on the same paper.
+  return { id: id, skill: 'imbuhan-' + prefix, type: 'word', level: level || 1, spell: true,
     prompt: 'Tambahkan imbuhan **' + prefix + '-** pada kata dasar **' + root + '**.', answer: answer,
     explain: rule, gloss: answer + ' = ' + gloss };
 }
@@ -271,7 +301,17 @@ mlAdd('imbuhan', [
 // ---- SUSUN PERKATAAN ------------------------------------------------------------------
 // As on a paper, the word that starts the sentence carries the capital
 // letter, and the full stop is given. Where Malay genuinely allows a
-// second order, it is accepted.
+// second order, it is accepted. Three ways a second order sneaks in, each
+// found while writing these, and avoided:
+//   - A person noun later in the sentence can join the first word as a
+//     possessive. "Cikgu mengajar kami membaca" can also be "Cikgu kami
+//     mengajar membaca" (our teacher teaches reading); "Ali membantu ibu
+//     di dapur" can be "Ali membantu di dapur ibu" (in Mother's kitchen).
+//   - Ke + a place can stand as the verb: with "Kami naik bas ke zoo",
+//     "Kami ke zoo naik bas" is just as good.
+//   - Two nouns can make a compound: "padang bola", "tabung duit",
+//     "bilik tidur". The tiles never offer one by accident.
+// Time words (setiap hari, pada waktu pagi) move freely, so none are used.
 
 function mlSusun(id, tiles, gloss, accept, level) {
   return { id: id, skill: 'susun', type: 'arrange', level: level || 1, end: '.',
@@ -295,13 +335,14 @@ mlAdd('susun', [
   mlSusun('su-8', ['Adik', 'pergi', 'ke', 'sekolah', 'dengan', 'bas'], 'My younger sibling goes to school by bus.',
     [['Adik', 'pergi', 'dengan', 'bas', 'ke', 'sekolah']], 2),
   mlSusun('su-9', ['Datuk', 'membaca', 'buku', 'di', 'ruang tamu'], 'Grandfather reads a book in the living room.'),
-  mlSusun('su-11', ['Ibu', 'membeli', 'sayur', 'di', 'pasar'], 'Mother buys vegetables at the market.'),
+  mlSusun('su-11', ['Ibu', 'memberi', 'hadiah', 'kepada', 'adik'], 'Mother gives a present to my younger sibling.'),
   mlSusun('su-12', ['Saya', 'menggosok', 'gigi', 'dengan', 'berus gigi'], 'I brush my teeth with a toothbrush.'),
   mlSusun('su-13', ['Nenek', 'sedang', 'menjahit', 'baju'], 'Grandmother is sewing clothes.'),
   mlSusun('su-14', ['Burung', 'itu', 'terbang', 'tinggi'], 'The bird flies high.'),
   mlSusun('su-15', ['Kami', 'berkelah', 'di', 'tepi', 'pantai'], 'We have a picnic by the beach.'),
-  mlSusun('su-16', ['Adik', 'menangis', 'kerana', 'lapar'], 'My younger sibling cries because of hunger.'),
-  mlSusun('su-17', ['Cikgu', 'mengajar', 'kami', 'membaca'], 'The teacher teaches us to read.'),
+  mlSusun('su-16', ['Adik', 'duduk', 'di atas', 'lantai'], 'My younger sibling sits on the floor.'),
+  mlSusun('su-17', ['Cikgu', 'mengajar', 'kami', 'membaca'], 'The teacher teaches us to read.',
+    [['Cikgu', 'kami', 'mengajar', 'membaca']]),
   mlSusun('su-18', ['Abang', 'bermain', 'badminton', 'dengan', 'ayah'], 'My older brother plays badminton with Father.',
     [['Abang', 'dengan', 'ayah', 'bermain', 'badminton']], 2),
   mlSusun('su-19', ['Saya', 'memakai', 'baju', 'merah'], 'I am wearing a red shirt.'),
@@ -311,7 +352,24 @@ mlAdd('susun', [
   mlSusun('su-23', ['Gajah', 'mempunyai', 'belalai', 'yang', 'panjang'], 'An elephant has a long trunk.', null, 2),
   mlSusun('su-24', ['Kami', 'menonton', 'televisyen', 'bersama-sama'], 'We watch television together.',
     [['Kami', 'bersama-sama', 'menonton', 'televisyen']], 2),
-  mlSusun('su-25', ['Ali', 'membantu', 'ibu', 'di', 'dapur'], 'Ali helps Mother in the kitchen.')
+  mlSusun('su-25', ['Ali', 'mandi', 'di', 'bilik air'], 'Ali takes a bath in the bathroom.'),
+  mlSusun('su-26', ['Kambing', 'suka', 'makan', 'rumput'], 'Goats like to eat grass.'),
+  mlSusun('su-27', ['Nenek', 'menanam', 'pokok bunga', 'di', 'halaman rumah'], 'Grandmother plants flowers in the front yard.', null, 2),
+  mlSusun('su-28', ['Ali', 'memberi', 'makanan', 'kepada', 'kucing'], 'Ali gives food to the cat.'),
+  mlSusun('su-29', ['Ayah', 'minum', 'kopi', 'panas'], 'Father drinks hot coffee.'),
+  mlSusun('su-30', ['Kakak', 'memakai', 'cermin mata', 'baharu'], 'My older sister wears new glasses.'),
+  mlSusun('su-31', ['Kakak', 'menyikat', 'rambutnya', 'yang', 'panjang'], 'My older sister combs her long hair.', null, 2),
+  mlSusun('su-32', ['Ayah', 'membaiki', 'kipas', 'di', 'ruang tamu'], 'Father repairs the fan in the living room.'),
+  mlSusun('su-33', ['Nenek', 'membuat', 'kuih', 'untuk', 'kami'], 'Grandmother makes kuih for us.'),
+  mlSusun('su-34', ['Kakak', 'pergi', 'ke', 'perpustakaan'], 'My older sister goes to the library.'),
+  mlSusun('su-35', ['Adik', 'sedang', 'tidur', 'di atas', 'sofa'], 'My younger sibling is sleeping on the sofa.'),
+  mlSusun('su-36', ['Burung', 'membuat', 'sarang', 'di atas', 'pokok'], 'Birds build nests in trees.'),
+  mlSusun('su-37', ['Murid-murid', 'beratur', 'di', 'kantin'], 'The pupils queue at the canteen.'),
+  mlSusun('su-38', ['Kami', 'mengucapkan', 'terima kasih', 'kepada', 'cikgu'], 'We say thank you to the teacher.', null, 2),
+  mlSusun('su-39', ['Abang', 'melompat', 'ke dalam', 'kolam'], 'My older brother jumps into the pool.'),
+  mlSusun('su-40', ['Baju', 'adik', 'berwarna', 'biru'], 'My younger sibling\'s shirt is blue.'),
+  mlSusun('su-41', ['Adik', 'menonton', 'kartun', 'di', 'televisyen'], 'My younger sibling watches cartoons on television.'),
+  mlSusun('su-42', ['Kami', 'menyambut', 'hari jadi', 'adik'], 'We celebrate my younger sibling\'s birthday.')
 ]);
 
 // ---- PROSEDUR KLOZ --------------------------------------------------------------------
@@ -323,7 +381,9 @@ function mlKloz(passageId, blank, options, answer, explain, skill) {
 }
 
 var ML_KLOZ = [
-  { id: 'ml-p-pasar', section: 'kloz', kind: 'kloz', title: 'Ke Pasar',
+  // A title is part of the passage: "Ke Pasar" here answered blank (1),
+  // "pergi ___ pasar", before she had read a word.
+  { id: 'ml-p-pasar', section: 'kloz', kind: 'kloz', title: 'Menolong Ibu',
     gloss: 'On Saturday, I went to the market with Mother. At the market, we bought vegetables and fish. Mother bought two big fish. The bag was heavy, so I carried the bag for Mother. I felt happy because I could help Mother.',
     paras: ['Pada hari Sabtu, saya pergi {1} pasar bersama ibu. Di pasar, kami membeli sayur {2} ikan. Ibu membeli dua {3} ikan yang besar. Beg itu berat, jadi saya {4} beg itu untuk ibu. Saya berasa {5} kerana dapat menolong ibu.'],
     items: [
@@ -387,6 +447,32 @@ var ML_KLOZ = [
       mlKloz('ml-p-taman', 3, ['risau', 'gembira', 'bangga'], 'risau', 'A friend was hurt and bleeding, so Ali felt **risau** (worried).', 'perkataan'),
       mlKloz('ml-p-taman', 4, ['ke', 'di', 'pada'], 'ke', 'We say **pulang ke** rumah (go home).', 'kata-sendi'),
       mlKloz('ml-p-taman', 5, ['dengan', 'ke', 'di'], 'dengan', 'The wound was cleaned **dengan** (with) medicine.', 'kata-sendi')
+    ] },
+
+  // Not "dipilih" for (3): "saya dipilih" (I was chosen) is good Malay.
+  { id: 'ml-p-kedaibuku', section: 'kloz', kind: 'kloz', title: 'Buku Baharu',
+    gloss: 'On Saturday, Father took me to the bookshop. The shop was big and bright. There, I chose a book about dinosaurs. Father also bought two pencils for my younger sibling. I felt very happy because I got a new book.',
+    paras: ['Pada hari Sabtu, ayah membawa saya {1} kedai buku. Kedai itu besar {2} terang. Di sana, saya {3} sebuah buku tentang dinosaur. Ayah juga membeli dua {4} pensel untuk adik. Saya berasa sangat {5} kerana mendapat buku baharu.'],
+    items: [
+      mlKloz('ml-p-kedaibuku', 1, ['ke', 'di', 'pada'], 'ke', 'We say **membawa** someone **ke** (to) a place. **Di** tells where something is, not where we go.', 'kata-sendi'),
+      mlKloz('ml-p-kedaibuku', 2, ['dan', 'atau', 'supaya'], 'dan', '**Dan** (and) joins the two words that describe the shop: besar **dan** terang (big and bright).', 'kata-hubung'),
+      mlKloz('ml-p-kedaibuku', 3, ['memilih', 'pilihan', 'pemilihan'], 'memilih', 'The writer is doing the action, so we need **memilih** (chose). Pilihan and pemilihan are things, not actions.', 'imbuhan'),
+      mlKloz('ml-p-kedaibuku', 4, ['batang', 'ekor', 'orang'], 'batang', 'Long, thin things like pencils take **batang**: dua **batang** pensel.', 'penjodoh-bilangan'),
+      mlKloz('ml-p-kedaibuku', 5, ['seronok', 'marah', 'takut'], 'seronok', 'Getting a new book is a happy thing, so the writer felt **seronok** (happy).', 'perkataan')
+    ] },
+
+  // Not "pelari" (a runner) for (3): Malay needs no "is", so person nouns
+  // are never wrong options. Not "atau" for (4): "Ibu atau ayah bersorak"
+  // (Mother or Father cheered) is a good sentence.
+  { id: 'ml-p-harisukan', section: 'kloz', kind: 'kloz', title: 'Hari Sukan',
+    gloss: 'Today is Sports Day at my school. All the pupils gathered at the field. Five pupils took part in the running race. I ran very fast. In the end, I came first! Mother and Father cheered happily. I felt very proud.',
+    paras: ['Hari ini Hari Sukan di sekolah saya. Semua murid berkumpul {1} padang. Lima {2} murid menyertai acara lari. Saya {3} dengan laju sekali. Akhirnya, saya mendapat tempat pertama! Ibu {4} ayah bersorak dengan gembira. Saya berasa sangat {5}.'],
+    items: [
+      mlKloz('ml-p-harisukan', 1, ['di', 'kepada', 'daripada'], 'di', '**Di** tells us where the pupils gathered: **di** padang (at the field). Kepada and daripada are not used for a place.', 'kata-sendi'),
+      mlKloz('ml-p-harisukan', 2, ['orang', 'ekor', 'buah'], 'orang', 'People take **orang**: lima **orang** murid.', 'penjodoh-bilangan'),
+      mlKloz('ml-p-harisukan', 3, ['berlari', 'larian', 'melarikan'], 'berlari', 'The writer is doing the action, so we need **berlari** (ran). A larian is a run, a thing, and melarikan needs a thing after it.', 'imbuhan'),
+      mlKloz('ml-p-harisukan', 4, ['dan', 'tetapi', 'supaya'], 'dan', '**Dan** (and) joins Mother and Father: ibu **dan** ayah.', 'kata-hubung'),
+      mlKloz('ml-p-harisukan', 5, ['bangga', 'sedih', 'takut'], 'bangga', 'The writer came first in the race, so the writer felt **bangga** (proud).', 'perkataan')
     ] }
 ];
 
@@ -506,6 +592,44 @@ var ML_KEFAHAMAN = [
         'The passage says: "Kami juga melambai-lambaikan **bendera kecil**."', 'What did the pupils wave? Small flags.'),
       mlQ('ml-f-keb-5', 'Bagaimanakah perasaan penulis?', ['bangga', 'takut', 'marah', 'sedih'], 'bangga',
         'The passage says: "Saya **bangga** menjadi rakyat Singapura."', 'How does the writer feel? Proud.', 'tersirat')
+    ] },
+
+  // A Saturday, not "malam Jumaat": in Malay that is Thursday night, the
+  // night before Friday, which would trip up a parent checking the gloss.
+  { id: 'ml-p-pasarmalam', section: 'kefahaman', title: 'Pasar Malam',
+    gloss: 'On Saturday, my family and I went to the night market. The night market was crowded. Father bought satay and sugarcane juice. Mother bought a shirt for my younger sibling. I bought a yellow balloon. We went home at nine o\'clock at night. I felt tired but happy.',
+    paras: ['Pada hari Sabtu, saya dan keluarga pergi ke pasar malam. Pasar malam itu ramai orang.',
+            'Ayah membeli sate dan air tebu. Ibu membeli sehelai baju untuk adik. Saya membeli belon berwarna kuning.',
+            'Kami pulang ke rumah pada pukul sembilan malam. Saya berasa penat tetapi gembira.'],
+    items: [
+      mlQ('ml-f-pm-1', 'Bilakah penulis pergi ke pasar malam?', ['pada hari Sabtu', 'pada hari Ahad', 'pada hari Isnin', 'pada hari Rabu'], 'pada hari Sabtu',
+        'The passage says: "**Pada hari Sabtu**, saya dan keluarga pergi ke pasar malam."', 'When did the writer go to the night market? On Saturday.'),
+      mlQ('ml-f-pm-2', 'Apakah yang dibeli oleh ayah?', ['sate dan air tebu', 'baju dan seluar', 'belon dan mainan', 'nasi dan ayam'], 'sate dan air tebu',
+        'The passage says: "Ayah membeli **sate dan air tebu**."', 'What did Father buy? Satay and sugarcane juice.'),
+      mlQ('ml-f-pm-3', 'Untuk siapakah ibu membeli baju?', ['untuk adik', 'untuk ayah', 'untuk nenek', 'untuk penulis'], 'untuk adik',
+        'The passage says: "Ibu membeli sehelai baju **untuk adik**."', 'Who did Mother buy the shirt for? For the writer\'s younger sibling.'),
+      mlQ('ml-f-pm-4', 'Pukul berapakah mereka pulang ke rumah?', ['pukul sembilan malam', 'pukul sembilan pagi', 'pukul tujuh malam', 'pukul lima petang'], 'pukul sembilan malam',
+        'The passage says: "Kami pulang ke rumah pada **pukul sembilan malam**."', 'What time did they go home? Nine o\'clock at night.'),
+      mlQ('ml-f-pm-5', 'Bagaimanakah perasaan penulis pada akhir cerita?', ['penat tetapi gembira', 'sedih dan takut', 'marah dan lapar', 'sakit dan sedih'], 'penat tetapi gembira',
+        'The passage says: "Saya berasa **penat tetapi gembira**."', 'How did the writer feel at the end of the story? Tired but happy.')
+    ] },
+
+  { id: 'ml-p-arnab', section: 'kefahaman', title: 'Arnab Adik',
+    gloss: 'My younger sibling has a rabbit. Its name is Comel. Comel\'s fur is white and soft. Its ears are long. Every morning, my younger sibling gives Comel carrots and vegetables. One day, Comel went missing! My younger sibling was very sad. We looked for Comel all over the house. In the end, Father found Comel under the bed. My younger sibling was happy again.',
+    paras: ['Adik ada seekor arnab. Namanya Comel. Bulu Comel putih dan lembut. Telinganya panjang.',
+            'Setiap pagi, adik memberi Comel lobak merah dan sayur.',
+            'Pada suatu hari, Comel hilang! Adik sangat sedih. Kami mencari Comel di seluruh rumah. Akhirnya, ayah menjumpai Comel di bawah katil. Adik gembira semula.'],
+    items: [
+      mlQ('ml-f-arn-1', 'Apakah nama arnab adik?', ['Comel', 'Tompok', 'Putih', 'Manja'], 'Comel',
+        'The passage says: "Namanya **Comel**." (Putih is the colour of its fur.)', 'What is the rabbit\'s name? Comel.'),
+      mlQ('ml-f-arn-2', 'Bagaimanakah bulu Comel?', ['putih dan lembut', 'hitam dan kasar', 'coklat dan panjang', 'kelabu dan pendek'], 'putih dan lembut',
+        'The passage says: "Bulu Comel **putih dan lembut**."', 'What is Comel\'s fur like? White and soft.'),
+      mlQ('ml-f-arn-3', 'Apakah yang diberikan oleh adik kepada Comel setiap pagi?', ['lobak merah dan sayur', 'ikan dan nasi', 'roti dan susu', 'pisang dan epal'], 'lobak merah dan sayur',
+        'The passage says: "Setiap pagi, adik memberi Comel **lobak merah dan sayur**."', 'What does the writer\'s younger sibling give Comel every morning? Carrots and vegetables.'),
+      mlQ('ml-f-arn-4', 'Mengapakah adik sangat sedih?', ['Comel hilang.', 'Comel sakit.', 'Adik terjatuh.', 'Adik lapar.'], 'Comel hilang.',
+        'The passage says: "Pada suatu hari, **Comel hilang**! Adik sangat sedih."', 'Why was the younger sibling very sad? Comel was missing.', 'tersirat'),
+      mlQ('ml-f-arn-5', 'Di manakah ayah menjumpai Comel?', ['di bawah katil', 'di dalam almari', 'di taman', 'di dapur'], 'di bawah katil',
+        'The passage says: "Akhirnya, ayah menjumpai Comel **di bawah katil**."', 'Where did Father find Comel? Under the bed.')
     ] }
 ];
 

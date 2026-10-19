@@ -30,7 +30,10 @@ var EL_ITEMS = [];
 
 function elAdd(section, list) {
   list.forEach(function (it) {
-    EL_ITEMS.push(Object.assign({ section: section, level: 1, type: 'mcq' }, it, { id: 'el-' + it.id }));
+    // Writing a plural is a spelling: the word must not be printed
+    // elsewhere on the same paper (see examGiveaways).
+    var spell = it.skill === 'plural-spell';
+    EL_ITEMS.push(Object.assign({ section: section, level: 1, type: 'mcq' }, spell ? { spell: true } : {}, it, { id: 'el-' + it.id }));
   });
 }
 
@@ -426,6 +429,11 @@ elAdd('punct', [
   elEnd('pu-end-10', 'How tall that giraffe is', EL_END_X, 2),
   elEnd('pu-end-11', 'Who is your teacher', EL_END_Q),
   elEnd('pu-end-12', 'I have two sisters', EL_END_S),
+  elEnd('pu-end-13', 'There are seven days in a week', EL_END_S),
+  elEnd('pu-end-14', 'Are you ready for school', EL_END_Q),
+  elEnd('pu-end-15', 'What a hot day it is', EL_END_X),
+  Object.assign(elEnd('pu-end-16', 'How many pencils do you have', EL_END_Q, 2), { why: {
+    'exclamation mark ( ! )': '**How many** asks a question, so it needs a question mark. A sentence starting with **How** ends with an exclamation mark only when it shows a strong feeling and asks nothing, like **How tall that giraffe is!**' } }),
 
   elCaps('pu-cap-1', 'my friend sara lives in singapore.', ['my', 'sara', 'singapore.'],
     '**My** starts the sentence. **Sara** is a person\'s name. **Singapore** is the name of a place.'),
@@ -447,6 +455,18 @@ elAdd('punct', [
     '**My** starts the sentence. **Fluffy** is the cat\'s name.'),
   elCaps('pu-cap-10', 'ali and mei live in bedok.', ['ali', 'mei', 'bedok.'],
     '**Ali** and **Mei** are names. **Bedok** is the name of a place.'),
+  elCaps('pu-cap-11', 'my uncle lives in malaysia.', ['my', 'malaysia.'],
+    '**My** starts the sentence. **Malaysia** is the name of a country.'),
+  elCaps('pu-cap-12', 'priya lights oil lamps at deepavali.', ['priya', 'deepavali.'],
+    '**Priya** is a name, and it starts the sentence. **Deepavali** is the name of a festival.'),
+  elCaps('pu-cap-13', 'did you see ali at the park on sunday?', ['did', 'ali', 'sunday?'],
+    '**Did** starts the sentence. **Ali** is a name. **Sunday** is a day. **Park** is not a name, so it stays small.'),
+  elCaps('pu-cap-14', 'school starts again in january.', ['school', 'january.'],
+    '**School** starts the sentence, so it needs a capital letter here. **January** is a month.'),
+  elCaps('pu-cap-15', 'mr lee drives a taxi in tampines.', ['mr', 'lee', 'tampines.'],
+    '**Mr Lee** is a person\'s name, so both words start with a capital letter. **Tampines** is the name of a place.'),
+  elCaps('pu-cap-16', 'we visit our relatives during chinese new year.', ['we', 'chinese', 'new', 'year.'],
+    '**We** starts the sentence. **Chinese New Year** is the name of a festival, so every word in it starts with a capital letter.', 2),
 
   { id: 'pu-cs-1', skill: 'correct-sentence', prompt: 'Which sentence is written correctly?',
     options: ['My brother is eight years old.', 'my brother is eight years old.', 'My brother is eight years old', 'My Brother is eight years old.'],
@@ -476,6 +496,30 @@ elAdd('punct', [
     options: ['Is it your birthday today?', 'Is it your birthday today.', 'is it your birthday today?', 'Is it your Birthday today?'],
     answer: 'Is it your birthday today?',
     explain: 'It asks something, so it ends with a question mark. **Birthday** is not a name.' },
+  { id: 'pu-cs-8', skill: 'correct-sentence', prompt: 'Which sentence is written correctly?',
+    options: ['I have a pet rabbit.', 'i have a pet rabbit.', 'I have a pet rabbit?', 'I have a Pet rabbit.'],
+    answer: 'I have a pet rabbit.',
+    explain: '**I** is always a capital letter. The sentence tells us something, so it ends with a full stop. **Pet** is not a name.' },
+  { id: 'pu-cs-9', skill: 'correct-sentence', prompt: 'Which sentence is written correctly?',
+    options: ['Can we go to the beach?', 'Can we go to the beach.', 'can we go to the beach?', 'Can we go to the Beach?'],
+    answer: 'Can we go to the beach?',
+    explain: 'It asks something, so it ends with a question mark, and it starts with a capital letter. **Beach** is not a name.' },
+  { id: 'pu-cs-10', skill: 'correct-sentence', prompt: 'Which sentence is written correctly?',
+    options: ['My birthday is in April.', 'My birthday is in april.', 'my birthday is in April.', 'My Birthday is in April.'],
+    answer: 'My birthday is in April.',
+    explain: 'Months start with a capital letter: **April**. **Birthday** is not a name, so it stays small.' },
+  { id: 'pu-cs-11', skill: 'correct-sentence', level: 2, prompt: 'Which sentence is written correctly?',
+    options: ['How beautiful the flowers are!', 'How beautiful the flowers are?', 'how beautiful the flowers are!', 'How beautiful the Flowers are!'],
+    answer: 'How beautiful the flowers are!',
+    explain: '"How ...!" shows a strong feeling and asks nothing, so it ends with an exclamation mark. Only the first word needs a capital letter.' },
+  { id: 'pu-cs-12', skill: 'correct-sentence', prompt: 'Which sentence is written correctly?',
+    options: ['Siti and I live in Woodlands.', 'Siti and i live in Woodlands.', 'Siti and I live in woodlands.', 'siti and I live in Woodlands.'],
+    answer: 'Siti and I live in Woodlands.',
+    explain: '**Siti** is a name, **I** is always a capital letter, and **Woodlands** is the name of a place.' },
+  { id: 'pu-cs-13', skill: 'correct-sentence', prompt: 'Which sentence is written correctly?',
+    options: ['We went to the zoo on Friday.', 'We went to the zoo on friday.', 'We went to the Zoo on Friday.', 'We went to the zoo on Friday'],
+    answer: 'We went to the zoo on Friday.',
+    explain: 'Days start with a capital letter: **Friday**. **Zoo** is not a name here. The sentence ends with a full stop.' },
 
   { id: 'pu-com-1', skill: 'commas', level: 3, prompt: 'Which sentence uses commas correctly?',
     options: ['I bought apples, pears and bananas.', 'I bought apples pears and bananas.', 'I bought, apples pears and bananas.', 'I bought apples pears, and bananas.'],
@@ -484,6 +528,14 @@ elAdd('punct', [
   { id: 'pu-com-2', skill: 'commas', level: 3, prompt: 'Which sentence uses commas correctly?',
     options: ['We saw lions, tigers and zebras at the zoo.', 'We saw lions tigers and zebras at the zoo.', 'We saw, lions tigers and zebras at the zoo.', 'We saw lions tigers, and zebras at the zoo.'],
     answer: 'We saw lions, tigers and zebras at the zoo.',
+    explain: 'In a list, put a comma between the things, and use **and** before the last one.' },
+  { id: 'pu-com-3', skill: 'commas', level: 3, prompt: 'Which sentence uses commas correctly?',
+    options: ['Mum bought eggs, milk and bread.', 'Mum bought eggs milk and bread.', 'Mum bought, eggs milk and bread.', 'Mum bought eggs milk, and bread.'],
+    answer: 'Mum bought eggs, milk and bread.',
+    explain: 'In a list, put a comma between the things, and use **and** before the last one.' },
+  { id: 'pu-com-4', skill: 'commas', level: 3, prompt: 'Which sentence uses commas correctly?',
+    options: ['My favourite colours are red, blue and green.', 'My favourite colours are red blue and green.', 'My favourite colours are, red blue and green.', 'My favourite colours are red blue, and green.'],
+    answer: 'My favourite colours are red, blue and green.',
     explain: 'In a list, put a comma between the things, and use **and** before the last one.' }
 ]);
 
@@ -501,7 +553,9 @@ var EL_PASSAGES = [
       'At noon, they had lunch at the food court. Mei ate fried rice and drank apple juice.',
       'Before they went home, Mei bought a small toy giraffe at the gift shop. She was tired but very happy.'],
     items: [
-      { id: 'el-c-zoo-1', skill: 'literal', type: 'mcq', prompt: 'When did Mei go to the zoo?', options: ['last Saturday', 'last Sunday', 'on Monday', 'yesterday'],
+      // Not "yesterday" as a wrong option: if today were Sunday, yesterday
+      // would be last Saturday, and the option would be right.
+      { id: 'el-c-zoo-1', skill: 'literal', type: 'mcq', prompt: 'When did Mei go to the zoo?', options: ['last Saturday', 'last Sunday', 'last Monday', 'last Friday'],
         answer: 'last Saturday', explain: 'The passage says: "**Last Saturday**, Mei went to the zoo with her parents."' },
       { id: 'el-c-zoo-2', skill: 'literal', type: 'mcq', prompt: 'What was the baby elephant doing?',
         options: ['spraying water with its trunk', 'eating a banana in a tree', 'sleeping in the sun', 'drinking apple juice'],
@@ -569,8 +623,10 @@ var EL_PASSAGES = [
       { id: 'el-c-but-4', skill: 'sequence', type: 'arrange', list: true, prompt: 'Put the stages in order, starting with the first.',
         tiles: ['egg', 'caterpillar', 'pupa', 'butterfly'], answer: ['egg', 'caterpillar', 'pupa', 'butterfly'],
         explain: 'Egg, then the caterpillar hatches, then it makes a pupa, then the butterfly comes out.' },
-      { id: 'el-c-but-5', skill: 'true-false', type: 'mcq', order: 'keep', prompt: 'True or false? The butterfly\'s wings are dry when it first comes out.',
-        options: EL_TF, answer: 'False', explain: 'The passage says: "Its wings are **wet** at first."' }
+      // True, where most true-or-false items are false, so that "false"
+      // is never a safe guess.
+      { id: 'el-c-but-5', skill: 'true-false', type: 'mcq', order: 'keep', prompt: 'True or false? The butterfly\'s wings are wet when it first comes out.',
+        options: EL_TF, answer: 'True', explain: 'The passage says: "Its wings are **wet** at first."' }
     ] },
 
   { id: 'el-p-puppy', section: 'comp', title: 'The Lost Puppy', paras: [
@@ -611,6 +667,48 @@ var EL_PASSAGES = [
         explain: 'Step 4 says: "Mix the fruit gently with the **spoon**."' },
       { id: 'el-c-sal-5', skill: 'true-false', type: 'mcq', order: 'keep', prompt: 'True or false? You put the fruit into the bowl before you cut it.',
         options: EL_TF, answer: 'False', explain: 'You cut the fruit in **Step 2**, and put it into the bowl in **Step 3**, so the cutting comes first.' }
+    ] },
+
+  { id: 'el-p-garden', section: 'comp', title: 'Grandpa\'s Garden', paras: [
+      'Last Sunday, Amy helped Grandpa in his garden. Grandpa grows tomatoes, chillies and long beans.',
+      'First, Amy watered the plants with a green watering can. Then, she pulled out the weeds.',
+      'Suddenly, Amy saw a big caterpillar on a tomato leaf. It was eating the leaf! Grandpa picked it up gently and put it on a tree, far away from his plants.',
+      'Before Amy went home, Grandpa gave her a basket of red tomatoes. "Thank you, Grandpa!" said Amy.'],
+    items: [
+      { id: 'el-c-gar-1', skill: 'literal', type: 'mcq', prompt: 'When did Amy help Grandpa in his garden?', options: ['last Sunday', 'last Saturday', 'last Monday', 'last Friday'],
+        answer: 'last Sunday', explain: 'The passage says: "**Last Sunday**, Amy helped Grandpa in his garden."' },
+      { id: 'el-c-gar-2', skill: 'literal', type: 'word', prompt: 'What colour was the watering can?', answer: 'green',
+        explain: 'The passage says: "Amy watered the plants with a **green** watering can."' },
+      { id: 'el-c-gar-3', skill: 'sequence', type: 'arrange', list: true, prompt: 'Put these in the order they happened.',
+        tiles: ['Amy watered the plants.', 'Amy saw a caterpillar.', 'Grandpa gave Amy some tomatoes.'],
+        answer: ['Amy watered the plants.', 'Amy saw a caterpillar.', 'Grandpa gave Amy some tomatoes.'],
+        explain: 'Look for the order words: **First**, Amy watered the plants. Then she saw the caterpillar. **Before Amy went home**, Grandpa gave her the tomatoes.' },
+      { id: 'el-c-gar-4', skill: 'inference', type: 'mcq', prompt: 'Why did Grandpa move the caterpillar?',
+        options: ['It was eating a tomato leaf.', 'It was very small.', 'Amy wanted to keep it.', 'It was raining.'],
+        answer: 'It was eating a tomato leaf.', explain: 'The caterpillar "was eating the leaf!" Grandpa moved it "far away from his plants", so it could not eat them.' },
+      { id: 'el-c-gar-5', skill: 'true-false', type: 'mcq', order: 'keep', prompt: 'True or false? Grandpa grows long beans in his garden.',
+        options: EL_TF, answer: 'True', explain: 'The passage says: "Grandpa grows tomatoes, chillies and **long beans**."' }
+    ] },
+
+  { id: 'el-p-reading', section: 'comp', title: 'Our Reading Corner', paras: [
+      'Class 1B has a new reading corner. It has a shelf with forty storybooks and two soft beanbags to sit on.',
+      'These are the rules for our reading corner:',
+      '1. Take one book at a time.',
+      '2. Speak softly, because others are reading.',
+      '3. When you finish, put the book back on the shelf.',
+      'On Fridays, you may borrow a book to take home. Please bring it back on Monday.'],
+    items: [
+      { id: 'el-c-rea-1', skill: 'literal', type: 'mcq', prompt: 'Which class has the new reading corner?', options: ['Class 1B', 'Class 1A', 'Class 2B', 'Class 2A'],
+        answer: 'Class 1B', explain: 'The passage says: "**Class 1B** has a new reading corner."' },
+      { id: 'el-c-rea-2', skill: 'literal', type: 'mcq', prompt: 'How many storybooks are on the shelf?', options: ['forty', 'fourteen', 'four', 'two'],
+        answer: 'forty', explain: 'The passage says: "It has a shelf with **forty** storybooks." (Two is the number of beanbags.)' },
+      { id: 'el-c-rea-3', skill: 'inference', type: 'mcq', prompt: 'Lin has finished reading a book in the reading corner. What should Lin do?',
+        options: ['put the book back on the shelf', 'leave the book on a beanbag', 'take two more books', 'read the book aloud'],
+        answer: 'put the book back on the shelf', explain: 'Rule 3 says: "When you finish, **put the book back on the shelf**."' },
+      { id: 'el-c-rea-4', skill: 'literal', type: 'word', prompt: 'On which day may you borrow a book to take home? On ___.', answer: 'Friday', accept: ['Fridays'],
+        explain: 'The passage says: "On **Fridays**, you may borrow a book to take home."' },
+      { id: 'el-c-rea-5', skill: 'true-false', type: 'mcq', order: 'keep', prompt: 'True or false? You can sit on a beanbag in the reading corner.',
+        options: EL_TF, answer: 'True', explain: 'The passage says the corner has "two soft **beanbags to sit on**."' }
     ] }
 ];
 

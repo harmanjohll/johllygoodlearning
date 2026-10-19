@@ -46,9 +46,12 @@ function examDate(ts) {
   return d.getDate() + ' ' + months[d.getMonth()];
 }
 
+// "Practice Paper", never "Paper 1": in a Singapore school, Paper 1 and
+// Paper 2 are the two parts of the real exam.
 function examModeLabel(att) {
   var def = EXAM_SUBJECTS[att.subject];
-  if (att.mode === 'full') return 'Full paper';
+  if (att.mode === 'paper') return 'Practice Paper ' + att.paperNo;
+  if (att.mode === 'full') return 'Mixed paper';
   if (att.mode === 'redo') return 'Mistakes redo';
   var sec = def && examSectionDef(def, att.sectionId);
   return (sec ? sec.name : 'Section') + ' practice';
@@ -111,19 +114,33 @@ function examHubHTML() {
 
   h += '<div class="exam-subjects">';
   examSubjectList().forEach(function (def) {
-    var atts = examAttemptsFor(def.id).filter(function (a) { return a.mode === 'full'; });
-    var best = examBest(def.id, 'full', null);
     var count = examPaperSize(def);
+    var next = examNextPaper(def.id);
+    var done = 0, grid = '';
+    for (var n = 1; n <= EXAM_PAPER_COUNT; n++) {
+      var best = examBest(def.id, 'paper', null, n);
+      if (best !== null) done++;
+      var pct = best === null ? null : Math.round(best * 100);
+      grid += '<button class="exam-paper-btn' + (best === null ? '' : ' done') + (best !== null && best >= 0.8 ? ' good' : '') +
+              (n === next ? ' next' : '') + '" data-act="intro" data-subject="' + def.id + '" data-mode="paper" data-paper="' + n + '"' +
+              ' aria-label="Practice Paper ' + n + (pct === null ? '' : ', best ' + pct + '%') + '"><b>' + n + '</b><small>' +
+              (pct === null ? (n === next ? 'next' : '&nbsp;') : pct + '%') + '</small></button>';
+    }
     h += '<div class="exam-subject exam-subject-' + def.id + '">';
     h += '<div class="exam-subject-top"><span class="exam-subject-icon">' + def.icon + '</span>' +
          '<div><div class="exam-subject-name">' + examEsc(def.name) + '</div>' +
          '<div class="exam-subject-secs">' + def.sections.map(function (s) { return examEsc(s.name); }).join(' · ') + '</div></div></div>';
-    h += '<div class="exam-subject-stats">' +
-         (best === null ? 'No full paper yet' : ('Best ' + Math.round(best * 100) + '% · ' + atts.length + ' full paper' + (atts.length === 1 ? '' : 's'))) +
-         '</div>';
+    // The obvious next step first, so a child who just wants to start
+    // has one button to press.
+    h += next
+      ? '<button class="lesson-btn lesson-btn-done exam-next-paper" data-act="intro" data-subject="' + def.id + '" data-mode="paper" data-paper="' + next + '">' +
+        (done ? 'Next: ' : 'Start ') + 'Practice Paper ' + next + ' · ' + count + ' questions</button>'
+      : '<div class="exam-all-done">🌟 All ' + EXAM_PAPER_COUNT + ' practice papers done. Try one again to beat your best, or a mixed paper.</div>';
+    h += '<div class="exam-papers-head"><span>Practice papers</span><span>' + done + ' of ' + EXAM_PAPER_COUNT + ' done</span></div>';
+    h += '<div class="exam-papers">' + grid + '</div>';
     h += '<div class="exam-subject-btns">' +
-         '<button class="lesson-btn lesson-btn-done" data-act="intro" data-subject="' + def.id + '" data-mode="full">Full paper · ' + count + ' questions</button>' +
-         '<button class="lesson-btn" data-act="intro" data-subject="' + def.id + '" data-mode="section">One section</button></div>';
+         '<button class="lesson-btn" data-act="intro" data-subject="' + def.id + '" data-mode="full">Mixed paper · new every time</button>' +
+         '<button class="lesson-btn" data-act="intro" data-subject="' + def.id + '" data-mode="section">One ' + (def.practice ? 'topic' : 'section') + '</button></div>';
     h += '</div>';
   });
   h += '</div>';
@@ -163,7 +180,20 @@ function examIntroHTML(v) {
   var secs = v.mode === 'section'
     ? examPracticeSections(def).filter(function (s) { return s.id === v.section; })
     : def.sections;
-  h += '<h2 class="exam-title">' + examEsc(def.name) + (v.mode === 'section' ? ': ' + examEsc(secs[0].name) : ': full paper') + '</h2>';
+  var heading = v.mode === 'section' ? examEsc(secs[0].name)
+              : v.mode === 'paper' ? 'Practice Paper ' + v.paper
+              : 'mixed paper';
+  h += '<h2 class="exam-title">' + examEsc(def.name) + ': ' + heading + '</h2>';
+  if (v.mode === 'full') {
+    h += '<p class="exam-sub">New questions every time, picked from the ones you have seen least.</p>';
+  }
+  if (v.mode === 'paper') {
+    var pbest = examBest(def.id, 'paper', null, v.paper);
+    if (pbest !== null) {
+      h += '<p class="exam-intro-again">You have done this paper before. Your best is <b>' + Math.round(pbest * 100) + '%</b>. ' +
+           'The questions are the same, but the answers are in a new order. Can you beat your best?</p>';
+    }
+  }
   h += '<ol class="exam-intro-secs">';
   secs.forEach(function (s) {
     var n = s.passages ? ((v.mode === 'section' ? (s.practicePassages || 2) : s.passages) + ' passage' +
@@ -183,7 +213,7 @@ function examIntroHTML(v) {
     h += '<p class="exam-warn">Starting this will throw away the paper you have in progress.</p>';
   }
   h += '<button class="lesson-btn lesson-btn-done exam-big" data-act="begin" data-subject="' + def.id +
-       '" data-mode="' + v.mode + '" data-section="' + (v.section || '') + '">Start</button></div>';
+       '" data-mode="' + v.mode + '" data-section="' + (v.section || '') + '" data-paper="' + (v.paper || '') + '">Start</button></div>';
   return h;
 }
 
@@ -490,6 +520,13 @@ function examResultsHTML(v) {
            wsec.id + '">Practise ' + examEsc(wsec.name) + '</button>';
     }
   }
+  if (att.mode === 'paper') {
+    var nextNo = examNextPaper(att.subject);
+    if (nextNo && nextNo !== att.paperNo) {
+      h += '<button class="lesson-btn" data-act="intro" data-subject="' + att.subject + '" data-mode="paper" data-paper="' + nextNo +
+           '">Next: Practice Paper ' + nextNo + '</button>';
+    }
+  }
   h += '</div></div>';
 
   h += '<div class="exam-filter">';
@@ -599,7 +636,7 @@ function examKeysHTML() {
        'The Malay sheet has a column for your reviewer to tick or flag each item.</p>';
   examSubjectList().forEach(function (def) {
     h += '<button class="lesson-btn" data-act="sheet" data-subject="' + def.id + '">' + def.icon + ' ' + examEsc(def.name) +
-         (def.id === 'ml' ? ' review sheet' : def.id === 'ma' ? ' worked examples' : ' answer key') + '</button>';
+         (def.id === 'ml' ? ' review sheet' : def.id === 'ma' ? ' worked examples and answer keys' : ' answer key') + '</button>';
   });
   return h + '</div>';
 }
@@ -710,9 +747,10 @@ function examAction(act, d) {
       return;
     case 'hub': examSave(); return examGo({ name: 'hub' });
     case 'history': return examGo({ name: 'history' });
-    case 'intro': return examGo({ name: 'intro', subject: d('subject'), mode: d('mode'), section: d('section') || null });
+    case 'intro': return examGo({ name: 'intro', subject: d('subject'), mode: d('mode'), section: d('section') || null,
+                                  paper: parseInt(d('paper'), 10) || null });
     case 'begin': {
-      var np = examStart(d('subject'), d('mode'), d('section') || null);
+      var np = examStart(d('subject'), d('mode'), d('section') || null, parseInt(d('paper'), 10) || null);
       if (np) examGo({ name: 'paper', index: 0 });
       return;
     }

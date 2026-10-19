@@ -1069,14 +1069,26 @@ function maSignature(it) {
   return it.prompt + '|' + JSON.stringify(it.answer) + '|' + JSON.stringify(it.visual || null);
 }
 
-function maGenerate(sec, n, rng) {
+/**
+ * n questions for a section. `avoid` holds the signatures of questions
+ * already on this paper, or for the practice papers on any earlier one;
+ * new questions are added to it.
+ */
+function maGenerate(sec, n, rng, avoid) {
   var out = [], seen = {};
+  avoid = avoid || {};
   var add = function (gens) {
+    // Something new to the whole paper (and to the other practice papers)
+    // if 30 tries find it; failing that, at least new to this section.
+    var spare = null;
     for (var t = 0; t < 30; t++) {
       var it = maMake(maPickGen(gens, rng), rng, sec.id);
       var sig = maSignature(it);
-      if (!seen[sig]) { seen[sig] = 1; out.push(it); return; }
+      if (seen[sig]) continue;
+      if (!avoid[sig]) { seen[sig] = avoid[sig] = 1; out.push(it); return; }
+      if (!spare) spare = { it: it, sig: sig };
     }
+    if (spare) { seen[spare.sig] = 1; out.push(spare.it); }
   };
   if (sec.slots) {
     rng.shuffle(sec.slots).slice(0, n).forEach(function (slot) {
