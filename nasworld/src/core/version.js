@@ -27,9 +27,9 @@
 //  move independently and conflating them would break old save files.
 
 var APP_VERSION = {
-  number: '3.1',
+  number: '3.2',
   // Short enough to sit on one line on a phone. This is what she reads.
-  name: 'Exam Prep',
+  name: 'Practice Papers',
   // ISO date of the release, used by the staleness guard.
   date: '2026-10-19'
 };

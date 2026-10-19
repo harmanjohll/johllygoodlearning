@@ -22,6 +22,13 @@ const vm = require('vm');
 
 process.on('uncaughtException', e => { if (!/Cannot (set|read) propert/.test(String(e && e.message))) throw e; });
 process.on('unhandledRejection', e => { if (!/Cannot (set|read) propert/.test(String(e && e.message))) throw e; });
+// The handlers above also swallow a real crash in a test, which would end
+// the run early with exit code 0. So a run that never reached report()
+// fails.
+let reported = false;
+process.on('exit', () => {
+  if (!reported) { console.log('\n> FAIL < the test run stopped before the end (a crash in a test?)'); process.exitCode = 1; }
+});
 
 const ROOT = __dirname + '/..';
 const html = fs.readFileSync(ROOT + '/dist/bundle.html', 'utf8');
@@ -113,9 +120,10 @@ if (exposed.length) {
   ['el', 'ma', 'ml'].forEach(sub => {
     const def = S.EXAM_SUBJECTS[sub];
     const modes = [['full', null]].concat(S.examPracticeSections(def).map(s => ['section', s.id]));
-    modes.forEach(([mode, sec]) => {
+    for (let n = 1; n <= S.EXAM_PAPER_COUNT; n++) modes.push(['paper', null, n]);
+    modes.forEach(([mode, sec, paperNo]) => {
       for (let seed = 1; seed <= 12; seed++) {
-        const p = S.examBuildPaper(sub, mode, sec, seed * 7919 + (sec ? String(sec).length : 0));
+        const p = S.examBuildPaper(sub, mode, sec, seed * 7919 + (sec ? String(sec).length : 0), paperNo);
         built++;
         if (!p.items.length) { bad.push(sub + '/' + (sec || 'full') + ' built an empty paper'); continue; }
         const uids = new Set(p.items.map(q => q.uid));
@@ -125,8 +133,9 @@ if (exposed.length) {
             if (p.items[i].section !== s.id) bad.push(sub + '/' + (sec || 'full') + ' item ' + p.items[i].id + ' has section ' + p.items[i].section + ', paper section ' + s.id);
           }
         });
-        if (mode === 'full' && sub !== 'ma' && p.items.length !== 29) bad.push(sub + ' full paper has ' + p.items.length + ' items');
-        if (mode === 'full' && sub === 'ma' && p.items.length !== 25) bad.push('maths full paper has ' + p.items.length + ' items');
+        const whole = mode === 'full' || mode === 'paper';
+        if (whole && sub !== 'ma' && p.items.length !== 29) bad.push(sub + ' ' + mode + ' paper has ' + p.items.length + ' items');
+        if (whole && sub === 'ma' && p.items.length !== 25) bad.push('maths ' + mode + ' paper has ' + p.items.length + ' items');
       }
     });
   });
@@ -155,6 +164,202 @@ if (exposed.length) {
     });
   }
   ok('stretch questions never make up more than a fifth of a section', heavy === 0, heavy + ' sections over');
+}
+
+// ---------------------------------------------------------------------
+// 2b. The fixed practice papers
+// ---------------------------------------------------------------------
+// What a word-spelling item must never meet on its own paper, checked
+// here independently of examShownText: every word printed on the paper.
+function printedWords(q, pas) {
+  const parts = [q.prompt || ''].concat(q.options || []);
+  if (q.type === 'arrange') [q.answer].concat(q.accept || []).forEach(a => parts.push(Array.isArray(a) ? a.join(' ') : a));
+  if (q.tokens) parts.push(q.tokens.join(' '));
+  if (pas) parts.push(pas.title || '', ...pas.paras);
+  return new Set(parts.join(' ').toLowerCase().split(/[^a-z'-]+/).filter(Boolean));
+}
+function spellingClashes(sub, items) {
+  const out = [];
+  items.filter(q => q.spell).forEach(s => {
+    const want = String(s.answer).toLowerCase();
+    items.forEach(o => {
+      if (o.id === s.id) return;
+      if (printedWords(o, o.passage ? S.examPassageById(sub, o.passage) : null).has(want)) out.push(s.id + ' (' + want + ') shown by ' + o.id);
+    });
+  });
+  return out;
+}
+{
+  const N = S.EXAM_PAPER_COUNT;
+  const bad = [], clash = [];
+  const sig = q => q.id + '|' + q.prompt + '|' + JSON.stringify(q.answer) + '|' + JSON.stringify(q.visual || null);
+  ['el', 'ma', 'ml'].forEach(sub => {
+    const def = S.EXAM_SUBJECTS[sub];
+    const plan = S.examPaperPlan(sub);
+    if (!plan || plan.length !== N) { bad.push(sub + ': ' + (plan ? plan.length : 0) + ' papers'); return; }
+    const seen = {};
+    plan.forEach(p => {
+      const all = [];
+      def.sections.forEach(sec => {
+        const its = p.sections[sec.id] || [];
+        const want = sec.passages ? sec.passages * (sec.perPassage || 5) : sec.count;
+        if (its.length !== want) bad.push(sub + ' paper ' + p.no + ' ' + sec.id + ': ' + its.length + ' of ' + want);
+        its.forEach(q => {
+          if (q.section !== sec.id) bad.push(q.id + ' filed under ' + q.section);
+          const k = sub === 'ma' ? sig(q) : q.id;
+          if (seen[k]) bad.push(sub + ': ' + q.id + ' in papers ' + seen[k] + ' and ' + p.no);
+          seen[k] = p.no;
+          all.push(q);
+        });
+        const cap = Math.max(1, Math.floor(want * 0.2));
+        if (its.filter(q => q.level === 3).length > cap) bad.push(sub + ' paper ' + p.no + ' ' + sec.id + ': too many stretch');
+        // Spread: no skill takes much more than its share of the bank.
+        if (!sec.passages && sub !== 'ma') {
+          const pool = def.items.filter(q => q.section === sec.id);
+          const tally = {};
+          its.forEach(q => { tally[q.skill] = (tally[q.skill] || 0) + 1; });
+          Object.keys(tally).forEach(k => {
+            const share = pool.filter(q => q.skill === k).length / pool.length;
+            if (tally[k] > Math.ceil(share * want) + 1) bad.push(sub + ' paper ' + p.no + ' ' + sec.id + ': ' + tally[k] + ' of ' + k);
+          });
+        }
+      });
+      if (sub !== 'ma') spellingClashes(sub, all).forEach(c => clash.push(sub + ' paper ' + p.no + ': ' + c));
+    });
+  });
+  ok('each subject has ' + N + ' full practice papers, no question in two of them, spread across skills', bad.length === 0,
+     bad.length ? bad.slice(0, 5).join(' | ') : '3 subjects × ' + N + ' papers');
+  ok('no practice paper prints a word that another of its questions asks her to spell', clash.length === 0, clash.slice(0, 4).join(' | '));
+
+  // And no giveaway of any kind, item against item and passage against
+  // passage, as examGiveaways defines it.
+  const given = [];
+  ['el', 'ml'].forEach(sub => S.examPaperPlan(sub).forEach(p => {
+    const units = [], byPassage = {};
+    [].concat(...Object.values(p.sections)).forEach(q => {
+      if (!q.passage) { units.push({ id: q.id, shown: S.examShownText(q), gives: S.examGiveaways(q) }); return; }
+      if (byPassage[q.passage]) return;
+      const pas = S.examPassageById(sub, q.passage);
+      byPassage[q.passage] = true;
+      units.push({ id: pas.id, shown: S.examPassageShown(pas), gives: S.examPassageGives(pas) });
+    });
+    units.forEach(u => units.forEach(v => {
+      if (u !== v) u.gives.forEach(g => { if (g && v.shown.indexOf(' ' + g + ' ') !== -1) given.push(sub + ' paper ' + p.no + ': ' + u.id + ' "' + g + '" in ' + v.id); });
+    }));
+  }));
+  ok('no question on a practice paper gives away another\'s answer', given.length === 0, given.slice(0, 3).join(' | '));
+
+  // Pairs found by hand that must never share a paper.
+  const apart = [['ml', 'ml-im-men-13', 'ml-su-6'], ['ml', 'ml-ko-ctx-1', 'ml-su-2'], ['ml', 'ml-ko-ctx-1', 'ml-ko-kt-5'],
+                 ['ml', 'ml-ko-ctx-6', 'ml-su-12'], ['ml', 'ml-ko-pb-11', 'ml-p-arnab'], ['ml', 'ml-p-pasar', 'ml-p-pasarmalam'],
+                 ['ml', 'ml-p-harijadi', 'ml-p-zoo'], ['el', 'el-gr-past-1', 'el-p-zoo'],
+                 ['el', 'el-gr-has-2', 'el-pu-end-12'], ['el', 'el-gr-plt-9', 'el-gr-pl-2']];
+  // Each of those pairs really does clash, and an unrelated pair does not,
+  // so the list cannot pass by going stale.
+  const unit = (sub, id) => {
+    const def = S.EXAM_SUBJECTS[sub];
+    const pas = def.passages.filter(p => p.id === id)[0];
+    if (pas) return { shown: S.examPassageShown(pas), gives: S.examPassageGives(pas) };
+    const q = def.items.filter(x => x.id === id)[0];
+    return q ? { shown: S.examShownText(q), gives: S.examGiveaways(q) } : null;
+  };
+  const clashes = (sub, a, b) => { const x = unit(sub, a), y = unit(sub, b); return !!x && !!y && S.examSheetClash(x, y.shown, y.gives); };
+  const stale = apart.filter(([sub, a, b]) => !clashes(sub, a, b)).map(t => t[1] + ' + ' + t[2]);
+  ok('each known giveaway is still detected, and unrelated questions do not clash',
+     stale.length === 0 && !clashes('ml', 'ml-ko-pic-1', 'ml-su-1') && !clashes('el', 'el-vo-pic-1', 'el-gr-be-1'), stale.join(', '));
+  const together = apart.filter(([sub, a, b]) => S.examPaperPlan(sub).some(p => {
+    const ids = [].concat(...Object.values(p.sections)).map(q => q.id + ' ' + (q.passage || ''));
+    const has = x => ids.some(s => s.split(' ').indexOf(x) !== -1);
+    return has(a) && has(b);
+  }));
+  ok('questions that give each other away never share a practice paper', together.length === 0,
+     together.length ? together.map(t => t[1] + ' + ' + t[2]).join(', ') : apart.length + ' known pairs apart');
+
+  // The same paper every time, and on every device: rebuilt from nothing.
+  const keys = sub => S.examPaperPlan(sub).map(p => p.key).join(',');
+  const before = ['el', 'ma', 'ml'].map(keys).join('/');
+  run('_examPlans = {};');
+  const after = ['el', 'ma', 'ml'].map(keys).join('/');
+  const a = S.examBuildPaper('ml', 'paper', null, 11, 3), b = S.examBuildPaper('ml', 'paper', null, 9999, 3);
+  const sameQs = JSON.stringify(a.items.map(q => q.id)) === JSON.stringify(b.items.map(q => q.id));
+  const reshuffled = a.items.some((q, i) => q.options && JSON.stringify(q.options) !== JSON.stringify(b.items[i].options));
+  ok('a practice paper has the same questions every sitting, with the answer choices reshuffled', before === after && sameQs && reshuffled &&
+     a.paperNo === 3 && a.planKey === S.examPaperKey('ml', 3), 'same plan ' + (before === after) + ', same questions ' + sameQs + ', reshuffled ' + reshuffled);
+
+  // Adding an item can move questions between papers; their old bests
+  // must then stop counting. Rewording an item must not.
+  run("EL_ITEMS.push({ id: 'el-test-extra', section: 'punct', skill: 'end-mark', level: 1, type: 'mcq', prompt: 'x', options: ['a', 'b', 'c'], answer: 'a', explain: 'x' }); _examPlans = {};");
+  const moved = keys('el');
+  // Reword an item that is on a paper (a trailing space: same words, so no new clash).
+  run("EL_ITEMS.pop(); _examPlans = {}; var _onPaper = EL_ITEMS.filter(function (q) { return q.id === examPaperPlan('el')[0].sections.grammar[0].id; })[0];" +
+      " _onPaper.prompt = _onPaper.prompt + ' '; _examPlans = {};");
+  const reworded = keys('el');
+  run("_onPaper.prompt = _onPaper.prompt.slice(0, -1); _examPlans = {};");
+  ok('a paper\'s key changes when its questions change, and not when one is reworded',
+     moved !== before.split('/')[0] && reworded === before.split('/')[0] && keys('el') === before.split('/')[0]);
+
+  // Mixed papers fit questions round each other the same way.
+  const mixed = [];
+  ['el', 'ml'].forEach(sub => { for (let s = 1; s <= 60; s++) {
+    const p = S.examBuildPaper(sub, 'full', null, s * 7717);
+    spellingClashes(sub, p.items).forEach(c => mixed.push(c));
+  } });
+  ok('no mixed paper prints a word that another of its questions asks her to spell', mixed.length === 0, mixed.slice(0, 3).join(' | '));
+
+  // A kloz blank must not be answered elsewhere in its own passage.
+  const self = [];
+  S.EXAM_SUBJECTS.ml.passages.filter(p => p.kind === 'kloz').forEach(p => {
+    const shown = S.examPassageShown(p);
+    p.items.forEach(q => S.examGiveaways(q, p).forEach(g => { if (shown.indexOf(' ' + g + ' ') !== -1) self.push(q.id + ': "' + g + '"'); }));
+  });
+  ok('no kloz passage answers its own blank elsewhere in the text', self.length === 0, self.join(', '));
+}
+
+// Practice papers: sitting one, best scores, the next paper, stars.
+{
+  run('state = state || {}; state.tokens = 0;');
+  delete store.nasworld_exam_v1;
+  run('_examStoreCache = null;');
+  const sit = (sub, n, rightEvery) => {
+    const p = S.examStart(sub, 'paper', null, n);
+    p.items.forEach((q, i) => { if (q.type === 'mcq' && i % rightEvery === 0) S.examSetAnswer(q.uid, q.answer); });
+    return S.examHandIn();
+  };
+  const first = sit('el', 1, 1), firstStars = first.stars;
+  const best1 = S.examBest('el', 'paper', null, 1);
+  ok('handing in a practice paper files its best score and moves "next" on',
+     first.mode === 'paper' && first.paperNo === 1 && best1 === first.score / first.total && S.examNextPaper('el') === 2 &&
+     S.examPaperTimes('el', 1) === 1, 'best ' + best1 + ', next ' + S.examNextPaper('el'));
+  const again = sit('el', 1, 3);
+  ok('a retake earns half the base stars, and a worse score leaves the best alone',
+     firstStars >= 8 && again.stars === 4 && S.examBest('el', 'paper', null, 1) === best1 && S.examPaperTimes('el', 1) === 2,
+     'first ' + firstStars + ', retake ' + again.stars);
+  // If the bank changes so that Practice Paper 1 holds other questions,
+  // a best earned on the old questions no longer counts.
+  run("examStore().attempts.forEach(function (a) { if (a.mode === 'paper') a.planKey = 'old'; }); (examStore().bests['el/paper/1'] || {}).key = 'old';");
+  const afterChange = S.examBest('el', 'paper', null, 1), nextAfter = S.examNextPaper('el');
+  run("var _k = examPaperKey('el', 1); examStore().attempts.forEach(function (a) { if (a.mode === 'paper') a.planKey = _k; }); (examStore().bests['el/paper/1'] || {}).key = _k;");
+  ok('a best earned on questions that have since changed no longer counts', afterChange === null && nextAfter === 1 &&
+     S.examBest('el', 'paper', null, 1) === best1, 'best ' + afterChange + ', next ' + nextAfter);
+  for (let i = 0; i < 30; i++) { S.examStart('ml', 'section', 'susun'); S.examHandIn(); }
+  run('_examStoreCache = null;');
+  ok('best scores outlive the capped history', S.examStore().attempts.every(x => x.mode !== 'paper') &&
+     S.examBest('el', 'paper', null, 1) === best1 && S.examNextPaper('el') === 2);
+
+  const hub = S.examHubHTML();
+  const cards = (hub.match(/data-mode="paper" data-paper="\d"/g) || []).length;
+  ok('the hub shows every practice paper with its best, a next-paper button, a mixed paper and one section',
+     cards === 3 * (S.EXAM_PAPER_COUNT + 1) && /Next: Practice Paper 2/.test(hub) && /Start Practice Paper 1/.test(hub) &&
+     /Mixed paper · new every time/.test(hub) && /1 of 8 done/.test(hub) && new RegExp(Math.round(best1 * 100) + '%').test(hub) &&
+     !/undefined|NaN/.test(hub), cards + ' paper buttons');
+  const introAgain = S.examIntroHTML({ subject: 'el', mode: 'paper', paper: 1 });
+  const introNew = S.examIntroHTML({ subject: 'el', mode: 'paper', paper: 5 });
+  ok('a practice paper\'s start page says whether she has done it before', /Practice Paper 1/.test(introAgain) &&
+     /done this paper before/.test(introAgain) && !/done this paper before/.test(introNew) && /data-paper="5"/.test(introNew));
+  const res = S.examResultsHTML({ attemptId: first.id });
+  ok('the results of a practice paper offer the next one', /Practice Paper 1/.test(res) && /Next: Practice Paper 2/.test(res));
+  delete store.nasworld_exam_v1;
+  run('_examStoreCache = null;');
 }
 
 // ---------------------------------------------------------------------
@@ -321,6 +526,7 @@ function perms(n) {
   // pinned: dropping one would quietly mark a correct sentence wrong.
   const secondOrders = {
     'ml-su-7':  'Kucing tidur di atas kerusi itu',
+    'ml-su-17': 'Cikgu kami mengajar membaca',
     'ml-su-8':  'Adik pergi dengan bas ke sekolah',
     'ml-su-18': 'Abang dengan ayah bermain badminton',
     'ml-su-24': 'Kami bersama-sama menonton televisyen'
@@ -457,6 +663,13 @@ function perms(n) {
      rows(ml) === mlItems && /Every word used/.test(ml) && !/undefined|NaN/.test(ml), rows(ml) + ' of ' + mlItems + ' items');
   ok('the English answer key lists every item', rows(el) === elItems && !/undefined|NaN/.test(el), rows(el) + ' of ' + elItems);
   ok('the maths sheet shows three worked examples per generator', (ma.match(/<ol class="steps">/g) || []).length === S.MA_GENS.length * 3 && !/undefined|NaN/.test(ma));
+  const perPaper = 29, N = S.EXAM_PAPER_COUNT;
+  const tagged = h => (h.match(/<td class="pp">\d<\/td>/g) || []).length;
+  ok('the English and Malay sheets say which practice paper each question is in',
+     tagged(el) === N * perPaper && tagged(ml) === N * perPaper && (ml.match(/· Practice Paper \d/g) || []).length === 2 * N,
+     tagged(el) + ' and ' + tagged(ml) + ' of ' + N * perPaper);
+  ok('the maths sheet has the answer key to every practice paper',
+     (ma.match(/<h3>Practice Paper \d<\/h3>/g) || []).length === N && (ma.match(/<td class="id" style="width:4%">/g) || []).length === N * 25);
 }
 
 // ---------------------------------------------------------------------
@@ -476,6 +689,7 @@ function perms(n) {
 report();
 
 function report() {
+  reported = true;
   console.log('\n================ EXAM PREP TEST ================\n');
   let pass = 0, fail = 0;
   R.forEach(r => {

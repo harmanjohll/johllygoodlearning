@@ -4772,8 +4772,29 @@ body {
 .exam-subject-icon { font-size: 38px; }
 .exam-subject-name { font-family: var(--font-display); font-size: 22px; color: var(--text-primary); }
 .exam-subject-secs { color: var(--text-secondary); font-size: 13px; line-height: 1.4; }
-.exam-subject-stats { color: var(--text-dim); font-size: 13px; }
 .exam-subject-btns { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+.exam-next-paper { width: 100%; }
+.exam-all-done { color: var(--text-secondary); font-size: 14px; line-height: 1.45; }
+.exam-papers-head { display: flex; justify-content: space-between; color: var(--text-secondary); font-size: 13px; margin-top: 2px; }
+.exam-papers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.exam-paper-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  min-height: 52px; padding: 6px 2px; cursor: pointer; font-family: var(--font-body);
+  background: var(--bg-mid); color: var(--text-primary);
+  border: 1px solid rgba(181,123,255,0.3); border-radius: var(--radius-sm);
+}
+.exam-paper-btn b { font-size: 18px; line-height: 1.1; }
+.exam-paper-btn small { font-size: 12px; color: var(--text-secondary); min-height: 14px; }
+.exam-paper-btn:hover, .exam-paper-btn:focus-visible { border-color: var(--gold); background: var(--bg-card-hover); }
+.exam-paper-btn.done { border-color: rgba(123,255,181,0.55); }
+.exam-paper-btn.good { background: rgba(123,255,181,0.14); }
+.exam-paper-btn.done small { color: var(--mint); font-weight: 600; }
+.exam-paper-btn.next { border: 2px solid var(--gold); }
+.exam-paper-btn.next small { color: var(--gold); }
+.exam-intro-again {
+  background: rgba(123,255,181,0.10); border-radius: var(--radius-sm); padding: 10px 14px;
+  color: var(--text-primary); line-height: 1.5; max-width: 560px; margin: 8px auto;
+}
 .exam-hub-foot { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 22px 0 8px; }
 
 /* ---- intro ---- */
@@ -4783,6 +4804,9 @@ body {
 .exam-intro-time { color: var(--text-secondary); }
 .exam-rules { text-align: left; display: inline-block; color: var(--text-secondary); line-height: 1.7; margin: 8px auto 14px; }
 .exam-big { font-size: 20px !important; padding: 14px 40px !important; }
+/* On its own line: the rules list above is inline-block, and the Start
+   button used to sit beside its last line. */
+.exam-intro .exam-big { display: block; margin: 10px auto 0; }
 .exam-section-pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 12px; }
 .exam-section-btn {
   background: var(--bg-mid); border: 1px solid rgba(181,123,255,0.3); border-radius: var(--radius-md);
@@ -5102,9 +5126,9 @@ function lcm(a, b) {
 //  move independently and conflating them would break old save files.
 
 var APP_VERSION = {
-  number: '3.1',
+  number: '3.2',
   // Short enough to sit on one line on a phone. This is what she reads.
-  name: 'Exam Prep',
+  name: 'Practice Papers',
   // ISO date of the release, used by the staleness guard.
   date: '2026-10-19'
 };
@@ -13856,11 +13880,21 @@ if (typeof window !== 'undefined') {
 //  Lift src/exam/ and styles/app-6.css out together and it still works.
 //
 //  A sitting is shaped like a real paper on purpose:
-//    1. Choose a subject, then a full paper or a single section.
+//    1. Choose a subject, then one of its practice papers, a mixed
+//       paper, or a single section.
 //    2. Answer everything, in any order, changing answers freely.
 //       Nothing is marked while she works.
 //    3. Hand in. Only then is it marked, with the right answer, the
 //       reason, and for maths a worked method.
+//
+//  Three kinds of paper:
+//    paper    Practice Paper 1 to 8. Fixed: the same questions every
+//             time, and no question in two of them, so working through
+//             all eight covers the bank. Answer choices are reshuffled
+//             on a retake, so she cannot answer from memory of "B".
+//    full     A mixed paper, new every time, favouring questions she
+//             has seen least. Called "Mixed paper" on screen.
+//    section  One section (for maths, one topic) at a time.
 //
 //  ITEM CONTRACT. Every bank must satisfy this; test/exam.test.js
 //  checks every item, so a bank that breaks it fails the build.
@@ -13890,10 +13924,17 @@ if (typeof window !== 'undefined') {
 //    unit      shown after a number box, e.g. 'cm'.
 //    passage   id of the shared passage the item belongs to.
 //    blank     (kloz) which numbered blank in the passage it fills.
+//    spell     (word) the answer is a spelling to produce, so it must not
+//              appear anywhere else on the same paper.
 // ============================================================
 
 var EXAM_STORE_KEY = 'nasworld_exam_v1';
 var EXAM_HISTORY_LIMIT = 24;
+
+// How many fixed practice papers each subject has. English and Malay
+// share their banks out across them, so raising this needs more items:
+// test/exam.test.js fails, naming the section, if a paper comes up short.
+var EXAM_PAPER_COUNT = 8;
 
 // How time is written. Singapore primary maths writes 7.25 am, with a
 // dot and no full stops in "am". If her school uses 7:25, change the
@@ -13946,6 +13987,16 @@ function examNewSeed() {
   return (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
 }
 
+/** FNV-1a: a fixed 32-bit number from a string, for seeds and keys. */
+function examHash(str) {
+  var h = 0x811c9dc5;
+  for (var i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h;
+}
+
 // ---- Storage -----------------------------------------------------------
 // Its own key rather than a field on the main state blob: a history of
 // papers, each with its questions frozen for later review, would slow
@@ -13961,10 +14012,14 @@ function examStore() {
     if (raw) data = JSON.parse(raw);
   } catch (e) { data = null; }
   if (!data || data.version !== 1) {
-    data = { version: 1, attempts: [], inProgress: null, seen: {} };
+    data = { version: 1, attempts: [], inProgress: null, seen: {}, bests: {} };
   }
   if (!data.attempts) data.attempts = [];
   if (!data.seen) data.seen = {};
+  // Best scores are kept apart from the history, which is capped: after
+  // two dozen more papers the attempt itself is gone, but "Practice Paper
+  // 3: best 92%" must not go with it.
+  if (!data.bests) data.bests = {};
   _examStoreCache = data;
   return data;
 }
@@ -13977,13 +14032,153 @@ function examSave() {
   try { localStorage.setItem(EXAM_STORE_KEY, JSON.stringify(data)); } catch (e) {}
 }
 
+// ---- Questions that give each other away --------------------------------
+// One question on a paper must not hand over another's answer:
+//   - a word she has to spell (foxes, menyapu) printed anywhere else on
+//     the paper, in a passage, an option or a sentence to unjumble;
+//   - a gap whose answer stands next to the same word elsewhere, as when
+//     "Kakak ___ pokok bunga. (siram)" shares a paper with the jumbled
+//     sentence "Kakak menyiram pokok bunga", or "I ___ two pet fish."
+//     with "I have two sisters".
+// Each item has the text it shows and the phrases that would give it
+// away; two items clash when either's giveaways appear in the other's
+// text. Practice papers are dealt so that nothing clashes, and mixed
+// papers pass over a question that would.
+
+// Words too common to give anything away on their own. A giveaway always
+// includes the answer and at least one word that is not on this list.
+var EXAM_LIGHT_WORDS = {};
+('a an the is are am was were be to of in on at for and or but so my your his her its our their this that ' +
+ 'these those it i you we they he she with from by very do does did has have had not please question answer ' +
+ 'di ke dari pada untuk dengan kepada daripada yang itu ini dan atau tetapi kerana supaya juga sangat sedang ' +
+ 'akan sudah telah ada saya kamu kami kita mereka dia ia soalan jawapan ' +
+ 'dalam atas bawah luar tepi sebelah belakang depan se').split(' ')
+  .forEach(function (w) { EXAM_LIGHT_WORDS[w] = true; });
+
+/**
+ * Lower case, words only. Gaps and kloz blanks become "|", a wall no
+ * phrase crosses. A Malay classifier with se- is split ("seekor" to
+ * "se ekor"), so "Adik ada seekor arnab" is seen to give away the ekor
+ * in "dua ___ arnab".
+ */
+function examNorm(s) {
+  return String(s === undefined || s === null ? '' : s).toLowerCase()
+    .replace(/\*\*/g, ' ')
+    .replace(/_{3,}|\{\d+\}/g, ' | ')
+    .replace(/[^a-z0-9'|-]+/g, ' ')
+    .replace(/(^|\s)['-]+|['-]+(?=\s|$)/g, ' ')
+    .replace(/(^|\s)se(buah|ekor|orang|helai|batang|biji|kuntum|pasang|keping)(?=\s|$)/g, '$1se $2')
+    .replace(/\s+/g, ' ').trim();
+}
+
+function examJoined(a) { return Array.isArray(a) ? a.join(' ') : String(a); }
+
+/** Everything an item puts in front of her while she works. */
+function examShownText(q, pas) {
+  var parts = [q.prompt || ''].concat(q.options || []);
+  if (q.type === 'arrange') parts = parts.concat([q.answer].concat(q.accept || []).map(examJoined));
+  if (q.tokens) parts.push(q.tokens.join(' '));
+  if (pas) parts = parts.concat([pas.title || '']).concat(pas.paras);
+  return ' ' + parts.map(examNorm).join(' | ') + ' ';
+}
+
+/** The phrases that would give this item's answer away if shown elsewhere. */
+function examGiveaways(q, pas) {
+  if (q.spell) return [q.answer].concat(q.accept || []).map(examNorm);
+  if (q.type === 'arrange' && !q.list) {
+    // The opening of the sentence: who, and what they do.
+    return [q.answer].concat(q.accept || []).map(function (a) {
+      return examNorm(examJoined(a)).split(' ').slice(0, 3).join(' ');
+    });
+  }
+  if (q.type !== 'mcq' || q.skill === 'end-mark') return [];
+  var line = null, mark = 'qqgapqq';
+  if (q.blank && pas) {
+    // The sentence holding the blank. (No lookbehind in the regex: older
+    // iPad Safari cannot parse one, and it would stop the whole app.)
+    line = pas.paras.join(' ').replace(/([.!?])\s+/g, '$1\n').split('\n').filter(function (s) {
+      return s.indexOf('{' + q.blank + '}') !== -1;
+    })[0];
+    if (line) line = line.replace('{' + q.blank + '}', mark);
+  } else if (q.prompt && q.prompt.indexOf('___') !== -1) {
+    line = q.prompt.split('\n').filter(function (s) { return s.indexOf('___') !== -1; })[0]
+      .replace(/^(Question|Soalan):\s*/, '')
+      .replace(/\s*\([^)]*\)\s*$/, '')
+      .replace(/_{3,}/, mark);
+  }
+  if (!line) return [];
+  var toks = examNorm(line).split(' ');
+  var at = toks.indexOf(mark);
+  if (at === -1) return [];
+  var ans = examNorm(q.answer).split(' ');
+  // "sebiji epal" is given away by "dua biji epal" too, so the giveaway
+  // on the noun's side leaves out the se-.
+  var core = ans.length > 1 && ans[0] === 'se' ? ans.slice(1) : ans;
+  var out = [];
+  // Reach out from the gap, one side at a time, until a word that is
+  // not light is included; a wall or the end of the sentence stops it.
+  [-1, 1].forEach(function (dir) {
+    var got = [];
+    for (var i = at + dir; i >= 0 && i < toks.length && toks[i] !== '|'; i += dir) {
+      got.push(toks[i]);
+      if (!EXAM_LIGHT_WORDS[toks[i]]) {
+        if (dir < 0) got.reverse();
+        out.push((dir < 0 ? got.concat(ans) : core.concat(got)).join(' '));
+        return;
+      }
+    }
+  });
+  return out;
+}
+
+/** A running record of what a paper shows and what would give it away. */
+function examNewSheet() { return { shown: ' ', gives: [] }; }
+
+function examSheetClash(sheet, shown, gives) {
+  for (var i = 0; i < gives.length; i++) {
+    if (gives[i] && sheet.shown.indexOf(' ' + gives[i] + ' ') !== -1) return true;
+  }
+  for (var j = 0; j < sheet.gives.length; j++) {
+    if (sheet.gives[j] && shown.indexOf(' ' + sheet.gives[j] + ' ') !== -1) return true;
+  }
+  return false;
+}
+
+function examSheetAdd(sheet, shown, gives) {
+  sheet.shown += shown + ' | ';
+  sheet.gives = sheet.gives.concat(gives);
+}
+
+/** Would this item clash with what is already on the paper? */
+function examItemClashes(sheet, it, pas) {
+  return examSheetClash(sheet, examShownText(it, pas), examGiveaways(it, pas));
+}
+
+function examAddItem(sheet, it, pas) {
+  examSheetAdd(sheet, examShownText(it, pas), examGiveaways(it, pas));
+}
+
+/**
+ * A whole passage, checked as one: its questions may share its text
+ * with each other, but not give away anything else on the paper.
+ */
+function examPassageShown(p) {
+  return p.items.map(function (it) { return examShownText(it, p); }).join(' | ');
+}
+
+function examPassageGives(p) {
+  return [].concat.apply([], p.items.map(function (it) { return examGiveaways(it, p); }));
+}
+
 // ---- Choosing questions ------------------------------------------------
 
 /**
  * Pick n items so that the paper spreads across skills, prefers what she
- * has seen least, and keeps stretch items to a small share.
+ * has seen least, and keeps stretch items to a small share. Given a
+ * sheet, it passes over items that would clash with it, and adds the
+ * ones it picks.
  */
-function examPickStratified(pool, n, rng, seen) {
+function examPickStratified(pool, n, rng, seen, sheet) {
   var maxStretch = Math.max(1, Math.floor(n * 0.2));
   var groups = {};
   pool.forEach(function (it) {
@@ -14005,7 +14200,9 @@ function examPickStratified(pool, n, rng, seen) {
       while (g.length) {
         var it = g.shift();
         if (it.level === 3 && stretch >= maxStretch) continue;
+        if (sheet && examItemClashes(sheet, it)) continue;
         if (it.level === 3) stretch++;
+        if (sheet) examAddItem(sheet, it);
         out.push(it);
         progress = true;
         break;
@@ -14017,14 +14214,31 @@ function examPickStratified(pool, n, rng, seen) {
   return rng.shuffle(out).sort(function (a, b) { return (a.level || 1) - (b.level || 1); });
 }
 
-/** Pick whole passages, least seen first. Returns their items in order. */
-function examPickPassages(def, sec, howMany, rng, seen) {
+/**
+ * Pick whole passages, least seen first, passing over any that would
+ * clash with the sheet. Returns their items in order.
+ */
+function examPickPassages(def, sec, howMany, rng, seen, sheet) {
   var pool = (def.passages || []).filter(function (p) { return p.section === sec.id; });
   var scored = rng.shuffle(pool).sort(function (a, b) {
     return examPassageSeen(a, seen) - examPassageSeen(b, seen);
   });
+  var chosen = [];
+  scored.forEach(function (p) {
+    if (chosen.length >= howMany) return;
+    if (sheet) {
+      var shown = examPassageShown(p), gives = examPassageGives(p);
+      if (examSheetClash(sheet, shown, gives)) return;
+      examSheetAdd(sheet, shown, gives);
+    }
+    chosen.push(p);
+  });
+  return examPassageItems(chosen, sec);
+}
+
+function examPassageItems(passages, sec) {
   var items = [];
-  scored.slice(0, howMany).forEach(function (p) {
+  passages.forEach(function (p) {
     p.items.forEach(function (it) {
       // Passage questions are authored inside their passage, so they do
       // not carry a section of their own. Without this they were marked
@@ -14047,6 +14261,189 @@ function examPassageById(subjectId, passageId) {
     if (def.passages[i].id === passageId) return def.passages[i];
   }
   return null;
+}
+
+// ---- The fixed practice papers -------------------------------------------
+// Worked out once per subject from a seed that never changes, so Practice
+// Paper 3 holds the same questions on every visit and every device. A
+// change to the bank can move questions between papers: an item added or
+// removed, or a rewording that makes two items clash. Each paper's key is
+// the list of its questions, so a best score counts for as long as the
+// questions it was earned on, and no longer.
+
+var _examPlans = {};
+
+function examById(a, b) { return a.id < b.id ? -1 : a.id > b.id ? 1 : 0; }
+
+/**
+ * Share a section's items out across the papers, per items each and no
+ * item in two papers. Each paper is spread across skills and levels,
+ * holds no more stretch items than examPickStratified would allow, and
+ * gets nothing that clashes with what its sheet already holds.
+ */
+function examDealItems(pool, per, rng, sheets) {
+  var n = sheets.length;
+  var maxStretch = Math.max(1, Math.floor(per * 0.2));
+  var groups = {};
+  pool.slice().sort(examById).forEach(function (it) {
+    (groups[it.skill] = groups[it.skill] || []).push(it);
+  });
+  var skills = rng.shuffle(Object.keys(groups).sort());
+  skills.forEach(function (k) { groups[k] = rng.shuffle(groups[k]); });
+
+  // One item from each skill in turn, so that whatever is left over once
+  // the papers are full comes from the skills with the most items. Stretch
+  // items are dealt first, while every paper still has room for one.
+  var seq = [], more = true;
+  while (more) {
+    more = false;
+    skills.forEach(function (k) {
+      if (groups[k].length) { seq.push(groups[k].shift()); more = true; }
+    });
+  }
+  seq = seq.filter(function (it) { return it.level === 3; })
+    .concat(seq.filter(function (it) { return it.level !== 3; }));
+
+  var papers = [];
+  for (var i = 0; i < n; i++) papers.push({ items: [], skill: {}, level: {}, stretch: 0, sheet: sheets[i] });
+  var room = n * per, turn = 0;
+  seq.forEach(function (it) {
+    if (!room) return;
+    var lv = it.level || 1, best = null, bestScore = null;
+    for (var j = 0; j < n; j++) {
+      var p = papers[(turn + j) % n];
+      if (p.items.length >= per || (lv === 3 && p.stretch >= maxStretch)) continue;
+      if (examItemClashes(p.sheet, it)) continue;
+      // Fewest of this skill, then fewest of this level, then emptiest.
+      var score = [p.skill[it.skill] || 0, p.level[lv] || 0, p.items.length];
+      if (!best || score[0] < bestScore[0] || (score[0] === bestScore[0] &&
+          (score[1] < bestScore[1] || (score[1] === bestScore[1] && score[2] < bestScore[2])))) {
+        best = p; bestScore = score;
+      }
+    }
+    if (!best) return;
+    best.items.push(it);
+    examAddItem(best.sheet, it);
+    best.skill[it.skill] = (best.skill[it.skill] || 0) + 1;
+    best.level[lv] = (best.level[lv] || 0) + 1;
+    if (lv === 3) best.stretch++;
+    room--;
+    turn = (turn + 1) % n;
+  });
+  // Easy before hard, as on a real paper.
+  return papers.map(function (p) {
+    return rng.shuffle(p.items).sort(function (a, b) { return (a.level || 1) - (b.level || 1); });
+  });
+}
+
+/**
+ * Whole passages, so many to a paper, each passage in one paper only and
+ * none clashing with what its paper already holds. A small search: with
+ * eight papers and eight passages it settles at once.
+ */
+function examDealPassages(def, sec, rng, sheets) {
+  var n = sheets.length, k = sec.passages;
+  var order = rng.shuffle((def.passages || []).filter(function (p) { return p.section === sec.id; }).sort(examById));
+  var info = order.map(function (p) { return { p: p, shown: examPassageShown(p), gives: examPassageGives(p) }; });
+  var slots = [], used = {};
+  for (var s = 0; s < n * k; s++) slots.push(null);
+
+  // Checking a passage against its paper's sheet and the passages already
+  // chosen for the same paper in this section.
+  var fits = function (slot, cand) {
+    var paper = Math.floor(slot / k);
+    if (examSheetClash(sheets[paper], cand.shown, cand.gives)) return false;
+    for (var j = paper * k; j < slot; j++) {
+      var o = slots[j];
+      if (examSheetClash({ shown: o.shown, gives: o.gives }, cand.shown, cand.gives)) return false;
+    }
+    return true;
+  };
+  var steps = 0;
+  var fill = function (slot) {
+    if (slot === n * k) return true;
+    for (var c = 0; c < info.length; c++) {
+      if (used[c] || ++steps > 20000 || !fits(slot, info[c])) continue;
+      used[c] = true; slots[slot] = info[c];
+      if (fill(slot + 1)) return true;
+      used[c] = false; slots[slot] = null;
+    }
+    return false;
+  };
+  if (info.length < n * k || !fill(0)) {
+    // Too few passages, or no way round a clash. The tests forbid both;
+    // if it ever happens, every paper still gets a passage.
+    for (var t = 0; t < n * k; t++) slots[t] = info[t % info.length];
+  }
+
+  var out = [];
+  for (var i = 0; i < n; i++) {
+    var mine = slots.slice(i * k, i * k + k).filter(Boolean);
+    mine.forEach(function (x) { examSheetAdd(sheets[i], x.shown, x.gives); });
+    out.push(examPassageItems(mine.map(function (x) { return x.p; }), sec));
+  }
+  return out;
+}
+
+/**
+ * The practice papers for a subject, as [{ no, key, sections: {id: items} }].
+ * `key` changes only if the paper's questions do, and best scores are
+ * filed under it.
+ */
+function examPaperPlan(subjectId) {
+  if (_examPlans[subjectId]) return _examPlans[subjectId];
+  var def = EXAM_SUBJECTS[subjectId];
+  if (!def) return null;
+  var papers = [];
+  for (var i = 1; i <= EXAM_PAPER_COUNT; i++) papers.push({ no: i, key: '', sections: {} });
+
+  if (def.generate) {
+    // Generated subjects (maths): each paper from a seed of its own, and
+    // no question that an earlier paper already has.
+    var avoid = {};
+    papers.forEach(function (paper) {
+      var rng = examRng(examHash(subjectId + '/paper/' + paper.no));
+      def.sections.forEach(function (sec) {
+        paper.sections[sec.id] = def.generate(sec, sec.count, rng, avoid);
+      });
+    });
+  } else {
+    var sheets = papers.map(function () { return examNewSheet(); });
+    var poolOf = function (sec) { return def.items.filter(function (it) { return it.section === sec.id; }); };
+    // Passages first, being whole and carrying the most text. Then the
+    // other sections, the one with fewest spare items first, so the
+    // sections with room to spare are the ones that work round a clash.
+    var order = def.sections.filter(function (s) { return s.passages; }).concat(
+      def.sections.filter(function (s) { return !s.passages; }).sort(function (a, b) {
+        return (poolOf(a).length - a.count * EXAM_PAPER_COUNT) - (poolOf(b).length - b.count * EXAM_PAPER_COUNT) ||
+               (a.id < b.id ? -1 : 1);
+      }));
+    order.forEach(function (sec) {
+      var rng = examRng(examHash(subjectId + '/papers/' + sec.id));
+      var dealt = sec.passages ? examDealPassages(def, sec, rng, sheets) : examDealItems(poolOf(sec), sec.count, rng, sheets);
+      papers.forEach(function (paper, j) { paper.sections[sec.id] = dealt[j]; });
+    });
+  }
+
+  papers.forEach(function (paper) {
+    var parts = [];
+    def.sections.forEach(function (sec) {
+      (paper.sections[sec.id] || []).forEach(function (it) {
+        // A banked item is its id. A generated one is only itself with
+        // its numbers, so those go into the key too.
+        parts.push(def.generate ? it.id + '|' + it.prompt + '|' + JSON.stringify(it.answer) : it.id);
+      });
+    });
+    paper.key = examHash(parts.join('\n')).toString(36);
+  });
+  _examPlans[subjectId] = papers;
+  return papers;
+}
+
+function examPaperKey(subjectId, paperNo) {
+  var plan = examPaperPlan(subjectId);
+  var paper = plan && plan[paperNo - 1];
+  return paper ? paper.key : null;
 }
 
 /**
@@ -14083,14 +14480,26 @@ function examFreezeItem(it, uid, rng) {
 }
 
 /**
- * Build a paper. mode is 'full' (every section) or 'section' (one).
+ * Build a paper. mode is 'paper' (practice paper number paperNo), 'full'
+ * (a mixed paper of every section) or 'section' (one section).
+ *
+ * The seed only decides what is left to chance on this sitting. For a
+ * practice paper that is the order of the answer choices and tiles; the
+ * questions themselves come from the fixed plan.
  */
-function examBuildPaper(subjectId, mode, sectionId, seed) {
+function examBuildPaper(subjectId, mode, sectionId, seed, paperNo) {
   var def = EXAM_SUBJECTS[subjectId];
   if (!def) return null;
   seed = (seed === undefined || seed === null) ? examNewSeed() : seed;
   var rng = examRng(seed);
   var seen = examStore().seen;
+
+  var fixed = null;
+  if (mode === 'paper') {
+    var plan = examPaperPlan(subjectId);
+    fixed = plan && plan[paperNo - 1];
+    if (!fixed) return null;
+  }
 
   var secs = mode === 'section'
     ? examPracticeSections(def).filter(function (s) { return s.id === sectionId; })
@@ -14098,22 +14507,34 @@ function examBuildPaper(subjectId, mode, sectionId, seed) {
 
   var paper = {
     id: 'p' + seed.toString(36) + Date.now().toString(36),
-    subject: subjectId, mode: mode, sectionId: sectionId || null,
+    subject: subjectId, mode: mode, sectionId: mode === 'section' ? sectionId : null,
+    paperNo: fixed ? fixed.no : null, planKey: fixed ? fixed.key : null,
     seed: seed, createdAt: Date.now(), activeMs: 0,
     sections: [], items: [], answers: {}, flags: {}
   };
 
+  var avoid = {};                // generated questions already on this paper
+  var sheet = examNewSheet();    // banked ones, so that none gives another away
+  var single = mode === 'section';
+  var chosen = {};
+  // Passages are chosen first and the single questions fitted round them;
+  // the paper still runs in its usual section order.
+  secs.filter(function (s) { return s.passages; }).concat(secs.filter(function (s) { return !s.passages; }))
+    .forEach(function (sec) {
+      if (fixed) {
+        chosen[sec.id] = fixed.sections[sec.id] || [];
+      } else if (sec.passages) {
+        chosen[sec.id] = examPickPassages(def, sec, single ? (sec.practicePassages || 2) : sec.passages, rng, seen, sheet);
+      } else if (def.generate) {
+        chosen[sec.id] = def.generate(sec, single ? (sec.practiceCount || sec.count) : sec.count, rng, avoid);
+      } else {
+        var pool = def.items.filter(function (it) { return it.section === sec.id; });
+        chosen[sec.id] = examPickStratified(pool, single ? (sec.practiceCount || sec.count) : sec.count, rng, seen, sheet);
+      }
+    });
+
   secs.forEach(function (sec) {
-    var picked;
-    var single = mode === 'section';
-    if (sec.passages) {
-      picked = examPickPassages(def, sec, single ? (sec.practicePassages || 2) : sec.passages, rng, seen);
-    } else if (def.generate) {
-      picked = def.generate(sec, single ? (sec.practiceCount || sec.count) : sec.count, rng);
-    } else {
-      var pool = def.items.filter(function (it) { return it.section === sec.id; });
-      picked = examPickStratified(pool, single ? (sec.practiceCount || sec.count) : sec.count, rng, seen);
-    }
+    var picked = chosen[sec.id];
     var start = paper.items.length;
     picked.forEach(function (it) {
       paper.items.push(examFreezeItem(it, 'q' + paper.items.length, rng));
@@ -14280,8 +14701,8 @@ function examSectionDef(def, id) {
 
 // ---- Sitting a paper ----------------------------------------------------
 
-function examStart(subjectId, mode, sectionId) {
-  var paper = examBuildPaper(subjectId, mode, sectionId);
+function examStart(subjectId, mode, sectionId, paperNo) {
+  var paper = examBuildPaper(subjectId, mode, sectionId, null, paperNo);
   if (!paper || !paper.items.length) return null;
   examStore().inProgress = paper;
   examSave();
@@ -14359,9 +14780,10 @@ function examHandIn() {
     store.seen[q.id] = (store.seen[q.id] || 0) + 1;
   });
 
-  var prevBest = examBest(p.subject, p.mode, p.sectionId);
+  var prevBest = examBest(p.subject, p.mode, p.sectionId, p.paperNo);
   var attempt = {
     id: p.id, subject: p.subject, mode: p.mode, sectionId: p.sectionId, redoOf: p.redoOf || null,
+    paperNo: p.paperNo || null, planKey: p.planKey || null,
     seed: p.seed, createdAt: p.createdAt, finishedAt: Date.now(), activeMs: p.activeMs || 0,
     sections: p.sections, items: p.items, answers: p.answers,
     marks: marks, score: score, total: p.items.length,
@@ -14369,6 +14791,17 @@ function examHandIn() {
   };
   attempt.stars = examStarsFor(attempt, prevBest);
   attempt.isBest = prevBest !== null && (attempt.score / attempt.total) > prevBest;
+
+  var bk = examBestKey(p.subject, p.mode, p.sectionId, p.paperNo);
+  if (bk) {
+    var rec = store.bests[bk];
+    // A practice paper whose questions have changed starts afresh.
+    if (!rec || (p.mode === 'paper' && rec.key !== p.planKey)) rec = store.bests[bk] = { best: 0, n: 0 };
+    rec.best = Math.max(rec.best, attempt.total ? attempt.score / attempt.total : 0);
+    rec.n++;
+    rec.last = attempt.finishedAt;
+    if (p.mode === 'paper') rec.key = p.planKey;
+  }
 
   store.attempts.push(attempt);
   store.inProgress = null;
@@ -14385,9 +14818,12 @@ function examHandIn() {
 /**
  * Stars for finishing, not for scoring, plus a little for doing better.
  * Kept modest: the paper is practice, and it must not out-earn learning.
+ * A practice paper she has finished before earns half the base, since
+ * the questions are ones she has met.
  */
 function examStarsFor(att, prevBest) {
-  var base = att.mode === 'full' ? 8 : (att.mode === 'redo' ? 2 : 4);
+  var base = att.mode === 'redo' ? 2 : att.mode === 'section' ? 4 : 8;
+  if (att.mode === 'paper' && prevBest !== null) base = 4;
   var pct = att.total ? att.score / att.total : 0;
   var bonus = (pct >= 0.8 ? 3 : 0) + (prevBest !== null && pct > prevBest ? 4 : 0);
   return base + bonus;
@@ -14403,16 +14839,48 @@ function examAttemptById(id) {
   return null;
 }
 
-/** Best score as a fraction for this subject and mode, or null if none. */
-function examBest(subjectId, mode, sectionId) {
+/** Where a best score is filed: "el/paper/3", "el/full", "el/section/grammar". */
+function examBestKey(subjectId, mode, sectionId, paperNo) {
+  if (mode === 'paper') return paperNo ? subjectId + '/paper/' + paperNo : null;
+  if (mode === 'full') return subjectId + '/full';
+  if (mode === 'section') return subjectId + '/section/' + sectionId;
+  return null;   // a redo has no best of its own
+}
+
+/**
+ * Best score as a fraction, or null if there is none. For a practice
+ * paper, only attempts at the paper as it now stands count. Attempts
+ * still in the history are read as well as the kept bests, so papers
+ * finished before bests were kept still show.
+ */
+function examBest(subjectId, mode, sectionId, paperNo) {
+  var store = examStore();
+  var key = mode === 'paper' ? examPaperKey(subjectId, paperNo) : null;
   var best = null;
-  examStore().attempts.forEach(function (a) {
+  var rec = store.bests[examBestKey(subjectId, mode, sectionId, paperNo)];
+  if (rec && rec.n && (mode !== 'paper' || rec.key === key)) best = rec.best;
+  store.attempts.forEach(function (a) {
     if (a.subject !== subjectId || a.mode !== mode) return;
     if (mode === 'section' && a.sectionId !== sectionId) return;
+    if (mode === 'paper' && (a.paperNo !== paperNo || a.planKey !== key)) return;
     var f = a.total ? a.score / a.total : 0;
     if (best === null || f > best) best = f;
   });
   return best;
+}
+
+/** How many times this practice paper, as it now stands, has been finished. */
+function examPaperTimes(subjectId, paperNo) {
+  var rec = examStore().bests[examBestKey(subjectId, 'paper', null, paperNo)];
+  return rec && rec.key === examPaperKey(subjectId, paperNo) ? rec.n : 0;
+}
+
+/** The first practice paper not yet done, or null when all are. */
+function examNextPaper(subjectId) {
+  for (var i = 1; i <= EXAM_PAPER_COUNT; i++) {
+    if (examBest(subjectId, 'paper', null, i) === null) return i;
+  }
+  return null;
 }
 
 /**
@@ -15895,14 +16363,26 @@ function maSignature(it) {
   return it.prompt + '|' + JSON.stringify(it.answer) + '|' + JSON.stringify(it.visual || null);
 }
 
-function maGenerate(sec, n, rng) {
+/**
+ * n questions for a section. `avoid` holds the signatures of questions
+ * already on this paper, or for the practice papers on any earlier one;
+ * new questions are added to it.
+ */
+function maGenerate(sec, n, rng, avoid) {
   var out = [], seen = {};
+  avoid = avoid || {};
   var add = function (gens) {
+    // Something new to the whole paper (and to the other practice papers)
+    // if 30 tries find it; failing that, at least new to this section.
+    var spare = null;
     for (var t = 0; t < 30; t++) {
       var it = maMake(maPickGen(gens, rng), rng, sec.id);
       var sig = maSignature(it);
-      if (!seen[sig]) { seen[sig] = 1; out.push(it); return; }
+      if (seen[sig]) continue;
+      if (!avoid[sig]) { seen[sig] = avoid[sig] = 1; out.push(it); return; }
+      if (!spare) spare = { it: it, sig: sig };
     }
+    if (spare) { seen[spare.sig] = 1; out.push(spare.it); }
   };
   if (sec.slots) {
     rng.shuffle(sec.slots).slice(0, n).forEach(function (slot) {
@@ -15959,7 +16439,10 @@ var EL_ITEMS = [];
 
 function elAdd(section, list) {
   list.forEach(function (it) {
-    EL_ITEMS.push(Object.assign({ section: section, level: 1, type: 'mcq' }, it, { id: 'el-' + it.id }));
+    // Writing a plural is a spelling: the word must not be printed
+    // elsewhere on the same paper (see examGiveaways).
+    var spell = it.skill === 'plural-spell';
+    EL_ITEMS.push(Object.assign({ section: section, level: 1, type: 'mcq' }, spell ? { spell: true } : {}, it, { id: 'el-' + it.id }));
   });
 }
 
@@ -16355,6 +16838,11 @@ elAdd('punct', [
   elEnd('pu-end-10', 'How tall that giraffe is', EL_END_X, 2),
   elEnd('pu-end-11', 'Who is your teacher', EL_END_Q),
   elEnd('pu-end-12', 'I have two sisters', EL_END_S),
+  elEnd('pu-end-13', 'There are seven days in a week', EL_END_S),
+  elEnd('pu-end-14', 'Are you ready for school', EL_END_Q),
+  elEnd('pu-end-15', 'What a hot day it is', EL_END_X),
+  Object.assign(elEnd('pu-end-16', 'How many pencils do you have', EL_END_Q, 2), { why: {
+    'exclamation mark ( ! )': '**How many** asks a question, so it needs a question mark. A sentence starting with **How** ends with an exclamation mark only when it shows a strong feeling and asks nothing, like **How tall that giraffe is!**' } }),
 
   elCaps('pu-cap-1', 'my friend sara lives in singapore.', ['my', 'sara', 'singapore.'],
     '**My** starts the sentence. **Sara** is a person\'s name. **Singapore** is the name of a place.'),
@@ -16376,6 +16864,18 @@ elAdd('punct', [
     '**My** starts the sentence. **Fluffy** is the cat\'s name.'),
   elCaps('pu-cap-10', 'ali and mei live in bedok.', ['ali', 'mei', 'bedok.'],
     '**Ali** and **Mei** are names. **Bedok** is the name of a place.'),
+  elCaps('pu-cap-11', 'my uncle lives in malaysia.', ['my', 'malaysia.'],
+    '**My** starts the sentence. **Malaysia** is the name of a country.'),
+  elCaps('pu-cap-12', 'priya lights oil lamps at deepavali.', ['priya', 'deepavali.'],
+    '**Priya** is a name, and it starts the sentence. **Deepavali** is the name of a festival.'),
+  elCaps('pu-cap-13', 'did you see ali at the park on sunday?', ['did', 'ali', 'sunday?'],
+    '**Did** starts the sentence. **Ali** is a name. **Sunday** is a day. **Park** is not a name, so it stays small.'),
+  elCaps('pu-cap-14', 'school starts again in january.', ['school', 'january.'],
+    '**School** starts the sentence, so it needs a capital letter here. **January** is a month.'),
+  elCaps('pu-cap-15', 'mr lee drives a taxi in tampines.', ['mr', 'lee', 'tampines.'],
+    '**Mr Lee** is a person\'s name, so both words start with a capital letter. **Tampines** is the name of a place.'),
+  elCaps('pu-cap-16', 'we visit our relatives during chinese new year.', ['we', 'chinese', 'new', 'year.'],
+    '**We** starts the sentence. **Chinese New Year** is the name of a festival, so every word in it starts with a capital letter.', 2),
 
   { id: 'pu-cs-1', skill: 'correct-sentence', prompt: 'Which sentence is written correctly?',
     options: ['My brother is eight years old.', 'my brother is eight years old.', 'My brother is eight years old', 'My Brother is eight years old.'],
@@ -16405,6 +16905,30 @@ elAdd('punct', [
     options: ['Is it your birthday today?', 'Is it your birthday today.', 'is it your birthday today?', 'Is it your Birthday today?'],
     answer: 'Is it your birthday today?',
     explain: 'It asks something, so it ends with a question mark. **Birthday** is not a name.' },
+  { id: 'pu-cs-8', skill: 'correct-sentence', prompt: 'Which sentence is written correctly?',
+    options: ['I have a pet rabbit.', 'i have a pet rabbit.', 'I have a pet rabbit?', 'I have a Pet rabbit.'],
+    answer: 'I have a pet rabbit.',
+    explain: '**I** is always a capital letter. The sentence tells us something, so it ends with a full stop. **Pet** is not a name.' },
+  { id: 'pu-cs-9', skill: 'correct-sentence', prompt: 'Which sentence is written correctly?',
+    options: ['Can we go to the beach?', 'Can we go to the beach.', 'can we go to the beach?', 'Can we go to the Beach?'],
+    answer: 'Can we go to the beach?',
+    explain: 'It asks something, so it ends with a question mark, and it starts with a capital letter. **Beach** is not a name.' },
+  { id: 'pu-cs-10', skill: 'correct-sentence', prompt: 'Which sentence is written correctly?',
+    options: ['My birthday is in April.', 'My birthday is in april.', 'my birthday is in April.', 'My Birthday is in April.'],
+    answer: 'My birthday is in April.',
+    explain: 'Months start with a capital letter: **April**. **Birthday** is not a name, so it stays small.' },
+  { id: 'pu-cs-11', skill: 'correct-sentence', level: 2, prompt: 'Which sentence is written correctly?',
+    options: ['How beautiful the flowers are!', 'How beautiful the flowers are?', 'how beautiful the flowers are!', 'How beautiful the Flowers are!'],
+    answer: 'How beautiful the flowers are!',
+    explain: '"How ...!" shows a strong feeling and asks nothing, so it ends with an exclamation mark. Only the first word needs a capital letter.' },
+  { id: 'pu-cs-12', skill: 'correct-sentence', prompt: 'Which sentence is written correctly?',
+    options: ['Siti and I live in Woodlands.', 'Siti and i live in Woodlands.', 'Siti and I live in woodlands.', 'siti and I live in Woodlands.'],
+    answer: 'Siti and I live in Woodlands.',
+    explain: '**Siti** is a name, **I** is always a capital letter, and **Woodlands** is the name of a place.' },
+  { id: 'pu-cs-13', skill: 'correct-sentence', prompt: 'Which sentence is written correctly?',
+    options: ['We went to the zoo on Friday.', 'We went to the zoo on friday.', 'We went to the Zoo on Friday.', 'We went to the zoo on Friday'],
+    answer: 'We went to the zoo on Friday.',
+    explain: 'Days start with a capital letter: **Friday**. **Zoo** is not a name here. The sentence ends with a full stop.' },
 
   { id: 'pu-com-1', skill: 'commas', level: 3, prompt: 'Which sentence uses commas correctly?',
     options: ['I bought apples, pears and bananas.', 'I bought apples pears and bananas.', 'I bought, apples pears and bananas.', 'I bought apples pears, and bananas.'],
@@ -16413,6 +16937,14 @@ elAdd('punct', [
   { id: 'pu-com-2', skill: 'commas', level: 3, prompt: 'Which sentence uses commas correctly?',
     options: ['We saw lions, tigers and zebras at the zoo.', 'We saw lions tigers and zebras at the zoo.', 'We saw, lions tigers and zebras at the zoo.', 'We saw lions tigers, and zebras at the zoo.'],
     answer: 'We saw lions, tigers and zebras at the zoo.',
+    explain: 'In a list, put a comma between the things, and use **and** before the last one.' },
+  { id: 'pu-com-3', skill: 'commas', level: 3, prompt: 'Which sentence uses commas correctly?',
+    options: ['Mum bought eggs, milk and bread.', 'Mum bought eggs milk and bread.', 'Mum bought, eggs milk and bread.', 'Mum bought eggs milk, and bread.'],
+    answer: 'Mum bought eggs, milk and bread.',
+    explain: 'In a list, put a comma between the things, and use **and** before the last one.' },
+  { id: 'pu-com-4', skill: 'commas', level: 3, prompt: 'Which sentence uses commas correctly?',
+    options: ['My favourite colours are red, blue and green.', 'My favourite colours are red blue and green.', 'My favourite colours are, red blue and green.', 'My favourite colours are red blue, and green.'],
+    answer: 'My favourite colours are red, blue and green.',
     explain: 'In a list, put a comma between the things, and use **and** before the last one.' }
 ]);
 
@@ -16430,7 +16962,9 @@ var EL_PASSAGES = [
       'At noon, they had lunch at the food court. Mei ate fried rice and drank apple juice.',
       'Before they went home, Mei bought a small toy giraffe at the gift shop. She was tired but very happy.'],
     items: [
-      { id: 'el-c-zoo-1', skill: 'literal', type: 'mcq', prompt: 'When did Mei go to the zoo?', options: ['last Saturday', 'last Sunday', 'on Monday', 'yesterday'],
+      // Not "yesterday" as a wrong option: if today were Sunday, yesterday
+      // would be last Saturday, and the option would be right.
+      { id: 'el-c-zoo-1', skill: 'literal', type: 'mcq', prompt: 'When did Mei go to the zoo?', options: ['last Saturday', 'last Sunday', 'last Monday', 'last Friday'],
         answer: 'last Saturday', explain: 'The passage says: "**Last Saturday**, Mei went to the zoo with her parents."' },
       { id: 'el-c-zoo-2', skill: 'literal', type: 'mcq', prompt: 'What was the baby elephant doing?',
         options: ['spraying water with its trunk', 'eating a banana in a tree', 'sleeping in the sun', 'drinking apple juice'],
@@ -16498,8 +17032,10 @@ var EL_PASSAGES = [
       { id: 'el-c-but-4', skill: 'sequence', type: 'arrange', list: true, prompt: 'Put the stages in order, starting with the first.',
         tiles: ['egg', 'caterpillar', 'pupa', 'butterfly'], answer: ['egg', 'caterpillar', 'pupa', 'butterfly'],
         explain: 'Egg, then the caterpillar hatches, then it makes a pupa, then the butterfly comes out.' },
-      { id: 'el-c-but-5', skill: 'true-false', type: 'mcq', order: 'keep', prompt: 'True or false? The butterfly\'s wings are dry when it first comes out.',
-        options: EL_TF, answer: 'False', explain: 'The passage says: "Its wings are **wet** at first."' }
+      // True, where most true-or-false items are false, so that "false"
+      // is never a safe guess.
+      { id: 'el-c-but-5', skill: 'true-false', type: 'mcq', order: 'keep', prompt: 'True or false? The butterfly\'s wings are wet when it first comes out.',
+        options: EL_TF, answer: 'True', explain: 'The passage says: "Its wings are **wet** at first."' }
     ] },
 
   { id: 'el-p-puppy', section: 'comp', title: 'The Lost Puppy', paras: [
@@ -16540,6 +17076,48 @@ var EL_PASSAGES = [
         explain: 'Step 4 says: "Mix the fruit gently with the **spoon**."' },
       { id: 'el-c-sal-5', skill: 'true-false', type: 'mcq', order: 'keep', prompt: 'True or false? You put the fruit into the bowl before you cut it.',
         options: EL_TF, answer: 'False', explain: 'You cut the fruit in **Step 2**, and put it into the bowl in **Step 3**, so the cutting comes first.' }
+    ] },
+
+  { id: 'el-p-garden', section: 'comp', title: 'Grandpa\'s Garden', paras: [
+      'Last Sunday, Amy helped Grandpa in his garden. Grandpa grows tomatoes, chillies and long beans.',
+      'First, Amy watered the plants with a green watering can. Then, she pulled out the weeds.',
+      'Suddenly, Amy saw a big caterpillar on a tomato leaf. It was eating the leaf! Grandpa picked it up gently and put it on a tree, far away from his plants.',
+      'Before Amy went home, Grandpa gave her a basket of red tomatoes. "Thank you, Grandpa!" said Amy.'],
+    items: [
+      { id: 'el-c-gar-1', skill: 'literal', type: 'mcq', prompt: 'When did Amy help Grandpa in his garden?', options: ['last Sunday', 'last Saturday', 'last Monday', 'last Friday'],
+        answer: 'last Sunday', explain: 'The passage says: "**Last Sunday**, Amy helped Grandpa in his garden."' },
+      { id: 'el-c-gar-2', skill: 'literal', type: 'word', prompt: 'What colour was the watering can?', answer: 'green',
+        explain: 'The passage says: "Amy watered the plants with a **green** watering can."' },
+      { id: 'el-c-gar-3', skill: 'sequence', type: 'arrange', list: true, prompt: 'Put these in the order they happened.',
+        tiles: ['Amy watered the plants.', 'Amy saw a caterpillar.', 'Grandpa gave Amy some tomatoes.'],
+        answer: ['Amy watered the plants.', 'Amy saw a caterpillar.', 'Grandpa gave Amy some tomatoes.'],
+        explain: 'Look for the order words: **First**, Amy watered the plants. Then she saw the caterpillar. **Before Amy went home**, Grandpa gave her the tomatoes.' },
+      { id: 'el-c-gar-4', skill: 'inference', type: 'mcq', prompt: 'Why did Grandpa move the caterpillar?',
+        options: ['It was eating a tomato leaf.', 'It was very small.', 'Amy wanted to keep it.', 'It was raining.'],
+        answer: 'It was eating a tomato leaf.', explain: 'The caterpillar "was eating the leaf!" Grandpa moved it "far away from his plants", so it could not eat them.' },
+      { id: 'el-c-gar-5', skill: 'true-false', type: 'mcq', order: 'keep', prompt: 'True or false? Grandpa grows long beans in his garden.',
+        options: EL_TF, answer: 'True', explain: 'The passage says: "Grandpa grows tomatoes, chillies and **long beans**."' }
+    ] },
+
+  { id: 'el-p-reading', section: 'comp', title: 'Our Reading Corner', paras: [
+      'Class 1B has a new reading corner. It has a shelf with forty storybooks and two soft beanbags to sit on.',
+      'These are the rules for our reading corner:',
+      '1. Take one book at a time.',
+      '2. Speak softly, because others are reading.',
+      '3. When you finish, put the book back on the shelf.',
+      'On Fridays, you may borrow a book to take home. Please bring it back on Monday.'],
+    items: [
+      { id: 'el-c-rea-1', skill: 'literal', type: 'mcq', prompt: 'Which class has the new reading corner?', options: ['Class 1B', 'Class 1A', 'Class 2B', 'Class 2A'],
+        answer: 'Class 1B', explain: 'The passage says: "**Class 1B** has a new reading corner."' },
+      { id: 'el-c-rea-2', skill: 'literal', type: 'mcq', prompt: 'How many storybooks are on the shelf?', options: ['forty', 'fourteen', 'four', 'two'],
+        answer: 'forty', explain: 'The passage says: "It has a shelf with **forty** storybooks." (Two is the number of beanbags.)' },
+      { id: 'el-c-rea-3', skill: 'inference', type: 'mcq', prompt: 'Lin has finished reading a book in the reading corner. What should Lin do?',
+        options: ['put the book back on the shelf', 'leave the book on a beanbag', 'take two more books', 'read the book aloud'],
+        answer: 'put the book back on the shelf', explain: 'Rule 3 says: "When you finish, **put the book back on the shelf**."' },
+      { id: 'el-c-rea-4', skill: 'literal', type: 'word', prompt: 'On which day may you borrow a book to take home? On ___.', answer: 'Friday', accept: ['Fridays'],
+        explain: 'The passage says: "On **Fridays**, you may borrow a book to take home."' },
+      { id: 'el-c-rea-5', skill: 'true-false', type: 'mcq', order: 'keep', prompt: 'True or false? You can sit on a beanbag in the reading corner.',
+        options: EL_TF, answer: 'True', explain: 'The passage says the corner has "two soft **beanbags to sit on**."' }
     ] }
 ];
 
@@ -16656,6 +17234,12 @@ mlAdd('kosa', [
     gloss: 'At night, we can see the moon in the sky.', explain: 'At night (**waktu malam**) we see the **bulan** (moon). The matahari (sun) shines in the day.' },
   { id: 'ko-ctx-18', skill: 'perkataan', prompt: 'Saya tidur di atas ___.', options: ['katil', 'pinggan', 'cawan', 'pensel'], answer: 'katil',
     gloss: 'I sleep on the bed.', explain: 'We sleep on a **katil** (bed).' },
+  { id: 'ko-ctx-19', skill: 'perkataan', prompt: 'Saya memotong kertas dengan ___.', options: ['gunting', 'sudu', 'bantal', 'cawan'], answer: 'gunting',
+    gloss: 'I cut paper with scissors.', explain: 'We cut paper with **gunting** (scissors). Sudu is a spoon, bantal is a pillow and cawan is a cup.' },
+  { id: 'ko-ctx-20', skill: 'perkataan', prompt: 'Ikan berenang di dalam ___.', options: ['air', 'pasir', 'pokok', 'awan'], answer: 'air',
+    gloss: 'Fish swim in water.', explain: 'Fish swim in **air** (water). Pasir is sand, pokok is a tree and awan is a cloud.' },
+  { id: 'ko-ctx-21', skill: 'perkataan', prompt: 'Gula rasanya ___.', options: ['manis', 'masin', 'pahit', 'masam'], answer: 'manis',
+    gloss: 'Sugar tastes sweet.', explain: '**Gula** (sugar) tastes **manis** (sweet). Masin is salty, pahit is bitter and masam is sour.' },
 
   // Pictures
   { id: 'ko-pic-1', skill: 'gambar', prompt: 'Pilih perkataan yang sesuai dengan gambar.', visual: { kind: 'emoji', text: '🐱' },
@@ -16688,6 +17272,14 @@ mlAdd('kosa', [
     options: ['nasi', 'mi', 'roti', 'kuih'], answer: 'nasi', gloss: 'rice', explain: 'This is **nasi** (cooked rice).' },
   { id: 'ko-pic-15', skill: 'gambar', prompt: 'Pilih perkataan yang sesuai dengan gambar.', visual: { kind: 'emoji', text: '🚌' },
     options: ['bas', 'teksi', 'kereta api', 'kapal terbang'], answer: 'bas', gloss: 'bus', explain: 'This is a **bas** (bus).' },
+  { id: 'ko-pic-16', skill: 'gambar', prompt: 'Pilih perkataan yang sesuai dengan gambar.', visual: { kind: 'emoji', text: '🐶' },
+    options: ['anjing', 'kucing', 'kambing', 'lembu'], answer: 'anjing', gloss: 'dog', explain: 'This is an **anjing** (dog).' },
+  { id: 'ko-pic-17', skill: 'gambar', prompt: 'Pilih perkataan yang sesuai dengan gambar.', visual: { kind: 'emoji', text: '🍎' },
+    options: ['epal', 'oren', 'pisang', 'anggur'], answer: 'epal', gloss: 'apple', explain: 'This is an **epal** (apple).' },
+  { id: 'ko-pic-18', skill: 'gambar', prompt: 'Pilih perkataan yang sesuai dengan gambar.', visual: { kind: 'emoji', text: '🚗' },
+    options: ['kereta', 'bas', 'basikal', 'kapal'], answer: 'kereta', gloss: 'car', explain: 'This is a **kereta** (car).' },
+  { id: 'ko-pic-19', skill: 'gambar', prompt: 'Pilih perkataan yang sesuai dengan gambar.', visual: { kind: 'emoji', text: '👀' },
+    options: ['mata', 'hidung', 'telinga', 'mulut'], answer: 'mata', gloss: 'eyes', explain: 'These are **mata** (eyes).' },
 
   // Penjodoh bilangan: only nouns with one accepted classifier
   { id: 'ko-pb-1', skill: 'penjodoh-bilangan', prompt: 'Ayah membeli ___ kereta baharu.', options: ['sebuah', 'seekor', 'seorang', 'sehelai'], answer: 'sebuah',
@@ -16714,6 +17306,14 @@ mlAdd('kosa', [
     gloss: 'There are two rabbits at my house.', explain: 'Animals take **ekor**: dua **ekor** arnab.' },
   { id: 'ko-pb-12', skill: 'penjodoh-bilangan', prompt: 'Ravi menulis di atas ___ kertas.', options: ['sehelai', 'sebiji', 'seekor', 'sebatang'], answer: 'sehelai',
     gloss: 'Ravi writes on a sheet of paper.', explain: 'Paper is thin and flat, so it takes **helai**: **sehelai** kertas.' },
+  { id: 'ko-pb-13', skill: 'penjodoh-bilangan', prompt: 'Saya memberi ibu ___ kad hari jadi.', options: ['sekeping', 'seekor', 'seorang', 'sebatang'], answer: 'sekeping',
+    gloss: 'I gave Mother a birthday card.', explain: 'A card is flat and stiff, so it takes **keping**: **sekeping** kad.' },
+  { id: 'ko-pb-14', skill: 'penjodoh-bilangan', prompt: 'Di dalam kelas saya ada tiga puluh ___ murid.', options: ['orang', 'ekor', 'buah', 'biji'], answer: 'orang',
+    gloss: 'There are thirty pupils in my class.', explain: 'People take **orang**: tiga puluh **orang** murid.' },
+  { id: 'ko-pb-15', skill: 'penjodoh-bilangan', prompt: 'Ali tinggal di ___ rumah yang besar.', options: ['sebuah', 'seekor', 'sehelai', 'sebatang'], answer: 'sebuah',
+    gloss: 'Ali lives in a big house.', explain: 'Big things like a house, a car or a bus take **buah**: **sebuah** rumah.' },
+  { id: 'ko-pb-16', skill: 'penjodoh-bilangan', prompt: 'Ada ___ daun di atas meja.', options: ['sehelai', 'seekor', 'seorang', 'sebuah'], answer: 'sehelai',
+    gloss: 'There is a leaf on the table.', explain: 'Thin, flat things like a leaf, paper or clothes take **helai**: **sehelai** daun.' },
 
   // Kata tanya, with the answer that settles which question word fits
   { id: 'ko-kt-1', skill: 'kata-tanya', prompt: 'Soalan: ___ kamu pergi ke sekolah?\nJawapan: Saya pergi ke sekolah dengan bas.',
@@ -16736,13 +17336,21 @@ mlAdd('kosa', [
     gloss: 'When do you wake up? I wake up at six in the morning.', explain: 'The answer is a time, so we ask **Bila** (when).' },
   { id: 'ko-kt-7', skill: 'kata-tanya', prompt: 'Soalan: ___ yang kamu makan?\nJawapan: Saya makan nasi lemak.',
     options: ['Apa', 'Siapa', 'Bila', 'Di mana'], answer: 'Apa',
-    gloss: 'What are you eating? I am eating nasi lemak.', explain: 'The answer is a thing, so we ask **Apa** (what).' }
+    gloss: 'What are you eating? I am eating nasi lemak.', explain: 'The answer is a thing, so we ask **Apa** (what).' },
+  { id: 'ko-kt-8', skill: 'kata-tanya', prompt: 'Soalan: ___ kamu meletakkan beg kamu?\nJawapan: Saya meletakkan beg saya di atas kerusi.',
+    options: ['Di mana', 'Siapa', 'Bila', 'Berapa'], answer: 'Di mana',
+    gloss: 'Where did you put your bag? I put my bag on the chair.', explain: 'The answer is a place (**di atas kerusi**, on the chair), so we ask **Di mana** (where).' },
+  // Not "Apa" as a wrong option: "Apa rasa kuih itu?" is heard too.
+  { id: 'ko-kt-9', skill: 'kata-tanya', prompt: 'Soalan: ___ rasa kuih itu?\nJawapan: Kuih itu sedap.',
+    options: ['Bagaimana', 'Siapa', 'Di mana', 'Bila'], answer: 'Bagaimana',
+    gloss: 'How does the kuih taste? The kuih is delicious.', explain: 'The answer tells us what the taste is like (**sedap**, delicious), so we ask **Bagaimana** (how).' }
 ]);
 
 // ---- IMBUHAN --------------------------------------------------------------------------
 
 function mlType(id, prefix, root, answer, rule, gloss, level) {
-  return { id: id, skill: 'imbuhan-' + prefix, type: 'word', level: level || 1,
+  // spell: the form must not be printed anywhere else on the same paper.
+  return { id: id, skill: 'imbuhan-' + prefix, type: 'word', level: level || 1, spell: true,
     prompt: 'Tambahkan imbuhan **' + prefix + '-** pada kata dasar **' + root + '**.', answer: answer,
     explain: rule, gloss: answer + ' = ' + gloss };
 }
@@ -16833,7 +17441,17 @@ mlAdd('imbuhan', [
 // ---- SUSUN PERKATAAN ------------------------------------------------------------------
 // As on a paper, the word that starts the sentence carries the capital
 // letter, and the full stop is given. Where Malay genuinely allows a
-// second order, it is accepted.
+// second order, it is accepted. Three ways a second order sneaks in, each
+// found while writing these, and avoided:
+//   - A person noun later in the sentence can join the first word as a
+//     possessive. "Cikgu mengajar kami membaca" can also be "Cikgu kami
+//     mengajar membaca" (our teacher teaches reading); "Ali membantu ibu
+//     di dapur" can be "Ali membantu di dapur ibu" (in Mother's kitchen).
+//   - Ke + a place can stand as the verb: with "Kami naik bas ke zoo",
+//     "Kami ke zoo naik bas" is just as good.
+//   - Two nouns can make a compound: "padang bola", "tabung duit",
+//     "bilik tidur". The tiles never offer one by accident.
+// Time words (setiap hari, pada waktu pagi) move freely, so none are used.
 
 function mlSusun(id, tiles, gloss, accept, level) {
   return { id: id, skill: 'susun', type: 'arrange', level: level || 1, end: '.',
@@ -16857,13 +17475,14 @@ mlAdd('susun', [
   mlSusun('su-8', ['Adik', 'pergi', 'ke', 'sekolah', 'dengan', 'bas'], 'My younger sibling goes to school by bus.',
     [['Adik', 'pergi', 'dengan', 'bas', 'ke', 'sekolah']], 2),
   mlSusun('su-9', ['Datuk', 'membaca', 'buku', 'di', 'ruang tamu'], 'Grandfather reads a book in the living room.'),
-  mlSusun('su-11', ['Ibu', 'membeli', 'sayur', 'di', 'pasar'], 'Mother buys vegetables at the market.'),
+  mlSusun('su-11', ['Ibu', 'memberi', 'hadiah', 'kepada', 'adik'], 'Mother gives a present to my younger sibling.'),
   mlSusun('su-12', ['Saya', 'menggosok', 'gigi', 'dengan', 'berus gigi'], 'I brush my teeth with a toothbrush.'),
   mlSusun('su-13', ['Nenek', 'sedang', 'menjahit', 'baju'], 'Grandmother is sewing clothes.'),
   mlSusun('su-14', ['Burung', 'itu', 'terbang', 'tinggi'], 'The bird flies high.'),
   mlSusun('su-15', ['Kami', 'berkelah', 'di', 'tepi', 'pantai'], 'We have a picnic by the beach.'),
-  mlSusun('su-16', ['Adik', 'menangis', 'kerana', 'lapar'], 'My younger sibling cries because of hunger.'),
-  mlSusun('su-17', ['Cikgu', 'mengajar', 'kami', 'membaca'], 'The teacher teaches us to read.'),
+  mlSusun('su-16', ['Adik', 'duduk', 'di atas', 'lantai'], 'My younger sibling sits on the floor.'),
+  mlSusun('su-17', ['Cikgu', 'mengajar', 'kami', 'membaca'], 'The teacher teaches us to read.',
+    [['Cikgu', 'kami', 'mengajar', 'membaca']]),
   mlSusun('su-18', ['Abang', 'bermain', 'badminton', 'dengan', 'ayah'], 'My older brother plays badminton with Father.',
     [['Abang', 'dengan', 'ayah', 'bermain', 'badminton']], 2),
   mlSusun('su-19', ['Saya', 'memakai', 'baju', 'merah'], 'I am wearing a red shirt.'),
@@ -16873,7 +17492,24 @@ mlAdd('susun', [
   mlSusun('su-23', ['Gajah', 'mempunyai', 'belalai', 'yang', 'panjang'], 'An elephant has a long trunk.', null, 2),
   mlSusun('su-24', ['Kami', 'menonton', 'televisyen', 'bersama-sama'], 'We watch television together.',
     [['Kami', 'bersama-sama', 'menonton', 'televisyen']], 2),
-  mlSusun('su-25', ['Ali', 'membantu', 'ibu', 'di', 'dapur'], 'Ali helps Mother in the kitchen.')
+  mlSusun('su-25', ['Ali', 'mandi', 'di', 'bilik air'], 'Ali takes a bath in the bathroom.'),
+  mlSusun('su-26', ['Kambing', 'suka', 'makan', 'rumput'], 'Goats like to eat grass.'),
+  mlSusun('su-27', ['Nenek', 'menanam', 'pokok bunga', 'di', 'halaman rumah'], 'Grandmother plants flowers in the front yard.', null, 2),
+  mlSusun('su-28', ['Ali', 'memberi', 'makanan', 'kepada', 'kucing'], 'Ali gives food to the cat.'),
+  mlSusun('su-29', ['Ayah', 'minum', 'kopi', 'panas'], 'Father drinks hot coffee.'),
+  mlSusun('su-30', ['Kakak', 'memakai', 'cermin mata', 'baharu'], 'My older sister wears new glasses.'),
+  mlSusun('su-31', ['Kakak', 'menyikat', 'rambutnya', 'yang', 'panjang'], 'My older sister combs her long hair.', null, 2),
+  mlSusun('su-32', ['Ayah', 'membaiki', 'kipas', 'di', 'ruang tamu'], 'Father repairs the fan in the living room.'),
+  mlSusun('su-33', ['Nenek', 'membuat', 'kuih', 'untuk', 'kami'], 'Grandmother makes kuih for us.'),
+  mlSusun('su-34', ['Kakak', 'pergi', 'ke', 'perpustakaan'], 'My older sister goes to the library.'),
+  mlSusun('su-35', ['Adik', 'sedang', 'tidur', 'di atas', 'sofa'], 'My younger sibling is sleeping on the sofa.'),
+  mlSusun('su-36', ['Burung', 'membuat', 'sarang', 'di atas', 'pokok'], 'Birds build nests in trees.'),
+  mlSusun('su-37', ['Murid-murid', 'beratur', 'di', 'kantin'], 'The pupils queue at the canteen.'),
+  mlSusun('su-38', ['Kami', 'mengucapkan', 'terima kasih', 'kepada', 'cikgu'], 'We say thank you to the teacher.', null, 2),
+  mlSusun('su-39', ['Abang', 'melompat', 'ke dalam', 'kolam'], 'My older brother jumps into the pool.'),
+  mlSusun('su-40', ['Baju', 'adik', 'berwarna', 'biru'], 'My younger sibling\'s shirt is blue.'),
+  mlSusun('su-41', ['Adik', 'menonton', 'kartun', 'di', 'televisyen'], 'My younger sibling watches cartoons on television.'),
+  mlSusun('su-42', ['Kami', 'menyambut', 'hari jadi', 'adik'], 'We celebrate my younger sibling\'s birthday.')
 ]);
 
 // ---- PROSEDUR KLOZ --------------------------------------------------------------------
@@ -16885,7 +17521,9 @@ function mlKloz(passageId, blank, options, answer, explain, skill) {
 }
 
 var ML_KLOZ = [
-  { id: 'ml-p-pasar', section: 'kloz', kind: 'kloz', title: 'Ke Pasar',
+  // A title is part of the passage: "Ke Pasar" here answered blank (1),
+  // "pergi ___ pasar", before she had read a word.
+  { id: 'ml-p-pasar', section: 'kloz', kind: 'kloz', title: 'Menolong Ibu',
     gloss: 'On Saturday, I went to the market with Mother. At the market, we bought vegetables and fish. Mother bought two big fish. The bag was heavy, so I carried the bag for Mother. I felt happy because I could help Mother.',
     paras: ['Pada hari Sabtu, saya pergi {1} pasar bersama ibu. Di pasar, kami membeli sayur {2} ikan. Ibu membeli dua {3} ikan yang besar. Beg itu berat, jadi saya {4} beg itu untuk ibu. Saya berasa {5} kerana dapat menolong ibu.'],
     items: [
@@ -16949,6 +17587,32 @@ var ML_KLOZ = [
       mlKloz('ml-p-taman', 3, ['risau', 'gembira', 'bangga'], 'risau', 'A friend was hurt and bleeding, so Ali felt **risau** (worried).', 'perkataan'),
       mlKloz('ml-p-taman', 4, ['ke', 'di', 'pada'], 'ke', 'We say **pulang ke** rumah (go home).', 'kata-sendi'),
       mlKloz('ml-p-taman', 5, ['dengan', 'ke', 'di'], 'dengan', 'The wound was cleaned **dengan** (with) medicine.', 'kata-sendi')
+    ] },
+
+  // Not "dipilih" for (3): "saya dipilih" (I was chosen) is good Malay.
+  { id: 'ml-p-kedaibuku', section: 'kloz', kind: 'kloz', title: 'Buku Baharu',
+    gloss: 'On Saturday, Father took me to the bookshop. The shop was big and bright. There, I chose a book about dinosaurs. Father also bought two pencils for my younger sibling. I felt very happy because I got a new book.',
+    paras: ['Pada hari Sabtu, ayah membawa saya {1} kedai buku. Kedai itu besar {2} terang. Di sana, saya {3} sebuah buku tentang dinosaur. Ayah juga membeli dua {4} pensel untuk adik. Saya berasa sangat {5} kerana mendapat buku baharu.'],
+    items: [
+      mlKloz('ml-p-kedaibuku', 1, ['ke', 'di', 'pada'], 'ke', 'We say **membawa** someone **ke** (to) a place. **Di** tells where something is, not where we go.', 'kata-sendi'),
+      mlKloz('ml-p-kedaibuku', 2, ['dan', 'atau', 'supaya'], 'dan', '**Dan** (and) joins the two words that describe the shop: besar **dan** terang (big and bright).', 'kata-hubung'),
+      mlKloz('ml-p-kedaibuku', 3, ['memilih', 'pilihan', 'pemilihan'], 'memilih', 'The writer is doing the action, so we need **memilih** (chose). Pilihan and pemilihan are things, not actions.', 'imbuhan'),
+      mlKloz('ml-p-kedaibuku', 4, ['batang', 'ekor', 'orang'], 'batang', 'Long, thin things like pencils take **batang**: dua **batang** pensel.', 'penjodoh-bilangan'),
+      mlKloz('ml-p-kedaibuku', 5, ['seronok', 'marah', 'takut'], 'seronok', 'Getting a new book is a happy thing, so the writer felt **seronok** (happy).', 'perkataan')
+    ] },
+
+  // Not "pelari" (a runner) for (3): Malay needs no "is", so person nouns
+  // are never wrong options. Not "atau" for (4): "Ibu atau ayah bersorak"
+  // (Mother or Father cheered) is a good sentence.
+  { id: 'ml-p-harisukan', section: 'kloz', kind: 'kloz', title: 'Hari Sukan',
+    gloss: 'Today is Sports Day at my school. All the pupils gathered at the field. Five pupils took part in the running race. I ran very fast. In the end, I came first! Mother and Father cheered happily. I felt very proud.',
+    paras: ['Hari ini Hari Sukan di sekolah saya. Semua murid berkumpul {1} padang. Lima {2} murid menyertai acara lari. Saya {3} dengan laju sekali. Akhirnya, saya mendapat tempat pertama! Ibu {4} ayah bersorak dengan gembira. Saya berasa sangat {5}.'],
+    items: [
+      mlKloz('ml-p-harisukan', 1, ['di', 'kepada', 'daripada'], 'di', '**Di** tells us where the pupils gathered: **di** padang (at the field). Kepada and daripada are not used for a place.', 'kata-sendi'),
+      mlKloz('ml-p-harisukan', 2, ['orang', 'ekor', 'buah'], 'orang', 'People take **orang**: lima **orang** murid.', 'penjodoh-bilangan'),
+      mlKloz('ml-p-harisukan', 3, ['berlari', 'larian', 'melarikan'], 'berlari', 'The writer is doing the action, so we need **berlari** (ran). A larian is a run, a thing, and melarikan needs a thing after it.', 'imbuhan'),
+      mlKloz('ml-p-harisukan', 4, ['dan', 'tetapi', 'supaya'], 'dan', '**Dan** (and) joins Mother and Father: ibu **dan** ayah.', 'kata-hubung'),
+      mlKloz('ml-p-harisukan', 5, ['bangga', 'sedih', 'takut'], 'bangga', 'The writer came first in the race, so the writer felt **bangga** (proud).', 'perkataan')
     ] }
 ];
 
@@ -17068,6 +17732,44 @@ var ML_KEFAHAMAN = [
         'The passage says: "Kami juga melambai-lambaikan **bendera kecil**."', 'What did the pupils wave? Small flags.'),
       mlQ('ml-f-keb-5', 'Bagaimanakah perasaan penulis?', ['bangga', 'takut', 'marah', 'sedih'], 'bangga',
         'The passage says: "Saya **bangga** menjadi rakyat Singapura."', 'How does the writer feel? Proud.', 'tersirat')
+    ] },
+
+  // A Saturday, not "malam Jumaat": in Malay that is Thursday night, the
+  // night before Friday, which would trip up a parent checking the gloss.
+  { id: 'ml-p-pasarmalam', section: 'kefahaman', title: 'Pasar Malam',
+    gloss: 'On Saturday, my family and I went to the night market. The night market was crowded. Father bought satay and sugarcane juice. Mother bought a shirt for my younger sibling. I bought a yellow balloon. We went home at nine o\'clock at night. I felt tired but happy.',
+    paras: ['Pada hari Sabtu, saya dan keluarga pergi ke pasar malam. Pasar malam itu ramai orang.',
+            'Ayah membeli sate dan air tebu. Ibu membeli sehelai baju untuk adik. Saya membeli belon berwarna kuning.',
+            'Kami pulang ke rumah pada pukul sembilan malam. Saya berasa penat tetapi gembira.'],
+    items: [
+      mlQ('ml-f-pm-1', 'Bilakah penulis pergi ke pasar malam?', ['pada hari Sabtu', 'pada hari Ahad', 'pada hari Isnin', 'pada hari Rabu'], 'pada hari Sabtu',
+        'The passage says: "**Pada hari Sabtu**, saya dan keluarga pergi ke pasar malam."', 'When did the writer go to the night market? On Saturday.'),
+      mlQ('ml-f-pm-2', 'Apakah yang dibeli oleh ayah?', ['sate dan air tebu', 'baju dan seluar', 'belon dan mainan', 'nasi dan ayam'], 'sate dan air tebu',
+        'The passage says: "Ayah membeli **sate dan air tebu**."', 'What did Father buy? Satay and sugarcane juice.'),
+      mlQ('ml-f-pm-3', 'Untuk siapakah ibu membeli baju?', ['untuk adik', 'untuk ayah', 'untuk nenek', 'untuk penulis'], 'untuk adik',
+        'The passage says: "Ibu membeli sehelai baju **untuk adik**."', 'Who did Mother buy the shirt for? For the writer\'s younger sibling.'),
+      mlQ('ml-f-pm-4', 'Pukul berapakah mereka pulang ke rumah?', ['pukul sembilan malam', 'pukul sembilan pagi', 'pukul tujuh malam', 'pukul lima petang'], 'pukul sembilan malam',
+        'The passage says: "Kami pulang ke rumah pada **pukul sembilan malam**."', 'What time did they go home? Nine o\'clock at night.'),
+      mlQ('ml-f-pm-5', 'Bagaimanakah perasaan penulis pada akhir cerita?', ['penat tetapi gembira', 'sedih dan takut', 'marah dan lapar', 'sakit dan sedih'], 'penat tetapi gembira',
+        'The passage says: "Saya berasa **penat tetapi gembira**."', 'How did the writer feel at the end of the story? Tired but happy.')
+    ] },
+
+  { id: 'ml-p-arnab', section: 'kefahaman', title: 'Arnab Adik',
+    gloss: 'My younger sibling has a rabbit. Its name is Comel. Comel\'s fur is white and soft. Its ears are long. Every morning, my younger sibling gives Comel carrots and vegetables. One day, Comel went missing! My younger sibling was very sad. We looked for Comel all over the house. In the end, Father found Comel under the bed. My younger sibling was happy again.',
+    paras: ['Adik ada seekor arnab. Namanya Comel. Bulu Comel putih dan lembut. Telinganya panjang.',
+            'Setiap pagi, adik memberi Comel lobak merah dan sayur.',
+            'Pada suatu hari, Comel hilang! Adik sangat sedih. Kami mencari Comel di seluruh rumah. Akhirnya, ayah menjumpai Comel di bawah katil. Adik gembira semula.'],
+    items: [
+      mlQ('ml-f-arn-1', 'Apakah nama arnab adik?', ['Comel', 'Tompok', 'Putih', 'Manja'], 'Comel',
+        'The passage says: "Namanya **Comel**." (Putih is the colour of its fur.)', 'What is the rabbit\'s name? Comel.'),
+      mlQ('ml-f-arn-2', 'Bagaimanakah bulu Comel?', ['putih dan lembut', 'hitam dan kasar', 'coklat dan panjang', 'kelabu dan pendek'], 'putih dan lembut',
+        'The passage says: "Bulu Comel **putih dan lembut**."', 'What is Comel\'s fur like? White and soft.'),
+      mlQ('ml-f-arn-3', 'Apakah yang diberikan oleh adik kepada Comel setiap pagi?', ['lobak merah dan sayur', 'ikan dan nasi', 'roti dan susu', 'pisang dan epal'], 'lobak merah dan sayur',
+        'The passage says: "Setiap pagi, adik memberi Comel **lobak merah dan sayur**."', 'What does the writer\'s younger sibling give Comel every morning? Carrots and vegetables.'),
+      mlQ('ml-f-arn-4', 'Mengapakah adik sangat sedih?', ['Comel hilang.', 'Comel sakit.', 'Adik terjatuh.', 'Adik lapar.'], 'Comel hilang.',
+        'The passage says: "Pada suatu hari, **Comel hilang**! Adik sangat sedih."', 'Why was the younger sibling very sad? Comel was missing.', 'tersirat'),
+      mlQ('ml-f-arn-5', 'Di manakah ayah menjumpai Comel?', ['di bawah katil', 'di dalam almari', 'di taman', 'di dapur'], 'di bawah katil',
+        'The passage says: "Akhirnya, ayah menjumpai Comel **di bawah katil**."', 'Where did Father find Comel? Under the bed.')
     ] }
 ];
 
@@ -17138,9 +17840,12 @@ function examDate(ts) {
   return d.getDate() + ' ' + months[d.getMonth()];
 }
 
+// "Practice Paper", never "Paper 1": in a Singapore school, Paper 1 and
+// Paper 2 are the two parts of the real exam.
 function examModeLabel(att) {
   var def = EXAM_SUBJECTS[att.subject];
-  if (att.mode === 'full') return 'Full paper';
+  if (att.mode === 'paper') return 'Practice Paper ' + att.paperNo;
+  if (att.mode === 'full') return 'Mixed paper';
   if (att.mode === 'redo') return 'Mistakes redo';
   var sec = def && examSectionDef(def, att.sectionId);
   return (sec ? sec.name : 'Section') + ' practice';
@@ -17203,19 +17908,33 @@ function examHubHTML() {
 
   h += '<div class="exam-subjects">';
   examSubjectList().forEach(function (def) {
-    var atts = examAttemptsFor(def.id).filter(function (a) { return a.mode === 'full'; });
-    var best = examBest(def.id, 'full', null);
     var count = examPaperSize(def);
+    var next = examNextPaper(def.id);
+    var done = 0, grid = '';
+    for (var n = 1; n <= EXAM_PAPER_COUNT; n++) {
+      var best = examBest(def.id, 'paper', null, n);
+      if (best !== null) done++;
+      var pct = best === null ? null : Math.round(best * 100);
+      grid += '<button class="exam-paper-btn' + (best === null ? '' : ' done') + (best !== null && best >= 0.8 ? ' good' : '') +
+              (n === next ? ' next' : '') + '" data-act="intro" data-subject="' + def.id + '" data-mode="paper" data-paper="' + n + '"' +
+              ' aria-label="Practice Paper ' + n + (pct === null ? '' : ', best ' + pct + '%') + '"><b>' + n + '</b><small>' +
+              (pct === null ? (n === next ? 'next' : '&nbsp;') : pct + '%') + '</small></button>';
+    }
     h += '<div class="exam-subject exam-subject-' + def.id + '">';
     h += '<div class="exam-subject-top"><span class="exam-subject-icon">' + def.icon + '</span>' +
          '<div><div class="exam-subject-name">' + examEsc(def.name) + '</div>' +
          '<div class="exam-subject-secs">' + def.sections.map(function (s) { return examEsc(s.name); }).join(' · ') + '</div></div></div>';
-    h += '<div class="exam-subject-stats">' +
-         (best === null ? 'No full paper yet' : ('Best ' + Math.round(best * 100) + '% · ' + atts.length + ' full paper' + (atts.length === 1 ? '' : 's'))) +
-         '</div>';
+    // The obvious next step first, so a child who just wants to start
+    // has one button to press.
+    h += next
+      ? '<button class="lesson-btn lesson-btn-done exam-next-paper" data-act="intro" data-subject="' + def.id + '" data-mode="paper" data-paper="' + next + '">' +
+        (done ? 'Next: ' : 'Start ') + 'Practice Paper ' + next + ' · ' + count + ' questions</button>'
+      : '<div class="exam-all-done">🌟 All ' + EXAM_PAPER_COUNT + ' practice papers done. Try one again to beat your best, or a mixed paper.</div>';
+    h += '<div class="exam-papers-head"><span>Practice papers</span><span>' + done + ' of ' + EXAM_PAPER_COUNT + ' done</span></div>';
+    h += '<div class="exam-papers">' + grid + '</div>';
     h += '<div class="exam-subject-btns">' +
-         '<button class="lesson-btn lesson-btn-done" data-act="intro" data-subject="' + def.id + '" data-mode="full">Full paper · ' + count + ' questions</button>' +
-         '<button class="lesson-btn" data-act="intro" data-subject="' + def.id + '" data-mode="section">One section</button></div>';
+         '<button class="lesson-btn" data-act="intro" data-subject="' + def.id + '" data-mode="full">Mixed paper · new every time</button>' +
+         '<button class="lesson-btn" data-act="intro" data-subject="' + def.id + '" data-mode="section">One ' + (def.practice ? 'topic' : 'section') + '</button></div>';
     h += '</div>';
   });
   h += '</div>';
@@ -17255,7 +17974,20 @@ function examIntroHTML(v) {
   var secs = v.mode === 'section'
     ? examPracticeSections(def).filter(function (s) { return s.id === v.section; })
     : def.sections;
-  h += '<h2 class="exam-title">' + examEsc(def.name) + (v.mode === 'section' ? ': ' + examEsc(secs[0].name) : ': full paper') + '</h2>';
+  var heading = v.mode === 'section' ? examEsc(secs[0].name)
+              : v.mode === 'paper' ? 'Practice Paper ' + v.paper
+              : 'mixed paper';
+  h += '<h2 class="exam-title">' + examEsc(def.name) + ': ' + heading + '</h2>';
+  if (v.mode === 'full') {
+    h += '<p class="exam-sub">New questions every time, picked from the ones you have seen least.</p>';
+  }
+  if (v.mode === 'paper') {
+    var pbest = examBest(def.id, 'paper', null, v.paper);
+    if (pbest !== null) {
+      h += '<p class="exam-intro-again">You have done this paper before. Your best is <b>' + Math.round(pbest * 100) + '%</b>. ' +
+           'The questions are the same, but the answers are in a new order. Can you beat your best?</p>';
+    }
+  }
   h += '<ol class="exam-intro-secs">';
   secs.forEach(function (s) {
     var n = s.passages ? ((v.mode === 'section' ? (s.practicePassages || 2) : s.passages) + ' passage' +
@@ -17275,7 +18007,7 @@ function examIntroHTML(v) {
     h += '<p class="exam-warn">Starting this will throw away the paper you have in progress.</p>';
   }
   h += '<button class="lesson-btn lesson-btn-done exam-big" data-act="begin" data-subject="' + def.id +
-       '" data-mode="' + v.mode + '" data-section="' + (v.section || '') + '">Start</button></div>';
+       '" data-mode="' + v.mode + '" data-section="' + (v.section || '') + '" data-paper="' + (v.paper || '') + '">Start</button></div>';
   return h;
 }
 
@@ -17582,6 +18314,13 @@ function examResultsHTML(v) {
            wsec.id + '">Practise ' + examEsc(wsec.name) + '</button>';
     }
   }
+  if (att.mode === 'paper') {
+    var nextNo = examNextPaper(att.subject);
+    if (nextNo && nextNo !== att.paperNo) {
+      h += '<button class="lesson-btn" data-act="intro" data-subject="' + att.subject + '" data-mode="paper" data-paper="' + nextNo +
+           '">Next: Practice Paper ' + nextNo + '</button>';
+    }
+  }
   h += '</div></div>';
 
   h += '<div class="exam-filter">';
@@ -17691,7 +18430,7 @@ function examKeysHTML() {
        'The Malay sheet has a column for your reviewer to tick or flag each item.</p>';
   examSubjectList().forEach(function (def) {
     h += '<button class="lesson-btn" data-act="sheet" data-subject="' + def.id + '">' + def.icon + ' ' + examEsc(def.name) +
-         (def.id === 'ml' ? ' review sheet' : def.id === 'ma' ? ' worked examples' : ' answer key') + '</button>';
+         (def.id === 'ml' ? ' review sheet' : def.id === 'ma' ? ' worked examples and answer keys' : ' answer key') + '</button>';
   });
   return h + '</div>';
 }
@@ -17802,9 +18541,10 @@ function examAction(act, d) {
       return;
     case 'hub': examSave(); return examGo({ name: 'hub' });
     case 'history': return examGo({ name: 'history' });
-    case 'intro': return examGo({ name: 'intro', subject: d('subject'), mode: d('mode'), section: d('section') || null });
+    case 'intro': return examGo({ name: 'intro', subject: d('subject'), mode: d('mode'), section: d('section') || null,
+                                  paper: parseInt(d('paper'), 10) || null });
     case 'begin': {
-      var np = examStart(d('subject'), d('mode'), d('section') || null);
+      var np = examStart(d('subject'), d('mode'), d('section') || null, parseInt(d('paper'), 10) || null);
       if (np) examGo({ name: 'paper', index: 0 });
       return;
     }
@@ -17935,8 +18675,11 @@ if (typeof window !== 'undefined') {
 //  checked in one pass rather than item by item.
 //
 //  Maths is generated rather than banked, so its sheet shows each
-//  generator's scope and three worked examples drawn from a fixed seed.
-//  Printing the sheet twice gives the same examples.
+//  generator's scope and three worked examples drawn from a fixed seed,
+//  then the answer key to each practice paper. Printing the sheet twice
+//  gives the same examples.
+//
+//  English and Malay rows say which practice paper each item is in.
 // ============================================================
 
 function sheetEsc(s) {
@@ -17958,6 +18701,7 @@ var SHEET_CSS =
   '.how{background:#f4f4f6;border-radius:8px;padding:10px 14px;margin:10px 0 18px}.how li{margin:2px 0}' +
   'table{width:100%;border-collapse:collapse;margin:6px 0 14px}th,td{border:1px solid #c9c9cf;padding:6px 7px;vertical-align:top;text-align:left}' +
   'th{background:#ececf0;font-size:12px}tr{break-inside:avoid}.id{font:11px Menlo,monospace;color:#666;white-space:nowrap}' +
+  '.pp{width:40px;text-align:center;font-weight:700}' +
   '.opts span{display:inline-block;margin:1px 6px 1px 0;padding:0 5px;border-radius:4px;background:#f1f1f4}' +
   '.opts span.ok{background:#d9f5df;font-weight:700}.ans{font-weight:700;color:#0a6b2b}.gloss{color:#444;font-style:italic}' +
   '.why{color:#333}.box{width:34px;text-align:center}.note{width:22%}.passage{border:1px solid #c9c9cf;border-radius:8px;padding:10px 14px;margin:8px 0;break-inside:avoid}' +
@@ -17983,8 +18727,22 @@ function sheetLevel(q) {
   return q.level === 3 ? ' <span class="lvl">stretch</span>' : q.level === 2 ? ' <span class="lvl">harder</span>' : '';
 }
 
+/** Which practice paper each item and passage is in: { id: paperNo }. */
+function sheetPaperMap(subjectId) {
+  var map = {};
+  (examPaperPlan(subjectId) || []).forEach(function (paper) {
+    Object.keys(paper.sections).forEach(function (s) {
+      paper.sections[s].forEach(function (it) {
+        map[it.id] = paper.no;
+        if (it.passage) map[it.passage] = paper.no;
+      });
+    });
+  });
+  return map;
+}
+
 /** One row: the item, its answer and reason, and empty review boxes. */
-function sheetRow(q, withGloss) {
+function sheetRow(q, withGloss, paperNo) {
   var item = '<div>' + sheetText(q.prompt || '') + sheetLevel(q) + '</div>';
   if (q.visual && q.visual.kind === 'emoji') item += '<div style="font-size:28px">' + q.visual.text + '</div>';
   if (q.visual && q.visual.kind === 'scene') item += '<div class="why">[picture: the ' + sheetEsc(q.visual.who) + ' is ' + sheetEsc(q.visual.relation) + ' the object]</div>';
@@ -18011,32 +18769,37 @@ function sheetRow(q, withGloss) {
   var why = '<div class="why">' + sheetText(q.explain || '') + '</div>';
   if (withGloss && q.gloss) why = '<div class="gloss">' + sheetText(q.gloss) + '</div>' + why;
 
-  return '<tr><td class="id">' + sheetEsc(q.id.replace(/^(el|ml)-/, '')) + '</td><td>' + item + '</td><td>' + ans + '</td><td>' + why +
-         '</td><td class="box">☐</td><td class="box">☐</td><td class="note"></td></tr>';
+  return '<tr><td class="id">' + sheetEsc(q.id.replace(/^(el|ml)-/, '')) + '</td><td class="pp">' + (paperNo || '–') + '</td><td>' + item +
+         '</td><td>' + ans + '</td><td>' + why + '</td><td class="box">☐</td><td class="box">☐</td><td class="note"></td></tr>';
 }
 
 function sheetTable(rows) {
-  return '<table><thead><tr><th>ID</th><th>Item</th><th>Answer</th><th>' + 'Meaning and reason' +
+  return '<table><thead><tr><th>ID</th><th class="pp">Paper</th><th>Item</th><th>Answer</th><th>' + 'Meaning and reason' +
          '</th><th class="box">OK</th><th class="box">Fix</th><th class="note">Note</th></tr></thead><tbody>' + rows + '</tbody></table>';
 }
 
+var SHEET_PAPER_NOTE = 'The <b>Paper</b> column says which of the ' + EXAM_PAPER_COUNT + ' practice papers each question is in; ' +
+  'a dash means it appears only in mixed papers and section practice.';
+
 function sheetBanked(def, withGloss) {
+  var papers = sheetPaperMap(def.id);
   var h = '';
   def.sections.forEach(function (sec) {
     h += '<h2>' + sheetEsc(sec.name) + '</h2>';
     if (sec.instructions) h += '<div class="why">Instruction on the paper: <i>' + sheetEsc(sec.instructions) + '</i></div>';
     if (sec.passages) {
       (def.passages || []).filter(function (p) { return p.section === sec.id; }).forEach(function (p) {
-        h += '<h3>' + sheetEsc(p.title) + ' <span class="id">' + sheetEsc(p.id) + '</span></h3><div class="passage">';
+        h += '<h3>' + sheetEsc(p.title) + ' <span class="id">' + sheetEsc(p.id) +
+             (papers[p.id] ? ' · Practice Paper ' + papers[p.id] : '') + '</span></h3><div class="passage">';
         p.paras.forEach(function (para) {
           h += '<p>' + sheetText(para).replace(/\{(\d+)\}/g, '<b>($1)</b> ______') + '</p>';
         });
         if (withGloss && p.gloss) h += '<p class="gloss">' + sheetText(p.gloss) + '</p>';
-        h += '</div>' + sheetTable(p.items.map(function (q) { return sheetRow(q, withGloss); }).join(''));
+        h += '</div>' + sheetTable(p.items.map(function (q) { return sheetRow(q, withGloss, papers[q.id]); }).join(''));
       });
     } else {
       var items = def.items.filter(function (q) { return q.section === sec.id; });
-      h += sheetTable(items.map(function (q) { return sheetRow(q, withGloss); }).join(''));
+      h += sheetTable(items.map(function (q) { return sheetRow(q, withGloss, papers[q.id]); }).join(''));
     }
   });
   return h;
@@ -18066,10 +18829,54 @@ function sheetWordList(def) {
     '<div class="words">' + list.map(function (w) { return '<div>' + sheetEsc(w) + '</div>'; }).join('') + '</div>';
 }
 
+/** A maths picture, said in words. */
+function sheetVisualNote(v) {
+  if (!v) return '';
+  return '<div class="why">[picture: ' + sheetEsc(v.kind === 'clock' ? 'clock at ' + examFormatTime(v.h, v.m)
+      : v.kind === 'ruler' ? 'ruler, object from ' + v.from + ' cm to ' + v.to + ' cm'
+      : v.kind === 'groups' ? v.groups + ' groups of ' + v.each
+      : v.kind === 'array' ? v.rows + ' rows of ' + v.cols
+      : v.kind === 'share' ? v.total + ' things' + (v.people ? ', ' + v.people + ' children' : '')
+      : v.kind === 'blocks' ? v.tens + ' tens and ' + v.ones + ' ones'
+      : v.kind === 'bond' ? 'number bond, whole ' + (v.whole === null ? '?' : v.whole) + ', parts ' + v.parts.map(function (x) { return x === null ? '?' : x; }).join(' and ')
+      : v.kind === 'pgraph' ? 'picture graph: ' + v.rows.map(function (r) { return r.label + ' ' + r.count; }).join(', ')
+      : v.kind === 'figure' ? v.name + ' made of ' + JSON.stringify(examFigureCounts(v.name)).replace(/[{}"]/g, '').replace(/,/g, ', ')
+      : v.kind === 'row' ? 'row, left to right: ' + v.items.join(' ')
+      : v.kind) + ']</div>';
+}
+
+function sheetMathsAnswer(q) {
+  return q.type === 'time' ? examFormatTime(q.answer.h, q.answer.m)
+       : q.type === 'mcq' ? ((q.optionText && q.optionText[q.answer]) || q.answer)
+       : (q.type === 'arrange' ? (Array.isArray(q.answer) ? q.answer.join(' ') : q.answer) : q.answer);
+}
+
+/** The fixed practice papers: every question and its answer, paper by paper. */
+function sheetMathsPapers(def) {
+  var h = '<h2>The ' + EXAM_PAPER_COUNT + ' practice papers</h2>' +
+          '<div class="why">Each practice paper always has these questions, in this order; only the order of the answer choices ' +
+          'changes from one sitting to the next. No question is in two papers.</div>';
+  (examPaperPlan(def.id) || []).forEach(function (paper) {
+    h += '<h3>Practice Paper ' + paper.no + '</h3><table><tbody>';
+    var n = 0;
+    def.sections.forEach(function (sec) {
+      h += '<tr><th colspan="3">' + sheetEsc(sec.name) + '</th></tr>';
+      (paper.sections[sec.id] || []).forEach(function (q) {
+        n++;
+        h += '<tr><td class="id" style="width:4%">' + n + '</td><td>' + sheetText(q.prompt) + sheetVisualNote(q.visual) +
+             '</td><td style="width:18%"><span class="ans">' + sheetEsc(sheetMathsAnswer(q)) + (q.unit ? ' ' + sheetEsc(q.unit) : '') + '</span></td></tr>';
+      });
+    });
+    h += '</tbody></table>';
+  });
+  return h;
+}
+
 function sheetMaths(def) {
   var h = '<div class="how"><b>Maths questions are generated, not stored.</b> Each generator below makes a new question every time, ' +
           'within the limits shown. Every answer and every step of working is computed, and checked automatically against ' +
-          'tens of thousands of examples. Below are three examples of each, always the same three.</div>';
+          'tens of thousands of examples. Below are three examples of each, always the same three. The answer keys for the ' +
+          EXAM_PAPER_COUNT + ' practice papers come after them.</div>';
   var topics = {};
   (def.practice || []).forEach(function (t) { topics[t.id] = t.name; });
   var byTopic = {};
@@ -18081,24 +18888,8 @@ function sheetMaths(def) {
       h += '<h3>' + sheetEsc(g.id) + ' <span class="id">' + ({ mcq: 'multiple choice', short: 'short answer', wp: 'word problem' }[g.fmt] || g.fmt) + '</span></h3><table><tbody>';
       for (var i = 0; i < 3; i++) {
         var q = g.make(rng);
-        var ans = q.type === 'time' ? examFormatTime(q.answer.h, q.answer.m)
-                : q.type === 'mcq' ? ((q.optionText && q.optionText[q.answer]) || q.answer)
-                : (q.type === 'arrange' ? (Array.isArray(q.answer) ? q.answer.join(' ') : q.answer) : q.answer);
-        var vis = '';
-        if (q.visual) {
-          var v = q.visual;
-          vis = '<div class="why">[picture: ' + sheetEsc(v.kind === 'clock' ? 'clock at ' + examFormatTime(v.h, v.m)
-              : v.kind === 'ruler' ? 'ruler, object from ' + v.from + ' cm to ' + v.to + ' cm'
-              : v.kind === 'groups' ? v.groups + ' groups of ' + v.each
-              : v.kind === 'array' ? v.rows + ' rows of ' + v.cols
-              : v.kind === 'share' ? v.total + ' things' + (v.people ? ', ' + v.people + ' children' : '')
-              : v.kind === 'blocks' ? v.tens + ' tens and ' + v.ones + ' ones'
-              : v.kind === 'bond' ? 'number bond, whole ' + (v.whole === null ? '?' : v.whole) + ', parts ' + v.parts.map(function (x) { return x === null ? '?' : x; }).join(' and ')
-              : v.kind === 'pgraph' ? 'picture graph: ' + v.rows.map(function (r) { return r.label + ' ' + r.count; }).join(', ')
-              : v.kind === 'figure' ? v.name + ' made of ' + JSON.stringify(examFigureCounts(v.name)).replace(/[{}"]/g, '').replace(/,/g, ', ')
-              : v.kind === 'row' ? 'row, left to right: ' + v.items.join(' ')
-              : v.kind) + ']</div>';
-        }
+        var ans = sheetMathsAnswer(q);
+        var vis = sheetVisualNote(q.visual);
         var opts = (q.type === 'mcq' && !q.optionVisuals) ? '<div class="opts">' + q.options.map(function (o) {
           return '<span class="' + (o === q.answer ? 'ok' : '') + '">' + sheetText(o) + '</span>';
         }).join('') + '</div>' : '';
@@ -18127,16 +18918,16 @@ function examSheetHTML(subjectId) {
       '<li>Wrong options should be clearly wrong in the sentence. If you could defend one as correct, please flag it.</li>' +
       '<li>Question words appear in plain form in Kosa Kata (Bila, Di mana) and with -kah in the comprehension questions ' +
       '(Bilakah, Di manakah), as in school papers.</li></ul>' +
-      count + ' items in total. The full word list for a spelling check is at the end.</div>' +
+      count + ' items in total. The full word list for a spelling check is at the end. ' + SHEET_PAPER_NOTE + '</div>' +
       sheetBanked(def, true) + sheetWordList(def);
     return sheetDoc('Bahasa Melayu review sheet', body);
   }
   if (subjectId === 'el') {
     return sheetDoc('English answer key', '<h1>English: answer key</h1>' + sheetMeta(def) +
       '<div class="how">Every item in the English bank, ' + count + ' in all, with its answer and the reason shown after marking. ' +
-      'The OK and Fix columns are there if you want to check them.</div>' + sheetBanked(def, false));
+      'The OK and Fix columns are there if you want to check them. ' + SHEET_PAPER_NOTE + '</div>' + sheetBanked(def, false));
   }
-  return sheetDoc('Maths worked examples', '<h1>Maths: worked examples</h1>' + sheetMeta(def) + sheetMaths(def));
+  return sheetDoc('Maths worked examples and answer keys', '<h1>Maths: worked examples and answer keys</h1>' + sheetMeta(def) + sheetMaths(def) + sheetMathsPapers(def));
 }
 
 if (typeof window !== 'undefined') window.examSheetHTML = examSheetHTML;
