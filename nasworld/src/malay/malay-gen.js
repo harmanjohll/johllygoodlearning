@@ -267,17 +267,22 @@ function genMalayAyat(diff) {
     },
     function() {
       var fam = pick(MALAY_FAMILY);
+      // The family words are stored lower-case ("ibu", "pak cik"), and
+      // this used to splice them straight into the front of the sentence,
+      // so the CORRECT answer read "ibu saya baik." Malay capitalises the
+      // first word of a sentence exactly as English does.
+      var cap = function(s) { return s.charAt(0).toUpperCase() + s.slice(1); };
       return {
         type: 'malay-sentence',
         prompt: '"My ' + fam.english + ' is kind"',
         emoji: fam.emoji,
         options: shuffle([
-          fam.malay + ' saya baik.',
+          cap(fam.malay) + ' saya baik.',
           'Saya baik ' + fam.malay + '.',
-          fam.malay + ' baik saya.',
+          cap(fam.malay) + ' baik saya.',
           'Baik saya ' + fam.malay + '.'
         ]),
-        answer: fam.malay + ' saya baik.',
+        answer: cap(fam.malay) + ' saya baik.',
         hint: 'Owner comes after in Malay: ibu saya, not saya ibu.'
       };
     }

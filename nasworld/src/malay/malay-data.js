@@ -104,7 +104,7 @@ const MALAY_ANIMALS = [
 
 // Anggota badan (body parts)
 const MALAY_BODY = [
-  { malay: 'kepala',   english: 'head',     emoji: '🧠' },
+  { malay: 'kepala',   english: 'head',     emoji: '👤' },   // was a brain, which is otak
   { malay: 'rambut',   english: 'hair',     emoji: '💇' },
   { malay: 'mata',     english: 'eye',      emoji: '👁️' },
   { malay: 'hidung',   english: 'nose',     emoji: '👃' },
@@ -147,17 +147,31 @@ const MALAY_WEATHER = [
   { malay: 'cerah',  english: 'sunny',     emoji: '☀️' },
   { malay: 'hujan',  english: 'rainy',     emoji: '🌧️' },
   { malay: 'mendung',english: 'cloudy',    emoji: '☁️' },
-  { malay: 'angin',  english: 'windy',     emoji: '💨' },
+  // "angin" is the noun, wind. The weather word for windy is "berangin":
+  // Hari ini berangin. (It is windy today.)
+  { malay: 'berangin', english: 'windy',   emoji: '💨' },
   { malay: 'panas',  english: 'hot',       emoji: '🔥' },
   { malay: 'sejuk',  english: 'cold',      emoji: '❄️' }
 ];
 
 // Simple sentence frames (P1 Ayat Mudah)
+//
+// `example` is what a child actually sees. The flashcards used to print
+// the raw template, braces and all ("Saya ada {number} {food}."), and that
+// one frame also implied a number goes straight before a noun. It does
+// not: counting needs a penjodoh bilangan, so it is "dua biji epal", and
+// uncountables like air, nasi and susu cannot be counted this way at all.
 const MALAY_SENTENCE_FRAMES = [
-  { template: 'Saya suka {food}.',        gloss: 'I like {food}.',        slot: 'food' },
-  { template: 'Ini ialah {animal}.',      gloss: 'This is a {animal}.',   slot: 'animal' },
-  { template: '{family} saya baik.',      gloss: 'My {family} is kind.',  slot: 'family' },
-  { template: 'Warna {colour} cantik.',   gloss: 'The colour {colour} is pretty.', slot: 'colour' },
-  { template: 'Saya ada {number} {food}.',gloss: 'I have {number} {food}.', slot: 'number+food' },
-  { template: 'Selamat {greeting}!',      gloss: 'Good {greeting}!',      slot: 'time' }
+  { template: 'Saya suka {food}.',        gloss: 'I like {food}.',        slot: 'food',
+    example: 'Saya suka nasi.',           exampleGloss: 'I like rice.' },
+  { template: 'Ini ialah {animal}.',      gloss: 'This is a {animal}.',   slot: 'animal',
+    example: 'Ini ialah kucing.',         exampleGloss: 'This is a cat.' },
+  { template: '{family} saya baik.',      gloss: 'My {family} is kind.',  slot: 'family',
+    example: 'Ibu saya baik.',            exampleGloss: 'My mother is kind.' },
+  { template: 'Warna {colour} cantik.',   gloss: 'The colour {colour} is pretty.', slot: 'colour',
+    example: 'Warna merah cantik.',       exampleGloss: 'The colour red is pretty.' },
+  { template: 'Saya ada {number} {classifier} {fruit}.', gloss: 'I have {number} {fruit}.', slot: 'number+classifier+fruit',
+    example: 'Saya ada dua biji epal.',   exampleGloss: 'I have two apples.' },
+  { template: 'Selamat {greeting}!',      gloss: 'Good {greeting}!',      slot: 'time',
+    example: 'Selamat pagi!',             exampleGloss: 'Good morning!' }
 ];

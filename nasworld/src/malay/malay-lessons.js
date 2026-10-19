@@ -184,7 +184,7 @@ function getMalayFlashcards(skillId) {
       }));
     case 'ayat':
       return MALAY_SENTENCE_FRAMES.map(function(s) {
-        return { front: s.template, back: s.gloss, emoji: '✍️' };
+        return { front: s.example || s.template, back: s.exampleGloss || s.gloss, emoji: '✍️' };
       });
     default:
       return [];
