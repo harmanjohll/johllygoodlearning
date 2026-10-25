@@ -11,7 +11,7 @@
 
   /* ---------- State -------------------------------------------------------- */
   function blank() {
-    return { v: 1, tasks: {}, scen: {}, journal: [], draft: { nightly: {}, weekly: {} }, pact: { player: null, parent: null, review: '' } };
+    return { v: 1, tasks: {}, scen: {}, journal: [], draft: { nightly: {}, weekly: {} }, pact: { player: null, parent: null, review: '' }, assess: { mod: {}, gen: {} } };
   }
   var S = (function load() {
     try {
@@ -21,6 +21,8 @@
       for (var k in b) if (!(k in s)) s[k] = b[k];
       if (!s.draft.nightly) s.draft.nightly = {};
       if (!s.draft.weekly) s.draft.weekly = {};
+      if (!s.assess.mod) s.assess.mod = {};
+      if (!s.assess.gen) s.assess.gen = {};
       return s;
     } catch (e) { return blank(); }
   })();
@@ -46,6 +48,9 @@
     lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
     printer: '<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="7" rx="1.5"/><path d="M7 14h10v6H7z"/>',
     alert: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5v.01"/>',
+    up: '<path d="M6 15l6-6 6 6"/>',
+    down: '<path d="M6 9l6 6 6-6"/>',
+    whistle: '<circle cx="9" cy="14" r="5"/><path d="M13 11l8-4M9 14v.01"/>',
     calendar: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
     undo: '<path d="M9 7L4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 0 12"/>',
   };
@@ -72,7 +77,8 @@
       return { text: d + ' of ' + ids.length + ' checked', done: d === ids.length };
     }
     if (id === 'game') { var p = played(); return { text: p + ' of ' + C.game.scenarios.length + ' played', done: p === C.game.scenarios.length }; }
-    if (id === 'cards') return { text: '22 rules', done: false };
+    if (id === 'cards') { var m = S.assess.mod.cards; return { text: m && m.clearedIso ? 'Check cleared' : '22 rules', done: !!(m && m.clearedIso) }; }
+    if (id === 'tests') { var tc = testsCleared(); return { text: tc + ' of ' + A.tests.length + ' cleared', done: tc === A.tests.length }; }
     if (id === 'pact') {
       var n = (S.pact.player ? 1 : 0) + (S.pact.parent ? 1 : 0);
       return { text: n === 2 ? 'Signed' : n + ' of 2 signed', done: n === 2 };
@@ -139,7 +145,7 @@
 
   /* ---------- Shared bits -------------------------------------------------- */
   function head(sec, title, lede) {
-    return '<header class="sec-head"><div class="kicker"><span class="dot"></span>' + sec.num + ' of 09</div><h1>' + title + '</h1>' + (lede ? '<p class="lede">' + esc(lede) + '</p>' : '') + '</header>';
+    return '<header class="sec-head"><div class="kicker"><span class="dot"></span>' + sec.num + ' of ' + C.sections[C.sections.length - 1].num + '</div><h1>' + title + '</h1>' + (lede ? '<p class="lede">' + esc(lede) + '</p>' : '') + '</header>';
   }
   function pager(i) {
     var prev = C.sections[i - 1], next = C.sections[i + 1], h = '<nav class="pager no-print" aria-label="Next and previous">';
@@ -157,7 +163,8 @@
     h += '<div class="scoreline" role="list">';
     h += '<div class="score" role="listitem"><b>' + countDone(ALL_TASKS) + '<small class="muted"> of ' + ALL_TASKS.length + '</small></b><span>steps you have done</span></div>';
     h += '<div class="score" role="listitem"><b>' + countChecked(ALL_TASKS) + '</b><span>checked by a parent</span></div>';
-    h += '<div class="score" role="listitem"><b>' + played() + '<small class="muted"> of ' + C.game.scenarios.length + '</small></b><span>situations played</span></div></div>';
+    h += '<div class="score" role="listitem"><b>' + modCleared() + '<small class="muted"> of ' + MOD_IDS.length + '</small></b><span>module checks cleared</span></div>';
+    h += '<div class="score" role="listitem"><b>' + testsCleared() + '<small class="muted"> of ' + A.tests.length + '</small></b><span>Matchday tests cleared</span></div></div>';
     h += '<h2>The programme</h2>' + programme();
     return h;
   }
@@ -401,6 +408,7 @@
     h += '<div class="pact-sheet"><p class="kicker">The Playbook, ' + esc(C.family.player) + '\'s first phone</p>';
     h += '<div class="pact-cols"><section><h2>' + esc(C.family.player) + ' promises</h2><ol class="pledges">' + c.player.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ol></section>';
     h += '<section><h2>Mum and Dad promise</h2><ol class="pledges">' + c.parents.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ol></section></div>';
+    h += '<h2 style="margin-top:30px">Checks and Matchday</h2><p class="muted">' + modCleared() + ' of ' + MOD_IDS.length + ' module checks and ' + testsCleared() + ' of ' + A.tests.length + ' tests cleared.</p><ul class="ledger">' + assessLedger() + '</ul>';
     h += '<h2 style="margin-top:30px">Setup, checked together</h2><p class="muted">' + done + ' of ' + ALL_TASKS.length + ' checked by a parent.</p><ul class="ledger">';
     ALL_TASKS.forEach(function (id) {
       var st = tstate(id), sec2 = sectionOf(id);
@@ -417,6 +425,7 @@
   function signHTML(who, label) {
     var s = S.pact[who];
     if (s) return '<div class="sign"><label>' + esc(label) + '</label><span class="signed">' + esc(s.name) + '</span><span class="when">Signed ' + dayLong(s.iso) + '</span><button class="btn quiet no-print" type="button" data-unsign="' + who + '">Undo signature</button></div>';
+    if (!allTestsCleared()) return '<div class="sign"><label>' + esc(label) + '</label><p class="locked">' + ic('lock') + '<span>Signing opens when all three <a href="#/tests">Matchday tests</a> are cleared.</span></p></div>';
     return '<form class="sign" data-sign="' + who + '"><label for="sg-' + who + '">' + esc(label) + ', type your name to sign</label><input id="sg-' + who + '" name="nm" autocomplete="name" required><button class="btn" type="submit">Sign</button></form>';
   }
   function sectionOf(id) {
@@ -438,8 +447,272 @@
     if (e.target.id === 'reviewDate') { S.pact.review = e.target.value; save(); }
   });
 
+  /* ---------- Assessments: module checks and Matchday tests ----------------- */
+  var A = window.PLAYBOOK_ASSESS;
+  var MOD_IDS = Object.keys(A.modules);
+  var MOD_DRAW = 6, MOD_PASS = 5;
+  var CARD_LABEL = { green: 'Green card', yellow: 'Yellow card', red: 'Red card' };
+  var RUN = null;
+
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function range(n) { var r = []; for (var i = 0; i < n; i++) r.push(i); return r; }
+  function testById(id) { return A.tests.filter(function (t) { return t.id === id; })[0]; }
+  function rec(kind, key) { return S.assess[kind][key] || null; }
+  function modCleared() { return MOD_IDS.filter(function (k) { return (S.assess.mod[k] || {}).clearedIso; }).length; }
+  function testsCleared() { return A.tests.filter(function (t) { return (S.assess.gen[t.id] || {}).clearedIso; }).length; }
+  function allTestsCleared() { return testsCleared() === A.tests.length; }
+  function spec(kind, key) {
+    if (kind === 'mod') return { title: A.modules[key].title, pool: A.modules[key].pool, draw: MOD_DRAW, pass: MOD_PASS };
+    var t = testById(key); return { title: t.tag + ': ' + t.name, pool: t.pool, draw: t.draw, pass: t.pass, test: t };
+  }
+
+  function prep(q) {
+    var it = { q: q };
+    if (q.type === 'mcq' || q.type === 'multi') it.opts = shuffle(range(q.opts.length));
+    if (q.type === 'order') { var o; do { o = shuffle(range(q.items.length)); } while (o.every(function (v, i) { return v === i; })); it.opts = o; }
+    return it;
+  }
+  function startRun(kind, key) {
+    var sp = spec(kind, key);
+    RUN = { kind: kind, key: key, items: shuffle(sp.pool).slice(0, sp.draw).map(prep), i: 0, ans: [], phase: 'q', revealed: false };
+    RUN.sel = initialSel();
+    if (sp.test && sp.test.written) RUN.written = shuffle(sp.test.written).slice(0, sp.test.writtenDraw).map(function (w) { return { w: w, text: '' }; });
+  }
+  function initialSel() {
+    var it = RUN.items[RUN.i];
+    return it.q.type === 'order' ? it.opts.slice() : it.q.type === 'multi' ? [] : null;
+  }
+  function hasAnswer() { var v = RUN.sel; return v !== null && !(Array.isArray(v) && RUN.items[RUN.i].q.type === 'multi' && !v.length); }
+  function isRight(q, v) {
+    if (q.type === 'multi') return v.length === q.a.length && q.a.every(function (x) { return v.indexOf(x) > -1; });
+    if (q.type === 'order') return v.every(function (x, i) { return x === i; });
+    return v === q.a;
+  }
+  function answerText(q, v) {
+    if (q.type === 'card') return CARD_LABEL[v];
+    if (q.type === 'mcq') return q.opts[v];
+    if (q.type === 'multi') return v.length ? v.map(function (i) { return q.opts[i]; }).join('; ') : 'Nothing chosen';
+    if (q.type === 'order') return v.map(function (i) { return q.items[i]; }).join(', then ');
+    return '';
+  }
+  function rightText(q) {
+    if (q.type === 'order') return answerText(q, range(q.items.length));
+    return answerText(q, q.a);
+  }
+
+  /* Blocks that host a runner */
+  function moduleBlock(id) {
+    return '<section class="assess-wrap" aria-labelledby="mc-' + id + '"><h2 id="mc-' + id + '">' + ic('whistle') + 'Module check</h2><div class="runner" data-kind="mod" data-key="' + id + '">' + runnerInner('mod', id) + '</div></section>';
+  }
+  function vTests(sec) {
+    var h = head(sec, 'Matchday', 'Three tests across the whole Playbook, each harder than the last. Clear all three and the Pact opens for signing. Take them when you have worked through the sections; you can retake any test, and the questions reshuffle.');
+    A.tests.forEach(function (t) {
+      h += '<div class="runner test-card" data-kind="gen" data-key="' + t.id + '">' + runnerInner('gen', t.id) + '</div>';
+    });
+    return h;
+  }
+  function renderRunners(focusSel) {
+    document.querySelectorAll('.runner').forEach(function (el) { el.innerHTML = runnerInner(el.getAttribute('data-kind'), el.getAttribute('data-key')); });
+    renderRail();
+    if (focusSel) { var f = document.querySelector(focusSel); if (f) f.focus({ preventScroll: false }); }
+  }
+  function active(kind, key) { return RUN && RUN.kind === kind && RUN.key === key; }
+
+  function runnerInner(kind, key) {
+    if (active(kind, key)) {
+      if (RUN.phase === 'q') return questionHTML();
+      if (RUN.phase === 'w') return writtenHTML();
+      return resultsHTML();
+    }
+    return idleHTML(kind, key);
+  }
+
+  function metaLine(r, sp) {
+    if (!r) return '<p class="a-meta">Not taken yet. ' + sp.draw + ' questions, ' + sp.pass + ' to clear.</p>';
+    return '<p class="a-meta">Best ' + r.best + ' of ' + r.total + ', ' + r.attempts + (r.attempts === 1 ? ' attempt' : ' attempts') + ', last on ' + day(r.lastIso) + '. ' + sp.pass + ' to clear.</p>';
+  }
+  function idleHTML(kind, key) {
+    var sp = spec(kind, key), r = rec(kind, key), h = '';
+    if (kind === 'gen') h += '<div class="a-head"><span class="a-tag">' + esc(sp.test.tag) + '</span><h2>' + esc(sp.test.name) + '</h2></div><p class="a-blurb">' + esc(sp.test.blurb) + '</p>';
+    else h += '<p class="a-blurb">Six quick questions on this section. Feedback after each one.</p>';
+    if (r && r.clearedIso) h += '<p class="stamp">' + ic('check') + 'Cleared ' + day(r.clearedIso) + '</p>';
+    else if (r && r.written) h += '<p class="stamp pending">' + ic('lock') + 'Questions passed. Written answers wait for a parent.</p>';
+    h += metaLine(r, sp);
+    if (r && r.written && !r.clearedIso) h += reviewHTML(key);
+    var busy = RUN && RUN.phase !== 'end' && !active(kind, key);
+    h += '<div class="a-actions"><button class="btn ' + (r && r.clearedIso ? '' : 'primary') + '" type="button" data-start="' + kind + ':' + key + '"' + (busy ? ' disabled' : '') + '>' + (r ? 'Try again' : 'Start') + ic('right') + '</button>' + (busy ? '<span class="muted small">Finish the test you are in first.</span>' : '') + '</div>';
+    return h;
+  }
+
+  function questionHTML() {
+    var it = RUN.items[RUN.i], q = it.q, n = RUN.items.length, mod = RUN.kind === 'mod', rv = RUN.revealed;
+    var h = '<div class="qprog"><span>Question ' + (RUN.i + 1) + ' of ' + n + '</span><span class="bar" aria-hidden="true"><i style="width:' + Math.round(RUN.i / n * 100) + '%"></i></span>';
+    h += '<button class="btn quiet" type="button" data-quit>Leave</button></div>';
+    if (q.type === 'card') h += '<p class="qlabel">' + esc(A.cardPrompt) + '</p>';
+    h += '<h3 class="qstem" tabindex="-1">' + esc(q.q) + '</h3>';
+    if (q.msgs) h += '<div class="qchat">' + q.msgs.map(function (m) { return '<div class="bubble"><small>' + esc(m.from) + '</small>' + esc(m.text) + '</div>'; }).join('') + '</div>';
+    if (q.type === 'multi') h += '<p class="qlabel">Choose all that apply.</p>';
+    var right = rv && isRight(q, RUN.sel);
+    if (q.type === 'card') {
+      h += '<div class="cardpicks" role="group" aria-label="Card">' + ['green', 'yellow', 'red'].map(function (c) {
+        var on = RUN.sel === c, mark = rv ? (c === q.a ? ' is-right' : on ? ' is-wrong' : '') : '';
+        return '<button type="button" class="cardpick' + mark + '" data-pick="' + c + '" aria-pressed="' + on + '"' + (rv ? ' disabled' : '') + '><span class="ref-card ' + c + '" aria-hidden="true"></span>' + CARD_LABEL[c] + '</button>';
+      }).join('') + '</div>';
+    } else if (q.type === 'mcq' || q.type === 'multi') {
+      h += '<div class="qopts" role="group" aria-label="Options">' + it.opts.map(function (oi, k) {
+        var on = q.type === 'multi' ? RUN.sel.indexOf(oi) > -1 : RUN.sel === oi;
+        var good = q.type === 'multi' ? q.a.indexOf(oi) > -1 : q.a === oi;
+        var mark = rv ? (good ? ' is-right' : on ? ' is-wrong' : '') : '';
+        return '<button type="button" class="qopt' + (q.type === 'multi' ? ' multi' : '') + mark + '" data-pick="' + oi + '" aria-pressed="' + on + '"' + (rv ? ' disabled' : '') + '><span class="letter">' + (q.type === 'multi' ? (on ? ic('check') : '') : 'ABCDEF'[k]) + '</span><span>' + esc(q.opts[oi]) + '</span></button>';
+      }).join('') + '</div>';
+    } else if (q.type === 'order') {
+      h += '<ol class="qorder">' + RUN.sel.map(function (oi, k) {
+        var mark = rv ? (oi === k ? ' is-right' : ' is-wrong') : '';
+        return '<li class="' + mark + '"><span class="pos">' + (k + 1) + '</span><span class="txt">' + esc(q.items[oi]) + '</span>' + (rv ? '' :
+          '<span class="mv"><button type="button" class="icon-btn" data-move="' + k + ':-1" aria-label="Move up: ' + esc(q.items[oi]) + '"' + (k === 0 ? ' disabled' : '') + '>' + ic('up') + '</button><button type="button" class="icon-btn" data-move="' + k + ':1" aria-label="Move down: ' + esc(q.items[oi]) + '"' + (k === RUN.sel.length - 1 ? ' disabled' : '') + '>' + ic('down') + '</button></span>') + '</li>';
+      }).join('') + '</ol>';
+    }
+    if (rv) {
+      h += '<div class="qfeed ' + (right ? 'ok' : 'no') + '" id="qfeed" tabindex="-1"><b>' + (right ? 'Correct.' : 'Not quite.') + '</b>' + (right ? '' : ' The answer: ' + esc(rightText(q)) + '.') + ' <span>' + esc(q.why) + '</span></div>';
+      h += '<div class="a-actions"><button class="btn primary" type="button" data-next-q>' + (RUN.i < n - 1 ? 'Next question' : 'See result') + ic('right') + '</button></div>';
+    } else {
+      var last = RUN.i === n - 1;
+      var label = mod ? 'Check' : last ? (RUN.written ? 'On to the written answers' : 'Finish') : 'Next';
+      h += '<div class="a-actions"><button class="btn primary" type="button" data-submit' + (hasAnswer() ? '' : ' disabled') + '>' + label + ic(mod ? 'check' : 'right') + '</button></div>';
+    }
+    return h;
+  }
+
+  function writtenHTML() {
+    var h = '<div class="qprog"><span>Written answers</span><span class="bar" aria-hidden="true"><i style="width:100%"></i></span><button class="btn quiet" type="button" data-quit>Leave</button></div>';
+    h += '<p class="a-blurb">Answer in your own words. Afterwards, go through them with a parent, next to a model answer.</p><form data-wform>';
+    RUN.written.forEach(function (w, k) {
+      h += '<div class="q"><label for="wr-' + k + '">' + esc(w.w.prompt) + '</label><textarea id="wr-' + k + '" name="w' + k + '" rows="5" maxlength="800" required>' + esc(w.text) + '</textarea></div>';
+    });
+    return h + '<div class="a-actions"><button class="btn primary" type="submit">Finish' + ic('check') + '</button></div></form>';
+  }
+
+  function resultsHTML() {
+    var sp = spec(RUN.kind, RUN.key), n = RUN.items.length, h = '', r0 = rec(RUN.kind, RUN.key);
+    var waiting = RUN.passed && RUN.written && !(r0 && r0.clearedIso);
+    h += '<div class="result ' + (RUN.passed ? 'pass' : 'fail') + '" tabindex="-1" id="resultBox"><span class="big">' + RUN.score + '<small> of ' + n + '</small></span><div><b>' + (RUN.passed ? (waiting ? 'Questions passed.' : 'Cleared.') : 'Not yet.') + '</b> ';
+    h += RUN.passed ? (waiting ? 'Now go through your written answers with a parent below.' : 'Well played. That one is in the book.') : 'You need ' + sp.pass + '. Look at what you missed, then try again; the questions reshuffle.';
+    h += '</div></div>';
+    if (RUN.kind === 'gen') {
+      h += '<h3 class="a-sub">The footage</h3><ol class="replay">';
+      RUN.items.forEach(function (it, k) {
+        var q = it.q, ok = isRight(q, RUN.ans[k]);
+        h += '<li class="' + (ok ? 'ok' : 'no') + '"><span class="mk">' + (ok ? 'Right' : 'Missed') + '</span><p class="rq">' + esc(q.q) + '</p>';
+        if (!ok) h += '<p class="ra">You: ' + esc(answerText(q, RUN.ans[k])) + '</p><p class="ra">Answer: ' + esc(rightText(q)) + '</p>';
+        h += '<p class="rw">' + esc(q.why) + '</p></li>';
+      });
+      h += '</ol>';
+    }
+    var r = rec(RUN.kind, RUN.key);
+    if (RUN.written && RUN.passed && r && r.written && !r.clearedIso) h += reviewHTML(RUN.key);
+    h += '<div class="a-actions"><button class="btn' + (RUN.passed ? '' : ' primary') + '" type="button" data-start="' + RUN.kind + ':' + RUN.key + '">Try again' + ic('undo') + '</button><button class="btn quiet" type="button" data-close>Done</button></div>';
+    return h;
+  }
+
+  function reviewHTML(key) {
+    var r = rec('gen', key), t = testById(key), h = '<div class="review-box"><h3 class="a-sub">With a parent: written answers</h3><p class="muted small">Read each answer together, then the model. Talk about what is there and what is missing. A parent ticks it off with initials.</p>';
+    r.written.forEach(function (w, k) {
+      var wq = t.written.filter(function (x) { return x.id === w.id; })[0];
+      h += '<div class="wr"><p class="wq">' + esc(wq.prompt) + '</p><div class="wa"><span class="lbl">' + esc(C.family.player) + '</span>' + esc(w.text) + '</div>';
+      h += '<details><summary>' + ic('chev') + 'Model answer and what to look for</summary><div class="wm">' + esc(wq.model) + '</div><ul class="lookfor">' + wq.lookFor.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul></details>';
+      if (w.reviewed) h += '<p class="stamp">' + ic('check') + 'Reviewed by ' + esc(w.reviewed.by) + ', ' + day(w.reviewed.iso) + '</p>';
+      else h += '<form class="check-form" data-wreview="' + key + ':' + k + '"><label for="wrv-' + k + '">Parent\'s initials</label><input id="wrv-' + k + '" name="ini" maxlength="4" autocomplete="off" required><button class="btn primary" type="submit">' + ic('check') + 'Reviewed together</button></form>';
+      h += '</div>';
+    });
+    return h + '</div>';
+  }
+
+  function finishRun() {
+    var sp = spec(RUN.kind, RUN.key), n = RUN.items.length, now = new Date().toISOString();
+    var score = RUN.items.filter(function (it, k) { return isRight(it.q, RUN.ans[k]); }).length;
+    var r = S.assess[RUN.kind][RUN.key] || (S.assess[RUN.kind][RUN.key] = { attempts: 0, best: 0 });
+    r.attempts++; r.total = n; r.best = Math.max(r.best, score); r.lastIso = now;
+    RUN.score = score; RUN.passed = score >= sp.pass; RUN.phase = 'end';
+    if (RUN.passed && !r.clearedIso) {
+      if (RUN.written) r.written = RUN.written.map(function (w) { return { id: w.w.id, text: w.text.trim(), reviewed: null }; });
+      else r.clearedIso = now;
+    }
+    save();
+  }
+
+  main.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-start],[data-pick],[data-move],[data-submit],[data-next-q],[data-quit],[data-close]');
+    if (!t || t.disabled || !main.contains(t)) return;
+    if (t.hasAttribute('data-start')) {
+      var p = t.getAttribute('data-start').split(':'); startRun(p[0], p[1]);
+      renderRunners('.runner[data-key="' + p[1] + '"] .qstem'); return;
+    }
+    if (!RUN) return;
+    var q = RUN.items[RUN.i] && RUN.items[RUN.i].q;
+    if (t.hasAttribute('data-pick')) {
+      var v = t.getAttribute('data-pick');
+      if (q.type === 'card') RUN.sel = v;
+      else if (q.type === 'mcq') RUN.sel = +v;
+      else { v = +v; var at = RUN.sel.indexOf(v); if (at > -1) RUN.sel.splice(at, 1); else RUN.sel.push(v); }
+      renderRunners('.runner [data-pick="' + t.getAttribute('data-pick') + '"]');
+    } else if (t.hasAttribute('data-move')) {
+      var mv = t.getAttribute('data-move').split(':'), k = +mv[0], d = +mv[1], a = RUN.sel, tmp = a[k];
+      a[k] = a[k + d]; a[k + d] = tmp;
+      var dir = d < 0 ? '-1' : '1', target = k + d;
+      renderRunners('.runner [data-move="' + target + ':' + dir + '"]:not([disabled])') ;
+      if (document.activeElement === document.body) { var alt = document.querySelector('.runner [data-move^="' + target + ':"]:not([disabled])'); if (alt) alt.focus(); }
+    } else if (t.hasAttribute('data-submit')) {
+      RUN.ans[RUN.i] = Array.isArray(RUN.sel) ? RUN.sel.slice() : RUN.sel;
+      if (RUN.kind === 'mod') { RUN.revealed = true; renderRunners('#qfeed'); return; }
+      advance();
+    } else if (t.hasAttribute('data-next-q')) {
+      advance();
+    } else if (t.hasAttribute('data-quit')) {
+      if (window.confirm('Leave this test? Your answers so far will not be saved.')) { var key = RUN.key; RUN = null; renderRunners('.runner[data-key="' + key + '"] [data-start]'); }
+    } else if (t.hasAttribute('data-close')) {
+      var key2 = RUN.key; RUN = null; renderRunners('.runner[data-key="' + key2 + '"] [data-start]');
+    }
+  });
+  function advance() {
+    RUN.revealed = false;
+    if (RUN.i < RUN.items.length - 1) { RUN.i++; RUN.sel = initialSel(); renderRunners('.runner .qstem'); return; }
+    if (RUN.written) { RUN.phase = 'w'; renderRunners('.runner textarea'); return; }
+    finishRun(); renderRunners('#resultBox');
+  }
+  main.addEventListener('input', function (e) {
+    var f = e.target.closest('[data-wform]'); if (!f || !RUN || !RUN.written) return;
+    RUN.written[+e.target.name.slice(1)].text = e.target.value;
+  });
+  main.addEventListener('submit', function (e) {
+    var f = e.target.closest('[data-wform]');
+    if (f) {
+      e.preventDefault();
+      if (RUN.written.some(function (w) { return !w.text.trim(); })) return;
+      finishRun(); renderRunners('#resultBox'); return;
+    }
+    var rv = e.target.closest('[data-wreview]');
+    if (rv) {
+      e.preventDefault();
+      var ini = rv.ini.value.trim().toUpperCase(); if (!ini) return;
+      var p = rv.getAttribute('data-wreview').split(':'), r = rec('gen', p[0]);
+      r.written[+p[1]].reviewed = { by: ini, iso: new Date().toISOString() };
+      if (r.written.every(function (w) { return w.reviewed; })) r.clearedIso = new Date().toISOString();
+      save(); renderRunners();
+    }
+  });
+
+  function assessLedger() {
+    var rows = MOD_IDS.map(function (k) { return { label: A.modules[k].title.replace('Module check: ', 'Check: '), r: rec('mod', k), href: '#/' + k }; })
+      .concat(A.tests.map(function (t) { return { label: t.tag + ': ' + t.name, r: rec('gen', t.id), href: '#/tests' }; }));
+    return rows.map(function (x) {
+      var r = x.r, cleared = r && r.clearedIso;
+      var meta = !r ? 'Not taken' : 'Best ' + r.best + '/' + r.total + ', ' + r.attempts + (r.attempts === 1 ? ' try' : ' tries') + (cleared ? ', cleared ' + day(r.clearedIso) : r.written ? ', awaiting review' : '');
+      return '<li><span class="st' + (cleared ? ' checked' : r ? ' done' : '') + '" aria-hidden="true">' + (cleared ? ic('check') : '') + '</span><a href="' + x.href + '">' + esc(x.label) + '</a><span class="meta">' + meta + '</span></li>';
+    }).join('');
+  }
+
   /* ---------- Router, rail, sheet, theme ----------------------------------- */
-  var VIEWS = { kickoff: vKickoff, pitch: vPitch, cards: vCards, squad: vSquad, fixtures: vFixtures, game: vGame, off: vOff, post: vPost, pact: vPact };
+  var VIEWS = { kickoff: vKickoff, pitch: vPitch, cards: vCards, squad: vSquad, fixtures: vFixtures, game: vGame, off: vOff, post: vPost, tests: vTests, pact: vPact };
   var current = null;
 
   function renderRail() {
@@ -460,7 +733,8 @@
     var changed = id !== current;
     current = id;
     var i = C.sections.findIndex(function (s) { return s.id === id; });
-    main.innerHTML = VIEWS[id](C.sections[i]) + (id === 'kickoff' ? '' : pager(i));
+    if (changed && RUN && RUN.phase !== 'end') RUN = null;
+    main.innerHTML = VIEWS[id](C.sections[i]) + (A.modules[id] ? moduleBlock(id) : '') + (id === 'kickoff' ? '' : pager(i));
     var ask = main.querySelector('.ask h3'); if (ask) ask.setAttribute('tabindex', '-1');
     document.title = (id === 'kickoff' ? '' : C.sections[i].title + ' | ') + 'The Playbook';
     renderRail();

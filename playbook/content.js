@@ -21,7 +21,8 @@ window.PLAYBOOK = {
     { id: 'game',     num: '06', title: 'Read the Game',       line: 'Twelve situations. Make the call.' },
     { id: 'off',      num: '07', title: 'Off the Pitch',       line: 'Sleep, move, people, eyes.' },
     { id: 'post',     num: '08', title: 'Post Match',          line: 'Three minutes a night to review the footage.' },
-    { id: 'pact',     num: '09', title: 'The Pact',            line: 'Show your parents. Sign it together.' },
+    { id: 'tests',    num: '09', title: 'Matchday',            line: 'Three tests across everything.' },
+    { id: 'pact',     num: '10', title: 'The Pact',            line: 'Clear Matchday, then sign it together.' },
   ],
 
   kickoff: {
