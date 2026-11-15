@@ -452,6 +452,7 @@ function endGame() {
   const total = currentGame.results.length;
   const pct = Math.round(correct / total * 100);
   state.sessionsCompleted++;
+  if (typeof markDailyEffort === 'function') markDailyEffort();
 
   // Achievement & quest hooks
   if (typeof checkAchievementsAfterQuiz === 'function') {

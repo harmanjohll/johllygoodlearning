@@ -172,6 +172,7 @@ function endStarTrial() {
   }
 
   state.sessionsCompleted++;
+  if (typeof markDailyEffort === 'function') markDailyEffort();
 
   var overlay = document.getElementById('feedback-overlay');
   var card = document.getElementById('feedback-card');
