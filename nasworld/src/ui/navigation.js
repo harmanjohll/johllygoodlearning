@@ -452,6 +452,8 @@ function endGame() {
   const total = currentGame.results.length;
   const pct = Math.round(correct / total * 100);
   state.sessionsCompleted++;
+  if (typeof markDailyEffort === 'function') markDailyEffort();
+  if (typeof todayMarkDone === 'function') todayMarkDone(currentGame.skillId);
 
   // Achievement & quest hooks
   if (typeof checkAchievementsAfterQuiz === 'function') {
@@ -607,6 +609,8 @@ function generateQuestion(skillId, worldType, config) {
 // === INIT ===
 async function init() {
   await loadState();
+  if (typeof applyLook === 'function') applyLook();
+  if (typeof paintStaticIcons === 'function') paintStaticIcons();
   updateUI();
 
   if (typeof renderVersionBanner === 'function') renderVersionBanner();

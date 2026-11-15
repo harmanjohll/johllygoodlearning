@@ -81,25 +81,38 @@ var SURPRISE_EVENTS = [
   }
 ];
 
-// Roll for a surprise after correct answer
+// Celebrations at milestones she can see coming.
+//
+// This used to roll dice after every correct answer: each event had a
+// 3 to 6 percent chance, and several paid out a random number of stars.
+// That is a variable reward schedule, the mechanism a slot machine
+// uses, and it was removed for the same reason as the Daily Lucky Spin
+// (CLAUDE.md 13.1). The celebrations themselves were worth keeping. So
+// now they mark a streak of correct answers, at fixed points, and the
+// ones that were pure gambles (mystery box, star rain, lucky streak,
+// golden question, time warp, shooting star) no longer fire.
+var STREAK_MILESTONES = {
+  5:  function () { triggerLumiDance(); },
+  10: function () { triggerConfettiBurst(); },
+  15: function () { triggerLumiRiddle(); },
+  20: function () { triggerFireworks(); }
+};
+
+function milestoneForStreak(streak) {
+  return STREAK_MILESTONES.hasOwnProperty(streak) ? STREAK_MILESTONES[streak] : null;
+}
+
+// Kept under its old name because the quiz engine calls it after each
+// correct answer. It no longer rolls anything.
 function rollForSurprise() {
-  // Cooldown: at least 60 seconds between surprises
-  if (Date.now() - SURPRISE_COOLDOWN < 60000) return;
-
-  var streak = state.streak || 0;
-  var eligible = SURPRISE_EVENTS.filter(function(e) {
-    return streak >= e.minStreak;
-  });
-
-  for (var i = 0; i < eligible.length; i++) {
-    if (Math.random() < eligible[i].chance) {
-      SURPRISE_COOLDOWN = Date.now();
-      // Delay so it doesn't overlap with answer feedback
-      var evt = eligible[i];
-      setTimeout(function() { evt.fn(); }, 1800);
-      return;
-    }
-  }
+  if ((state.streak || 0) <= 1) SURPRISE_COOLDOWN = 0;   // a fresh run can celebrate again
+  var fn = milestoneForStreak(state.streak || 0);
+  if (!fn) return;
+  // The same streak number must not celebrate twice in a row (for
+  // example after an undo), and never on top of the answer feedback.
+  if (SURPRISE_COOLDOWN === 'streak-' + state.streak) return;
+  SURPRISE_COOLDOWN = 'streak-' + state.streak;
+  setTimeout(fn, 1800);
 }
 
 // === SURPRISE IMPLEMENTATIONS ===
@@ -340,67 +353,73 @@ function checkMilestoneCelebration() {
   return false;
 }
 
-// === DAILY LUCKY SPIN (once per day on home screen) ===
+// === TODAY'S SEED (replaces the Daily Lucky Spin) ===
+//
+// The spin handed out a random prize for tapping a button: a variable
+// reward for no effort, which is the mechanism slot machines use and
+// which the family's own rule (CLAUDE.md 13.1) rules out. The ritual
+// was worth keeping, the gamble was not. So the daily reward is now
+// fixed and earned: finish one activity, and a seed is ready to plant.
+// It is always exactly one flower. Nothing is left to chance.
 
-function checkDailyLuckySpin() {
-  var today = new Date().toDateString();
-  if (state._lastLuckySpin === today) return false;
-  return true;
+function _seedToday() { return new Date().toDateString(); }
+
+/** Called whenever she finishes an activity. Makes today's seed ready. */
+function markDailyEffort() {
+  if (state._seedEarnedDay === _seedToday()) return;
+  state._seedEarnedDay = _seedToday();
 }
 
-function triggerDailyLuckySpin() {
-  var today = new Date().toDateString();
-  if (state._lastLuckySpin === today) return;
-  state._lastLuckySpin = today;
-  saveState();
-
-  var prizes = [
-    { emoji: '\u2B50', text: '3 bonus stars!', stars: 3 },
-    { emoji: '\u2B50', text: '5 bonus stars!', stars: 5 },
-    { emoji: '\u2B50', text: '8 bonus stars!', stars: 8 },
-    { emoji: '\uD83D\uDD25', text: 'Start with a 3-streak!', streak: 3 },
-    { emoji: '\uD83C\uDF40', text: 'Lucky boost! Double stars for 3 questions!', lucky: 3 },
-    { emoji: '\uD83C\uDF38', text: 'A bonus flower for your garden!', flower: true }
-  ];
-
-  var prize = pick(prizes);
-
-  var overlay = getSurpriseOverlay();
-  overlay.innerHTML =
-    '<div class="surprise-card">' +
-      '<div class="surprise-icon surprise-spin">\uD83C\uDFA1</div>' +
-      '<div class="surprise-title">Daily Spin!</div>' +
-      '<div class="surprise-desc">Tap to see today\'s bonus!</div>' +
-      '<button class="surprise-btn surprise-pulse" onclick="revealDailySpin()">Spin! \uD83C\uDFA1</button>' +
-    '</div>';
-
-  overlay.classList.add('show');
-  overlay.dataset.spinPrize = JSON.stringify(prize);
+/** 'waiting' until she has finished something today, then 'ready', then 'planted'. */
+function dailySeedStatus() {
+  var today = _seedToday();
+  if (state._seedPlantedDay === today) return 'planted';
+  if (state._seedEarnedDay === today) return 'ready';
+  return 'waiting';
 }
 
-function revealDailySpin() {
-  var overlay = getSurpriseOverlay();
-  var prize = JSON.parse(overlay.dataset.spinPrize || '{}');
-
-  if (prize.stars) state.tokens += prize.stars;
-  if (prize.streak) state.streak = Math.max(state.streak, prize.streak);
-  if (prize.lucky) state._luckyMultiplier = prize.lucky;
-  if (prize.flower && typeof addGardenFlower === 'function') addGardenFlower('lucky-spin', false);
-
-  overlay.innerHTML =
-    '<div class="surprise-card">' +
-      '<div class="surprise-icon">' + (prize.emoji || '\u2B50') + '</div>' +
-      '<div class="surprise-title">You won!</div>' +
-      '<div class="surprise-desc" style="font-size:18px">' + (prize.text || 'Something special!') + '</div>' +
-      '<button class="surprise-btn" onclick="closeSurpriseOverlay()">Yay!</button>' +
-    '</div>';
-
+function plantDailySeed() {
+  if (dailySeedStatus() !== 'ready') return;
+  state._seedPlantedDay = _seedToday();
+  if (typeof addGardenFlower === 'function') addGardenFlower('daily-seed', false);
   if (typeof playSound === 'function') playSound('unlock');
-  if (typeof spawnParticles === 'function') {
-    spawnParticles(window.innerWidth / 2, window.innerHeight / 2, 12, prize.emoji || '\u2B50');
-  }
-  if (typeof updateUI === 'function') updateUI();
   saveState();
+  if (typeof updateUI === 'function') updateUI();
+  if (typeof renderHome === 'function') renderHome();
+  else if (typeof renderDailySeed === 'function') renderDailySeed();
+}
+
+/** Fill the home-screen banner. Safe to call at any time. */
+function renderDailySeed() {
+  var area = document.getElementById('daily-seed-area');
+  if (!area) return;
+  var status = dailySeedStatus();
+  if (status === 'ready') {
+    area.innerHTML = '<button type="button" class="daily-seed-banner ready" onclick="plantDailySeed()">' +
+      '<span class="daily-seed-text">' +
+        '<span class="daily-seed-title">Your seed is ready</span>' +
+        '<span class="daily-seed-desc">Tap to plant it in your garden</span>' +
+      '</span></button>';
+  } else if (status === 'waiting') {
+    area.innerHTML = '<div class="daily-seed-banner">' +
+      '<span class="daily-seed-text">' +
+        '<span class="daily-seed-title">Today\'s seed</span>' +
+        '<span class="daily-seed-desc">Finish one activity and it is ready to plant</span>' +
+      '</span></div>';
+  } else {
+    area.innerHTML = '<div class="daily-seed-banner planted">' +
+      '<span class="daily-seed-text">' +
+        '<span class="daily-seed-title">Planted today</span>' +
+        '<span class="daily-seed-desc">One new flower is in your garden</span>' +
+      '</span></div>';
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.markDailyEffort = markDailyEffort;
+  window.dailySeedStatus = dailySeedStatus;
+  window.plantDailySeed = plantDailySeed;
+  window.renderDailySeed = renderDailySeed;
 }
 
 // === SURPRISE OVERLAY HELPERS ===

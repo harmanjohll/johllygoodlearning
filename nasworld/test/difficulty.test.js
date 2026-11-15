@@ -84,6 +84,7 @@ run('state = state || {}; state.skills = {}; state.tokens = 0; state.drillConfig
 
 const SKILLS = [
   'shp', 'frac1', 'pgraph', 'lenmass',
+  'num1000', 'addsub1000', 'mass', 'volume', 'wp2',
   'add10k', 'sub10k', 'divrem', 'fracadd', 'area', 'angle', 'bargraph',
   'bignum', 'multiop', 'factor', 'mixfrac', 'decimal', 'symm', 'dataan', 'multiwp'
 ];
@@ -104,7 +105,8 @@ const GEN_FOR = {
   symm: 'genSymm', dataan: 'genDataAn', multiwp: 'genMultiWP',
   count: 'genCount', nbond: 'genNBond', add: 'genAdd', sub: 'genSub', cmp: 'genCmp',
   pat: 'genPat', wp1: 'genWP1', add100: 'genAdd100', sub100: 'genSub100',
-  mul: 'genMul', div: 'genDiv', money: 'genMoney', time1: 'genTime1', advmul: 'genAdvMul'
+  mul: 'genMul', div: 'genDiv', money: 'genMoney', time1: 'genTime1', advmul: 'genAdvMul',
+  num1000: 'genNum1000', addsub1000: 'genAddSub1000', mass: 'genMass', volume: 'genVolume', wp2: 'genWP2'
 };
 
 const statik = run(`
@@ -123,7 +125,7 @@ const statik = run(`
     return { missing: missing, notFound: notFound, total: names.length };
   })()
 `);
-ok('every one of the 33 generators reads the difficulty level',
+ok('every one of the 38 generators reads the difficulty level',
    statik.notFound.length === 0 && statik.missing.length === 0,
    statik.notFound.length ? ('NOT EXPOSED: ' + statik.notFound.join(', '))
      : (statik.missing.length ? ('IGNORES diff: ' + statik.missing.join(', '))
@@ -186,7 +188,9 @@ const shape = run(`
     }
     var byName  = function (q, s) { s[q.shape ? q.shape.name : q.type] = true; };
     var byType  = function (q, s) { s[q.type] = true; };
-    var byDenom = function (q, s) { s[q.denominator || q.denom] = true; };
+    // Comparing and ordering questions carry several fractions and no
+    // single denominator, so only the one-fraction types are counted.
+    var byDenom = function (q, s) { var d = q.denominator || q.denom; if (d) s[d] = true; };
     var byCats  = function (q, s) { s[q.categories.length] = true; };
 
     // Angles: how close to a right angle the tricky ones get.
@@ -227,7 +231,9 @@ const shape = run(`
       shpTypeLo: Object.keys(survey('shp', 0, 400, byType)),
       shpTypeHi: Object.keys(survey('shp', 4, 400, byType)),
       fracLo: Object.keys(survey('frac1', 0, 400, byDenom)).sort(),
-      fracHi: Object.keys(survey('frac1', 4, 400, byDenom)).sort(),
+      fracHi: Object.keys(survey('frac1', 4, 600, byDenom)).sort(),
+      fracTypeLo: Object.keys(survey('frac1', 0, 400, byType)).sort(),
+      fracTypeHi: Object.keys(survey('frac1', 4, 600, byType)).sort(),
       lenLo: Object.keys(survey('lenmass', 0, 400, byType)),
       lenHi: Object.keys(survey('lenmass', 4, 400, byType)),
       symmLo: Object.keys(survey('symm', 0, 400, byName)),
@@ -247,9 +253,16 @@ ok('shapes: fewer shapes and no side-counting for a beginner, both at level 4',
    'L0 ' + shape.shpLo.length + ' shapes/' + shape.shpTypeLo.join('+') +
    '  L4 ' + shape.shpHi.length + ' shapes/' + shape.shpTypeHi.join('+'));
 
-ok('fractions: halves and quarters only at level 0, six denominators at level 4',
-   shape.fracLo.join(',') === '2,4' && shape.fracHi.length === 6,
+// MOE P2 takes fractions to twelfths, so the top rung now has to reach
+// every denominator from 2 to 12 and bring in comparing, ordering and
+// like-fraction sums. The bottom rung is unchanged.
+ok('fractions: halves and quarters only at level 0, every denominator to twelfths at level 4',
+   shape.fracLo.join(',') === '2,4' && shape.fracHi.length === 11 && shape.fracHi.indexOf('12') >= 0,
    'L0 [' + shape.fracLo.join(',') + ']  L4 [' + shape.fracHi.join(',') + ']');
+ok('fractions: naming only at level 0; comparing, ordering and like-fraction sums by level 4',
+   shape.fracTypeLo.join(',') === 'fraction-identify' &&
+   ['fraction-compare', 'fraction-order', 'fraction-like-op'].every(function (t) { return shape.fracTypeHi.indexOf(t) >= 0; }),
+   'L0 ' + shape.fracTypeLo.join('+') + '  L4 ' + shape.fracTypeHi.join('+'));
 
 ok('length: comparing only at level 0, differences too at level 4',
    shape.lenLo.length === 1 && shape.lenLo[0] === 'length-compare' && shape.lenHi.length === 2,
@@ -299,42 +312,82 @@ ok('data handling: four small numbers and only totals at level 0, six larger one
    'L0 ' + dataan.lo.sizes + ' values in ' + dataan.lo.lo + '-' + dataan.lo.hi + ' (' + dataan.lo.types + ')' +
    '   L4 ' + dataan.hi.sizes + ' values in ' + dataan.hi.lo + '-' + dataan.hi.hi + ' (' + dataan.hi.types + ')');
 
-// Money is a ladder of price shape rather than price size, and the
-// renderer prints cents, so totals must stay in a range a P2 child would
-// actually write.
+// Money has two halves. The bottom rungs stay in cents, where a price is
+// a plain number. The top rungs are the P2 work: prices written in
+// dollars and cents, added and subtracted, with change from $1, $2, $5
+// or $10. Every amount is held in whole cents, so each key can be
+// checked exactly.
 const money = run(`
   (function () {
     function survey(level, n) {
       state.skills = {}; getSkillState('money').level = level;
-      var round10 = 0, seen = 0, maxAmount = 0, change = 0, bad = '';
+      var round10 = 0, seen = 0, maxAmount = 0, change = 0, dollars = 0, bad = '';
+      var types = {}, tenders = {};
       for (var i = 0; i < n; i++) {
         var q = generateMathQuestion('money', null);
-        var prices = q.type === 'money-add' ? [q.item1.price, q.item2.price] : [q.item.price];
+        types[q.type] = true;
+        var prices = q.type === 'money-convert' ? [q.cents]
+          : (q.type === 'money-change' ? [q.item.price] : [q.item1.price, q.item2.price]);
         prices.forEach(function (p) {
           seen++;
           if (p % 10 === 0) round10++;
-          if (p <= 0) bad = 'non-positive price ' + p;
+          if (!(p > 0) || p !== Math.round(p)) bad = 'price is not a whole number of cents: ' + p;
         });
+        var inDollars = !!q.inDollars || q.type === 'money-convert';
+        if (inDollars) dollars++;
+        // The key in cents, whichever way the answer is written.
+        var key = q.inDollars ? q.answerCents : q.answer;
+        if (q.inDollars && q.answer !== moneyStr(q.answerCents)) bad = 'answer ' + q.answer + ' is not ' + q.answerCents + ' cents';
+        var big = 0;
         if (q.type === 'money-change') {
           change++;
-          if (q.answer !== q.paid - q.item.price) bad = 'change key wrong';
-          if (q.answer <= 0) bad = 'change of ' + q.answer + ' cents';
-        } else if (q.answer !== q.item1.price + q.item2.price) bad = 'total key wrong';
-        var big = q.type === 'money-add' ? q.answer : q.paid;
+          tenders[q.paid] = true;
+          if (key !== q.paid - q.item.price) bad = 'change key wrong';
+          if (!(key > 0)) bad = 'change of ' + key + ' cents';
+          big = q.paid;
+        } else if (q.type === 'money-add') {
+          if (key !== q.item1.price + q.item2.price) bad = 'total key wrong';
+          big = key;
+        } else if (q.type === 'money-diff') {
+          if (key !== q.item1.price - q.item2.price) bad = 'difference key wrong';
+          if (!(key > 0)) bad = 'difference of ' + key + ' cents';
+          big = q.item1.price;
+        } else if (q.type === 'money-convert') {
+          var want = q.direction === 'to-cents' ? q.cents + ' cents' : moneyStr(q.cents);
+          if (q.answer !== want) bad = 'conversion key wrong: ' + q.answer + ' for ' + q.cents;
+          big = q.cents;
+        } else bad = 'unexpected type ' + q.type;
         if (big > maxAmount) maxAmount = big;
       }
-      return { round10: round10, seen: seen, maxAmount: maxAmount, change: change, bad: bad };
+      return { round10: round10, seen: seen, maxAmount: maxAmount, change: change, dollars: dollars, n: n,
+               types: Object.keys(types).sort(), tenders: Object.keys(tenders).map(Number).sort(function (a, b) { return a - b; }), bad: bad };
     }
-    return { lo: survey(0, 400), hi: survey(4, 400) };
+    return { l0: survey(0, 400), l1: survey(1, 400), l2: survey(2, 600), l3: survey(3, 600), l4: survey(4, 600),
+             fmt: [moneyStr(240), moneyStr(305), moneyStr(55), moneyStr(1000), moneyStr(5)].join(' ') };
   })()
 `);
 ok('money: every price is a round ten cents at level 0, and no change to give yet',
-   !money.lo.bad && money.lo.round10 === money.lo.seen && money.lo.change === 0,
-   money.lo.bad || (money.lo.round10 + '/' + money.lo.seen + ' prices round, ' + money.lo.change + ' change questions'));
-ok('money: awkward prices and giving change by level 4, all still under two dollars',
-   !money.hi.bad && money.hi.round10 < money.hi.seen * 0.25 && money.hi.change > 0 && money.hi.maxAmount <= 200,
-   money.hi.bad || (money.hi.round10 + '/' + money.hi.seen + ' prices round, ' + money.hi.change +
-                    ' change questions, largest amount ' + money.hi.maxAmount + 'c'));
+   !money.l0.bad && money.l0.round10 === money.l0.seen && money.l0.change === 0 && money.l0.dollars === 0,
+   money.l0.bad || (money.l0.round10 + '/' + money.l0.seen + ' prices round, ' + money.l0.change + ' change questions'));
+ok('money: level 1 stays in cents, under one dollar, with change from one dollar',
+   !money.l1.bad && money.l1.dollars === 0 && money.l1.change > 0 && money.l1.maxAmount <= 190 &&
+   money.l1.tenders.join(',') === '100',
+   money.l1.bad || ('largest amount ' + money.l1.maxAmount + 'c, paid with ' + money.l1.tenders.join('/')));
+ok('money: amounts are written the way P2 writes them',
+   money.fmt === '$2.40 $3.05 $0.55 $10.00 $0.05', money.fmt);
+ok('money: levels 2 to 4 are all in dollars and cents, with every key exact',
+   [money.l2, money.l3, money.l4].every(function (m) { return !m.bad && m.dollars === m.n; }),
+   [money.l2, money.l3, money.l4].map(function (m) { return m.bad || (m.dollars + '/' + m.n); }).join('  '));
+ok('money: level 2 adds, converts and gives change; subtraction of prices joins at level 3',
+   money.l2.types.join(',') === 'money-add,money-change,money-convert' && money.l3.types.indexOf('money-diff') >= 0,
+   'L2 ' + money.l2.types.join('+') + '  L3 ' + money.l3.types.join('+'));
+ok('money: change is given from $1, $2, $5 and $10 and nothing else',
+   money.l3.tenders.join(',') === '100,200,500,1000' &&
+   [money.l2, money.l4].every(function (m) { return m.tenders.every(function (t) { return [100, 200, 500, 1000].indexOf(t) >= 0; }); }),
+   'L2 ' + money.l2.tenders.join('/') + '  L3 ' + money.l3.tenders.join('/') + '  L4 ' + money.l4.tenders.join('/'));
+ok('money: nothing costs more than ten dollars and no total passes twenty',
+   money.l4.maxAmount <= 2000 && money.l4.maxAmount > 500,
+   'largest amount at level 4: ' + money.l4.maxAmount + 'c');
 
 // ---------------------------------------------------------------------
 // 2. Answer keys must be the actual answers.

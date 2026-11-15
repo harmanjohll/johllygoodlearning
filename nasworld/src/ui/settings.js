@@ -16,7 +16,10 @@ function renderSettings() {
   var html = '<button class="back-btn" onclick="showScreen(\'home\')">← Back to Home</button>';
   html += '<div class="settings-shell">';
   html += '<h2 class="settings-title">Settings</h2>';
-  html += '<p class="settings-sub">For grown-ups.</p>';
+  html += '<p class="settings-sub">The look is for anyone. The rest is for grown-ups.</p>';
+
+  // ---- Look: tone and typefaces ----
+  if (typeof renderLookSettings === 'function') html += renderLookSettings();
 
   // ---- AI section ----
   html += '<div class="settings-card">';

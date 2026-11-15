@@ -158,6 +158,8 @@ var MATH_LESSONS = {
     steps: [
       { visual: '<div style="display:flex;gap:4px"><div style="width:50px;height:50px;background:var(--sky);border-radius:4px"></div><div style="width:50px;height:50px;background:var(--bg-mid);border:2px dashed var(--text-dim);border-radius:4px"></div></div>', text: 'This shape is cut into 2 equal parts. 1 is shaded = <b>½</b> (one half)', lumiTip: 'The bottom number tells how many equal parts. The top tells how many are shaded.' },
       { visual: '<div style="display:flex;gap:4px"><div style="width:40px;height:40px;background:var(--coral);border-radius:4px"></div><div style="width:40px;height:40px;background:var(--bg-mid);border:2px dashed var(--text-dim);border-radius:4px"></div><div style="width:40px;height:40px;background:var(--bg-mid);border:2px dashed var(--text-dim);border-radius:4px"></div><div style="width:40px;height:40px;background:var(--bg-mid);border:2px dashed var(--text-dim);border-radius:4px"></div></div>', text: '1 out of 4 parts = <b>¼</b> (one quarter)', lumiTip: 'Equal parts means each piece is the same size!' },
+      { text: '<b>Which is bigger?</b><br>Cut a cake into 3 equal parts, or into 8 equal parts.<br>The more parts there are, the smaller each part is.<br>So 1/3 is greater than 1/8.', lumiTip: 'When the bottom numbers are the same, the fraction with more parts is greater: 5/8 is greater than 3/8.' },
+      { text: '<b>Adding like fractions:</b><br>2/8 + 3/8<br>The parts are the same size, so add the number of parts.<br>2 parts + 3 parts = 5 parts<br>= <b>5/8</b>', lumiTip: 'The bottom number stays the same. Only the top numbers are added.' },
       { type: 'try', prompt: 'A pizza is cut into 4 slices. You eat 2. What fraction did you eat?', options: ['¼', '½', '¾'], answer: '½', successMsg: '2 out of 4 = ½. Half the pizza!' }
     ]
   },
@@ -169,6 +171,8 @@ var MATH_LESSONS = {
     steps: [
       { text: '<b>Singapore Coins:</b><br>🪙 5¢, 10¢, 20¢, 50¢<br><b>Singapore Notes:</b><br>💵 $2, $5, $10, $50', lumiTip: '100 cents = 1 dollar!' },
       { text: '<b>Adding money:</b><br>A pencil costs $2.<br>An eraser costs $1.<br>Total = $2 + $1 = <b>$3</b>', lumiTip: 'Adding prices is just like regular addition!' },
+      { text: '<b>Dollars and cents:</b><br>We write 2 dollars and 40 cents as <b>$2.40</b>.<br>The dot separates the dollars from the cents.<br>3 dollars and 5 cents is <b>$3.05</b>.', lumiTip: 'There are always two digits after the dot. Five cents is written as 05.' },
+      { text: '<b>Finding the change:</b><br>A notebook costs $2.40. You pay with a $5 note.<br>Count on from $2.40.<br>60 cents more makes $3.00.<br>$2.00 more makes $5.00.<br>Change = <b>$2.60</b>', lumiTip: 'Counting on from the price is how a shopkeeper gives change.' },
       { type: 'try', prompt: 'A book costs $5. You pay with $10. What is your change?', options: ['$3', '$5', '$15'], answer: '$5', successMsg: '$10 − $5 = $5 change!' }
     ]
   },
@@ -180,6 +184,8 @@ var MATH_LESSONS = {
     steps: [
       { text: '<b>The clock has 2 hands:</b><br>🔵 Short hand = <b>hour</b><br>🔴 Long hand = <b>minutes</b><br>When the long hand points to 12, it\'s "o\'clock"!', lumiTip: 'The short hand moves slowly, the long hand moves fast!' },
       { text: '<b>Half past:</b><br>When the long hand points to 6, it\'s "half past".<br>🕧 = half past 12<br>🕐 = 1 o\'clock', lumiTip: 'Half past means 30 minutes past the hour.' },
+      { text: '<b>Counting in fives:</b><br>Each number on the clock is 5 minutes for the long hand.<br>Long hand on 1 is 5 minutes. On 2 is 10 minutes. On 7 is 35 minutes.<br>Short hand just past 3, long hand on 7: the time is <b>3:35</b>.', lumiTip: 'Count in fives from the 12: 5, 10, 15, 20 and so on.' },
+      { text: '<b>am and pm:</b><br>From midnight until just before noon we write <b>am</b>.<br>From noon until just before midnight we write <b>pm</b>.<br>Breakfast is at 7:00 am. Dinner is at 7:00 pm.', lumiTip: 'From 2:00 pm to 3:30 pm is 1 and a half hours. Count on in jumps of 30 minutes.' },
       { type: 'try', prompt: 'The short hand is on 3, the long hand is on 12. What time is it?', options: ['12 o\'clock', '3 o\'clock', 'Half past 3'], answer: '3 o\'clock', successMsg: 'Long hand on 12 = o\'clock!' }
     ]
   },
@@ -191,6 +197,7 @@ var MATH_LESSONS = {
     steps: [
       { text: '<b>Favourite Fruit:</b><br>🍎🍎🍎🍎 = 4 children<br>🍌🍌🍌 = 3 children<br>🍇🍇🍇🍇🍇 = 5 children', lumiTip: 'Count the pictures to find the number!' },
       { text: '<b>What can we learn?</b><br>Most popular = Grapes (5)<br>Least popular = Banana (3)<br>Difference = 5 − 3 = 2', lumiTip: 'Graphs help us answer questions about data.' },
+      { text: '<b>Read the key:</b><br>Sometimes one picture stands for more than one.<br>If each picture stands for 5 children, then 3 pictures stand for 5 + 5 + 5 = <b>15 children</b>.', lumiTip: 'Always look at the key before counting. Then count on in 2s, 5s or 10s.' },
       { type: 'try', prompt: 'In the graph above, how many more children like grapes than bananas?', options: ['1', '2', '3'], answer: '2', successMsg: '5 − 3 = 2 more children!' }
     ]
   },
@@ -203,6 +210,67 @@ var MATH_LESSONS = {
       { text: '<b>Length</b> tells how long something is.<br>We use <b>cm</b> (centimetres) and <b>m</b> (metres).<br>100 cm = 1 m', lumiTip: 'A ruler measures centimetres. Your arm is about 1 metre!' },
       { text: '<b>Mass</b> tells how heavy something is.<br>We use <b>g</b> (grams) and <b>kg</b> (kilograms).<br>1000 g = 1 kg', lumiTip: 'A bag of rice is about 1 kg!' },
       { type: 'try', prompt: 'Which is longer: 50 cm or 1 m?', options: ['50 cm', '1 m', 'Same'], answer: '1 m', successMsg: '1 m = 100 cm, so 1 m is longer!' }
+    ]
+  },
+
+  num1000: {
+    title: 'Numbers to 1000',
+    icon: '🔢',
+    lumiSays: 'Three digits, three places.',
+    steps: [
+      { text: '<b>Hundreds, tens and ones:</b><br>345 is 3 hundreds, 4 tens and 5 ones.<br>The 3 stands for 300.<br>The 4 stands for 40.<br>The 5 stands for 5.', lumiTip: 'The place of a digit tells you its value.' },
+      { text: '<b>A zero holds a place:</b><br>4 hundreds, 0 tens and 6 ones is <b>406</b>.<br>We say four hundred and six.<br>Without the zero it would be 46, which is a different number.', lumiTip: 'If there are no tens, write 0 in the tens place.' },
+      { text: '<b>Comparing:</b><br>Which is greater, 352 or 325?<br>The hundreds are the same, so look at the tens.<br>5 tens is more than 2 tens.<br>352 is greater.', lumiTip: 'Compare the hundreds first, then the tens, then the ones.' },
+      { text: '<b>Number patterns:</b><br>230, 240, 250, 260<br>Each number is 10 more than the one before.<br>The next number is 270.', lumiTip: 'Find the gap between two numbers that are next to each other.' },
+      { type: 'try', prompt: 'What is the value of the digit 7 in 472?', options: ['7', '70', '700'], answer: '70', successMsg: 'The 7 is in the tens place, so it stands for 70.' }
+    ]
+  },
+
+  addsub1000: {
+    title: 'Add and Subtract to 1000',
+    icon: '🧮',
+    lumiSays: 'Line up the hundreds, tens and ones.',
+    steps: [
+      { text: '<b>Adding in columns:</b><br>245 + 132<br>Ones: 5 + 2 = 7<br>Tens: 4 + 3 = 7<br>Hundreds: 2 + 1 = 3<br>= <b>377</b>', lumiTip: 'Always start with the ones.' },
+      { text: '<b>Regrouping when adding:</b><br>247 + 135<br>Ones: 7 + 5 = 12. That is 1 ten and 2 ones.<br>Write 2. Carry the 1 ten.<br>Tens: 4 + 3 + 1 = 8<br>Hundreds: 2 + 1 = 3<br>= <b>382</b>', lumiTip: 'Ten ones are regrouped as one ten.' },
+      { text: '<b>Regrouping when subtracting:</b><br>352 − 127<br>Ones: 2 − 7 cannot be done.<br>Regroup 1 ten as 10 ones: 12 − 7 = 5<br>Tens: 4 − 2 = 2<br>Hundreds: 3 − 1 = 2<br>= <b>225</b>', lumiTip: 'After regrouping, there is one ten fewer in the tens place.' },
+      { type: 'try', prompt: '236 + 147 = ?', options: ['373', '383', '393'], answer: '383', successMsg: '6 + 7 = 13, so 1 ten is carried. 236 + 147 = 383.' }
+    ]
+  },
+
+  mass: {
+    title: 'Mass',
+    icon: '⚖️',
+    lumiSays: 'How heavy is it?',
+    steps: [
+      { text: '<b>Mass</b> tells us how heavy something is.<br>We measure heavy things in <b>kilograms (kg)</b>.<br>We measure light things in <b>grams (g)</b>.', lumiTip: 'A bag of rice is about 5 kg. An egg is about 60 g.' },
+      { text: '<b>Reading a scale:</b><br>Look at where the needle points.<br>If it points between two numbers, find out what each small mark is worth.<br>Between 300 g and 400 g with 5 small marks, each mark is 20 g.', lumiTip: 'Read the numbered mark before the needle, then count on.' },
+      { text: '<b>Adding and subtracting mass:</b><br>A papaya is 650 g. A mango is 400 g.<br>Total mass = 650 g + 400 g = <b>1050 g</b><br>The papaya is 650 g − 400 g = <b>250 g</b> heavier.', lumiTip: 'Only add or subtract amounts that are in the same unit.' },
+      { type: 'try', prompt: 'A pumpkin is 5 kg. A watermelon is 3 kg. What is their total mass?', options: ['2 kg', '8 kg', '53 kg'], answer: '8 kg', successMsg: '5 kg + 3 kg = 8 kg.' }
+    ]
+  },
+
+  volume: {
+    title: 'Volume',
+    icon: '💧',
+    lumiSays: 'How much water is there?',
+    steps: [
+      { text: '<b>Volume</b> tells us how much water a container holds.<br>We measure it in <b>litres</b>.<br>We write ℓ for litres.', lumiTip: 'A big bottle of water from the shop holds about 1 litre.' },
+      { text: '<b>Reading the scale on a tank:</b><br>Look at where the top of the water reaches.<br>Read the number beside that mark.<br>If the mark has no number, count on from the number below it.', lumiTip: 'Put your eyes level with the top of the water.' },
+      { text: '<b>Adding and subtracting volume:</b><br>A pail holds 8 ℓ. A basin holds 5 ℓ.<br>Altogether they hold 8 ℓ + 5 ℓ = <b>13 ℓ</b>.<br>The pail holds 8 ℓ − 5 ℓ = <b>3 ℓ</b> more.', lumiTip: 'Altogether means add. How much more means subtract.' },
+      { type: 'try', prompt: 'A tank had 20 ℓ of water. 6 ℓ was used. How much water is left?', options: ['14 ℓ', '16 ℓ', '26 ℓ'], answer: '14 ℓ', successMsg: '20 ℓ − 6 ℓ = 14 ℓ.' }
+    ]
+  },
+
+  wp2: {
+    title: 'Two-Step Story Problems',
+    icon: '📖',
+    lumiSays: 'Two steps. Find the hidden number first.',
+    steps: [
+      { text: '<b>Some problems need two steps.</b><br>Siti has 120 stickers. Priya has 30 more stickers than Siti.<br>How many stickers do they have altogether?<br>We cannot add yet. We do not know how many Priya has.', lumiTip: 'Ask yourself: what do I need to find first?' },
+      { text: '<b>Step 1:</b> Find how many Priya has.<br>120 + 30 = 150<br><b>Step 2:</b> Add the two amounts.<br>120 + 150 = <b>270</b>', lumiTip: 'Drawing a bar model shows which number is hidden.' },
+      { text: '<b>Part and whole:</b><br>A shelf has 200 books. 80 are storybooks and 50 are comics. The rest are picture books.<br>Step 1: 80 + 50 = 130<br>Step 2: 200 − 130 = <b>70</b> picture books', lumiTip: 'Find the parts you know. Take them from the whole.' },
+      { type: 'try', prompt: 'Ravi has 40 marbles. Daniel has 10 fewer marbles than Ravi. How many marbles do they have altogether?', options: ['30', '70', '90'], answer: '70', successMsg: 'Daniel has 40 − 10 = 30. Altogether 40 + 30 = 70.' }
     ]
   }
 };

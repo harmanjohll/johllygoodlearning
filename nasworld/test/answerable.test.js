@@ -118,7 +118,10 @@ const SUBJECTS = {
   Malay: {
     gen: 'generateMalayQuestion', render: 'renderMalayQuestion',
     skills: ['huruf', 'nombor', 'salam', 'warna', 'keluarga', 'haiwan',
-             'badan', 'makanan', 'hari', 'ayat']
+             'badan', 'makanan', 'hari', 'ayat',
+             // Primary 2 layer (checked in depth by malay-p2.test.js)
+             'imbuhan', 'ganda', 'penjodoh', 'tanya', 'adjektif',
+             'sendi', 'hubung', 'peribahasa', 'kefahaman', 'binaayat']
   },
   Coding: {
     gen: 'generateCodeQuestion', render: 'renderCodeQuestion',
@@ -128,6 +131,7 @@ const SUBJECTS = {
     gen: 'generateMathQuestion', render: 'renderMathQuestion',
     skills: ['count', 'nbond', 'add', 'sub', 'cmp', 'pat', 'wp1', 'shp',
              'add100', 'sub100', 'mul', 'div', 'frac1', 'money', 'time1', 'pgraph', 'lenmass',
+             'num1000', 'addsub1000', 'mass', 'volume', 'wp2',
              'add10k', 'sub10k', 'advmul', 'divrem', 'fracadd', 'area', 'angle', 'bargraph',
              'bignum', 'multiop', 'factor', 'mixfrac', 'decimal', 'symm', 'dataan', 'multiwp']
   }

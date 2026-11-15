@@ -1,5 +1,5 @@
 // ============================================================
-//  MATH TREE — 28-skill tree with dependencies (P1-P4)
+//  MATH TREE — skill tree with dependencies (P1-P4)
 // ============================================================
 
 const MATH_TREE = {
@@ -12,7 +12,7 @@ const MATH_TREE = {
   pat:    { id:'pat',    name:'Patterns',               icon:'\uD83D\uDD36', grade:'P1 Foundation', deps:[], desc:'Find and complete patterns' },
   wp1:    { id:'wp1',    name:'Story Problems',         icon:'\uD83D\uDCDD', grade:'P1 Foundation', deps:[], desc:'Solve real-world puzzles' },
   shp:    { id:'shp',    name:'Shape Explorer',         icon:'\uD83D\uDD37', grade:'P1 Foundation', deps:[], desc:'Discover 2D shapes' },
-  time1:  { id:'time1',  name:'Telling Time',           icon:'\uD83D\uDD50', grade:'P1 Foundation', deps:[], desc:'Read clocks \u2014 hour and half-hour' },
+  time1:  { id:'time1',  name:'Telling Time',           icon:'\uD83D\uDD50', grade:'P1 Foundation', deps:[], desc:'Read clocks, am and pm, how long' },
 
   // === P2 Expansion ===
   add100: { id:'add100', name:'Addition to 100',        icon:'\u2795',       grade:'P2 Expansion', deps:['add','nbond'], desc:'Add bigger numbers with regrouping' },
@@ -23,6 +23,11 @@ const MATH_TREE = {
   money:  { id:'money',  name:'Money',                  icon:'\uD83D\uDCB0', grade:'P2 Expansion', deps:['add100','sub100'], desc:'Singapore dollars and cents' },
   pgraph: { id:'pgraph', name:'Picture Graphs',         icon:'\uD83D\uDCCA', grade:'P2 Expansion', deps:['count','add'], desc:'Read and make graphs' },
   lenmass:{ id:'lenmass',name:'Length & Mass',           icon:'\uD83D\uDCCF', grade:'P2 Expansion', deps:['cmp'], desc:'Comparing and measuring' },
+  num1000:{ id:'num1000',name:'Numbers to 1000',        icon:'\uD83D\uDD22', grade:'P2 Expansion', deps:['count','cmp'], desc:'Hundreds, tens and ones' },
+  addsub1000:{ id:'addsub1000',name:'Add & Subtract to 1000', icon:'\uD83E\uDDEE', grade:'P2 Expansion', deps:['num1000','add100','sub100'], desc:'Three-digit sums with regrouping' },
+  mass:   { id:'mass',   name:'Mass',                   icon:'\u2696\uFE0F', grade:'P2 Expansion', deps:['lenmass'], desc:'Kilograms and grams' },
+  volume: { id:'volume', name:'Volume',                 icon:'\uD83D\uDCA7', grade:'P2 Expansion', deps:['lenmass'], desc:'Litres of water' },
+  wp2:    { id:'wp2',    name:'Two-Step Story Problems', icon:'\uD83D\uDCD6', grade:'P2 Expansion', deps:['wp1','add100','sub100'], desc:'Find the hidden number first' },
 
   // === P3 Deepening ===
   add10k: { id:'add10k', name:'Addition to 10,000',     icon:'\u2795',       grade:'P3 Deepening', deps:['add100'], desc:'Column method with regrouping' },

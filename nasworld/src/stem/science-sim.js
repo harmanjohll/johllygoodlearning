@@ -33,8 +33,8 @@ function renderScienceSort(card, q) {
   html += '<div style="display:flex;gap:16px;justify-content:center;margin:16px 0">';
   q.categories.forEach(function(cat) {
     html += '<div style="flex:1;min-width:100px">';
-    html += '<div style="font-weight:700;font-size:16px;color:var(--gold);margin-bottom:8px;padding:6px;background:rgba(255,255,255,0.05);border-radius:8px">' + cat + '</div>';
-    html += '<div class="sort-zone" id="sort-' + cat.replace(/\s/g,'') + '" style="min-height:80px;padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;border:2px dashed rgba(255,255,255,0.1)"></div>';
+    html += '<div style="font-weight:700;font-size:16px;color:var(--gold);margin-bottom:8px;padding:6px;background:rgba(var(--ink-rgb),0.05);border-radius:8px">' + cat + '</div>';
+    html += '<div class="sort-zone" id="sort-' + cat.replace(/\s/g,'') + '" style="min-height:80px;padding:8px;background:rgba(var(--ink-rgb),0.03);border-radius:8px;border:2px dashed rgba(var(--ink-rgb),0.1)"></div>';
     html += '</div>';
   });
   html += '</div>';
@@ -136,7 +136,7 @@ function renderWaterCycleSim(card, q) {
   html += '<div id="wc-cloud" style="position:absolute;top:20px;left:40px;font-size:36px;transition:all 0.5s">\u2601\uFE0F</div>';
 
   // Water body
-  html += '<div style="position:absolute;bottom:0;left:0;right:0;height:40px;background:rgba(30,144,255,0.6);border-radius:0 0 16px 16px"></div>';
+  html += '<div style="position:absolute;bottom:0;left:0;right:0;height:40px;background:rgba(var(--accent-rgb),0.6);border-radius:0 0 16px 16px"></div>';
 
   // Arrows (hidden initially, shown as stages advance)
   html += '<div id="wc-evap" class="wc-arrow" style="position:absolute;bottom:50px;right:60px;color:#ADD8E6;font-size:24px;opacity:0;transition:opacity 0.5s">\u2B06\uFE0F</div>';
@@ -227,7 +227,7 @@ function renderBodyExplorer(card, q) {
   html += '</div>';
 
   // Info panel
-  html += '<div id="body-info" style="min-height:50px;padding:10px;background:rgba(255,255,255,0.05);border-radius:12px;margin:8px 0;font-size:14px;color:var(--text-secondary)">Tap an organ to learn about it!</div>';
+  html += '<div id="body-info" style="min-height:50px;padding:10px;background:rgba(var(--ink-rgb),0.05);border-radius:12px;margin:8px 0;font-size:14px;color:var(--text-secondary)">Tap an organ to learn about it!</div>';
 
   // Count explored organs
   html += '<div id="body-explored" style="font-size:12px;color:var(--text-dim);margin:4px 0">Explored: 0/' + organs.length + '</div>';
@@ -285,7 +285,7 @@ function bodyOrganClick(id, label, desc) {
 function renderMagnetSim(card, q) {
   var html = '<div class="question-text">\uD83E\uDDF2 Magnet Lab</div>';
 
-  html += '<div style="position:relative;width:100%;max-width:320px;height:120px;margin:16px auto;background:rgba(255,255,255,0.03);border-radius:16px;overflow:hidden" id="magnet-sim">';
+  html += '<div style="position:relative;width:100%;max-width:320px;height:120px;margin:16px auto;background:rgba(var(--ink-rgb),0.03);border-radius:16px;overflow:hidden" id="magnet-sim">';
 
   // Left magnet
   html += '<div id="mag-left" style="position:absolute;left:40px;top:35px;width:80px;height:50px;border-radius:8px;display:flex;cursor:pointer;user-select:none" onclick="magFlipLeft()">';
@@ -381,7 +381,7 @@ function renderPlantGrowthSim(card, q) {
   html += '<div id="plant-stage" style="position:absolute;bottom:35%;left:50%;transform:translateX(-50%);font-size:28px;transition:all 0.5s">\uD83C\uDF31</div>';
 
   // Soil indicator
-  html += '<div id="plant-soil" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:12px;color:rgba(255,255,255,0.6)">Soil \u2713</div>';
+  html += '<div id="plant-soil" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:12px;color:rgba(var(--ink-rgb),0.6)">Soil \u2713</div>';
 
   html += '</div>';
 
@@ -462,13 +462,13 @@ function renderCircuitSim(card, q) {
   html += '<div style="display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap">';
 
   // Battery
-  html += '<div style="padding:8px 12px;background:rgba(255,200,0,0.2);border:2px solid var(--gold);border-radius:8px;font-size:24px;text-align:center">\uD83D\uDD0B<div style="font-size:10px;color:var(--gold)">Battery</div></div>';
+  html += '<div style="padding:8px 12px;background:rgba(var(--accent-rgb),0.2);border:2px solid var(--gold);border-radius:8px;font-size:24px;text-align:center">\uD83D\uDD0B<div style="font-size:10px;color:var(--gold)">Battery</div></div>';
 
   // Wire segment 1
   html += '<div style="width:30px;height:4px;background:var(--text-dim);margin:0 2px" id="circuit-wire1"></div>';
 
   // Switch
-  html += '<div style="padding:8px 12px;background:rgba(255,255,255,0.05);border:2px solid var(--text-dim);border-radius:8px;font-size:20px;cursor:pointer;text-align:center;transition:all 0.3s" id="circuit-switch" onclick="circuitToggleSwitch()">';
+  html += '<div style="padding:8px 12px;background:rgba(var(--ink-rgb),0.05);border:2px solid var(--text-dim);border-radius:8px;font-size:20px;cursor:pointer;text-align:center;transition:all 0.3s" id="circuit-switch" onclick="circuitToggleSwitch()">';
   html += '<span id="circuit-switch-icon">\uD83D\uDD34</span>';
   html += '<div style="font-size:10px;color:var(--text-secondary)">Switch</div></div>';
 
@@ -476,7 +476,7 @@ function renderCircuitSim(card, q) {
   html += '<div style="width:30px;height:4px;background:var(--text-dim);margin:0 2px" id="circuit-wire2"></div>';
 
   // Bulb
-  html += '<div style="padding:8px 12px;background:rgba(255,255,255,0.05);border:2px solid var(--text-dim);border-radius:8px;font-size:24px;text-align:center;transition:all 0.3s" id="circuit-bulb">';
+  html += '<div style="padding:8px 12px;background:rgba(var(--ink-rgb),0.05);border:2px solid var(--text-dim);border-radius:8px;font-size:24px;text-align:center;transition:all 0.3s" id="circuit-bulb">';
   html += '<span id="circuit-bulb-icon">\uD83D\uDCA1</span>';
   html += '<div style="font-size:10px;color:var(--text-secondary)">Bulb</div></div>';
 
@@ -516,9 +516,9 @@ function circuitToggleSwitch() {
     switchIcon.textContent = '\uD83D\uDFE2';
     switchEl.style.borderColor = 'var(--success)';
     bulb.style.borderColor = 'var(--gold)';
-    bulb.style.background = 'rgba(255,255,0,0.2)';
+    bulb.style.background = 'rgba(var(--accent-rgb),0.2)';
     bulbIcon.textContent = '\uD83D\uDCA1';
-    bulb.style.boxShadow = '0 0 20px rgba(255,255,0,0.4)';
+    bulb.style.boxShadow = '0 0 20px rgba(var(--accent-rgb),0.4)';
     wire1.style.background = 'var(--gold)';
     wire2.style.background = 'var(--gold)';
     if (status) status.textContent = 'Circuit is CLOSED \u2014 bulb is ON! \u2728';
@@ -527,7 +527,7 @@ function circuitToggleSwitch() {
     switchIcon.textContent = '\uD83D\uDD34';
     switchEl.style.borderColor = 'var(--text-dim)';
     bulb.style.borderColor = 'var(--text-dim)';
-    bulb.style.background = 'rgba(255,255,255,0.05)';
+    bulb.style.background = 'rgba(var(--ink-rgb),0.05)';
     bulbIcon.textContent = '\uD83D\uDCA1';
     bulb.style.boxShadow = 'none';
     wire1.style.background = 'var(--text-dim)';

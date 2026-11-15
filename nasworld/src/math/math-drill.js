@@ -174,7 +174,9 @@ var DRILL_OPTIONS = {
       { key: 'oclock',   label: "O'clock only",     range: [0, 0],  flag: 'oclock' },
       { key: 'half',     label: "O'clock + half past", range: [0, 30], flag: 'half' },
       { key: 'quarter',  label: 'Add quarter past/to', range: [0, 45], flag: 'quarter' },
-      { key: 'fivemin',  label: 'Five minute steps',   range: [0, 55], flag: 'fivemin' }
+      { key: 'fivemin',  label: 'Five minute steps',   range: [0, 55], flag: 'fivemin' },
+      { key: 'ampm',     label: 'am and pm',           range: [0, 55], flag: 'ampm' },
+      { key: 'duration', label: 'How long it lasts',   range: [0, 30], flag: 'duration' }
     ],
     modes: ['practice'], counts: [5, 10],
     blurb: 'Start with o\'clock. Add half past when that feels easy.'
@@ -184,10 +186,64 @@ var DRILL_OPTIONS = {
     ranges: [
       { key: 'coins',  label: 'Counting coins',  range: [1, 100], flag: 'coins' },
       { key: 'add',    label: 'Adding money',    range: [1, 20],  flag: 'add' },
-      { key: 'change', label: 'Giving change',   range: [1, 20],  flag: 'change' }
+      { key: 'change', label: 'Giving change',   range: [1, 20],  flag: 'change' },
+      { key: 'dollars', label: 'Dollars and cents', range: [1, 10], flag: 'dollars' }
     ],
     modes: ['practice', 'word'], counts: [5, 10],
     blurb: 'Singapore dollars and cents.'
+  },
+  num1000: {
+    title: 'Numbers to 1000', icon: '\uD83D\uDD22',
+    ranges: [
+      { key: 'place',   label: 'Hundreds, tens and ones', range: [100, 999], flag: 'place' },
+      { key: 'mixed',   label: 'Mixed',                   range: [100, 999] },
+      { key: 'compare', label: 'Comparing and ordering',  range: [100, 999], flag: 'compare' },
+      { key: 'pattern', label: 'Number patterns',         range: [100, 999], flag: 'pattern' }
+    ],
+    modes: ['practice'], counts: [5, 10, 20],
+    blurb: 'Every digit has a place. The place tells you its value.'
+  },
+  addsub1000: {
+    title: 'Add and Subtract to 1000', icon: '\uD83E\uDDEE',
+    ranges: [
+      { key: 'add',   label: 'Adding',      range: [1, 1000], flag: 'add' },
+      { key: 'mixed', label: 'Mixed',       range: [1, 1000] },
+      { key: 'sub',   label: 'Subtracting', range: [1, 1000], flag: 'sub' }
+    ],
+    modes: ['practice'], counts: [5, 10, 20],
+    blurb: 'Line up the hundreds, tens and ones. Start with the ones.'
+  },
+  mass: {
+    title: 'Mass', icon: '\u2696\uFE0F',
+    ranges: [
+      { key: 'compare', label: 'Heavier and lighter', range: [1, 1000], flag: 'compare' },
+      { key: 'mixed',   label: 'Mixed',               range: [1, 1000] },
+      { key: 'scale',   label: 'Reading a scale',     range: [1, 1000], flag: 'scale' },
+      { key: 'calc',    label: 'Adding and subtracting', range: [1, 1000], flag: 'calc' }
+    ],
+    modes: ['practice'], counts: [5, 10],
+    blurb: 'Kilograms for heavy things. Grams for light things.'
+  },
+  volume: {
+    title: 'Volume', icon: '\uD83D\uDCA7',
+    ranges: [
+      { key: 'compare', label: 'More and less',       range: [1, 100], flag: 'compare' },
+      { key: 'mixed',   label: 'Mixed',               range: [1, 100] },
+      { key: 'scale',   label: 'Reading a scale',     range: [1, 100], flag: 'scale' },
+      { key: 'calc',    label: 'Adding and subtracting', range: [1, 100], flag: 'calc' }
+    ],
+    modes: ['practice'], counts: [5, 10],
+    blurb: 'How much water a container holds, in litres.'
+  },
+  wp2: {
+    title: 'Two-Step Story Problems', icon: '\uD83D\uDCD6',
+    structures: [
+      { key: 'two-step-pw',  label: 'Part & Whole', hint: 'Find the whole, or a missing part' },
+      { key: 'two-step-cmp', label: 'Compare',      hint: 'More than, fewer than, altogether' },
+      { key: 'mixed',        label: 'Mixed',        hint: 'A bit of both' }
+    ],
+    modes: ['word'], counts: [5, 10],
+    blurb: 'Two steps. Find the hidden number first.'
   },
   wp1: {
     title: 'Story Problems', icon: '📝',
@@ -284,10 +340,11 @@ function resolveDrillConfig(skillId) {
 
 var PRACTICE_GROUPS = [
   { title: 'Times Tables & Sharing', skills: ['mul', 'div'] },
-  { title: 'Adding & Taking Away',   skills: ['add', 'sub', 'add100', 'sub100', 'nbond'] },
-  { title: 'Numbers',                skills: ['count'] },
+  { title: 'Adding & Taking Away',   skills: ['add', 'sub', 'add100', 'sub100', 'addsub1000', 'nbond'] },
+  { title: 'Numbers',                skills: ['count', 'num1000'] },
   { title: 'Time & Money',           skills: ['time1', 'money'] },
-  { title: 'Story Problems',         skills: ['wp1', 'multiwp'] }
+  { title: 'Measuring',              skills: ['mass', 'volume'] },
+  { title: 'Story Problems',         skills: ['wp1', 'wp2', 'multiwp'] }
 ];
 
 function renderPracticeHub() {

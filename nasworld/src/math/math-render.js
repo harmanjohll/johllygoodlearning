@@ -27,6 +27,21 @@ function renderMathQuestion(card, q) {
     case 'division':            renderDivision(card, q); return true;
     case 'fraction-identify':   renderFractionIdentify(card, q); return true;
     case 'fraction-shade':      renderFractionShade(card, q); return true;
+    case 'fraction-compare':    renderFractionCompare(card, q); return true;
+    case 'fraction-order':      renderFractionCompare(card, q); return true;
+    case 'fraction-like-op':    renderFractionLikeOp(card, q); return true;
+    case 'money-diff':          renderMoneyText(card, q); return true;
+    case 'money-convert':       renderMoneyText(card, q); return true;
+    case 'time-ampm':           renderTimeAmPm(card, q); return true;
+    case 'time-duration':       renderTimeDuration(card, q); return true;
+    case 'pv-1000':             renderPlaceValue1000(card, q); return true;
+    case 'compare-1000':        renderCompare1000(card, q); return true;
+    case 'order-1000':          renderCompare1000(card, q); return true;
+    case 'pattern-1000':        renderPattern1000(card, q); return true;
+    case 'addsub-1000':         renderAddSub1000(card, q); return true;
+    case 'measure-compare':     renderMeasureCompare(card, q); return true;
+    case 'measure-scale':       renderMeasureScale(card, q); return true;
+    case 'measure-calc':        renderMeasureCalc(card, q); return true;
     case 'money-add':           renderMoneyAdd(card, q); return true;
     case 'money-change':        renderMoneyChange(card, q); return true;
     case 'time-read':           renderTimeRead(card, q); return true;
@@ -340,6 +355,15 @@ function renderBarModel(bar) {
         '<span class="bm-label">' + bar.difference.label + '</span></div>';
     }
     html += '</div>';
+    // Two-step comparisons can also ask for both amounts together.
+    if (bar.total) {
+      html += '<div class="bm-brace"></div>';
+      html += '<div class="bm-row bm-total-row">';
+      html += '<div class="bm-seg ' + (bar.total.unknown ? 'bm-unknown' : 'bm-total') + '" style="width:100%">' +
+        '<span class="bm-val">' + (bar.total.unknown ? '?' : bar.total.value) + '</span>' +
+        '<span class="bm-label">' + bar.total.label + '</span></div>';
+      html += '</div>';
+    }
   }
 
   html += '</div>';
@@ -352,7 +376,9 @@ var WP_STRUCTURE_LABEL = {
   'comparison':   'Comparing',
   'groups':       'Equal Groups',
   'rate':         'Rate',
-  'before-after': 'Two Steps'
+  'before-after': 'Two Steps',
+  'two-step-pw':  'Part and Whole',
+  'two-step-cmp': 'Comparing'
 };
 
 function renderWordProblem(card, q) {
@@ -374,12 +400,39 @@ function renderWordProblem(card, q) {
     html += '<div class="wp-bar-wrap hidden">' + renderBarModel(q.bar) + '</div>';
   }
 
-  var options = mathSmartOptions(q.answer, q);
+  // A template that knows its own likely mistakes sends them along;
+  // otherwise fall back to the general-purpose set.
+  var options = (Array.isArray(q.options) && q.options.length) ? q.options : mathSmartOptions(q.answer, q);
   html += '<div class="answer-options mt-2">' + options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(' + o + ', ' + q.answer + ', this)">' + o + '</button>';
   }).join('') + '</div>';
   html += renderHintBtn(q.hint);
   card.innerHTML = html;
+}
+
+/**
+ * Answer buttons for a question that carries its own choices.
+ *
+ * With a `label` function the button shows, and checks, the labelled
+ * text ("350 g") rather than the bare number. That matters for the
+ * wrong-answer highlight in checkAnswer, which looks for the correct
+ * value inside each button's text: a bare 5 would also light up "15 g".
+ */
+function mathChoiceButtons(options, answer, label, fontSize) {
+  var style = fontSize ? ' style="font-size:' + fontSize + 'px"' : '';
+  return '<div class="answer-options mt-2">' + options.map(function(o) {
+    var shown = label ? label(o) : o;
+    var args = (label || typeof answer === 'string')
+      ? "'" + shown + "', '" + (label ? label(answer) : answer) + "'"
+      : o + ', ' + answer;
+    return '<button class="answer-btn" onclick="checkAnswer(' + args + ', this)"' + style + '>' + shown + '</button>';
+  }).join('') + '</div>';
+}
+
+/** A sentence to read, an optional picture, and the choices. */
+function renderTextChoice(card, q, visual, label, fontSize) {
+  card.innerHTML = '<div class="story-prompt wp-text">' + q.text + '</div>' + (visual || '') +
+    mathChoiceButtons(q.options, q.answer, label, fontSize) + renderHintBtn(q.hint);
 }
 
 function wpToggleBar(btn) {
@@ -526,7 +579,7 @@ function renderMultiplication(card, q) {
     html += '<div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0">';
     var emoji = pick(OBJECT_EMOJIS);
     for (var g = 0; g < q.n; g++) {
-      html += '<div style="display:flex;gap:4px;padding:8px;background:rgba(255,255,255,0.05);border-radius:8px">';
+      html += '<div style="display:flex;gap:4px;padding:8px;background:rgba(var(--ink-rgb),0.05);border-radius:8px">';
       for (var i = 0; i < q.table; i++) html += '<span style="font-size:20px">' + emoji + '</span>';
       html += '</div>';
     }
@@ -553,7 +606,7 @@ function renderDivision(card, q) {
     html += '<div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0">';
     var emoji = pick(OBJECT_EMOJIS);
     for (var g = 0; g < q.answer; g++) {
-      html += '<div style="padding:8px;background:rgba(255,255,255,0.05);border-radius:8px;text-align:center">';
+      html += '<div style="padding:8px;background:rgba(var(--ink-rgb),0.05);border-radius:8px;text-align:center">';
       for (var i = 0; i < q.divisor; i++) html += '<span style="font-size:20px">' + emoji + '</span>';
       html += '<div style="font-size:12px;color:var(--text-dim);margin-top:4px">Group ' + (g+1) + '</div></div>';
     }
@@ -574,11 +627,16 @@ function renderFractionIdentify(card, q) {
     html += '<div class="fraction-part ' + (i < q.numerator ? 'shaded' : 'unshaded') + '" style="flex:1">' + (i < q.numerator ? '' : '') + '</div>';
   }
   html += '</div></div>';
-  var options = [];
-  for (var n = 1; n < q.denominator; n++) options.push(n + '/' + q.denominator);
-  options = shuffle(options).slice(0, 3);
-  if (!options.includes(q.answer)) options.push(q.answer);
-  options = shuffle(options);
+  var options;
+  if (Array.isArray(q.options) && q.options.length) {
+    options = q.options;
+  } else {
+    options = [];
+    for (var n = 1; n < q.denominator; n++) options.push(n + '/' + q.denominator);
+    options = shuffle(options).slice(0, 3);
+    if (!options.includes(q.answer)) options.push(q.answer);
+    options = shuffle(options);
+  }
   html += '<div class="answer-options mt-2">' + options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:20px">' + o + '</button>';
   }).join('') + '</div>';
@@ -598,7 +656,67 @@ function renderFractionShade(card, q) {
   card.innerHTML = html;
 }
 
+/** One bar cut into d equal parts with the first n shaded. */
+function fractionBarHTML(n, d, width) {
+  var html = '<div class="fraction-bar" style="width:' + (width || 300) + 'px;height:34px">';
+  for (var i = 0; i < d; i++) {
+    html += '<div class="fraction-part ' + (i < n ? 'shaded' : 'unshaded') + '" style="flex:1"></div>';
+  }
+  return html + '</div>';
+}
+
+// Comparing and ordering. Early on each fraction comes with its bar, all
+// the same length, so "which is bigger" can be seen. Later the bars go
+// and she reasons from the numbers.
+function renderFractionCompare(card, q) {
+  var ordering = q.type === 'fraction-order';
+  var html = '<div class="question-text">' + (ordering
+    ? 'Put the fractions in order. Start with the ' + q.direction + '.'
+    : 'Which fraction is the ' + q.want + '?') + '</div>';
+  if (q.showBars) {
+    html += '<div style="display:flex;flex-direction:column;gap:8px;align-items:center;margin:12px 0">';
+    q.fractions.forEach(function(f) {
+      html += '<div style="display:flex;align-items:center;gap:10px">' +
+        '<div style="width:44px;text-align:right;font-family:var(--font-display);font-size:20px">' + f.n + '/' + f.d + '</div>' +
+        fractionBarHTML(f.n, f.d, 220) + '</div>';
+    });
+    html += '</div>';
+  } else {
+    html += '<div style="display:flex;gap:28px;justify-content:center;margin:14px 0;font-family:var(--font-display);font-size:34px;color:var(--gold)">' +
+      q.labels.map(function(l) { return '<span>' + l + '</span>'; }).join('') + '</div>';
+  }
+  html += mathChoiceButtons(q.options, q.answer, null, ordering ? 18 : 22);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+// Like fractions, within one whole. The bar shows the two amounts in two
+// colours so that the parts can be counted, which is the whole method.
+function renderFractionLikeOp(card, q) {
+  var html = '<div class="question-text">' + q.aLabel + ' ' + (q.op === '+' ? '+' : '\u2212') + ' ' + q.bLabel + ' = ?</div>';
+  html += '<div class="fraction-bar-container" style="margin:12px 0"><div class="fraction-bar">';
+  for (var i = 0; i < q.denom; i++) {
+    // Adding: a parts, then b more. Subtracting: a parts, the last b of
+    // them marked as the ones taken away.
+    var second = q.op === '+' ? (i >= q.a && i < q.a + q.b) : (i >= q.answerNum && i < q.a);
+    var first = q.op === '+' ? i < q.a : i < q.answerNum;
+    html += '<div class="fraction-part ' + (first || second ? 'shaded' : 'unshaded') + '" style="flex:1;' +
+      (second ? 'background:linear-gradient(135deg,var(--mint),var(--teal))' : '') + '"></div>';
+  }
+  html += '</div></div>';
+  html += mathChoiceButtons(q.options, q.answer, null, 20);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+// Prices in dollars and cents are read as a sentence: what it costs,
+// what was paid, what is being asked.
+function renderMoneyText(card, q) {
+  renderTextChoice(card, q, '', null, 20);
+}
+
 function renderMoneyAdd(card, q) {
+  if (q.inDollars) { renderMoneyText(card, q); return; }
   var html = '<div class="question-text">' + q.item1.name + ' (' + q.item1.price + '\u00A2) + ' + q.item2.name + ' (' + q.item2.price + '\u00A2) = ?</div>';
   html += '<div style="display:flex;gap:20px;justify-content:center;font-size:40px;margin:12px 0">\uD83D\uDCB0</div>';
   var options = generateMCQOptions(q.answer, q.answer - 30, q.answer + 30, 4);
@@ -610,6 +728,7 @@ function renderMoneyAdd(card, q) {
 }
 
 function renderMoneyChange(card, q) {
+  if (q.inDollars) { renderMoneyText(card, q); return; }
   var html = '<div class="question-text">Buy ' + q.item.name + ' for ' + q.item.price + '\u00A2. Pay ' + q.paid + '\u00A2. Change?</div>';
   var options = generateMCQOptions(q.answer, 0, q.answer + 20, 4);
   html += '<div class="answer-options mt-2">' + options.map(function(o) {
@@ -635,20 +754,44 @@ function renderTimeMatch(card, q) {
   card.innerHTML = html;
 }
 
+// Morning or afternoon: the sentence says which, the clock says when.
+function renderTimeAmPm(card, q) {
+  renderTextChoice(card, q, renderClockSVG(q.hour, q.minutes, 160), null, 20);
+}
+
+// How long something lasts, or when it ends. The start clock is always
+// drawn; the end clock only when the end time is given in the question.
+function renderTimeDuration(card, q) {
+  var face = function(caption, h, m) {
+    return '<div style="text-align:center">' + renderClockSVG(h, m, 150) +
+      '<div style="font-size:14px;color:var(--text-secondary)">' + caption + '</div></div>';
+  };
+  var visual = '<div style="display:flex;gap:24px;justify-content:center;margin:8px 0">' +
+    face('Start', q.startHour, q.startMinutes) +
+    (q.variant === 'how-long' ? face('End', q.endHour, q.endMinutes) : '') + '</div>';
+  renderTextChoice(card, q, visual, null, 18);
+}
+
 function renderTimeRead(card, q) {
   var html = '<div class="question-text">What time does the clock show?</div>';
   html += renderClockSVG(q.hour, q.minutes, 180);
-  // Generate level-appropriate distractors
-  var minuteChoices = (q.minutes === 0 || q.minutes === 30) ? [0, 30] : [0, 15, 30, 45];
-  var options = [];
-  options.push(q.answer);
-  while (options.length < 4) {
-    var h = rand(1, 12);
-    var m = pick(minuteChoices);
-    var opt = h + ':' + (m < 10 ? '0' : '') + m;
-    if (!options.includes(opt)) options.push(opt);
+  var options;
+  if (Array.isArray(q.options) && q.options.length) {
+    // To five minutes the generator sends its own wrong choices.
+    options = q.options;
+  } else {
+    // Generate level-appropriate distractors
+    var minuteChoices = (q.minutes === 0 || q.minutes === 30) ? [0, 30] : [0, 15, 30, 45];
+    options = [];
+    options.push(q.answer);
+    while (options.length < 4) {
+      var h = rand(1, 12);
+      var m = pick(minuteChoices);
+      var opt = h + ':' + (m < 10 ? '0' : '') + m;
+      if (!options.includes(opt)) options.push(opt);
+    }
+    options = shuffle(options);
   }
-  options = shuffle(options);
   html += '<div class="answer-options mt-2">' + options.map(function(o) {
     return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:20px">' + o + '</button>';
   }).join('') + '</div>';
@@ -659,7 +802,7 @@ function renderTimeRead(card, q) {
 function renderClockSVG(hour, minutes, size) {
   var cx = size / 2, cy = size / 2, r = size / 2 - 10;
   var svg = '<svg width="' + size + '" height="' + size + '" style="margin:12px auto;display:block">';
-  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>';
+  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="rgba(var(--ink-rgb),0.05)" stroke="rgba(var(--ink-rgb),0.3)" stroke-width="3"/>';
   for (var i = 1; i <= 12; i++) {
     var angle = (i * 30 - 90) * Math.PI / 180;
     var tx = cx + (r - 20) * Math.cos(angle);
@@ -681,7 +824,43 @@ function renderClockSVG(hour, minutes, size) {
   return svg;
 }
 
+// A picture graph where one picture stands for more than one. Nothing
+// here prints a number beside a row: the pictures and the key are all
+// she gets, because reading the key is the skill.
+function renderScaledPictureGraph(card, q) {
+  var dot = '<span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:var(--gold);vertical-align:middle"></span>';
+  var html = '<div class="question-text">Look at the picture graph</div>';
+  html += '<div style="display:inline-block;text-align:left;margin:12px auto;padding:12px 16px;background:rgba(var(--ink-rgb),0.05);border-radius:12px">';
+  html += '<div style="font-weight:700;text-align:center;margin-bottom:8px">Fruits sold at a stall</div>';
+  q.categories.forEach(function(cat, i) {
+    html += '<div style="display:flex;align-items:center;gap:10px;margin:6px 0">' +
+      '<div style="width:96px;text-align:right;font-size:14px;color:var(--text-secondary)">' + cat + '</div>' +
+      '<div style="display:flex;gap:4px;flex-wrap:wrap">';
+    for (var k = 0; k < q.counts[i]; k++) html += dot;
+    html += '</div></div>';
+  });
+  html += '<div style="font-size:14px;margin-top:10px;text-align:center">Each ' + dot + ' stands for ' + q.scale + ' fruits.</div>';
+  html += '</div>';
+  var parts = q.qType.split('_');
+  var qText;
+  if (q.qType === 'most') qText = 'Which fruit was sold the most?';
+  else if (q.qType === 'least') qText = 'Which fruit was sold the least?';
+  else if (q.qType === 'total') qText = 'How many fruits were sold altogether?';
+  else if (parts[0] === 'more') qText = 'How many more ' + q.categories[parseInt(parts[1], 10)] + ' than ' +
+                                        q.categories[parseInt(parts[2], 10)] + ' were sold?';
+  else qText = 'How many ' + q.categories[parseInt(parts[1], 10)] + ' were sold?';
+  html += '<div class="question-text" style="font-size:20px">' + qText + '</div>';
+  if (typeof q.answer === 'string') {
+    html += mathChoiceButtons(q.categories, q.answer, null, 16);
+  } else {
+    html += mathChoiceButtons(q.options, q.answer);
+  }
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
 function renderPictureGraph(card, q) {
+  if (q.scale > 1 && q.counts) { renderScaledPictureGraph(card, q); return; }
   var html = '<div class="question-text">Look at the graph</div>';
   html += '<div style="display:flex;gap:12px;align-items:flex-end;justify-content:center;margin:16px 0;height:150px">';
   var maxVal = Math.max(...q.values);
@@ -736,6 +915,175 @@ function renderLengthDiff(card, q) {
   }).join('') + '</div>';
   html += renderHintBtn(q.hint);
   card.innerHTML = html;
+}
+
+// ===================== P2: NUMBERS TO 1000 =====================
+
+// Base-ten blocks to 999: a flat for a hundred, a rod for a ten, a cube
+// for a one. No caption says how many of each there are; counting them
+// is the question.
+function renderBlocks1000(h, t, o) {
+  var html = '<div style="display:flex;gap:18px;justify-content:center;align-items:flex-end;flex-wrap:wrap;margin:14px 0">';
+  var group = function(inner) { return '<div style="display:flex;gap:4px;align-items:flex-end;flex-wrap:wrap;max-width:260px;justify-content:center">' + inner + '</div>'; };
+  var flats = '', rods = '', cubes = '';
+  for (var i = 0; i < h; i++) {
+    flats += '<div style="width:44px;height:44px;border-radius:4px;border:1px solid rgba(var(--ink-rgb),0.5);' +
+      'background-color:var(--lavender);background-image:linear-gradient(rgba(var(--ink-rgb),0.35) 1px,transparent 1px),' +
+      'linear-gradient(90deg,rgba(var(--ink-rgb),0.35) 1px,transparent 1px);background-size:4.4px 4.4px"></div>';
+  }
+  for (var j = 0; j < t; j++) {
+    rods += '<div style="width:8px;height:44px;border-radius:2px;border:1px solid rgba(var(--ink-rgb),0.5);background:var(--sky)"></div>';
+  }
+  for (var k = 0; k < o; k++) {
+    cubes += '<div style="width:8px;height:8px;border-radius:2px;border:1px solid rgba(var(--ink-rgb),0.5);background:var(--gold)"></div>';
+  }
+  if (h) html += group(flats);
+  if (t) html += group(rods);
+  if (o) html += group(cubes);
+  return html + '</div>';
+}
+
+function renderPlaceValue1000(card, q) {
+  var big = function(text) { return '<div class="question-text large" style="color:var(--gold)">' + text + '</div>'; };
+  var html;
+  if (q.variant === 'blocks') {
+    html = '<div class="question-text">What number do the blocks show?</div>';
+    html += renderBlocks1000(q.hundreds, q.tens, q.ones);
+    html += '<div style="font-size:14px;color:var(--text-secondary)">A big square is 100. A rod is 10. A small cube is 1.</div>';
+  } else if (q.variant === 'digit') {
+    html = '<div class="question-text">Which digit is in the <strong>' + q.place + '</strong> place?</div>' + big(q.number);
+  } else if (q.variant === 'value') {
+    html = '<div class="question-text">What is the value of the digit <strong>' + q.digit + '</strong> in this number?</div>' + big(q.number);
+  } else {
+    html = '<div class="question-text">Which number is this?</div>' +
+      '<div class="question-text" style="color:var(--gold)">' + q.words + '</div>';
+  }
+  html += mathChoiceButtons(q.options, q.answer);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderCompare1000(card, q) {
+  var ordering = q.type === 'order-1000';
+  var html = '<div class="question-text">' + (ordering
+    ? 'Put the numbers in order. Start with the ' + q.direction + '.'
+    : 'Which number is the ' + q.want + '?') + '</div>';
+  if (ordering) {
+    html += '<div style="display:flex;gap:28px;justify-content:center;margin:14px 0;font-family:var(--font-display);font-size:34px;color:var(--gold)">' +
+      q.numbers.map(function(n) { return '<span>' + n + '</span>'; }).join('') + '</div>';
+  }
+  html += mathChoiceButtons(q.options, q.answer, null, ordering ? 18 : 28);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderPattern1000(card, q) {
+  var cell = 'width:auto;min-width:60px;padding:0 10px;font-size:26px';
+  var html = '<div class="question-text">What is the missing number?</div><div class="pattern-row">';
+  q.terms.forEach(function(n, i) {
+    html += i === q.blank
+      ? '<div class="pattern-item mystery" style="' + cell + '">?</div>'
+      : '<div class="pattern-item" style="' + cell + '">' + n + '</div>';
+  });
+  html += '</div>';
+  html += mathChoiceButtons(q.options, q.answer);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+// Three-digit sums are set out in columns, the way she writes them in
+// her exercise book, because regrouping only makes sense in columns.
+function renderAddSub1000(card, q) {
+  var sign = q.op === '+' ? '+' : '−';
+  var html = '<div class="question-text">' + q.a + ' ' + sign + ' ' + q.b + ' = ?</div>';
+  html += '<div style="display:inline-block;margin:10px auto;font-family:var(--font-display);font-size:32px;line-height:1.25;text-align:right;letter-spacing:6px">' +
+    '<div>' + q.a + '</div>' +
+    '<div><span style="float:left;letter-spacing:0;margin-right:18px">' + sign + '</span>' + q.b + '</div>' +
+    '<div style="border-top:3px solid var(--text-primary);border-bottom:3px solid var(--text-primary);color:var(--gold)">?</div>' +
+    '</div>';
+  html += mathChoiceButtons(q.options, q.answer);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+// ===================== P2: MASS AND VOLUME =====================
+
+function renderMeasureCompare(card, q) {
+  var html = '<div class="question-text">' + q.text + '</div>';
+  html += '<div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:16px 0">';
+  q.items.forEach(function(it) {
+    html += '<div style="min-width:110px;padding:12px 14px;border-radius:12px;background:rgba(var(--ink-rgb),0.06);border:1px solid rgba(var(--ink-rgb),0.15)">' +
+      '<div style="font-size:15px;color:var(--text-secondary)">' + it.name + '</div>' +
+      '<div style="font-family:var(--font-display);font-size:26px;color:var(--gold)">' + it.value + ' ' + q.unit + '</div></div>';
+  });
+  html += '</div>';
+  html += mathChoiceButtons(q.options, q.answer, null, 18);
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+// A kitchen scale: zero at the top, the numbers running clockwise, and
+// one full turn of the needle for the largest amount it can weigh. The
+// numbers sit outside the rim so the needle can never cover one.
+function renderDialScaleSVG(q) {
+  var size = 250, cx = size / 2, cy = size / 2, r = size / 2 - 34;
+  var at = function(v, radius) {
+    var ang = (v / q.max * 360 - 90) * Math.PI / 180;
+    return { x: cx + radius * Math.cos(ang), y: cy + radius * Math.sin(ang) };
+  };
+  var svg = '<svg width="' + size + '" height="' + size + '" style="margin:10px auto;display:block">';
+  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="rgba(var(--ink-rgb),0.05)" stroke="rgba(var(--ink-rgb),0.35)" stroke-width="3"/>';
+  for (var v = 0; v < q.max; v += q.tickStep) {
+    var numbered = v % q.labelStep === 0;
+    // A slightly longer mark halfway between two numbers, where there is one.
+    var half = !numbered && (v * 2) % q.labelStep === 0;
+    var p1 = at(v, r), p2 = at(v, r - (numbered ? 14 : (half ? 10 : 6)));
+    svg += '<line x1="' + p1.x.toFixed(1) + '" y1="' + p1.y.toFixed(1) + '" x2="' + p2.x.toFixed(1) + '" y2="' + p2.y.toFixed(1) +
+      '" stroke="var(--text-primary)" stroke-width="' + (numbered ? 2.5 : 1.2) + '"/>';
+    if (numbered) {
+      var pt = at(v, r + 17);
+      svg += '<text x="' + pt.x.toFixed(1) + '" y="' + pt.y.toFixed(1) + '" fill="var(--text-primary)" font-size="' +
+        (q.max >= 1000 ? 11 : 13) + '" font-family="var(--font-display)" text-anchor="middle" dominant-baseline="central">' + v + '</text>';
+    }
+  }
+  var tip = at(q.value, r - 16);
+  svg += '<line x1="' + cx + '" y1="' + cy + '" x2="' + tip.x.toFixed(1) + '" y2="' + tip.y.toFixed(1) +
+    '" stroke="var(--coral)" stroke-width="3.5" stroke-linecap="round"/>';
+  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="var(--gold)"/>';
+  svg += '<text x="' + cx + '" y="' + (cy + 34) + '" fill="var(--text-secondary)" font-size="16" font-family="var(--font-display)" text-anchor="middle">' + q.unit + '</text>';
+  return svg + '</svg>';
+}
+
+// A water tank with a scale up its side. Every mark is drawn; only some
+// carry a number.
+function renderTankSVG(q) {
+  var w = 200, h = 250, left = 40, top = 16, tw = 90, th = 210;
+  var y = function(v) { return top + th - (v / q.max) * th; };
+  var svg = '<svg width="' + w + '" height="' + h + '" style="margin:10px auto;display:block">';
+  svg += '<rect x="' + left + '" y="' + y(q.value).toFixed(1) + '" width="' + tw + '" height="' + (top + th - y(q.value)).toFixed(1) +
+    '" fill="var(--sky)" opacity="0.75"/>';
+  svg += '<path d="M' + left + ' ' + (top - 8) + ' V' + (top + th) + ' H' + (left + tw) + ' V' + (top - 8) +
+    '" fill="none" stroke="var(--text-primary)" stroke-width="3" stroke-linejoin="round"/>';
+  for (var v = q.tickStep; v <= q.max; v += q.tickStep) {
+    var numbered = v % q.labelStep === 0;
+    svg += '<line x1="' + (left + tw) + '" y1="' + y(v).toFixed(1) + '" x2="' + (left + tw + (numbered ? 14 : 8)) + '" y2="' + y(v).toFixed(1) +
+      '" stroke="var(--text-primary)" stroke-width="' + (numbered ? 2.5 : 1.2) + '"/>';
+    if (numbered) {
+      svg += '<text x="' + (left + tw + 20) + '" y="' + y(v).toFixed(1) + '" fill="var(--text-primary)" font-size="14" font-family="var(--font-display)" dominant-baseline="central">' +
+        v + ' ' + q.unit + '</text>';
+    }
+  }
+  return svg + '</svg>';
+}
+
+function renderMeasureScale(card, q) {
+  var withUnit = function(v) { return v + ' ' + q.unit; };
+  renderTextChoice(card, q, q.quantity === 'mass' ? renderDialScaleSVG(q) : renderTankSVG(q), withUnit, 20);
+}
+
+function renderMeasureCalc(card, q) {
+  var withUnit = function(v) { return v + ' ' + q.unit; };
+  renderTextChoice(card, q, '', withUnit, 20);
 }
 
 // ===================== P3-P4 RENDERERS =====================

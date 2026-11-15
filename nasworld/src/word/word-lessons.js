@@ -149,12 +149,76 @@ WORD_LESSONS.punct = {
   ]
 };
 
+// ============================================================
+//  P2 LADDER — lesson steps for the P2 grammar core, joining
+//  sentences, the four kinds of reading question, and working out a
+//  word from its sentence. Added to the end of the existing lessons so
+//  the earlier steps stay as they were.
+// ============================================================
+
+function wordTry(prompt, options, answer, rule) {
+  return { type: 'try', prompt: prompt, options: options, answer: answer, successMsg: rule, explanation: rule };
+}
+
+WORD_LESSONS.gram.steps = WORD_LESSONS.gram.steps.concat([
+  { text: '<b>Past tense</b> tells us that something is over.<br>Most verbs add <b>-ed</b>: walk → walk<b>ed</b>, clean → clean<b>ed</b>.<br>Time words such as <i>yesterday</i> and <i>last night</i> are clues.', lumiTip: 'If the action is finished, the verb must show it.' },
+  { text: '<b>Spelling the -ed ending</b><br>Ends in e: add d. bake → bake<b>d</b><br>Ends in a consonant and y: change y to i. cry → cr<b>ied</b><br>Short vowel and one consonant: double it. stop → sto<b>pped</b>', lumiTip: 'Look at the last two letters of the verb before you add the ending.' },
+  wordTry('Yesterday, Siti ___ her grandmother.', ['visit', 'visited', 'visits'], 'visited', 'Yesterday shows that the action is over, so the verb takes -ed.'),
+  { text: '<b>Irregular verbs</b> do not take -ed. They change in their own way.<br>go → <b>went</b>, eat → <b>ate</b>, see → <b>saw</b><br>buy → <b>bought</b>, catch → <b>caught</b>, write → <b>wrote</b>', lumiTip: 'These have to be learnt by heart. Reading a lot helps them to stick.' },
+  { text: 'After <b>did</b> and <b>did not</b>, use the plain verb.<br><i>Did you <b>see</b> it?</i> We do not say <i>Did you saw it?</i><br><i>I did not <b>go</b>.</i> We do not say <i>I did not went.</i>', lumiTip: 'Did already shows the past, so the next verb does not need to.' },
+  wordTry('Last week, we ___ to the zoo.', ['go', 'goed', 'went'], 'went', 'Go is an irregular verb. Its past tense is went.'),
+  { text: '<b>The verb must match the subject.</b><br>One person or thing: the verb takes <b>-s</b>. <i>The cat sit<b>s</b>.</i><br>More than one: no -s. <i>The cats sit.</i><br>Use <b>is</b> and <b>has</b> for one, <b>are</b> and <b>have</b> for more than one. With I, use <b>am</b>.', lumiTip: 'Find who or what the sentence is about before you choose the verb.' },
+  wordTry('The boys ___ in the field.', ['is', 'are', 'am'], 'are', 'The boys are more than one, so the verb is are.'),
+  { text: '<b>Pronouns change with their job.</b><br>Doing the action: <b>I, he, she, we, they</b><br>Receiving the action: <b>me, him, her, us, them</b><br>Showing belonging: <b>my, his, her, our, their</b><br><i><b>She</b> gave <b>him</b> <b>her</b> pencil.</i>', lumiTip: 'To choose between I and me, try the sentence with only that one word.' },
+  { text: '<b>Prepositions</b> tell us where or when.<br>Where: <b>in</b> the box, <b>on</b> the table, <b>under</b> the bed, <b>between</b> two friends<br>When: <b>at</b> ten o\'clock, <b>on</b> Monday, <b>in</b> March', lumiTip: 'At for a clock time, on for a day, in for a month.' },
+  { text: '<b>Joining words</b> link ideas.<br><b>and</b> adds: <i>I have a pen and a ruler.</i><br><b>but</b> shows a difference: <i>I am small but I am strong.</i><br><b>because</b> gives the reason: <i>I ate because I was hungry.</i><br><b>so</b> gives the result: <i>I was hungry, so I ate.</i><br><b>or</b> gives a choice: <i>Would you like milk or juice?</i>', lumiTip: 'Because points back to the reason. So points forward to the result.' },
+  wordTry('Hakim took an umbrella ___ it was raining.', ['so', 'because', 'but'], 'because', 'The rain is the reason, and because comes before the reason.'),
+  { text: '<b>Comparing</b><br>Two things: add <b>-er</b> and use <b>than</b>. <i>A bus is longer than a car.</i><br>Three or more: add <b>-est</b> and use <b>the</b>. <i>The train is the longest.</i><br>Long words use <b>more</b> and <b>most</b>: <i>more careful, the most careful</i><br>Two are special: <b>good, better, best</b> and <b>bad, worse, worst</b>', lumiTip: 'Never use more and -er together.' },
+  wordTry('Kai is ___ than his sister.', ['tall', 'taller', 'tallest'], 'taller', 'Two people are being compared, so add -er and use than.'),
+  { text: '<b>Question words</b><br><b>Who</b> asks about a person. <b>What</b> asks about a thing.<br><b>Where</b> asks about a place. <b>When</b> asks about a time.<br><b>Why</b> asks for a reason. <b>How</b> asks about the way.<br><b>Which</b> asks you to choose. <b>Whose</b> asks who owns something.', lumiTip: 'Think of the answer you expect. It tells you which question word to use.' },
+  { text: '<b>Short forms</b> join two words. The apostrophe stands where letters are left out.<br>I am → <b>I\'m</b>, it is → <b>it\'s</b>, do not → <b>don\'t</b><br>cannot → <b>can\'t</b>, will not → <b>won\'t</b><br>Take care: <b>it\'s</b> means it is, but <b>its</b> shows belonging.', lumiTip: 'Say the two full words. If the sentence still makes sense, the apostrophe belongs.' },
+  wordTry('Which is the short form of they are?', ['their', 'they\'re', 'there'], 'they\'re', 'The apostrophe takes the place of the letter a in are.')
+]);
+
+WORD_LESSONS.vocab.steps = WORD_LESSONS.vocab.steps.concat([
+  { text: '<b>Working out a new word</b><br>You do not need to know every word. The sentence around it gives clues.<br><i>His shoes were <b>soggy</b> after he walked through the puddles.</i><br>Puddles are wet, so soggy must mean very wet.', lumiTip: 'Read to the end of the sentence before you decide.' },
+  wordTry('The famished children ate three plates of noodles each. What does famished mean?', ['very hungry', 'very sleepy', 'very neat'], 'very hungry', 'They ate three plates each, which shows that they were very hungry.'),
+  { text: '<b>Synonyms</b> are words that mean almost the same.<br>big and <b>large</b>, begin and <b>start</b>, quiet and <b>silent</b><br><b>Antonyms</b> are opposites.<br>full and <b>empty</b>, early and <b>late</b>, polite and <b>rude</b>', lumiTip: 'To test a synonym, swap it into the sentence. The meaning should stay the same.' },
+  wordTry('Which word is the opposite of heavy?', ['large', 'light', 'strong'], 'light', 'Heavy and light are opposites.')
+]);
+
+WORD_LESSONS.sent.steps = WORD_LESSONS.sent.steps.concat([
+  { text: '<b>Putting words in order</b><br>1. Find who the sentence is about.<br>2. Find what that person does.<br>3. Add the rest: what, where, when.<br><i>She</i> + <i>reads</i> + <i>a book</i> + <i>every night</i>.', lumiTip: 'Some sentences have two good orders. Every night she reads a book is right too.' },
+  { text: '<b>Joining two sentences</b><br><i>Siti has a cat. Siti has a rabbit.</i><br>Join them with <b>and</b>: <i>Siti has a cat and a rabbit.</i><br>We do not need to say Siti has twice.', lumiTip: 'A joined sentence should be shorter and still say everything.' },
+  { text: '<b>Because and so</b><br><i>It was raining. Arjun took an umbrella.</i><br><b>because</b> comes before the reason: <i>Arjun took an umbrella because it was raining.</i><br><b>so</b> comes before the result: <i>It was raining, so Arjun took an umbrella.</i>', lumiTip: 'Ask which part happened first. That part is the reason.' },
+  wordTry('Join these with so: The floor was wet. Ravi slipped.', ['Ravi slipped, so the floor was wet.', 'The floor was wet, so Ravi slipped.', 'So the floor was wet Ravi slipped.'], 'The floor was wet, so Ravi slipped.', 'So comes before the result. Slipping is the result of the wet floor.')
+]);
+
+WORD_LESSONS.comp.steps = WORD_LESSONS.comp.steps.concat([
+  { text: '<b>Four kinds of question</b><br>1. <b>Find it:</b> the answer is written in the passage.<br>2. <b>Order:</b> what happened first, next or last.<br>3. <b>Word meaning:</b> what a word means in that sentence.<br>4. <b>Think about it:</b> the answer is not written, but the clues point to it.', lumiTip: 'Knowing the kind of question tells you where to look.' },
+  { text: '<b>Order words</b><br><b>First</b>, <b>next</b>, <b>then</b>, <b>after</b>, <b>before</b> and <b>last of all</b> show the order of events.<br><i>First, Aisha filled the pot. Next, she pressed in the seeds.</i>', lumiTip: 'Put a finger on each order word as you read.' },
+  { text: '<b>Reading the clues</b><br><i>Hakim sat very still, with crumbs on his chin.</i><br>The passage does not say that Hakim ate the cake. The crumbs tell us.', lumiTip: 'Ask yourself: how do I know? Point to the words that told you.' },
+  wordTry('Mei Ling put on her raincoat and took her umbrella. What was the weather like?', ['It was sunny', 'It was rainy', 'It was windy'], 'It was rainy', 'A raincoat and an umbrella are clues that it was raining.')
+]);
+
+// The lessons were first written against shorter skill ids (gram, sent,
+// comp, phon, para). The tree uses the long ones, so without this map
+// those five lessons were never found and never shown.
+var WORD_LESSON_ALIAS = {
+  phonics: 'phon',
+  grammar: 'gram',
+  sentence: 'sent',
+  comprehension: 'comp',
+  paragraph: 'para'
+};
+
 function getWordLesson(skillId) {
-  return WORD_LESSONS[skillId] || null;
+  return WORD_LESSONS[skillId] || WORD_LESSONS[WORD_LESSON_ALIAS[skillId]] || null;
 }
 
 // Flashcards for sight words (P1 high-frequency words)
 function getWordFlashcards(skillId) {
+  if (skillId === 'phonics') skillId = 'phon';   // same id mismatch as the lessons
   if (skillId === 'sight') {
     return [
       { front: 'the', back: 'Used before a noun', example: 'The cat is sleeping.', image: '👀' },

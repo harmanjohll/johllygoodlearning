@@ -437,6 +437,8 @@ function _aiSkillSpec(skillId, config) {
       return { label: 'simple fractions', constraint: 'Halves, thirds and quarters of small whole numbers only.', maxAnswer: 50 };
     case 'wp1':
       return { label: 'one-step addition or subtraction', constraint: 'One-step addition or subtraction within ' + (r ? r[1] : 20) + '. Never negative.', maxAnswer: (r ? r[1] : 20) * 2 };
+    case 'wp2':
+      return { label: 'two-step addition and subtraction', constraint: 'Exactly two steps, each an addition or a subtraction of whole numbers within 1000. Never negative.', maxAnswer: 1000 };
     case 'multiwp':
       return { label: 'two-step', constraint: 'Exactly two steps. Each step is addition, subtraction, multiplication or division within 100.', maxAnswer: 500 };
     default:

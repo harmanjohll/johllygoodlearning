@@ -78,21 +78,14 @@ function updateHomeUI() {
   const gardenPct = Math.min(100, (state.garden.length / 50) * 100);
   document.getElementById('garden-progress').style.width = gardenPct + '%';
 
-  // Daily lucky spin
-  var spinArea = document.getElementById('daily-spin-area');
-  if (spinArea && typeof checkDailyLuckySpin === 'function') {
-    if (checkDailyLuckySpin()) {
-      spinArea.innerHTML = '<div class="daily-spin-banner" onclick="triggerDailyLuckySpin()">' +
-        '<div class="daily-spin-icon">\uD83C\uDFA1</div>' +
-        '<div class="daily-spin-text">' +
-          '<div class="daily-spin-title">Daily Lucky Spin!</div>' +
-          '<div class="daily-spin-desc">Tap to see today\'s bonus!</div>' +
-        '</div>' +
-        '</div>';
-    } else {
-      spinArea.innerHTML = '';
-    }
-  }
+  // Today first, then the hint under each world door.
+  if (typeof renderToday === 'function') renderToday();
+  if (typeof renderDoorHints === 'function') renderDoorHints();
+  var hd = document.getElementById('home-date');
+  if (hd) hd.textContent = new Date().toLocaleDateString('en-SG', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  // Today's seed: a fixed reward, earned by finishing one activity.
+  if (typeof renderDailySeed === 'function') renderDailySeed();
 
   // Dynamic quest banners
   var questArea = document.getElementById('dynamic-quest-area');

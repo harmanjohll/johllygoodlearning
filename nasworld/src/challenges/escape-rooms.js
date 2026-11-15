@@ -290,7 +290,7 @@ function renderEscapeCipher(card, q) {
   // Show cipher text as letter tiles
   html += '<div style="display:flex;gap:6px;justify-content:center;margin:16px 0">';
   for (var i = 0; i < q.cipherText.length; i++) {
-    html += '<div style="width:42px;height:48px;background:rgba(255,255,255,0.1);border:2px solid var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--gold)">' + q.cipherText[i] + '</div>';
+    html += '<div style="width:42px;height:48px;background:rgba(var(--ink-rgb),0.1);border:2px solid var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--gold)">' + q.cipherText[i] + '</div>';
   }
   html += '</div>';
 
