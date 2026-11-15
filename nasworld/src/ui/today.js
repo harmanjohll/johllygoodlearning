@@ -84,11 +84,14 @@ function todayMarkDone(skillId) {
 
 function todayStart(i) {
   var plan = getTodayPlan(), step = plan.steps[i];
-  if (!step || typeof startGame !== 'function') return;
-  startGame(step.id, step.world);
+  if (!step) return;
+  // Go to the stop on its map, so Back returns her to that chapter.
+  if (typeof bookOpenChapter === 'function') bookOpenChapter(step.world);
+  if (typeof openSkillView === 'function') openSkillView(step.id, step.world);
+  else if (typeof startGame === 'function') startGame(step.id, step.world);
 }
 
-var _TODAY_WORLD = { math: 'Number World', word: 'Word World', malay: 'Dunia Melayu', stem: 'STEM World' };
+var _TODAY_WORLD = { math: 'Number Harbour', word: 'Word Forest', malay: 'Kampung Melayu', stem: 'Discovery Peak' };
 var _TODAY_KIND = { review: 'a quick review', practice: 'keep going', 'new': 'new today' };
 
 function renderToday() {

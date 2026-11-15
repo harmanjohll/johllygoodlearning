@@ -17,6 +17,10 @@ let currentGame = {
 
 // === SCREEN MANAGEMENT ===
 function showScreen(screenId) {
+  // The four world grids became chapters of the book. Anything that
+  // still asks for one (a Back button, an old link) lands on its map.
+  var _ch = /^(math|word|stem|malay)-world$/.exec(screenId);
+  if (_ch && typeof bookOpenChapter === 'function') { bookOpenChapter(_ch[1]); screenId = 'home'; }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const screen = document.getElementById('screen-' + screenId);
   if (screen) screen.classList.add('active');

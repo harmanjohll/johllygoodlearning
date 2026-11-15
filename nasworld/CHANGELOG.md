@@ -11,6 +11,44 @@ progress needs migrating, so the two move independently.
 
 ---
 
+## v4.1 — The Book of Nasworld (2026-11-15)
+
+v4.0 made home tidy and gave a seven year old a list of destinations.
+It looked like a dashboard. A child wants somewhere to go.
+
+### Changed
+- **Home is a storybook of maps.** A cover that opens, a contents page,
+  and chapters. Each chapter is a place with a path through it, and each
+  skill is a stop on that path, in learning order:
+  1. Number Harbour, 2. Word Forest, 3. Kampung Melayu, 4. Discovery
+  Peak, 5. The Playground, 6. The Exam Hall, then The Notice Board and
+  At the back of the book.
+- Finished stops fill in, Lumi stands at the next one, and stops further
+  on show a lock. A chapter is split into parts (P1 Foundation, P2
+  Expansion and so on), each with its own stretch of path.
+- **Today is a ribbon bookmark.** It hangs from the book on every page
+  and opens Today's page. A step now takes her to that stop, so Back
+  returns her to its chapter.
+- Pages turn, with arrows and a way back to Contents.
+- The four old world grids redirect to their chapters. Nothing was
+  removed: play, experiments, challenges, quests, the garden, Stasha,
+  the Mirror and Settings each have a page.
+
+### Not yet done
+- **The pictures are drawn in code**, as flat shapes. Painted
+  illustrations were the plan; generating them was blocked in the
+  session that built this. `src/ui/book-scenes.js` is built for the
+  swap: put a picture at `assets/book/<id>.jpg` and list its id in
+  `BOOK_PAINTED`.
+- The same picture is used for every part of a chapter.
+- Screens past the book (a lesson, a quiz, the garden) still have the
+  v4.0 layout, and emoji remain on them.
+
+### Infrastructure
+- 419 tests in eleven suites. New checks: every skill is a stop on
+  exactly one map, stops stay inside the picture, the path climbs, and
+  unreviewed Malay shows as being checked.
+
 ## v4.0 — A New Look (2026-11-15)
 
 ### Added

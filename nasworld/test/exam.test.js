@@ -681,7 +681,8 @@ function perms(n) {
   const files = fs.readdirSync(ROOT + '/src/exam').filter(f => /\.js$/.test(f));
   const missing = files.filter(f => idx.indexOf('<script src="src/exam/' + f + '"></script>') === -1);
   ok('index.html loads every exam file, has the screen and the home tile',
-     missing.length === 0 && /id="screen-exam"/.test(idx) && /id="exam-content"/.test(idx) && /showScreen\('exam'\)/.test(idx) &&
+     missing.length === 0 && /id="screen-exam"/.test(idx) && /id="exam-content"/.test(idx) && /showScreen\(\\?'exam\\?'\)/.test(idx + fs.readFileSync(ROOT + '/src/ui/book.js', 'utf8')) &&  // the way in is the book's contents page now
+    
      /styles\/app-6\.css/.test(idx), missing.length ? 'missing: ' + missing.join(', ') : files.length + ' files');
   ok('opening the screen draws the hub', /screenId === 'exam'[\s\S]{0,80}renderExamHub\(\)/.test(nav));
 }

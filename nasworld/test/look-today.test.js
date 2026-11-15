@@ -80,7 +80,7 @@ ok('Look: four tones and four faces for each role', run('LOOK_TONES.length === 4
   ok('Icons: every icon named in index.html is drawn', used.length > 15 && unknown.length === 0, unknown.join(', '));
   const home = html.slice(html.indexOf('id="screen-home"'), html.indexOf('<!-- MATH WORLD SCREEN'));
   ok('Home: no emoji and no exclamation marks in the markup', !/&#1\d{5};|[\u{1F300}-\u{1FAFF}]/u.test(home) && home.replace(/<!--[\s\S]*?-->/g, '').indexOf('!') === -1);
-  ok('Home: Today comes before the worlds', home.indexOf('id="today-area"') > 0 && home.indexOf('id="today-area"') < home.indexOf('class="doors"'));
+  ok('Home: Today has its own page in the book, and a ribbon to reach it', home.indexOf('data-view="today"') > 0 && home.indexOf('id="book-ribbon"') > 0);
 }
 
 // ---- Today ----
@@ -101,6 +101,26 @@ ok('Look: four tones and four faces for each role', run('LOOK_TONES.length === 4
   run('state.skills = {}; delete state.today; getSkillState("add").totalAttempts = 20; getSkillState("add").mastery = 30;');
   ok('Today: a weak skill she has started is chosen for its world', run('getTodayPlan().steps.some(function (s) { return s.id === "add"; })'), run('JSON.stringify(getTodayPlan().steps)'));
   run('state.skills = {}; delete state.today;');
+}
+
+// ---- The book ----
+{
+  run('state.skills = {};');
+  const chapters = run('BOOK_CHAPTERS.map(function (c) { return c.id; }).join(",")');
+  ok('Book: four chapters, one per world', chapters === 'math,word,malay,stem');
+  // Every skill in every tree must be a stop somewhere, exactly once.
+  const lost = run('(function () { var bad = []; BOOK_CHAPTERS.forEach(function (c) { var seen = {}; bookParts(c).forEach(function (p) { p.stops.forEach(function (s) { seen[s.id] = (seen[s.id] || 0) + 1; }); }); Object.keys(c.tree()).forEach(function (id) { if (seen[id] !== 1) bad.push(id); }); }); return bad.join(","); })()');
+  ok('Book: every skill is a stop on exactly one map', lost === '', lost);
+  const off = run('(function () { var bad = 0; for (var n = 1; n <= 20; n++) bookPathPoints(n).forEach(function (p) { if (!(p.x >= 12 && p.x <= 88 && p.y >= 8 && p.y <= 92)) bad++; }); return bad; })()');
+  ok('Book: stops stay inside the picture for any number of stops', off === 0, off + ' off the page');
+  ok('Book: the path climbs from the bottom of the picture to the top', run('(function () { var p = bookPathPoints(9); for (var i = 1; i < p.length; i++) if (p[i].y >= p[i - 1].y) return false; return true; })()'));
+  ok('Book: a new learner starts at the first stop of Part 1', run('bookNextStop(bookParts(BOOK_CHAPTERS[0])[0].stops)') === run('Object.keys(MATH_TREE)[0]'));
+  run('getSkillState("count").mastery = 90; getSkillState("count").totalAttempts = 20;');
+  ok('Book: a finished stop is marked done and Lumi moves on', run('bookStopStatus(MATH_TREE.count)') === 'done' && run('bookNextStop(bookParts(BOOK_CHAPTERS[0])[0].stops)') !== 'count');
+  ok('Book: unreviewed Malay shows as being checked, not open', run('bookStopStatus(MALAY_TREE.imbuhan)') === 'checking');
+  ok('Book: every chapter and the cover has a picture', run('["cover","math","word","malay","stem"].every(function (id) { return bookScene(id).length > 500; })'));
+  ok('Book: every page it can turn to exists in the markup', run('BOOK_ORDER.join(",")').split(',').every(v => ['contents', 'math', 'word', 'malay', 'stem'].indexOf(v) !== -1 || fs.readFileSync(__dirname + '/../index.html', 'utf8').indexOf('data-view="' + v + '"') !== -1));
+  run('state.skills = {};');
 }
 
 // ---- Daily seed ----

@@ -103,6 +103,8 @@ SCRIPTS=(
   "src/ui/icons.js"
   "src/ui/look.js"
   "src/ui/today.js"
+  "src/ui/book-scenes.js"
+  "src/ui/book.js"
   "src/ui/topbar.js"
   "src/ui/feedback.js"
   "src/ui/garden.js"
