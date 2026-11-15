@@ -16,7 +16,7 @@
   <!-- TOP BAR -->
   <div class="top-bar">
     <div class="top-bar-left">
-      <button class="home-btn" onclick="showScreen('home')"><span data-icon="home"></span>Home</button>
+      <button class="home-btn" onclick="goHome()"><span data-icon="home"></span>Home</button>
     </div>
     <div class="top-bar-right">
       <div class="level-display"><span id="level-text">Sprout</span></div>
@@ -34360,11 +34360,23 @@ function bookGo(view) {
 
 function bookSetPart(chId, i) { bookState.part[chId] = i; bookRender(); }
 
+/**
+ * The Home button. Home is the contents page of the book, from anywhere:
+ * another screen, or a chapter deep inside the book. (It used to call
+ * showScreen('home'), which redrew whatever page the book was already
+ * on, so pressing Home from a chapter appeared to do nothing.)
+ */
+function goHome() {
+  bookState.view = 'contents';
+  if (typeof showScreen === 'function') showScreen('home');
+  bookGo('contents');
+}
+
 /** Open a chapter from elsewhere (the old world screens redirect here). */
 function bookOpenChapter(chId) { if (_bookChapter(chId)) { bookState.view = chId; } }
 
 if (typeof window !== 'undefined') {
-  window.bookRender = bookRender; window.bookGo = bookGo; window.bookSetPart = bookSetPart; window.bookOpenChapter = bookOpenChapter;
+  window.bookRender = bookRender; window.bookGo = bookGo; window.bookSetPart = bookSetPart; window.bookOpenChapter = bookOpenChapter; window.goHome = goHome;
   window.bookParts = bookParts; window.bookStopStatus = bookStopStatus; window.bookPathPoints = bookPathPoints; window.bookNextStop = bookNextStop;
 }
 

@@ -118,6 +118,8 @@ ok('Look: four tones and four faces for each role', run('LOOK_TONES.length === 4
   run('getSkillState("count").mastery = 90; getSkillState("count").totalAttempts = 20;');
   ok('Book: a finished stop is marked done and Lumi moves on', run('bookStopStatus(MATH_TREE.count)') === 'done' && run('bookNextStop(bookParts(BOOK_CHAPTERS[0])[0].stops)') !== 'count');
   ok('Book: unreviewed Malay shows as being checked, not open', run('bookStopStatus(MALAY_TREE.imbuhan)') === 'checking');
+  run('showScreen = function () {}; bookRender = function () {}; bookState.view = "math"; goHome();');
+  ok('Book: the Home button goes to the contents page from inside a chapter', run('bookState.view') === 'contents' && /class="home-btn" onclick="goHome\(\)"/.test(fs.readFileSync(__dirname + '/../index.html', 'utf8')));
   ok('Book: every chapter and the cover has a picture', run('["cover","math","word","malay","stem"].every(function (id) { return bookScene(id).length > 500; })'));
   ok('Book: every page it can turn to exists in the markup', run('BOOK_ORDER.join(",")').split(',').every(v => ['contents', 'math', 'word', 'malay', 'stem'].indexOf(v) !== -1 || fs.readFileSync(__dirname + '/../index.html', 'utf8').indexOf('data-view="' + v + '"') !== -1));
   run('state.skills = {};');
