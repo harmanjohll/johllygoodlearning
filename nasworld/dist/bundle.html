@@ -30,18 +30,13 @@
   <div class="main-content">
 
     <!-- HOME SCREEN -->
-    <!-- Home is a book. src/ui/book.js draws the cover, the contents page
-         and each chapter's map into #book-page. The four .book-static
-         blocks are pages whose content already lived in this file; the
-         book shows one at a time. -->
+    <!-- Home is the main page: Lumi, Today, then a big picture card for
+         every place, then the daily things. Tapping a chapter card opens
+         its map inside #book. See src/ui/book.js. -->
     <div class="screen active" id="screen-home">
-      <div class="book" id="book" data-view="cover">
-        <button type="button" class="book-ribbon" id="book-ribbon" onclick="bookGo('today')" hidden><span>Today</span></button>
-
-        <div id="book-page"></div>
-
-        <!-- Today's page -->
-        <div class="book-static book-leaf" data-view="today" hidden>
+      <div id="home-main">
+        <div class="home-hero">
+          <h1 class="home-title">Nasworld</h1>
           <div class="lumi-container">
             <div class="lumi" onclick="lumiSpeak()">
               <span class="lumi-sparkle"></span>
@@ -55,106 +50,102 @@
                 <div class="lumi-blush right"></div>
               </div>
             </div>
-            <div class="lumi-speech" id="lumi-speech">Tap a step to begin</div>
-          </div>
-          <div id="today-area"></div>
-          <div class="hidden" id="review-due-banner"></div>
-          <div id="daily-seed-area"></div>
-        </div>
-
-        <!-- Chapter 5: The Playground -->
-        <div class="book-static book-leaf" data-view="play" hidden>
-          <div class="more-list">
-          <button type="button" class="more-row" onclick="showScreen('play')">
-            <span class="more-ico" data-icon="play"></span>
-            <span class="more-text"><span class="more-title">Play</span><span class="more-desc">Jigsaws, word searches and brain games</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('sim-hub')">
-            <span class="more-ico" data-icon="lab"></span>
-            <span class="more-text"><span class="more-title">STEM Lab</span><span class="more-desc">Nine hands-on experiments</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('practice')">
-            <span class="more-ico" data-icon="practice"></span>
-            <span class="more-text"><span class="more-title">Practice</span><span class="more-desc">Pick exactly what to work on</span></span>
-          </button>
-          </div>
-          <div class="challenges-section" id="challenges-section">
-            <h2 class="home-section">Challenges</h2>
-            <div class="challenges-grid" id="challenges-grid"></div>
+            <div class="lumi-speech" id="lumi-speech">Tap a card to begin</div>
           </div>
         </div>
 
-        <!-- The Notice Board -->
-        <div class="book-static book-leaf" data-view="board" hidden>
-          <div class="wotd-banner hidden" id="wotd-banner" onclick="claimWotd()">
-            <div class="quest-icon" data-icon="word"></div>
-            <div class="quest-text">
-              <div class="wotd-word" id="wotd-word"></div>
-              <div class="wotd-def" id="wotd-def"></div>
-            </div>
-            <div class="quest-progress" id="wotd-status">+3 stars</div>
-          </div>
-          <div id="dynamic-quest-area"></div>
-          <div id="story-progress-area"></div>
-          <div class="hidden" id="achievement-showcase"></div>
-          <div id="daily-treats-area"></div>
-          <div id="streak-calendar-area"></div>
+        <div id="today-area"></div>
+        <div class="hidden" id="review-due-banner"></div>
+        <div id="daily-seed-area"></div>
+
+        <h2 class="home-section">Chapters</h2>
+        <div class="pcards pcards-chapters" id="home-chapters"></div>
+
+        <h2 class="home-section">More to do</h2>
+        <div class="pcards">
+          <button type="button" class="pcard" style="--card-c:#c2552d" onclick="showScreen('play')">
+            <span class="pcard-art pcard-art-icon" data-icon="play"></span>
+            <span class="pcard-body"><span class="pcard-title">Play</span><span class="pcard-desc">Jigsaws, word searches and brain games</span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#3d4a55" onclick="showScreen('exam')">
+            <span class="pcard-art pcard-art-icon" data-icon="exam"></span>
+            <span class="pcard-body"><span class="pcard-title">Exam Prep</span><span class="pcard-desc">Practice papers, marked with reasons</span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#a93656" onclick="showScreen('practice')">
+            <span class="pcard-art pcard-art-icon" data-icon="practice"></span>
+            <span class="pcard-body"><span class="pcard-title">Practice</span><span class="pcard-desc">Pick exactly what to work on</span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#1f7a74" onclick="showScreen('sim-hub')">
+            <span class="pcard-art pcard-art-icon" data-icon="lab"></span>
+            <span class="pcard-body"><span class="pcard-title">STEM Lab</span><span class="pcard-desc">Nine hands-on experiments</span></span>
+          </button>
         </div>
 
-        <!-- At the back of the book -->
-        <div class="book-static book-leaf" data-view="back" hidden>
-          <div class="more-list">
-          <button type="button" class="more-row" onclick="showScreen('garden')">
-            <span class="more-ico" data-icon="garden"></span>
-            <span class="more-text"><span class="more-title">My Garden</span><span class="more-desc">It grows with every new thing you learn</span></span>
-            <span class="more-bar"><span class="more-bar-fill" id="garden-progress" style="width:0%"></span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('stasha')">
-            <span class="more-ico" data-icon="stasha"></span>
-            <span class="more-text"><span class="more-title">Meet Stasha</span><span class="more-desc">Dress up your avatar</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('mirror')">
-            <span class="more-ico" data-icon="mirror"></span>
-            <span class="more-text"><span class="more-title">Mirror</span><span class="more-desc">How things are going, honestly</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('mega-map')">
-            <span class="more-ico" data-icon="map"></span>
-            <span class="more-text"><span class="more-title">Mega Map</span><span class="more-desc">See how every skill joins up</span></span>
-            <span class="more-bar"><span class="more-bar-fill" id="mega-progress" style="width:0%"></span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('compass')">
-            <span class="more-ico" data-icon="compass"></span>
-            <span class="more-text"><span class="more-title">Compass</span><span class="more-desc">Tell Lumi how you feel and get a plan</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('strategies')">
-            <span class="more-ico" data-icon="tricks"></span>
-            <span class="more-text"><span class="more-title">Smart Tricks</span><span class="more-desc">Ten ways clever learners study</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('achievements')">
-            <span class="more-ico" data-icon="trophy"></span>
-            <span class="more-text"><span class="more-title">Achievements</span><span class="more-desc">Everything you have earned</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="startPomodoro(10)">
-            <span class="more-ico" data-icon="timer"></span>
-            <span class="more-text"><span class="more-title">10 minute timer</span><span class="more-desc">A short, quiet stretch of work</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('parent-digest')">
-            <span class="more-ico" data-icon="family"></span>
-            <span class="more-text"><span class="more-title">Family digest</span><span class="more-desc">For sharing with a grown-up</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('settings')">
-            <span class="more-ico" data-icon="settings"></span>
-            <span class="more-text"><span class="more-title">Settings</span><span class="more-desc">Change how the book looks</span></span>
-          </button>
+        <h2 class="home-section">Today in Nasworld</h2>
+        <div class="wotd-banner hidden" id="wotd-banner" onclick="claimWotd()">
+          <div class="quest-icon" data-icon="word"></div>
+          <div class="quest-text">
+            <div class="wotd-word" id="wotd-word"></div>
+            <div class="wotd-def" id="wotd-def"></div>
           </div>
-          <!-- Filled by renderVersionBanner() from src/core/version.js, which
-               is the single source of truth. Do not hard-code it here again. -->
-          <div class="version-banner" id="version-banner"></div>
+          <div class="quest-progress" id="wotd-status">+3 stars</div>
+        </div>
+        <div id="dynamic-quest-area"></div>
+        <div id="story-progress-area"></div>
+        <div class="hidden" id="achievement-showcase"></div>
+        <div id="daily-treats-area"></div>
+        <div id="streak-calendar-area"></div>
+
+        <h2 class="home-section">Your things</h2>
+        <div class="pcards">
+          <button type="button" class="pcard" style="--card-c:#5c7f2a" onclick="showScreen('garden')">
+            <span class="pcard-art pcard-art-icon" data-icon="garden"></span>
+            <span class="pcard-body"><span class="pcard-title">My Garden</span><span class="pcard-desc">It grows with every new thing you learn</span><span class="pcard-progress"><span class="pcard-bar"><span class="pcard-bar-fill" id="garden-progress" style="width:0%"></span></span></span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#b8457a" onclick="showScreen('stasha')">
+            <span class="pcard-art pcard-art-icon" data-icon="stasha"></span>
+            <span class="pcard-body"><span class="pcard-title">Meet Stasha</span><span class="pcard-desc">Dress up your avatar</span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#4a5a9a" onclick="showScreen('mirror')">
+            <span class="pcard-art pcard-art-icon" data-icon="mirror"></span>
+            <span class="pcard-body"><span class="pcard-title">Mirror</span><span class="pcard-desc">How things are going, honestly</span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#2f4b6e" onclick="showScreen('mega-map')">
+            <span class="pcard-art pcard-art-icon" data-icon="map"></span>
+            <span class="pcard-body"><span class="pcard-title">Mega Map</span><span class="pcard-desc">See how every skill joins up</span><span class="pcard-progress"><span class="pcard-bar"><span class="pcard-bar-fill" id="mega-progress" style="width:0%"></span></span></span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#7a5a3a" onclick="showScreen('compass')">
+            <span class="pcard-art pcard-art-icon" data-icon="compass"></span>
+            <span class="pcard-body"><span class="pcard-title">Compass</span><span class="pcard-desc">Tell Lumi how you feel and get a plan</span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#8f5410" onclick="showScreen('strategies')">
+            <span class="pcard-art pcard-art-icon" data-icon="tricks"></span>
+            <span class="pcard-body"><span class="pcard-title">Smart Tricks</span><span class="pcard-desc">Ten ways clever learners study</span></span>
+          </button>
         </div>
 
-        <nav class="book-nav" id="book-nav" hidden></nav>
+        <div class="challenges-section" id="challenges-section">
+          <h2 class="home-section">Challenges</h2>
+          <div class="challenges-grid" id="challenges-grid"></div>
+        </div>
+
+        <div class="home-foot">
+          <button type="button" class="foot-btn" onclick="startPomodoro(10)"><span data-icon="timer"></span>10 minute timer</button>
+          <button type="button" class="foot-btn" onclick="showScreen('parent-digest')"><span data-icon="family"></span>Family digest</button>
+          <button type="button" class="foot-btn" onclick="showScreen('settings')"><span data-icon="settings"></span>Settings</button>
+        </div>
+        <!-- Filled by renderVersionBanner() from src/core/version.js, which
+             is the single source of truth. Do not hard-code it here again. -->
+        <div class="version-banner" id="version-banner"></div>
       </div>
-      <!-- Progress bars the home updater still writes to. The chapter maps
+
+      <!-- A chapter, open on its map -->
+      <div class="book" id="book" data-view="home" hidden>
+        <button type="button" class="book-ribbon" id="book-ribbon" onclick="goHome()"><span>Today</span></button>
+        <div id="book-page"></div>
+        <nav class="book-nav" id="book-nav"></nav>
+      </div>
+      <!-- Progress bars the home updater still writes to. The chapter cards
            show progress now, so these stay out of sight. -->
       <div hidden><span id="math-progress"></span><span id="word-progress"></span><span id="stem-progress"></span><span id="malay-progress"></span></div>
     </div>
@@ -5165,29 +5156,8 @@ h1, h2, h3 { font-weight: 600; }
   clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 14px), 0 100%); transition: padding .15s var(--ease); }
 .book-ribbon:hover { padding-bottom: 30px; }
 
-/* Cover */
-.book[data-view="cover"] { background: var(--accent); border-color: transparent; overflow: hidden; }
-.book-cover { display: grid; flex: 1; }
-.book-cover-art { margin: 24px 24px 0 32px; border-radius: 12px; overflow: hidden; height: min(58vh, 520px); }
-.book-cover-text { padding: 24px 24px 32px 32px; color: var(--on-accent); }
-.book-cover-kicker { color: var(--on-accent); opacity: 0.8; font-size: 18px; }
-.book-cover-title { font-family: var(--font-display); font-size: 56px; font-weight: 600; line-height: 1; margin: 0 0 20px; color: var(--on-accent); }
-.book-open { min-height: 52px; padding: 0 28px; border: 0; border-radius: var(--radius-md); background: var(--on-accent); color: var(--accent); font: 600 18px var(--font-display); cursor: pointer; }
-.book-open:active, .book-turn:active, .book-stop:not([disabled]):active .book-stone { transform: scale(0.97); }
+.book-turn:active, .book-stop:not([disabled]):active .book-stone { transform: scale(0.97); }
 .book-scene-svg, .book-scene-img { display: block; width: 100%; height: 100%; object-fit: cover; }
-
-/* Contents */
-.book-toc { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
-.book-toc-row { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 16px; align-items: center; width: 100%; text-align: left; min-height: 72px; padding: 8px;
-  margin-left: -8px; background: none; border: 0; border-radius: var(--radius-md); color: var(--text-primary); cursor: pointer; transition: background-color .15s; }
-.book-toc-row:hover { background: var(--bg-mid); }
-.book-toc-thumb, .book-toc-n { width: 72px; height: 56px; border-radius: 10px; overflow: hidden; display: grid; place-items: center; background: var(--bg-mid); color: var(--text-secondary); }
-.book-toc-n .ico { width: 28px; height: 28px; }
-.book-toc-ribbon { background: var(--accent); clip-path: polygon(30% 0, 70% 0, 70% 100%, 50% 80%, 30% 100%); }
-.book-toc-text { display: grid; }
-.book-toc-title { font-family: var(--font-display); font-size: 20px; font-weight: 600; line-height: 1.2; }
-.book-toc-sub { color: var(--text-dim); font-size: 14px; }
-.book-toc-count { color: var(--text-secondary); font: 500 15px var(--font-display); font-variant-numeric: tabular-nums; white-space: nowrap; padding-right: 8px; }
 
 /* Chapter: parts, then the map */
 .book-parts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
@@ -5240,6 +5210,56 @@ h1, h2, h3 { font-weight: 600; }
   .book-ribbon { right: 20px; width: 56px; }
 }
 @media (prefers-reduced-motion: reduce) { .book.turning #book-page, .book.turning .book-static:not([hidden]) { animation: none; } }
+
+/* ============================================================
+   The main page: the original's big picture cards, with Lumi front
+   and centre and the daily things in view. Colour is back, as flat
+   colour: each card owns one (--card-c), with no gradient or glow.
+   ============================================================ */
+[hidden] { display: none !important; }
+.home-hero { display: grid; justify-items: center; gap: 4px; margin: 4px 0 20px; }
+.home-hero .home-title { font-size: 36px; }
+.home-hero .lumi-container { flex-direction: column; gap: 12px; margin: 0; }
+.home-hero .lumi { width: 112px; height: 112px; }
+.home-hero .lumi-body { width: 112px; height: 112px; }
+.home-hero .lumi-eye { width: 13px; height: 15px; top: 42px; } .home-hero .lumi-eye.left { left: 33px; } .home-hero .lumi-eye.right { left: 66px; }
+.home-hero .lumi-mouth { width: 28px; height: 13px; top: 64px; left: 42px; border-bottom-width: 4px; }
+.home-hero .lumi-speech { text-align: center; border-radius: var(--radius-lg); border-top-left-radius: var(--radius-lg); border-bottom-left-radius: var(--radius-lg); font-size: 18px; padding: 12px 20px; max-width: 520px; }
+
+.pcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.pcards-chapters { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.pcard { display: grid; grid-template-rows: auto 1fr; text-align: left; padding: 0; overflow: hidden; cursor: pointer; min-width: 0;
+  background: var(--bg-card); color: var(--text-primary); border: 2px solid var(--card-c); border-radius: var(--radius-lg); transition: transform .15s var(--ease); }
+.pcard:active { transform: scale(0.98); }
+.pcard-art { display: block; height: 96px; background: var(--card-c); color: #ffffff; }
+.pcard-art-icon { display: grid; place-items: center; }
+.pcard-art-icon .ico { width: 52px; height: 52px; stroke-width: 1.6; }
+.pcard-chapter .pcard-art { height: 190px; }
+.pcard-body { display: grid; gap: 2px; padding: 12px 14px 14px; align-content: start; }
+.pcard-kicker { font: 600 14px var(--font-display); color: var(--card-c); }
+.pcard-title { font: 600 19px/1.2 var(--font-display); }
+.pcard-chapter .pcard-title { font-size: 23px; }
+.pcard-desc { color: var(--text-dim); font-size: 14px; line-height: 1.35; }
+.pcard-progress { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.pcard-bar { flex: 1; height: 8px; border-radius: 4px; background: var(--bg-mid); overflow: hidden; }
+.pcard-bar-fill { display: block; height: 100%; background: var(--card-c); border-radius: 4px; }
+.pcard-count { font: 500 14px var(--font-display); color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* In the Night tone the card colours need lifting to read on a dark page. */
+:root[data-tone="night"] .pcard-kicker { color: var(--text-secondary); }
+
+#home-main .today-card { border: 2px solid var(--accent); }
+.book .book-kicker { color: var(--accent); font-weight: 600; }
+.book-chapter .book-h1 { color: var(--text-primary); }
+
+@media (max-width: 480px) {
+  .pcards-chapters { gap: 10px; }
+  .pcard-chapter .pcard-art { height: 120px; }
+  .pcard-chapter .pcard-title { font-size: 18px; }
+  .pcard-art { height: 76px; } .pcard-art-icon .ico { width: 40px; height: 40px; }
+  .pcard-body { padding: 10px 10px 12px; }
+  .pcard-title { font-size: 16px; } .pcard-desc { font-size: 13px; }
+  .home-hero .home-title { font-size: 30px; }
+}
 </style>
 <script>
 // === BUNDLED BY build.sh ===
@@ -5339,9 +5359,9 @@ function lcm(a, b) {
 //  move independently and conflating them would break old save files.
 
 var APP_VERSION = {
-  number: '4.1',
+  number: '4.2',
   // Short enough to sit on one line on a phone. This is what she reads.
-  name: 'The Book of Nasworld',
+  name: 'Cards and Maps',
   // ISO date of the release, used by the staleness guard.
   date: '2026-11-15'
 };
@@ -34035,7 +34055,7 @@ if (typeof window !== 'undefined') {
 //  The pictures are the one place colour is allowed to be rich. The
 //  page around them stays quiet so they read at once.
 
-var BOOK_PAINTED = {};   // e.g. { math: true, cover: true } once painted art exists
+var BOOK_PAINTED = {};   // e.g. { math: true } once painted art exists
 
 function _scn(inner, sky) {
   return '<svg class="book-scene-svg" viewBox="0 0 400 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
@@ -34138,21 +34158,6 @@ var BOOK_SCENES = {
       '<g transform="translate(120 560)"><path d="M0 0v-70" stroke="#3d4a55" stroke-width="4"/><path d="M-22-70h44M0-92v44" stroke="#3d4a55" stroke-width="3"/><path d="M22-70l-12-7v14z" fill="#d1553f"/></g>' +
       '<g fill="#f4c542"><circle cx="330" cy="70" r="3"/><circle cx="60" cy="50" r="2.5"/><circle cx="150" cy="96" r="2"/></g>',
       '#cfe0ee');
-  },
-  // The cover: the whole island at once.
-  cover: function () {
-    return _scn(
-      _cloud(80, 90, 1) + _cloud(320, 130, 0.8) +
-      '<rect y="330" width="400" height="310" fill="#5fb3c9"/>' + _waves(380, '#e9f7fa') + _waves(520, '#e9f7fa') +
-      '<path d="M30 400c20-90 110-150 170-150s150 60 170 150c-60 30-280 30-340 0z" fill="#9bcb86"/>' +
-      '<path d="M20 404c60 34 300 34 360 0 4 14-40 34-180 34S16 418 20 404z" fill="#ecd9a8"/>' +
-      '<path d="M150 400l50-150 50 150z" fill="#7ca894"/><g transform="translate(200 250) scale(0.6)"><rect x="-24" y="-38" width="48" height="38" rx="3" fill="#fff6e3"/><path d="M-28-36a28 28 0 0 1 56 0z" fill="#3d6f8a"/></g>' +
-      _tree(120, 380, 0.7, '#4b9458') + _tree(150, 396, 0.6, '#5aa565') + _palm(300, 400, 0.6) + _stilt(270, 388, 0.450, '#e9c98a', '#9a5b3a') +
-      '<g transform="translate(70 396) scale(0.5)"><path d="M-10 0l6-70h14l6 70z" fill="#fff6e3"/><path d="M-6-40h18l1 14h-20z" fill="#d1553f"/><path d="M-10-70l13-14 13 14z" fill="#d1553f"/></g>' +
-      _boat(60, 470, 0.8, '#d1553f', '#f4c542') + _boat(330, 540, 0.9, '#2f6b8a', '#fff6e3') +
-      '<path d="M90 398c40-20 60 10 100-6s50-30 90-8" fill="none" stroke="#ecd9a8" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 9"/>' +
-      '<g transform="translate(318 214)"><circle r="30" fill="#f4c542"/><circle cx="-11" cy="-4" r="4" fill="#2a2622"/><circle cx="11" cy="-4" r="4" fill="#2a2622"/><path d="M-10 9c5 6 15 6 20 0" fill="none" stroke="#2a2622" stroke-width="3" stroke-linecap="round"/></g>',
-      '#cfe9f3');
   }
 };
 
@@ -34169,30 +34174,30 @@ if (typeof window !== 'undefined') { window.bookScene = bookScene; window.BOOK_S
 //  THE BOOK OF NASWORLD — home is a storybook of maps.
 // ============================================================
 //
-//  The first redesign made home tidy and gave a seven year old a list
-//  of destinations. A child wants somewhere to go, not a menu. So home
-//  is a book: a cover that opens, a contents page, and chapters. Each
-//  chapter is a place (a harbour, a forest, a kampung, a peak) with a
-//  path through it, and each skill is a stop on that path, in learning
-//  order. She can see how far she has come and what lies ahead.
-//
-//  Today's three steps hang from the book as a ribbon bookmark: one tap
-//  away, without replacing the world.
+//  Home has been three things. First, fifteen equal glowing tiles.
+//  Then a tidy list, which read as a dashboard. Then a book with a
+//  cover and a contents page, which hid everything behind page turns.
+//  This is the blend that was asked for: the original's big picture
+//  cards, with Lumi front and centre and the daily things in view, and
+//  the book's best idea kept. Tap a chapter card and it opens on a
+//  place (a harbour, a forest, a kampung, a peak) with a path through
+//  it. Each skill is a stop on that path, in learning order, so she can
+//  see how far she has come and what lies ahead.
 //
 //  Nothing here owns progress. Stops read mastery from state.skills and
 //  open the same skill view the old grids did.
 
 var BOOK_CHAPTERS = [
-  { id: 'math',  n: 1, title: 'Number Harbour',  blurb: 'Count, weigh and measure by the sea', tree: function () { return typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {}; } },
-  { id: 'word',  n: 2, title: 'Word Forest',     blurb: 'Where words and stories grow',        tree: function () { return typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {}; } },
-  { id: 'malay', n: 3, title: 'Kampung Melayu',  blurb: 'Bahasa Melayu, from home to market',  tree: function () { return typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}; } },
-  { id: 'stem',  n: 4, title: 'Discovery Peak',  blurb: 'Look closely at how the world works', tree: function () { return typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {}; } }
+  { id: 'math',  n: 1, colour: '#2f6b8a', title: 'Number Harbour',  blurb: 'Count, weigh and measure by the sea', tree: function () { return typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {}; } },
+  { id: 'word',  n: 2, colour: '#3f8a4d', title: 'Word Forest',     blurb: 'Where words and stories grow',        tree: function () { return typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {}; } },
+  { id: 'malay', n: 3, colour: '#b8503c', title: 'Kampung Melayu',  blurb: 'Bahasa Melayu, from home to market',  tree: function () { return typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}; } },
+  { id: 'stem',  n: 4, colour: '#96671a', title: 'Discovery Peak',  blurb: 'Look closely at how the world works', tree: function () { return typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {}; } }
 ];
-// The order pages turn in.
-var BOOK_ORDER = ['contents', 'today', 'math', 'word', 'malay', 'stem', 'play', 'board', 'back'];
-var BOOK_TITLES = { contents: 'Contents', today: 'Today\'s page', play: 'The Playground', board: 'The Notice Board', back: 'At the back of the book' };
+// The order pages turn in. 'home' is the main page: Lumi, Today, and a
+// big picture card for every place. The chapters follow.
+var BOOK_ORDER = ['home', 'math', 'word', 'malay', 'stem'];
 
-var bookState = { view: 'cover', part: {} };
+var bookState = { view: 'home', part: {} };
 
 function _bookChapter(id) { for (var i = 0; i < BOOK_CHAPTERS.length; i++) if (BOOK_CHAPTERS[i].id === id) return BOOK_CHAPTERS[i]; return null; }
 
@@ -34253,33 +34258,18 @@ function _bookEsc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&l
 
 // ---------- Views ----------
 
-function _bookCover() {
-  return '<div class="book-cover">' +
-    '<div class="book-cover-art">' + bookScene('cover') + '</div>' +
-    '<div class="book-cover-text"><div class="book-cover-kicker">The Book of</div><h1 class="book-cover-title">Nasworld</h1>' +
-    '<button type="button" class="book-open" onclick="bookGo(\'contents\')">Open the book</button></div></div>';
-}
-
-function _bookContents() {
-  var h = '<div class="book-leaf"><h1 class="book-h1">Contents</h1><ol class="book-toc">';
-  h += '<li><button type="button" class="book-toc-row" onclick="bookGo(\'today\')"><span class="book-toc-n book-toc-ribbon"></span><span class="book-toc-text"><span class="book-toc-title">Today\'s page</span><span class="book-toc-sub" id="book-toc-today"></span></span></button></li>';
-  BOOK_CHAPTERS.forEach(function (ch) {
-    var p = bookChapterProgress(ch);
-    h += '<li><button type="button" class="book-toc-row" onclick="bookGo(\'' + ch.id + '\')">' +
-      '<span class="book-toc-thumb">' + bookScene(ch.id) + '</span>' +
-      '<span class="book-toc-text"><span class="book-toc-kicker">Chapter ' + ch.n + '</span><span class="book-toc-title">' + ch.title + '</span>' +
-      '<span class="book-toc-sub">' + ch.blurb + '</span></span>' +
-      '<span class="book-toc-count">' + p.done + ' of ' + p.total + '</span></button></li>';
-  });
-  [['play', 'Chapter 5', 'The Playground', 'Games, experiments and challenges', 'play'],
-   ['exam', 'Chapter 6', 'The Exam Hall', 'Practice papers, marked with reasons', 'exam'],
-   ['board', '', 'The Notice Board', 'Word of the day, quests and Lumi\'s story', 'star'],
-   ['back', '', 'At the back of the book', 'Your garden, Stasha, the Mirror and more', 'garden']].forEach(function (r) {
-    var go = r[0] === 'exam' ? 'showScreen(\'exam\')' : 'bookGo(\'' + r[0] + '\')';
-    h += '<li><button type="button" class="book-toc-row" onclick="' + go + '"><span class="book-toc-n">' + (typeof icon === 'function' ? icon(r[4]) : '') + '</span>' +
-      '<span class="book-toc-text">' + (r[1] ? '<span class="book-toc-kicker">' + r[1] + '</span>' : '') + '<span class="book-toc-title">' + r[2] + '</span><span class="book-toc-sub">' + r[3] + '</span></span></button></li>';
-  });
-  return h + '</ol></div>';
+/** The chapter cards on the main page: a picture, a name, and how far she has got. */
+function renderHomeChapters() {
+  var el = document.getElementById('home-chapters');
+  if (!el) return;
+  el.innerHTML = BOOK_CHAPTERS.map(function (ch) {
+    var p = bookChapterProgress(ch), pct = p.total ? Math.round(p.done / p.total * 100) : 0;
+    return '<button type="button" class="pcard pcard-chapter" style="--card-c:' + ch.colour + '" onclick="bookGo(\'' + ch.id + '\')">' +
+      '<span class="pcard-art">' + bookScene(ch.id) + '</span>' +
+      '<span class="pcard-body"><span class="pcard-kicker">Chapter ' + ch.n + '</span><span class="pcard-title">' + ch.title + '</span>' +
+      '<span class="pcard-desc">' + ch.blurb + '</span>' +
+      '<span class="pcard-progress"><span class="pcard-bar"><span class="pcard-bar-fill" style="width:' + pct + '%"></span></span><span class="pcard-count">' + p.done + ' of ' + p.total + '</span></span></span></button>';
+  }).join('');
 }
 
 function _bookChapterView(ch) {
@@ -34318,35 +34308,23 @@ function _bookChapterView(ch) {
 // ---------- Rendering and turning pages ----------
 
 function bookRender() {
-  var page = document.getElementById('book-page');
-  if (!page) return;
-  var v = bookState.view, ch = _bookChapter(v), html = '';
-  if (v === 'cover') html = _bookCover();
-  else if (v === 'contents') html = _bookContents();
-  else if (ch) html = _bookChapterView(ch);
-  else html = '<div class="book-leaf"><h1 class="book-h1">' + (BOOK_TITLES[v] || '') + '</h1></div>';
-  page.innerHTML = html;
+  var v = bookState.view, ch = _bookChapter(v);
+  if (!ch) v = bookState.view = 'home';
+  var home = document.getElementById('home-main'), book = document.getElementById('book'), page = document.getElementById('book-page');
+  if (home) home.hidden = !!ch;
+  if (book) { book.hidden = !ch; book.setAttribute('data-view', v); }
+  if (!ch) { renderHomeChapters(); return; }
 
-  // Pages whose content lives in the static markup (today, play, board, back).
-  document.querySelectorAll('.book-static').forEach(function (el) { el.hidden = el.getAttribute('data-view') !== v; });
-  var book = document.getElementById('book');
-  if (book) book.setAttribute('data-view', v);
+  // Each chapter wears its own colour: finished stops, the ribbon, the tabs.
+  if (book && book.style && book.style.setProperty) { book.style.setProperty('--accent', ch.colour); book.style.setProperty('--on-accent', '#ffffff'); }
+  if (page) page.innerHTML = _bookChapterView(ch);
 
   var idx = BOOK_ORDER.indexOf(v), nav = document.getElementById('book-nav');
   if (nav) {
-    nav.hidden = v === 'cover';
-    var prev = idx > 0 ? BOOK_ORDER[idx - 1] : 'cover', next = idx >= 0 && idx < BOOK_ORDER.length - 1 ? BOOK_ORDER[idx + 1] : null;
+    var prev = BOOK_ORDER[idx - 1], next = BOOK_ORDER[idx + 1];
     nav.innerHTML = '<button type="button" class="book-turn" onclick="bookGo(\'' + prev + '\')" aria-label="Previous page">' + icon('arrow', 'flip') + '</button>' +
-      '<button type="button" class="book-turn book-turn-mid" onclick="bookGo(\'contents\')">Contents</button>' +
-      (next ? '<button type="button" class="book-turn" onclick="bookGo(\'' + next + '\')" aria-label="Next page">' + icon('arrow') + '</button>' : '<span class="book-turn-gap"></span>');
-  }
-  var ribbon = document.getElementById('book-ribbon');
-  if (ribbon) ribbon.hidden = v === 'cover' || v === 'today';
-
-  var sub = document.getElementById('book-toc-today');
-  if (sub && typeof getTodayPlan === 'function') {
-    var steps = getTodayPlan().steps, done = steps.filter(function (s) { return s.done; }).length;
-    sub.textContent = done === steps.length && steps.length ? 'All done for today' : done + ' of ' + steps.length + ' steps done';
+      '<button type="button" class="book-turn book-turn-mid" onclick="bookGo(\'home\')">Home</button>' +
+      (next ? '<button type="button" class="book-turn" onclick="bookGo(\'' + next + '\')" aria-label="Next chapter">' + icon('arrow') + '</button>' : '<span class="book-turn-gap"></span>');
   }
 }
 
@@ -34361,22 +34339,22 @@ function bookGo(view) {
 function bookSetPart(chId, i) { bookState.part[chId] = i; bookRender(); }
 
 /**
- * The Home button. Home is the contents page of the book, from anywhere:
+ * The Home button. Home is the main page, from anywhere:
  * another screen, or a chapter deep inside the book. (It used to call
  * showScreen('home'), which redrew whatever page the book was already
  * on, so pressing Home from a chapter appeared to do nothing.)
  */
 function goHome() {
-  bookState.view = 'contents';
+  bookState.view = 'home';
   if (typeof showScreen === 'function') showScreen('home');
-  bookGo('contents');
+  bookGo('home');
 }
 
 /** Open a chapter from elsewhere (the old world screens redirect here). */
 function bookOpenChapter(chId) { if (_bookChapter(chId)) { bookState.view = chId; } }
 
 if (typeof window !== 'undefined') {
-  window.bookRender = bookRender; window.bookGo = bookGo; window.bookSetPart = bookSetPart; window.bookOpenChapter = bookOpenChapter; window.goHome = goHome;
+  window.bookRender = bookRender; window.renderHomeChapters = renderHomeChapters; window.bookGo = bookGo; window.bookSetPart = bookSetPart; window.bookOpenChapter = bookOpenChapter; window.goHome = goHome;
   window.bookParts = bookParts; window.bookStopStatus = bookStopStatus; window.bookPathPoints = bookPathPoints; window.bookNextStop = bookNextStop;
 }
 

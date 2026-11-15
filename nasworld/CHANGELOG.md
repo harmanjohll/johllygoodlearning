@@ -11,6 +11,33 @@ progress needs migrating, so the two move independently.
 
 ---
 
+## v4.2 — Cards and Maps (2026-11-15)
+
+A blend of the original home and the book. The book's cover and
+contents page hid everything behind page turns.
+
+### Changed
+- **Home is the main page again, with no cover to open.** Lumi is large
+  at the top and speaks. Today's three steps come next. Then a big
+  picture card for every place, as the original had: four chapter cards
+  with their scenes and progress, then Play, Exam Prep, Practice, STEM
+  Lab, My Garden, Stasha, Mirror, Mega Map, Compass and Smart Tricks.
+- **The daily things are back on the main page:** word of the day, the
+  daily quest, the weekly challenge, Lumi's story, the treats and the
+  week's streak. The separate Notice Board is gone.
+- **Colour is back, as flat colour.** Every card has its own, and each
+  chapter wears its colour inside: finished stops, tabs and the ribbon.
+- **The maps and paths stay.** Tapping a chapter card opens its map,
+  with arrows to the next chapter and a way home. The ribbon on a
+  chapter returns to Today.
+
+### Fixed
+- **The Home button did nothing inside the book.** It redrew whatever
+  page was already open. It now goes to the main page from anywhere.
+
+### Infrastructure
+- 421 tests in eleven suites.
+
 ## v4.1 — The Book of Nasworld (2026-11-15)
 
 v4.0 made home tidy and gave a seven year old a list of destinations.

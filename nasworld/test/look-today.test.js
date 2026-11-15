@@ -80,7 +80,8 @@ ok('Look: four tones and four faces for each role', run('LOOK_TONES.length === 4
   ok('Icons: every icon named in index.html is drawn', used.length > 15 && unknown.length === 0, unknown.join(', '));
   const home = html.slice(html.indexOf('id="screen-home"'), html.indexOf('<!-- MATH WORLD SCREEN'));
   ok('Home: no emoji and no exclamation marks in the markup', !/&#1\d{5};|[\u{1F300}-\u{1FAFF}]/u.test(home) && home.replace(/<!--[\s\S]*?-->/g, '').indexOf('!') === -1);
-  ok('Home: Today has its own page in the book, and a ribbon to reach it', home.indexOf('data-view="today"') > 0 && home.indexOf('id="book-ribbon"') > 0);
+  ok('Home: Lumi, then Today, then the chapter cards, then the daily things', home.indexOf('class="lumi-container"') > 0 && home.indexOf('class="lumi-container"') < home.indexOf('id="today-area"') && home.indexOf('id="today-area"') < home.indexOf('id="home-chapters"') && home.indexOf('id="home-chapters"') < home.indexOf('id="dynamic-quest-area"'));
+  ok('Home: every place has a card on the main page', ['play', 'exam', 'practice', 'sim-hub', 'garden', 'stasha', 'mirror', 'mega-map', 'compass', 'strategies', 'settings'].every(t => home.indexOf("showScreen('" + t + "')") !== -1));
 }
 
 // ---- Today ----
@@ -119,9 +120,9 @@ ok('Look: four tones and four faces for each role', run('LOOK_TONES.length === 4
   ok('Book: a finished stop is marked done and Lumi moves on', run('bookStopStatus(MATH_TREE.count)') === 'done' && run('bookNextStop(bookParts(BOOK_CHAPTERS[0])[0].stops)') !== 'count');
   ok('Book: unreviewed Malay shows as being checked, not open', run('bookStopStatus(MALAY_TREE.imbuhan)') === 'checking');
   run('showScreen = function () {}; bookRender = function () {}; bookState.view = "math"; goHome();');
-  ok('Book: the Home button goes to the contents page from inside a chapter', run('bookState.view') === 'contents' && /class="home-btn" onclick="goHome\(\)"/.test(fs.readFileSync(__dirname + '/../index.html', 'utf8')));
-  ok('Book: every chapter and the cover has a picture', run('["cover","math","word","malay","stem"].every(function (id) { return bookScene(id).length > 500; })'));
-  ok('Book: every page it can turn to exists in the markup', run('BOOK_ORDER.join(",")').split(',').every(v => ['contents', 'math', 'word', 'malay', 'stem'].indexOf(v) !== -1 || fs.readFileSync(__dirname + '/../index.html', 'utf8').indexOf('data-view="' + v + '"') !== -1));
+  ok('Book: the Home button goes to the main page from inside a chapter', run('bookState.view') === 'home' && /class="home-btn" onclick="goHome\(\)"/.test(fs.readFileSync(__dirname + '/../index.html', 'utf8')));
+  ok('Book: every chapter has a picture and a colour of its own', run('BOOK_CHAPTERS.every(function (c) { return bookScene(c.id).length > 500 && /^#[0-9a-f]{6}$/.test(c.colour); }) && new Set(BOOK_CHAPTERS.map(function (c) { return c.colour; })).size === 4'));
+  ok('Book: pages turn from home through the four chapters', run('BOOK_ORDER.join(",")') === 'home,math,word,malay,stem');
   run('state.skills = {};');
 }
 

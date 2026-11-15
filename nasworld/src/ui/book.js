@@ -2,30 +2,30 @@
 //  THE BOOK OF NASWORLD — home is a storybook of maps.
 // ============================================================
 //
-//  The first redesign made home tidy and gave a seven year old a list
-//  of destinations. A child wants somewhere to go, not a menu. So home
-//  is a book: a cover that opens, a contents page, and chapters. Each
-//  chapter is a place (a harbour, a forest, a kampung, a peak) with a
-//  path through it, and each skill is a stop on that path, in learning
-//  order. She can see how far she has come and what lies ahead.
-//
-//  Today's three steps hang from the book as a ribbon bookmark: one tap
-//  away, without replacing the world.
+//  Home has been three things. First, fifteen equal glowing tiles.
+//  Then a tidy list, which read as a dashboard. Then a book with a
+//  cover and a contents page, which hid everything behind page turns.
+//  This is the blend that was asked for: the original's big picture
+//  cards, with Lumi front and centre and the daily things in view, and
+//  the book's best idea kept. Tap a chapter card and it opens on a
+//  place (a harbour, a forest, a kampung, a peak) with a path through
+//  it. Each skill is a stop on that path, in learning order, so she can
+//  see how far she has come and what lies ahead.
 //
 //  Nothing here owns progress. Stops read mastery from state.skills and
 //  open the same skill view the old grids did.
 
 var BOOK_CHAPTERS = [
-  { id: 'math',  n: 1, title: 'Number Harbour',  blurb: 'Count, weigh and measure by the sea', tree: function () { return typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {}; } },
-  { id: 'word',  n: 2, title: 'Word Forest',     blurb: 'Where words and stories grow',        tree: function () { return typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {}; } },
-  { id: 'malay', n: 3, title: 'Kampung Melayu',  blurb: 'Bahasa Melayu, from home to market',  tree: function () { return typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}; } },
-  { id: 'stem',  n: 4, title: 'Discovery Peak',  blurb: 'Look closely at how the world works', tree: function () { return typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {}; } }
+  { id: 'math',  n: 1, colour: '#2f6b8a', title: 'Number Harbour',  blurb: 'Count, weigh and measure by the sea', tree: function () { return typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {}; } },
+  { id: 'word',  n: 2, colour: '#3f8a4d', title: 'Word Forest',     blurb: 'Where words and stories grow',        tree: function () { return typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {}; } },
+  { id: 'malay', n: 3, colour: '#b8503c', title: 'Kampung Melayu',  blurb: 'Bahasa Melayu, from home to market',  tree: function () { return typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}; } },
+  { id: 'stem',  n: 4, colour: '#96671a', title: 'Discovery Peak',  blurb: 'Look closely at how the world works', tree: function () { return typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {}; } }
 ];
-// The order pages turn in.
-var BOOK_ORDER = ['contents', 'today', 'math', 'word', 'malay', 'stem', 'play', 'board', 'back'];
-var BOOK_TITLES = { contents: 'Contents', today: 'Today\'s page', play: 'The Playground', board: 'The Notice Board', back: 'At the back of the book' };
+// The order pages turn in. 'home' is the main page: Lumi, Today, and a
+// big picture card for every place. The chapters follow.
+var BOOK_ORDER = ['home', 'math', 'word', 'malay', 'stem'];
 
-var bookState = { view: 'cover', part: {} };
+var bookState = { view: 'home', part: {} };
 
 function _bookChapter(id) { for (var i = 0; i < BOOK_CHAPTERS.length; i++) if (BOOK_CHAPTERS[i].id === id) return BOOK_CHAPTERS[i]; return null; }
 
@@ -86,33 +86,18 @@ function _bookEsc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&l
 
 // ---------- Views ----------
 
-function _bookCover() {
-  return '<div class="book-cover">' +
-    '<div class="book-cover-art">' + bookScene('cover') + '</div>' +
-    '<div class="book-cover-text"><div class="book-cover-kicker">The Book of</div><h1 class="book-cover-title">Nasworld</h1>' +
-    '<button type="button" class="book-open" onclick="bookGo(\'contents\')">Open the book</button></div></div>';
-}
-
-function _bookContents() {
-  var h = '<div class="book-leaf"><h1 class="book-h1">Contents</h1><ol class="book-toc">';
-  h += '<li><button type="button" class="book-toc-row" onclick="bookGo(\'today\')"><span class="book-toc-n book-toc-ribbon"></span><span class="book-toc-text"><span class="book-toc-title">Today\'s page</span><span class="book-toc-sub" id="book-toc-today"></span></span></button></li>';
-  BOOK_CHAPTERS.forEach(function (ch) {
-    var p = bookChapterProgress(ch);
-    h += '<li><button type="button" class="book-toc-row" onclick="bookGo(\'' + ch.id + '\')">' +
-      '<span class="book-toc-thumb">' + bookScene(ch.id) + '</span>' +
-      '<span class="book-toc-text"><span class="book-toc-kicker">Chapter ' + ch.n + '</span><span class="book-toc-title">' + ch.title + '</span>' +
-      '<span class="book-toc-sub">' + ch.blurb + '</span></span>' +
-      '<span class="book-toc-count">' + p.done + ' of ' + p.total + '</span></button></li>';
-  });
-  [['play', 'Chapter 5', 'The Playground', 'Games, experiments and challenges', 'play'],
-   ['exam', 'Chapter 6', 'The Exam Hall', 'Practice papers, marked with reasons', 'exam'],
-   ['board', '', 'The Notice Board', 'Word of the day, quests and Lumi\'s story', 'star'],
-   ['back', '', 'At the back of the book', 'Your garden, Stasha, the Mirror and more', 'garden']].forEach(function (r) {
-    var go = r[0] === 'exam' ? 'showScreen(\'exam\')' : 'bookGo(\'' + r[0] + '\')';
-    h += '<li><button type="button" class="book-toc-row" onclick="' + go + '"><span class="book-toc-n">' + (typeof icon === 'function' ? icon(r[4]) : '') + '</span>' +
-      '<span class="book-toc-text">' + (r[1] ? '<span class="book-toc-kicker">' + r[1] + '</span>' : '') + '<span class="book-toc-title">' + r[2] + '</span><span class="book-toc-sub">' + r[3] + '</span></span></button></li>';
-  });
-  return h + '</ol></div>';
+/** The chapter cards on the main page: a picture, a name, and how far she has got. */
+function renderHomeChapters() {
+  var el = document.getElementById('home-chapters');
+  if (!el) return;
+  el.innerHTML = BOOK_CHAPTERS.map(function (ch) {
+    var p = bookChapterProgress(ch), pct = p.total ? Math.round(p.done / p.total * 100) : 0;
+    return '<button type="button" class="pcard pcard-chapter" style="--card-c:' + ch.colour + '" onclick="bookGo(\'' + ch.id + '\')">' +
+      '<span class="pcard-art">' + bookScene(ch.id) + '</span>' +
+      '<span class="pcard-body"><span class="pcard-kicker">Chapter ' + ch.n + '</span><span class="pcard-title">' + ch.title + '</span>' +
+      '<span class="pcard-desc">' + ch.blurb + '</span>' +
+      '<span class="pcard-progress"><span class="pcard-bar"><span class="pcard-bar-fill" style="width:' + pct + '%"></span></span><span class="pcard-count">' + p.done + ' of ' + p.total + '</span></span></span></button>';
+  }).join('');
 }
 
 function _bookChapterView(ch) {
@@ -151,35 +136,23 @@ function _bookChapterView(ch) {
 // ---------- Rendering and turning pages ----------
 
 function bookRender() {
-  var page = document.getElementById('book-page');
-  if (!page) return;
-  var v = bookState.view, ch = _bookChapter(v), html = '';
-  if (v === 'cover') html = _bookCover();
-  else if (v === 'contents') html = _bookContents();
-  else if (ch) html = _bookChapterView(ch);
-  else html = '<div class="book-leaf"><h1 class="book-h1">' + (BOOK_TITLES[v] || '') + '</h1></div>';
-  page.innerHTML = html;
+  var v = bookState.view, ch = _bookChapter(v);
+  if (!ch) v = bookState.view = 'home';
+  var home = document.getElementById('home-main'), book = document.getElementById('book'), page = document.getElementById('book-page');
+  if (home) home.hidden = !!ch;
+  if (book) { book.hidden = !ch; book.setAttribute('data-view', v); }
+  if (!ch) { renderHomeChapters(); return; }
 
-  // Pages whose content lives in the static markup (today, play, board, back).
-  document.querySelectorAll('.book-static').forEach(function (el) { el.hidden = el.getAttribute('data-view') !== v; });
-  var book = document.getElementById('book');
-  if (book) book.setAttribute('data-view', v);
+  // Each chapter wears its own colour: finished stops, the ribbon, the tabs.
+  if (book && book.style && book.style.setProperty) { book.style.setProperty('--accent', ch.colour); book.style.setProperty('--on-accent', '#ffffff'); }
+  if (page) page.innerHTML = _bookChapterView(ch);
 
   var idx = BOOK_ORDER.indexOf(v), nav = document.getElementById('book-nav');
   if (nav) {
-    nav.hidden = v === 'cover';
-    var prev = idx > 0 ? BOOK_ORDER[idx - 1] : 'cover', next = idx >= 0 && idx < BOOK_ORDER.length - 1 ? BOOK_ORDER[idx + 1] : null;
+    var prev = BOOK_ORDER[idx - 1], next = BOOK_ORDER[idx + 1];
     nav.innerHTML = '<button type="button" class="book-turn" onclick="bookGo(\'' + prev + '\')" aria-label="Previous page">' + icon('arrow', 'flip') + '</button>' +
-      '<button type="button" class="book-turn book-turn-mid" onclick="bookGo(\'contents\')">Contents</button>' +
-      (next ? '<button type="button" class="book-turn" onclick="bookGo(\'' + next + '\')" aria-label="Next page">' + icon('arrow') + '</button>' : '<span class="book-turn-gap"></span>');
-  }
-  var ribbon = document.getElementById('book-ribbon');
-  if (ribbon) ribbon.hidden = v === 'cover' || v === 'today';
-
-  var sub = document.getElementById('book-toc-today');
-  if (sub && typeof getTodayPlan === 'function') {
-    var steps = getTodayPlan().steps, done = steps.filter(function (s) { return s.done; }).length;
-    sub.textContent = done === steps.length && steps.length ? 'All done for today' : done + ' of ' + steps.length + ' steps done';
+      '<button type="button" class="book-turn book-turn-mid" onclick="bookGo(\'home\')">Home</button>' +
+      (next ? '<button type="button" class="book-turn" onclick="bookGo(\'' + next + '\')" aria-label="Next chapter">' + icon('arrow') + '</button>' : '<span class="book-turn-gap"></span>');
   }
 }
 
@@ -194,21 +167,21 @@ function bookGo(view) {
 function bookSetPart(chId, i) { bookState.part[chId] = i; bookRender(); }
 
 /**
- * The Home button. Home is the contents page of the book, from anywhere:
+ * The Home button. Home is the main page, from anywhere:
  * another screen, or a chapter deep inside the book. (It used to call
  * showScreen('home'), which redrew whatever page the book was already
  * on, so pressing Home from a chapter appeared to do nothing.)
  */
 function goHome() {
-  bookState.view = 'contents';
+  bookState.view = 'home';
   if (typeof showScreen === 'function') showScreen('home');
-  bookGo('contents');
+  bookGo('home');
 }
 
 /** Open a chapter from elsewhere (the old world screens redirect here). */
 function bookOpenChapter(chId) { if (_bookChapter(chId)) { bookState.view = chId; } }
 
 if (typeof window !== 'undefined') {
-  window.bookRender = bookRender; window.bookGo = bookGo; window.bookSetPart = bookSetPart; window.bookOpenChapter = bookOpenChapter; window.goHome = goHome;
+  window.bookRender = bookRender; window.renderHomeChapters = renderHomeChapters; window.bookGo = bookGo; window.bookSetPart = bookSetPart; window.bookOpenChapter = bookOpenChapter; window.goHome = goHome;
   window.bookParts = bookParts; window.bookStopStatus = bookStopStatus; window.bookPathPoints = bookPathPoints; window.bookNextStop = bookNextStop;
 }

@@ -10,7 +10,7 @@
 //  The pictures are the one place colour is allowed to be rich. The
 //  page around them stays quiet so they read at once.
 
-var BOOK_PAINTED = {};   // e.g. { math: true, cover: true } once painted art exists
+var BOOK_PAINTED = {};   // e.g. { math: true } once painted art exists
 
 function _scn(inner, sky) {
   return '<svg class="book-scene-svg" viewBox="0 0 400 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
@@ -113,21 +113,6 @@ var BOOK_SCENES = {
       '<g transform="translate(120 560)"><path d="M0 0v-70" stroke="#3d4a55" stroke-width="4"/><path d="M-22-70h44M0-92v44" stroke="#3d4a55" stroke-width="3"/><path d="M22-70l-12-7v14z" fill="#d1553f"/></g>' +
       '<g fill="#f4c542"><circle cx="330" cy="70" r="3"/><circle cx="60" cy="50" r="2.5"/><circle cx="150" cy="96" r="2"/></g>',
       '#cfe0ee');
-  },
-  // The cover: the whole island at once.
-  cover: function () {
-    return _scn(
-      _cloud(80, 90, 1) + _cloud(320, 130, 0.8) +
-      '<rect y="330" width="400" height="310" fill="#5fb3c9"/>' + _waves(380, '#e9f7fa') + _waves(520, '#e9f7fa') +
-      '<path d="M30 400c20-90 110-150 170-150s150 60 170 150c-60 30-280 30-340 0z" fill="#9bcb86"/>' +
-      '<path d="M20 404c60 34 300 34 360 0 4 14-40 34-180 34S16 418 20 404z" fill="#ecd9a8"/>' +
-      '<path d="M150 400l50-150 50 150z" fill="#7ca894"/><g transform="translate(200 250) scale(0.6)"><rect x="-24" y="-38" width="48" height="38" rx="3" fill="#fff6e3"/><path d="M-28-36a28 28 0 0 1 56 0z" fill="#3d6f8a"/></g>' +
-      _tree(120, 380, 0.7, '#4b9458') + _tree(150, 396, 0.6, '#5aa565') + _palm(300, 400, 0.6) + _stilt(270, 388, 0.450, '#e9c98a', '#9a5b3a') +
-      '<g transform="translate(70 396) scale(0.5)"><path d="M-10 0l6-70h14l6 70z" fill="#fff6e3"/><path d="M-6-40h18l1 14h-20z" fill="#d1553f"/><path d="M-10-70l13-14 13 14z" fill="#d1553f"/></g>' +
-      _boat(60, 470, 0.8, '#d1553f', '#f4c542') + _boat(330, 540, 0.9, '#2f6b8a', '#fff6e3') +
-      '<path d="M90 398c40-20 60 10 100-6s50-30 90-8" fill="none" stroke="#ecd9a8" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 9"/>' +
-      '<g transform="translate(318 214)"><circle r="30" fill="#f4c542"/><circle cx="-11" cy="-4" r="4" fill="#2a2622"/><circle cx="11" cy="-4" r="4" fill="#2a2622"/><path d="M-10 9c5 6 15 6 20 0" fill="none" stroke="#2a2622" stroke-width="3" stroke-linecap="round"/></g>',
-      '#cfe9f3');
   }
 };
 

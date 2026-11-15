@@ -196,29 +196,8 @@ h1, h2, h3 { font-weight: 600; }
   clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 14px), 0 100%); transition: padding .15s var(--ease); }
 .book-ribbon:hover { padding-bottom: 30px; }
 
-/* Cover */
-.book[data-view="cover"] { background: var(--accent); border-color: transparent; overflow: hidden; }
-.book-cover { display: grid; flex: 1; }
-.book-cover-art { margin: 24px 24px 0 32px; border-radius: 12px; overflow: hidden; height: min(58vh, 520px); }
-.book-cover-text { padding: 24px 24px 32px 32px; color: var(--on-accent); }
-.book-cover-kicker { color: var(--on-accent); opacity: 0.8; font-size: 18px; }
-.book-cover-title { font-family: var(--font-display); font-size: 56px; font-weight: 600; line-height: 1; margin: 0 0 20px; color: var(--on-accent); }
-.book-open { min-height: 52px; padding: 0 28px; border: 0; border-radius: var(--radius-md); background: var(--on-accent); color: var(--accent); font: 600 18px var(--font-display); cursor: pointer; }
-.book-open:active, .book-turn:active, .book-stop:not([disabled]):active .book-stone { transform: scale(0.97); }
+.book-turn:active, .book-stop:not([disabled]):active .book-stone { transform: scale(0.97); }
 .book-scene-svg, .book-scene-img { display: block; width: 100%; height: 100%; object-fit: cover; }
-
-/* Contents */
-.book-toc { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
-.book-toc-row { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 16px; align-items: center; width: 100%; text-align: left; min-height: 72px; padding: 8px;
-  margin-left: -8px; background: none; border: 0; border-radius: var(--radius-md); color: var(--text-primary); cursor: pointer; transition: background-color .15s; }
-.book-toc-row:hover { background: var(--bg-mid); }
-.book-toc-thumb, .book-toc-n { width: 72px; height: 56px; border-radius: 10px; overflow: hidden; display: grid; place-items: center; background: var(--bg-mid); color: var(--text-secondary); }
-.book-toc-n .ico { width: 28px; height: 28px; }
-.book-toc-ribbon { background: var(--accent); clip-path: polygon(30% 0, 70% 0, 70% 100%, 50% 80%, 30% 100%); }
-.book-toc-text { display: grid; }
-.book-toc-title { font-family: var(--font-display); font-size: 20px; font-weight: 600; line-height: 1.2; }
-.book-toc-sub { color: var(--text-dim); font-size: 14px; }
-.book-toc-count { color: var(--text-secondary); font: 500 15px var(--font-display); font-variant-numeric: tabular-nums; white-space: nowrap; padding-right: 8px; }
 
 /* Chapter: parts, then the map */
 .book-parts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
@@ -271,3 +250,53 @@ h1, h2, h3 { font-weight: 600; }
   .book-ribbon { right: 20px; width: 56px; }
 }
 @media (prefers-reduced-motion: reduce) { .book.turning #book-page, .book.turning .book-static:not([hidden]) { animation: none; } }
+
+/* ============================================================
+   The main page: the original's big picture cards, with Lumi front
+   and centre and the daily things in view. Colour is back, as flat
+   colour: each card owns one (--card-c), with no gradient or glow.
+   ============================================================ */
+[hidden] { display: none !important; }
+.home-hero { display: grid; justify-items: center; gap: 4px; margin: 4px 0 20px; }
+.home-hero .home-title { font-size: 36px; }
+.home-hero .lumi-container { flex-direction: column; gap: 12px; margin: 0; }
+.home-hero .lumi { width: 112px; height: 112px; }
+.home-hero .lumi-body { width: 112px; height: 112px; }
+.home-hero .lumi-eye { width: 13px; height: 15px; top: 42px; } .home-hero .lumi-eye.left { left: 33px; } .home-hero .lumi-eye.right { left: 66px; }
+.home-hero .lumi-mouth { width: 28px; height: 13px; top: 64px; left: 42px; border-bottom-width: 4px; }
+.home-hero .lumi-speech { text-align: center; border-radius: var(--radius-lg); border-top-left-radius: var(--radius-lg); border-bottom-left-radius: var(--radius-lg); font-size: 18px; padding: 12px 20px; max-width: 520px; }
+
+.pcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.pcards-chapters { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.pcard { display: grid; grid-template-rows: auto 1fr; text-align: left; padding: 0; overflow: hidden; cursor: pointer; min-width: 0;
+  background: var(--bg-card); color: var(--text-primary); border: 2px solid var(--card-c); border-radius: var(--radius-lg); transition: transform .15s var(--ease); }
+.pcard:active { transform: scale(0.98); }
+.pcard-art { display: block; height: 96px; background: var(--card-c); color: #ffffff; }
+.pcard-art-icon { display: grid; place-items: center; }
+.pcard-art-icon .ico { width: 52px; height: 52px; stroke-width: 1.6; }
+.pcard-chapter .pcard-art { height: 190px; }
+.pcard-body { display: grid; gap: 2px; padding: 12px 14px 14px; align-content: start; }
+.pcard-kicker { font: 600 14px var(--font-display); color: var(--card-c); }
+.pcard-title { font: 600 19px/1.2 var(--font-display); }
+.pcard-chapter .pcard-title { font-size: 23px; }
+.pcard-desc { color: var(--text-dim); font-size: 14px; line-height: 1.35; }
+.pcard-progress { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.pcard-bar { flex: 1; height: 8px; border-radius: 4px; background: var(--bg-mid); overflow: hidden; }
+.pcard-bar-fill { display: block; height: 100%; background: var(--card-c); border-radius: 4px; }
+.pcard-count { font: 500 14px var(--font-display); color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* In the Night tone the card colours need lifting to read on a dark page. */
+:root[data-tone="night"] .pcard-kicker { color: var(--text-secondary); }
+
+#home-main .today-card { border: 2px solid var(--accent); }
+.book .book-kicker { color: var(--accent); font-weight: 600; }
+.book-chapter .book-h1 { color: var(--text-primary); }
+
+@media (max-width: 480px) {
+  .pcards-chapters { gap: 10px; }
+  .pcard-chapter .pcard-art { height: 120px; }
+  .pcard-chapter .pcard-title { font-size: 18px; }
+  .pcard-art { height: 76px; } .pcard-art-icon .ico { width: 40px; height: 40px; }
+  .pcard-body { padding: 10px 10px 12px; }
+  .pcard-title { font-size: 16px; } .pcard-desc { font-size: 13px; }
+  .home-hero .home-title { font-size: 30px; }
+}

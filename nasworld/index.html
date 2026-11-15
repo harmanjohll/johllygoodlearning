@@ -37,18 +37,13 @@
   <div class="main-content">
 
     <!-- HOME SCREEN -->
-    <!-- Home is a book. src/ui/book.js draws the cover, the contents page
-         and each chapter's map into #book-page. The four .book-static
-         blocks are pages whose content already lived in this file; the
-         book shows one at a time. -->
+    <!-- Home is the main page: Lumi, Today, then a big picture card for
+         every place, then the daily things. Tapping a chapter card opens
+         its map inside #book. See src/ui/book.js. -->
     <div class="screen active" id="screen-home">
-      <div class="book" id="book" data-view="cover">
-        <button type="button" class="book-ribbon" id="book-ribbon" onclick="bookGo('today')" hidden><span>Today</span></button>
-
-        <div id="book-page"></div>
-
-        <!-- Today's page -->
-        <div class="book-static book-leaf" data-view="today" hidden>
+      <div id="home-main">
+        <div class="home-hero">
+          <h1 class="home-title">Nasworld</h1>
           <div class="lumi-container">
             <div class="lumi" onclick="lumiSpeak()">
               <span class="lumi-sparkle"></span>
@@ -62,106 +57,102 @@
                 <div class="lumi-blush right"></div>
               </div>
             </div>
-            <div class="lumi-speech" id="lumi-speech">Tap a step to begin</div>
-          </div>
-          <div id="today-area"></div>
-          <div class="hidden" id="review-due-banner"></div>
-          <div id="daily-seed-area"></div>
-        </div>
-
-        <!-- Chapter 5: The Playground -->
-        <div class="book-static book-leaf" data-view="play" hidden>
-          <div class="more-list">
-          <button type="button" class="more-row" onclick="showScreen('play')">
-            <span class="more-ico" data-icon="play"></span>
-            <span class="more-text"><span class="more-title">Play</span><span class="more-desc">Jigsaws, word searches and brain games</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('sim-hub')">
-            <span class="more-ico" data-icon="lab"></span>
-            <span class="more-text"><span class="more-title">STEM Lab</span><span class="more-desc">Nine hands-on experiments</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('practice')">
-            <span class="more-ico" data-icon="practice"></span>
-            <span class="more-text"><span class="more-title">Practice</span><span class="more-desc">Pick exactly what to work on</span></span>
-          </button>
-          </div>
-          <div class="challenges-section" id="challenges-section">
-            <h2 class="home-section">Challenges</h2>
-            <div class="challenges-grid" id="challenges-grid"></div>
+            <div class="lumi-speech" id="lumi-speech">Tap a card to begin</div>
           </div>
         </div>
 
-        <!-- The Notice Board -->
-        <div class="book-static book-leaf" data-view="board" hidden>
-          <div class="wotd-banner hidden" id="wotd-banner" onclick="claimWotd()">
-            <div class="quest-icon" data-icon="word"></div>
-            <div class="quest-text">
-              <div class="wotd-word" id="wotd-word"></div>
-              <div class="wotd-def" id="wotd-def"></div>
-            </div>
-            <div class="quest-progress" id="wotd-status">+3 stars</div>
-          </div>
-          <div id="dynamic-quest-area"></div>
-          <div id="story-progress-area"></div>
-          <div class="hidden" id="achievement-showcase"></div>
-          <div id="daily-treats-area"></div>
-          <div id="streak-calendar-area"></div>
+        <div id="today-area"></div>
+        <div class="hidden" id="review-due-banner"></div>
+        <div id="daily-seed-area"></div>
+
+        <h2 class="home-section">Chapters</h2>
+        <div class="pcards pcards-chapters" id="home-chapters"></div>
+
+        <h2 class="home-section">More to do</h2>
+        <div class="pcards">
+          <button type="button" class="pcard" style="--card-c:#c2552d" onclick="showScreen('play')">
+            <span class="pcard-art pcard-art-icon" data-icon="play"></span>
+            <span class="pcard-body"><span class="pcard-title">Play</span><span class="pcard-desc">Jigsaws, word searches and brain games</span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#3d4a55" onclick="showScreen('exam')">
+            <span class="pcard-art pcard-art-icon" data-icon="exam"></span>
+            <span class="pcard-body"><span class="pcard-title">Exam Prep</span><span class="pcard-desc">Practice papers, marked with reasons</span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#a93656" onclick="showScreen('practice')">
+            <span class="pcard-art pcard-art-icon" data-icon="practice"></span>
+            <span class="pcard-body"><span class="pcard-title">Practice</span><span class="pcard-desc">Pick exactly what to work on</span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#1f7a74" onclick="showScreen('sim-hub')">
+            <span class="pcard-art pcard-art-icon" data-icon="lab"></span>
+            <span class="pcard-body"><span class="pcard-title">STEM Lab</span><span class="pcard-desc">Nine hands-on experiments</span></span>
+          </button>
         </div>
 
-        <!-- At the back of the book -->
-        <div class="book-static book-leaf" data-view="back" hidden>
-          <div class="more-list">
-          <button type="button" class="more-row" onclick="showScreen('garden')">
-            <span class="more-ico" data-icon="garden"></span>
-            <span class="more-text"><span class="more-title">My Garden</span><span class="more-desc">It grows with every new thing you learn</span></span>
-            <span class="more-bar"><span class="more-bar-fill" id="garden-progress" style="width:0%"></span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('stasha')">
-            <span class="more-ico" data-icon="stasha"></span>
-            <span class="more-text"><span class="more-title">Meet Stasha</span><span class="more-desc">Dress up your avatar</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('mirror')">
-            <span class="more-ico" data-icon="mirror"></span>
-            <span class="more-text"><span class="more-title">Mirror</span><span class="more-desc">How things are going, honestly</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('mega-map')">
-            <span class="more-ico" data-icon="map"></span>
-            <span class="more-text"><span class="more-title">Mega Map</span><span class="more-desc">See how every skill joins up</span></span>
-            <span class="more-bar"><span class="more-bar-fill" id="mega-progress" style="width:0%"></span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('compass')">
-            <span class="more-ico" data-icon="compass"></span>
-            <span class="more-text"><span class="more-title">Compass</span><span class="more-desc">Tell Lumi how you feel and get a plan</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('strategies')">
-            <span class="more-ico" data-icon="tricks"></span>
-            <span class="more-text"><span class="more-title">Smart Tricks</span><span class="more-desc">Ten ways clever learners study</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('achievements')">
-            <span class="more-ico" data-icon="trophy"></span>
-            <span class="more-text"><span class="more-title">Achievements</span><span class="more-desc">Everything you have earned</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="startPomodoro(10)">
-            <span class="more-ico" data-icon="timer"></span>
-            <span class="more-text"><span class="more-title">10 minute timer</span><span class="more-desc">A short, quiet stretch of work</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('parent-digest')">
-            <span class="more-ico" data-icon="family"></span>
-            <span class="more-text"><span class="more-title">Family digest</span><span class="more-desc">For sharing with a grown-up</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('settings')">
-            <span class="more-ico" data-icon="settings"></span>
-            <span class="more-text"><span class="more-title">Settings</span><span class="more-desc">Change how the book looks</span></span>
-          </button>
+        <h2 class="home-section">Today in Nasworld</h2>
+        <div class="wotd-banner hidden" id="wotd-banner" onclick="claimWotd()">
+          <div class="quest-icon" data-icon="word"></div>
+          <div class="quest-text">
+            <div class="wotd-word" id="wotd-word"></div>
+            <div class="wotd-def" id="wotd-def"></div>
           </div>
-          <!-- Filled by renderVersionBanner() from src/core/version.js, which
-               is the single source of truth. Do not hard-code it here again. -->
-          <div class="version-banner" id="version-banner"></div>
+          <div class="quest-progress" id="wotd-status">+3 stars</div>
+        </div>
+        <div id="dynamic-quest-area"></div>
+        <div id="story-progress-area"></div>
+        <div class="hidden" id="achievement-showcase"></div>
+        <div id="daily-treats-area"></div>
+        <div id="streak-calendar-area"></div>
+
+        <h2 class="home-section">Your things</h2>
+        <div class="pcards">
+          <button type="button" class="pcard" style="--card-c:#5c7f2a" onclick="showScreen('garden')">
+            <span class="pcard-art pcard-art-icon" data-icon="garden"></span>
+            <span class="pcard-body"><span class="pcard-title">My Garden</span><span class="pcard-desc">It grows with every new thing you learn</span><span class="pcard-progress"><span class="pcard-bar"><span class="pcard-bar-fill" id="garden-progress" style="width:0%"></span></span></span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#b8457a" onclick="showScreen('stasha')">
+            <span class="pcard-art pcard-art-icon" data-icon="stasha"></span>
+            <span class="pcard-body"><span class="pcard-title">Meet Stasha</span><span class="pcard-desc">Dress up your avatar</span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#4a5a9a" onclick="showScreen('mirror')">
+            <span class="pcard-art pcard-art-icon" data-icon="mirror"></span>
+            <span class="pcard-body"><span class="pcard-title">Mirror</span><span class="pcard-desc">How things are going, honestly</span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#2f4b6e" onclick="showScreen('mega-map')">
+            <span class="pcard-art pcard-art-icon" data-icon="map"></span>
+            <span class="pcard-body"><span class="pcard-title">Mega Map</span><span class="pcard-desc">See how every skill joins up</span><span class="pcard-progress"><span class="pcard-bar"><span class="pcard-bar-fill" id="mega-progress" style="width:0%"></span></span></span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#7a5a3a" onclick="showScreen('compass')">
+            <span class="pcard-art pcard-art-icon" data-icon="compass"></span>
+            <span class="pcard-body"><span class="pcard-title">Compass</span><span class="pcard-desc">Tell Lumi how you feel and get a plan</span></span>
+          </button>
+          <button type="button" class="pcard" style="--card-c:#8f5410" onclick="showScreen('strategies')">
+            <span class="pcard-art pcard-art-icon" data-icon="tricks"></span>
+            <span class="pcard-body"><span class="pcard-title">Smart Tricks</span><span class="pcard-desc">Ten ways clever learners study</span></span>
+          </button>
         </div>
 
-        <nav class="book-nav" id="book-nav" hidden></nav>
+        <div class="challenges-section" id="challenges-section">
+          <h2 class="home-section">Challenges</h2>
+          <div class="challenges-grid" id="challenges-grid"></div>
+        </div>
+
+        <div class="home-foot">
+          <button type="button" class="foot-btn" onclick="startPomodoro(10)"><span data-icon="timer"></span>10 minute timer</button>
+          <button type="button" class="foot-btn" onclick="showScreen('parent-digest')"><span data-icon="family"></span>Family digest</button>
+          <button type="button" class="foot-btn" onclick="showScreen('settings')"><span data-icon="settings"></span>Settings</button>
+        </div>
+        <!-- Filled by renderVersionBanner() from src/core/version.js, which
+             is the single source of truth. Do not hard-code it here again. -->
+        <div class="version-banner" id="version-banner"></div>
       </div>
-      <!-- Progress bars the home updater still writes to. The chapter maps
+
+      <!-- A chapter, open on its map -->
+      <div class="book" id="book" data-view="home" hidden>
+        <button type="button" class="book-ribbon" id="book-ribbon" onclick="goHome()"><span>Today</span></button>
+        <div id="book-page"></div>
+        <nav class="book-nav" id="book-nav"></nav>
+      </div>
+      <!-- Progress bars the home updater still writes to. The chapter cards
            show progress now, so these stay out of sight. -->
       <div hidden><span id="math-progress"></span><span id="word-progress"></span><span id="stem-progress"></span><span id="malay-progress"></span></div>
     </div>
