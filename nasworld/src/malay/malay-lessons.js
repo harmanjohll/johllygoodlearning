@@ -137,6 +137,218 @@ var MALAY_LESSONS = {
   }
 };
 
+// ============================================================
+//  PRIMARY 2 LAYER — lessons
+//  AWAITING HUMAN REVIEW by a Malay speaker (see P2_REVIEW.md).
+// ============================================================
+
+function _p2V(lines, size) {
+  return '<div lang="ms" style="font-size:' + (size || 22) + 'px;line-height:1.7">' + lines.join('<br>') + '</div>';
+}
+
+Object.assign(MALAY_LESSONS, {
+  imbuhan: {
+    title: 'Imbuhan Awalan',
+    lumiSays: 'An imbuhan awalan is a little piece that sticks to the front of a word. It turns a root like baca into membaca.',
+    steps: [
+      { visual: _p2V(['me + <b>l</b>ukis = <b>melukis</b>', 'mem + <b>b</b>aca = <b>membaca</b>', 'men + <b>c</b>ari = <b>mencari</b>', 'meng + <b>a</b>mbil = <b>mengambil</b>']),
+        text: 'The prefix <b>me-</b> changes its shape to suit the first letter of the root. Before l, m, n and r it stays <b>me-</b>. Before b it is <b>mem-</b>. Before c, d and j it is <b>men-</b>. Before a vowel, g or h it is <b>meng-</b>.',
+        lumiTip: 'Say them aloud. The right one is the one that is easy to say.' },
+      { visual: _p2V(['<b>p</b>ukul becomes <b>memukul</b>', '<b>t</b>ulis becomes <b>menulis</b>', '<b>k</b>ira becomes <b>mengira</b>', '<b>s</b>apu becomes <b>menyapu</b>']),
+        text: 'Four letters drop out when me- arrives: <b>p, t, k and s</b>. So pukul becomes memukul, tulis becomes menulis, kira becomes mengira and sapu becomes menyapu.',
+        lumiTip: 'Remember the four that disappear: p, t, k, s.' },
+      { visual: _p2V(['cat becomes <b>mengecat</b>', 'lap becomes <b>mengelap</b>']),
+        text: 'A very short root with only one beat takes <b>menge-</b>. Cat (paint) becomes mengecat. Lap (wipe) becomes mengelap.',
+        lumiTip: 'One beat, one extra e.' },
+      { visual: _p2V(['<b>ber</b>main, <b>ber</b>lari, <b>ber</b>jalan', '<b>be</b>renang, <b>be</b>kerja, <b>bel</b>ajar'], 21),
+        text: '<b>ber-</b> makes a doing word: bermain (play), berlari (run). Watch three special ones: berenang has one r, bekerja has no r, and ajar becomes belajar (learn).',
+        lumiTip: 'Belajar is the only one with an l.' },
+      { visual: _p2V(['Ali <b>membaca</b> buku itu.', 'Buku itu <b>dibaca</b> oleh Ali.'], 20),
+        text: '<b>di-</b> turns the sentence around. Ali membaca buku itu means Ali reads the book. Buku itu dibaca oleh Ali means the book is read by Ali.',
+        lumiTip: 'When you see oleh (by), look for a di- word.' },
+      { visual: _p2V(['Adik <b>tertidur</b> di atas sofa.', 'Nenek <b>terjatuh</b>.'], 20),
+        text: '<b>ter-</b> can show something happened without planning. Tertidur is to fall asleep by accident. Terjatuh is to fall down.',
+        lumiTip: 'Nobody plans to terjatuh.' },
+      { type: 'try', prompt: 'Add me- to <b>tulis</b> (write).', options: ['mentulis', 'menulis', 'memulis'], answer: 'menulis', successMsg: 'Menulis. The t drops out.', explanation: 'The t drops out after men-.' },
+      { type: 'try', prompt: 'Bola itu ____ oleh Ahmad.', options: ['menendang', 'ditendang', 'bertendang'], answer: 'ditendang', successMsg: 'Ditendang. The ball is kicked by Ahmad.', explanation: 'With oleh (by), the verb takes di-.' }
+    ]
+  },
+
+  ganda: {
+    title: 'Kata Ganda',
+    lumiSays: 'In Malay you can say a word twice to show there is more than one. But there is a rule about when you must not.',
+    steps: [
+      { visual: _p2V(['buku = a book', '<b>buku-buku</b> = books']),
+        text: 'Say a naming word twice, with a little line between, and it means more than one. Buku is a book. <b>Buku-buku</b> is books.',
+        lumiTip: 'The little line is called a sempang.' },
+      { visual: _p2V(['<b>dua buah buku</b> is correct', 'dua buah buku-buku is wrong'], 21),
+        text: 'If a number is already there, do not double. The number tells us how many, so <b>dua buah buku</b> is enough.',
+        lumiTip: 'A number and a doubled word together say the same thing twice.' },
+      { visual: _p2V(['<b>semua murid</b>', '<b>banyak bunga</b>', '<b>beberapa orang guru</b>', '<b>para guru</b>'], 21),
+        text: 'The same goes for words that already mean many: semua (all), banyak (many), beberapa (several), para (the group of) and setiap (every). After them the naming word is said once.',
+        lumiTip: 'Semua murid. Never semua murid-murid.' },
+      { visual: _p2V(['rama-rama = butterfly', 'kura-kura = tortoise', 'labah-labah = spider']),
+        text: 'Some words are always said twice. They are simply names. A rama-rama is one butterfly.',
+        lumiTip: 'To say three of them, use a number: tiga ekor rama-rama.' },
+      { type: 'try', prompt: 'Which one is correct?', options: ['tiga ekor kucing', 'tiga ekor kucing-kucing'], answer: 'tiga ekor kucing', successMsg: 'Tiga ekor kucing. The number does the counting.', explanation: 'After a number, the naming word is said once.' },
+      { type: 'try', prompt: 'What does <b>murid-murid</b> mean?', options: ['a pupil', 'pupils', 'a school'], answer: 'pupils', successMsg: 'Murid-murid means pupils.', explanation: 'Doubling shows more than one.' }
+    ]
+  },
+
+  penjodoh: {
+    title: 'Penjodoh Bilangan',
+    lumiSays: 'In Malay a number does not sit right next to the thing it counts. A small counting word goes in between. It is called a penjodoh bilangan.',
+    steps: [
+      { visual: _p2V(['dua <b>orang</b> murid', 'dua <b>ekor</b> kucing', 'dua <b>buah</b> rumah']),
+        text: '<b>Orang</b> is for people. <b>Ekor</b> is for animals. <b>Buah</b> is for big or solid things like houses, cars, tables and books.',
+        lumiTip: 'Ekor means tail. Animals are counted by their tails.' },
+      { visual: _p2V(['tiga <b>biji</b> telur', 'tiga <b>batang</b> pensel', 'tiga <b>helai</b> baju']),
+        text: '<b>Biji</b> is for small round things and fruit. <b>Batang</b> is for long things. <b>Helai</b> is for thin, soft things like cloth and paper.',
+        lumiTip: 'Look at the shape of the thing. The shape chooses the word.' },
+      { visual: _p2V(['empat <b>keping</b> biskut', 'empat <b>kuntum</b> bunga', 'empat <b>pasang</b> kasut']),
+        text: '<b>Keping</b> is for thin, flat pieces. <b>Kuntum</b> is for flowers. <b>Pasang</b> is for things that come in twos, like shoes and socks.',
+        lumiTip: 'Sepasang kasut is two shoes, one pair.' },
+      { visual: _p2V(['satu + ekor = <b>seekor</b> kucing', 'satu + buah = <b>sebuah</b> rumah', 'satu + orang = <b>seorang</b> guru'], 21),
+        text: 'When there is only one, satu shrinks to <b>se-</b> and joins the counting word: seekor, sebuah, seorang.',
+        lumiTip: 'Seekor kucing means one cat, or a cat.' },
+      { type: 'try', prompt: 'lima ____ burung', options: ['orang', 'ekor', 'buah'], answer: 'ekor', successMsg: 'Lima ekor burung. Birds are animals.', explanation: 'Ekor is for animals.' },
+      { type: 'try', prompt: 'dua ____ pensel', options: ['batang', 'helai', 'biji'], answer: 'batang', successMsg: 'Dua batang pensel. A pencil is long.', explanation: 'Batang is for long things.' }
+    ]
+  },
+
+  tanya: {
+    title: 'Kata Tanya',
+    lumiSays: 'Kata tanya are question words. Each one asks for a different kind of answer.',
+    steps: [
+      { visual: _p2V(['<b>apa</b> = what', '<b>siapa</b> = who', '<b>di mana</b> = where']),
+        text: '<b>Apa</b> asks about a thing. <b>Siapa</b> asks about a person. <b>Di mana</b> asks about a place.',
+        lumiTip: 'Di mana is written as two words.' },
+      { visual: _p2V(['<b>bila</b> = when', '<b>mengapa</b> = why', '<b>bagaimana</b> = how', '<b>berapa</b> = how many']),
+        text: '<b>Bila</b> asks about a time. <b>Mengapa</b> asks for a reason. <b>Bagaimana</b> asks about a way. <b>Berapa</b> asks for a number.',
+        lumiTip: 'The answer to mengapa usually has kerana (because) in it.' },
+      { visual: _p2V(['<b>Siapakah</b> guru kamu?', '<b>Di manakah</b> kamu tinggal?'], 21),
+        text: 'At the front of a written question, the question word takes <b>-kah</b>: apakah, siapakah, bilakah, di manakah. The sentence ends with a question mark.',
+        lumiTip: 'The -kah is just a polite tail. The meaning stays the same.' },
+      { type: 'try', prompt: '____ kamu tinggal? Saya tinggal di Tampines.', options: ['Siapakah', 'Di manakah', 'Bilakah'], answer: 'Di manakah', successMsg: 'Di manakah. The reply is a place.', explanation: 'The reply names a place, so the question asks where.' },
+      { type: 'try', prompt: 'Which word asks for a number?', options: ['berapa', 'mengapa', 'siapa'], answer: 'berapa', successMsg: 'Berapa asks how many.', explanation: 'Berapa asks how many or how much.' }
+    ]
+  },
+
+  adjektif: {
+    title: 'Kata Adjektif',
+    lumiSays: 'A kata adjektif is a describing word. It tells us what something is like. In Malay it comes after the thing it describes.',
+    steps: [
+      { visual: _p2V(['rumah <b>besar</b> = a big house', 'kucing <b>kecil</b> = a small cat']),
+        text: 'The describing word follows the naming word. We say <b>rumah besar</b>, house big, not besar rumah.',
+        lumiTip: 'Thing first, describing word second.' },
+      { visual: _p2V(['besar and kecil', 'rajin and malas', 'panas and sejuk', 'bersih and kotor']),
+        text: 'Words with opposite meanings are called <b>antonim</b>. Big and small, hardworking and lazy, hot and cold, clean and dirty.',
+        lumiTip: 'Learn them in pairs. One helps you remember the other.' },
+      { visual: _p2V(['cantik = indah', 'pandai = bijak', 'cepat = pantas']),
+        text: 'Words with the same meaning are called <b>sinonim</b>. Cantik and indah both mean beautiful. Pandai and bijak both mean clever.',
+        lumiTip: 'Sinonim start with s, like same.' },
+      { type: 'try', prompt: 'The opposite of <b>tinggi</b> is', options: ['rendah', 'besar', 'kotor'], answer: 'rendah', successMsg: 'Tinggi is tall and rendah is short.', explanation: 'Tinggi is tall or high. Rendah is short or low.' },
+      { type: 'try', prompt: 'Which word means the same as <b>cantik</b>?', options: ['malas', 'indah', 'kotor'], answer: 'indah', successMsg: 'Cantik and indah both mean beautiful.', explanation: 'Indah also means beautiful.' }
+    ]
+  },
+
+  sendi: {
+    title: 'Kata Sendi Nama',
+    lumiSays: 'Kata sendi nama are small words like di, ke and dari. They sit in front of a place, a time or a person. Choosing the right one is a real exam skill.',
+    steps: [
+      { visual: _p2V(['Ibu ada <b>di</b> dapur.', 'Ayah pergi <b>ke</b> pejabat.', 'Ayah pulang <b>dari</b> pejabat.'], 21),
+        text: 'For places: <b>di</b> is where something is, <b>ke</b> is where someone is going, and <b>dari</b> is where someone is coming from.',
+        lumiTip: 'Di stays. Ke goes. Dari comes back.' },
+      { visual: _p2V(['<b>pada</b> pukul lapan', '<b>pada</b> hari Ahad', 'Buku itu ada <b>pada</b> cikgu.'], 21),
+        text: 'For a time, use <b>pada</b>, not di. We also use pada when something is with a person.',
+        lumiTip: 'Di is for places only.' },
+      { visual: _p2V(['pergi <b>ke</b> sekolah', 'memberi hadiah <b>kepada</b> ibu'], 21),
+        text: 'Going to a place is <b>ke</b>. Giving or saying something to a person is <b>kepada</b>.',
+        lumiTip: 'Place takes ke. Person takes kepada.' },
+      { visual: _p2V(['datang <b>dari</b> Johor', 'hadiah <b>daripada</b> nenek', 'lebih tinggi <b>daripada</b> saya'], 21),
+        text: 'From a place or a time is <b>dari</b>. From a person is <b>daripada</b>. Daripada is also used to compare, and to say what something is made of.',
+        lumiTip: 'Place takes dari. Person takes daripada.' },
+      { type: 'try', prompt: 'Saya memberikan bunga ____ ibu.', options: ['ke', 'kepada', 'di'], answer: 'kepada', successMsg: 'Kepada, because ibu is a person.', explanation: 'A person takes kepada.' },
+      { type: 'try', prompt: 'Kami bersenam ____ waktu pagi.', options: ['di', 'pada', 'ke'], answer: 'pada', successMsg: 'Pada, because pagi is a time.', explanation: 'A time takes pada.' }
+    ]
+  },
+
+  hubung: {
+    title: 'Kata Hubung',
+    lumiSays: 'Kata hubung are joining words. They tie two words or two short sentences into one.',
+    steps: [
+      { visual: _p2V(['epal <b>dan</b> pisang', 'susu <b>atau</b> teh'], 22),
+        text: '<b>Dan</b> means and. It adds. <b>Atau</b> means or. It offers a choice.',
+        lumiTip: 'Dan gives you both. Atau makes you pick.' },
+      { visual: _p2V(['Rumah itu kecil <b>tetapi</b> cantik.', 'Adik menangis <b>kerana</b> dia terjatuh.'], 20),
+        text: '<b>Tetapi</b> means but. It joins two ideas that pull opposite ways. <b>Kerana</b> means because. It gives the reason.',
+        lumiTip: 'Ask why. The part that answers begins with kerana.' },
+      { visual: _p2V(['Ali bangun <b>lalu</b> mandi.', 'Kakak menyapu <b>sambil</b> menyanyi.'], 20),
+        text: '<b>Lalu</b> means and then. One thing happens, then the next. <b>Sambil</b> means while. One person does two things at the same time.',
+        lumiTip: 'Lalu is one after another. Sambil is both at once.' },
+      { type: 'try', prompt: 'Ali tidak ke sekolah ____ dia demam.', options: ['tetapi', 'kerana', 'atau'], answer: 'kerana', successMsg: 'Kerana. The fever is the reason.', explanation: 'Kerana gives the reason.' },
+      { type: 'try', prompt: 'Ayah minum kopi ____ membaca surat khabar.', options: ['sambil', 'kerana', 'tetapi'], answer: 'sambil', successMsg: 'Sambil. Father does both at the same time.', explanation: 'Sambil shows two things done at once.' }
+    ]
+  },
+
+  peribahasa: {
+    title: 'Peribahasa Mudah',
+    lumiSays: 'A simpulan bahasa is a pair of words that together mean something quite different. They make Malay colourful.',
+    steps: [
+      { visual: _p2V(['<b>ringan tulang</b>', 'light + bone', 'hardworking']),
+        text: '<b>Ringan tulang</b> says light bones. It means hardworking. Someone whose bones are light is quick to get up and help.',
+        lumiTip: 'The opposite is berat tulang, heavy bones, which means lazy.' },
+      { visual: _p2V(['<b>buah tangan</b> = a gift for a visit', '<b>panjang tangan</b> = likes to steal', '<b>campur tangan</b> = to interfere'], 20),
+        text: 'Many of them use parts of the body. Tangan is hand. <b>Buah tangan</b> is a gift you bring. <b>Panjang tangan</b> is someone who steals. <b>Campur tangan</b> is to interfere.',
+        lumiTip: 'Picture the hand in each one.' },
+      { visual: _p2V(['<b>besar hati</b> = glad and proud', '<b>kecil hati</b> = hurt', '<b>murah hati</b> = generous', '<b>buah hati</b> = dearly loved'], 20),
+        text: 'Hati is where feelings live. <b>Besar hati</b> is glad and proud. <b>Kecil hati</b> is hurt. <b>Murah hati</b> is generous. <b>Buah hati</b> is someone dearly loved.',
+        lumiTip: 'A big heart is happy. A small heart is hurt.' },
+      { visual: _p2V(['<b>anak emas</b> = the favourite child', '<b>cahaya mata</b> = a child', '<b>kaki bangku</b> = not good at football', '<b>ulat buku</b> = loves reading'], 20),
+        text: 'More to collect: <b>anak emas</b>, <b>cahaya mata</b>, <b>kaki bangku</b> and <b>ulat buku</b>.',
+        lumiTip: 'An ulat buku is a bookworm, just like in English.' },
+      { type: 'try', prompt: 'Siti selalu membantu ibunya. Dia seorang yang', options: ['berat tulang', 'ringan tulang', 'panjang tangan'], answer: 'ringan tulang', successMsg: 'Ringan tulang means hardworking.', explanation: 'Ringan tulang means hardworking.' },
+      { type: 'try', prompt: 'What is a <b>buah tangan</b>?', options: ['a fruit', 'a gift you bring when you visit', 'a hand'], answer: 'a gift you bring when you visit', successMsg: 'A buah tangan is a gift for the people you visit.', explanation: 'It is a gift you bring when you visit.' }
+    ]
+  },
+
+  kefahaman: {
+    title: 'Kefahaman',
+    lumiSays: 'Kefahaman means understanding. You read a short passage, then answer questions about it. The answers are always in the passage.',
+    steps: [
+      { visual: _p2V(['1. Read the passage.', '2. Read the question.', '3. Find the sentence.', '4. Choose.'], 21),
+        text: 'Read the whole passage once, slowly. Then read the question and go back to find the sentence that talks about it.',
+        lumiTip: 'Do not answer from memory. Go back and look.' },
+      { visual: _p2V(['siapakah = a person', 'di manakah = a place', 'bilakah = a time', 'mengapakah = a reason'], 21),
+        text: 'The question word tells you what to look for. <b>Siapakah</b> wants a person. <b>Di manakah</b> wants a place. <b>Bilakah</b> wants a time. <b>Mengapakah</b> wants a reason.',
+        lumiTip: 'For mengapakah, hunt for the word kerana in the passage.' },
+      { visual: _p2V(['Pada hari Sabtu, Aminah pergi ke pasar.'], 20),
+        text: 'Try it. Bilakah Aminah pergi ke pasar? Bilakah wants a time, and the sentence says pada hari Sabtu.',
+        lumiTip: 'The words around the answer usually match the words in the question.' },
+      { type: 'try', visual: _p2V(['Ali bermain bola di padang.'], 20), prompt: 'Di manakah Ali bermain bola?', options: ['di padang', 'di rumah', 'di kelas'], answer: 'di padang', successMsg: 'Di padang. The sentence says so.', explanation: 'The sentence says di padang, on the field.' },
+      { type: 'try', visual: _p2V(['Adik menangis kerana dia terjatuh.'], 20), prompt: 'Mengapakah adik menangis?', options: ['kerana dia lapar', 'kerana dia terjatuh', 'kerana dia penat'], answer: 'kerana dia terjatuh', successMsg: 'Kerana dia terjatuh. The reason follows kerana.', explanation: 'The reason follows the word kerana.' }
+    ]
+  },
+
+  binaayat: {
+    title: 'Bina Ayat',
+    lumiSays: 'Bina ayat means build a sentence. You get the words in a jumble and put them in order.',
+    steps: [
+      { visual: _p2V(['<b>Ibu</b> + <b>membeli</b> + <b>sayur</b>', 'who + does what + to what'], 21),
+        text: 'Most sentences start with who, then what they do, then the thing. <b>Ibu membeli sayur.</b> Mother buys vegetables.',
+        lumiTip: 'Find the doer first.' },
+      { visual: _p2V(['Ibu membeli sayur <b>di pasar</b>.'], 21),
+        text: 'Where and when usually come at the end: <b>di pasar</b> (at the market), <b>setiap pagi</b> (every morning).',
+        lumiTip: 'Small words like di, ke and pada stay glued to the word after them.' },
+      { visual: _p2V(['<b>I</b>bu ... pasar<b>.</b>'], 24),
+        text: 'Two clues are always there. The word with a capital letter goes first. The word with the full stop goes last.',
+        lumiTip: 'Place those two, then fill the middle.' },
+      { type: 'try', prompt: 'Which is in the right order?', options: ['Saya suka membaca buku.', 'Suka saya buku membaca.', 'Buku saya membaca suka.'], answer: 'Saya suka membaca buku.', successMsg: 'Saya suka membaca buku. I like reading books.', explanation: 'Who, then what they do, then the thing.' },
+      { type: 'try', prompt: 'Which is in the right order?', options: ['Kami di padang bermain bola.', 'Kami bermain bola di padang.', 'Bermain kami di bola padang.'], answer: 'Kami bermain bola di padang.', successMsg: 'Kami bermain bola di padang. We play ball on the field.', explanation: 'The place comes at the end.' }
+    ]
+  }
+});
+
 function getMalayLesson(skillId) {
   return MALAY_LESSONS[skillId] || null;
 }
@@ -185,6 +397,52 @@ function getMalayFlashcards(skillId) {
     case 'ayat':
       return MALAY_SENTENCE_FRAMES.map(function(s) {
         return { front: s.example || s.template, back: s.exampleGloss || s.gloss, emoji: '✍️' };
+      });
+    // ---- Primary 2 layer ----
+    case 'imbuhan':
+      return MALAY_P2_MEN.filter(function(m, i) { return i % 4 === 0; }).map(function(m) {
+        return { front: 'me- + ' + m.root, back: m.form + ' = to ' + m.en };
+      }).concat(MALAY_P2_BER.slice(0, 6).map(function(b) {
+        return { front: 'ber- + ' + b.root, back: b.form + ' = to ' + b.en };
+      }));
+    case 'ganda':
+      return MALAY_P2_GANDA_SEMU.map(function(g) {
+        return { front: g.w, back: g.en };
+      }).concat(MALAY_P2_GANDA_FRASA.slice(0, 8).map(function(g) {
+        return { front: g.en, back: g.num + ' ' + g.pb + ' ' + g.n };
+      }));
+    case 'penjodoh': {
+      var seenPb = {};
+      return MALAY_P2_PB.filter(function(x) {
+        seenPb[x.pb] = (seenPb[x.pb] || 0) + 1;
+        return seenPb[x.pb] <= 2;
+      }).map(function(x) {
+        return { front: 'one ' + x.one, back: 'se' + x.pb + ' ' + x.n };
+      });
+    }
+    case 'tanya':
+      return MALAY_P2_TANYA.map(function(t) {
+        return { front: t.w, back: t.en };
+      });
+    case 'adjektif':
+      return MALAY_P2_ANTONIM.map(function(p) {
+        return { front: p.a + ' (' + p.ea + ')', back: 'opposite: ' + p.b + ' (' + p.eb + ')' };
+      });
+    case 'sendi':
+      return ['di', 'ke', 'dari', 'pada', 'kepada', 'daripada'].map(function(w) {
+        return { front: w, back: MALAY_P2_SENDI_NOTE[w] };
+      });
+    case 'hubung':
+      return MALAY_P2_HUBUNG_KATA.map(function(h) {
+        return { front: h.w, back: h.en };
+      });
+    case 'peribahasa':
+      return MALAY_P2_SIMPULAN.map(function(p) {
+        return { front: p.id, back: p.en };
+      });
+    case 'binaayat':
+      return MALAY_P2_BINA.slice(0, 12).map(function(b) {
+        return { front: b.s, back: b.en };
       });
     default:
       return [];

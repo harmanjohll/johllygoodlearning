@@ -118,7 +118,10 @@ const SUBJECTS = {
   Malay: {
     gen: 'generateMalayQuestion', render: 'renderMalayQuestion',
     skills: ['huruf', 'nombor', 'salam', 'warna', 'keluarga', 'haiwan',
-             'badan', 'makanan', 'hari', 'ayat']
+             'badan', 'makanan', 'hari', 'ayat',
+             // Primary 2 layer (checked in depth by malay-p2.test.js)
+             'imbuhan', 'ganda', 'penjodoh', 'tanya', 'adjektif',
+             'sendi', 'hubung', 'peribahasa', 'kefahaman', 'binaayat']
   },
   Coding: {
     gen: 'generateCodeQuestion', render: 'renderCodeQuestion',

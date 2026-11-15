@@ -33,17 +33,17 @@ var MEGA_PHENOMENA = [
   {
     id: 'build-robot', label: 'Build a Robot', emoji: '🤖', threadId: 'robot',
     blurb: 'Give a robot instructions. Sequence steps. Find bugs.',
-    skills: ['cseq','cloop','ccond','cdebug','sentence','forces']
+    skills: ['cseq','cloop','ccond','cdebug','sentence','forces','binaayat']
   },
   {
     id: 'world-stories', label: 'Stories From Many Homes', emoji: '📚', threadId: 'stories',
     blurb: 'Bedtime tales from Malay, Chinese, Indian and Western traditions. Spot the kindness inside each.',
-    skills: ['sight','comprehension','vocab','keluarga','salam','ayat']
+    skills: ['sight','comprehension','vocab','keluarga','salam','ayat','kefahaman','peribahasa']
   },
   {
     id: 'hawker-centre', label: 'Hawker Centre Hunt', emoji: '🍜', threadId: 'hawker',
     blurb: 'Order lunch in Malay. Count change. Read the price board.',
-    skills: ['salam','makanan','nombor','money','add','vocab']
+    skills: ['salam','makanan','nombor','money','add','vocab','penjodoh','tanya']
   },
   {
     id: 'mooncake-festival', label: 'Festivals & Light', emoji: '🏮', threadId: 'stories',
@@ -68,7 +68,7 @@ var MEGA_PHENOMENA = [
   {
     id: 'family-tree', label: 'Family Tree', emoji: '🌳', threadId: 'stories',
     blurb: 'Draw your family tree. Name each person in Malay and English.',
-    skills: ['keluarga','vocab','grammar','count','sentence']
+    skills: ['keluarga','vocab','grammar','count','sentence','adjektif']
   }
 ];
 
