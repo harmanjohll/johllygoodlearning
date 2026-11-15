@@ -49,6 +49,68 @@ function _wpPlural(n) {
 }
 function _wpName() { return pick(WP_NAMES); }
 
+// ---- Two-step stories (P2) ----------------------------------------------
+//
+//  These carry their own people and things instead of the shared themes
+//  above. A two-step story has to hang together for two sentences, and
+//  "red kittens" does not.
+
+var WP2_MAKERS = [
+  { who: 'Mrs Tan',   pron: 'She', made: 'baked',     items: 'pineapple tarts' },
+  { who: 'Uncle Lim', pron: 'He',  made: 'made',      items: 'curry puffs' },
+  { who: 'Siti',      pron: 'She', made: 'folded',    items: 'paper cranes' },
+  { who: 'Ravi',      pron: 'He',  made: 'collected', items: 'stickers' },
+  { who: 'Nas',       pron: 'She', made: 'picked',    items: 'seashells' }
+];
+var WP2_GROUPS = [
+  { open: function (n) { return 'There are ' + n + ' pupils in the school hall.'; },
+    a: 'from Primary 1', b: 'from Primary 2', c: 'from Primary 3' },
+  { open: function (n) { return 'A fruit stall has ' + n + ' fruits.'; },
+    a: 'mangoes', b: 'papayas', c: 'bananas' },
+  { open: function (n) { return 'A library shelf has ' + n + ' books.'; },
+    a: 'storybooks', b: 'comics', c: 'picture books' },
+  { open: function (n) { return 'A bakery has ' + n + ' buns.'; },
+    a: 'kaya buns', b: 'red bean buns', c: 'butter buns' }
+];
+var WP2_OUTINGS = [
+  { place: 'the zoo',            did: 'wore caps' },
+  { place: 'the Science Centre', did: 'brought water bottles' },
+  { place: 'the bird park',      did: 'took the bus' },
+  { place: 'the school concert', did: 'sang on stage' }
+];
+var WP2_PAIRS = [
+  { n1: 'Wei Jie',  n2: 'Arjun',  n3: 'Daniel', items: 'football cards' },
+  { n1: 'Siti',     n2: 'Priya',  n3: 'Nadia',  items: 'stickers' },
+  { n1: 'Daniel',   n2: 'Ravi',   n3: 'Wei Jie', items: 'marbles' },
+  { n1: 'Mei Ling', n2: 'Nadia',  n3: 'Siti',   items: 'beads' },
+  { n1: 'Nas',      n2: 'Priya',  n3: 'Mei Ling', items: 'erasers' }
+];
+
+/** A whole number around a share of `max`, never less than one. */
+function _wpPart(max, loFrac, hiFrac) {
+  var lo = Math.max(1, Math.round(max * loFrac));
+  var hi = Math.max(lo, Math.round(max * hiFrac));
+  return rand(lo, hi);
+}
+
+/**
+ * The answer and three wrong answers, each wrong answer being a real
+ * way of going wrong. Anything that is not a positive number, or that
+ * happens to equal the answer, is dropped and replaced by a near miss.
+ */
+function _wpChoices(answer, wrongs) {
+  var opts = [answer];
+  (wrongs || []).forEach(function (w) {
+    if (typeof w === 'number' && isFinite(w) && w > 0 && opts.indexOf(w) === -1 && opts.length < 4) opts.push(w);
+  });
+  var guard = 0;
+  while (opts.length < 4 && guard++ < 200) {
+    var f = answer + pick([-10, 10, -1, 1, -2, 2, -20, 20]);
+    if (f > 0 && opts.indexOf(f) === -1) opts.push(f);
+  }
+  return shuffle(opts);
+}
+
 // ---- Bar model data -----------------------------------------------------
 //
 //  { style: 'part-whole' | 'comparison', parts: [{label, value, unknown}],
@@ -58,8 +120,11 @@ function _wpName() { return pick(WP_NAMES); }
 function _barPartWhole(parts, total) {
   return { style: 'part-whole', parts: parts, total: total };
 }
-function _barComparison(bigger, smaller, difference) {
-  return { style: 'comparison', bigger: bigger, smaller: smaller, difference: difference };
+function _barComparison(bigger, smaller, difference, total) {
+  var bar = { style: 'comparison', bigger: bigger, smaller: smaller, difference: difference };
+  // Two-step comparison problems often ask for both amounts together.
+  if (total) bar.total = total;
+  return bar;
 }
 
 // ---- Template bank ------------------------------------------------------
@@ -304,6 +369,168 @@ var WP_TEMPLATES = {
     }
   ],
 
+  // ============ TWO-STEP, PART-WHOLE (P2, within 1000) ============
+  //
+  // Two-step problems are hard because of the number nobody asks for:
+  // the whole that has to be found before it can be used. So the first
+  // wrong choice offered is always that middle number, the answer of a
+  // child who did step one and stopped.
+  'two-step-pw': [
+    function(max) {
+      var s = pick(WP2_MAKERS);
+      var a = _wpPart(max, 0.2, 0.5);
+      var b = rand(_wpPart(max, 0.1, 0.1), max - a);
+      var whole = a + b;
+      var c = rand(1, whole - 1);
+      var ans = whole - c;
+      return {
+        text: s.who + ' ' + s.made + ' ' + a + ' ' + s.items + ' on Monday and ' + b + ' ' + s.items +
+              ' on Tuesday. ' + s.pron + ' gave away ' + c + ' ' + s.items + '. How many ' + s.items +
+              ' does ' + s.who + ' have left?',
+        answer: ans,
+        working: a + ' + ' + b + ' = ' + whole + ', then ' + whole + ' - ' + c + ' = ' + ans,
+        hint: 'First find how many there were altogether. Then take away the ones given away.',
+        steps: 2,
+        options: _wpChoices(ans, [whole, a - c, whole + c, b - c]),
+        bar: _barPartWhole(
+          [{ label: 'gave away', value: c }, { label: 'left', value: ans, unknown: true }],
+          { label: 'Monday and Tuesday', value: whole, unknown: true }
+        )
+      };
+    },
+    function(max) {
+      var s = pick(WP2_GROUPS);
+      var total = rand(_wpPart(max, 0.5, 0.5), max);
+      var a = rand(_wpPart(max, 0.1, 0.1), Math.floor(total / 2));
+      var b = rand(_wpPart(max, 0.1, 0.1), total - a - 1);
+      var ans = total - a - b;
+      return {
+        text: s.open(total) + ' ' + a + ' are ' + s.a + ' and ' + b + ' are ' + s.b + '. The rest are ' + s.c +
+              '. How many are ' + s.c + '?',
+        answer: ans,
+        working: a + ' + ' + b + ' = ' + (a + b) + ', then ' + total + ' - ' + (a + b) + ' = ' + ans,
+        hint: 'You know the whole and two of the parts. Find the two parts together, then take them from the whole.',
+        steps: 2,
+        options: _wpChoices(ans, [total - a, total - b, a + b, total - a + b]),
+        bar: _barPartWhole(
+          [{ label: s.a, value: a }, { label: s.b, value: b }, { label: s.c, value: ans, unknown: true }],
+          { label: 'altogether', value: total }
+        )
+      };
+    },
+    function(max) {
+      var s = pick(WP2_OUTINGS);
+      var a = _wpPart(max, 0.2, 0.5);
+      var b = rand(_wpPart(max, 0.1, 0.1), max - a);
+      var whole = a + b;
+      var c = rand(1, whole - 1);
+      var ans = whole - c;
+      return {
+        text: a + ' boys and ' + b + ' girls went to ' + s.place + '. ' + c + ' of the children ' + s.did +
+              '. How many children did not?',
+        answer: ans,
+        working: a + ' + ' + b + ' = ' + whole + ', then ' + whole + ' - ' + c + ' = ' + ans,
+        hint: 'First find the number of children altogether. Then take away the ones who ' + s.did + '.',
+        steps: 2,
+        options: _wpChoices(ans, [whole, whole + c, a - c, b - c]),
+        bar: _barPartWhole(
+          [{ label: s.did, value: c }, { label: 'did not', value: ans, unknown: true }],
+          { label: 'all the children', value: whole, unknown: true }
+        )
+      };
+    }
+  ],
+
+  // ============ TWO-STEP, COMPARISON (P2, within 1000) ============
+  'two-step-cmp': [
+    function(max) {
+      var s = pick(WP2_PAIRS);
+      var a = _wpPart(max, 0.1, 0.4);
+      var d = rand(_wpPart(max, 0.05, 0.05), max - 2 * a);
+      var ans = a + a + d;
+      return {
+        text: s.n1 + ' has ' + a + ' ' + s.items + '. ' + s.n2 + ' has ' + d + ' more ' + s.items + ' than ' +
+              s.n1 + '. How many ' + s.items + ' do they have altogether?',
+        answer: ans,
+        working: a + ' + ' + d + ' = ' + (a + d) + ', then ' + a + ' + ' + (a + d) + ' = ' + ans,
+        hint: 'First find how many ' + s.n2 + ' has. Then add the two amounts.',
+        steps: 2,
+        options: _wpChoices(ans, [a + d, a + a, a + a - d, a + d + d]),
+        bar: _barComparison(
+          { label: s.n2, value: a + d, unknown: true },
+          { label: s.n1, value: a },
+          { label: 'more', value: d },
+          { label: 'altogether', value: ans, unknown: true }
+        )
+      };
+    },
+    function(max) {
+      var s = pick(WP2_PAIRS);
+      var a = _wpPart(max, 0.2, 0.5);
+      var d = rand(_wpPart(max, 0.05, 0.05), a - 1);
+      var ans = a + a - d;
+      return {
+        text: s.n1 + ' has ' + a + ' ' + s.items + '. ' + s.n2 + ' has ' + d + ' fewer ' + s.items + ' than ' +
+              s.n1 + '. How many ' + s.items + ' do they have altogether?',
+        answer: ans,
+        working: a + ' - ' + d + ' = ' + (a - d) + ', then ' + a + ' + ' + (a - d) + ' = ' + ans,
+        hint: 'First find how many ' + s.n2 + ' has. Then add the two amounts.',
+        steps: 2,
+        options: _wpChoices(ans, [a - d, a + a, a + a + d, a + d]),
+        bar: _barComparison(
+          { label: s.n1, value: a },
+          { label: s.n2, value: a - d, unknown: true },
+          { label: 'fewer', value: d },
+          { label: 'altogether', value: ans, unknown: true }
+        )
+      };
+    },
+    function(max) {
+      var s = pick(WP2_PAIRS);
+      var a = _wpPart(max, 0.1, 0.4);
+      var b = _wpPart(max, 0.05, 0.4);
+      var c = rand(1, a + b - 1);
+      var ans = a + b - c;
+      return {
+        text: s.n1 + ' has ' + a + ' ' + s.items + '. ' + s.n2 + ' has ' + b + ' more ' + s.items + ' than ' +
+              s.n1 + '. ' + s.n3 + ' has ' + c + ' fewer ' + s.items + ' than ' + s.n2 + '. How many ' +
+              s.items + ' does ' + s.n3 + ' have?',
+        answer: ans,
+        working: a + ' + ' + b + ' = ' + (a + b) + ', then ' + (a + b) + ' - ' + c + ' = ' + ans,
+        hint: 'First find how many ' + s.n2 + ' has. Then use that to find how many ' + s.n3 + ' has.',
+        steps: 2,
+        options: _wpChoices(ans, [a + b, a - c, a + b + c, b - c]),
+        bar: _barComparison(
+          { label: s.n2, value: a + b, unknown: true },
+          { label: s.n3, value: ans, unknown: true },
+          { label: 'fewer', value: c }
+        )
+      };
+    },
+    function(max) {
+      var s = pick(WP2_PAIRS);
+      var total = rand(_wpPart(max, 0.5, 0.5), max);
+      var a = rand(Math.floor(total / 2) + 1, total - 1);
+      var other = total - a;
+      var ans = a - other;
+      return {
+        text: s.n1 + ' and ' + s.n2 + ' have ' + total + ' ' + s.items + ' altogether. ' + s.n1 + ' has ' + a +
+              ' ' + s.items + '. How many more ' + s.items + ' does ' + s.n1 + ' have than ' + s.n2 + '?',
+        answer: ans,
+        working: total + ' - ' + a + ' = ' + other + ', then ' + a + ' - ' + other + ' = ' + ans,
+        hint: 'First find how many ' + s.n2 + ' has. Then find the difference between the two amounts.',
+        steps: 2,
+        options: _wpChoices(ans, [other, a]),
+        bar: _barComparison(
+          { label: s.n1, value: a },
+          { label: s.n2, value: other, unknown: true },
+          { label: 'more', value: ans, unknown: true },
+          { label: 'altogether', value: total }
+        )
+      };
+    }
+  ],
+
   // ============ BEFORE-AFTER (two-step) ============
   'before-after': [
     function(max, ctx) {
@@ -370,12 +597,16 @@ var WP_SKILL_STRUCTURES = {
   mul:     ['groups', 'rate'],
   div:     ['groups'],
   money:   ['rate', 'before-after'],
+  wp2:     ['two-step-pw', 'two-step-cmp'],
   multiwp: ['before-after'],
   multiop: ['before-after', 'rate']
 };
 
 /** Ceiling for the numbers used, derived from the drill config. */
 function _wpMax(skillId, config, diff) {
+  // P2 two-step problems climb to 1000 on their own ladder; the shared
+  // range below stops at 100.
+  if (skillId === 'wp2' && typeof tier === 'function') return tier(diff, [50, 100, 300, 600, 1000]);
   if (config && config.numberRange) return config.numberRange[1];
   if (diff && diff.numberRange) return diff.numberRange[1];
   return 20;
@@ -419,9 +650,12 @@ function generateWordProblemFor(skillId, config, diff) {
     hint: built.hint,
     working: built.working,
     structure: wanted,
-    emoji: ctx.emoji,
+    // Two-step stories bring their own people and things, so the
+    // shared theme's picture would not match them.
+    emoji: built.steps === 2 && built.options ? null : ctx.emoji,
     bar: built.bar || null,
     steps: built.steps || 1,
+    options: built.options || null,
     subKey: built.subKey || (config && config.rangeKey) || null
   };
 }

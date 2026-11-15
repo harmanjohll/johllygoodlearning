@@ -128,6 +128,7 @@ const SUBJECTS = {
     gen: 'generateMathQuestion', render: 'renderMathQuestion',
     skills: ['count', 'nbond', 'add', 'sub', 'cmp', 'pat', 'wp1', 'shp',
              'add100', 'sub100', 'mul', 'div', 'frac1', 'money', 'time1', 'pgraph', 'lenmass',
+             'num1000', 'addsub1000', 'mass', 'volume', 'wp2',
              'add10k', 'sub10k', 'advmul', 'divrem', 'fracadd', 'area', 'angle', 'bargraph',
              'bignum', 'multiop', 'factor', 'mixfrac', 'decimal', 'symm', 'dataan', 'multiwp']
   }
