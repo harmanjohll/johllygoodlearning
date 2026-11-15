@@ -562,7 +562,13 @@ ok('Wiring: every P2 skill resolves to the Malay world', P2.every(id => { sandbo
      nodes.length + ' nodes, ' + linked.length + ' P2 skills linked to a theme');
 }
 {
-  // Locked until the P1 skill it builds on reaches 40, then open.
+  // While the layer awaits a Malay speaker's review it stays closed no
+  // matter how well she is doing. See the review gate in malay-tree.js.
+  run('state.skills = {}; getSkillState("ayat").mastery = 100;');
+  const gated = run('DUNIA_P2_REVIEWED === false && MALAY_TREE.imbuhan.awaitingReview === true && isSkillUnlocked(MALAY_TREE.imbuhan) === false');
+  ok('Review gate: unreviewed P2 Malay stays closed to her', gated === true);
+  // With the gate lifted: locked until the P1 skill it builds on reaches 40, then open.
+  run('Object.keys(MALAY_TREE).forEach(function (id) { delete MALAY_TREE[id].awaitingReview; });');
   run('state.skills = {};');
   const lockedFirst = run('isSkillUnlocked(MALAY_TREE.imbuhan)');
   run('getSkillState("ayat").mastery = 40;');

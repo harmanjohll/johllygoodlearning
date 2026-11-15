@@ -34,3 +34,20 @@ const MALAY_TREE = {
   binaayat:  { id:'binaayat',  name:'Bina Ayat',             icon:'🧱', grade:'P2 Expansion', deps:['ayat'],            desc:'Put the words in order to build a sentence' },
   kefahaman: { id:'kefahaman', name:'Kefahaman',             icon:'📖', grade:'P2 Expansion', deps:['ayat','keluarga'], desc:'Read a short passage and answer questions' }
 };
+
+// ------------------------------------------------------------
+//  REVIEW GATE
+// ------------------------------------------------------------
+//  The P2 skills above were written without a Malay speaker in the
+//  room. An earlier round put three Malay errors in front of Nas, so
+//  this layer stays closed to her until a Malay speaker has ticked the
+//  sheet at src/malay/P2_REVIEW.md. Then set this to true. Nothing else
+//  needs to change. While it is false the skills show as locked with a
+//  "being checked" note, and Compass does not suggest them.
+var DUNIA_P2_REVIEWED = false;
+
+if (!DUNIA_P2_REVIEWED) {
+  Object.keys(MALAY_TREE).forEach(function (id) {
+    if (MALAY_TREE[id].grade === 'P2 Expansion') MALAY_TREE[id].awaitingReview = true;
+  });
+}

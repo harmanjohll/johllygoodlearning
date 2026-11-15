@@ -27,11 +27,11 @@
 //  move independently and conflating them would break old save files.
 
 var APP_VERSION = {
-  number: '3.2',
+  number: '3.3',
   // Short enough to sit on one line on a phone. This is what she reads.
-  name: 'Practice Papers',
+  name: 'Primary 2',
   // ISO date of the release, used by the staleness guard.
-  date: '2026-10-19'
+  date: '2026-11-15'
 };
 
 /** "Nasworld v3.0 — Play, Puzzles & Sharper Maths" */

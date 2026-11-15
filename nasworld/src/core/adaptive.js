@@ -67,6 +67,8 @@ function getSkillDifficulty(skillId) {
 
 // Check if a skill's dependencies are met (>=40% mastery on all deps)
 function isSkillUnlocked(skillDef) {
+  // Content still waiting for a human check stays closed. See malay-tree.js.
+  if (skillDef.awaitingReview) return false;
   if (!skillDef.deps || skillDef.deps.length === 0) return true;
   return skillDef.deps.every(depId => {
     const dep = getSkillState(depId);
@@ -140,8 +142,9 @@ function renderActivityCards(tree, containerId, worldType) {
         `<span class="mastery-star ${i < Math.ceil(s.mastery / 20) ? 'filled' : ''}">\u2B50</span>`
       ).join('');
 
-      const lockText = unlocked ? '' :
-        `<div class="activity-card-lock">Master ${skill.deps.join(' & ')} first</div>`;
+      const lockText = unlocked ? '' : (skill.awaitingReview
+        ? `<div class="activity-card-lock">Being checked by a grown-up</div>`
+        : `<div class="activity-card-lock">Master ${skill.deps.join(' & ')} first</div>`);
 
       // Review-due badge
       let reviewBadge = '';

@@ -82,6 +82,7 @@ function compassFindFreshSkill() {
   var ids = Object.keys(allTrees);
   for (var i = 0; i < ids.length; i++) {
     var id = ids[i];
+    if (allTrees[id].awaitingReview) continue;
     var s = state.skills && state.skills[id];
     if (!s || (s.totalAttempts || 0) === 0) {
       // Check deps mastered enough

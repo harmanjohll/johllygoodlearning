@@ -5125,11 +5125,11 @@ function lcm(a, b) {
 //  move independently and conflating them would break old save files.
 
 var APP_VERSION = {
-  number: '3.2',
+  number: '3.3',
   // Short enough to sit on one line on a phone. This is what she reads.
-  name: 'Practice Papers',
+  name: 'Primary 2',
   // ISO date of the release, used by the staleness guard.
-  date: '2026-10-19'
+  date: '2026-11-15'
 };
 
 /** "Nasworld v3.0 — Play, Puzzles & Sharper Maths" */
@@ -6999,6 +6999,8 @@ function getSkillDifficulty(skillId) {
 
 // Check if a skill's dependencies are met (>=40% mastery on all deps)
 function isSkillUnlocked(skillDef) {
+  // Content still waiting for a human check stays closed. See malay-tree.js.
+  if (skillDef.awaitingReview) return false;
   if (!skillDef.deps || skillDef.deps.length === 0) return true;
   return skillDef.deps.every(depId => {
     const dep = getSkillState(depId);
@@ -7072,8 +7074,9 @@ function renderActivityCards(tree, containerId, worldType) {
         `<span class="mastery-star ${i < Math.ceil(s.mastery / 20) ? 'filled' : ''}">\u2B50</span>`
       ).join('');
 
-      const lockText = unlocked ? '' :
-        `<div class="activity-card-lock">Master ${skill.deps.join(' & ')} first</div>`;
+      const lockText = unlocked ? '' : (skill.awaitingReview
+        ? `<div class="activity-card-lock">Being checked by a grown-up</div>`
+        : `<div class="activity-card-lock">Master ${skill.deps.join(' & ')} first</div>`);
 
       // Review-due badge
       let reviewBadge = '';
@@ -25336,6 +25339,23 @@ const MALAY_TREE = {
   kefahaman: { id:'kefahaman', name:'Kefahaman',             icon:'📖', grade:'P2 Expansion', deps:['ayat','keluarga'], desc:'Read a short passage and answer questions' }
 };
 
+// ------------------------------------------------------------
+//  REVIEW GATE
+// ------------------------------------------------------------
+//  The P2 skills above were written without a Malay speaker in the
+//  room. An earlier round put three Malay errors in front of Nas, so
+//  this layer stays closed to her until a Malay speaker has ticked the
+//  sheet at src/malay/P2_REVIEW.md. Then set this to true. Nothing else
+//  needs to change. While it is false the skills show as locked with a
+//  "being checked" note, and Compass does not suggest them.
+var DUNIA_P2_REVIEWED = false;
+
+if (!DUNIA_P2_REVIEWED) {
+  Object.keys(MALAY_TREE).forEach(function (id) {
+    if (MALAY_TREE[id].grade === 'P2 Expansion') MALAY_TREE[id].awaitingReview = true;
+  });
+}
+
 // --- src/malay/malay-data.js ---
 // ============================================================
 //  MALAY DATA — Vocabulary banks for Bahasa Melayu (P1)
@@ -34857,6 +34877,7 @@ function compassFindFreshSkill() {
   var ids = Object.keys(allTrees);
   for (var i = 0; i < ids.length; i++) {
     var id = ids[i];
+    if (allTrees[id].awaitingReview) continue;
     var s = state.skills && state.skills[id];
     if (!s || (s.totalAttempts || 0) === 0) {
       // Check deps mastered enough
