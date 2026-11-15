@@ -1,24 +1,32 @@
 // ============================================================
-//  WORD TREE — 10-skill tree with dependencies (P1-P4 EL)
+//  WORD TREE — 11-skill tree with dependencies (P1-P4 EL)
 // ============================================================
+//
+//  Reading Comprehension sits in P2, not P3. P2 children do read short
+//  passages and answer literal and simple inferential questions (MOE EL
+//  Syllabus 2020), and the passages here are written for that. It opens
+//  once Vocabulary Vault is under way, so it no longer waits behind
+//  Sentence Builder, Grammar Garden and Punctuation Power as well. The
+//  skill id is unchanged, so progress already saved against it carries
+//  over.
 
 const WORD_TREE = {
   // === P1 Foundation (EL) ===
-  phonics:  { id:'phonics',  name:'Phonics & CVC',      icon:'\uD83D\uDD24', grade:'P1 Foundation', deps:[],           desc:'Sound out CVC words' },
-  sight:    { id:'sight',    name:'Sight Words',         icon:'\uD83D\uDC41\uFE0F', grade:'P1 Foundation', deps:[],           desc:'Read high-frequency words' },
-  spell:    { id:'spell',    name:'Spelling Bee',        icon:'\uD83D\uDC1D', grade:'P1 Foundation', deps:[],  desc:'Spell CVC words with pictures' },
-  punct:    { id:'punct',    name:'Punctuation Power',   icon:'\u2755',       grade:'P1 Foundation', deps:[],            desc:'Full stops, question marks, commas, more' },
+  phonics:  { id:'phonics',  name:'Phonics & CVC',      icon:'🔤', grade:'P1 Foundation', deps:[],           desc:'Sound out CVC words' },
+  sight:    { id:'sight',    name:'Sight Words',         icon:'👁️', grade:'P1 Foundation', deps:[],           desc:'Read high-frequency words' },
+  spell:    { id:'spell',    name:'Spelling Bee',        icon:'🐝', grade:'P1 Foundation', deps:[],  desc:'Spell CVC words with pictures' },
+  punct:    { id:'punct',    name:'Punctuation Power',   icon:'❕',       grade:'P1 Foundation', deps:[],            desc:'Full stops, question marks, commas, more' },
 
   // === P2 Expansion (EL) ===
-  grammar:  { id:'grammar',  name:'Grammar Garden',      icon:'\uD83C\uDF3B', grade:'P2 Expansion',  deps:['sight'],           desc:'Nouns, verbs, adjectives, pronouns, plurals' },
-  vocab:    { id:'vocab',    name:'Vocabulary Vault',     icon:'\uD83D\uDCDA', grade:'P2 Expansion',  deps:['sight'],           desc:'Learn new word meanings' },
-  sentence: { id:'sentence', name:'Sentence Builder',     icon:'\uD83D\uDD28', grade:'P2 Expansion',  deps:['grammar','punct'], desc:'Build correct sentences' },
+  grammar:  { id:'grammar',  name:'Grammar Garden',      icon:'🌻', grade:'P2 Expansion',  deps:['sight'],           desc:'Tenses, pronouns, prepositions, joining words and more' },
+  vocab:    { id:'vocab',    name:'Vocabulary Vault',     icon:'📚', grade:'P2 Expansion',  deps:['sight'],           desc:'Word meanings, synonyms and opposites' },
+  sentence: { id:'sentence', name:'Sentence Builder',     icon:'🔨', grade:'P2 Expansion',  deps:['grammar','punct'], desc:'Rearrange and join sentences' },
+  comprehension: { id:'comprehension', name:'Reading Comprehension', icon:'📖', grade:'P2 Expansion', deps:['vocab'], desc:'Read short passages and answer questions' },
 
   // === P3 Deepening (EL) ===
-  comprehension: { id:'comprehension', name:'Reading Comprehension', icon:'\uD83D\uDCD6', grade:'P3 Deepening', deps:['vocab','sentence'], desc:'Read passages and answer questions' },
-  poetry:        { id:'poetry',        name:'Poetry Playground',     icon:'\uD83C\uDFB6', grade:'P3 Deepening', deps:['spell'],             desc:'Rhymes, syllables, and poems' },
+  poetry:        { id:'poetry',        name:'Poetry Playground',     icon:'🎶', grade:'P3 Deepening', deps:['spell'],             desc:'Rhymes, syllables, and poems' },
 
   // === P4 Mastery (EL) ===
-  story:     { id:'story',     name:'Story Garden',       icon:'\u270D\uFE0F', grade:'P4 Mastery', deps:['sentence','comprehension'], desc:'Write creative stories' },
-  paragraph: { id:'paragraph', name:'Paragraph Power',    icon:'\uD83D\uDCDD', grade:'P4 Mastery', deps:['comprehension'],            desc:'Write structured paragraphs' }
+  story:     { id:'story',     name:'Story Garden',       icon:'✍️', grade:'P4 Mastery', deps:['sentence','comprehension'], desc:'Write creative stories' },
+  paragraph: { id:'paragraph', name:'Paragraph Power',    icon:'📝', grade:'P4 Mastery', deps:['comprehension'],            desc:'Write structured paragraphs' }
 };

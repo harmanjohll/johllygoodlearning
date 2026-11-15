@@ -13,6 +13,8 @@ function renderWordQuestion(card, q) {
     case 'grammar-mcq':       renderGrammarMCQ(card, q); return true;
     case 'vocab-meaning':     renderVocabMeaning(card, q); return true;
     case 'vocab-word':        renderVocabWord(card, q); return true;
+    case 'vocab-relate':      renderVocabRelate(card, q); return true;
+    case 'sentence-join':     renderSentenceJoin(card, q); return true;
     case 'sentence-build':    renderSentenceBuild(card, q); return true;
     case 'comprehension-mcq': renderComprehensionMCQ(card, q); return true;
     case 'poetry-rhyme':      renderPoetryRhyme(card, q); return true;
@@ -145,14 +147,102 @@ function renderSpellFull(card, q) {
 }
 
 // ===================== P2 RENDERERS =====================
+//
+//  The P2 questions share one set of answer buttons. The choices here
+//  are real English, so they contain apostrophes (don't, Hakim's) and
+//  quotation marks. Writing those into an onclick="" attribute breaks
+//  the button, so each choice travels on a data attribute instead and
+//  wordPick() reads it back.
+
+function wordEsc(str) {
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function wordOptionButtons(q, btnStyle, column) {
+  var html = '<div class="answer-options"' + (column ? ' style="flex-direction:column"' : '') +
+    ' data-answer="' + wordEsc(q.answer) + '" data-why="' + wordEsc(q.why || '') + '">';
+  html += q.options.map(function(o) {
+    return '<button class="answer-btn" data-value="' + wordEsc(o) + '" onclick="wordPick(this)" style="' + btnStyle + '">' + wordEsc(o) + '</button>';
+  }).join('');
+  return html + '</div>';
+}
+
+// How long the card waits when there is a reason to read. A right
+// answer normally moves on in 0.7s, which is no time to read a rule.
+// A wrong answer can still be tapped away early.
+var WORD_WHY_PACE = { correctMs: 2800, wrongMs: 9000 };
+var _wordBasePace = null;
+
+function wordPick(btn) {
+  if (!btn || (btn.dataset && btn.dataset.checked)) return;
+  var box = btn.parentElement;
+  var answer = box && box.dataset ? box.dataset.answer : '';
+  var why = box && box.dataset ? (box.dataset.why || '') : '';
+
+  // The feedback bar reads its timing from FEEDBACK_PACE at the moment
+  // it appears: at once for a right answer, 0.6s later for a wrong one.
+  // Lengthen it for this one answer, then put it back.
+  var pace = (typeof FEEDBACK_PACE !== 'undefined') ? FEEDBACK_PACE : null;
+  if (pace && why) {
+    if (!_wordBasePace) _wordBasePace = { correctMs: pace.correctMs, wrongMs: pace.wrongMs };
+    pace.correctMs = WORD_WHY_PACE.correctMs;
+    pace.wrongMs = WORD_WHY_PACE.wrongMs;
+  }
+  try {
+    checkAnswer(btn.dataset.value, answer, btn);
+  } finally {
+    if (pace && why) {
+      pace.correctMs = _wordBasePace.correctMs;
+      setTimeout(function() { pace.wrongMs = _wordBasePace.wrongMs; }, 800);
+    }
+  }
+  if (why) showWordWhy(why, box);
+}
+
+/** The one-line reason, shown under the choices once she has answered. */
+function showWordWhy(why, box) {
+  var host = (box && box.parentElement) || document.getElementById('question-card');
+  if (!host || !document.createElement) return;
+  var note = document.createElement('div');
+  note.className = 'word-why';
+  note.style.cssText = 'margin-top:12px;padding:10px 14px;border-radius:12px;background:rgba(255,215,0,0.10);border-left:4px solid var(--gold);font-size:15px;line-height:1.5;text-align:left;color:var(--text-primary)';
+  note.textContent = why;
+  var bar = document.getElementById('inline-fb');
+  if (bar && bar.parentElement === host) host.insertBefore(note, bar);
+  else host.appendChild(note);
+
+  // With "tap to continue" switched on, feedback is a full-screen card
+  // that covers the question, so the reason has to go on that card too.
+  var manual = (typeof state !== 'undefined') && state && state.preferences && state.preferences.manualAdvance;
+  if (manual) {
+    setTimeout(function() {
+      var fc = document.getElementById('feedback-card');
+      if (!fc || !fc.lastElementChild) return;
+      var copy = document.createElement('div');
+      copy.className = 'feedback-message';
+      copy.style.cssText = 'font-size:15px;line-height:1.5';
+      copy.textContent = why;
+      fc.insertBefore(copy, fc.lastElementChild);
+    }, 700);
+  }
+}
 
 function renderGrammarMCQ(card, q) {
   var html = '<div class="question-text">' + q.instruction + '</div>';
-  // Highlight the sentence
   html += '<div class="story-prompt" style="font-size:20px;margin:16px 0">' + q.sentence + '</div>';
-  html += '<div class="answer-options">' + q.options.map(function(o) {
-    return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:20px">' + o + '</button>';
-  }).join('') + '</div>';
+
+  // The colour key only helps when she is picking out a part of speech.
+  if (q.grammarType && q.grammarType.indexOf('identify') === 0) {
+    html += '<div style="display:flex;gap:12px;justify-content:center;margin:8px 0;font-size:12px">';
+    html += '<span style="color:#64B5F6">● Noun</span>';
+    html += '<span style="color:#EF5350">● Verb</span>';
+    html += '<span style="color:#81C784">● Adjective</span>';
+    html += '</div>';
+  }
+
+  html += wordOptionButtons(q, 'font-size:20px');
   html += renderHintBtn(q.hint);
   card.innerHTML = html;
 }
@@ -160,10 +250,8 @@ function renderGrammarMCQ(card, q) {
 function renderVocabMeaning(card, q) {
   var tts = (typeof ttsButton === 'function') ? ttsButton(q.word + '. Example sentence: ' + q.sentence, 'en-US', 'Hear the word + example') : '';
   var html = '<div class="question-text">What does <strong style="color:var(--gold)">' + q.word + '</strong> mean? ' + tts + '</div>';
-  html += '<div class="story-prompt" style="font-size:18px;margin:12px 0">"' + q.sentence + '"</div>';
-  html += '<div class="answer-options">' + q.options.map(function(o) {
-    return '<button class="answer-btn" onclick="checkAnswer(\'' + escapeQuote(o) + '\', \'' + escapeQuote(q.answer) + '\', this)" style="font-size:16px">' + o + '</button>';
-  }).join('') + '</div>';
+  html += '<div class="story-prompt" style="font-size:18px;margin:12px 0">' + wordMarkWord(q.sentence, q.word) + '</div>';
+  html += wordOptionButtons(q, 'font-size:16px');
   html += renderHintBtn(q.hint);
   card.innerHTML = html;
 }
@@ -171,41 +259,76 @@ function renderVocabMeaning(card, q) {
 function renderVocabWord(card, q) {
   var tts = (typeof ttsButton === 'function') ? ttsButton(q.meaning, 'en-US', 'Hear the meaning') : '';
   var html = '<div class="question-text">Which word means: ' + tts + '</div>';
-  html += '<div style="font-size:20px;color:var(--mint);margin:12px 0;font-style:italic">"' + q.meaning + '"</div>';
-  html += '<div class="answer-options">' + q.options.map(function(o) {
-    return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:20px">' + o + '</button>';
-  }).join('') + '</div>';
+  html += '<div style="font-size:20px;color:var(--mint);margin:12px 0;font-style:italic">' + q.meaning + '</div>';
+  html += wordOptionButtons(q, 'font-size:20px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+/** Bold the target word where it stands in its sentence. */
+function wordMarkWord(sentence, word) {
+  var safe = String(word).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return String(sentence).replace(new RegExp('\\b(' + safe + ')\\b', 'i'), '<b style="color:var(--gold)">$1</b>');
+}
+
+function renderVocabRelate(card, q) {
+  var ask = q.kind === 'antonym'
+    ? 'Which word means the <b>opposite</b> of'
+    : 'Which word means almost the <b>same</b> as';
+  var html = '<div class="question-text">' + ask + ' <strong style="color:var(--gold)">' + q.word + '</strong>?</div>';
+  html += '<div class="story-prompt" style="font-size:18px;margin:12px 0">' + wordMarkWord(q.sentence, q.word) + '</div>';
+  html += wordOptionButtons(q, 'font-size:20px');
+  html += renderHintBtn(q.hint);
+  card.innerHTML = html;
+}
+
+function renderSentenceJoin(card, q) {
+  var html = '<div class="question-text">Join the two sentences with <strong style="color:var(--gold)">' + q.conj + '</strong>. Keep the meaning the same.</div>';
+  html += '<div class="story-prompt" style="font-size:18px;line-height:1.7;margin:12px 0;text-align:left;padding:12px 16px">';
+  html += '<div>' + wordEsc(q.first) + '</div><div>' + wordEsc(q.second) + '</div>';
+  html += '</div>';
+  html += wordOptionButtons(q, 'font-size:16px;text-align:left;width:100%', true);
   html += renderHintBtn(q.hint);
   card.innerHTML = html;
 }
 
 function renderSentenceBuild(card, q) {
-  var tts = (typeof ttsButton === 'function') ? ttsButton(q.answer, 'en-US', 'Hear the sentence') : '';
-  var html = '<div class="question-text">Put the words in order to make a sentence! ' + tts + '</div>';
-  html += '<div id="sentence-result" style="min-height:48px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px;margin:12px 0;font-size:22px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center"></div>';
+  var html = '<div class="question-text">Put the words in order to make a sentence.</div>';
+
+  // Result area with drop zone styling
+  html += '<div id="sentence-result" style="min-height:52px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px;margin:12px 0;font-size:20px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;border:2px dashed rgba(255,255,255,0.15);transition:border-color 0.3s">';
+  html += '<span style="color:var(--text-dim);font-size:14px" id="sentence-placeholder">Tap words below to build your sentence</span>';
+  html += '</div>';
+
+  // Word bank with touch-friendly sizing
   html += '<div id="sentence-bank" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0">';
-  q.words.forEach(function(w) {
-    html += '<button class="answer-btn" style="font-size:20px;cursor:grab" onclick="sentenceWordClick(this, \'' + escapeQuote(w) + '\')">' + w + '</button>';
+  q.words.forEach(function(w, idx) {
+    html += '<button class="answer-btn word-tile" style="font-size:20px;cursor:grab;min-width:60px;animation:pop-in 0.3s ease-out ' + (idx * 0.08) + 's both" onclick="sentenceWordClick(this, \'' + escapeQuote(w) + '\')">' + w + '</button>';
   });
   html += '</div>';
-  html += '<button class="submit-btn mt-2" onclick="checkSentenceOrder()">Check \u2713</button>';
+
+  html += '<div style="display:flex;gap:8px;justify-content:center">';
+  html += '<button class="submit-btn" onclick="checkSentenceOrder()">Check ✓</button>';
+  html += '<button class="answer-btn" style="font-size:14px;padding:8px 14px;color:var(--coral)" onclick="resetSentenceBuilder()">Reset</button>';
+  html += '</div>';
   html += renderHintBtn(q.hint);
   card.innerHTML = html;
-
-  // Store correct answer on the card for checking
   card.dataset.sentenceAnswer = q.answer;
+  // Every order that is good English, not just the first one written down.
+  card.dataset.sentenceAccept = JSON.stringify(q.accept && q.accept.length ? q.accept : [q.answer]);
 }
 
-// ===================== P3 RENDERERS =====================
+// ===================== READING RENDERERS =====================
 
 function renderComprehensionMCQ(card, q) {
-  var tts = (typeof ttsButton === 'function') ? ttsButton(q.title + '. ' + q.text + '. ' + q.question, 'en-US', 'Read the whole passage') : '';
-  var html = '<div style="font-size:16px;font-weight:700;color:var(--gold);margin-bottom:8px">\uD83D\uDCD6 ' + q.title + ' ' + tts + '</div>';
-  html += '<div class="story-prompt" style="font-size:16px;line-height:1.6;max-height:140px;overflow-y:auto;text-align:left;padding:12px 16px">' + q.text + '</div>';
-  html += '<div class="question-text" style="font-size:18px;margin-top:16px">' + q.question + '</div>';
-  html += '<div class="answer-options" style="flex-direction:column">' + q.options.map(function(o) {
-    return '<button class="answer-btn" onclick="checkAnswer(\'' + escapeQuote(o) + '\', \'' + escapeQuote(q.answer) + '\', this)" style="font-size:16px;text-align:left;width:100%">' + o + '</button>';
-  }).join('') + '</div>';
+  var tts = (typeof ttsButton === 'function') ? ttsButton(q.title + '. ' + q.text, 'en-US', 'Read the whole passage') : '';
+  var html = '<div style="font-size:16px;font-weight:700;color:var(--gold);margin-bottom:8px">📖 ' + q.title + ' ' + tts + '</div>';
+  html += '<div class="story-prompt" style="font-size:16px;line-height:1.7;max-height:230px;overflow-y:auto;text-align:left;padding:12px 16px">' + q.text + '</div>';
+  if (q.partTotal > 1) {
+    html += '<div style="font-size:12px;color:var(--text-secondary);margin-top:12px">Question ' + q.partIndex + ' of ' + q.partTotal + ' on this passage</div>';
+  }
+  html += '<div class="question-text" style="font-size:18px;margin-top:8px">' + q.question + '</div>';
+  html += wordOptionButtons(q, 'font-size:16px;text-align:left;width:100%', true);
   html += renderHintBtn(q.hint);
   card.innerHTML = html;
 }
@@ -320,9 +443,14 @@ function checkSentenceOrder() {
   if (!result || !card) return;
   var words = [];
   result.querySelectorAll('.answer-btn').forEach(function(b) { words.push(b.textContent); });
-  var built = words.join(' ') + '.';
+  var built = words.join(' ');
   var expected = card.dataset.sentenceAnswer;
-  if (built.toLowerCase().replace(/\s+/g, ' ') === expected.toLowerCase().replace(/\s+/g, ' ')) {
+  var accepted = [expected];
+  try {
+    var list = JSON.parse(card.dataset.sentenceAccept || '[]');
+    if (list && list.length) accepted = list;
+  } catch (e) { /* keep the single expected answer */ }
+  if (wordSentenceMatches(built, accepted)) {
     handleCorrect();
   } else {
     handleWrong(expected);
@@ -377,32 +505,6 @@ renderPhonicsFamily = function(card, q) {
   card.innerHTML = html;
 };
 
-// Override sentence build to support touch drag reordering
-var _origRenderSentenceBuild = renderSentenceBuild;
-renderSentenceBuild = function(card, q) {
-  var html = '<div class="question-text">Put the words in order to make a sentence!</div>';
-
-  // Result area with drop zone styling
-  html += '<div id="sentence-result" style="min-height:52px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px;margin:12px 0;font-size:20px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;border:2px dashed rgba(255,255,255,0.15);transition:border-color 0.3s">';
-  html += '<span style="color:var(--text-dim);font-size:14px" id="sentence-placeholder">Tap words below to build your sentence</span>';
-  html += '</div>';
-
-  // Word bank with touch-friendly sizing
-  html += '<div id="sentence-bank" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0">';
-  q.words.forEach(function(w, idx) {
-    html += '<button class="answer-btn word-tile" style="font-size:20px;cursor:grab;min-width:60px;animation:pop-in 0.3s ease-out ' + (idx * 0.08) + 's both" onclick="sentenceWordClick(this, \'' + escapeQuote(w) + '\')">' + w + '</button>';
-  });
-  html += '</div>';
-
-  html += '<div style="display:flex;gap:8px;justify-content:center">';
-  html += '<button class="submit-btn" onclick="checkSentenceOrder()">Check \u2713</button>';
-  html += '<button class="answer-btn" style="font-size:14px;padding:8px 14px;color:var(--coral)" onclick="resetSentenceBuilder()">Reset</button>';
-  html += '</div>';
-  html += renderHintBtn(q.hint);
-  card.innerHTML = html;
-  card.dataset.sentenceAnswer = q.answer;
-};
-
 function resetSentenceBuilder() {
   // Move all words back to bank
   var result = document.getElementById('sentence-result');
@@ -431,34 +533,6 @@ function resetSentenceBuilder() {
     result.appendChild(span);
   }
 }
-
-// Override grammar MCQ to highlight parts of speech with colours
-var _origRenderGrammarMCQ = renderGrammarMCQ;
-renderGrammarMCQ = function(card, q) {
-  var html = '<div class="question-text">' + q.instruction + '</div>';
-
-  // Parse sentence for POS colouring based on grammar type
-  var styledSentence = q.sentence;
-  if (q.grammarType && q.grammarType.indexOf('identify') >= 0 && q.answer) {
-    // Bold the answer word in the sentence for visual emphasis after answer
-    styledSentence = q.sentence.replace(new RegExp('\\b' + q.answer + '\\b', 'i'), '<u>' + q.answer + '</u>');
-  }
-
-  html += '<div class="story-prompt" style="font-size:20px;margin:16px 0">' + styledSentence + '</div>';
-
-  // Colour-coded legend
-  html += '<div style="display:flex;gap:12px;justify-content:center;margin:8px 0;font-size:12px">';
-  html += '<span style="color:#64B5F6">\u25CF Noun</span>';
-  html += '<span style="color:#EF5350">\u25CF Verb</span>';
-  html += '<span style="color:#81C784">\u25CF Adjective</span>';
-  html += '</div>';
-
-  html += '<div class="answer-options">' + q.options.map(function(o) {
-    return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:20px">' + o + '</button>';
-  }).join('') + '</div>';
-  html += renderHintBtn(q.hint);
-  card.innerHTML = html;
-};
 
 // Enhanced sight word flash — bigger, more dramatic reveal
 var _origRenderSightFlash = renderSightFlash;
