@@ -27,9 +27,9 @@
 //  move independently and conflating them would break old save files.
 
 var APP_VERSION = {
-  number: '4.0',
+  number: '4.1',
   // Short enough to sit on one line on a phone. This is what she reads.
-  name: 'A New Look',
+  name: 'The Book of Nasworld',
   // ISO date of the release, used by the staleness guard.
   date: '2026-11-15'
 };
