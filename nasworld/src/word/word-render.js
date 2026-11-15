@@ -58,7 +58,7 @@ function renderPunctPurpose(card, q) {
 
 function renderPunctScenario(card, q) {
   var html = '<div class="question-text">Pick the best mark for this setting:</div>';
-  html += '<div style="font-size:18px;margin:12px 0;padding:14px;background:rgba(255,215,0,0.08);border-radius:12px;color:var(--text-primary)">📋 ' + q.setting + '</div>';
+  html += '<div style="font-size:18px;margin:12px 0;padding:14px;background:rgba(var(--accent-rgb),0.08);border-radius:12px;color:var(--text-primary)">📋 ' + q.setting + '</div>';
   html += _renderPunctOptions(q);
   html += renderHintBtn(q.hint);
   card.innerHTML = html;
@@ -207,7 +207,7 @@ function showWordWhy(why, box) {
   if (!host || !document.createElement) return;
   var note = document.createElement('div');
   note.className = 'word-why';
-  note.style.cssText = 'margin-top:12px;padding:10px 14px;border-radius:12px;background:rgba(255,215,0,0.10);border-left:4px solid var(--gold);font-size:15px;line-height:1.5;text-align:left;color:var(--text-primary)';
+  note.style.cssText = 'margin-top:12px;padding:10px 14px;border-radius:12px;background:rgba(var(--accent-rgb),0.10);border-left:4px solid var(--gold);font-size:15px;line-height:1.5;text-align:left;color:var(--text-primary)';
   note.textContent = why;
   var bar = document.getElementById('inline-fb');
   if (bar && bar.parentElement === host) host.insertBefore(note, bar);
@@ -296,7 +296,7 @@ function renderSentenceBuild(card, q) {
   var html = '<div class="question-text">Put the words in order to make a sentence.</div>';
 
   // Result area with drop zone styling
-  html += '<div id="sentence-result" style="min-height:52px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px;margin:12px 0;font-size:20px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;border:2px dashed rgba(255,255,255,0.15);transition:border-color 0.3s">';
+  html += '<div id="sentence-result" style="min-height:52px;padding:12px;background:rgba(var(--ink-rgb),0.05);border-radius:12px;margin:12px 0;font-size:20px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;border:2px dashed rgba(var(--ink-rgb),0.15);transition:border-color 0.3s">';
   html += '<span style="color:var(--text-dim);font-size:14px" id="sentence-placeholder">Tap words below to build your sentence</span>';
   html += '</div>';
 
@@ -376,7 +376,7 @@ function renderStoryWrite(card, q) {
   html += '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center" id="word-suggestions">';
   var suggestions = shuffle(WORD_BANKS.adjectives.concat(WORD_BANKS.nouns)).slice(0, 6);
   suggestions.forEach(function(w) {
-    html += '<button style="font-size:13px;padding:4px 10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:20px;color:var(--text-secondary);cursor:pointer" onclick="insertWordSuggestion(\'' + w + '\')">' + w + '</button>';
+    html += '<button style="font-size:13px;padding:4px 10px;background:rgba(var(--ink-rgb),0.08);border:1px solid rgba(var(--ink-rgb),0.15);border-radius:20px;color:var(--text-secondary);cursor:pointer" onclick="insertWordSuggestion(\'' + w + '\')">' + w + '</button>';
   });
   html += '</div>';
   html += '<button class="submit-btn mt-2" onclick="submitStory()">Done \u2713</button>';
@@ -497,7 +497,7 @@ renderPhonicsFamily = function(card, q) {
     var tiles = '';
     for (var i = 0; i < o.length; i++) {
       var isFamily = i >= o.length - q.family.length;
-      tiles += '<span class="letter-tile' + (isFamily ? ' family-highlight' : '') + '" style="display:inline-block;padding:4px 8px;margin:2px;background:' + (isFamily ? 'rgba(255,215,0,0.2)' : 'rgba(255,255,255,0.1)') + ';border-radius:6px;font-size:22px;font-weight:700;letter-spacing:1px;animation:pop-in 0.3s ease-out ' + (idx * 0.1 + i * 0.05) + 's both">' + o[i] + '</span>';
+      tiles += '<span class="letter-tile' + (isFamily ? ' family-highlight' : '') + '" style="display:inline-block;padding:4px 8px;margin:2px;background:' + (isFamily ? 'rgba(var(--accent-rgb),0.2)' : 'rgba(var(--ink-rgb),0.1)') + ';border-radius:6px;font-size:22px;font-weight:700;letter-spacing:1px;animation:pop-in 0.3s ease-out ' + (idx * 0.1 + i * 0.05) + 's both">' + o[i] + '</span>';
     }
     return '<button class="answer-btn" onclick="checkAnswer(\'' + o + '\', \'' + q.answer + '\', this)" style="font-size:22px;letter-spacing:0;display:flex;align-items:center;justify-content:center;gap:0">' + tiles + '</button>';
   }).join('') + '</div>';
@@ -538,7 +538,7 @@ function resetSentenceBuilder() {
 var _origRenderSightFlash = renderSightFlash;
 renderSightFlash = function(card, q) {
   var html = '<div class="question-text">Remember this word!</div>';
-  html += '<div id="flash-word" style="font-size:56px;margin:20px 0;font-family:var(--font-display);color:var(--gold);transition:all 0.5s;text-shadow:0 0 20px rgba(255,215,0,0.3)">' + q.targetWord + '</div>';
+  html += '<div id="flash-word" style="font-size:56px;margin:20px 0;font-family:var(--font-display);color:var(--gold);transition:all 0.5s;text-shadow:0 0 20px rgba(var(--accent-rgb),0.3)">' + q.targetWord + '</div>';
   html += '<div id="flash-countdown" style="font-size:14px;color:var(--text-dim)">Memorize it...</div>';
   html += '<div id="flash-options" style="display:none">';
   html += '<div class="question-text" style="font-size:20px;animation:pop-in 0.4s ease-out">Which word did you see?</div>';

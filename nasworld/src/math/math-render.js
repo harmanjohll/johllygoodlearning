@@ -579,7 +579,7 @@ function renderMultiplication(card, q) {
     html += '<div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0">';
     var emoji = pick(OBJECT_EMOJIS);
     for (var g = 0; g < q.n; g++) {
-      html += '<div style="display:flex;gap:4px;padding:8px;background:rgba(255,255,255,0.05);border-radius:8px">';
+      html += '<div style="display:flex;gap:4px;padding:8px;background:rgba(var(--ink-rgb),0.05);border-radius:8px">';
       for (var i = 0; i < q.table; i++) html += '<span style="font-size:20px">' + emoji + '</span>';
       html += '</div>';
     }
@@ -606,7 +606,7 @@ function renderDivision(card, q) {
     html += '<div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0">';
     var emoji = pick(OBJECT_EMOJIS);
     for (var g = 0; g < q.answer; g++) {
-      html += '<div style="padding:8px;background:rgba(255,255,255,0.05);border-radius:8px;text-align:center">';
+      html += '<div style="padding:8px;background:rgba(var(--ink-rgb),0.05);border-radius:8px;text-align:center">';
       for (var i = 0; i < q.divisor; i++) html += '<span style="font-size:20px">' + emoji + '</span>';
       html += '<div style="font-size:12px;color:var(--text-dim);margin-top:4px">Group ' + (g+1) + '</div></div>';
     }
@@ -802,7 +802,7 @@ function renderTimeRead(card, q) {
 function renderClockSVG(hour, minutes, size) {
   var cx = size / 2, cy = size / 2, r = size / 2 - 10;
   var svg = '<svg width="' + size + '" height="' + size + '" style="margin:12px auto;display:block">';
-  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>';
+  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="rgba(var(--ink-rgb),0.05)" stroke="rgba(var(--ink-rgb),0.3)" stroke-width="3"/>';
   for (var i = 1; i <= 12; i++) {
     var angle = (i * 30 - 90) * Math.PI / 180;
     var tx = cx + (r - 20) * Math.cos(angle);
@@ -830,7 +830,7 @@ function renderClockSVG(hour, minutes, size) {
 function renderScaledPictureGraph(card, q) {
   var dot = '<span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:var(--gold);vertical-align:middle"></span>';
   var html = '<div class="question-text">Look at the picture graph</div>';
-  html += '<div style="display:inline-block;text-align:left;margin:12px auto;padding:12px 16px;background:rgba(255,255,255,0.05);border-radius:12px">';
+  html += '<div style="display:inline-block;text-align:left;margin:12px auto;padding:12px 16px;background:rgba(var(--ink-rgb),0.05);border-radius:12px">';
   html += '<div style="font-weight:700;text-align:center;margin-bottom:8px">Fruits sold at a stall</div>';
   q.categories.forEach(function(cat, i) {
     html += '<div style="display:flex;align-items:center;gap:10px;margin:6px 0">' +
@@ -927,15 +927,15 @@ function renderBlocks1000(h, t, o) {
   var group = function(inner) { return '<div style="display:flex;gap:4px;align-items:flex-end;flex-wrap:wrap;max-width:260px;justify-content:center">' + inner + '</div>'; };
   var flats = '', rods = '', cubes = '';
   for (var i = 0; i < h; i++) {
-    flats += '<div style="width:44px;height:44px;border-radius:4px;border:1px solid rgba(255,255,255,0.5);' +
-      'background-color:var(--lavender);background-image:linear-gradient(rgba(255,255,255,0.35) 1px,transparent 1px),' +
-      'linear-gradient(90deg,rgba(255,255,255,0.35) 1px,transparent 1px);background-size:4.4px 4.4px"></div>';
+    flats += '<div style="width:44px;height:44px;border-radius:4px;border:1px solid rgba(var(--ink-rgb),0.5);' +
+      'background-color:var(--lavender);background-image:linear-gradient(rgba(var(--ink-rgb),0.35) 1px,transparent 1px),' +
+      'linear-gradient(90deg,rgba(var(--ink-rgb),0.35) 1px,transparent 1px);background-size:4.4px 4.4px"></div>';
   }
   for (var j = 0; j < t; j++) {
-    rods += '<div style="width:8px;height:44px;border-radius:2px;border:1px solid rgba(255,255,255,0.5);background:var(--sky)"></div>';
+    rods += '<div style="width:8px;height:44px;border-radius:2px;border:1px solid rgba(var(--ink-rgb),0.5);background:var(--sky)"></div>';
   }
   for (var k = 0; k < o; k++) {
-    cubes += '<div style="width:8px;height:8px;border-radius:2px;border:1px solid rgba(255,255,255,0.5);background:var(--gold)"></div>';
+    cubes += '<div style="width:8px;height:8px;border-radius:2px;border:1px solid rgba(var(--ink-rgb),0.5);background:var(--gold)"></div>';
   }
   if (h) html += group(flats);
   if (t) html += group(rods);
@@ -1012,7 +1012,7 @@ function renderMeasureCompare(card, q) {
   var html = '<div class="question-text">' + q.text + '</div>';
   html += '<div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:16px 0">';
   q.items.forEach(function(it) {
-    html += '<div style="min-width:110px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15)">' +
+    html += '<div style="min-width:110px;padding:12px 14px;border-radius:12px;background:rgba(var(--ink-rgb),0.06);border:1px solid rgba(var(--ink-rgb),0.15)">' +
       '<div style="font-size:15px;color:var(--text-secondary)">' + it.name + '</div>' +
       '<div style="font-family:var(--font-display);font-size:26px;color:var(--gold)">' + it.value + ' ' + q.unit + '</div></div>';
   });
@@ -1032,7 +1032,7 @@ function renderDialScaleSVG(q) {
     return { x: cx + radius * Math.cos(ang), y: cy + radius * Math.sin(ang) };
   };
   var svg = '<svg width="' + size + '" height="' + size + '" style="margin:10px auto;display:block">';
-  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.35)" stroke-width="3"/>';
+  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="rgba(var(--ink-rgb),0.05)" stroke="rgba(var(--ink-rgb),0.35)" stroke-width="3"/>';
   for (var v = 0; v < q.max; v += q.tickStep) {
     var numbered = v % q.labelStep === 0;
     // A slightly longer mark halfway between two numbers, where there is one.

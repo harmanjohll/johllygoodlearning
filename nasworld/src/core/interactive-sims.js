@@ -26,7 +26,7 @@ function renderFractionVisual(container, numerator, denominator, type) {
   } else {
     // Pie chart using conic-gradient
     var deg = (numerator / denominator) * 360;
-    html += '<div class="sim-fraction-pie" style="background:conic-gradient(var(--gold) 0deg ' + deg + 'deg, rgba(255,255,255,0.1) ' + deg + 'deg 360deg)">';
+    html += '<div class="sim-fraction-pie" style="background:conic-gradient(var(--gold) 0deg ' + deg + 'deg, rgba(var(--ink-rgb),0.1) ' + deg + 'deg 360deg)">';
     html += '<div class="sim-fraction-pie-inner">' + numerator + '/' + denominator + '</div>';
     html += '</div>';
     // Denominator lines
@@ -206,7 +206,7 @@ function renderClockFace(container, hours, minutes, interactive) {
     var y1 = 100 + inner * Math.sin(am);
     var x2 = 100 + 92 * Math.cos(am);
     var y2 = 100 + 92 * Math.sin(am);
-    html += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="rgba(255,255,255,0.3)" stroke-width="' + (m % 5 === 0 ? 2 : 1) + '"/>';
+    html += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="rgba(var(--ink-rgb),0.3)" stroke-width="' + (m % 5 === 0 ? 2 : 1) + '"/>';
   }
 
   // Hour hand
@@ -314,13 +314,13 @@ function renderRampSim(container, questionData) {
   html += '<svg viewBox="0 0 300 180" class="sim-ramp-svg" id="ramp-svg">';
 
   // Ground
-  html += '<line x1="0" y1="170" x2="300" y2="170" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>';
+  html += '<line x1="0" y1="170" x2="300" y2="170" stroke="rgba(var(--ink-rgb),0.2)" stroke-width="2"/>';
 
   // Ramp (recalculated on update)
-  html += '<polygon id="ramp-triangle" points="30,170 250,170 250,50" fill="rgba(255,255,255,0.08)" stroke="var(--text-dim)" stroke-width="2"/>';
+  html += '<polygon id="ramp-triangle" points="30,170 250,170 250,50" fill="rgba(var(--ink-rgb),0.08)" stroke="var(--text-dim)" stroke-width="2"/>';
 
   // Object on ramp
-  html += '<rect id="ramp-object" x="120" y="90" width="24" height="24" rx="4" fill="var(--gold)" stroke="rgba(255,215,0,0.5)" stroke-width="1"/>';
+  html += '<rect id="ramp-object" x="120" y="90" width="24" height="24" rx="4" fill="var(--gold)" stroke="rgba(var(--accent-rgb),0.5)" stroke-width="1"/>';
 
   // Force arrows
   html += '<line id="ramp-arrow-push" x1="100" y1="102" x2="120" y2="102" stroke="var(--mint)" stroke-width="3" marker-end="url(#arrowhead)" opacity="0"/>';

@@ -32,8 +32,8 @@ var simBalance = (function() {
             '<g id="balance-bar"><line x1="-140" y1="0" x2="140" y2="0" stroke="#ffd166" stroke-width="6" stroke-linecap="round" />' +
               '<line x1="-140" y1="0" x2="-140" y2="40" stroke="#ffd166" stroke-width="3" />' +
               '<line x1="140" y1="0" x2="140" y2="40" stroke="#ffd166" stroke-width="3" />' +
-              '<ellipse cx="-140" cy="50" rx="50" ry="10" fill="rgba(255,255,255,0.18)" stroke="#ffd166" stroke-width="2" />' +
-              '<ellipse cx="140"  cy="50" rx="50" ry="10" fill="rgba(255,255,255,0.18)" stroke="#ffd166" stroke-width="2" />' +
+              '<ellipse cx="-140" cy="50" rx="50" ry="10" fill="rgba(var(--ink-rgb),0.18)" stroke="#ffd166" stroke-width="2" />' +
+              '<ellipse cx="140"  cy="50" rx="50" ry="10" fill="rgba(var(--ink-rgb),0.18)" stroke="#ffd166" stroke-width="2" />' +
               '<text id="balance-left-emoji"  x="-140" y="35" text-anchor="middle" font-size="32"></text>' +
               '<text id="balance-right-emoji" x="140"  y="35" text-anchor="middle" font-size="32"></text>' +
             '</g>' +

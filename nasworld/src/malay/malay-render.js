@@ -205,7 +205,7 @@ function renderMalayP2Mcq(card, q) {
   var html = '';
 
   if (q.passage) {
-    html += '<div style="text-align:left;background:rgba(255,255,255,0.06);border-radius:12px;padding:12px 14px;margin-bottom:12px">';
+    html += '<div style="text-align:left;background:rgba(var(--ink-rgb),0.06);border-radius:12px;padding:12px 14px;margin-bottom:12px">';
     html += '<div style="font-weight:700;color:var(--gold);margin-bottom:6px">' + _malayP2Esc(q.passage.title) + '</div>';
     html += '<div lang="ms" style="font-size:17px;line-height:1.6">' + _malayP2Esc(q.passage.text) + '</div>';
     html += '</div>';
@@ -234,7 +234,7 @@ function renderMalayP2Mcq(card, q) {
 /** What appears once she has answered: the Malay, then the English. */
 function malayP2RevealHTML(q, ok) {
   var edge = ok ? 'var(--mint)' : 'var(--gold)';
-  var html = '<div id="malay-p2-reveal" style="text-align:left;margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border-left:4px solid ' + edge + '">';
+  var html = '<div id="malay-p2-reveal" style="text-align:left;margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(var(--ink-rgb),0.06);border-left:4px solid ' + edge + '">';
   html += '<div style="font-weight:700;margin-bottom:6px">' +
           (ok ? 'Correct.' : 'The answer is <span lang="ms" style="color:var(--gold)">' + _malayP2Esc(q.answer) + '</span>.') + '</div>';
   if (q.full) {
@@ -292,7 +292,7 @@ function renderMalayP2Order(card, q) {
   _malayP2Q = q;
   q._done = false;
   var html = '<div class="question-text">' + q.instruction + '</div>';
-  html += '<div id="malay-order-result" lang="ms" style="min-height:56px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px;margin:12px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;border:2px dashed rgba(255,255,255,0.15)"></div>';
+  html += '<div id="malay-order-result" lang="ms" style="min-height:56px;padding:12px;background:rgba(var(--ink-rgb),0.05);border-radius:12px;margin:12px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;border:2px dashed rgba(var(--ink-rgb),0.15)"></div>';
   html += '<div id="malay-order-bank" lang="ms" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0;min-height:48px">';
   q.words.forEach(function (w) {
     html += '<button class="answer-btn word-tile" style="font-size:19px;min-width:56px" onclick="malayP2Tile(this)">' + _malayP2Esc(w) + '</button>';

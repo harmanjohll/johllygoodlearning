@@ -11,6 +11,58 @@ progress needs migrating, so the two move independently.
 
 ---
 
+## v4.0 — A New Look (2026-11-15)
+
+### Added
+- **Today comes first.** Home opens on three small things chosen for
+  her, each from a different world: something due for review, something
+  started but not yet secure, something new. A step is ticked when she
+  finishes a session on it. The plan holds for the day. See
+  `src/ui/today.js` for the reasoning.
+- **Four tones**, chosen in Settings: Japandi (the default), Norwegian,
+  Garden island by day, and Night observatory. Each is one neutral ramp
+  and one accent.
+- **A choice of typeface**, in Settings. Titles: Fredoka (default), Zen
+  Maru Gothic, Baloo 2, Fraunces. Reading: Andika (default), Lexend,
+  Atkinson Hyperlegible, Nunito. Andika draws a and g the way she writes
+  them.
+- **One drawn icon set** (`src/ui/icons.js`) for the home screen and top
+  bar, in place of emoji.
+
+### Changed
+- **The whole app runs on theme tokens.** The purple gradients, glass
+  cards, glows, gradient wordmark, starfield and looping sparkle are
+  gone from every screen. `tools/migrate-theme.py` records what was
+  changed mechanically.
+- Home is no longer fifteen equal tiles. After Today come the four
+  worlds, each showing what is next, then everything else as quiet rows.
+  Nothing was removed; Settings moved to the foot of the page.
+- Lumi is flat and is the one bright thing on the screen.
+- **Celebrations mark milestones.** They used to fire at random after a
+  correct answer, and several paid out a random number of stars. Now a
+  run of 5, 10, 15 and 20 correct answers each brings one. The mystery
+  box, star rain, lucky streak, golden question, time warp and shooting
+  star no longer fire.
+
+### Not yet done
+- **Emoji remain below the home screen**: the icon on each of about 80
+  skills, the quest and challenge cards, and inside lessons and games.
+  They need drawing, not swapping, so they are the next design pass.
+- **Copy.** Lumi's lines, the quotes and many lesson strings still shout
+  with exclamation marks. They are content rather than layout and want
+  a careful read, not a search and replace.
+- Colours typed inside scripts for pictures (clock faces, the water
+  cycle, jigsaw scenes) are unchanged on purpose. A few panels that sit
+  on fixed cream paper will look bright in the Night tone.
+- Checked by eye: home in two tones and at phone width, Settings, one
+  world and one question card. The other screens were converted by the
+  same rules and tested, not each inspected.
+
+### Infrastructure
+- 410 tests in eleven suites. The new suite fails if a gradient, glow,
+  literal tint or decorative loop returns to the stylesheets, or if
+  anything after a correct answer is left to chance again.
+
 ## v3.3 — Primary 2 (2026-11-15)
 
 Nas moves up to Primary 2 in January. Until now the app stopped at P1 in

@@ -282,7 +282,7 @@ function renderCodeMCQ(card, q) {
 function renderCodeSequence(card, q) {
   var html = '<div class="question-text">\uD83E\uDD16 Task: ' + q.task + '</div>';
   html += '<div style="font-size:15px;color:var(--text-secondary);margin-bottom:12px">Put these steps in order!</div>';
-  html += '<div id="code-result" style="min-height:48px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px;margin:8px 0;display:flex;flex-direction:column;gap:6px"></div>';
+  html += '<div id="code-result" style="min-height:48px;padding:12px;background:rgba(var(--ink-rgb),0.05);border-radius:12px;margin:8px 0;display:flex;flex-direction:column;gap:6px"></div>';
   html += '<div id="code-bank" style="display:flex;flex-direction:column;gap:6px;margin:8px 0">';
   q.scrambled.forEach(function(step, i) {
     html += '<button class="answer-btn" style="font-size:16px;text-align:left;width:100%" onclick="codeStepClick(this)">' + step + '</button>';
@@ -409,13 +409,13 @@ function renderCodeGrid(card, q) {
     for (var c = 0; c < cols; c++) {
       var cell = q.grid[r][c];
       var content = '';
-      var bg = 'rgba(255,255,255,0.05)';
+      var bg = 'rgba(var(--ink-rgb),0.05)';
 
-      if (cell === 1) { content = '\uD83E\uDDF1'; bg = 'rgba(100,100,100,0.3)'; }
+      if (cell === 1) { content = '\uD83E\uDDF1'; bg = 'rgba(var(--ink-rgb),0.3)'; }
       else if (cell === 2) { content = '\uD83D\uDC8E'; }
-      else if (cell === 3) { content = '\uD83C\uDFC1'; bg = 'rgba(0,255,100,0.1)'; }
+      else if (cell === 3) { content = '\uD83C\uDFC1'; bg = 'rgba(var(--good-rgb),0.1)'; }
 
-      if (r === q.start[0] && c === q.start[1]) { content = '\uD83E\uDD16'; bg = 'rgba(100,200,255,0.15)'; }
+      if (r === q.start[0] && c === q.start[1]) { content = '\uD83E\uDD16'; bg = 'rgba(var(--accent-rgb),0.15)'; }
 
       html += '<div class="grid-cell" id="gc-' + r + '-' + c + '" style="width:' + cellSize + 'px;height:' + cellSize + 'px;background:' + bg + ';display:flex;align-items:center;justify-content:center;font-size:' + Math.floor(cellSize * 0.6) + 'px;border-radius:4px;transition:all 0.3s">' + content + '</div>';
     }
@@ -495,11 +495,11 @@ function gridResetVisuals() {
       if (!cell) continue;
       var v = grid[r][c];
       var content = '';
-      var bg = 'rgba(255,255,255,0.05)';
-      if (v === 1) { content = '\uD83E\uDDF1'; bg = 'rgba(100,100,100,0.3)'; }
+      var bg = 'rgba(var(--ink-rgb),0.05)';
+      if (v === 1) { content = '\uD83E\uDDF1'; bg = 'rgba(var(--ink-rgb),0.3)'; }
       else if (v === 2) { content = '\uD83D\uDC8E'; }
-      else if (v === 3) { content = '\uD83C\uDFC1'; bg = 'rgba(0,255,100,0.1)'; }
-      if (r === start[0] && c === start[1]) { content = '\uD83E\uDD16'; bg = 'rgba(100,200,255,0.15)'; }
+      else if (v === 3) { content = '\uD83C\uDFC1'; bg = 'rgba(var(--good-rgb),0.1)'; }
+      if (r === start[0] && c === start[1]) { content = '\uD83E\uDD16'; bg = 'rgba(var(--accent-rgb),0.15)'; }
       cell.innerHTML = content;
       cell.style.background = bg;
     }
@@ -575,7 +575,7 @@ function gridRunCode() {
     var oldCell = document.getElementById('gc-' + pos.r + '-' + pos.c);
     if (oldCell) {
       oldCell.innerHTML = '';
-      oldCell.style.background = 'rgba(200,255,200,0.08)'; // trail
+      oldCell.style.background = 'rgba(var(--good-rgb),0.08)'; // trail
     }
 
     // Move
@@ -593,7 +593,7 @@ function gridRunCode() {
     var newCell = document.getElementById('gc-' + nr + '-' + nc);
     if (newCell) {
       newCell.innerHTML = '\uD83E\uDD16';
-      newCell.style.background = 'rgba(100,200,255,0.15)';
+      newCell.style.background = 'rgba(var(--accent-rgb),0.15)';
     }
 
     step++;

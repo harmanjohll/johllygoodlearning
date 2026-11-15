@@ -81,25 +81,38 @@ var SURPRISE_EVENTS = [
   }
 ];
 
-// Roll for a surprise after correct answer
+// Celebrations at milestones she can see coming.
+//
+// This used to roll dice after every correct answer: each event had a
+// 3 to 6 percent chance, and several paid out a random number of stars.
+// That is a variable reward schedule, the mechanism a slot machine
+// uses, and it was removed for the same reason as the Daily Lucky Spin
+// (CLAUDE.md 13.1). The celebrations themselves were worth keeping. So
+// now they mark a streak of correct answers, at fixed points, and the
+// ones that were pure gambles (mystery box, star rain, lucky streak,
+// golden question, time warp, shooting star) no longer fire.
+var STREAK_MILESTONES = {
+  5:  function () { triggerLumiDance(); },
+  10: function () { triggerConfettiBurst(); },
+  15: function () { triggerLumiRiddle(); },
+  20: function () { triggerFireworks(); }
+};
+
+function milestoneForStreak(streak) {
+  return STREAK_MILESTONES.hasOwnProperty(streak) ? STREAK_MILESTONES[streak] : null;
+}
+
+// Kept under its old name because the quiz engine calls it after each
+// correct answer. It no longer rolls anything.
 function rollForSurprise() {
-  // Cooldown: at least 60 seconds between surprises
-  if (Date.now() - SURPRISE_COOLDOWN < 60000) return;
-
-  var streak = state.streak || 0;
-  var eligible = SURPRISE_EVENTS.filter(function(e) {
-    return streak >= e.minStreak;
-  });
-
-  for (var i = 0; i < eligible.length; i++) {
-    if (Math.random() < eligible[i].chance) {
-      SURPRISE_COOLDOWN = Date.now();
-      // Delay so it doesn't overlap with answer feedback
-      var evt = eligible[i];
-      setTimeout(function() { evt.fn(); }, 1800);
-      return;
-    }
-  }
+  if ((state.streak || 0) <= 1) SURPRISE_COOLDOWN = 0;   // a fresh run can celebrate again
+  var fn = milestoneForStreak(state.streak || 0);
+  if (!fn) return;
+  // The same streak number must not celebrate twice in a row (for
+  // example after an undo), and never on top of the answer feedback.
+  if (SURPRISE_COOLDOWN === 'streak-' + state.streak) return;
+  SURPRISE_COOLDOWN = 'streak-' + state.streak;
+  setTimeout(fn, 1800);
 }
 
 // === SURPRISE IMPLEMENTATIONS ===
