@@ -26,10 +26,8 @@
       <button class="home-btn" onclick="showScreen('home')">&#11088; Home</button>
     </div>
     <div class="top-bar-right">
-      <div class="level-display"><span>&#127793;</span> <span id="level-text">Sprout</span></div>
       <div class="streak-display"><span>&#128293;</span> <span id="streak-count">0</span></div>
       <div class="token-display"><span class="token-icon">&#11088;</span> <span id="token-count">0</span></div>
-      <div class="trophy-btn" onclick="showScreen('achievements')"><span>&#127942;</span><span class="trophy-count" id="achievement-badge-count">0</span></div>
     </div>
   </div>
 
@@ -38,13 +36,9 @@
 
     <!-- HOME SCREEN -->
     <div class="screen active" id="screen-home">
-      <!-- Filled by renderVersionBanner() from src/core/version.js, which
-           is the single source of truth. Do not hard-code it here again. -->
-      <div class="version-banner" id="version-banner"></div>
 
       <div class="home-hero">
         <h1 class="home-title">Nasworld</h1>
-        <p class="home-subtitle">Anastasia's Learning Universe — Learn, Explore, Master!</p>
       </div>
 
       <!-- Lumi -->
@@ -64,6 +58,9 @@
         <div class="lumi-speech" id="lumi-speech">Welcome to Nasworld! Tap any skill to Learn, flip Flashcards, then take a Quiz!</div>
       </div>
 
+      <!-- Today: the things she can act on today, in one panel -->
+      <section class="today-panel" aria-label="Today">
+        <h3 class="today-panel-title">Today</h3>
       <!-- Word of the Day -->
       <div class="wotd-banner hidden" id="wotd-banner" onclick="claimWotd()">
         <div class="quest-icon">&#128218;</div>
@@ -79,12 +76,7 @@
 
       <!-- Dynamic Quests (Daily + Weekly) -->
       <div id="dynamic-quest-area"></div>
-
-      <!-- Lumi's Star Bridge Story -->
-      <div id="story-progress-area"></div>
-
-      <!-- Achievement Showcase -->
-      <div class="hidden" id="achievement-showcase"></div>
+      </section>
 
       <!-- World Cards -->
       <div class="worlds-grid">
@@ -100,93 +92,45 @@
           <div class="world-card-desc">Discover sounds, build sentences, and grow your story garden!</div>
           <div class="world-card-progress"><div class="world-card-progress-fill" id="word-progress" style="width:0%"></div></div>
         </div>
-        <div class="world-card stem" onclick="showScreen('stem-world')">
-          <span class="world-card-icon">&#128300;</span>
-          <div class="world-card-title">STEM World</div>
-          <div class="world-card-desc">Science experiments, coding adventures, and amazing discoveries!</div>
-          <div class="world-card-progress"><div class="world-card-progress-fill" id="stem-progress" style="width:0%"></div></div>
-        </div>
-
-        <div class="world-card play-tile" onclick="showScreen('play')">
-          <span class="world-card-icon">&#127922;</span>
-          <div class="world-card-title">Play</div>
-          <div class="world-card-desc">Jigsaws, word searches, crosswords and quick brain games.</div>
-        </div>
-
-        <div class="world-card practice-tile" onclick="showScreen('practice')">
-          <span class="world-card-icon">&#127919;</span>
-          <div class="world-card-title">Practice</div>
-          <div class="world-card-desc">Pick exactly what to work on — times tables, adding, story problems.</div>
-        </div>
-
-        <div class="world-card exam-tile-card" onclick="showScreen('exam')">
-          <span class="world-card-icon">&#128221;</span>
-          <div class="world-card-title">Exam Prep</div>
-          <div class="world-card-desc">Practice papers for English, Maths and Bahasa Melayu, marked with reasons.</div>
-        </div>
-
         <div class="world-card malay" onclick="showScreen('malay-world')">
           <span class="world-card-icon">&#127802;</span>
           <div class="world-card-title">Dunia Melayu</div>
           <div class="world-card-desc">Selamat datang! Bahasa Melayu for hawker centres, friends, and stories.</div>
           <div class="world-card-progress"><div class="world-card-progress-fill" id="malay-progress" style="width:0%"></div></div>
         </div>
-
-        <div class="world-card mega" onclick="showScreen('mega-map')">
-          <span class="world-card-icon">&#10024;</span>
-          <div class="world-card-title">Mega Map</div>
-          <div class="world-card-desc">See every world, skill, and real-world adventure light up together.</div>
-          <div class="world-card-progress"><div class="world-card-progress-fill" id="mega-progress" style="width:0%"></div></div>
-        </div>
-
-        <div class="world-card compass" onclick="showScreen('compass')">
-          <span class="world-card-icon">&#129517;</span>
-          <div class="world-card-title">Compass</div>
-          <div class="world-card-desc">Pick your mood and Lumi will plan a tiny session for you.</div>
-        </div>
-
-        <div class="world-card mirror" onclick="showScreen('mirror')">
-          <span class="world-card-icon">&#129683;</span>
-          <div class="world-card-title">Mirror</div>
-          <div class="world-card-desc">The honest story of where you are at — and what is next.</div>
-        </div>
-
-        <div class="world-card strategies" onclick="showScreen('strategies')">
-          <span class="world-card-icon">&#129504;</span>
-          <div class="world-card-title">Smart Tricks</div>
-          <div class="world-card-desc">10 tricks the cleverest learners use. Try one a week.</div>
-        </div>
-
-        <div class="world-card stasha" onclick="showScreen('stasha')">
-          <span class="world-card-icon">&#128091;</span>
-          <div class="world-card-title">Meet Stasha</div>
-          <div class="world-card-desc">Your 3D avatar. Dress her up — earn outfits with stars and streaks.</div>
-        </div>
-
-        <div class="world-card settings-tile" onclick="showScreen('settings')">
-          <span class="world-card-icon">&#9881;&#65039;</span>
-          <div class="world-card-title">Settings</div>
-          <div class="world-card-desc">For grown-ups. Sound, AI question writer, backup.</div>
-        </div>
-
-        <div class="world-card sim-hub" onclick="showScreen('sim-hub')">
+        <div class="world-card stem" onclick="showScreen('stem-world')">
           <span class="world-card-icon">&#128300;</span>
-          <div class="world-card-title">STEM Lab</div>
-          <div class="world-card-desc">9 hands-on experiments: forces, plants, shadows, recycling, floating, balance, magnets, water cycle, and more.</div>
+          <div class="world-card-title">STEM World</div>
+          <div class="world-card-desc">Science experiments, coding adventures, and amazing discoveries!</div>
+          <div class="world-card-progress"><div class="world-card-progress-fill" id="stem-progress" style="width:0%"></div></div>
         </div>
-        <div class="world-card garden" onclick="showScreen('garden')">
+        <div class="world-card play-tile" onclick="showScreen('play')">
+          <span class="world-card-icon">&#127922;</span>
+          <div class="world-card-title">Play</div>
+          <div class="world-card-desc">Jigsaws, word searches, crosswords and quick brain games.</div>
+        </div>
+        <div class="world-card practice-tile" onclick="showScreen('group-practice')">
+          <span class="world-card-icon">&#127919;</span>
+          <div class="world-card-title">Practice and Exams</div>
+          <div class="world-card-desc">Pick what to work on, or sit a practice paper.</div>
+        </div>
+        <div class="world-card garden" onclick="showScreen('group-corner')">
           <span class="world-card-icon">&#127800;</span>
-          <div class="world-card-title">My Garden</div>
-          <div class="world-card-desc">Watch your garden grow with every new thing you learn!</div>
-          <div class="world-card-progress"><div class="world-card-progress-fill" id="garden-progress" style="width:0%"></div></div>
+          <div class="world-card-title">My Corner</div>
+          <div class="world-card-desc">Your garden, Stasha, your trophies and Lumi's story.</div>
+        </div>
+        <div class="world-card mirror" onclick="showScreen('group-learning')">
+          <span class="world-card-icon">&#129517;</span>
+          <div class="world-card-title">My Learning</div>
+          <div class="world-card-desc">Compass, Mirror, Smart Tricks and the Mega Map.</div>
         </div>
       </div>
 
-      <!-- Daily Treats: WotD + IotD + QotD -->
-      <div id="daily-treats-area"></div>
-
-      <!-- Streak Calendar -->
-      <div id="streak-calendar-area"></div>
+      <!-- Idiom, quote and the week, as one strip -->
+      <div class="treats-row">
+        <div id="daily-treats-area"></div>
+        <div id="streak-calendar-area"></div>
+      </div>
 
       <!-- Review Due Banner -->
       <div class="hidden" id="review-due-banner"></div>
@@ -195,12 +139,103 @@
       <div class="challenges-section" id="challenges-section">
         <h3>&#127942; Challenges</h3>
         <div class="challenges-grid" id="challenges-grid"></div>
+        <button type="button" class="challenges-more" id="challenges-more" onclick="toggleAllChallenges()" hidden></button>
       </div>
 
       <!-- Pomodoro + Parent Digest quick actions -->
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:24px">
         <button class="reset-btn" style="border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,0.06)" onclick="startPomodoro(10)">&#9201; 10-min Pomodoro</button>
         <button class="reset-btn" style="border-color:var(--lavender);color:var(--lavender);background:rgba(181,123,255,0.06)" onclick="showScreen('parent-digest')">&#128173; Family Digest</button>
+        <button class="reset-btn" onclick="showScreen('settings')">&#9881;&#65039; Settings</button>
+      </div>
+      <!-- Filled by renderVersionBanner() from src/core/version.js, which
+           is the single source of truth. Do not hard-code it here again. -->
+      <div class="version-banner" id="version-banner"></div>
+    </div>
+
+
+    <!-- &#127919; Practice and Exams: a group of things that used to be separate cards on home -->
+    <div class="screen" id="screen-group-practice">
+      <button class="back-btn" onclick="showScreen('home')">&#8592; Back to Home</button>
+      <div class="activity-header">
+        <h2>&#127919; Practice and Exams</h2>
+        <p>Work on one thing, or sit a whole paper.</p>
+      </div>
+      <div class="worlds-grid">
+        <div class="world-card practice-tile" onclick="showScreen('practice')">
+          <span class="world-card-icon">&#127919;</span>
+          <div class="world-card-title">Practice</div>
+          <div class="world-card-desc">Pick exactly what to work on — times tables, adding, story problems.</div>
+        </div>
+        <div class="world-card exam-tile-card" onclick="showScreen('exam')">
+          <span class="world-card-icon">&#128221;</span>
+          <div class="world-card-title">Exam Prep</div>
+          <div class="world-card-desc">Practice papers for English, Maths and Bahasa Melayu, marked with reasons.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- &#127800; My Corner: a group of things that used to be separate cards on home -->
+    <div class="screen" id="screen-group-corner">
+      <button class="back-btn" onclick="showScreen('home')">&#8592; Back to Home</button>
+      <div class="activity-header">
+        <h2>&#127800; My Corner</h2>
+        <p>Everything that is yours.</p>
+      </div>
+      <div class="corner-stats">
+        <div class="level-display"><span>&#127793;</span> <span id="level-text">Sprout</span></div>
+        <div class="trophy-btn" onclick="showScreen('achievements')"><span>&#127942;</span><span class="trophy-count" id="achievement-badge-count">0</span></div>
+      </div>
+      <div class="worlds-grid">
+        <div class="world-card garden" onclick="showScreen('garden')">
+          <span class="world-card-icon">&#127800;</span>
+          <div class="world-card-title">My Garden</div>
+          <div class="world-card-desc">Watch your garden grow with every new thing you learn!</div>
+          <div class="world-card-progress"><div class="world-card-progress-fill" id="garden-progress" style="width:0%"></div></div>
+        </div>
+        <div class="world-card stasha" onclick="showScreen('stasha')">
+          <span class="world-card-icon">&#128091;</span>
+          <div class="world-card-title">Meet Stasha</div>
+          <div class="world-card-desc">Your 3D avatar. Dress her up — earn outfits with stars and streaks.</div>
+        </div>
+      </div>
+      <!-- Lumi's Star Bridge Story -->
+      <div id="story-progress-area"></div>
+
+      <!-- Achievement Showcase -->
+      <div class="hidden" id="achievement-showcase"></div>
+
+    </div>
+
+    <!-- &#129517; My Learning: a group of things that used to be separate cards on home -->
+    <div class="screen" id="screen-group-learning">
+      <button class="back-btn" onclick="showScreen('home')">&#8592; Back to Home</button>
+      <div class="activity-header">
+        <h2>&#129517; My Learning</h2>
+        <p>How you are doing, and how to learn well.</p>
+      </div>
+      <div class="worlds-grid">
+        <div class="world-card compass" onclick="showScreen('compass')">
+          <span class="world-card-icon">&#129517;</span>
+          <div class="world-card-title">Compass</div>
+          <div class="world-card-desc">Pick your mood and Lumi will plan a tiny session for you.</div>
+        </div>
+        <div class="world-card mirror" onclick="showScreen('mirror')">
+          <span class="world-card-icon">&#129683;</span>
+          <div class="world-card-title">Mirror</div>
+          <div class="world-card-desc">The honest story of where you are at — and what is next.</div>
+        </div>
+        <div class="world-card strategies" onclick="showScreen('strategies')">
+          <span class="world-card-icon">&#129504;</span>
+          <div class="world-card-title">Smart Tricks</div>
+          <div class="world-card-desc">10 tricks the cleverest learners use. Try one a week.</div>
+        </div>
+        <div class="world-card mega" onclick="showScreen('mega-map')">
+          <span class="world-card-icon">&#10024;</span>
+          <div class="world-card-title">Mega Map</div>
+          <div class="world-card-desc">See every world, skill, and real-world adventure light up together.</div>
+          <div class="world-card-progress"><div class="world-card-progress-fill" id="mega-progress" style="width:0%"></div></div>
+        </div>
       </div>
     </div>
 
@@ -230,6 +265,14 @@
       <div class="activity-header">
         <h2>&#128300; STEM World</h2>
         <p>Explore science and coding!</p>
+      </div>
+      <!-- The STEM Lab used to be its own card on home -->
+      <div class="worlds-grid stem-lab-door">
+        <div class="world-card sim-hub" onclick="showScreen('sim-hub')">
+          <span class="world-card-icon">&#128300;</span>
+          <div class="world-card-title">STEM Lab</div>
+          <div class="world-card-desc">9 hands-on experiments: forces, plants, shadows, recycling, floating, balance, magnets, water cycle, and more.</div>
+        </div>
       </div>
       <div id="stem-activities"></div>
     </div>

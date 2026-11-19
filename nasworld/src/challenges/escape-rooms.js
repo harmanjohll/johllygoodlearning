@@ -107,7 +107,7 @@ function renderEscapeRoomCards(flowerCount) {
     var completed = state.escapeRooms && state.escapeRooms[room.id];
     var bestTime = completed ? state.escapeRooms[room.id].bestTime : null;
 
-    html += '<div class="activity-card ' + (unlocked ? '' : 'locked') + '" ' +
+    html += '<div class="activity-card ' + (unlocked ? '' : 'locked') + '" data-need="' + room.unlockFlowers + '" data-done="' + (completed ? 1 : 0) + '" ' +
       (unlocked ? 'onclick="startEscapeRoom(\'' + room.id + '\')"' : '') + '>';
     html += '<span class="activity-card-icon">' + room.icon + '</span>';
     html += '<div class="activity-card-name">' + room.name + '</div>';

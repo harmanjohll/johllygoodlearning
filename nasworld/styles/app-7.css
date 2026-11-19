@@ -94,3 +94,33 @@ button { font-family: inherit; }
 
 @media (max-width: 420px) { .look-choices { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+
+/* ============================================================
+   Streamlined home (v4.4). Same layout, fewer separate pieces:
+   eight world cards, one Today panel, the next three challenges.
+   ============================================================ */
+.today-panel { background: var(--bg-card); border: 1px solid rgba(var(--ink-rgb),0.10); border-radius: var(--radius-lg); padding: 12px 16px 4px; margin: 0 0 24px; box-shadow: var(--shadow-card); }
+.today-panel-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 4px 0 4px; text-align: left; }
+/* Inside the panel the rows lose their own boxes and become lines. */
+.today-panel .wotd-banner, .today-panel .daily-seed-banner, .today-panel .quest-banner, .today-panel .dynamic-quest, .today-panel #dynamic-quest-area > * {
+  background: none; border: 0; border-top: 1px solid rgba(var(--ink-rgb),0.08); border-radius: 0; box-shadow: none; margin: 0; padding: 12px 0; }
+.today-panel .today-panel-title + * { border-top: 0; }
+.today-panel #daily-seed-area:empty, .today-panel #dynamic-quest-area:empty { display: none; }
+
+.challenges-more { display: block; margin: 12px auto 0; min-height: 44px; padding: 0 20px; background: none; border: 1px solid rgba(var(--ink-rgb),0.16);
+  border-radius: var(--radius-md); color: var(--text-secondary); font: 500 15px var(--font-display); cursor: pointer; }
+.challenges-more:hover { background: var(--bg-card); color: var(--text-primary); }
+[hidden] { display: none !important; }
+
+.corner-stats { display: flex; justify-content: center; gap: 12px; margin: 0 0 20px; }
+.stem-lab-door { margin-bottom: 24px; }
+.stem-lab-door .world-card { grid-column: 1 / -1; padding-top: 20px; padding-bottom: 20px; }
+.version-banner { margin: 24px auto 0; max-width: max-content; padding: 6px 16px; font-size: 13px; font-weight: 400; background: none; color: var(--text-dim); }
+.home-hero { margin-top: 8px; }
+
+.treats-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px; align-items: stretch; margin-top: 24px; }
+.treats-row > * { margin: 0; }
+.treats-row .daily-treats { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; height: 100%; }
+.treats-row #streak-calendar-area > * { margin: 0; height: 100%; }
+#screen-group-corner #story-progress-area { margin-top: 20px; }
+@media (max-width: 640px) { .treats-row { grid-template-columns: minmax(0, 1fr); } }

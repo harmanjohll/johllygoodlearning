@@ -80,13 +80,22 @@ ok('Look: four colour schemes and four faces for each role', run('LOOK_TONES.len
 // ---- The original layout, on the new canvas ----
 {
   const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
-  const home = html.slice(html.indexOf('id="screen-home"'), html.indexOf('<!-- MATH WORLD SCREEN'));
-  const tiles = ['math-world', 'word-world', 'stem-world', 'play', 'practice', 'exam', 'malay-world', 'mega-map', 'compass', 'mirror', 'strategies', 'stasha', 'settings', 'sim-hub', 'garden'];
-  const missing = tiles.filter(t => home.indexOf("showScreen('" + t + "')") === -1);
-  ok('Home: all fifteen original world cards are there', missing.length === 0 && (home.match(/class="world-card /g) || []).length === 15, missing.join(', '));
-  ok('Home: the original order holds: Lumi, daily rows, world cards, treats, challenges',
-     home.indexOf('class="lumi-container"') < home.indexOf('id="dynamic-quest-area"') && home.indexOf('id="dynamic-quest-area"') < home.indexOf('class="worlds-grid"') &&
+  const home = html.slice(html.indexOf('id="screen-home"'), html.indexOf('id="screen-group-practice"'));
+  const onHome = ['math-world', 'word-world', 'malay-world', 'stem-world', 'play', 'group-practice', 'group-corner', 'group-learning'];
+  const missing = onHome.filter(t => home.indexOf("showScreen('" + t + "')") === -1);
+  ok('Home: eight world cards, the four subjects first', missing.length === 0 && (home.match(/class="world-card /g) || []).length === 8 &&
+     home.indexOf("showScreen('math-world')") < home.indexOf("showScreen('play')"), missing.join(', '));
+  // Consolidating must not lose anything: every place that had a card is still reachable.
+  const everywhere = ['practice', 'exam', 'garden', 'stasha', 'compass', 'mirror', 'strategies', 'mega-map', 'sim-hub', 'settings', 'achievements', 'parent-digest'];
+  const lost = everywhere.filter(t => html.indexOf("showScreen('" + t + "')") === -1);
+  ok('Home: nothing was lost in the consolidation', lost.length === 0, lost.join(', '));
+  ok('Home: each group card opens a screen that exists', ['group-practice', 'group-corner', 'group-learning'].every(g => html.indexOf('id="screen-' + g + '"') !== -1));
+  ok('Home: every id the page scripts write to still exists exactly once', ['level-text', 'achievement-badge-count', 'streak-count', 'token-count', 'garden-progress', 'mega-progress', 'math-progress', 'word-progress', 'stem-progress', 'malay-progress', 'story-progress-area', 'achievement-showcase', 'dynamic-quest-area', 'wotd-banner', 'daily-seed-area', 'daily-treats-area', 'streak-calendar-area', 'challenges-grid', 'version-banner', 'lumi-speech'].every(id => html.split('id="' + id + '"').length === 2));
+  ok('Home: the order is Lumi, the Today panel, the world cards, treats, challenges',
+     home.indexOf('class="lumi-container"') < home.indexOf('class="today-panel"') && home.indexOf('class="today-panel"') < home.indexOf('class="worlds-grid"') &&
      home.indexOf('class="worlds-grid"') < home.indexOf('id="daily-treats-area"') && home.indexOf('id="daily-treats-area"') < home.indexOf('id="challenges-grid"'));
+  ok('Home: word of the day appears once', code.indexOf('Word of the Day \' + ttsB') === -1 && home.split('id="wotd-banner"').length === 2);
+  ok('Challenges: open and unfinished first, then the nearest lock, then finished', run('challengeRank(true, false, 20) < challengeRank(false, false, 3) && challengeRank(false, false, 3) < challengeRank(false, false, 8) && challengeRank(false, false, 99) < challengeRank(true, true, 1)'));
   ok('Home: the seed sits where the spin was', home.indexOf('id="daily-seed-area"') > 0 && home.indexOf('daily-spin-area') === -1);
   ok('Home: the Home button is the plain original', /class="home-btn" onclick="showScreen\('home'\)"/.test(html));
   ok('Removed: the book and Today modules are gone, not left as dead code', ['book', 'book-scenes', 'today', 'icons'].every(f => !fs.existsSync(__dirname + '/../src/ui/' + f + '.js') && html.indexOf('src/ui/' + f + '.js') === -1));

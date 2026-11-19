@@ -147,7 +147,9 @@ function updateHomeUI() {
   updateChallengesSection();
 }
 
-// === DAILY TREATS — WotD, IotD, QotD as a trio ===
+// === DAILY TREATS — idiom and quote of the day ===
+// Word of the day used to be here as well as in its own row above. It
+// now appears once, in the Today panel.
 function updateDailyTreats() {
   var host = document.getElementById('daily-treats-area');
   if (!host) return;
@@ -157,14 +159,6 @@ function updateDailyTreats() {
 
   var html = '<div class="daily-treats">';
   var ttsB = (typeof ttsButton === 'function') ? ttsButton : function(){return '';};
-  if (wotd) {
-    html += '<div class="treat-card" onclick="claimWotd()">' +
-      '<div class="treat-card-label">📚 Word of the Day ' + ttsB(wotd.word + '. ' + wotd.def + '. Example: ' + wotd.sentence, 'en-US', 'Hear word') + '</div>' +
-      '<div class="treat-card-headline">' + wotd.word + '</div>' +
-      '<div class="treat-card-sub">' + wotd.def + '</div>' +
-      '<div class="treat-card-extra">' + wotd.sentence + '</div>' +
-    '</div>';
-  }
   if (iotd) {
     html += '<div class="treat-card">' +
       '<div class="treat-card-label">💬 Idiom of the Day ' + ttsB(iotd.idiom + '. It means: ' + iotd.meaning + '. Example: ' + iotd.example, 'en-US', 'Hear idiom') + '</div>' +
@@ -251,7 +245,40 @@ function updateChallengesSection() {
   if (html) {
     grid.innerHTML = html;
     section.classList.remove('hidden');
+    trimChallenges();
   } else {
     section.classList.add('hidden');
   }
+}
+
+// Twelve challenge cards, all locked for a new learner, read as a wall.
+// Show the three that matter now: ones she can play and has not finished
+// come first, then the ones she is closest to unlocking. The rest sit
+// behind "See all challenges".
+var homeShowAllChallenges = false;
+
+/** Order for showing: open and unfinished, then nearest lock, then finished. */
+function challengeRank(unlocked, done, need) {
+  return (unlocked && !done ? 0 : !unlocked ? 1 : 2) * 1000 + need;
+}
+
+function trimChallenges() {
+  var grid = document.getElementById('challenges-grid');
+  var more = document.getElementById('challenges-more');
+  if (!grid || !grid.children) return;
+  var cards = Array.prototype.slice.call(grid.children);
+  cards.sort(function (a, b) {
+    function r(c) { return challengeRank(!c.classList.contains('locked'), c.getAttribute('data-done') === '1', +c.getAttribute('data-need') || 0); }
+    return r(a) - r(b);
+  });
+  cards.forEach(function (c, i) { grid.appendChild(c); c.hidden = !homeShowAllChallenges && i >= 3; });
+  if (more) {
+    more.hidden = cards.length <= 3;
+    more.textContent = homeShowAllChallenges ? 'Show fewer' : 'See all ' + cards.length + ' challenges';
+  }
+}
+
+function toggleAllChallenges() {
+  homeShowAllChallenges = !homeShowAllChallenges;
+  trimChallenges();
 }
