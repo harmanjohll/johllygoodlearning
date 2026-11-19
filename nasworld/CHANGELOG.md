@@ -47,7 +47,7 @@ a blend). None was liked. This release stops moving the furniture.
   the card's contents. A test now fails if any overlay does this.
 
 ### Infrastructure
-- 406 tests in eleven suites.
+- 405 tests in eleven suites.
 
 ## v4.2 — Cards and Maps (2026-11-15)
 
