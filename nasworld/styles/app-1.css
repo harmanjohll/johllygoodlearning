@@ -7,8 +7,8 @@
    ============================================================ */
 
 :root {
-  /* ---- Theme tokens. Default tone: Japandi. The other tones redefine
-     these in app-7.css under :root[data-tone="..."]. Everything in the
+  /* ---- Theme tokens. Default scheme: Oat and indigo (Japandi). The
+     other schemes redefine these in app-7.css under :root[data-tone]. Everything in the
      app draws from them; no rule should use a literal colour. ---- */
   --bg-deep: #efebe3;            /* page */
   --bg-mid: #e4ddd1;             /* raised: inputs, wells, active rows */
@@ -22,19 +22,20 @@
   --accent: #2f4b6e;             /* the one accent: next action, selection, done */
   --accent-rgb: 47,75,110;
   --on-accent: #ffffff;
-  --good: #2f6b3c;  --good-rgb: 47,107,60;
-  --bad: #b3372f;   --bad-rgb: 179,55,47;
+  --good: #47703f;  --good-rgb: 71,112,63;
+  --bad: #a8472f;   --bad-rgb: 168,71,47;
   --warn: #8f5410;
   --lumi: #f4c542;               /* Lumi is the one bright thing on a screen */
 
-  /* Old palette names, kept so existing rules keep working. They all
-     resolve to the single accent or a semantic colour now. */
-  --gold: var(--accent);      --gold-soft: var(--text-secondary);
-  --lavender: var(--accent);  --lavender-soft: var(--text-secondary);
-  --sky: var(--accent);       --sky-soft: var(--text-secondary);
-  --teal: var(--accent);      --pink: var(--accent);
-  --mint: var(--good);        --mint-soft: var(--text-secondary);
-  --coral: var(--bad);        --coral-soft: var(--text-secondary);
+  /* The soft palette. The original gave each world its own colour; these
+     are the same names, muted to sit on paper. Each is dark enough to
+     be read as text on the page and to carry white text as a fill. */
+  --gold: #8a651a;      --gold-soft: var(--text-secondary);
+  --lavender: #6b5784;  --lavender-soft: var(--text-secondary);
+  --sky: #2f6187;       --sky-soft: var(--text-secondary);
+  --teal: #2c6f6a;      --pink: #a04a63;
+  --mint: var(--good);  --mint-soft: var(--text-secondary);
+  --coral: var(--bad);  --coral-soft: var(--text-secondary);
   --success: var(--good);     --error: var(--bad);   --warning: var(--warn);
 
   --radius-sm: 8px;
@@ -333,11 +334,9 @@ body {
   position: relative;
   overflow: hidden;
 }
-.world-card::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: var(--bg-card);
-}
+/* This was a faint gradient wash over the card. With gradients gone it
+   became a solid sheet that hid the card's contents, so it is off. */
+.world-card::before { content: none; }
 .world-card:hover {
   transform: translateY(-8px) scale(1.02);
   border-color: rgba(var(--accent-rgb),0.5);

@@ -1,6 +1,6 @@
-// The look (tones and typefaces), the Today plan, the daily seed and the
-// streak milestones. These replaced a purple theme, a fifteen-tile home,
-// a lucky spin and random prizes, so the tests pin down the parts that
+// The look (colour schemes and typefaces), the original layout, the daily
+// seed and the streak milestones. These replaced a purple theme, a lucky
+// spin and random prizes, so the tests pin down the parts that
 // must not drift back: nothing left to chance, and no literal colours
 // creeping into the stylesheets again.
 const fs = require('fs');
@@ -44,13 +44,13 @@ const run = (c) => vm.runInContext(c, sandbox);
 const styles = [1, 2, 3, 4, 5, 6, 7].map(i => fs.readFileSync(__dirname + '/../styles/app-' + i + '.css', 'utf8'));
 
 // ---- Look ----
-ok('Look: default is Japandi, Fredoka, Andika', run('state.settings = {}; JSON.stringify(getLook())') === '{"tone":"japandi","titleFont":"Fredoka","readFont":"Andika"}');
-ok('Look: an unknown saved value falls back to the default', run('state.settings = { tone: "neon", titleFont: "Comic", readFont: 7 }; getLook().tone + getLook().titleFont + getLook().readFont') === 'japandiFredokaAndika');
-ok('Look: four tones and four faces for each role', run('LOOK_TONES.length === 4 && LOOK_TITLE_FONTS.length === 4 && LOOK_READ_FONTS.length === 4'));
+ok('Look: default is Oat and indigo, Fredoka, Andika', run('state.settings = {}; JSON.stringify(getLook())') === '{"tone":"oat","titleFont":"Fredoka","readFont":"Andika"}');
+ok('Look: an unknown saved value falls back to the default', run('state.settings = { tone: "neon", titleFont: "Comic", readFont: 7 }; getLook().tone + getLook().titleFont + getLook().readFont') === 'oatFredokaAndika');
+ok('Look: four colour schemes and four faces for each role', run('LOOK_TONES.length === 4 && LOOK_TITLE_FONTS.length === 4 && LOOK_READ_FONTS.length === 4'));
 {
-  const tones = run('LOOK_TONES.map(function (t) { return t.id; })').filter(t => t !== 'japandi');
+  const tones = run('LOOK_TONES.map(function (t) { return t.id; })').filter(t => t !== 'oat');
   const missing = tones.filter(t => styles[6].indexOf(':root[data-tone="' + t + '"]') === -1);
-  ok('Look: every tone offered in Settings is defined in app-7.css', missing.length === 0, missing.join(', '));
+  ok('Look: every scheme offered in Settings is defined in app-7.css', missing.length === 0, missing.join(', '));
   const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
   const fonts = run('LOOK_TITLE_FONTS.concat(LOOK_READ_FONTS).map(function (f) { return f.id; })');
   const unloaded = fonts.filter(f => html.indexOf('family=' + f.replace(/ /g, '+')) === -1 && html.indexOf('&family=' + f.replace(/ /g, '+')) === -1);
@@ -63,6 +63,11 @@ ok('Look: four tones and four faces for each role', run('LOOK_TONES.length === 4
   // Avatar backdrops are pictures, not chrome.
   const chrome = all.split('\n').filter(l => l.indexOf('.stasha-stage.bg-') === -1).join('\n');
   ok('Styles: no gradients in the chrome', !/gradient\(/.test(chrome), (chrome.match(/[^\n]*gradient\([^\n]*/) || [''])[0].slice(0, 90));
+  // A full-size ::before or ::after with a solid fill sits on top of its
+  // element and hides what is inside. This happened to the world cards.
+  const sheets = [...all.matchAll(/([^{}]*::?(?:before|after)[^{}]*)\{([^{}]*)\}/g)]
+    .filter(m => /inset:\s*0\b/.test(m[2]) && /background:\s*var\(--(bg-card|bg-deep|bg-mid|accent)\)/.test(m[2])).map(m => m[1].trim());
+  ok('Styles: no solid overlay covers a card', sheets.length === 0, sheets.join(' | '));
   ok('Styles: no text-shadow or backdrop blur', !/text-shadow|backdrop-filter/.test(all));
   ok('Styles: no glow shadows', !/box-shadow:[^;]*(?<!0 )\b0 0 [1-9]\d*px/.test(all));  // a blur with no offset; "0 0 0 2px" is a ring, not a glow
   ok('Styles: no uppercase tracked labels survive', /\[class\] \{ text-transform: none; letter-spacing: 0; \}/.test(styles[6]));
@@ -72,55 +77,19 @@ ok('Look: four tones and four faces for each role', run('LOOK_TONES.length === 4
   ok('Styles: tints come from tokens, not literal rgba', rgbaLit === 0, rgbaLit + ' literal rgba');
 }
 
-// ---- Icons ----
+// ---- The original layout, on the new canvas ----
 {
   const html = fs.readFileSync(__dirname + '/../index.html', 'utf8');
-  const used = [...html.matchAll(/data-icon="([a-z]+)"/g)].map(m => m[1]);
-  const unknown = [...new Set(used)].filter(n => !run('icon("' + n + '")'));
-  ok('Icons: every icon named in index.html is drawn', used.length > 15 && unknown.length === 0, unknown.join(', '));
   const home = html.slice(html.indexOf('id="screen-home"'), html.indexOf('<!-- MATH WORLD SCREEN'));
-  ok('Home: no emoji and no exclamation marks in the markup', !/&#1\d{5};|[\u{1F300}-\u{1FAFF}]/u.test(home) && home.replace(/<!--[\s\S]*?-->/g, '').indexOf('!') === -1);
-  ok('Home: Today has its own page in the book, and a ribbon to reach it', home.indexOf('data-view="today"') > 0 && home.indexOf('id="book-ribbon"') > 0);
-}
-
-// ---- Today ----
-{
-  run('state.skills = {}; delete state.today;');
-  const plan = run('JSON.stringify(getTodayPlan().steps)');
-  const steps = JSON.parse(plan);
-  ok('Today: three steps for a new learner', steps.length === 3, plan);
-  ok('Today: each step is from a different world', new Set(steps.map(s => s.world)).size === steps.length, plan);
-  ok('Today: the plan does not reshuffle within the day', run('JSON.stringify(getTodayPlan().steps)') === plan);
-  ok('Today: never offers a skill she cannot open', steps.every(s => run('isSkillUnlocked((MATH_TREE["' + s.id + '"] || WORD_TREE["' + s.id + '"] || MALAY_TREE["' + s.id + '"] || STEM_TREE["' + s.id + '"]))')), plan);
-  ok('Today: never offers unreviewed Malay', run('getTodayPlan().steps.every(function (s) { return !(MALAY_TREE[s.id] && MALAY_TREE[s.id].awaitingReview); })'));
-  run('todayMarkDone("' + steps[0].id + '")');
-  ok('Today: finishing a session ticks its step, and only that step', run('getTodayPlan().steps.filter(function (s) { return s.done; }).length') === 1);
-  run('state.today.date = "Thu Jan 01 2026";');
-  ok('Today: a new day gets a new plan with nothing ticked', run('getTodayPlan().steps.every(function (s) { return !s.done; }) && state.today.date === new Date().toDateString()'));
-  // Something started and weak should come before something brand new.
-  run('state.skills = {}; delete state.today; getSkillState("add").totalAttempts = 20; getSkillState("add").mastery = 30;');
-  ok('Today: a weak skill she has started is chosen for its world', run('getTodayPlan().steps.some(function (s) { return s.id === "add"; })'), run('JSON.stringify(getTodayPlan().steps)'));
-  run('state.skills = {}; delete state.today;');
-}
-
-// ---- The book ----
-{
-  run('state.skills = {};');
-  const chapters = run('BOOK_CHAPTERS.map(function (c) { return c.id; }).join(",")');
-  ok('Book: four chapters, one per world', chapters === 'math,word,malay,stem');
-  // Every skill in every tree must be a stop somewhere, exactly once.
-  const lost = run('(function () { var bad = []; BOOK_CHAPTERS.forEach(function (c) { var seen = {}; bookParts(c).forEach(function (p) { p.stops.forEach(function (s) { seen[s.id] = (seen[s.id] || 0) + 1; }); }); Object.keys(c.tree()).forEach(function (id) { if (seen[id] !== 1) bad.push(id); }); }); return bad.join(","); })()');
-  ok('Book: every skill is a stop on exactly one map', lost === '', lost);
-  const off = run('(function () { var bad = 0; for (var n = 1; n <= 20; n++) bookPathPoints(n).forEach(function (p) { if (!(p.x >= 12 && p.x <= 88 && p.y >= 8 && p.y <= 92)) bad++; }); return bad; })()');
-  ok('Book: stops stay inside the picture for any number of stops', off === 0, off + ' off the page');
-  ok('Book: the path climbs from the bottom of the picture to the top', run('(function () { var p = bookPathPoints(9); for (var i = 1; i < p.length; i++) if (p[i].y >= p[i - 1].y) return false; return true; })()'));
-  ok('Book: a new learner starts at the first stop of Part 1', run('bookNextStop(bookParts(BOOK_CHAPTERS[0])[0].stops)') === run('Object.keys(MATH_TREE)[0]'));
-  run('getSkillState("count").mastery = 90; getSkillState("count").totalAttempts = 20;');
-  ok('Book: a finished stop is marked done and Lumi moves on', run('bookStopStatus(MATH_TREE.count)') === 'done' && run('bookNextStop(bookParts(BOOK_CHAPTERS[0])[0].stops)') !== 'count');
-  ok('Book: unreviewed Malay shows as being checked, not open', run('bookStopStatus(MALAY_TREE.imbuhan)') === 'checking');
-  ok('Book: every chapter and the cover has a picture', run('["cover","math","word","malay","stem"].every(function (id) { return bookScene(id).length > 500; })'));
-  ok('Book: every page it can turn to exists in the markup', run('BOOK_ORDER.join(",")').split(',').every(v => ['contents', 'math', 'word', 'malay', 'stem'].indexOf(v) !== -1 || fs.readFileSync(__dirname + '/../index.html', 'utf8').indexOf('data-view="' + v + '"') !== -1));
-  run('state.skills = {};');
+  const tiles = ['math-world', 'word-world', 'stem-world', 'play', 'practice', 'exam', 'malay-world', 'mega-map', 'compass', 'mirror', 'strategies', 'stasha', 'settings', 'sim-hub', 'garden'];
+  const missing = tiles.filter(t => home.indexOf("showScreen('" + t + "')") === -1);
+  ok('Home: all fifteen original world cards are there', missing.length === 0 && (home.match(/class="world-card /g) || []).length === 15, missing.join(', '));
+  ok('Home: the original order holds: Lumi, daily rows, world cards, treats, challenges',
+     home.indexOf('class="lumi-container"') < home.indexOf('id="dynamic-quest-area"') && home.indexOf('id="dynamic-quest-area"') < home.indexOf('class="worlds-grid"') &&
+     home.indexOf('class="worlds-grid"') < home.indexOf('id="daily-treats-area"') && home.indexOf('id="daily-treats-area"') < home.indexOf('id="challenges-grid"'));
+  ok('Home: the seed sits where the spin was', home.indexOf('id="daily-seed-area"') > 0 && home.indexOf('daily-spin-area') === -1);
+  ok('Home: the Home button is the plain original', /class="home-btn" onclick="showScreen\('home'\)"/.test(html));
+  ok('Removed: the book and Today modules are gone, not left as dead code', ['book', 'book-scenes', 'today', 'icons'].every(f => !fs.existsSync(__dirname + '/../src/ui/' + f + '.js') && html.indexOf('src/ui/' + f + '.js') === -1));
 }
 
 // ---- Daily seed ----

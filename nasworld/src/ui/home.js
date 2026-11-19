@@ -78,10 +78,6 @@ function updateHomeUI() {
   const gardenPct = Math.min(100, (state.garden.length / 50) * 100);
   document.getElementById('garden-progress').style.width = gardenPct + '%';
 
-  // Today first, then the hint under each world door.
-  if (typeof renderToday === 'function') renderToday();
-  if (typeof bookRender === 'function') bookRender();
-
   // Today's seed: a fixed reward, earned by finishing one activity.
   if (typeof renderDailySeed === 'function') renderDailySeed();
 

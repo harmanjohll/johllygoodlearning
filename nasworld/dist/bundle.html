@@ -16,13 +16,13 @@
   <!-- TOP BAR -->
   <div class="top-bar">
     <div class="top-bar-left">
-      <button class="home-btn" onclick="showScreen('home')"><span data-icon="home"></span>Home</button>
+      <button class="home-btn" onclick="showScreen('home')">&#11088; Home</button>
     </div>
     <div class="top-bar-right">
-      <div class="level-display"><span id="level-text">Sprout</span></div>
-      <div class="streak-display" title="Days in a row"><span data-icon="sun"></span><span id="streak-count">0</span></div>
-      <div class="token-display" title="Stars"><span data-icon="star"></span><span id="token-count">0</span></div>
-      <button class="trophy-btn" onclick="showScreen('achievements')" title="Achievements"><span data-icon="trophy"></span><span class="trophy-count" id="achievement-badge-count">0</span></button>
+      <div class="level-display"><span>&#127793;</span> <span id="level-text">Sprout</span></div>
+      <div class="streak-display"><span>&#128293;</span> <span id="streak-count">0</span></div>
+      <div class="token-display"><span class="token-icon">&#11088;</span> <span id="token-count">0</span></div>
+      <div class="trophy-btn" onclick="showScreen('achievements')"><span>&#127942;</span><span class="trophy-count" id="achievement-badge-count">0</span></div>
     </div>
   </div>
 
@@ -30,133 +30,171 @@
   <div class="main-content">
 
     <!-- HOME SCREEN -->
-    <!-- Home is a book. src/ui/book.js draws the cover, the contents page
-         and each chapter's map into #book-page. The four .book-static
-         blocks are pages whose content already lived in this file; the
-         book shows one at a time. -->
     <div class="screen active" id="screen-home">
-      <div class="book" id="book" data-view="cover">
-        <button type="button" class="book-ribbon" id="book-ribbon" onclick="bookGo('today')" hidden><span>Today</span></button>
+      <!-- Filled by renderVersionBanner() from src/core/version.js, which
+           is the single source of truth. Do not hard-code it here again. -->
+      <div class="version-banner" id="version-banner"></div>
 
-        <div id="book-page"></div>
-
-        <!-- Today's page -->
-        <div class="book-static book-leaf" data-view="today" hidden>
-          <div class="lumi-container">
-            <div class="lumi" onclick="lumiSpeak()">
-              <span class="lumi-sparkle"></span>
-              <span class="lumi-sparkle"></span>
-              <span class="lumi-sparkle"></span>
-              <div class="lumi-body">
-                <div class="lumi-eye left"></div>
-                <div class="lumi-eye right"></div>
-                <div class="lumi-mouth"></div>
-                <div class="lumi-blush left"></div>
-                <div class="lumi-blush right"></div>
-              </div>
-            </div>
-            <div class="lumi-speech" id="lumi-speech">Tap a step to begin</div>
-          </div>
-          <div id="today-area"></div>
-          <div class="hidden" id="review-due-banner"></div>
-          <div id="daily-seed-area"></div>
-        </div>
-
-        <!-- Chapter 5: The Playground -->
-        <div class="book-static book-leaf" data-view="play" hidden>
-          <div class="more-list">
-          <button type="button" class="more-row" onclick="showScreen('play')">
-            <span class="more-ico" data-icon="play"></span>
-            <span class="more-text"><span class="more-title">Play</span><span class="more-desc">Jigsaws, word searches and brain games</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('sim-hub')">
-            <span class="more-ico" data-icon="lab"></span>
-            <span class="more-text"><span class="more-title">STEM Lab</span><span class="more-desc">Nine hands-on experiments</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('practice')">
-            <span class="more-ico" data-icon="practice"></span>
-            <span class="more-text"><span class="more-title">Practice</span><span class="more-desc">Pick exactly what to work on</span></span>
-          </button>
-          </div>
-          <div class="challenges-section" id="challenges-section">
-            <h2 class="home-section">Challenges</h2>
-            <div class="challenges-grid" id="challenges-grid"></div>
-          </div>
-        </div>
-
-        <!-- The Notice Board -->
-        <div class="book-static book-leaf" data-view="board" hidden>
-          <div class="wotd-banner hidden" id="wotd-banner" onclick="claimWotd()">
-            <div class="quest-icon" data-icon="word"></div>
-            <div class="quest-text">
-              <div class="wotd-word" id="wotd-word"></div>
-              <div class="wotd-def" id="wotd-def"></div>
-            </div>
-            <div class="quest-progress" id="wotd-status">+3 stars</div>
-          </div>
-          <div id="dynamic-quest-area"></div>
-          <div id="story-progress-area"></div>
-          <div class="hidden" id="achievement-showcase"></div>
-          <div id="daily-treats-area"></div>
-          <div id="streak-calendar-area"></div>
-        </div>
-
-        <!-- At the back of the book -->
-        <div class="book-static book-leaf" data-view="back" hidden>
-          <div class="more-list">
-          <button type="button" class="more-row" onclick="showScreen('garden')">
-            <span class="more-ico" data-icon="garden"></span>
-            <span class="more-text"><span class="more-title">My Garden</span><span class="more-desc">It grows with every new thing you learn</span></span>
-            <span class="more-bar"><span class="more-bar-fill" id="garden-progress" style="width:0%"></span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('stasha')">
-            <span class="more-ico" data-icon="stasha"></span>
-            <span class="more-text"><span class="more-title">Meet Stasha</span><span class="more-desc">Dress up your avatar</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('mirror')">
-            <span class="more-ico" data-icon="mirror"></span>
-            <span class="more-text"><span class="more-title">Mirror</span><span class="more-desc">How things are going, honestly</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('mega-map')">
-            <span class="more-ico" data-icon="map"></span>
-            <span class="more-text"><span class="more-title">Mega Map</span><span class="more-desc">See how every skill joins up</span></span>
-            <span class="more-bar"><span class="more-bar-fill" id="mega-progress" style="width:0%"></span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('compass')">
-            <span class="more-ico" data-icon="compass"></span>
-            <span class="more-text"><span class="more-title">Compass</span><span class="more-desc">Tell Lumi how you feel and get a plan</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('strategies')">
-            <span class="more-ico" data-icon="tricks"></span>
-            <span class="more-text"><span class="more-title">Smart Tricks</span><span class="more-desc">Ten ways clever learners study</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('achievements')">
-            <span class="more-ico" data-icon="trophy"></span>
-            <span class="more-text"><span class="more-title">Achievements</span><span class="more-desc">Everything you have earned</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="startPomodoro(10)">
-            <span class="more-ico" data-icon="timer"></span>
-            <span class="more-text"><span class="more-title">10 minute timer</span><span class="more-desc">A short, quiet stretch of work</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('parent-digest')">
-            <span class="more-ico" data-icon="family"></span>
-            <span class="more-text"><span class="more-title">Family digest</span><span class="more-desc">For sharing with a grown-up</span></span>
-          </button>
-          <button type="button" class="more-row" onclick="showScreen('settings')">
-            <span class="more-ico" data-icon="settings"></span>
-            <span class="more-text"><span class="more-title">Settings</span><span class="more-desc">Change how the book looks</span></span>
-          </button>
-          </div>
-          <!-- Filled by renderVersionBanner() from src/core/version.js, which
-               is the single source of truth. Do not hard-code it here again. -->
-          <div class="version-banner" id="version-banner"></div>
-        </div>
-
-        <nav class="book-nav" id="book-nav" hidden></nav>
+      <div class="home-hero">
+        <h1 class="home-title">Nasworld</h1>
+        <p class="home-subtitle">Anastasia's Learning Universe — Learn, Explore, Master!</p>
       </div>
-      <!-- Progress bars the home updater still writes to. The chapter maps
-           show progress now, so these stay out of sight. -->
-      <div hidden><span id="math-progress"></span><span id="word-progress"></span><span id="stem-progress"></span><span id="malay-progress"></span></div>
+
+      <!-- Lumi -->
+      <div class="lumi-container">
+        <div class="lumi" onclick="lumiSpeak()">
+          <span class="lumi-sparkle">&#10022;</span>
+          <span class="lumi-sparkle">&#10022;</span>
+          <span class="lumi-sparkle">&#10022;</span>
+          <div class="lumi-body">
+            <div class="lumi-eye left"></div>
+            <div class="lumi-eye right"></div>
+            <div class="lumi-mouth"></div>
+            <div class="lumi-blush left"></div>
+            <div class="lumi-blush right"></div>
+          </div>
+        </div>
+        <div class="lumi-speech" id="lumi-speech">Welcome to Nasworld! Tap any skill to Learn, flip Flashcards, then take a Quiz!</div>
+      </div>
+
+      <!-- Word of the Day -->
+      <div class="wotd-banner hidden" id="wotd-banner" onclick="claimWotd()">
+        <div class="quest-icon">&#128218;</div>
+        <div class="quest-text">
+          <div class="wotd-word" id="wotd-word"></div>
+          <div class="wotd-def" id="wotd-def"></div>
+        </div>
+        <div class="quest-progress" id="wotd-status">+3 &#11088;</div>
+      </div>
+
+      <!-- Today's seed: earned by finishing one activity -->
+      <div id="daily-seed-area"></div>
+
+      <!-- Dynamic Quests (Daily + Weekly) -->
+      <div id="dynamic-quest-area"></div>
+
+      <!-- Lumi's Star Bridge Story -->
+      <div id="story-progress-area"></div>
+
+      <!-- Achievement Showcase -->
+      <div class="hidden" id="achievement-showcase"></div>
+
+      <!-- World Cards -->
+      <div class="worlds-grid">
+        <div class="world-card math" onclick="showScreen('math-world')">
+          <span class="world-card-icon">&#128290;</span>
+          <div class="world-card-title">Number World</div>
+          <div class="world-card-desc">Explore numbers, solve puzzles, and build your math superpowers!</div>
+          <div class="world-card-progress"><div class="world-card-progress-fill" id="math-progress" style="width:0%"></div></div>
+        </div>
+        <div class="world-card literacy" onclick="showScreen('word-world')">
+          <span class="world-card-icon">&#128214;</span>
+          <div class="world-card-title">Word World</div>
+          <div class="world-card-desc">Discover sounds, build sentences, and grow your story garden!</div>
+          <div class="world-card-progress"><div class="world-card-progress-fill" id="word-progress" style="width:0%"></div></div>
+        </div>
+        <div class="world-card stem" onclick="showScreen('stem-world')">
+          <span class="world-card-icon">&#128300;</span>
+          <div class="world-card-title">STEM World</div>
+          <div class="world-card-desc">Science experiments, coding adventures, and amazing discoveries!</div>
+          <div class="world-card-progress"><div class="world-card-progress-fill" id="stem-progress" style="width:0%"></div></div>
+        </div>
+
+        <div class="world-card play-tile" onclick="showScreen('play')">
+          <span class="world-card-icon">&#127922;</span>
+          <div class="world-card-title">Play</div>
+          <div class="world-card-desc">Jigsaws, word searches, crosswords and quick brain games.</div>
+        </div>
+
+        <div class="world-card practice-tile" onclick="showScreen('practice')">
+          <span class="world-card-icon">&#127919;</span>
+          <div class="world-card-title">Practice</div>
+          <div class="world-card-desc">Pick exactly what to work on — times tables, adding, story problems.</div>
+        </div>
+
+        <div class="world-card exam-tile-card" onclick="showScreen('exam')">
+          <span class="world-card-icon">&#128221;</span>
+          <div class="world-card-title">Exam Prep</div>
+          <div class="world-card-desc">Practice papers for English, Maths and Bahasa Melayu, marked with reasons.</div>
+        </div>
+
+        <div class="world-card malay" onclick="showScreen('malay-world')">
+          <span class="world-card-icon">&#127802;</span>
+          <div class="world-card-title">Dunia Melayu</div>
+          <div class="world-card-desc">Selamat datang! Bahasa Melayu for hawker centres, friends, and stories.</div>
+          <div class="world-card-progress"><div class="world-card-progress-fill" id="malay-progress" style="width:0%"></div></div>
+        </div>
+
+        <div class="world-card mega" onclick="showScreen('mega-map')">
+          <span class="world-card-icon">&#10024;</span>
+          <div class="world-card-title">Mega Map</div>
+          <div class="world-card-desc">See every world, skill, and real-world adventure light up together.</div>
+          <div class="world-card-progress"><div class="world-card-progress-fill" id="mega-progress" style="width:0%"></div></div>
+        </div>
+
+        <div class="world-card compass" onclick="showScreen('compass')">
+          <span class="world-card-icon">&#129517;</span>
+          <div class="world-card-title">Compass</div>
+          <div class="world-card-desc">Pick your mood and Lumi will plan a tiny session for you.</div>
+        </div>
+
+        <div class="world-card mirror" onclick="showScreen('mirror')">
+          <span class="world-card-icon">&#129683;</span>
+          <div class="world-card-title">Mirror</div>
+          <div class="world-card-desc">The honest story of where you are at — and what is next.</div>
+        </div>
+
+        <div class="world-card strategies" onclick="showScreen('strategies')">
+          <span class="world-card-icon">&#129504;</span>
+          <div class="world-card-title">Smart Tricks</div>
+          <div class="world-card-desc">10 tricks the cleverest learners use. Try one a week.</div>
+        </div>
+
+        <div class="world-card stasha" onclick="showScreen('stasha')">
+          <span class="world-card-icon">&#128091;</span>
+          <div class="world-card-title">Meet Stasha</div>
+          <div class="world-card-desc">Your 3D avatar. Dress her up — earn outfits with stars and streaks.</div>
+        </div>
+
+        <div class="world-card settings-tile" onclick="showScreen('settings')">
+          <span class="world-card-icon">&#9881;&#65039;</span>
+          <div class="world-card-title">Settings</div>
+          <div class="world-card-desc">For grown-ups. Sound, AI question writer, backup.</div>
+        </div>
+
+        <div class="world-card sim-hub" onclick="showScreen('sim-hub')">
+          <span class="world-card-icon">&#128300;</span>
+          <div class="world-card-title">STEM Lab</div>
+          <div class="world-card-desc">9 hands-on experiments: forces, plants, shadows, recycling, floating, balance, magnets, water cycle, and more.</div>
+        </div>
+        <div class="world-card garden" onclick="showScreen('garden')">
+          <span class="world-card-icon">&#127800;</span>
+          <div class="world-card-title">My Garden</div>
+          <div class="world-card-desc">Watch your garden grow with every new thing you learn!</div>
+          <div class="world-card-progress"><div class="world-card-progress-fill" id="garden-progress" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- Daily Treats: WotD + IotD + QotD -->
+      <div id="daily-treats-area"></div>
+
+      <!-- Streak Calendar -->
+      <div id="streak-calendar-area"></div>
+
+      <!-- Review Due Banner -->
+      <div class="hidden" id="review-due-banner"></div>
+
+      <!-- Challenges Section -->
+      <div class="challenges-section" id="challenges-section">
+        <h3>&#127942; Challenges</h3>
+        <div class="challenges-grid" id="challenges-grid"></div>
+      </div>
+
+      <!-- Pomodoro + Parent Digest quick actions -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:24px">
+        <button class="reset-btn" style="border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,0.06)" onclick="startPomodoro(10)">&#9201; 10-min Pomodoro</button>
+        <button class="reset-btn" style="border-color:var(--lavender);color:var(--lavender);background:rgba(181,123,255,0.06)" onclick="showScreen('parent-digest')">&#128173; Family Digest</button>
+      </div>
     </div>
 
     <!-- MATH WORLD SCREEN -->
@@ -639,8 +677,8 @@
    ============================================================ */
 
 :root {
-  /* ---- Theme tokens. Default tone: Japandi. The other tones redefine
-     these in app-7.css under :root[data-tone="..."]. Everything in the
+  /* ---- Theme tokens. Default scheme: Oat and indigo (Japandi). The
+     other schemes redefine these in app-7.css under :root[data-tone]. Everything in the
      app draws from them; no rule should use a literal colour. ---- */
   --bg-deep: #efebe3;            /* page */
   --bg-mid: #e4ddd1;             /* raised: inputs, wells, active rows */
@@ -654,19 +692,20 @@
   --accent: #2f4b6e;             /* the one accent: next action, selection, done */
   --accent-rgb: 47,75,110;
   --on-accent: #ffffff;
-  --good: #2f6b3c;  --good-rgb: 47,107,60;
-  --bad: #b3372f;   --bad-rgb: 179,55,47;
+  --good: #47703f;  --good-rgb: 71,112,63;
+  --bad: #a8472f;   --bad-rgb: 168,71,47;
   --warn: #8f5410;
   --lumi: #f4c542;               /* Lumi is the one bright thing on a screen */
 
-  /* Old palette names, kept so existing rules keep working. They all
-     resolve to the single accent or a semantic colour now. */
-  --gold: var(--accent);      --gold-soft: var(--text-secondary);
-  --lavender: var(--accent);  --lavender-soft: var(--text-secondary);
-  --sky: var(--accent);       --sky-soft: var(--text-secondary);
-  --teal: var(--accent);      --pink: var(--accent);
-  --mint: var(--good);        --mint-soft: var(--text-secondary);
-  --coral: var(--bad);        --coral-soft: var(--text-secondary);
+  /* The soft palette. The original gave each world its own colour; these
+     are the same names, muted to sit on paper. Each is dark enough to
+     be read as text on the page and to carry white text as a fill. */
+  --gold: #8a651a;      --gold-soft: var(--text-secondary);
+  --lavender: #6b5784;  --lavender-soft: var(--text-secondary);
+  --sky: #2f6187;       --sky-soft: var(--text-secondary);
+  --teal: #2c6f6a;      --pink: #a04a63;
+  --mint: var(--good);  --mint-soft: var(--text-secondary);
+  --coral: var(--bad);  --coral-soft: var(--text-secondary);
   --success: var(--good);     --error: var(--bad);   --warning: var(--warn);
 
   --radius-sm: 8px;
@@ -965,11 +1004,9 @@ body {
   position: relative;
   overflow: hidden;
 }
-.world-card::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: var(--bg-card);
-}
+/* This was a faint gradient wash over the card. With gradients gone it
+   became a solid sheet that hid the card's contents, so it is off. */
+.world-card::before { content: none; }
 .world-card:hover {
   transform: translateY(-8px) scale(1.02);
   border-color: rgba(var(--accent-rgb),0.5);
@@ -4968,141 +5005,81 @@ button.daily-seed-banner { cursor: pointer; }
   .exam-time-grid { grid-template-columns: repeat(4, minmax(44px, 64px)); }
 }
 /* ============================================================
-   Part 7 of the Nasworld stylesheet: tones, the Today-first home,
-   and the last word on anything the older parts left loud.
+   Part 7 of the Nasworld stylesheet: the canvas.
 
-   The look is one neutral ramp per tone, one accent, and Lumi as the
-   single bright thing. No gradients, glows or looping decoration.
-   Tokens are declared in app-1.css (Japandi, the default). The other
-   tones redefine the same names here. Nothing below uses a literal
-   colour except the swatches that preview a tone in Settings.
+   The layout is the original Nasworld: Lumi, the daily rows, the grid
+   of world cards, the grids of skill cards. This file only changes what
+   it is drawn on. Four soft colour schemes in a Japandi and Norwegian
+   spirit, chosen in Settings, and a few rules that keep every screen
+   calm: paper instead of a starfield, no glow, no shouting labels.
+
+   Tokens are declared in app-1.css (Oat and indigo, the default). The
+   other schemes redefine the same names here. Nothing below uses a
+   literal colour except the swatches that preview a scheme in Settings.
    ============================================================ */
 
-:root[data-tone="norwegian"] {
+:root[data-tone="birch"] {
   --bg-deep: #eef1f2; --bg-mid: #dfe6e8; --bg-card: #fbfcfc; --bg-card-hover: #f1f4f5; --bg-rgb: 238,241,242;
   --ink-rgb: 27,39,48; --text-primary: #1b2730; --text-secondary: #485864; --text-dim: #627380;
   --accent: #1f5c7a; --accent-rgb: 31,92,122; --on-accent: #ffffff;
   --good: #2f5d4a; --good-rgb: 47,93,74; --bad: #a8323e; --bad-rgb: 168,50,62; --warn: #8f5410;
+  --gold: #8f5a10; --lavender: #5a5f8f; --sky: #1f5c7a; --teal: #2a6e6a; --pink: #9a3f5c;
 }
-:root[data-tone="garden"] {
-  --bg-deep: #f1f3ea; --bg-mid: #e3e8d8; --bg-card: #fcfcf7; --bg-card-hover: #f3f5ea; --bg-rgb: 241,243,234;
-  --ink-rgb: 31,42,30; --text-primary: #1f2a1e; --text-secondary: #4c5a48; --text-dim: #667461;
-  --accent: #2f6b3c; --accent-rgb: 47,107,60; --on-accent: #ffffff;
-  --good: #1e6a78; --good-rgb: 30,106,120; --bad: #a93656; --bad-rgb: 169,54,86; --warn: #9c4d1b;
+:root[data-tone="sage"] {
+  --bg-deep: #e9ede4; --bg-mid: #dbe1d3; --bg-card: #f6f8f2; --bg-card-hover: #eef1e8; --bg-rgb: 233,237,228;
+  --ink-rgb: 36,44,36; --text-primary: #242c24; --text-secondary: #4f5a4d; --text-dim: #667162;
+  --accent: #4a6b3a; --accent-rgb: 74,107,58; --on-accent: #ffffff;
+  --good: #3f6e4a; --good-rgb: 63,110,74; --bad: #a44a3a; --bad-rgb: 164,74,58; --warn: #84661f;
+  --gold: #84661f; --lavender: #6a5a7d; --sky: #3d6478; --teal: #2f6d62; --pink: #9c4f5f;
 }
-:root[data-tone="night"] {
-  --bg-deep: #0e1220; --bg-mid: #222840; --bg-card: #161b2c; --bg-card-hover: #1c2236; --bg-rgb: 14,18,32;
-  --ink-rgb: 238,240,245; --text-primary: #eef0f5; --text-secondary: #a9afbe; --text-dim: #8990a3;
-  --accent: #f2c94c; --accent-rgb: 242,201,76; --on-accent: #17130a;
-  --good: #7fd1ae; --good-rgb: 127,209,174; --bad: #f2928a; --bad-rgb: 242,146,138; --warn: #f2a06b;
-  --shadow-card: none; --shadow-float: 0 8px 24px rgba(0,0,0,0.4);
-  color-scheme: dark;
+:root[data-tone="blush"] {
+  --bg-deep: #f3e9e3; --bg-mid: #e8dad1; --bg-card: #fbf5f1; --bg-card-hover: #f5ece6; --bg-rgb: 243,233,227;
+  --ink-rgb: 48,36,32; --text-primary: #302420; --text-secondary: #63524a; --text-dim: #7a675e;
+  --accent: #a24e33; --accent-rgb: 162,78,51; --on-accent: #ffffff;
+  --good: #55702f; --good-rgb: 85,112,47; --bad: #a53b3b; --bad-rgb: 165,59,59; --warn: #8a6220;
+  --gold: #8a6220; --lavender: #74527a; --sky: #44627a; --teal: #5f6b2c; --pink: #a04a63;
 }
 
-/* ---------- Ground ---------- */
+/* ---------- The canvas ---------- */
 html { background: var(--bg-deep); }
-body { background: var(--bg-deep); color: var(--text-primary); font-size: 17px; line-height: 1.5; }
+body { background: var(--bg-deep); color: var(--text-primary); }
 .starfield { display: none; }
-.app-container, .main-content { background: transparent; }
 button { font-family: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-h1, h2, h3 { font-weight: 600; }
+[class] { text-transform: none; letter-spacing: 0; }
+.settings-input, input[type="text"], input[type="number"], input[type="password"], textarea, select {
+  background: var(--bg-card); color: var(--text-primary); border: 1px solid rgba(var(--ink-rgb),0.22); }
 
-/* One drawn icon set, in the colour of the text beside it. */
-.ico { width: 1.4em; height: 1.4em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; vertical-align: -0.3em; }
-[data-icon] { display: inline-flex; align-items: center; justify-content: center; }
+/* Cards sit on the paper with a hairline, not a glow. */
+.top-bar { background: var(--bg-deep); border-bottom: 1px solid rgba(var(--ink-rgb),0.08); box-shadow: none; }
+.world-card, .activity-card, .challenge-card, .settings-card {
+  background: var(--bg-card); border: 1px solid rgba(var(--ink-rgb),0.10); box-shadow: var(--shadow-card); }
+.world-card:hover, .activity-card:hover:not(.locked), .challenge-card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-card); }
 
-/* ---------- Top bar: quiet ---------- */
-.top-bar { background: var(--bg-deep); border-bottom: 1px solid rgba(var(--ink-rgb),0.08); box-shadow: none; padding: 8px 16px; gap: 8px; }
-.home-btn, .level-display, .streak-display, .token-display, .trophy-btn {
-  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px;
-  background: transparent; border: 1px solid rgba(var(--ink-rgb),0.10); border-radius: var(--radius-md);
-  color: var(--text-secondary); font-family: var(--font-display); font-size: 15px; font-weight: 500; box-shadow: none;
-  font-variant-numeric: tabular-nums;
-}
-.home-btn, .trophy-btn { cursor: pointer; color: var(--text-primary); min-height: 44px; }
-.home-btn:hover, .trophy-btn:hover { background: var(--bg-mid); transform: none; }
-.level-display { border-color: transparent; padding: 0 4px; }
-.trophy-count { color: inherit; background: none; font-size: inherit; }
+/* Lumi stays the one bright thing: her own yellow, in every scheme. */
+.lumi-body { background: var(--lumi); }
+.lumi-eye, .lumi-mouth { --bg-deep: #2a2622; }
+.lumi-sparkle { color: var(--lumi); }
 
-/* ---------- Home ---------- */
-#screen-home { max-width: 720px; margin: 0 auto; }
-.home-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 8px 0 16px; }
-.home-title { font-family: var(--font-display); font-size: 28px; font-weight: 600; line-height: 1.1; margin: 0; color: var(--text-primary); letter-spacing: 0; }
-.home-date { color: var(--text-dim); font-size: 15px; }
-.home-section { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 32px 0 12px; text-align: left; }
+/* The original gave each world a colour. Here it is as a soft top edge
+   and a matching progress bar, on the same paper card. */
+.world-card { border-top-width: 4px; }
+.world-card.math { border-top-color: var(--sky); }         .world-card.math .world-card-progress-fill { background: var(--sky); }
+.world-card.literacy { border-top-color: var(--pink); }    .world-card.literacy .world-card-progress-fill { background: var(--pink); }
+.world-card.stem, .world-card.sim-hub { border-top-color: var(--teal); } .world-card.stem .world-card-progress-fill { background: var(--teal); }
+.world-card.malay { border-top-color: var(--coral); }      .world-card.malay .world-card-progress-fill { background: var(--coral); }
+.world-card.garden { border-top-color: var(--mint); }      .world-card.garden .world-card-progress-fill { background: var(--mint); }
+.world-card.mega, .world-card.mirror, .world-card.stasha { border-top-color: var(--lavender); } .world-card.mega .world-card-progress-fill { background: var(--lavender); }
+.world-card.play-tile, .world-card.practice-tile, .world-card.exam-tile-card, .world-card.compass, .world-card.strategies { border-top-color: var(--gold); }
+.world-card.settings-tile { border-top-color: rgba(var(--ink-rgb),0.25); }
+.world-card-progress { background: var(--bg-mid); }
+.home-title { color: var(--text-primary); }
+.version-banner { background: var(--bg-mid); color: var(--text-secondary); box-shadow: none; }
 
-/* Lumi: flat, and the only bright thing on the screen. */
-.lumi-container { display: flex; flex-direction: row; align-items: center; gap: 16px; margin: 0 0 16px; text-align: left; }
-.lumi { width: 64px; height: 64px; flex: none; }
-.lumi:hover { transform: none; }
-.lumi-body { width: 64px; height: 64px; top: 0; left: 0; background: var(--lumi); box-shadow: none; }
-.lumi-eye { width: 8px; height: 9px; top: 24px; background: #2a2622; }
-.lumi-eye.left { left: 19px; } .lumi-eye.right { left: 37px; }
-.lumi-eye::after { display: none; }
-.lumi-mouth { width: 16px; height: 8px; top: 36px; left: 24px; border-bottom: 2.5px solid #2a2622; }
-.lumi-blush, .lumi-sparkle { display: none; }
-.lumi-speech { flex: 1; margin: 0; padding: 12px 16px; background: var(--bg-card); border: 1px solid rgba(var(--ink-rgb),0.09);
-  border-radius: var(--radius-lg); border-bottom-left-radius: 4px; color: var(--text-primary); font-family: var(--font-body); font-size: 16px; text-align: left; max-width: none; }
-.lumi-speech::before, .lumi-speech::after { display: none; }
-
-/* Today: the stepping-stone path is the one signature detail. */
-.today-card { background: var(--bg-card); border: 1px solid rgba(var(--ink-rgb),0.09); border-radius: var(--radius-lg); padding: 20px; display: grid; gap: 20px; }
-.today-title { font-family: var(--font-display); font-size: 24px; font-weight: 600; line-height: 1.15; margin: 0; }
-.today-sub { color: var(--text-secondary); font-size: 16px; }
-.today-steps { list-style: none; margin: 0; padding: 0; display: grid; }
-.today-steps li { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; padding-bottom: 12px; position: relative; align-items: start; }
-.today-steps li:last-child { padding-bottom: 0; }
-.today-steps li::before { content: ""; position: absolute; left: 17px; top: 40px; bottom: 4px; border-left: 2px dashed rgba(var(--ink-rgb),0.28); }
-.today-steps li:last-child::before { display: none; }
-.today-stone { width: 36px; height: 32px; margin-top: 8px; border-radius: 46% 54% 50% 50% / 56% 52% 48% 44%; background: var(--bg-mid);
-  display: grid; place-items: center; font: 600 15px var(--font-display); color: var(--text-secondary); }
-.today-stone .ico { width: 18px; height: 18px; stroke-width: 3; }
-.today-steps .done .today-stone { background: var(--accent); color: var(--on-accent); }
-.today-steps .now .today-stone { box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--accent); color: var(--text-primary); }
-.today-step { display: grid; text-align: left; min-height: 48px; padding: 4px 8px; margin: 0 -8px; background: none; border: 0; border-radius: var(--radius-md); color: inherit; cursor: pointer; align-content: center; }
-.today-step:hover { background: var(--bg-mid); }
-.today-step-name { font-family: var(--font-body); font-size: 17px; font-weight: 700; }
-.today-steps .done .today-step-name { font-weight: 400; color: var(--text-secondary); }
-.today-step-meta { color: var(--text-dim); font-size: 14px; }
-.today-go { justify-self: start; min-height: 48px; padding: 0 24px; border: 0; border-radius: var(--radius-md); background: var(--accent); color: var(--on-accent);
-  font: 600 17px var(--font-display); cursor: pointer; transition: transform .15s var(--ease); }
-.today-go:active { transform: scale(0.98); }
-
-/* World doors */
-.doors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.door { display: grid; gap: 8px; text-align: left; padding: 16px; min-width: 0; background: var(--bg-card); border: 1px solid rgba(var(--ink-rgb),0.09);
-  border-radius: var(--radius-lg); color: var(--text-primary); cursor: pointer; transition: background-color .15s; }
-.door:hover { background: var(--bg-card-hover); }
-.door-ico, .more-ico { width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--bg-mid); color: var(--text-primary); }
-.door-ico .ico, .more-ico .ico { width: 28px; height: 28px; }
-.door-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; }
-.door-next { color: var(--text-dim); font-size: 14px; min-height: 21px; }
-.door-bar, .more-bar { display: block; height: 4px; border-radius: 2px; background: var(--bg-mid); overflow: hidden; }
-.door-bar-fill, .more-bar-fill { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
-
-/* Everything else: compact rows, icons in one column. */
-.more-list { display: grid; gap: 4px; }
-.more-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; text-align: left; min-height: 60px; padding: 8px;
-  background: none; border: 0; border-radius: var(--radius-lg); color: var(--text-primary); cursor: pointer; transition: background-color .15s; }
-.more-row:hover { background: var(--bg-card); }
-.more-text { display: grid; }
-.more-title { font-family: var(--font-display); font-size: 17px; font-weight: 500; }
-.more-desc { color: var(--text-dim); font-size: 14px; }
-.more-bar { width: 64px; }
-
-.home-foot { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; }
-.foot-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; background: none; border: 1px solid rgba(var(--ink-rgb),0.14);
-  border-radius: var(--radius-md); color: var(--text-secondary); font: 500 15px var(--font-display); cursor: pointer; }
-.foot-btn:hover { background: var(--bg-card); color: var(--text-primary); }
-.version-banner { background: none; color: var(--text-dim); box-shadow: none; font: 400 13px var(--font-body); text-align: left; padding: 0; margin: 16px 0 0; border-radius: 0; }
-
-/* Today's seed, word of the day, quests: one quiet row style. */
-.daily-seed-banner { margin: 12px 0 0; padding: 12px 16px; border-radius: var(--radius-lg); background: none; border: 1px dashed rgba(var(--ink-rgb),0.22); }
+/* Today's seed */
+.daily-seed-banner { background: var(--bg-card); border: 1px dashed rgba(var(--ink-rgb),0.22); }
 .daily-seed-banner.ready { border-style: solid; border-color: var(--accent); background: rgba(var(--accent-rgb),0.07); }
-.daily-seed-title { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--text-primary); }
-.daily-seed-desc { font-size: 14px; color: var(--text-dim); }
-.wotd-banner { margin-top: 24px; }
+.daily-seed-title { color: var(--text-primary); }
 
 /* ---------- Look choices in Settings ---------- */
 .look-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
@@ -5114,132 +5091,15 @@ h1, h2, h3 { font-weight: 600; }
 .look-note { color: var(--text-dim); font-size: 13px; }
 .look-sample { font-size: 22px; line-height: 1; width: 52px; flex: none; }
 .look-swatch { display: flex; flex: none; border-radius: 6px; overflow: hidden; border: 1px solid rgba(var(--ink-rgb),0.15); }
-.look-swatch i { width: 14px; height: 28px; display: block; }
-/* The only literal colours in this file: each swatch shows its own tone. */
-.look-swatch[data-tone="japandi"] i:nth-child(1) { background: #efebe3; } .look-swatch[data-tone="japandi"] i:nth-child(2) { background: #2a2622; } .look-swatch[data-tone="japandi"] i:nth-child(3) { background: #2f4b6e; }
-.look-swatch[data-tone="norwegian"] i:nth-child(1) { background: #eef1f2; } .look-swatch[data-tone="norwegian"] i:nth-child(2) { background: #1b2730; } .look-swatch[data-tone="norwegian"] i:nth-child(3) { background: #1f5c7a; }
-.look-swatch[data-tone="garden"] i:nth-child(1) { background: #f1f3ea; } .look-swatch[data-tone="garden"] i:nth-child(2) { background: #1f2a1e; } .look-swatch[data-tone="garden"] i:nth-child(3) { background: #2f6b3c; }
-.look-swatch[data-tone="night"] i:nth-child(1) { background: #0e1220; } .look-swatch[data-tone="night"] i:nth-child(2) { background: #eef0f5; } .look-swatch[data-tone="night"] i:nth-child(3) { background: #f2c94c; }
+.look-swatch i { width: 12px; height: 28px; display: block; }
+/* The only literal colours in this file: each swatch shows its own scheme. */
+.look-swatch[data-tone="oat"] i:nth-child(1) { background: #efebe3; } .look-swatch[data-tone="oat"] i:nth-child(2) { background: #2f4b6e; } .look-swatch[data-tone="oat"] i:nth-child(3) { background: #47703f; } .look-swatch[data-tone="oat"] i:nth-child(4) { background: #a8472f; }
+.look-swatch[data-tone="birch"] i:nth-child(1) { background: #eef1f2; } .look-swatch[data-tone="birch"] i:nth-child(2) { background: #1f5c7a; } .look-swatch[data-tone="birch"] i:nth-child(3) { background: #2f5d4a; } .look-swatch[data-tone="birch"] i:nth-child(4) { background: #a8323e; }
+.look-swatch[data-tone="sage"] i:nth-child(1) { background: #e9ede4; } .look-swatch[data-tone="sage"] i:nth-child(2) { background: #4a6b3a; } .look-swatch[data-tone="sage"] i:nth-child(3) { background: #84661f; } .look-swatch[data-tone="sage"] i:nth-child(4) { background: #9c4f5f; }
+.look-swatch[data-tone="blush"] i:nth-child(1) { background: #f3e9e3; } .look-swatch[data-tone="blush"] i:nth-child(2) { background: #a24e33; } .look-swatch[data-tone="blush"] i:nth-child(3) { background: #74527a; } .look-swatch[data-tone="blush"] i:nth-child(4) { background: #5f6b2c; }
 
-/* ---------- Across every screen: quiet the leftovers ---------- */
-[class] { text-transform: none; letter-spacing: 0; }
-.settings-input, input[type="text"], input[type="number"], input[type="password"], textarea, select {
-  background: var(--bg-card); color: var(--text-primary); border: 1px solid rgba(var(--ink-rgb),0.22); }
-.world-card, .activity-card, .challenge-card, .settings-card, .mirror-tile { box-shadow: none; }
-.world-card:hover, .activity-card:hover, .challenge-card:hover { transform: none; box-shadow: none; }
-.back-btn { min-height: 44px; }
-.grade-label { text-transform: none; letter-spacing: 0; }
-
-@media (max-width: 420px) {
-  .look-choices { grid-template-columns: minmax(0, 1fr); }
-  .home-date { font-size: 14px; }
-  .top-bar { padding: 8px 12px; gap: 4px; }
-  .level-display { display: none; }
-}
+@media (max-width: 420px) { .look-choices { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
-
-/* ============================================================
-   The Book of Nasworld. Home is a storybook of maps: a cover, a
-   contents page, and chapters that each open on a place with a
-   path of stops through it. See src/ui/book.js.
-
-   The pictures carry the colour. The page around them is paper.
-   ============================================================ */
-#screen-home { max-width: 760px; }
-.book [hidden] { display: none !important; }
-.book { position: relative; background: var(--bg-card); border: 1px solid rgba(var(--ink-rgb),0.12); border-radius: 8px 20px 20px 8px;
-  /* the edges of the pages underneath, and the spine */
-  box-shadow: 4px 0 0 -1px var(--bg-card), 4px 0 0 0 rgba(var(--ink-rgb),0.12), 8px 0 0 -1px var(--bg-card), 8px 0 0 0 rgba(var(--ink-rgb),0.10), inset 10px 0 0 -6px rgba(var(--ink-rgb),0.10);
-  margin: 8px 12px 24px 0; min-height: 70vh; display: flex; flex-direction: column; }
-.book.turning #book-page, .book.turning .book-static:not([hidden]) { animation: book-turn .38s var(--ease) both; transform-origin: left center; }
-@keyframes book-turn { from { opacity: 0; transform: perspective(1200px) rotateY(-9deg) translateX(8px); } to { opacity: 1; transform: none; } }
-.book-leaf { padding: 24px 24px 8px 32px; }
-.book-static.book-leaf { padding-top: 0; }
-.book-kicker, .book-toc-kicker, .book-cover-kicker { font-family: var(--font-display); font-size: 15px; font-weight: 500; color: var(--text-dim); }
-.book-h1 { font-family: var(--font-display); font-size: 32px; font-weight: 600; line-height: 1.1; margin: 0 0 8px; color: var(--text-primary); text-wrap: balance; }
-.book-blurb { color: var(--text-secondary); font-size: 16px; margin: 0 0 16px; }
-
-/* The ribbon bookmark: Today is always one tap away. */
-.book-ribbon { position: absolute; top: -1px; right: 32px; z-index: 5; width: 64px; padding: 12px 0 24px; border: 0; cursor: pointer;
-  background: var(--accent); color: var(--on-accent); font: 600 15px var(--font-display);
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 14px), 0 100%); transition: padding .15s var(--ease); }
-.book-ribbon:hover { padding-bottom: 30px; }
-
-/* Cover */
-.book[data-view="cover"] { background: var(--accent); border-color: transparent; overflow: hidden; }
-.book-cover { display: grid; flex: 1; }
-.book-cover-art { margin: 24px 24px 0 32px; border-radius: 12px; overflow: hidden; height: min(58vh, 520px); }
-.book-cover-text { padding: 24px 24px 32px 32px; color: var(--on-accent); }
-.book-cover-kicker { color: var(--on-accent); opacity: 0.8; font-size: 18px; }
-.book-cover-title { font-family: var(--font-display); font-size: 56px; font-weight: 600; line-height: 1; margin: 0 0 20px; color: var(--on-accent); }
-.book-open { min-height: 52px; padding: 0 28px; border: 0; border-radius: var(--radius-md); background: var(--on-accent); color: var(--accent); font: 600 18px var(--font-display); cursor: pointer; }
-.book-open:active, .book-turn:active, .book-stop:not([disabled]):active .book-stone { transform: scale(0.97); }
-.book-scene-svg, .book-scene-img { display: block; width: 100%; height: 100%; object-fit: cover; }
-
-/* Contents */
-.book-toc { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
-.book-toc-row { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 16px; align-items: center; width: 100%; text-align: left; min-height: 72px; padding: 8px;
-  margin-left: -8px; background: none; border: 0; border-radius: var(--radius-md); color: var(--text-primary); cursor: pointer; transition: background-color .15s; }
-.book-toc-row:hover { background: var(--bg-mid); }
-.book-toc-thumb, .book-toc-n { width: 72px; height: 56px; border-radius: 10px; overflow: hidden; display: grid; place-items: center; background: var(--bg-mid); color: var(--text-secondary); }
-.book-toc-n .ico { width: 28px; height: 28px; }
-.book-toc-ribbon { background: var(--accent); clip-path: polygon(30% 0, 70% 0, 70% 100%, 50% 80%, 30% 100%); }
-.book-toc-text { display: grid; }
-.book-toc-title { font-family: var(--font-display); font-size: 20px; font-weight: 600; line-height: 1.2; }
-.book-toc-sub { color: var(--text-dim); font-size: 14px; }
-.book-toc-count { color: var(--text-secondary); font: 500 15px var(--font-display); font-variant-numeric: tabular-nums; white-space: nowrap; padding-right: 8px; }
-
-/* Chapter: parts, then the map */
-.book-parts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
-.book-part { min-height: 44px; padding: 0 16px; border: 1px solid rgba(var(--ink-rgb),0.16); border-radius: var(--radius-md); background: none; color: var(--text-secondary); font: 500 15px var(--font-display); cursor: pointer; }
-.book-part.on { background: var(--text-primary); border-color: var(--text-primary); color: var(--bg-card); }
-.book-map { position: relative; border-radius: 16px; overflow: hidden; margin: 0 -8px 8px -16px; }
-.book-map-art { position: absolute; inset: 0; }
-.book-path { position: absolute; inset: 0; width: 100%; height: 100%; }
-.book-path path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; }
-.book-path-sand { stroke: #f3e2b6; stroke-width: 26; opacity: 0.92; }
-.book-path-dash { stroke: #a8895a; stroke-width: 3; stroke-dasharray: 2 10; }
-.book-stop { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 4px; padding: 0; background: none; border: 0; cursor: pointer; width: 132px; color: #2a2622; }
-.book-stop[disabled] { cursor: default; }
-.book-stone { width: 52px; height: 46px; border-radius: 46% 54% 50% 50% / 56% 52% 48% 44%; background: #fffaf0; border: 2px solid #2a2622; display: grid; place-items: center;
-  font: 600 19px var(--font-display); color: #2a2622; transition: transform .15s var(--ease); }
-.book-stone .ico { width: 22px; height: 22px; stroke-width: 2.6; }
-.book-stop.done .book-stone { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-.book-stop.started .book-stone { background: #fff1c4; }
-.book-stop.next .book-stone { width: 60px; height: 52px; box-shadow: 0 0 0 4px #fffaf0, 0 0 0 7px var(--accent); }
-.book-stop.locked .book-stone, .book-stop.checking .book-stone { background: #e6e0d4; border-color: #8a8378; color: #6b655c; }
-.book-stop-label { display: grid; justify-items: center; background: #fffaf0; border-radius: 10px; padding: 2px 8px; max-width: 132px; }
-.book-stop-name { font: 700 14px/1.25 var(--font-body); text-align: center; color: #2a2622; }
-.book-stop-note { font: 400 12.5px/1.3 var(--font-body); color: #5c544a; }
-.book-stop.locked .book-stop-name, .book-stop.checking .book-stop-name { font-weight: 400; color: #5c544a; }
-.book-stop-lumi { position: absolute; top: -30px; left: 50%; margin-left: 14px; }
-
-/* Turning pages */
-.book-nav { display: grid; grid-template-columns: 56px 1fr 56px; gap: 8px; align-items: center; padding: 16px 24px 20px 32px; margin-top: auto; }
-.book-turn { min-height: 48px; border: 1px solid rgba(var(--ink-rgb),0.16); border-radius: var(--radius-md); background: none; color: var(--text-primary); font: 500 16px var(--font-display); cursor: pointer; display: grid; place-items: center; }
-.book-turn:hover { background: var(--bg-mid); }
-.book-turn-mid { justify-self: center; padding: 0 24px; border-color: transparent; color: var(--text-secondary); }
-.ico.flip { transform: scaleX(-1); }
-.book .home-section { margin-top: 24px; }
-.book .lumi-speech { background: var(--bg-mid); }
-.book .today-card { background: none; border: 0; padding: 0; margin-top: 8px; }
-
-@media (max-width: 480px) {
-  .book { margin-right: 8px; border-radius: 6px 14px 14px 6px; }
-  .book-leaf { padding: 20px 14px 8px 20px; }
-  .book-nav { padding: 12px 14px 16px 20px; }
-  .book-h1 { font-size: 26px; }
-  .book-cover-title { font-size: 44px; }
-  .book-cover-art { margin: 16px 14px 0 20px; }
-  .book-cover-text { padding: 20px 14px 24px 20px; }
-  .book-toc-row { grid-template-columns: 56px minmax(0, 1fr) auto; gap: 12px; }
-  .book-toc-thumb, .book-toc-n { width: 56px; height: 48px; }
-  .book-toc-title { font-size: 18px; }
-  .book-map { margin: 0 -6px 8px -10px; }
-  .book-stop { width: 112px; } .book-stop-label { max-width: 112px; } .book-stop-name { font-size: 13px; }
-  .book-ribbon { right: 20px; width: 56px; }
-}
-@media (prefers-reduced-motion: reduce) { .book.turning #book-page, .book.turning .book-static:not([hidden]) { animation: none; } }
 </style>
 <script>
 // === BUNDLED BY build.sh ===
@@ -5339,9 +5199,9 @@ function lcm(a, b) {
 //  move independently and conflating them would break old save files.
 
 var APP_VERSION = {
-  number: '4.1',
+  number: '4.3',
   // Short enough to sit on one line on a phone. This is what she reads.
-  name: 'The Book of Nasworld',
+  name: 'Paper and Ink',
   // ISO date of the release, used by the staleness guard.
   date: '2026-11-15'
 };
@@ -33727,90 +33587,25 @@ function applyStreakShield() {
   return false;
 }
 
-// --- src/ui/icons.js ---
-// ============================================================
-//  ICONS — one drawn line set, in place of emoji in the chrome.
-// ============================================================
-//
-//  Nas is an early reader, so a picture stays beside every word. But
-//  emoji come from the phone, not from Nasworld: they change between
-//  devices and each has its own colours, so nothing matched. These are
-//  drawn to one grid (32), one stroke, and take the text colour.
-//
-//  Usage: icon('math') returns an <svg> string. Unknown names return ''.
-
-var ICON_PATHS = {
-  math:    '<rect x="5" y="5" width="22" height="22" rx="4"/><path d="M11 10.5v6M8 13.5h6M18.5 13.5h5.5M9.5 20.5l4 4M13.5 20.5l-4 4M18.5 21h5.5M18.5 24.5h5.5"/>',
-  word:    '<path d="M16 9c-3-2.5-7-3-11-2v17c4-1 8-.5 11 2 3-2.5 7-3 11-2V7c-4-1-8-.5-11 2zM16 9v17"/>',
-  malay:   '<circle cx="16" cy="16" r="3"/><path d="M16 13c-3-8 9-8 4-1M19 16c8-3 8 9 1 4M16 19c3 8-9 8-4 1M13 16c-8 3-8-9-1-4"/>',
-  stem:    '<path d="M16 27V14M16 18c-6 0-9-4-9-9 6 0 9 4 9 9zM16 14c0-4 3-8 9-8 0 5-3 8-9 8z"/>',
-  exam:    '<path d="M9 4h10l5 5v19H9zM19 4v5h5M13 15h7M13 19h7M13 23h4"/>',
-  practice:'<circle cx="16" cy="16" r="11"/><circle cx="16" cy="16" r="6"/><circle cx="16" cy="16" r="1.4"/>',
-  play:    '<path d="M6 12h6a3 3 0 1 1 6 0h8v6a3 3 0 1 0 0 6v3H6v-5a3 3 0 1 1 0-6z"/>',
-  lab:     '<path d="M12 4h8M13 4v8l-7 12a2 2 0 0 0 2 3h16a2 2 0 0 0 2-3l-7-12V4M10 20h12"/>',
-  garden:  '<circle cx="16" cy="11" r="3"/><path d="M16 8c0-5 6-4 4 0M19 11c5 0 4 6 0 4M16 14c0 5-6 4-4 0M13 11c-5 0-4-6 0-4M16 14v14M16 22c-4 0-6-2-6-5M16 25c4 0 6-2 6-5"/>',
-  map:     '<circle cx="8" cy="9" r="3"/><circle cx="24" cy="8" r="3"/><circle cx="16" cy="18" r="3"/><circle cx="9" cy="25" r="2.5"/><circle cx="25" cy="24" r="2.5"/><path d="M10.5 11l3.5 5M21.5 10l-3.5 6M14 20l-3.5 3.5M18.5 19.5l4.5 3"/>',
-  mirror:  '<ellipse cx="16" cy="13" rx="8" ry="10"/><path d="M16 23v5M11 28h10M12 10c1-2 3-3 5-3"/>',
-  compass: '<circle cx="16" cy="16" r="11"/><path d="M20.5 11.5l-2.5 7-7 2.5 2.5-7z"/>',
-  tricks:  '<path d="M11 20c-3-2-4-5-4-8a9 9 0 0 1 18 0c0 3-1 6-4 8v3H11zM12 27h8"/>',
-  stasha:  '<circle cx="16" cy="9" r="4"/><path d="M8 28c0-7 3-11 8-11s8 4 8 11"/>',
-  settings:'<path d="M5 9h12M23 9h4M5 16h4M15 16h12M5 23h14M25 23h2"/><circle cx="20" cy="9" r="3"/><circle cx="12" cy="16" r="3"/><circle cx="22" cy="23" r="3"/>',
-  trophy:  '<path d="M10 5h12v6a6 6 0 0 1-12 0zM10 7H6c0 4 2 6 5 6M22 7h4c0 4-2 6-5 6M16 17v5M11 27h10M12 22h8v5h-8z"/>',
-  star:    '<path d="M16 4l3.6 7.6 8.4 1-6.2 5.7 1.7 8.2L16 22.400l-7.5 4.1 1.7-8.200L4 12.600l8.4-1z"/>',
-  sun:     '<circle cx="16" cy="16" r="5"/><path d="M16 4v3M16 25v3M4 16h3M25 16h3M7.5 7.500l2 2M22.5 22.500l2 2M7.5 24.500l2-2M22.5 9.500l2-2"/>',
-  home:    '<path d="M5 15L16 5l11 10M8 13v14h16V13M13 27v-7h6v7"/>',
-  seed:    '<path d="M16 28V17M16 17c0-6 4-10 10-10 0 6-4 10-10 10zM16 21c-5 0-8-3-8-8 5 0 8 3 8 8z"/>',
-  check:   '<path d="M6 17l6 6L26 9"/>',
-  timer:   '<circle cx="16" cy="18" r="10"/><path d="M16 12v6l4 3M13 4h6"/>',
-  family:  '<path d="M16 27S5 20 5 12a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15z"/>',
-  lock:    '<rect x="7" y="14" width="18" height="13" rx="3"/><path d="M11 14v-4a5 5 0 0 1 10 0v4"/>',
-  arrow:   '<path d="M6 16h20M19 9l7 7-7 7"/>'
-};
-
-function icon(name, cls) {
-  var p = ICON_PATHS[name];
-  if (!p) return '';
-  return '<svg class="ico' + (cls ? ' ' + cls : '') + '" viewBox="0 0 32 32" aria-hidden="true" focusable="false">' + p + '</svg>';
-}
-
-/** Lumi, flat: the one bright thing on a screen. */
-function lumiSvg(size) {
-  var s = size || 64;
-  return '<svg class="lumi-flat" width="' + s + '" height="' + s + '" viewBox="0 0 64 64" aria-hidden="true">' +
-    '<circle cx="32" cy="32" r="28" fill="var(--lumi)"/>' +
-    '<circle cx="23" cy="29" r="3.2" fill="#2a2622"/><circle cx="41" cy="29" r="3.2" fill="#2a2622"/>' +
-    '<path d="M24 40c4 4.5 12 4.5 16 0" fill="none" stroke="#2a2622" stroke-width="2.4" stroke-linecap="round"/></svg>';
-}
-
-/** Fill every <span data-icon="name"> in the static page. */
-function paintStaticIcons(root) {
-  (root || document).querySelectorAll('[data-icon]').forEach(function (el) {
-    if (!el.firstChild) el.innerHTML = icon(el.getAttribute('data-icon'));
-  });
-}
-
-if (typeof window !== 'undefined') {
-  window.icon = icon; window.lumiSvg = lumiSvg; window.paintStaticIcons = paintStaticIcons;
-}
-
 // --- src/ui/look.js ---
 // ============================================================
 //  LOOK — tone and typeface, chosen in Settings.
 // ============================================================
 //
-//  Four tones and four faces for each of titles and reading. A choice is
-//  one attribute on <html> (data-tone) and two CSS variables; every rule
-//  in the stylesheets draws from tokens, so nothing else has to change.
-//  The tones themselves are defined in styles/app-7.css.
+//  The layout is the original Nasworld. What changes here is the canvas:
+//  four soft colour schemes and four faces for each of titles and
+//  reading. A choice is one attribute on <html> (data-tone) and two CSS
+//  variables; every rule in the stylesheets draws from tokens, so
+//  nothing else has to change. The schemes are defined in app-7.css.
 
 var LOOK_TONES = [
-  { id: 'japandi',   name: 'Japandi',              note: 'Oat paper and charcoal ink' },
-  { id: 'norwegian', name: 'Norwegian',            note: 'Fjord light, pale and clear' },
-  { id: 'garden',    name: 'Garden island by day', note: 'Leaf paper, like her garden' },
-  { id: 'night',     name: 'Night observatory',    note: 'Dark sky, Lumi the only light' }
+  { id: 'oat',   name: 'Oat and indigo',  note: 'Japandi: warm paper, charcoal ink' },
+  { id: 'birch', name: 'Birch and fjord', note: 'Norwegian: pale, cool and clear' },
+  { id: 'sage',  name: 'Sage and stone',  note: 'Soft grey green, moss and sand' },
+  { id: 'blush', name: 'Blush and clay',  note: 'Warm pale pink, terracotta and plum' }
 ];
 var LOOK_TITLE_FONTS = [
-  { id: 'Fredoka',         note: 'Round and friendly' },
+  { id: 'Fredoka',         note: 'Round and friendly, the original' },
   { id: 'Zen Maru Gothic', note: 'Rounded and calm' },
   { id: 'Baloo 2',         note: 'Soft and chunky' },
   { id: 'Fraunces',        note: 'Storybook serif' }
@@ -33821,7 +33616,7 @@ var LOOK_READ_FONTS = [
   { id: 'Atkinson Hyperlegible', note: 'Every letter distinct' },
   { id: 'Nunito',                note: 'Rounded and familiar' }
 ];
-var LOOK_DEFAULT = { tone: 'japandi', titleFont: 'Fredoka', readFont: 'Andika' };
+var LOOK_DEFAULT = { tone: 'oat', titleFont: 'Fredoka', readFont: 'Andika' };
 
 function _lookHas(list, id) { return list.some(function (x) { return x.id === id; }); }
 
@@ -33856,7 +33651,7 @@ function _lookChoices(key, list, current, sampleFont) {
   return '<div class="look-choices">' + list.map(function (o) {
     var on = o.id === current;
     var sample = sampleFont ? '<span class="look-sample" style="font-family:\'' + o.id + '\',sans-serif">' + (key === 'readFont' ? 'ag7' : 'Nas') + '</span>'
-                            : '<span class="look-swatch" data-tone="' + o.id + '"><i></i><i></i><i></i></span>';
+                            : '<span class="look-swatch" data-tone="' + o.id + '"><i></i><i></i><i></i><i></i></span>';
     return '<button type="button" class="look-choice' + (on ? ' on' : '') + '" aria-pressed="' + on + '" onclick="setLook(\'' + key + '\',\'' + o.id + '\')">' +
       sample + '<span class="look-text"><span class="look-name">' + (o.name || o.id) + '</span><span class="look-note">' + o.note + '</span></span></button>';
   }).join('') + '</div>';
@@ -33867,8 +33662,8 @@ function renderLookSettings() {
   var look = getLook();
   return '<div class="settings-card">' +
     '<div class="settings-card-title">Look</div>' +
-    '<p class="settings-help">Choose how Nasworld looks. It changes straight away and is remembered on this device.</p>' +
-    '<label class="settings-label">Tone</label>' + _lookChoices('tone', LOOK_TONES, look.tone, false) +
+    '<p class="settings-help">Choose the colours and the lettering. It changes straight away and is remembered on this device.</p>' +
+    '<label class="settings-label">Colours</label>' + _lookChoices('tone', LOOK_TONES, look.tone, false) +
     '<label class="settings-label">Titles</label>' + _lookChoices('titleFont', LOOK_TITLE_FONTS, look.titleFont, true) +
     '<label class="settings-label">Reading</label>' + _lookChoices('readFont', LOOK_READ_FONTS, look.readFont, true) +
     '</div>';
@@ -33878,511 +33673,16 @@ if (typeof window !== 'undefined') {
   window.getLook = getLook; window.applyLook = applyLook; window.setLook = setLook; window.renderLookSettings = renderLookSettings;
 }
 
-// --- src/ui/today.js ---
-// ============================================================
-//  TODAY — three small things, chosen for her, first on the screen.
-// ============================================================
-//
-//  Home used to open on fifteen equal tiles. A seven year old facing
-//  fifteen doors picks the one she likes, which is rarely the one she
-//  needs. Most people take the path in front of them (Thaler and
-//  Sunstein), so the path in front of her is now the right one: three
-//  short steps, from different worlds (interleaving, Bjork), starting
-//  with something due for review (spacing) and ending on something new.
-//
-//  The plan is fixed for the day once made, so it does not shuffle each
-//  time she comes home. A step is done when she finishes a session on
-//  that skill. Everything else is still one tap away below it.
-
-function _todayKey() { return new Date().toDateString(); }
-
-function _todayTrees() {
-  return [
-    ['math',  typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {}],
-    ['word',  typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {}],
-    ['malay', typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}],
-    ['stem',  typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {}]
-  ];
-}
-
-function _todaySkill(id) {
-  var trees = _todayTrees();
-  for (var i = 0; i < trees.length; i++) if (trees[i][1][id]) return { def: trees[i][1][id], world: trees[i][0] };
-  return null;
-}
-
-/** Open skills in one world, as {id, world, mastery, attempts, due}. */
-function _todayCandidates(world, tree) {
-  var out = [];
-  Object.keys(tree).forEach(function (id) {
-    var def = tree[id];
-    if (typeof isSkillUnlocked === 'function' && !isSkillUnlocked(def)) return;
-    var s = (state.skills && state.skills[id]) || {};
-    out.push({
-      id: id, world: world,
-      mastery: s.mastery || 0, attempts: s.totalAttempts || 0,
-      due: typeof isSkillDueForReview === 'function' ? !!isSkillDueForReview(id) : false
-    });
-  });
-  return out;
-}
-
-/**
- * Pick three steps. One per world where possible, in this order of need:
- * due for review, then started but not secure, then brand new.
- */
-function buildTodayPlan() {
-  var perWorld = _todayTrees().map(function (t) { return _todayCandidates(t[0], t[1]); }).filter(function (c) { return c.length; });
-  function need(c) { return c.due ? 0 : (c.attempts > 0 && c.mastery < 80) ? 1 : c.attempts === 0 ? 2 : 3; }
-  var picks = perWorld.map(function (cands) {
-    return cands.slice().sort(function (a, b) { return need(a) - need(b) || a.mastery - b.mastery; })[0];
-  });
-  // Worlds whose best candidate is most needed come first; keep three.
-  picks.sort(function (a, b) { return need(a) - need(b); });
-  picks = picks.slice(0, 3);
-  // End on the newest thing: review first while she is fresh on recall.
-  picks.sort(function (a, b) { return need(a) - need(b); });
-  return picks.map(function (c) {
-    return { id: c.id, world: c.world, kind: c.due ? 'review' : c.attempts === 0 ? 'new' : 'practice', done: false };
-  });
-}
-
-function getTodayPlan() {
-  var t = state.today;
-  if (!t || t.date !== _todayKey() || !t.steps || !t.steps.length) {
-    t = state.today = { date: _todayKey(), steps: buildTodayPlan() };
-  }
-  // Drop steps whose skill no longer exists (a renamed or removed skill).
-  t.steps = t.steps.filter(function (s) { return !!_todaySkill(s.id); });
-  return t;
-}
-
-/** Called when she finishes a session on a skill. */
-function todayMarkDone(skillId) {
-  if (!state.today || state.today.date !== _todayKey()) return;
-  state.today.steps.forEach(function (s) { if (s.id === skillId) s.done = true; });
-}
-
-function todayStart(i) {
-  var plan = getTodayPlan(), step = plan.steps[i];
-  if (!step) return;
-  // Go to the stop on its map, so Back returns her to that chapter.
-  if (typeof bookOpenChapter === 'function') bookOpenChapter(step.world);
-  if (typeof openSkillView === 'function') openSkillView(step.id, step.world);
-  else if (typeof startGame === 'function') startGame(step.id, step.world);
-}
-
-var _TODAY_WORLD = { math: 'Number Harbour', word: 'Word Forest', malay: 'Kampung Melayu', stem: 'Discovery Peak' };
-var _TODAY_KIND = { review: 'a quick review', practice: 'keep going', 'new': 'new today' };
-
-function renderToday() {
-  var area = document.getElementById('today-area');
-  if (!area) return;
-  var plan = getTodayPlan(), steps = plan.steps;
-  var lumi = ''; // Lumi sits just above this card, with her speech bubble.
-  if (!steps.length) { area.innerHTML = ''; return; }
-
-  var next = -1;
-  for (var i = 0; i < steps.length; i++) if (!steps[i].done) { next = i; break; }
-  var allDone = next === -1;
-  var doneCount = steps.filter(function (s) { return s.done; }).length;
-
-  var html = '<section class="today-card" aria-label="Today">' +
-    '<div class="today-head">' + lumi + '<div>' +
-      '<h2 class="today-title">' + (allDone ? 'All three done' : steps.length === 3 ? 'Three small things today' : 'Today') + '</h2>' +
-      '<div class="today-sub">' + (allDone ? 'That is today finished. Anything else is a bonus' : doneCount ? doneCount + ' of ' + steps.length + ' done' : 'About 15 minutes') + '</div>' +
-    '</div></div><ol class="today-steps">';
-  steps.forEach(function (s, i) {
-    var sk = _todaySkill(s.id);
-    var cls = s.done ? 'done' : i === next ? 'now' : '';
-    html += '<li class="' + cls + '"><span class="today-stone">' + (s.done && typeof icon === 'function' ? icon('check') : (i + 1)) + '</span>' +
-      '<button type="button" class="today-step" onclick="todayStart(' + i + ')">' +
-        '<span class="today-step-name">' + sk.def.name + '</span>' +
-        '<span class="today-step-meta">' + _TODAY_WORLD[s.world] + ', ' + (s.done ? 'done' : _TODAY_KIND[s.kind]) + '</span>' +
-      '</button></li>';
-  });
-  html += '</ol>';
-  if (!allDone) html += '<button type="button" class="today-go" onclick="todayStart(' + next + ')">Start step ' + (next + 1) + '</button>';
-  html += '</section>';
-  area.innerHTML = html;
-}
-
-/** "Next: ..." line under each world door. */
-function renderDoorHints() {
-  _todayTrees().forEach(function (t) {
-    var el = document.getElementById('door-next-' + t[0]);
-    if (!el || typeof getRecommendedSkill !== 'function') return;
-    var rec = getRecommendedSkill(t[1]);
-    el.textContent = rec ? 'Next: ' + rec.name : '';
-  });
-}
-
-if (typeof window !== 'undefined') {
-  window.buildTodayPlan = buildTodayPlan; window.getTodayPlan = getTodayPlan; window.todayMarkDone = todayMarkDone;
-  window.todayStart = todayStart; window.renderToday = renderToday; window.renderDoorHints = renderDoorHints;
-}
-
-// --- src/ui/book-scenes.js ---
-// ============================================================
-//  BOOK SCENES — the pictures in the Book of Nasworld.
-// ============================================================
-//
-//  Each chapter opens on a place. These are drawn in code so the book
-//  works today, offline, on any device. They are meant to be replaced:
-//  drop a painted picture at assets/book/<id>.jpg and list its id in
-//  BOOK_PAINTED below, and the book uses that instead.
-//
-//  The pictures are the one place colour is allowed to be rich. The
-//  page around them stays quiet so they read at once.
-
-var BOOK_PAINTED = {};   // e.g. { math: true, cover: true } once painted art exists
-
-function _scn(inner, sky) {
-  return '<svg class="book-scene-svg" viewBox="0 0 400 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
-    '<rect width="400" height="640" fill="' + sky + '"/>' + inner + '</svg>';
-}
-function _cloud(x, y, s) {
-  return '<g fill="#ffffff" opacity="0.85" transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><ellipse cx="0" cy="0" rx="34" ry="13"/><ellipse cx="-16" cy="-9" rx="18" ry="13"/><ellipse cx="12" cy="-13" rx="22" ry="16"/></g>';
-}
-function _palm(x, y, s) {
-  return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><path d="M0 0c4-30 2-62-6-92" fill="none" stroke="#8a6a45" stroke-width="7" stroke-linecap="round"/>' +
-    '<g fill="#3f8a4d"><path d="M-6-92c-22-16-48-12-60 2 22-8 40-6 60-2z"/><path d="M-6-92c22-18 50-14 62 0-22-8-42-6-62 0z"/><path d="M-6-92c-10-26-34-36-52-30 22 2 38 12 52 30z"/><path d="M-6-92c12-26 36-34 54-28-22 2-40 12-54 28z"/><path d="M-6-92c-2-22-2-40 6-52 4 18 2 34-6 52z"/></g>' +
-    '<circle cx="-4" cy="-88" r="4" fill="#6b4f2e"/><circle cx="-11" cy="-86" r="4" fill="#6b4f2e"/></g>';
-}
-function _tree(x, y, s, c) {
-  return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><rect x="-5" y="-30" width="10" height="34" rx="3" fill="#7a5a3a"/>' +
-    '<circle cx="0" cy="-52" r="30" fill="' + c + '"/><circle cx="-22" cy="-36" r="20" fill="' + c + '"/><circle cx="22" cy="-36" r="20" fill="' + c + '"/></g>';
-}
-function _boat(x, y, s, hull, sail) {
-  return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><path d="M-30 0h60l-10 16h-40z" fill="' + hull + '"/><path d="M0-2v-44" stroke="#6b4f2e" stroke-width="3"/><path d="M3-44l24 36H3z" fill="' + sail + '"/><path d="M-3-38l-18 30h18z" fill="#fff6e3"/></g>';
-}
-function _waves(y, c) {
-  var d = '';
-  for (var i = 0; i < 4; i++) { var yy = y + i * 26, x0 = (i % 2) * 30 - 20; d += 'M' + x0 + ' ' + yy; for (var x = x0; x < 420; x += 60) d += 'q15-9 30 0t30 0'; }
-  return '<path d="' + d + '" fill="none" stroke="' + c + '" stroke-width="3" stroke-linecap="round" opacity="0.55"/>';
-}
-function _stilt(x, y, s, wall, roof) {
-  return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><g stroke="#6b4f2e" stroke-width="5" stroke-linecap="round"><path d="M-34 0v26M-12 0v26M12 0v26M34 0v26"/></g>' +
-    '<rect x="-42" y="-44" width="84" height="46" rx="3" fill="' + wall + '"/><path d="M-56-42L0-84l56 42z" fill="' + roof + '"/>' +
-    '<rect x="-8" y="-28" width="16" height="30" rx="2" fill="#6b4f2e"/><rect x="-32" y="-30" width="14" height="14" rx="2" fill="#fff6e3"/><rect x="18" y="-30" width="14" height="14" rx="2" fill="#fff6e3"/>' +
-    '<path d="M0 2l-14 24M0 2l14 24M-9 14h18" stroke="#8a6a45" stroke-width="3" fill="none"/></g>';
-}
-function _flower(x, y, c) {
-  return '<g transform="translate(' + x + ' ' + y + ')"><circle r="16" fill="#3f8a4d"/><g fill="' + c + '"><circle cx="-6" cy="-4" r="5"/><circle cx="6" cy="-5" r="5"/><circle cx="0" cy="5" r="5"/></g><circle r="2.5" fill="#f4c542"/></g>';
-}
-
-var BOOK_SCENES = {
-  // Chapter 1: a harbour, where things are counted, weighed and measured.
-  math: function () {
-    return _scn(
-      _cloud(90, 70, 1) + _cloud(300, 110, 0.8) +
-      '<path d="M0 230c60-40 120-46 180-22s130 16 220-18v60H0z" fill="#9ccbb0"/>' +
-      '<rect y="250" width="400" height="390" fill="#5fb3c9"/><rect y="250" width="400" height="60" fill="#7cc4d6"/>' + _waves(300, '#e9f7fa') + _waves(430, '#e9f7fa') +
-      // lighthouse on a rock
-      '<path d="M270 262c14-22 70-22 88 0z" fill="#8f8a80"/><path d="M302 256l8-96h18l8 96z" fill="#fff6e3"/><path d="M308 190h22l1 18h-24zM305 226h28l1 16h-30z" fill="#d1553f"/>' +
-      '<rect x="304" y="142" width="30" height="18" rx="3" fill="#3d4a55"/><rect x="310" y="146" width="18" height="12" fill="#f4c542"/><path d="M300 142l19-18 19 18z" fill="#d1553f"/>' +
-      _boat(96, 318, 1, '#d1553f', '#f4c542') + _boat(232, 372, 0.850, '#2f6b8a', '#fff6e3') + _boat(330, 452, 0.9, '#3f8a4d', '#f2a06b') +
-      // jetty and beach
-      '<path d="M0 640V520c70-34 150-30 230-10s120 14 170-6v136z" fill="#ecd9a8"/>' +
-      '<g fill="#a07a4f"><rect x="40" y="470" width="150" height="14" rx="3"/><rect x="52" y="484" width="8" height="40"/><rect x="100" y="484" width="8" height="46"/><rect x="150" y="484" width="8" height="40"/></g>' +
-      '<g><rect x="250" y="560" width="34" height="30" rx="3" fill="#c79a5b"/><path d="M250 575h34M267 560v30" stroke="#8a6a45" stroke-width="2"/><rect x="290" y="570" width="26" height="22" rx="3" fill="#b5854a"/></g>' +
-      '<g fill="none" stroke="#3d4a55" stroke-width="2.5" stroke-linecap="round"><path d="M150 150q8-8 16 0q8-8 16 0"/><path d="M200 190q6-6 12 0q6-6 12 0"/></g>',
-      '#cfe9f3');
-  },
-  // Chapter 2: a forest, where words grow.
-  word: function () {
-    return _scn(
-      _cloud(80, 60, 0.9) + _cloud(310, 90, 0.7) +
-      '<path d="M0 220c50-30 110-40 200-20s140 10 200-20v460H0z" fill="#a9d6a0"/>' +
-      _tree(60, 250, 1.3, '#5aa565') + _tree(170, 232, 1.1, '#4b9458') + _tree(330, 250, 1.4, '#5aa565') + _tree(250, 240, 1, '#6bb673') +
-      '<path d="M0 300c80-24 170-20 250 0s110 10 150-10v350H0z" fill="#86c183"/>' +
-      // the big tree and its house
-      '<path d="M186 470c4-70 0-140-10-210h56c-10 70-12 140-8 210z" fill="#7a5a3a"/>' +
-      '<circle cx="204" cy="212" r="74" fill="#3f8a4d"/><circle cx="140" cy="250" r="50" fill="#4b9458"/><circle cx="270" cy="250" r="52" fill="#4b9458"/>' +
-      '<g><rect x="168" y="262" width="76" height="48" rx="4" fill="#e9c98a"/><path d="M158 264l48-36 48 36z" fill="#d1553f"/><rect x="198" y="282" width="16" height="28" rx="2" fill="#7a5a3a"/><circle cx="182" cy="284" r="7" fill="#fff6e3"/><circle cx="230" cy="284" r="7" fill="#fff6e3"/>' +
-      '<path d="M192 310v150M220 310v150" stroke="#8a6a45" stroke-width="4"/><path d="M192 332h28M192 356h28M192 380h28M192 404h28M192 428h28" stroke="#8a6a45" stroke-width="4"/></g>' +
-      // stream and ground
-      '<path d="M0 520c70-20 120 20 200 0s130-24 200 0v120H0z" fill="#74b877"/>' +
-      '<path d="M400 500c-70 6-110 40-160 60s-90 30-110 80h90c20-40 60-56 100-74s60-26 80-30z" fill="#7cc4d6"/>' +
-      '<g><path d="M60 560v-14" stroke="#fff6e3" stroke-width="7" stroke-linecap="round"/><path d="M44 548a16 12 0 0 1 32 0z" fill="#d1553f"/><path d="M96 590v-10" stroke="#fff6e3" stroke-width="6" stroke-linecap="round"/><path d="M84 582a12 9 0 0 1 24 0z" fill="#d1553f"/></g>' +
-      _flower(320, 470, '#f2a06b') + _flower(350, 600, '#f4c542'),
-      '#d7efe6');
-  },
-  // Chapter 3: a kampung, where Bahasa Melayu lives.
-  malay: function () {
-    return _scn(
-      _cloud(110, 70, 1) + _cloud(320, 60, 0.7) +
-      '<path d="M0 240c70-30 150-34 220-14s120 12 180-14v430H0z" fill="#b8dba0"/>' +
-      _palm(50, 300, 1.2) + _palm(350, 290, 1.3) + _palm(210, 250, 0.9) +
-      _stilt(130, 330, 1.3, '#e9c98a', '#9a5b3a') + _stilt(300, 430, 1.1, '#f0d9a6', '#b5653f') +
-      '<path d="M0 480c60-20 130-16 200 4s140 12 200-10v170H0z" fill="#9bcb86"/>' +
-      // padi rows
-      '<g stroke="#6aa85c" stroke-width="4" stroke-linecap="round">' + (function () { var d = ''; for (var r = 0; r < 4; r++) for (var c = 0; c < 9; c++) { var x = 20 + c * 20 + r * 6, y = 540 + r * 24; d += '<path d="M' + x + ' ' + y + 'v-12"/>'; } return d; })() + '</g>' +
-      _flower(240, 540, '#d1553f') + _flower(280, 580, '#d1553f') + _flower(350, 550, '#e56a7a') +
-      // a hen
-      '<g transform="translate(330 610)"><ellipse rx="14" ry="10" fill="#fff6e3"/><circle cx="12" cy="-10" r="7" fill="#fff6e3"/><path d="M18-10l8 2-8 3z" fill="#f2a06b"/><path d="M10-17q3-6 6 0z" fill="#d1553f"/></g>',
-      '#fbe9c8');
-  },
-  // Chapter 4: a peak, where you look closely at the world.
-  stem: function () {
-    return _scn(
-      _cloud(70, 120, 0.9) + _cloud(330, 170, 1) + _cloud(210, 60, 0.6) +
-      '<path d="M0 380l110-150 70 80 60-110 160 180v260H0z" fill="#9bbfb2"/>' +
-      '<path d="M90 640l110-420 110 420z" fill="#7ca894"/><path d="M200 220l-34 130 22-16 14 24 16-22 22 20z" fill="#eef6f2"/>' +
-      // observatory
-      '<g><rect x="176" y="186" width="48" height="38" rx="3" fill="#fff6e3"/><path d="M172 188a28 28 0 0 1 56 0z" fill="#3d6f8a"/><path d="M200 162l22-26" stroke="#3d4a55" stroke-width="7" stroke-linecap="round"/><rect x="194" y="202" width="12" height="22" rx="2" fill="#6b4f2e"/></g>' +
-      '<path d="M0 470c70-30 140-24 210 0s120 16 190-12v182H0z" fill="#86c183"/>' +
-      _tree(50, 500, 1.1, '#4b9458') + _tree(350, 510, 1.2, '#5aa565') + _tree(110, 470, 0.8, '#6bb673') +
-      // a pond and a weather vane
-      '<ellipse cx="270" cy="570" rx="70" ry="22" fill="#7cc4d6"/><ellipse cx="250" cy="566" rx="14" ry="5" fill="#86c183"/>' +
-      '<g transform="translate(120 560)"><path d="M0 0v-70" stroke="#3d4a55" stroke-width="4"/><path d="M-22-70h44M0-92v44" stroke="#3d4a55" stroke-width="3"/><path d="M22-70l-12-7v14z" fill="#d1553f"/></g>' +
-      '<g fill="#f4c542"><circle cx="330" cy="70" r="3"/><circle cx="60" cy="50" r="2.5"/><circle cx="150" cy="96" r="2"/></g>',
-      '#cfe0ee');
-  },
-  // The cover: the whole island at once.
-  cover: function () {
-    return _scn(
-      _cloud(80, 90, 1) + _cloud(320, 130, 0.8) +
-      '<rect y="330" width="400" height="310" fill="#5fb3c9"/>' + _waves(380, '#e9f7fa') + _waves(520, '#e9f7fa') +
-      '<path d="M30 400c20-90 110-150 170-150s150 60 170 150c-60 30-280 30-340 0z" fill="#9bcb86"/>' +
-      '<path d="M20 404c60 34 300 34 360 0 4 14-40 34-180 34S16 418 20 404z" fill="#ecd9a8"/>' +
-      '<path d="M150 400l50-150 50 150z" fill="#7ca894"/><g transform="translate(200 250) scale(0.6)"><rect x="-24" y="-38" width="48" height="38" rx="3" fill="#fff6e3"/><path d="M-28-36a28 28 0 0 1 56 0z" fill="#3d6f8a"/></g>' +
-      _tree(120, 380, 0.7, '#4b9458') + _tree(150, 396, 0.6, '#5aa565') + _palm(300, 400, 0.6) + _stilt(270, 388, 0.450, '#e9c98a', '#9a5b3a') +
-      '<g transform="translate(70 396) scale(0.5)"><path d="M-10 0l6-70h14l6 70z" fill="#fff6e3"/><path d="M-6-40h18l1 14h-20z" fill="#d1553f"/><path d="M-10-70l13-14 13 14z" fill="#d1553f"/></g>' +
-      _boat(60, 470, 0.8, '#d1553f', '#f4c542') + _boat(330, 540, 0.9, '#2f6b8a', '#fff6e3') +
-      '<path d="M90 398c40-20 60 10 100-6s50-30 90-8" fill="none" stroke="#ecd9a8" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 9"/>' +
-      '<g transform="translate(318 214)"><circle r="30" fill="#f4c542"/><circle cx="-11" cy="-4" r="4" fill="#2a2622"/><circle cx="11" cy="-4" r="4" fill="#2a2622"/><path d="M-10 9c5 6 15 6 20 0" fill="none" stroke="#2a2622" stroke-width="3" stroke-linecap="round"/></g>',
-      '#cfe9f3');
-  }
-};
-
-function bookScene(id) {
-  if (BOOK_PAINTED[id]) return '<img class="book-scene-img" src="assets/book/' + id + '.jpg" alt="">';
-  var f = BOOK_SCENES[id];
-  return f ? f() : '';
-}
-
-if (typeof window !== 'undefined') { window.bookScene = bookScene; window.BOOK_SCENES = BOOK_SCENES; window.BOOK_PAINTED = BOOK_PAINTED; }
-
-// --- src/ui/book.js ---
-// ============================================================
-//  THE BOOK OF NASWORLD — home is a storybook of maps.
-// ============================================================
-//
-//  The first redesign made home tidy and gave a seven year old a list
-//  of destinations. A child wants somewhere to go, not a menu. So home
-//  is a book: a cover that opens, a contents page, and chapters. Each
-//  chapter is a place (a harbour, a forest, a kampung, a peak) with a
-//  path through it, and each skill is a stop on that path, in learning
-//  order. She can see how far she has come and what lies ahead.
-//
-//  Today's three steps hang from the book as a ribbon bookmark: one tap
-//  away, without replacing the world.
-//
-//  Nothing here owns progress. Stops read mastery from state.skills and
-//  open the same skill view the old grids did.
-
-var BOOK_CHAPTERS = [
-  { id: 'math',  n: 1, title: 'Number Harbour',  blurb: 'Count, weigh and measure by the sea', tree: function () { return typeof MATH_TREE  !== 'undefined' ? MATH_TREE  : {}; } },
-  { id: 'word',  n: 2, title: 'Word Forest',     blurb: 'Where words and stories grow',        tree: function () { return typeof WORD_TREE  !== 'undefined' ? WORD_TREE  : {}; } },
-  { id: 'malay', n: 3, title: 'Kampung Melayu',  blurb: 'Bahasa Melayu, from home to market',  tree: function () { return typeof MALAY_TREE !== 'undefined' ? MALAY_TREE : {}; } },
-  { id: 'stem',  n: 4, title: 'Discovery Peak',  blurb: 'Look closely at how the world works', tree: function () { return typeof STEM_TREE  !== 'undefined' ? STEM_TREE  : {}; } }
-];
-// The order pages turn in.
-var BOOK_ORDER = ['contents', 'today', 'math', 'word', 'malay', 'stem', 'play', 'board', 'back'];
-var BOOK_TITLES = { contents: 'Contents', today: 'Today\'s page', play: 'The Playground', board: 'The Notice Board', back: 'At the back of the book' };
-
-var bookState = { view: 'cover', part: {} };
-
-function _bookChapter(id) { for (var i = 0; i < BOOK_CHAPTERS.length; i++) if (BOOK_CHAPTERS[i].id === id) return BOOK_CHAPTERS[i]; return null; }
-
-/** A chapter's skills, grouped into parts by the tree's own grade labels, in tree order. */
-function bookParts(ch) {
-  var tree = ch.tree(), parts = [], byName = {};
-  Object.keys(tree).forEach(function (id) {
-    var g = tree[id].grade || 'Stops';
-    if (!byName[g]) { byName[g] = { name: g, stops: [] }; parts.push(byName[g]); }
-    byName[g].stops.push(tree[id]);
-  });
-  return parts;
-}
-
-/** 'done', 'started', 'open', 'locked' or 'checking' for one skill. */
-function bookStopStatus(def) {
-  if (def.awaitingReview) return 'checking';
-  if (typeof isSkillUnlocked === 'function' && !isSkillUnlocked(def)) return 'locked';
-  var s = (state.skills && state.skills[def.id]) || {};
-  if ((s.mastery || 0) >= 80) return 'done';
-  if ((s.totalAttempts || 0) > 0) return 'started';
-  return 'open';
-}
-
-function bookChapterProgress(ch) {
-  var tree = ch.tree(), ids = Object.keys(tree), done = 0;
-  ids.forEach(function (id) { if (bookStopStatus(tree[id]) === 'done') done++; });
-  return { done: done, total: ids.length };
-}
-
-/** Where Lumi stands: the first stop on this part that is open and not yet done. */
-function bookNextStop(stops) {
-  for (var i = 0; i < stops.length; i++) { var st = bookStopStatus(stops[i]); if (st === 'started' || st === 'open') return stops[i].id; }
-  return null;
-}
-
-/** The part she should land on: the first one with something still to do. */
-function bookDefaultPart(ch) {
-  var parts = bookParts(ch);
-  for (var i = 0; i < parts.length; i++) if (bookNextStop(parts[i].stops)) return i;
-  return 0;
-}
-
-/**
- * Lay stops along a path that winds from the bottom of the picture to
- * the top. Returns [{x, y}] in percentages of the scene box.
- */
-function bookPathPoints(n) {
-  var pts = [];
-  for (var i = 0; i < n; i++) {
-    var t = n === 1 ? 0.5 : i / (n - 1);
-    pts.push({ x: 50 + 30 * Math.sin(i * 1.25 + 0.6), y: 90 - t * 78 });
-  }
-  return pts;
-}
-
-function _bookEsc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
-
-// ---------- Views ----------
-
-function _bookCover() {
-  return '<div class="book-cover">' +
-    '<div class="book-cover-art">' + bookScene('cover') + '</div>' +
-    '<div class="book-cover-text"><div class="book-cover-kicker">The Book of</div><h1 class="book-cover-title">Nasworld</h1>' +
-    '<button type="button" class="book-open" onclick="bookGo(\'contents\')">Open the book</button></div></div>';
-}
-
-function _bookContents() {
-  var h = '<div class="book-leaf"><h1 class="book-h1">Contents</h1><ol class="book-toc">';
-  h += '<li><button type="button" class="book-toc-row" onclick="bookGo(\'today\')"><span class="book-toc-n book-toc-ribbon"></span><span class="book-toc-text"><span class="book-toc-title">Today\'s page</span><span class="book-toc-sub" id="book-toc-today"></span></span></button></li>';
-  BOOK_CHAPTERS.forEach(function (ch) {
-    var p = bookChapterProgress(ch);
-    h += '<li><button type="button" class="book-toc-row" onclick="bookGo(\'' + ch.id + '\')">' +
-      '<span class="book-toc-thumb">' + bookScene(ch.id) + '</span>' +
-      '<span class="book-toc-text"><span class="book-toc-kicker">Chapter ' + ch.n + '</span><span class="book-toc-title">' + ch.title + '</span>' +
-      '<span class="book-toc-sub">' + ch.blurb + '</span></span>' +
-      '<span class="book-toc-count">' + p.done + ' of ' + p.total + '</span></button></li>';
-  });
-  [['play', 'Chapter 5', 'The Playground', 'Games, experiments and challenges', 'play'],
-   ['exam', 'Chapter 6', 'The Exam Hall', 'Practice papers, marked with reasons', 'exam'],
-   ['board', '', 'The Notice Board', 'Word of the day, quests and Lumi\'s story', 'star'],
-   ['back', '', 'At the back of the book', 'Your garden, Stasha, the Mirror and more', 'garden']].forEach(function (r) {
-    var go = r[0] === 'exam' ? 'showScreen(\'exam\')' : 'bookGo(\'' + r[0] + '\')';
-    h += '<li><button type="button" class="book-toc-row" onclick="' + go + '"><span class="book-toc-n">' + (typeof icon === 'function' ? icon(r[4]) : '') + '</span>' +
-      '<span class="book-toc-text">' + (r[1] ? '<span class="book-toc-kicker">' + r[1] + '</span>' : '') + '<span class="book-toc-title">' + r[2] + '</span><span class="book-toc-sub">' + r[3] + '</span></span></button></li>';
-  });
-  return h + '</ol></div>';
-}
-
-function _bookChapterView(ch) {
-  var parts = bookParts(ch), prog = bookChapterProgress(ch);
-  if (bookState.part[ch.id] == null || bookState.part[ch.id] >= parts.length) bookState.part[ch.id] = bookDefaultPart(ch);
-  var pi = bookState.part[ch.id], part = parts[pi] || { name: '', stops: [] };
-  var stops = part.stops, pts = bookPathPoints(stops.length), next = bookNextStop(stops);
-  var d = pts.map(function (p, i) { return (i ? 'L' : 'M') + p.x.toFixed(1) + ' ' + p.y.toFixed(1); }).join(' ');
-  var height = Math.max(560, stops.length * 92 + 120);
-
-  var h = '<div class="book-leaf book-chapter"><div class="book-kicker">Chapter ' + ch.n + '</div><h1 class="book-h1">' + ch.title + '</h1>' +
-    '<p class="book-blurb">' + ch.blurb + '. ' + prog.done + ' of ' + prog.total + ' stops finished</p>';
-  if (parts.length > 1) {
-    h += '<div class="book-parts" role="tablist">';
-    parts.forEach(function (p, i) {
-      h += '<button type="button" role="tab" aria-selected="' + (i === pi) + '" class="book-part' + (i === pi ? ' on' : '') + '" onclick="bookSetPart(\'' + ch.id + '\',' + i + ')">' + _bookEsc(p.name) + '</button>';
-    });
-    h += '</div>';
-  }
-  h += '<div class="book-map" style="height:' + height + 'px"><div class="book-map-art">' + bookScene(ch.id) + '</div>' +
-    '<svg class="book-path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="book-path-sand" d="' + d + '"/><path class="book-path-dash" d="' + d + '"/></svg>';
-  stops.forEach(function (def, i) {
-    var st = bookStopStatus(def), p = pts[i], isNext = def.id === next;
-    var open = st !== 'locked' && st !== 'checking';
-    var mark = st === 'done' ? icon('check') : (st === 'locked' || st === 'checking') ? icon('lock') : (i + 1);
-    var note = st === 'checking' ? 'Being checked' : st === 'locked' ? 'Further on' : st === 'done' ? 'Finished' : isNext ? 'You are here' : '';
-    h += '<button type="button" class="book-stop ' + st + (isNext ? ' next' : '') + '" style="left:' + p.x.toFixed(1) + '%;top:' + p.y.toFixed(1) + '%"' +
-      (open ? ' onclick="openSkillView(\'' + def.id + '\',\'' + ch.id + '\')"' : ' disabled') + '>' +
-      (isNext && typeof lumiSvg === 'function' ? '<span class="book-stop-lumi">' + lumiSvg(36) + '</span>' : '') +
-      '<span class="book-stone">' + mark + '</span>' +
-      '<span class="book-stop-label"><span class="book-stop-name">' + _bookEsc(def.name) + '</span>' + (note ? '<span class="book-stop-note">' + note + '</span>' : '') + '</span></button>';
-  });
-  return h + '</div></div>';
-}
-
-// ---------- Rendering and turning pages ----------
-
-function bookRender() {
-  var page = document.getElementById('book-page');
-  if (!page) return;
-  var v = bookState.view, ch = _bookChapter(v), html = '';
-  if (v === 'cover') html = _bookCover();
-  else if (v === 'contents') html = _bookContents();
-  else if (ch) html = _bookChapterView(ch);
-  else html = '<div class="book-leaf"><h1 class="book-h1">' + (BOOK_TITLES[v] || '') + '</h1></div>';
-  page.innerHTML = html;
-
-  // Pages whose content lives in the static markup (today, play, board, back).
-  document.querySelectorAll('.book-static').forEach(function (el) { el.hidden = el.getAttribute('data-view') !== v; });
-  var book = document.getElementById('book');
-  if (book) book.setAttribute('data-view', v);
-
-  var idx = BOOK_ORDER.indexOf(v), nav = document.getElementById('book-nav');
-  if (nav) {
-    nav.hidden = v === 'cover';
-    var prev = idx > 0 ? BOOK_ORDER[idx - 1] : 'cover', next = idx >= 0 && idx < BOOK_ORDER.length - 1 ? BOOK_ORDER[idx + 1] : null;
-    nav.innerHTML = '<button type="button" class="book-turn" onclick="bookGo(\'' + prev + '\')" aria-label="Previous page">' + icon('arrow', 'flip') + '</button>' +
-      '<button type="button" class="book-turn book-turn-mid" onclick="bookGo(\'contents\')">Contents</button>' +
-      (next ? '<button type="button" class="book-turn" onclick="bookGo(\'' + next + '\')" aria-label="Next page">' + icon('arrow') + '</button>' : '<span class="book-turn-gap"></span>');
-  }
-  var ribbon = document.getElementById('book-ribbon');
-  if (ribbon) ribbon.hidden = v === 'cover' || v === 'today';
-
-  var sub = document.getElementById('book-toc-today');
-  if (sub && typeof getTodayPlan === 'function') {
-    var steps = getTodayPlan().steps, done = steps.filter(function (s) { return s.done; }).length;
-    sub.textContent = done === steps.length && steps.length ? 'All done for today' : done + ' of ' + steps.length + ' steps done';
-  }
-}
-
-function bookGo(view) {
-  bookState.view = view;
-  bookRender();
-  var page = document.getElementById('book');
-  if (page && page.classList) { page.classList.remove('turning'); void page.offsetWidth; page.classList.add('turning'); }
-  if (typeof window !== 'undefined' && window.scrollTo) window.scrollTo(0, 0);
-}
-
-function bookSetPart(chId, i) { bookState.part[chId] = i; bookRender(); }
-
-/** Open a chapter from elsewhere (the old world screens redirect here). */
-function bookOpenChapter(chId) { if (_bookChapter(chId)) { bookState.view = chId; } }
-
-if (typeof window !== 'undefined') {
-  window.bookRender = bookRender; window.bookGo = bookGo; window.bookSetPart = bookSetPart; window.bookOpenChapter = bookOpenChapter;
-  window.bookParts = bookParts; window.bookStopStatus = bookStopStatus; window.bookPathPoints = bookPathPoints; window.bookNextStop = bookNextStop;
-}
-
 // --- src/ui/topbar.js ---
 // ============================================================
 //  TOPBAR — Token/streak/level display and updates
 // ============================================================
 
-/** The level name without its emoji: "Sprout", "Seedling", ... */
-function levelLabel(i) {
-  return String(LEVEL_NAMES[i] || 'Sprout').replace(/[^A-Za-z ]/g, '').trim();
-}
-
 function updateUI() {
   document.getElementById('token-count').textContent = state.tokens;
   document.getElementById('streak-count').textContent = state.streak;
   const lvl = clamp(state.level, 1, LEVEL_NAMES.length - 1);
-  document.getElementById('level-text').textContent = levelLabel(lvl);
+  document.getElementById('level-text').textContent = LEVEL_NAMES[lvl] || 'Sprout \uD83C\uDF31';
 
   // Achievement count badge
   var achBadge = document.getElementById('achievement-badge-count');
@@ -34395,7 +33695,7 @@ function updateUI() {
     if (state.tokens >= LEVEL_THRESHOLDS[i] && state.level < i) {
       state.level = i;
       playSound('levelup');
-      document.getElementById('level-text').textContent = levelLabel(i);
+      document.getElementById('level-text').textContent = LEVEL_NAMES[i];
       spawnParticles(window.innerWidth / 2, 50, 12, '\u2728');
       if (typeof lumiReactTo === 'function') {
         lumiReactTo('levelUp');
@@ -35108,10 +34408,6 @@ function updateHomeUI() {
 
   const gardenPct = Math.min(100, (state.garden.length / 50) * 100);
   document.getElementById('garden-progress').style.width = gardenPct + '%';
-
-  // Today first, then the hint under each world door.
-  if (typeof renderToday === 'function') renderToday();
-  if (typeof bookRender === 'function') bookRender();
 
   // Today's seed: a fixed reward, earned by finishing one activity.
   if (typeof renderDailySeed === 'function') renderDailySeed();
@@ -36654,10 +35950,6 @@ let currentGame = {
 
 // === SCREEN MANAGEMENT ===
 function showScreen(screenId) {
-  // The four world grids became chapters of the book. Anything that
-  // still asks for one (a Back button, an old link) lands on its map.
-  var _ch = /^(math|word|stem|malay)-world$/.exec(screenId);
-  if (_ch && typeof bookOpenChapter === 'function') { bookOpenChapter(_ch[1]); screenId = 'home'; }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const screen = document.getElementById('screen-' + screenId);
   if (screen) screen.classList.add('active');
@@ -37094,7 +36386,6 @@ function endGame() {
   const pct = Math.round(correct / total * 100);
   state.sessionsCompleted++;
   if (typeof markDailyEffort === 'function') markDailyEffort();
-  if (typeof todayMarkDone === 'function') todayMarkDone(currentGame.skillId);
 
   // Achievement & quest hooks
   if (typeof checkAchievementsAfterQuiz === 'function') {
@@ -37251,7 +36542,6 @@ function generateQuestion(skillId, worldType, config) {
 async function init() {
   await loadState();
   if (typeof applyLook === 'function') applyLook();
-  if (typeof paintStaticIcons === 'function') paintStaticIcons();
   updateUI();
 
   if (typeof renderVersionBanner === 'function') renderVersionBanner();
