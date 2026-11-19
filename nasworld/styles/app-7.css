@@ -1,139 +1,79 @@
 /* ============================================================
-   Part 7 of the Nasworld stylesheet: tones, the Today-first home,
-   and the last word on anything the older parts left loud.
+   Part 7 of the Nasworld stylesheet: the canvas.
 
-   The look is one neutral ramp per tone, one accent, and Lumi as the
-   single bright thing. No gradients, glows or looping decoration.
-   Tokens are declared in app-1.css (Japandi, the default). The other
-   tones redefine the same names here. Nothing below uses a literal
-   colour except the swatches that preview a tone in Settings.
+   The layout is the original Nasworld: Lumi, the daily rows, the grid
+   of world cards, the grids of skill cards. This file only changes what
+   it is drawn on. Four soft colour schemes in a Japandi and Norwegian
+   spirit, chosen in Settings, and a few rules that keep every screen
+   calm: paper instead of a starfield, no glow, no shouting labels.
+
+   Tokens are declared in app-1.css (Oat and indigo, the default). The
+   other schemes redefine the same names here. Nothing below uses a
+   literal colour except the swatches that preview a scheme in Settings.
    ============================================================ */
 
-:root[data-tone="norwegian"] {
+:root[data-tone="birch"] {
   --bg-deep: #eef1f2; --bg-mid: #dfe6e8; --bg-card: #fbfcfc; --bg-card-hover: #f1f4f5; --bg-rgb: 238,241,242;
   --ink-rgb: 27,39,48; --text-primary: #1b2730; --text-secondary: #485864; --text-dim: #627380;
   --accent: #1f5c7a; --accent-rgb: 31,92,122; --on-accent: #ffffff;
   --good: #2f5d4a; --good-rgb: 47,93,74; --bad: #a8323e; --bad-rgb: 168,50,62; --warn: #8f5410;
+  --gold: #8f5a10; --lavender: #5a5f8f; --sky: #1f5c7a; --teal: #2a6e6a; --pink: #9a3f5c;
 }
-:root[data-tone="garden"] {
-  --bg-deep: #f1f3ea; --bg-mid: #e3e8d8; --bg-card: #fcfcf7; --bg-card-hover: #f3f5ea; --bg-rgb: 241,243,234;
-  --ink-rgb: 31,42,30; --text-primary: #1f2a1e; --text-secondary: #4c5a48; --text-dim: #667461;
-  --accent: #2f6b3c; --accent-rgb: 47,107,60; --on-accent: #ffffff;
-  --good: #1e6a78; --good-rgb: 30,106,120; --bad: #a93656; --bad-rgb: 169,54,86; --warn: #9c4d1b;
+:root[data-tone="sage"] {
+  --bg-deep: #e9ede4; --bg-mid: #dbe1d3; --bg-card: #f6f8f2; --bg-card-hover: #eef1e8; --bg-rgb: 233,237,228;
+  --ink-rgb: 36,44,36; --text-primary: #242c24; --text-secondary: #4f5a4d; --text-dim: #667162;
+  --accent: #4a6b3a; --accent-rgb: 74,107,58; --on-accent: #ffffff;
+  --good: #3f6e4a; --good-rgb: 63,110,74; --bad: #a44a3a; --bad-rgb: 164,74,58; --warn: #84661f;
+  --gold: #84661f; --lavender: #6a5a7d; --sky: #3d6478; --teal: #2f6d62; --pink: #9c4f5f;
 }
-:root[data-tone="night"] {
-  --bg-deep: #0e1220; --bg-mid: #222840; --bg-card: #161b2c; --bg-card-hover: #1c2236; --bg-rgb: 14,18,32;
-  --ink-rgb: 238,240,245; --text-primary: #eef0f5; --text-secondary: #a9afbe; --text-dim: #8990a3;
-  --accent: #f2c94c; --accent-rgb: 242,201,76; --on-accent: #17130a;
-  --good: #7fd1ae; --good-rgb: 127,209,174; --bad: #f2928a; --bad-rgb: 242,146,138; --warn: #f2a06b;
-  --shadow-card: none; --shadow-float: 0 8px 24px rgba(0,0,0,0.4);
-  color-scheme: dark;
+:root[data-tone="blush"] {
+  --bg-deep: #f3e9e3; --bg-mid: #e8dad1; --bg-card: #fbf5f1; --bg-card-hover: #f5ece6; --bg-rgb: 243,233,227;
+  --ink-rgb: 48,36,32; --text-primary: #302420; --text-secondary: #63524a; --text-dim: #7a675e;
+  --accent: #a24e33; --accent-rgb: 162,78,51; --on-accent: #ffffff;
+  --good: #55702f; --good-rgb: 85,112,47; --bad: #a53b3b; --bad-rgb: 165,59,59; --warn: #8a6220;
+  --gold: #8a6220; --lavender: #74527a; --sky: #44627a; --teal: #5f6b2c; --pink: #a04a63;
 }
 
-/* ---------- Ground ---------- */
+/* ---------- The canvas ---------- */
 html { background: var(--bg-deep); }
-body { background: var(--bg-deep); color: var(--text-primary); font-size: 17px; line-height: 1.5; }
+body { background: var(--bg-deep); color: var(--text-primary); }
 .starfield { display: none; }
-.app-container, .main-content { background: transparent; }
 button { font-family: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-h1, h2, h3 { font-weight: 600; }
+[class] { text-transform: none; letter-spacing: 0; }
+.settings-input, input[type="text"], input[type="number"], input[type="password"], textarea, select {
+  background: var(--bg-card); color: var(--text-primary); border: 1px solid rgba(var(--ink-rgb),0.22); }
 
-/* One drawn icon set, in the colour of the text beside it. */
-.ico { width: 1.4em; height: 1.4em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; vertical-align: -0.3em; }
-[data-icon] { display: inline-flex; align-items: center; justify-content: center; }
+/* Cards sit on the paper with a hairline, not a glow. */
+.top-bar { background: var(--bg-deep); border-bottom: 1px solid rgba(var(--ink-rgb),0.08); box-shadow: none; }
+.world-card, .activity-card, .challenge-card, .settings-card {
+  background: var(--bg-card); border: 1px solid rgba(var(--ink-rgb),0.10); box-shadow: var(--shadow-card); }
+.world-card:hover, .activity-card:hover:not(.locked), .challenge-card:hover { background: var(--bg-card-hover); box-shadow: var(--shadow-card); }
 
-/* ---------- Top bar: quiet ---------- */
-.top-bar { background: var(--bg-deep); border-bottom: 1px solid rgba(var(--ink-rgb),0.08); box-shadow: none; padding: 8px 16px; gap: 8px; }
-.home-btn, .level-display, .streak-display, .token-display, .trophy-btn {
-  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px;
-  background: transparent; border: 1px solid rgba(var(--ink-rgb),0.10); border-radius: var(--radius-md);
-  color: var(--text-secondary); font-family: var(--font-display); font-size: 15px; font-weight: 500; box-shadow: none;
-  font-variant-numeric: tabular-nums;
-}
-.home-btn, .trophy-btn { cursor: pointer; color: var(--text-primary); min-height: 44px; }
-.home-btn:hover, .trophy-btn:hover { background: var(--bg-mid); transform: none; }
-.level-display { border-color: transparent; padding: 0 4px; }
-.trophy-count { color: inherit; background: none; font-size: inherit; }
+/* Lumi stays the one bright thing: her own yellow, in every scheme. */
+.lumi-body { background: var(--lumi); }
+.lumi-eye, .lumi-mouth { --bg-deep: #2a2622; }
+.lumi-sparkle { color: var(--lumi); }
 
-/* ---------- Home ---------- */
-#screen-home { max-width: 720px; margin: 0 auto; }
-.home-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 8px 0 16px; }
-.home-title { font-family: var(--font-display); font-size: 28px; font-weight: 600; line-height: 1.1; margin: 0; color: var(--text-primary); letter-spacing: 0; }
-.home-date { color: var(--text-dim); font-size: 15px; }
-.home-section { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 32px 0 12px; text-align: left; }
+/* The original gave each world a colour. Here it is as a soft top edge
+   and a matching progress bar, on the same paper card. */
+.world-card { border-top-width: 4px; }
+.world-card.math { border-top-color: var(--sky); }         .world-card.math .world-card-progress-fill { background: var(--sky); }
+.world-card.literacy { border-top-color: var(--pink); }    .world-card.literacy .world-card-progress-fill { background: var(--pink); }
+.world-card.stem, .world-card.sim-hub { border-top-color: var(--teal); } .world-card.stem .world-card-progress-fill { background: var(--teal); }
+.world-card.malay { border-top-color: var(--coral); }      .world-card.malay .world-card-progress-fill { background: var(--coral); }
+.world-card.garden { border-top-color: var(--mint); }      .world-card.garden .world-card-progress-fill { background: var(--mint); }
+.world-card.mega, .world-card.mirror, .world-card.stasha { border-top-color: var(--lavender); } .world-card.mega .world-card-progress-fill { background: var(--lavender); }
+.world-card.play-tile, .world-card.practice-tile, .world-card.exam-tile-card, .world-card.compass, .world-card.strategies { border-top-color: var(--gold); }
+.world-card.settings-tile { border-top-color: rgba(var(--ink-rgb),0.25); }
+.world-card-progress { background: var(--bg-mid); }
+.home-title { color: var(--text-primary); }
+.version-banner { background: var(--bg-mid); color: var(--text-secondary); box-shadow: none; }
 
-/* Lumi: flat, and the only bright thing on the screen. */
-.lumi-container { display: flex; flex-direction: row; align-items: center; gap: 16px; margin: 0 0 16px; text-align: left; }
-.lumi { width: 64px; height: 64px; flex: none; }
-.lumi:hover { transform: none; }
-.lumi-body { width: 64px; height: 64px; top: 0; left: 0; background: var(--lumi); box-shadow: none; }
-.lumi-eye { width: 8px; height: 9px; top: 24px; background: #2a2622; }
-.lumi-eye.left { left: 19px; } .lumi-eye.right { left: 37px; }
-.lumi-eye::after { display: none; }
-.lumi-mouth { width: 16px; height: 8px; top: 36px; left: 24px; border-bottom: 2.5px solid #2a2622; }
-.lumi-blush, .lumi-sparkle { display: none; }
-.lumi-speech { flex: 1; margin: 0; padding: 12px 16px; background: var(--bg-card); border: 1px solid rgba(var(--ink-rgb),0.09);
-  border-radius: var(--radius-lg); border-bottom-left-radius: 4px; color: var(--text-primary); font-family: var(--font-body); font-size: 16px; text-align: left; max-width: none; }
-.lumi-speech::before, .lumi-speech::after { display: none; }
-
-/* Today: the stepping-stone path is the one signature detail. */
-.today-card { background: var(--bg-card); border: 1px solid rgba(var(--ink-rgb),0.09); border-radius: var(--radius-lg); padding: 20px; display: grid; gap: 20px; }
-.today-title { font-family: var(--font-display); font-size: 24px; font-weight: 600; line-height: 1.15; margin: 0; }
-.today-sub { color: var(--text-secondary); font-size: 16px; }
-.today-steps { list-style: none; margin: 0; padding: 0; display: grid; }
-.today-steps li { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; padding-bottom: 12px; position: relative; align-items: start; }
-.today-steps li:last-child { padding-bottom: 0; }
-.today-steps li::before { content: ""; position: absolute; left: 17px; top: 40px; bottom: 4px; border-left: 2px dashed rgba(var(--ink-rgb),0.28); }
-.today-steps li:last-child::before { display: none; }
-.today-stone { width: 36px; height: 32px; margin-top: 8px; border-radius: 46% 54% 50% 50% / 56% 52% 48% 44%; background: var(--bg-mid);
-  display: grid; place-items: center; font: 600 15px var(--font-display); color: var(--text-secondary); }
-.today-stone .ico { width: 18px; height: 18px; stroke-width: 3; }
-.today-steps .done .today-stone { background: var(--accent); color: var(--on-accent); }
-.today-steps .now .today-stone { box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--accent); color: var(--text-primary); }
-.today-step { display: grid; text-align: left; min-height: 48px; padding: 4px 8px; margin: 0 -8px; background: none; border: 0; border-radius: var(--radius-md); color: inherit; cursor: pointer; align-content: center; }
-.today-step:hover { background: var(--bg-mid); }
-.today-step-name { font-family: var(--font-body); font-size: 17px; font-weight: 700; }
-.today-steps .done .today-step-name { font-weight: 400; color: var(--text-secondary); }
-.today-step-meta { color: var(--text-dim); font-size: 14px; }
-.today-go { justify-self: start; min-height: 48px; padding: 0 24px; border: 0; border-radius: var(--radius-md); background: var(--accent); color: var(--on-accent);
-  font: 600 17px var(--font-display); cursor: pointer; transition: transform .15s var(--ease); }
-.today-go:active { transform: scale(0.98); }
-
-/* World doors */
-.doors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.door { display: grid; gap: 8px; text-align: left; padding: 16px; min-width: 0; background: var(--bg-card); border: 1px solid rgba(var(--ink-rgb),0.09);
-  border-radius: var(--radius-lg); color: var(--text-primary); cursor: pointer; transition: background-color .15s; }
-.door:hover { background: var(--bg-card-hover); }
-.door-ico, .more-ico { width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--bg-mid); color: var(--text-primary); }
-.door-ico .ico, .more-ico .ico { width: 28px; height: 28px; }
-.door-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; }
-.door-next { color: var(--text-dim); font-size: 14px; min-height: 21px; }
-.door-bar, .more-bar { display: block; height: 4px; border-radius: 2px; background: var(--bg-mid); overflow: hidden; }
-.door-bar-fill, .more-bar-fill { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
-
-/* Everything else: compact rows, icons in one column. */
-.more-list { display: grid; gap: 4px; }
-.more-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; text-align: left; min-height: 60px; padding: 8px;
-  background: none; border: 0; border-radius: var(--radius-lg); color: var(--text-primary); cursor: pointer; transition: background-color .15s; }
-.more-row:hover { background: var(--bg-card); }
-.more-text { display: grid; }
-.more-title { font-family: var(--font-display); font-size: 17px; font-weight: 500; }
-.more-desc { color: var(--text-dim); font-size: 14px; }
-.more-bar { width: 64px; }
-
-.home-foot { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; }
-.foot-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; background: none; border: 1px solid rgba(var(--ink-rgb),0.14);
-  border-radius: var(--radius-md); color: var(--text-secondary); font: 500 15px var(--font-display); cursor: pointer; }
-.foot-btn:hover { background: var(--bg-card); color: var(--text-primary); }
-.version-banner { background: none; color: var(--text-dim); box-shadow: none; font: 400 13px var(--font-body); text-align: left; padding: 0; margin: 16px 0 0; border-radius: 0; }
-
-/* Today's seed, word of the day, quests: one quiet row style. */
-.daily-seed-banner { margin: 12px 0 0; padding: 12px 16px; border-radius: var(--radius-lg); background: none; border: 1px dashed rgba(var(--ink-rgb),0.22); }
+/* Today's seed */
+.daily-seed-banner { background: var(--bg-card); border: 1px dashed rgba(var(--ink-rgb),0.22); }
 .daily-seed-banner.ready { border-style: solid; border-color: var(--accent); background: rgba(var(--accent-rgb),0.07); }
-.daily-seed-title { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--text-primary); }
-.daily-seed-desc { font-size: 14px; color: var(--text-dim); }
-.wotd-banner { margin-top: 24px; }
+.daily-seed-title { color: var(--text-primary); }
 
 /* ---------- Look choices in Settings ---------- */
 .look-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
@@ -145,158 +85,12 @@ h1, h2, h3 { font-weight: 600; }
 .look-note { color: var(--text-dim); font-size: 13px; }
 .look-sample { font-size: 22px; line-height: 1; width: 52px; flex: none; }
 .look-swatch { display: flex; flex: none; border-radius: 6px; overflow: hidden; border: 1px solid rgba(var(--ink-rgb),0.15); }
-.look-swatch i { width: 14px; height: 28px; display: block; }
-/* The only literal colours in this file: each swatch shows its own tone. */
-.look-swatch[data-tone="japandi"] i:nth-child(1) { background: #efebe3; } .look-swatch[data-tone="japandi"] i:nth-child(2) { background: #2a2622; } .look-swatch[data-tone="japandi"] i:nth-child(3) { background: #2f4b6e; }
-.look-swatch[data-tone="norwegian"] i:nth-child(1) { background: #eef1f2; } .look-swatch[data-tone="norwegian"] i:nth-child(2) { background: #1b2730; } .look-swatch[data-tone="norwegian"] i:nth-child(3) { background: #1f5c7a; }
-.look-swatch[data-tone="garden"] i:nth-child(1) { background: #f1f3ea; } .look-swatch[data-tone="garden"] i:nth-child(2) { background: #1f2a1e; } .look-swatch[data-tone="garden"] i:nth-child(3) { background: #2f6b3c; }
-.look-swatch[data-tone="night"] i:nth-child(1) { background: #0e1220; } .look-swatch[data-tone="night"] i:nth-child(2) { background: #eef0f5; } .look-swatch[data-tone="night"] i:nth-child(3) { background: #f2c94c; }
+.look-swatch i { width: 12px; height: 28px; display: block; }
+/* The only literal colours in this file: each swatch shows its own scheme. */
+.look-swatch[data-tone="oat"] i:nth-child(1) { background: #efebe3; } .look-swatch[data-tone="oat"] i:nth-child(2) { background: #2f4b6e; } .look-swatch[data-tone="oat"] i:nth-child(3) { background: #47703f; } .look-swatch[data-tone="oat"] i:nth-child(4) { background: #a8472f; }
+.look-swatch[data-tone="birch"] i:nth-child(1) { background: #eef1f2; } .look-swatch[data-tone="birch"] i:nth-child(2) { background: #1f5c7a; } .look-swatch[data-tone="birch"] i:nth-child(3) { background: #2f5d4a; } .look-swatch[data-tone="birch"] i:nth-child(4) { background: #a8323e; }
+.look-swatch[data-tone="sage"] i:nth-child(1) { background: #e9ede4; } .look-swatch[data-tone="sage"] i:nth-child(2) { background: #4a6b3a; } .look-swatch[data-tone="sage"] i:nth-child(3) { background: #84661f; } .look-swatch[data-tone="sage"] i:nth-child(4) { background: #9c4f5f; }
+.look-swatch[data-tone="blush"] i:nth-child(1) { background: #f3e9e3; } .look-swatch[data-tone="blush"] i:nth-child(2) { background: #a24e33; } .look-swatch[data-tone="blush"] i:nth-child(3) { background: #74527a; } .look-swatch[data-tone="blush"] i:nth-child(4) { background: #5f6b2c; }
 
-/* ---------- Across every screen: quiet the leftovers ---------- */
-[class] { text-transform: none; letter-spacing: 0; }
-.settings-input, input[type="text"], input[type="number"], input[type="password"], textarea, select {
-  background: var(--bg-card); color: var(--text-primary); border: 1px solid rgba(var(--ink-rgb),0.22); }
-.world-card, .activity-card, .challenge-card, .settings-card, .mirror-tile { box-shadow: none; }
-.world-card:hover, .activity-card:hover, .challenge-card:hover { transform: none; box-shadow: none; }
-.back-btn { min-height: 44px; }
-.grade-label { text-transform: none; letter-spacing: 0; }
-
-@media (max-width: 420px) {
-  .look-choices { grid-template-columns: minmax(0, 1fr); }
-  .home-date { font-size: 14px; }
-  .top-bar { padding: 8px 12px; gap: 4px; }
-  .level-display { display: none; }
-}
+@media (max-width: 420px) { .look-choices { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
-
-/* ============================================================
-   The Book of Nasworld. Home is a storybook of maps: a cover, a
-   contents page, and chapters that each open on a place with a
-   path of stops through it. See src/ui/book.js.
-
-   The pictures carry the colour. The page around them is paper.
-   ============================================================ */
-#screen-home { max-width: 760px; }
-.book [hidden] { display: none !important; }
-.book { position: relative; background: var(--bg-card); border: 1px solid rgba(var(--ink-rgb),0.12); border-radius: 8px 20px 20px 8px;
-  /* the edges of the pages underneath, and the spine */
-  box-shadow: 4px 0 0 -1px var(--bg-card), 4px 0 0 0 rgba(var(--ink-rgb),0.12), 8px 0 0 -1px var(--bg-card), 8px 0 0 0 rgba(var(--ink-rgb),0.10), inset 10px 0 0 -6px rgba(var(--ink-rgb),0.10);
-  margin: 8px 12px 24px 0; min-height: 70vh; display: flex; flex-direction: column; }
-.book.turning #book-page, .book.turning .book-static:not([hidden]) { animation: book-turn .38s var(--ease) both; transform-origin: left center; }
-@keyframes book-turn { from { opacity: 0; transform: perspective(1200px) rotateY(-9deg) translateX(8px); } to { opacity: 1; transform: none; } }
-.book-leaf { padding: 24px 24px 8px 32px; }
-.book-static.book-leaf { padding-top: 0; }
-.book-kicker, .book-toc-kicker, .book-cover-kicker { font-family: var(--font-display); font-size: 15px; font-weight: 500; color: var(--text-dim); }
-.book-h1 { font-family: var(--font-display); font-size: 32px; font-weight: 600; line-height: 1.1; margin: 0 0 8px; color: var(--text-primary); text-wrap: balance; }
-.book-blurb { color: var(--text-secondary); font-size: 16px; margin: 0 0 16px; }
-
-/* The ribbon bookmark: Today is always one tap away. */
-.book-ribbon { position: absolute; top: -1px; right: 32px; z-index: 5; width: 64px; padding: 12px 0 24px; border: 0; cursor: pointer;
-  background: var(--accent); color: var(--on-accent); font: 600 15px var(--font-display);
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 14px), 0 100%); transition: padding .15s var(--ease); }
-.book-ribbon:hover { padding-bottom: 30px; }
-
-.book-turn:active, .book-stop:not([disabled]):active .book-stone { transform: scale(0.97); }
-.book-scene-svg, .book-scene-img { display: block; width: 100%; height: 100%; object-fit: cover; }
-
-/* Chapter: parts, then the map */
-.book-parts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
-.book-part { min-height: 44px; padding: 0 16px; border: 1px solid rgba(var(--ink-rgb),0.16); border-radius: var(--radius-md); background: none; color: var(--text-secondary); font: 500 15px var(--font-display); cursor: pointer; }
-.book-part.on { background: var(--text-primary); border-color: var(--text-primary); color: var(--bg-card); }
-.book-map { position: relative; border-radius: 16px; overflow: hidden; margin: 0 -8px 8px -16px; }
-.book-map-art { position: absolute; inset: 0; }
-.book-path { position: absolute; inset: 0; width: 100%; height: 100%; }
-.book-path path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; }
-.book-path-sand { stroke: #f3e2b6; stroke-width: 26; opacity: 0.92; }
-.book-path-dash { stroke: #a8895a; stroke-width: 3; stroke-dasharray: 2 10; }
-.book-stop { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 4px; padding: 0; background: none; border: 0; cursor: pointer; width: 132px; color: #2a2622; }
-.book-stop[disabled] { cursor: default; }
-.book-stone { width: 52px; height: 46px; border-radius: 46% 54% 50% 50% / 56% 52% 48% 44%; background: #fffaf0; border: 2px solid #2a2622; display: grid; place-items: center;
-  font: 600 19px var(--font-display); color: #2a2622; transition: transform .15s var(--ease); }
-.book-stone .ico { width: 22px; height: 22px; stroke-width: 2.6; }
-.book-stop.done .book-stone { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-.book-stop.started .book-stone { background: #fff1c4; }
-.book-stop.next .book-stone { width: 60px; height: 52px; box-shadow: 0 0 0 4px #fffaf0, 0 0 0 7px var(--accent); }
-.book-stop.locked .book-stone, .book-stop.checking .book-stone { background: #e6e0d4; border-color: #8a8378; color: #6b655c; }
-.book-stop-label { display: grid; justify-items: center; background: #fffaf0; border-radius: 10px; padding: 2px 8px; max-width: 132px; }
-.book-stop-name { font: 700 14px/1.25 var(--font-body); text-align: center; color: #2a2622; }
-.book-stop-note { font: 400 12.5px/1.3 var(--font-body); color: #5c544a; }
-.book-stop.locked .book-stop-name, .book-stop.checking .book-stop-name { font-weight: 400; color: #5c544a; }
-.book-stop-lumi { position: absolute; top: -30px; left: 50%; margin-left: 14px; }
-
-/* Turning pages */
-.book-nav { display: grid; grid-template-columns: 56px 1fr 56px; gap: 8px; align-items: center; padding: 16px 24px 20px 32px; margin-top: auto; }
-.book-turn { min-height: 48px; border: 1px solid rgba(var(--ink-rgb),0.16); border-radius: var(--radius-md); background: none; color: var(--text-primary); font: 500 16px var(--font-display); cursor: pointer; display: grid; place-items: center; }
-.book-turn:hover { background: var(--bg-mid); }
-.book-turn-mid { justify-self: center; padding: 0 24px; border-color: transparent; color: var(--text-secondary); }
-.ico.flip { transform: scaleX(-1); }
-.book .home-section { margin-top: 24px; }
-.book .lumi-speech { background: var(--bg-mid); }
-.book .today-card { background: none; border: 0; padding: 0; margin-top: 8px; }
-
-@media (max-width: 480px) {
-  .book { margin-right: 8px; border-radius: 6px 14px 14px 6px; }
-  .book-leaf { padding: 20px 14px 8px 20px; }
-  .book-nav { padding: 12px 14px 16px 20px; }
-  .book-h1 { font-size: 26px; }
-  .book-cover-title { font-size: 44px; }
-  .book-cover-art { margin: 16px 14px 0 20px; }
-  .book-cover-text { padding: 20px 14px 24px 20px; }
-  .book-toc-row { grid-template-columns: 56px minmax(0, 1fr) auto; gap: 12px; }
-  .book-toc-thumb, .book-toc-n { width: 56px; height: 48px; }
-  .book-toc-title { font-size: 18px; }
-  .book-map { margin: 0 -6px 8px -10px; }
-  .book-stop { width: 112px; } .book-stop-label { max-width: 112px; } .book-stop-name { font-size: 13px; }
-  .book-ribbon { right: 20px; width: 56px; }
-}
-@media (prefers-reduced-motion: reduce) { .book.turning #book-page, .book.turning .book-static:not([hidden]) { animation: none; } }
-
-/* ============================================================
-   The main page: the original's big picture cards, with Lumi front
-   and centre and the daily things in view. Colour is back, as flat
-   colour: each card owns one (--card-c), with no gradient or glow.
-   ============================================================ */
-[hidden] { display: none !important; }
-.home-hero { display: grid; justify-items: center; gap: 4px; margin: 4px 0 20px; }
-.home-hero .home-title { font-size: 36px; }
-.home-hero .lumi-container { flex-direction: column; gap: 12px; margin: 0; }
-.home-hero .lumi { width: 112px; height: 112px; }
-.home-hero .lumi-body { width: 112px; height: 112px; }
-.home-hero .lumi-eye { width: 13px; height: 15px; top: 42px; } .home-hero .lumi-eye.left { left: 33px; } .home-hero .lumi-eye.right { left: 66px; }
-.home-hero .lumi-mouth { width: 28px; height: 13px; top: 64px; left: 42px; border-bottom-width: 4px; }
-.home-hero .lumi-speech { text-align: center; border-radius: var(--radius-lg); border-top-left-radius: var(--radius-lg); border-bottom-left-radius: var(--radius-lg); font-size: 18px; padding: 12px 20px; max-width: 520px; }
-
-.pcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-.pcards-chapters { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.pcard { display: grid; grid-template-rows: auto 1fr; text-align: left; padding: 0; overflow: hidden; cursor: pointer; min-width: 0;
-  background: var(--bg-card); color: var(--text-primary); border: 2px solid var(--card-c); border-radius: var(--radius-lg); transition: transform .15s var(--ease); }
-.pcard:active { transform: scale(0.98); }
-.pcard-art { display: block; height: 96px; background: var(--card-c); color: #ffffff; }
-.pcard-art-icon { display: grid; place-items: center; }
-.pcard-art-icon .ico { width: 52px; height: 52px; stroke-width: 1.6; }
-.pcard-chapter .pcard-art { height: 190px; }
-.pcard-body { display: grid; gap: 2px; padding: 12px 14px 14px; align-content: start; }
-.pcard-kicker { font: 600 14px var(--font-display); color: var(--card-c); }
-.pcard-title { font: 600 19px/1.2 var(--font-display); }
-.pcard-chapter .pcard-title { font-size: 23px; }
-.pcard-desc { color: var(--text-dim); font-size: 14px; line-height: 1.35; }
-.pcard-progress { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-.pcard-bar { flex: 1; height: 8px; border-radius: 4px; background: var(--bg-mid); overflow: hidden; }
-.pcard-bar-fill { display: block; height: 100%; background: var(--card-c); border-radius: 4px; }
-.pcard-count { font: 500 14px var(--font-display); color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
-/* In the Night tone the card colours need lifting to read on a dark page. */
-:root[data-tone="night"] .pcard-kicker { color: var(--text-secondary); }
-
-#home-main .today-card { border: 2px solid var(--accent); }
-.book .book-kicker { color: var(--accent); font-weight: 600; }
-.book-chapter .book-h1 { color: var(--text-primary); }
-
-@media (max-width: 480px) {
-  .pcards-chapters { gap: 10px; }
-  .pcard-chapter .pcard-art { height: 120px; }
-  .pcard-chapter .pcard-title { font-size: 18px; }
-  .pcard-art { height: 76px; } .pcard-art-icon .ico { width: 40px; height: 40px; }
-  .pcard-body { padding: 10px 10px 12px; }
-  .pcard-title { font-size: 16px; } .pcard-desc { font-size: 13px; }
-  .home-hero .home-title { font-size: 30px; }
-}

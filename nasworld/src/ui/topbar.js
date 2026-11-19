@@ -2,16 +2,11 @@
 //  TOPBAR — Token/streak/level display and updates
 // ============================================================
 
-/** The level name without its emoji: "Sprout", "Seedling", ... */
-function levelLabel(i) {
-  return String(LEVEL_NAMES[i] || 'Sprout').replace(/[^A-Za-z ]/g, '').trim();
-}
-
 function updateUI() {
   document.getElementById('token-count').textContent = state.tokens;
   document.getElementById('streak-count').textContent = state.streak;
   const lvl = clamp(state.level, 1, LEVEL_NAMES.length - 1);
-  document.getElementById('level-text').textContent = levelLabel(lvl);
+  document.getElementById('level-text').textContent = LEVEL_NAMES[lvl] || 'Sprout \uD83C\uDF31';
 
   // Achievement count badge
   var achBadge = document.getElementById('achievement-badge-count');
@@ -24,7 +19,7 @@ function updateUI() {
     if (state.tokens >= LEVEL_THRESHOLDS[i] && state.level < i) {
       state.level = i;
       playSound('levelup');
-      document.getElementById('level-text').textContent = levelLabel(i);
+      document.getElementById('level-text').textContent = LEVEL_NAMES[i];
       spawnParticles(window.innerWidth / 2, 50, 12, '\u2728');
       if (typeof lumiReactTo === 'function') {
         lumiReactTo('levelUp');

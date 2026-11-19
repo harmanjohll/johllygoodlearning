@@ -11,6 +11,44 @@ progress needs migrating, so the two move independently.
 
 ---
 
+## v4.3 — Paper and Ink (2026-11-19)
+
+Three layouts were tried in v4.0 to v4.2 (a tidy list, a book of maps,
+a blend). None was liked. This release stops moving the furniture.
+
+### Changed
+- **The layout is the original Nasworld again**, exactly: Lumi, the
+  daily rows, the grid of fifteen world cards, the treats, the week, the
+  challenges, and the grids of skill cards inside each world. The
+  original emoji are back, and so is the original top bar.
+- **Only the canvas is new.** Paper in place of the purple starfield, a
+  hairline in place of glow, and no gradients or looping sparkle.
+- **Four soft colour schemes, chosen in Settings:** Oat and indigo
+  (Japandi, the default), Birch and fjord (Norwegian), Sage and stone,
+  Blush and clay. Each world card keeps a colour of its own, as a soft
+  top edge and a matching progress bar.
+- **Typefaces, chosen in Settings.** Titles: Fredoka (default), Zen Maru
+  Gothic, Baloo 2, Fraunces. Reading: Andika (default), Lexend, Atkinson
+  Hyperlegible, Nunito.
+
+### Removed
+- The book, its maps and paths, the Today plan, the picture cards and
+  the drawn icon set from v4.0 to v4.2. Their code is deleted, not
+  hidden. The Garden island and Night tones are replaced by the four
+  schemes above.
+
+### Kept from earlier releases
+- All the Primary 2 content (v3.3), Today's seed in place of the Lucky
+  Spin, and celebrations at streaks of 5, 10, 15 and 20.
+
+### Fixed
+- The world cards would have shown blank. A faint wash drawn over each
+  card became a solid sheet once gradients were removed, and it covered
+  the card's contents. A test now fails if any overlay does this.
+
+### Infrastructure
+- 406 tests in eleven suites.
+
 ## v4.2 — Cards and Maps (2026-11-15)
 
 A blend of the original home and the book. The book's cover and
