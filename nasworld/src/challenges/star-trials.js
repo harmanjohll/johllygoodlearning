@@ -73,7 +73,7 @@ function renderStarTrialCards(flowerCount) {
     var completed = state.starTrials && state.starTrials[trial.id];
     var bestScore = completed ? state.starTrials[trial.id].best : 0;
 
-    html += '<div class="activity-card ' + (unlocked ? '' : 'locked') + '" ' +
+    html += '<div class="activity-card ' + (unlocked ? '' : 'locked') + '" data-need="' + trial.unlockFlowers + '" data-done="' + (completed ? 1 : 0) + '" ' +
       (unlocked ? 'onclick="startStarTrial(\'' + trial.id + '\')"' : '') + '>';
     html += '<span class="activity-card-icon">' + trial.icon + '</span>';
     html += '<div class="activity-card-name">' + trial.name + '</div>';

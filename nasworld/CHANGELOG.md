@@ -11,6 +11,39 @@ progress needs migrating, so the two move independently.
 
 ---
 
+## v4.4 — Streamlined (2026-11-19)
+
+The same layout with fewer separate pieces. Home is about 40% shorter.
+Nothing was removed; some things are one tap further in.
+
+### Changed
+- **Fifteen world cards become eight.** The four subject worlds come
+  first, then Play, and three grouped cards:
+  - **Practice and Exams** holds Practice and Exam Prep.
+  - **My Corner** holds My Garden, Stasha, her level and trophies, and
+    Lumi's story.
+  - **My Learning** holds Compass, Mirror, Smart Tricks and Mega Map.
+  - The STEM Lab is now inside STEM World.
+  - Settings joins the timer and family digest at the foot of the page.
+- **One Today panel** replaces five separate rows: word of the day,
+  Today's seed, the daily quest and the weekly challenge.
+- **The next three challenges** show, not all twelve: ones she can play
+  come first, then the ones she is closest to unlocking. "See all 12
+  challenges" opens the rest.
+- **Idiom, quote and the week** sit in one strip.
+- The top bar shows streak and stars. Level and trophies moved to My
+  Corner.
+- The version line moved from the top of the page to the foot, and the
+  subtitle under the title is gone.
+
+### Fixed
+- Word of the day appeared twice on home. It appears once.
+
+### Infrastructure
+- 410 tests in eleven suites. New checks: nothing lost in the
+  consolidation, and every element the page scripts write to still
+  exists exactly once.
+
 ## v4.3 — Paper and Ink (2026-11-19)
 
 Three layouts were tried in v4.0 to v4.2 (a tidy list, a book of maps,
